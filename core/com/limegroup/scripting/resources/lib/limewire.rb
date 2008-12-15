@@ -1,6 +1,7 @@
 import 'org.limewire.geocode.Geocoder'
 import 'com.limegroup.gnutella.URN'
 import 'com.limegroup.gnutella.metadata.MetaDataFactoryImpl'
+import 'org.limewire.io.GUID'
 
 module Limewire
 
@@ -21,14 +22,16 @@ module Limewire
       
   module Search
     def self.new
-      Limewire.core.search_services.newQueryGUID
+      GUID.new(Limewire.core.search_services.newQueryGUID).to_s
     end
 
     def self.query(guid, str)
+      guid = GUID.new(guid).bytes
       Limewire.core.search_services.query(guid, str.slice(0,29))
     end
 
     def self.stop(guid)
+      guid = GUID.new(guid).bytes
       Limewire.core.search_services.stopQuery(guid)
     end
 
