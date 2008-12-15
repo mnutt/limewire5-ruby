@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import org.apache.bsf.BSFException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -156,7 +155,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
             try {
                 entity = reval.eval(core, request);
                 response.setEntity(entity);
-            } catch (BSFException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

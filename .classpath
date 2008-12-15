@@ -144,7 +144,7 @@
 	<classpathentry kind="lib" path="lib/jars/httpcore-nio-4.0-beta2.jar" sourcepath="lib/sources/httpcore-nio-4.0-beta2-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/swing-worker-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jars/swingx-0.9.4.jar" sourcepath="lib/sources/swingx-0.9.4-src.zip"/>
-	<classpathentry kind="lib" path="lib/jars/bsf.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jruby.jar"/>
+	<classpathentry kind="lib" path="lib/jars/jruby-engine.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

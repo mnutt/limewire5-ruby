@@ -1,10 +1,11 @@
 package com.limegroup.scripting;
-import org.apache.bsf.*;
+import javax.script.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 
 import com.limegroup.gnutella.LimeWireCore;
 import org.apache.http.HttpRequest;
@@ -12,35 +13,31 @@ import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.nio.entity.NStringEntity;
 
 public class RubyEvaluator {
-    public AbstractHttpEntity eval(LimeWireCore core, HttpRequest request) throws FileNotFoundException, UnsupportedEncodingException, BSFException {
-        BSFManager.registerScriptingEngine("ruby", 
-                                           "org.jruby.javasupport.bsf.JRubyEngine", 
-                                           new String[] { "rb" });
-        BSFManager bsf = new BSFManager();
-
+    public AbstractHttpEntity eval(LimeWireCore core, HttpRequest request) throws FileNotFoundException, UnsupportedEncodingException {
+        ScriptEngineManager factory = new ScriptEngineManager();
         // Create a JRuby engine.
-        bsf.declareBean("core", core, core.getClass());
-        bsf.declareBean("request", request, request.getClass());
-        AbstractHttpEntity entity = null;
+        ScriptEngine engine = factory.getEngineByName("jruby");
+        engine.setContext(new SimpleScriptContext());
+        engine.getContext().setAttribute("core", core, ScriptContext.ENGINE_SCOPE);
+        engine.getContext().setAttribute("request", request, ScriptContext.ENGINE_SCOPE);
+        AbstractHttpEntity entity;
 
         // Evaluate JRuby code from string.
         try {
-          this.getClass().getClassLoader();
           String path = ClassLoader.getSystemResource("myruby.rb").toString();
           int i = path.indexOf("/");
-          BufferedReader source_buffer = new BufferedReader(new FileReader(path.substring(i)));
-          String line;
-          String source = "";
-          while((line = source_buffer.readLine()) != null) {
-            source += line;
-            source += "\n";
-          }
-          entity = (AbstractHttpEntity) bsf.eval("ruby", "myruby.rb", 0, 0, source);
-        } catch (Exception exception) {
+          entity = (AbstractHttpEntity) engine.eval(new BufferedReader(new FileReader(path.substring(i))));
+        } catch (ScriptException exception) {
             System.out.println("caught exception");
-            exception.printStackTrace();
-            entity = new NStringEntity(exception.getStackTrace().toString());
-            entity.setContentType("text/html");
+          StringWriter sw = new StringWriter();
+          PrintWriter pw = new PrintWriter(sw);
+          
+          pw.print("<pre>");
+          exception.printStackTrace(pw);
+          pw.print("</pre>");
+          
+          entity = new NStringEntity(sw.toString());
+          entity.setContentType("text/html");
         }
         return entity; // result;
       }
