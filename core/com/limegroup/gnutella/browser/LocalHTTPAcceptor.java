@@ -55,6 +55,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
     /** Magnet detail command */
     private static final String MAGNET_DETAIL = "magcmd/detail?";
     private static final String FILE_URL = "/file/";
+    private static final String LIBRARY_URL = "/library/";
 
     private String lastCommand;
 
@@ -78,9 +79,10 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
         registerHandler("/magnet10/default.js", new MagnetCommandRequestHandler());
         registerHandler("/magnet10/pause", new MagnetPauseRequestHandler());
         registerHandler("/magcmd/detail", new MagnetDetailRequestHandler());
-	registerHandler("/script*", new RubyRequestHandler());
-	registerHandler("/file/*", new FileRequestHandler());
-	registerHandler("/crossdomain.xml", new CrossDomainRequestHandler());
+        registerHandler("/script*", new RubyRequestHandler());
+        registerHandler("/file/*", new FileRequestHandler());
+        registerHandler("/library/*", new LibraryRequestHandler());
+        registerHandler("/crossdomain.xml", new CrossDomainRequestHandler());
         // TODO figure out which files we want to serve from the local file system
         //registerHandler("*", new FileRequestHandler(new File("root"), new BasicMimeTypeProvider()));
     }
@@ -212,7 +214,43 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
             
             String uri = request.getRequestLine().getUri();
             int i = uri.indexOf(FILE_URL);
-            String sha1 = uri.substring(i + FILE_URL.length());
+            String filepath = uri.substring(i + FILE_URL.length());
+            i = filepath.lastIndexOf('/');
+            String filename = filepath.substring(i + 1);
+            i = filename.lastIndexOf('.');
+            String extension = filename.substring(i + 1);
+            System.out.println(extension);
+
+            File file = new File("../../core/com/limegroup/scripting/resources/assets/" + filepath);
+            NFileEntity entity = new NFileEntity(file, "application/binary");
+            if(extension.contentEquals("js")) {
+                entity.setContentType("text/javascript");
+                System.out.println("got javascript");
+            } else if(extension.contentEquals("css")) {
+                entity.setContentType("text/css");
+            } else if(extension.contentEquals("swf")) {
+                entity.setContentType("application/x-shockwave-flash");
+            } else {
+                entity.setContentType("application/binary");
+            }
+            
+            response.setEntity(entity);
+        }
+    }
+    
+    private class LibraryRequestHandler extends SimpleNHttpRequestHandler {
+        public ConsumingNHttpEntity entityRequest(HttpEntityEnclosingRequest request,
+                HttpContext context) throws HttpException, IOException {
+            return null;
+        }
+        
+        @Override
+        public void handle(HttpRequest request, HttpResponse response,
+                HttpContext context) throws HttpException, IOException {
+            
+            String uri = request.getRequestLine().getUri();
+            int i = uri.indexOf(LIBRARY_URL);
+            String sha1 = uri.substring(i + LIBRARY_URL.length());
             URN urn = URN.createSHA1Urn(sha1);
             FileDesc fileDesc = core.getFileManager().getGnutellaFileList().getFileDesc(urn);
             NFileEntity entity = new NFileEntity(fileDesc.getFile(), "text/html");

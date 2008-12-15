@@ -1,6 +1,5 @@
 search_for = File.join("core","com","limegroup","scripting","resources")
 $LOAD_PATH.unshift(File.join($LOAD_PATH.find{|t| t.scan(search_for).first}, "lib"))
-
 require 'francis/francis.rb'
 require 'erb'
 
@@ -10,7 +9,6 @@ require 'json.rb'
 
 import 'org.apache.http.nio.entity.NStringEntity'
 import 'org.apache.http.nio.entity.NFileEntity'
-
 
 
 #I wonder if there is someway we could parse this handler only once,
@@ -91,12 +89,12 @@ handler = Francis.new do
   end
 
   get '/script/playlist.xspf' do
-    @files = LimeWire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
+    @files = Limewire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
     response.body = erb "xspf.erb"
   end
 
   get '/script/playlist' do
-    @files = LimeWire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
+    @files = Limewire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
     response.body = erb "playlist.erb"
   end
 
@@ -118,11 +116,11 @@ handler = Francis.new do
     response.body = erb "search.erb"
   end
 
-  get %r{/script/asset/(.*)} do
+  get %r{^/script/asset/(.*)} do
     #FIXME: is this a security risk?  do we need to clean the path?
     file_name = request.user_data[:match][0]
     response.file_name = file_name
-
+    contents = java.io.File.new("../../core/com/limegroup/scripting/resources/assets/" + file_name)
   end
   
   get '/script/stats' do
@@ -133,6 +131,10 @@ handler = Francis.new do
     @files = Limewire::Library.all_files
     @categories = Limewire::Library.categories
     response.body = erb 'stats.erb'
+  end
+
+  get %r{/.*} do
+    response.body = "404 not found."
   end
 
 end

@@ -63,7 +63,7 @@ class Francis
                    open(o).read
                  when String
                    if o[-4..-1] == ".erb"
-                     f = open("../core/com/limegroup/scripting/resources/templates/" + o)
+                     f = open("../../core/com/limegroup/scripting/resources/templates/" + o)
                      ret = f.read
                      f.close
                      ret

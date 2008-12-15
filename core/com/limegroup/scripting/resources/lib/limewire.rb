@@ -42,17 +42,8 @@ module Limewire
 
   module Library
     def self.all_files
-      all_files = []
-      Limewire.core.file_manager.all_shared_file_descriptors.each do |file|
-        metadata_reader = Limewire.core.get_meta_data_factory
-        metadata = metadata_reader.parse(file.get_file).meta_data rescue nil
-        
-        def file.metadata=(metadata); @metadata = metadata; end
-        def file.metadata; @metadata; end
-        file.metadata = metadata
-        all_files << file unless file.nil?
-      end
-      all_files
+      file_list = Limewire.core.file_manager.gnutella_file_list
+      file_list.map{ |file| Limewire::File.new(file) }.compact
     end
 
     def self.filter(&b)
@@ -67,6 +58,25 @@ module Limewire
       Limewire.core.get_file_manager.get_managed_file_list.managed_categories rescue []
     end
     
+  end
+
+  class File
+    def initialize(file)
+      @file = file
+      @metadata = Limewire.core.meta_data_factory.parse(file.get_file) rescue nil
+    end
+
+    def metadata
+      @metadata
+    end
+
+    def method_missing(name, *args)
+      if @file.respond_to?(name)
+        @file.send(name, *args)
+      else
+        super
+      end
+    end
   end
 end 
 
