@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-resources" basedir=".">
+
+	<description>
+		LimeWire component 'resources'.
+		This component is a collection of resources required for the GUI.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    
+    <target name="initialize" unless="initialized.resources">
+        <do.setup-properties component="resources"/>
+    </target>
+	
+</project>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-nio" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'nio'.
+	    This component contains non-blocking I/O objects, utilities and other related code.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    <import file="../collection/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize, lw-collection.initialize" unless="initialized.nio">
+        <do.setup-properties component="nio">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+			    <path refid="build.limewire.components.common.buildpath"/>
+			    <path refid="build.limewire.components.collection.buildpath"/>			    
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="lw-common.clean, lw-collection.clean">
+	    <do.clean component="nio"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile, lw-collection.compile">
+    	<do.compile component="nio"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src, lw-collection.compile-src">
+	    <do.compile-src component="nio"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src, lw-collection.clean-src">
+	    <do.clean-src component="nio"/>
+	</target>
+	
+	<target name="compile-tests">
+	    <do.compile-tests component="nio"/>
+	</target>
+	<target name="clean-tests">
+	    <do.clean-tests component="nio"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="nio" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="nio" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="nio"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="nio"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="nio"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="nio"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="nio"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="nio"/>
+    </target>
+    
+</project>

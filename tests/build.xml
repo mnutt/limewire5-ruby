@@ -1,0 +1,126 @@
+<project name="lw-tests" default="compile" basedir="." >
+
+	<property name="limewire.home" location="${basedir}/.."/>
+    
+    <property name="module" value="gnutella"/>
+    
+	<import file="../components/build.xml"/>
+	<import file="../components/common/build-macros.xml"/>
+    
+    <target name="initialize" depends="lw-components.initialize" unless="initialized.tests">
+        <property name="limewire.components.tests.home"
+        		  location="${limewire.home}/tests"/>
+		<property name="limewire.components.tests.tests"
+        	      location="${limewire.components.tests.home}"/>
+        
+        <property name="limewire.core.src" location="${limewire.home}/core"/>
+        <property name="limewire.gui.src"  location="${limewire.home}/gui"/>
+        
+        <path id="build.limewire.code.classpath">
+            <fileset dir="${limewire.lib.jars}" includes="**/*.jar" excludes="tests/**"/>
+            <path refid="build.limewire.components.classes.core"/>
+			<path refid="build.limewire.components.classes.ui"/>
+        </path>
+        
+        <property name="limewire.lib.messagebundles"
+        		  location="${limewire.lib}/messagebundles"/>
+        
+        <do.setup-properties component="tests">
+            <src-classpath>
+            	<fileset dir="${limewire.lib.jars}" includes="tests/**/*.jar"/>
+                <path refid="build.limewire.code.classpath"/>
+                <path refid="tests.limewire.components.http.classpath"/>	
+            </src-classpath>
+                
+			<tests-classpath>
+			    <pathelement location="${limewire.components.tests.home}"/>
+			    <path refid="tests.limewire.components.all.classpath"/>
+			    <pathelement location="${limewire.lib.messagebundles}"/>
+		    </tests-classpath>
+        </do.setup-properties>
+    </target>
+
+	<target name="clean" description="cleans everything" depends="initialize, lw-components.clean">
+		<do.clean component="tests"/>
+	</target>
+
+    <target name="compile"
+            description="compiles everything"
+            depends="initialize, compile-src, compile-tests"/>
+    
+    
+    <target name="compile-src" depends="initialize, lw-components.compile-src">
+        <mkdir dir="${limewire.components.tests.src}"/> <!-- fake out the macro -->
+        <do.compile-src component="tests" excludes="macosx/**, windows/**, examples/**">
+            <more-src-paths>
+            	<pathelement location="${limewire.core.src}"/>
+                <pathelement location="${limewire.gui.src}"/>
+            </more-src-paths>
+       </do.compile-src>
+    </target>
+    
+    <target name="compile-tests" depends="initialize, lw-components.compile-tests">
+    	<do.compile-tests component="tests"/>
+    </target>
+    
+	<target name="test"
+            description="Runs a single test. Requires: -Dclass=X.  Optional: -Dmodule=Y."
+            if="class" depends="compile">
+	    <do.test component="tests"
+	             class="${class}"
+	             path="com/limegroup/${module}"/>
+	</target>
+	
+	<target name="test-package"
+            description="Runs all tests in a package.  Requires: -Dpackage=X. Optional: -Dmodule=Y."
+            if="package" depends="compile">
+	    <do.test-package component="tests"
+	                     package="${package}"
+	                     path="com/limegroup/${module}"
+	    				 forkmode="perTest"/>
+	</target>
+	
+	<target name="test-all" 
+            description="Runs every test in this module."
+            depends="compile">
+		<do.test-all component="tests"
+	    			 forkmode="perTest"/>
+	</target>
+    
+    <target name="tests2html" 
+            description="Creates html test report from previous test run."
+            depends="initialize">
+        <do.tests2html          component="tests"/>
+    </target>
+    
+    <target name="test-some" 
+            description="Runs some tests in this module."
+            depends="compile"
+			if="include">
+		  <do.test-all component="tests"
+	    			   forkmode="perTest"
+					   filter="">
+	        <testLocations>
+	            <fileset dir="${build.limewire.components.tests.tests}" includes="${include}"/>
+			</testLocations>
+		  </do.test-all>
+	</target>
+    
+    <target name="with.clover"
+             description="Instructs the build to use clover's instrumenting."
+             depends="initialize">
+         <do.clover-setup component="tests">
+ 	        <locations>
+ 	            <fileset dir="${limewire.core.src}"/>
+ 	            <fileset dir="${limewire.gui.src}"/>
+ 			</locations>
+ 	    </do.clover-setup>
+	</target>
+     
+	<target name="clover2html"
+		    description="Converts clover's generated data into HTML reports."
+		    depends="initialize">
+		<do.clover2html component="tests"/>
+	</target>
+	 
+</project>

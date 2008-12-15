@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-swarm" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'swarm'.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    <import file="../http/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize, lw-http.initialize" unless="initialized.swarm">
+        <do.setup-properties component="swarm">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+				<pathelement location="${limewire.lib.jars}/httpclient-4.0-alpha5-20080522.192134-5.jar"/>
+				<pathelement location="${limewire.lib.jars}/httpcore-4.0-beta2-20080510.140437-10.jar"/>
+				<pathelement location="${limewire.lib.jars}/httpcore-nio-4.0-beta2-20080510.140437-10.jar"/>
+                <path refid="build.limewire.components.common.buildpath"/>
+			    <path refid="build.limewire.components.http.buildpath"/>
+		</src-classpath>
+            <build-tests-classpath>
+                <path refid="tests.limewire.components.http.classpath"/>
+            </build-tests-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="lw-common.clean, lw-http.clean">
+	    <do.clean component="swarm"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile, lw-http.compile">
+    	<do.compile component="swarm"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src, lw-http.compile-src">
+	    <do.compile-src component="swarm"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src, lw-http.clean-src">
+	    <do.clean-src component="swarm"/>
+	</target>
+	
+	<target name="compile-tests">
+	    <do.compile-tests component="swarm"/>
+	</target>
+	
+	<target name="clean-tests">
+	    <do.clean-tests component="swarm"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="swarm" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="swarm" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="swarm"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="swarm"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	 <do.javadoc component="swarm"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="swarm"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="swarm"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="swarm"/>
+    </target>
+    
+</project>

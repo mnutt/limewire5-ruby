@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-promotion" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'promotion'.
+			Store communication.
+	</description>
+
+	<import file="../common/build-macros.xml" />
+	<import file="../common/build.xml" />
+    <import file="../net/build.xml"/>
+	<import file="../geocode/build.xml"/>
+	<import file="../http/build.xml"/>
+	<import file="../security/build.xml"/>
+
+    <target name="initialize" depends="lw-common.initialize, lw-net.initialize, lw-http.initialize, lw-geocode.initialize, lw-security.initialize" 
+	    unless="initialized.promotion">
+		<do.setup-properties component="promotion">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar" />
+				<path refid="build.limewire.components.common.buildpath" />
+				<path refid="build.limewire.components.http.buildpath" />
+				<path refid="build.limewire.components.io.buildpath" />
+				<path refid="build.limewire.components.security.buildpath" />
+				<path refid="build.limewire.components.geocode.buildpath" />
+				<pathelement location="${limewire.lib.jars}/dnsjava.jar"/>
+				<pathelement location="${limewire.lib.jars}/commons-codec-1.3.jar"/>
+				<pathelement location="${limewire.lib.jars}/hsqldb.jar"/>
+      </src-classpath>
+      <build-tests-classpath>
+        <path refid="tests.limewire.components.net.classpath"/>
+      	<path refid="tests.limewire.components.common.classpath"/>
+      </build-tests-classpath>
+    </do.setup-properties>
+	  </target>
+    
+	  <target name="clean" depends="lw-common.clean">
+		  <do.clean component="promotion" />
+	  </target>
+
+	<target name="compile" depends="lw-common.compile, lw-geocode.compile-src">
+		<do.compile component="promotion" />
+	</target>
+
+	<target name="compile-src" depends="lw-common.compile-src, lw-geocode.compile-src">
+		<do.compile-src component="promotion" />
+	</target>
+
+	<target name="clean-src" depends="lw-common.clean-src">
+		<do.clean-src component="promotion" />
+	</target>
+
+	<target name="compile-tests">
+		<do.compile-tests component="promotion" />
+	</target>
+	
+	<target name="clean-tests">
+		<do.clean-tests component="promotion" />
+	</target>
+
+	<target name="test" if="class" depends="compile">
+		<do.test component="promotion" class="${class}" />
+	</target>
+
+	<target name="test-package" if="package" depends="compile">
+		<do.test-package component="promotion" package="${package}" />
+	</target>
+
+	<target name="test-all" depends="compile">
+		<do.test-all component="promotion" />
+	</target>
+
+	<target name="jar" depends="initialize, compile-src">
+		<do.jar component="promotion" />
+	</target>
+
+	<target name="javadoc" depends="initialize, compile-src">
+		<do.javadoc component="promotion" />
+	</target>
+
+	<target name="clean-dist" depends="initialize">
+		<do.clean-dist component="promotion" />
+	</target>
+
+	<target name="with.clover" depends="initialize">
+		<do.clover-setup component="promotion" />
+	</target>
+
+	<target name="clover2html" depends="initialize">
+		<do.clover2html component="promotion" />
+	</target>
+
+</project>

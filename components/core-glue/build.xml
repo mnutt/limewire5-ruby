@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-core-glue" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'core-glue'.
+		This component glues the LimeWire Core to the core-api component.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../../core/build.xml"/>
+    
+    <target name="initialize" depends="lw-core.initialize" unless="initialized.core-glue">
+        <do.setup-properties component="core-glue">
+			<src-classpath>
+			    <fileset dir="${limewire.lib.jars}" includes="**/*.jar" excludes="tests/**"/>
+			    <pathelement location="${build.limewire.core.classes}"/>
+			    <path refid="build.limewire.components.classes.core"/>
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="initialize">
+	    <do.clean component="core-glue"/>
+	</target>
+    
+    <target name="compile" depends="initialize, lw-core.compile">
+        <!-- Currently no tests - using compile-src in the meantime.-->
+    	<!--<do.compile component="core-glue"/>-->
+    	<do.compile-src component="core-glue"/>
+    	<mkdir dir="${build.limewire.components.core-glue.tests}"/>
+    </target>
+	
+	<target name="compile-src" depends="initialize, lw-core.compile">
+	    <do.compile-src component="core-glue"/>
+	</target>
+    
+	<target name="clean-src" depends="initialize">
+	    <do.clean-src component="core-glue"/>
+	</target>
+	
+	<target name="compile-tests" depends="initialize">
+	    <!--<do.compile-tests component="core-glue"/>-->
+	    <mkdir dir="${build.limewire.components.core-glue.tests}"/>
+	</target>
+	
+	<target name="clean-tests" depends="initialize">
+	    <do.clean-tests component="core-glue"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="core-glue" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="core-glue" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="core-glue"/>
+	</target>
+    
+    <target name="jar" depends="compile-src">
+        <do.jar component="core-glue"/>
+    </target>
+    
+	<target name="javadoc" depends="compile-src">
+    	<do.javadoc component="core-glue"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="core-glue"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="core-glue"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="core-glue"/>
+    </target>
+    
+</project>

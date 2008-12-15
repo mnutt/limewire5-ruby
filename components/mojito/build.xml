@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<project name="mojito" default="compile-src" basedir=".">
+    <description>The Mojito DHT</description>
+	
+	<import file="../collection/build.xml"/>
+	<import file="../io/build.xml"/>
+	<import file="../security/build.xml"/>
+    <import file="../statistic/build.xml"/>
+	<import file="../setting/build.xml"/>
+	<import file="../common/build-macros.xml" />
+	<import file="../common/build.xml"/>
+	
+	<target name="initialize" depends="lw-collection.initialize, lw-io.initialize, lw-security.initialize,
+				lw-setting.initialize, lw-common.initialize, lw-statistic.initialize" unless="initialized.mojito">
+        <do.setup-properties component="mojito">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+				<path refid="build.limewire.components.collection.buildpath"/>
+				<path refid="build.limewire.components.io.buildpath"/>
+				<path refid="build.limewire.components.security.buildpath"/>
+				<path refid="build.limewire.components.statistic.buildpath"/>
+				<path refid="build.limewire.components.setting.buildpath"/>
+			    <path refid="build.limewire.components.common.buildpath"/>
+			</src-classpath>
+        </do.setup-properties>
+	</target>
+	
+	<target name="clean" depends="lw-collection.clean, lw-io.clean, lw-security.clean,
+				lw-setting.clean, lw-common.clean, lw-statistic.clean">
+	    <do.clean component="mojito"/>
+	</target>
+	    
+    <target name="compile" depends="lw-collection.compile, lw-io.compile, lw-security.compile,
+				lw-setting.compile, lw-common.compile, lw-statistic.compile">
+    	<do.compile component="mojito"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-collection.compile-src, lw-io.compile-src, lw-security.compile-src,
+				lw-setting.compile-src, lw-common.compile-src, lw-statistic.compile-src">
+	    <do.compile-src component="mojito"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-collection.clean-src, lw-io.clean-src, lw-security.clean-src,
+				lw-setting.clean-src, lw-common.clean-src, lw-statistic.clean-src">
+	    <do.clean-src component="mojito"/>
+	</target>
+	
+	<target name="compile-tests">
+	    <do.compile-tests component="mojito"/>
+	</target>
+	
+	<target name="clean-tests">
+	    <do.clean-tests component="mojito"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="mojito" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="mojito" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="mojito"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="mojito"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="mojito"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="mojito"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="mojito"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="mojito"/>
+    </target>
+
+</project>
+

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-rudp" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'rudp'.
+	    This component contains code for making a reliable UDP connection.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    <import file="../nio/build.xml"/>
+    <import file="../io/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize, lw-nio.initialize, lw-io.initialize" unless="initialized.rudp">
+        <do.setup-properties component="rudp">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+			    <path refid="build.limewire.components.common.buildpath"/>
+			    <path refid="build.limewire.components.nio.buildpath"/>
+			    <path refid="build.limewire.components.io.buildpath"/>			    
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="lw-common.clean, lw-nio.clean, lw-io.clean">
+	    <do.clean component="rudp"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile, lw-nio.compile, lw-io.compile">
+    	<do.compile component="rudp"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src, lw-nio.compile-src, lw-io.compile-src">
+	    <do.compile-src component="rudp"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src, lw-nio.clean-src, lw-io.clean-src">
+	    <do.clean-src component="rudp"/>
+	</target>
+	
+	<target name="compile-tests">
+	    <do.compile-tests component="rudp"/>
+	</target>
+	<target name="clean-tests">
+	    <do.clean-tests component="rudp"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="rudp" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="rudp" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="rudp"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="rudp"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="rudp"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="rudp"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="rudp"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="rudp"/>
+    </target>
+    
+</project>

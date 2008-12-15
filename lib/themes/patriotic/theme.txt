@@ -1,0 +1,75 @@
+##################################################################
+# Theme file for specififying the appearance of LimeWire.  All
+# LimeWire colors and fonts can be customized below.  The 
+# documentation for these settings is provided at:
+#
+# http://www.limewire.com/skins
+#
+# Look under "Visual Design" and particularly "Themes."  This
+# will make the color and font names below much easier to 
+# understand.
+##################################################################
+# Patriotic Theme
+THEME_VERSION=2
+
+
+PRIMARY1_COLOR=#000000
+PRIMARY2_COLOR=#000064
+PRIMARY3_COLOR=#000099
+SECONDARY1_COLOR=#000000
+SECONDARY2_COLOR=#000064
+SECONDARY3_COLOR=#cccccc
+WINDOW1_COLOR=#FFFFFF
+WINDOW2_COLOR=#000099
+WINDOW3_COLOR=#A2ACC8
+WINDOW4_COLOR=#FFFFFF
+WINDOW5_COLOR=#ff0000
+WINDOW6_COLOR=#ffffff
+WINDOW7_COLOR=#ffffff
+WINDOW8_COLOR=#000000
+WINDOW9_COLOR=#FFFFFF
+WINDOW10_COLOR=#FFFFFF
+WINDOW11_COLOR=#000000
+WINDOW12_COLOR=#990000
+TABLE_HEADER_BACKGROUND_COLOR=#990000
+TABLE_BACKGROUND_COLOR=#ffffff
+TABLE_ALTERNATE_COLOR=#EEF3FF
+NOT_SHARING_LABEL_COLOR=#D00005
+SEARCH_FILTER_TITLE_TOP_COLOR=#CC0000
+SEARCH_FILTER_TITLE_COLOR=#990000
+SEARCH_PANEL_BG_1=#010168
+SEARCH_PANEL_BG_2=#000099
+SEARCH_GRID_COLOR=#000000
+SEARCH_PRIVATE_IP_COLOR=#CCCCCC
+SEARCH_RESULT_SPEED_COLOR=#009900
+
+
+##################################################################
+# Font settings can be set below.  For the style of the font,
+# only plain and bold are supported.  Plain is specified as
+# "0", wherease bold is specified as "1".
+##################################################################
+CONTROL_TEXT_FONT_NAME=dialog
+CONTROL_TEXT_FONT_STYLE=1
+CONTROL_TEXT_FONT_SIZE=11
+
+SYSTEM_TEXT_FONT_NAME=verdana
+SYSTEM_TEXT_FONT_STYLE=0
+SYSTEM_TEXT_FONT_SIZE=10
+
+USER_TEXT_FONT_NAME=verdana
+USER_TEXT_FONT_STYLE=0
+USER_TEXT_FONT_SIZE=10
+
+MENU_TEXT_FONT_NAME=verdana
+MENU_TEXT_FONT_STYLE=1
+MENU_TEXT_FONT_SIZE=11
+
+WINDOW_TITLE_FONT_NAME=verdana
+WINDOW_TITLE_FONT_STYLE=1
+WINDOW_TITLE_FONT_SIZE=11
+
+SUB_TEXT_FONT_NAME=verdana
+SUB_TEXT_FONT_STYLE=0
+SUB_TEXT_FONT_SIZE=10
+

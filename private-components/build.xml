@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-private-components" basedir="." default="compile-src">
+
+	<description>
+	    Catch-all buildfile for every private component.
+	</description>
+    
+	<property name="limewire.home" location="${basedir}/.."/>
+	
+	<import file="build-macros.xml"/>
+	<import file="../components/test-util/build.xml"/>
+    <import file="swingui/build.xml" />
+    <import file="mock-core/build.xml" />
+    <import file="integrated-ui/build.xml"/>
+    
+    <target name="initialize" depends="lw-swingui.initialize, lw-mock-core.initialize, lw-integrated-ui.initialize" unless="initialized.private-all">
+        <do.setup-private-properties component="private-all">
+			<add-tests-classpath>
+            	<path refid="tests.limewire.components.swingui.classpath"/>
+	            <path refid="tests.limewire.components.mock-core.classpath"/>
+	            <path refid="tests.limewire.components.integrated-ui.classpath"/>
+                <!-- Add as components are added. -->
+		    </add-tests-classpath>
+        </do.setup-private-properties>    
+        
+    
+    	<fileset id="limewire.components.sources.private-all" dir="${limewire.private-components.home}">
+    		<include name="${limewire.components.swingui.relative.antglob.allsources}"/>
+			<include name="${limewire.components.mock-core.relative.antglob.allsources}"/>
+			<include name="${limewire.components.integrated-ui.relative.antglob.allsources}"/>
+               <!-- Add as components are added! -->
+		</fileset>
+    
+		<fileset id="limewire.components.sources.private-tests" dir="${limewire.components.home}">
+			<include name="${limewire.components.swingui.relative.antglob.tests}"/>
+			<include name="${limewire.components.mock-core.relative.antglob.tests}"/>
+			<include name="${limewire.components.integrated-ui.relative.antglob.tests}"/>
+            <!-- Add as components are added! -->
+		</fileset>
+    
+    </target>
+	
+	<target name="clean"
+	        description="Cleans all generated data in every component."
+          depends="lw-swingui.clean, lw-mock-core.clean, lw-integrated-ui.clean"
+          >
+	    <do.clean component="private-all"/>
+    </target>
+    
+    
+    <target name="compile"
+        	description="Compiles the source and tests of every component."
+            depends="lw-swingui.compile, lw-mock-core.compile, lw-integrated-ui.compile">
+        <mkdir dir="${build.limewire.components.private-all.classes}"/>
+        <mkdir dir="${build.limewire.components.private-all.tests}"/>
+	</target>
+    
+    <target name="compile-src"
+    		description="Compiles only the source code of every component."
+	        depends="lw-swingui.compile-src, lw-mock-core.compile-src, lw-integrated-ui.compile-src">
+        <mkdir dir="${build.limewire.components.private-all.classes}"/>
+	</target>
+	    
+	<target name="clean-src"
+	        description="Cleans files generated from compiling the source code of every component."
+	        depends="lw-swingui.clean-src, lw-mock-core.clean-src, lw-integrated-ui.clean-src">
+		<do.clean-src component="private-all"/>
+	</target>
+	
+	<target name="compile-tests"
+	        description="Compiles the tests of every component (and the source if necessary)"
+	        depends="compile-src, lw-test-util.compile-src, lw-swingui.compile-tests, lw-mock-core.compile-tests, lw-integrated-ui.compile-tests">
+        <mkdir dir="${build.limewire.components.all.tests}"/>
+	</target>
+    
+	<target name="clean-tests"
+	        description="Cleans data generated from compiling and running the tests of every component."
+	        depends="initialize, lw-swingui.clean-tests, lw-mock-core.clean-tests, lw-integrated-ui.clean-tests">
+	    <do.clean-tests component="private-all"/>
+	</target>
+	
+	<target name="test"
+            description="Runs a single test from one component. Requires: -Dclass=X and -Dcomponent=X."
+            if="class" depends="compile-tests, prep-tests">
+	    <do.test component="${component}" class="${class}"/>
+	</target>
+	
+	<target name="test-package"
+            description="Runs all tests in a package of one component.  Requires: -Dpackage=X -Dcomponent=X."
+            if="package" depends="compile-tests, prep-tests">
+	    <do.test-package component="${component}" package="${package}"/>
+	</target>
+	
+	<target name="test-all" 
+            description="Runs every test in every component."
+            depends="compile-tests, prep-tests">
+	    <do.test-all component="private-all">
+	        <testLocations>
+                <fileset dir="${build.limewire.components.swingui.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.mock-core.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.integrated-ui.tests}" includes="**/*Test.class"/>
+                <!-- Add as tests are added. -->
+	         </testLocations>
+	    </do.test-all>
+	</target>
+    
+    <target name="prep-tests">
+        <mkdir dir="${limewire.components.all.tests.resources}"/>
+        <!--<copy file="${limewire.components.home}/log4j.properties" todir="${limewire.components.all.tests.resources}" overwrite="true"/>-->
+    </target>
+	    
+    <target name="jar"
+            description="Creates a jar file of the compiled source of every component."
+            depends="initialize, compile-src, compile-ui-src">
+        <do.jar component="private-all" basedir="" resourcedir="" resexclude="**" excludes="**">
+			<more-jar-elements>
+			    <fileset dir="${build.limewire.components.swingui.classes}" />
+	    	    <fileset dir="${limewire.components.swingui.src.resources}" />
+			    <!--<fileset dir="${build.limewire.components.mock-core.classes}"/>-->
+    	        <fileset dir="${build.limewire.components.integrated-ui.classes}" />
+                <!-- Add as components & resources are added. -->
+                <fileset dir="${build.limewire.components.core-glue.classes}" />
+			</more-jar-elements>
+        </do.jar>
+    </target>
+    
+	<target name="javadoc" description="Doesn't work.">
+    	<fail message="Use maven to generate javadocs."/>
+    </target>
+	    
+    <target name="clean-dist"
+            description="Cleans all generated distribution files."
+            depends="initialize">
+        <do.clean-dist component="private-all"/>
+    </target>
+    
+    <target name="with.clover"
+            description="Instructs the build to use clover's instrumenting."
+            depends="initialize">
+        <do.clover-setup component="private-all">
+	        <locations>
+	            <fileset refid="limewire.components.sources.private-all"/>
+			</locations>
+	    </do.clover-setup>
+	</target>
+    
+    <target name="clover2html"
+            description="Converts clover's generated data into HTML reports."
+            depends="initialize">
+    	<mkdir dir="${limewire.components.private-all.tests}"/>
+        <do.clover2html component="private-all">
+			<moretestinfo>
+    			<testsources refid="limewire.components.sources.private-tests"/>
+			</moretestinfo>
+	    </do.clover2html>
+    </target>
+</project>

@@ -1,0 +1,6 @@
+all
+.project
+.classpath
+bin
+eclipse
+target

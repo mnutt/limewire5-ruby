@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-common" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'common'.
+		This component is required for every other component and contains
+		the most common functionality shared by every component.
+	</description>
+	
+    <import file="build-macros.xml" />
+    <import file="../test-util/build.xml"/>
+    
+    <target name="initialize" depends="lw-test-util.initialize" unless="initialized.common">
+        <do.setup-properties component="common">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+				<pathelement location="${limewire.lib.jars}/icu4j.jar"/>
+				<pathelement location="${limewire.lib.jars}/guice-snapshot.jar"/>
+				<pathelement location="${limewire.lib.jars}/aopalliance.jar"/>
+				<pathelement location="${limewire.lib.jars}/jcip-annotations.jar"/>
+            </src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="initialize, lw-test-util.clean-src">
+	    <do.clean component="common"/>
+	</target>
+    
+    <target name="compile" depends="initialize, lw-test-util.compile-src">
+    	<do.compile component="common"/>
+    </target>
+	
+	<target name="compile-src" depends="initialize">
+	    <do.compile-src component="common"/>
+	</target>
+    
+	<target name="clean-src" depends="initialize">
+	    <do.clean-src component="common"/>
+	</target>
+	
+	<target name="compile-tests" depends="initialize, compile-src, lw-test-util.compile-src">
+	    <do.compile-tests component="common"/>
+	</target>
+    
+	<target name="clean-tests" depends="initialize, lw-test-util.clean-src">
+	    <do.clean-tests component="common"/>
+	</target>
+	
+	<target name="test" if="class" depends="initialize, compile">
+	    <do.test component="common" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="initialize, compile">
+	    <do.test-package component="common" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="initialize, compile">
+	    <do.test-all component="common"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="common"/>
+    </target>
+    
+    <target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="common"/>
+	</target>    
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="common"/>
+    </target>
+    
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="common"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="common"/>
+    </target>
+	
+</project>

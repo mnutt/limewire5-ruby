@@ -1,0 +1,1165 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		F9B18D9E0DB3EFE400F89148 /* BuildAll */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F9B18DAB0DB3EFFA00F89148 /* Build configuration list for PBXAggregateTarget "BuildAll" */;
+			buildPhases = (
+			);
+			dependencies = (
+				F9B18DA40DB3EFF000F89148 /* PBXTargetDependency */,
+				F9B18DA80DB3EFF000F89148 /* PBXTargetDependency */,
+				F96C68CD0DCEAF0A006A4F2B /* PBXTargetDependency */,
+				F9B18DA20DB3EFF000F89148 /* PBXTargetDependency */,
+				F95A28CE0DCBA4C300468CF3 /* PBXTargetDependency */,
+				F9B18DA60DB3EFF000F89148 /* PBXTargetDependency */,
+				F96C68B70DCEADEE006A4F2B /* PBXTargetDependency */,
+				F9B18DBC0DB3F18E00F89148 /* PBXTargetDependency */,
+				F95A29E30DCBBB3D00468CF3 /* PBXTargetDependency */,
+			);
+			name = BuildAll;
+			productName = BuildAll;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		ACB6479E0EE597D300D111F8 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACB6479D0EE597D300D111F8 /* Growl.framework */; };
+		F95A28C10DCBA48F00468CF3 /* GURLjnilib.c in Sources */ = {isa = PBXBuildFile; fileRef = F9657FAE0DA1454100F02016 /* GURLjnilib.c */; };
+		F95A28C30DCBA48F00468CF3 /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F95A29A30DCBB0A300468CF3 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F95A29A20DCBB0A300468CF3 /* ApplicationServices.framework */; };
+		F95A29AB0DCBB34700468CF3 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F95A29A20DCBB0A300468CF3 /* ApplicationServices.framework */; };
+		F95A29B70DCBB40D00468CF3 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F95A29A20DCBB0A300468CF3 /* ApplicationServices.framework */; };
+		F95A29C10DCBB65400468CF3 /* System.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F95A29C00DCBB65400468CF3 /* System.framework */; };
+		F95A29D40DCBB90D00468CF3 /* SystemUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B18DAD0DB3F13B00F89148 /* SystemUtilities.m */; };
+		F95A29D60DCBB90D00468CF3 /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F95A29D70DCBB90D00468CF3 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F95A29A20DCBB0A300468CF3 /* ApplicationServices.framework */; };
+		F95A29D80DCBB90D00468CF3 /* System.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F95A29C00DCBB65400468CF3 /* System.framework */; };
+		F9657FB00DA1454100F02016 /* GURLjnilib.c in Sources */ = {isa = PBXBuildFile; fileRef = F9657FAE0DA1454100F02016 /* GURLjnilib.c */; };
+		F9657FB70DA1462300F02016 /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F965810E0DA1764500F02016 /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F965810F0DA1764500F02016 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F965808F0DA1466600F02016 /* Cocoa.framework */; };
+		F96581140DA1765100F02016 /* Dockjnilib.m in Sources */ = {isa = PBXBuildFile; fileRef = F9657FAD0DA1454100F02016 /* Dockjnilib.m */; };
+		F96C68A70DCEAD97006A4F2B /* MacOSXUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F9AE53E70DAC00ED00122CBF /* MacOSXUtils.m */; };
+		F96C68A90DCEAD97006A4F2B /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F96C68AA0DCEAD97006A4F2B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F965808F0DA1466600F02016 /* Cocoa.framework */; };
+		F96C68AB0DCEAD97006A4F2B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9AE53EA0DAC02D000122CBF /* Foundation.framework */; };
+		F96C68C10DCEAECA006A4F2B /* Growl.m in Sources */ = {isa = PBXBuildFile; fileRef = F9980CCA0DAD3A8E005E88C9 /* Growl.m */; };
+		F96C68C30DCEAECA006A4F2B /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F96C68C40DCEAECA006A4F2B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F965808F0DA1466600F02016 /* Cocoa.framework */; };
+		F96C68C50DCEAECA006A4F2B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9AE53EA0DAC02D000122CBF /* Foundation.framework */; };
+		F9980CBE0DAD38FB005E88C9 /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F9980CBF0DAD38FB005E88C9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F965808F0DA1466600F02016 /* Cocoa.framework */; };
+		F9980CC00DAD38FB005E88C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9AE53EA0DAC02D000122CBF /* Foundation.framework */; };
+		F9980CCB0DAD3A8E005E88C9 /* Growl.m in Sources */ = {isa = PBXBuildFile; fileRef = F9980CCA0DAD3A8E005E88C9 /* Growl.m */; };
+		F9AE53E00DAC00B500122CBF /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F9AE53E10DAC00B500122CBF /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F965808F0DA1466600F02016 /* Cocoa.framework */; };
+		F9AE53E90DAC00ED00122CBF /* MacOSXUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F9AE53E70DAC00ED00122CBF /* MacOSXUtils.m */; };
+		F9AE53EB0DAC02D000122CBF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9AE53EA0DAC02D000122CBF /* Foundation.framework */; };
+		F9B18DB40DB3F14400F89148 /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9657FB50DA1462300F02016 /* JavaVM.framework */; };
+		F9B18DBA0DB3F17500F89148 /* SystemUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B18DAD0DB3F13B00F89148 /* SystemUtilities.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F95A28CD0DCBA4C300468CF3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F95A28BE0DCBA48F00468CF3;
+			remoteInfo = "GURL Leopard";
+		};
+		F95A29E20DCBBB3D00468CF3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F95A29D10DCBB90D00468CF3;
+			remoteInfo = "SystemUtilities Leopard";
+		};
+		F96C68B60DCEADEE006A4F2B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F96C68A40DCEAD97006A4F2B;
+			remoteInfo = "MacOSXUtils Leopard";
+		};
+		F96C68CC0DCEAF0A006A4F2B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F96C68BE0DCEAECA006A4F2B;
+			remoteInfo = "Growl Leopard";
+		};
+		F9B18DA10DB3EFF000F89148 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC0620554660B00DB518D;
+			remoteInfo = GURL;
+		};
+		F9B18DA30DB3EFF000F89148 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F96581080DA1764500F02016;
+			remoteInfo = Dock;
+		};
+		F9B18DA50DB3EFF000F89148 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F9AE53DA0DAC00B500122CBF;
+			remoteInfo = MacOSXUtils;
+		};
+		F9B18DA70DB3EFF000F89148 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F9980CB90DAD38FB005E88C9;
+			remoteInfo = Growl;
+		};
+		F9B18DBB0DB3F18E00F89148 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F9B18DAE0DB3F14400F89148;
+			remoteInfo = SystemUtilities;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		ACB6479D0EE597D300D111F8 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = ../../../../../../lib/native/osx/Growl.framework; sourceTree = SOURCE_ROOT; };
+		D2AAC0630554660B00DB518D /* libGURLTiger.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libGURLTiger.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		F95A28C80DCBA48F00468CF3 /* libGURL.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libGURL.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		F95A28D20DCBA50900468CF3 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		F95A29A20DCBB0A300468CF3 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
+		F95A29C00DCBB65400468CF3 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
+		F95A29DC0DCBB90D00468CF3 /* libSystemUtilities.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libSystemUtilities.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9657FAD0DA1454100F02016 /* Dockjnilib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Dockjnilib.m; sourceTree = "<group>"; };
+		F9657FAE0DA1454100F02016 /* GURLjnilib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GURLjnilib.c; sourceTree = "<group>"; };
+		F9657FB50DA1462300F02016 /* JavaVM.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaVM.framework; path = /System/Library/Frameworks/JavaVM.framework; sourceTree = "<absolute>"; };
+		F965808F0DA1466600F02016 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		F96581130DA1764500F02016 /* libDock.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libDock.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		F96C68AF0DCEAD97006A4F2B /* libMacOSXUtilsLeopard.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMacOSXUtilsLeopard.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		F96C68CA0DCEAECA006A4F2B /* libGrowl.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libGrowl.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9980CC40DAD38FB005E88C9 /* libGrowlTiger.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libGrowlTiger.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9980CCA0DAD3A8E005E88C9 /* Growl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Growl.m; sourceTree = "<group>"; };
+		F9AE53E50DAC00B500122CBF /* libMacOSXUtilsTiger.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMacOSXUtilsTiger.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9AE53E70DAC00ED00122CBF /* MacOSXUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MacOSXUtils.m; sourceTree = "<group>"; };
+		F9AE53EA0DAC02D000122CBF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		F9B18DAD0DB3F13B00F89148 /* SystemUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SystemUtilities.m; sourceTree = "<group>"; };
+		F9B18DB90DB3F14400F89148 /* libSystemUtilitiesTiger.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libSystemUtilitiesTiger.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D289988505E68E00004EDB86 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9657FB70DA1462300F02016 /* JavaVM.framework in Frameworks */,
+				F95A29AB0DCBB34700468CF3 /* ApplicationServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F95A28C20DCBA48F00468CF3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F95A28C30DCBA48F00468CF3 /* JavaVM.framework in Frameworks */,
+				F95A29B70DCBB40D00468CF3 /* ApplicationServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F95A29D50DCBB90D00468CF3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F95A29D60DCBB90D00468CF3 /* JavaVM.framework in Frameworks */,
+				F95A29D70DCBB90D00468CF3 /* ApplicationServices.framework in Frameworks */,
+				F95A29D80DCBB90D00468CF3 /* System.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F965810C0DA1764500F02016 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F965810E0DA1764500F02016 /* JavaVM.framework in Frameworks */,
+				F965810F0DA1764500F02016 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F96C68A80DCEAD97006A4F2B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F96C68A90DCEAD97006A4F2B /* JavaVM.framework in Frameworks */,
+				F96C68AA0DCEAD97006A4F2B /* Cocoa.framework in Frameworks */,
+				F96C68AB0DCEAD97006A4F2B /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F96C68C20DCEAECA006A4F2B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F96C68C30DCEAECA006A4F2B /* JavaVM.framework in Frameworks */,
+				F96C68C40DCEAECA006A4F2B /* Cocoa.framework in Frameworks */,
+				F96C68C50DCEAECA006A4F2B /* Foundation.framework in Frameworks */,
+				ACB6479E0EE597D300D111F8 /* Growl.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9980CBD0DAD38FB005E88C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9980CBE0DAD38FB005E88C9 /* JavaVM.framework in Frameworks */,
+				F9980CBF0DAD38FB005E88C9 /* Cocoa.framework in Frameworks */,
+				F9980CC00DAD38FB005E88C9 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9AE53DE0DAC00B500122CBF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9AE53E00DAC00B500122CBF /* JavaVM.framework in Frameworks */,
+				F9AE53E10DAC00B500122CBF /* Cocoa.framework in Frameworks */,
+				F9AE53EB0DAC02D000122CBF /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9B18DB20DB3F14400F89148 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9B18DB40DB3F14400F89148 /* JavaVM.framework in Frameworks */,
+				F95A29A30DCBB0A300468CF3 /* ApplicationServices.framework in Frameworks */,
+				F95A29C10DCBB65400468CF3 /* System.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* GURL */ = {
+			isa = PBXGroup;
+			children = (
+				08FB7795FE84155DC02AAC07 /* Source */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+				F9657FBE0DA1462800F02016 /* Frameworks */,
+			);
+			name = GURL;
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				F9657FAD0DA1454100F02016 /* Dockjnilib.m */,
+				F9980CCA0DAD3A8E005E88C9 /* Growl.m */,
+				F9657FAE0DA1454100F02016 /* GURLjnilib.c */,
+				F9AE53E70DAC00ED00122CBF /* MacOSXUtils.m */,
+				F9B18DAD0DB3F13B00F89148 /* SystemUtilities.m */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D2AAC0630554660B00DB518D /* libGURLTiger.jnilib */,
+				F95A28C80DCBA48F00468CF3 /* libGURL.jnilib */,
+				F96581130DA1764500F02016 /* libDock.jnilib */,
+				F9AE53E50DAC00B500122CBF /* libMacOSXUtilsTiger.jnilib */,
+				F96C68AF0DCEAD97006A4F2B /* libMacOSXUtilsLeopard.jnilib */,
+				F9980CC40DAD38FB005E88C9 /* libGrowlTiger.jnilib */,
+				F96C68CA0DCEAECA006A4F2B /* libGrowl.jnilib */,
+				F9B18DB90DB3F14400F89148 /* libSystemUtilitiesTiger.jnilib */,
+				F95A29DC0DCBB90D00468CF3 /* libSystemUtilities.jnilib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F9657FBE0DA1462800F02016 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ACB6479D0EE597D300D111F8 /* Growl.framework */,
+				F95A29A20DCBB0A300468CF3 /* ApplicationServices.framework */,
+				F965808F0DA1466600F02016 /* Cocoa.framework */,
+				F95A28D20DCBA50900468CF3 /* CoreServices.framework */,
+				F9AE53EA0DAC02D000122CBF /* Foundation.framework */,
+				F9657FB50DA1462300F02016 /* JavaVM.framework */,
+				F95A29C00DCBB65400468CF3 /* System.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D2AAC0600554660B00DB518D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F95A28BF0DCBA48F00468CF3 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F95A29D20DCBB90D00468CF3 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F96581090DA1764500F02016 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F96C68A50DCEAD97006A4F2B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F96C68BF0DCEAECA006A4F2B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9980CBA0DAD38FB005E88C9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9AE53DB0DAC00B500122CBF /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9B18DAF0DB3F14400F89148 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D2AAC0620554660B00DB518D /* GURL Tiger */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB914A08733D8E0010E9CD /* Build configuration list for PBXNativeTarget "GURL Tiger" */;
+			buildPhases = (
+				D2AAC0600554660B00DB518D /* Headers */,
+				D2AAC0610554660B00DB518D /* Sources */,
+				D289988505E68E00004EDB86 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GURL Tiger";
+			productName = GURL;
+			productReference = D2AAC0630554660B00DB518D /* libGURLTiger.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		F95A28BE0DCBA48F00468CF3 /* GURL Leopard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F95A28C50DCBA48F00468CF3 /* Build configuration list for PBXNativeTarget "GURL Leopard" */;
+			buildPhases = (
+				F95A28BF0DCBA48F00468CF3 /* Headers */,
+				F95A28C00DCBA48F00468CF3 /* Sources */,
+				F95A28C20DCBA48F00468CF3 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GURL Leopard";
+			productName = GURL;
+			productReference = F95A28C80DCBA48F00468CF3 /* libGURL.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		F95A29D10DCBB90D00468CF3 /* SystemUtilities Leopard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F95A29D90DCBB90D00468CF3 /* Build configuration list for PBXNativeTarget "SystemUtilities Leopard" */;
+			buildPhases = (
+				F95A29D20DCBB90D00468CF3 /* Headers */,
+				F95A29D30DCBB90D00468CF3 /* Sources */,
+				F95A29D50DCBB90D00468CF3 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SystemUtilities Leopard";
+			productName = GURL;
+			productReference = F95A29DC0DCBB90D00468CF3 /* libSystemUtilities.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		F96581080DA1764500F02016 /* Dock */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F96581100DA1764500F02016 /* Build configuration list for PBXNativeTarget "Dock" */;
+			buildPhases = (
+				F96581090DA1764500F02016 /* Headers */,
+				F965810A0DA1764500F02016 /* Sources */,
+				F965810C0DA1764500F02016 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Dock;
+			productName = GURL;
+			productReference = F96581130DA1764500F02016 /* libDock.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		F96C68A40DCEAD97006A4F2B /* MacOSXUtils Leopard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F96C68AC0DCEAD97006A4F2B /* Build configuration list for PBXNativeTarget "MacOSXUtils Leopard" */;
+			buildPhases = (
+				F96C68A50DCEAD97006A4F2B /* Headers */,
+				F96C68A60DCEAD97006A4F2B /* Sources */,
+				F96C68A80DCEAD97006A4F2B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "MacOSXUtils Leopard";
+			productName = GURL;
+			productReference = F96C68AF0DCEAD97006A4F2B /* libMacOSXUtilsLeopard.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		F96C68BE0DCEAECA006A4F2B /* Growl Leopard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F96C68C70DCEAECA006A4F2B /* Build configuration list for PBXNativeTarget "Growl Leopard" */;
+			buildPhases = (
+				F96C68BF0DCEAECA006A4F2B /* Headers */,
+				F96C68C00DCEAECA006A4F2B /* Sources */,
+				F96C68C20DCEAECA006A4F2B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Growl Leopard";
+			productName = GURL;
+			productReference = F96C68CA0DCEAECA006A4F2B /* libGrowl.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		F9980CB90DAD38FB005E88C9 /* Growl Tiger */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9980CC10DAD38FB005E88C9 /* Build configuration list for PBXNativeTarget "Growl Tiger" */;
+			buildPhases = (
+				F9980CBA0DAD38FB005E88C9 /* Headers */,
+				F9980CBB0DAD38FB005E88C9 /* Sources */,
+				F9980CBD0DAD38FB005E88C9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Growl Tiger";
+			productName = GURL;
+			productReference = F9980CC40DAD38FB005E88C9 /* libGrowlTiger.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		F9AE53DA0DAC00B500122CBF /* MacOSXUtils Tiger */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9AE53E20DAC00B500122CBF /* Build configuration list for PBXNativeTarget "MacOSXUtils Tiger" */;
+			buildPhases = (
+				F9AE53DB0DAC00B500122CBF /* Headers */,
+				F9AE53DC0DAC00B500122CBF /* Sources */,
+				F9AE53DE0DAC00B500122CBF /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "MacOSXUtils Tiger";
+			productName = GURL;
+			productReference = F9AE53E50DAC00B500122CBF /* libMacOSXUtilsTiger.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		F9B18DAE0DB3F14400F89148 /* SystemUtilities Tiger */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9B18DB60DB3F14400F89148 /* Build configuration list for PBXNativeTarget "SystemUtilities Tiger" */;
+			buildPhases = (
+				F9B18DAF0DB3F14400F89148 /* Headers */,
+				F9B18DB00DB3F14400F89148 /* Sources */,
+				F9B18DB20DB3F14400F89148 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SystemUtilities Tiger";
+			productName = GURL;
+			productReference = F9B18DB90DB3F14400F89148 /* libSystemUtilitiesTiger.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB914E08733D8E0010E9CD /* Build configuration list for PBXProject "JNI" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* GURL */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F9B18D9E0DB3EFE400F89148 /* BuildAll */,
+				F96581080DA1764500F02016 /* Dock */,
+				F9980CB90DAD38FB005E88C9 /* Growl Tiger */,
+				F96C68BE0DCEAECA006A4F2B /* Growl Leopard */,
+				D2AAC0620554660B00DB518D /* GURL Tiger */,
+				F95A28BE0DCBA48F00468CF3 /* GURL Leopard */,
+				F9AE53DA0DAC00B500122CBF /* MacOSXUtils Tiger */,
+				F96C68A40DCEAD97006A4F2B /* MacOSXUtils Leopard */,
+				F9B18DAE0DB3F14400F89148 /* SystemUtilities Tiger */,
+				F95A29D10DCBB90D00468CF3 /* SystemUtilities Leopard */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D2AAC0610554660B00DB518D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9657FB00DA1454100F02016 /* GURLjnilib.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F95A28C00DCBA48F00468CF3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F95A28C10DCBA48F00468CF3 /* GURLjnilib.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F95A29D30DCBB90D00468CF3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F95A29D40DCBB90D00468CF3 /* SystemUtilities.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F965810A0DA1764500F02016 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F96581140DA1765100F02016 /* Dockjnilib.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F96C68A60DCEAD97006A4F2B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F96C68A70DCEAD97006A4F2B /* MacOSXUtils.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F96C68C00DCEAECA006A4F2B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F96C68C10DCEAECA006A4F2B /* Growl.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9980CBB0DAD38FB005E88C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9980CCB0DAD3A8E005E88C9 /* Growl.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9AE53DC0DAC00B500122CBF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9AE53E90DAC00ED00122CBF /* MacOSXUtils.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9B18DB00DB3F14400F89148 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9B18DBA0DB3F17500F89148 /* SystemUtilities.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F95A28CE0DCBA4C300468CF3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F95A28BE0DCBA48F00468CF3 /* GURL Leopard */;
+			targetProxy = F95A28CD0DCBA4C300468CF3 /* PBXContainerItemProxy */;
+		};
+		F95A29E30DCBBB3D00468CF3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F95A29D10DCBB90D00468CF3 /* SystemUtilities Leopard */;
+			targetProxy = F95A29E20DCBBB3D00468CF3 /* PBXContainerItemProxy */;
+		};
+		F96C68B70DCEADEE006A4F2B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F96C68A40DCEAD97006A4F2B /* MacOSXUtils Leopard */;
+			targetProxy = F96C68B60DCEADEE006A4F2B /* PBXContainerItemProxy */;
+		};
+		F96C68CD0DCEAF0A006A4F2B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F96C68BE0DCEAECA006A4F2B /* Growl Leopard */;
+			targetProxy = F96C68CC0DCEAF0A006A4F2B /* PBXContainerItemProxy */;
+		};
+		F9B18DA20DB3EFF000F89148 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2AAC0620554660B00DB518D /* GURL Tiger */;
+			targetProxy = F9B18DA10DB3EFF000F89148 /* PBXContainerItemProxy */;
+		};
+		F9B18DA40DB3EFF000F89148 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F96581080DA1764500F02016 /* Dock */;
+			targetProxy = F9B18DA30DB3EFF000F89148 /* PBXContainerItemProxy */;
+		};
+		F9B18DA60DB3EFF000F89148 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F9AE53DA0DAC00B500122CBF /* MacOSXUtils Tiger */;
+			targetProxy = F9B18DA50DB3EFF000F89148 /* PBXContainerItemProxy */;
+		};
+		F9B18DA80DB3EFF000F89148 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F9980CB90DAD38FB005E88C9 /* Growl Tiger */;
+			targetProxy = F9B18DA70DB3EFF000F89148 /* PBXContainerItemProxy */;
+		};
+		F9B18DBC0DB3F18E00F89148 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F9B18DAE0DB3F14400F89148 /* SystemUtilities Tiger */;
+			targetProxy = F9B18DBB0DB3F18E00F89148 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB914B08733D8E0010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = GURL;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Debug;
+		};
+		1DEB914C08733D8E0010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = GURLTiger;
+				SDKROOT = macosx10.4;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Release;
+		};
+		1DEB914F08733D8E0010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Debug;
+		};
+		1DEB915008733D8E0010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PREBINDING = NO;
+				SDKROOT = "";
+			};
+			name = Release;
+		};
+		F95A28C60DCBA48F00468CF3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = GURL;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Debug;
+		};
+		F95A28C70DCBA48F00468CF3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = GURL;
+				SDKROOT = macosx10.5;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Release;
+		};
+		F95A29DA0DCBB90D00468CF3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(NATIVE_ARCH)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = SystemUtilities;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Debug;
+		};
+		F95A29DB0DCBB90D00468CF3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = SystemUtilities;
+				SDKROOT = macosx10.5;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+				VALID_ARCHS = x86_64;
+			};
+			name = Release;
+		};
+		F96581110DA1764500F02016 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(NATIVE_ARCH)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = Dock;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Debug;
+		};
+		F96581120DA1764500F02016 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = Dock;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+				VALID_ARCHS = x86_64;
+			};
+			name = Release;
+		};
+		F96C68AD0DCEAD97006A4F2B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(NATIVE_ARCH)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = MacOSXUtilsLeopard;
+				SDKROOT = macosx10.5;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Debug;
+		};
+		F96C68AE0DCEAD97006A4F2B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = MacOSXUtilsLeopard;
+				SDKROOT = macosx10.5;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Release;
+		};
+		F96C68C80DCEAECA006A4F2B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\\\"$(SRCROOT)/../../Library/Frameworks\\\"",
+					"\\\"$(SRCROOT)/../../../Shared/Xcode/Deployment\\\"",
+					"\"$(SRCROOT)/../../../../../../lib/native/osx\"",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = Growl;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+				VALID_ARCHS = x86_64;
+			};
+			name = Debug;
+		};
+		F96C68C90DCEAECA006A4F2B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\\\"$(SRCROOT)/../../Library/Frameworks\\\"",
+					"\\\"$(SRCROOT)/../../../Shared/Xcode/Deployment\\\"",
+					"\"$(SRCROOT)/../../../../../../lib/native/osx\"",
+				);
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				INSTALL_PATH = /usr/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				PRODUCT_NAME = Growl;
+				SDKROOT = macosx10.5;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+				VALID_ARCHS = x86_64;
+				WARNING_CFLAGS = "";
+			};
+			name = Release;
+		};
+		F9980CC20DAD38FB005E88C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../Library/Frameworks\"",
+					"\"$(SRCROOT)/../../../Shared/Xcode/Deployment\"",
+					"\"$(SRCROOT)/../../../../../../lib/native/osx\"",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = Dock;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Debug;
+		};
+		F9980CC30DAD38FB005E88C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../../../lib/native/osx\"",
+				);
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = "";
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = GrowlTiger;
+				SDKROOT = macosx10.4;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Release;
+		};
+		F9AE53E30DAC00B500122CBF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(NATIVE_ARCH)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = MacOSXUtilsTiger;
+				SDKROOT = macosx10.4;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Debug;
+		};
+		F9AE53E40DAC00B500122CBF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = MacOSXUtilsTiger;
+				SDKROOT = macosx10.4;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Release;
+		};
+		F9B18D9F0DB3EFE500F89148 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = BuildAll;
+			};
+			name = Debug;
+		};
+		F9B18DA00DB3EFE500F89148 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = BuildAll;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		F9B18DB70DB3F14400F89148 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(NATIVE_ARCH)";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = SystemUtilities;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Debug;
+		};
+		F9B18DB80DB3F14400F89148 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = SystemUtilitiesTiger;
+				SDKROOT = macosx10.4;
+				USER_HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB914A08733D8E0010E9CD /* Build configuration list for PBXNativeTarget "GURL Tiger" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB914B08733D8E0010E9CD /* Debug */,
+				1DEB914C08733D8E0010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB914E08733D8E0010E9CD /* Build configuration list for PBXProject "JNI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB914F08733D8E0010E9CD /* Debug */,
+				1DEB915008733D8E0010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F95A28C50DCBA48F00468CF3 /* Build configuration list for PBXNativeTarget "GURL Leopard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F95A28C60DCBA48F00468CF3 /* Debug */,
+				F95A28C70DCBA48F00468CF3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F95A29D90DCBB90D00468CF3 /* Build configuration list for PBXNativeTarget "SystemUtilities Leopard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F95A29DA0DCBB90D00468CF3 /* Debug */,
+				F95A29DB0DCBB90D00468CF3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F96581100DA1764500F02016 /* Build configuration list for PBXNativeTarget "Dock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F96581110DA1764500F02016 /* Debug */,
+				F96581120DA1764500F02016 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F96C68AC0DCEAD97006A4F2B /* Build configuration list for PBXNativeTarget "MacOSXUtils Leopard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F96C68AD0DCEAD97006A4F2B /* Debug */,
+				F96C68AE0DCEAD97006A4F2B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F96C68C70DCEAECA006A4F2B /* Build configuration list for PBXNativeTarget "Growl Leopard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F96C68C80DCEAECA006A4F2B /* Debug */,
+				F96C68C90DCEAECA006A4F2B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9980CC10DAD38FB005E88C9 /* Build configuration list for PBXNativeTarget "Growl Tiger" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9980CC20DAD38FB005E88C9 /* Debug */,
+				F9980CC30DAD38FB005E88C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9AE53E20DAC00B500122CBF /* Build configuration list for PBXNativeTarget "MacOSXUtils Tiger" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9AE53E30DAC00B500122CBF /* Debug */,
+				F9AE53E40DAC00B500122CBF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9B18DAB0DB3EFFA00F89148 /* Build configuration list for PBXAggregateTarget "BuildAll" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9B18D9F0DB3EFE500F89148 /* Debug */,
+				F9B18DA00DB3EFE500F89148 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9B18DB60DB3F14400F89148 /* Build configuration list for PBXNativeTarget "SystemUtilities Tiger" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9B18DB70DB3F14400F89148 /* Debug */,
+				F9B18DB80DB3F14400F89148 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

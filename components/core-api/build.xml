@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-core-api" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'core-api'.
+	    The API for the LimeWire Core.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    <import file="../net/build.xml"/>
+    <import file="../xmpp-api/build.xml"/>
+    <import file="../player-api/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize, lw-net.initialize, lw-xmpp-api.initialize, lw-player-api.initialize" unless="initialized.core-api">
+        <do.setup-properties component="core-api">
+			<src-classpath>
+                <path refid="build.limewire.components.net.buildpath"/>
+                <path refid="build.limewire.components.xmpp-api.buildpath"/>
+                <path refid="build.limewire.components.player-api.buildpath"/>
+                <pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+				<pathelement location="${limewire.lib.jars}/glazedlists-1.7.0_java15.jar"/>
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="initialize">
+	    <do.clean component="core-api"/>
+	</target>
+    
+    <target name="compile" depends="lw-net.compile, lw-xmpp-api.compile, lw-player-api.compile">
+        <!-- Currently no tests - using compile-src in the meantime -->
+    	<!--<do.compile component="core-api"/>-->
+    	<do.compile-src component="core-api"/>
+        <mkdir dir="${build.limewire.components.core-api.tests}"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-net.compile-src, lw-xmpp-api.compile-src, lw-player-api.compile-src">
+	    <do.compile-src component="core-api"/>
+	</target>
+    
+	<target name="clean-src" depends="initialize">
+	    <do.clean-src component="core-api"/>
+	</target>
+	
+	<target name="compile-tests" depends="compile-src">
+	    <!--<do.compile-tests component="core-api"/>-->
+	    <mkdir dir="${build.limewire.components.core-api.tests}"/>
+	</target>
+	
+	<target name="clean-tests" depends="initialize">
+	    <do.clean-tests component="core-api"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="core-api" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="core-api" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="core-api"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="core-api"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="core-api"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="core-api"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="core-api"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="core-api"/>
+    </target>
+    
+</project>

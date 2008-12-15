@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-xmpp" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'xmpp'.
+	    This component contains xmpp (jabber) support.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    <import file="../io/build.xml"/>
+    <import file="../net/build.xml"/>
+    <import file="../security/build.xml"/>
+    <import file="../http/build.xml"/>
+    <import file="../xmpp-api/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize, lw-xmpp-api.initialize, lw-io.initialize, lw-net.initialize, lw-security.initialize" unless="initialized.xmpp">
+        <do.setup-properties component="xmpp">
+			<src-classpath>
+                <pathelement location="${limewire.lib.jars}/commons-codec-1.3.jar"/>
+                <path refid="build.limewire.components.common.buildpath"/>
+                <path refid="build.limewire.components.net.buildpath"/>
+                <path refid="build.limewire.components.security.buildpath"/>
+		<path refid="build.limewire.components.http.buildpath"/>
+                <path refid="build.limewire.components.xmpp-api.buildpath"/>
+				<pathelement location="${limewire.lib.jars}/smack.jar"/>
+				<pathelement location="${limewire.lib.jars}/smackx.jar"/>
+            </src-classpath>
+            <build-tests-classpath>
+                <path refid="tests.limewire.components.common.classpath"/>
+                <path refid="tests.limewire.components.io.classpath"/>
+                <path refid="tests.limewire.components.net.classpath"/>
+                <path refid="tests.limewire.components.xmpp-api.classpath"/>
+            </build-tests-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="initialize">
+	    <do.clean component="xmpp"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile, lw-xmpp-api.compile, lw-io.compile, lw-net.compile, lw-security.compile">
+    	<do.compile component="xmpp"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src, lw-xmpp-api.compile-src, lw-io.compile-src, lw-net.compile-src, lw-security.compile-src">
+	    <do.compile-src component="xmpp" excludes="**/server/**"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src">
+	    <do.clean-src component="xmpp"/>
+	</target>
+	
+	<target name="compile-tests" depends="compile-src">
+	    <do.compile-tests component="xmpp"/>
+	</target>
+	
+	<target name="clean-tests" depends="initialize">
+	    <do.clean-tests component="xmpp"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="xmpp" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="xmpp" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="xmpp"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="xmpp"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="xmpp"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="xmpp"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="xmpp"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="xmpp"/>
+    </target>
+    
+</project>

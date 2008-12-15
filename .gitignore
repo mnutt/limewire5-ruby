@@ -1,0 +1,5 @@
+*.class
+components/*/build/*
+bin/org/*
+tests/build
+gui/log.txt

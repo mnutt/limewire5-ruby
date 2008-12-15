@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-private-build-macros" basedir=".">
+
+    <import file="../components/common/build-macros.xml"/>
+
+	<description>
+	    A collection of macros for other private build files to use.
+	</description>
+
+	<property name="limewire.private-components.home"
+	          location="${limewire.home}/private-components"/>
+	      
+    <macrodef name="do.setup-private-properties" description="Sets up common properties every private macro uses.">
+        <attribute name="component"/>
+        <attribute name="junit" default="${limewire.lib.jars}/tests/junit.jar"/>
+        <element name="add-src-classpath" optional="true" description="Additional paths for building source"/>
+        <element name="add-tests-classpath" optional="true" description="Additional paths for running tests"/>
+        <element name="add-build-tests-classpath" optional="true" description="Additional paths for building tests"/>
+        <sequential>
+            <property name="limewire.components.@{component}.home"
+        		      location="${limewire.private-components.home}/@{component}"/>
+            <do.setup-properties component="@{component}" junit="@{junit}">
+                <src-classpath><add-src-classpath/></src-classpath>
+                <tests-classpath><add-tests-classpath/></tests-classpath>
+                <build-tests-classpath><add-build-tests-classpath/></build-tests-classpath>
+            </do.setup-properties>
+        </sequential>
+    </macrodef>
+    
+</project>

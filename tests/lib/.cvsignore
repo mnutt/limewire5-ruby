@@ -1,0 +1,9 @@
+.classpath
+.project
+clover.jar
+build
+reports
+clover
+Incomplete
+temp
+directory

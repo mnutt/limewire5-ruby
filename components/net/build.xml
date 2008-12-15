@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-net" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'net'.
+	    This component contains networking related classed that depend
+	    on the IO as well as the NIO component.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    <import file="../io/build.xml"/>
+    <import file="../nio/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize, lw-io.initialize, lw-nio.initialize" unless="initialized.net">
+        <do.setup-properties component="net">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+                <path refid="build.limewire.components.common.buildpath"/>
+			    <path refid="build.limewire.components.io.buildpath"/>
+			    <path refid="build.limewire.components.nio.buildpath"/>
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="lw-common.clean, lw-io.clean, lw-nio.clean">
+	    <do.clean component="net"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile, lw-io.compile, lw-nio.compile">
+    	<do.compile component="net"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src, lw-io.compile-src, lw-nio.compile-src">
+	    <do.compile-src component="net"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src, lw-io.clean-src, lw-nio.clean-src">
+	    <do.clean-src component="net"/>
+	</target>
+	
+	<target name="compile-tests">
+	    <do.compile-tests component="net"/>
+	</target>
+	
+	<target name="clean-tests">
+	    <do.clean-tests component="net"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="net" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="net" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="net"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="net"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="net"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="net"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="net"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="net"/>
+    </target>
+    
+</project>

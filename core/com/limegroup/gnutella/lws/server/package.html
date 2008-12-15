@@ -1,0 +1,79 @@
+<html>
+	<body>
+
+		<h2>
+			Overview
+		</h2>
+
+		<p>
+			Classes in this package provide an interface to the rest of the Lime
+			Wire for registering {@link LWSManager.Handler}s and {@link
+			LWSManager.Listener}s to an instance of {@link LWSManager} in order
+			to receive events that are sent from Javascript code coming from the
+			Lime Wire Store. The main access to this one instance is through the
+			method {@link com.limegroup.gnutella.LimeWireCore#getLWSManger()}
+		</p>
+
+		<p>
+			The overall layout of classes in this package and those in the
+			<code>
+				lwsserver
+			</code>
+			component follows:
+		</p>
+
+		<p>
+			<img src="code.jpg" alt="code" />
+		</p>
+
+		<p>
+			The following are the definitions of the various sub-components:
+		</p>
+
+		<ul>
+			<li>
+				<em>server</em> - a web server, i.e. The Lime Wire Store web server
+			</li>
+			<li>
+				<em>client</em> - The Lime Wire file sharing client
+			</li>
+			<li>
+				<em>code</em> - Javascript code running in a browser sent from The
+				Lime Wire Store
+			</li>
+			<li>
+				<em>core</em> - this package
+			</li>
+			<li>
+				<em>gui</em> - other code in the
+				<code>
+					gui
+				</code>
+				portion of the source tree, this could also be parts of the
+				<code>
+					core
+				</code>
+				part
+			</li>
+		</ul>
+
+		<p>
+			Components that wish to listen to commands coming from the web site
+			would call {@link LWSManager#registerHandler(LWSManager.Handler)} or
+			{@link LWSManager#registerListener(LWSManager.Listener)} with an
+			appropriate argument. The different between the two is that there can
+			only be on {@link LWSManager.Handler} and zero or more {@link
+			LWSManager#Listener}s, because the former has to return a result.
+		</p>
+
+		<p>
+			The purpose of these classes is to abstract out the authentication
+			and communication aspect, which is taken care of by the
+			<code>
+				lwsserver
+			</code>
+			component.
+		</p>
+
+	</body>
+</html>

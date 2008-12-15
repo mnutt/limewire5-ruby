@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-player" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'player'.
+	    This component contains media player support.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    <import file="../player-api/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize" unless="initialized.player">
+        <do.setup-properties component="player">
+			<src-classpath>
+                <path refid="build.limewire.components.common.buildpath"/>
+                <path refid="build.limewire.components.player-api.buildpath"/>
+				<pathelement location="${limewire.lib.jars}/tritonus.jar"/>
+            </src-classpath>
+            <build-tests-classpath>
+                <path refid="tests.limewire.components.common.classpath"/>
+                <path refid="tests.limewire.components.player-api.classpath"/>
+            </build-tests-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="initialize">
+	    <do.clean component="player"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile, lw-player-api.compile">
+    	<do.compile component="player"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src, lw-player-api.compile-src">
+	    <do.compile-src component="player"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src">
+	    <do.clean-src component="player"/>
+	</target>
+	
+	<target name="compile-tests" depends="compile-src">
+	    <do.compile-tests component="player"/>
+	</target>
+	
+	<target name="clean-tests" depends="initialize">
+	    <do.clean-tests component="player"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="player" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="player" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="player"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="player"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="player"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="player"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="player"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="player"/>
+    </target>
+    
+</project>

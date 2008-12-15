@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema targetNamespace="http://www.limewire.com/schemas/video.xsd">
+
+ <element name="videos">
+      <complexType>
+          <element name="video" type="videoType" minOccurs="1" maxOccurs="unbounded"/>
+      </complexType>
+  </element>
+  <complexType name="videoType">
+    <attribute name="title" type="string" minOccurs="0" maxOccurs="1"/>
+    <attribute name="director" type="string" minOccurs="0" maxOccurs="1"/>
+    <attribute name="producer" type="string" minOccurs="0" maxOccurs="2"/>
+    <attribute name="studio" type="short" minOccurs="0" maxOccurs="1"/>
+    <attribute name="stars" type="string" minOccurs="0" maxOccurs="3"/>
+    <attribute name="type" minOccurs="0" maxOccurs="1">
+      <simpleType base="string">
+        <enumeration value="Music Video"/>
+        <enumeration value="Commercial"/>
+        <enumeration value="Trailer"/>
+        <enumeration value="Movie Clip"/>
+        <enumeration value="Video Clip"/>
+        <enumeration value="VHS Movie"/>
+        <enumeration value="DVD Movie"/>
+        <enumeration value="Adult"/>
+        <enumeration value="Other"/>
+      </simpleType>
+    </attribute>
+    <attribute name="minutes" type="decimal" minOccurs="0" maxOccurs="1"/>
+    <attribute name="size" minOccurs="0" maxOccurs="1">
+      <complexType>
+         <element name="Pixel Height" type="int"/>
+         <element name="Pixel Width" type="int"/>
+      </complexType>
+    </attribute>
+    <attribute name="year" type="year" minOccurs="0" maxOccurs="1"/>
+    <attribute name="language" type="string" minOccurs="0" maxOccurs="1"/>
+    <attribute name="subtitles" type="string" minOccurs="0" maxOccurs="3"/>
+    <attribute name="SHA1" type="int" minOccurs="0" maxOccurs="1"/>
+    <attribute name="rating" minOccurs="0" maxOccurs="1">
+      <simpleType base="string">
+        <enumeration value="G"/>
+        <enumeration value="PG"/>
+        <enumeration value="PG-13"/>
+        <enumeration value="R"/>
+        <enumeration value="NC-17"/>
+        <enumeration value="NR"/>
+      </simpleType>
+    </attribute>
+    <attribute name="availability" type="string" minOccurs="0" maxOccurs="1"/>
+    <attribute name="price" type="string" minOccurs="0" maxOccurs="1"/>
+    <attribute name="shipping" type="string" minOccurs="0" maxOccurs="1"/>
+    <attribute name="link" type="uriReference" minOccurs="0" maxOccurs="1"/>
+    <attribute name="comments" minOccurs="0" maxOccurs="1">
+      <simpleType base="string">
+        <maxInclusive value="100"/>
+      </simpleType>
+    </attribute>
+	<attribute name="action" type="string"/>
+  </complexType>
+
+</schema>
+
+
+
+
+

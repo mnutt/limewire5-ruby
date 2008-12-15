@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"> 
+  <modelVersion>4.0.0</modelVersion>  
+  <parent>
+    <groupId>org.limewire</groupId>
+    <artifactId>lw-components</artifactId>
+    <version>1.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>lw-core-glue</artifactId>
+  <packaging>jar</packaging>
+  <version>${limewire.version}</version>
+  <name>LimeWire Core Glue Component</name>
+
+  <dependencies> 
+     <dependency>
+      <groupId>org.limewire</groupId>
+      <artifactId>lw-core</artifactId>
+      <version>${limewire.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.limewire</groupId>
+      <artifactId>lw-core-api</artifactId>
+      <version>${limewire.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.limewire</groupId>
+      <artifactId>lw-xmpp</artifactId>
+      <version>${limewire.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.limewire</groupId>
+      <artifactId>lw-player</artifactId>
+      <version>${limewire.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.limewire</groupId>
+      <artifactId>lw-test-util</artifactId>
+      <version>${limewire.version}</version>
+	  <scope>test</scope>
+    </dependency>
+    <dependency>
+	    <groupId>mozilla</groupId>
+	    <artifactId>mozswing-interfaces</artifactId>
+	    <version>1.9</version>
+	</dependency>
+	<dependency>
+	      <groupId>org.mozilla</groupId>
+	      <artifactId>mozswing</artifactId>
+	      <version>2008-08-26</version>
+	 </dependency>
+	 <dependency>
+	      <groupId>mozilla</groupId>
+	      <artifactId>mozilla-glue</artifactId>
+	      <version>mozswing1.9-06242008</version>
+	 </dependency>
+	 <dependency> 
+      <groupId>net.sf.jacob-project</groupId> 
+      <artifactId>jacob</artifactId>
+      <version>1.14.1</version>
+    </dependency>
+	 <dependency>
+      <groupId>iTunes</groupId>
+      <artifactId>iTunes</artifactId>
+      <version>0.0.1</version>
+    </dependency>
+  </dependencies>
+</project>

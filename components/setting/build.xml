@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-setting" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'setting'.
+	    This component contains settings-related classes, including
+        the ability to set a 'remote settings manager'.
+	</description>
+	
+    <import file="../common/build-macros.xml"/>
+    <import file="../common/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize" unless="initialized.setting">
+        <do.setup-properties component="setting">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+			    <path refid="build.limewire.components.common.buildpath"/>
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="lw-common.clean">
+	    <do.clean component="setting"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile">
+    	<do.compile component="setting"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src">
+	    <do.compile-src component="setting"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src">
+	    <do.clean-src component="setting"/>
+	</target>
+	
+	<target name="compile-tests">
+	    <do.compile-tests component="setting"/>
+	</target>
+	
+	<target name="clean-tests">
+	    <do.clean-tests component="setting"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="setting" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="setting" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="setting"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="setting"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="setting"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="setting"/>
+    </target>
+    
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="setting"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="setting"/>
+    </target>
+	
+</project>

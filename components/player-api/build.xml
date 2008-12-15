@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-player-api" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'player-api'.
+	    The API for the LimeWire Media Player component.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+	<!-- <import file="../net/build.xml"/> -->
+    
+    <target name="initialize" unless="initialized.player-api">
+        <do.setup-properties component="player-api">
+			<src-classpath>
+                <pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean">
+	    <do.clean component="player-api"/>
+	</target>
+    
+    <target name="compile">
+        <!-- Currently no tests - using compile-src in the meantime -->
+    	<!--<do.compile component="player-api"/>-->
+    	<do.compile-src component="player-api"/>
+        <mkdir dir="${build.limewire.components.player-api.tests}"/>
+    </target>
+	
+	<target name="compile-src">
+	    <do.compile-src component="player-api"/>
+	</target>
+    
+	<target name="clean-src">
+	    <do.clean-src component="player-api"/>
+	</target>
+	
+	<target name="compile-tests">
+	    <!--<do.compile-tests component="player-api"/>-->
+	    <mkdir dir="${build.limewire.components.player-api.tests}"/>
+	</target>
+	
+	<target name="clean-tests">
+	    <do.clean-tests component="player-api"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="player-api" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="player-api" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="player-api"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="player-api"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="player-api"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="player-api"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="player-api"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="player-api"/>
+    </target>
+    
+</project>

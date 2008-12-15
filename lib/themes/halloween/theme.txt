@@ -1,0 +1,75 @@
+##################################################################
+# Theme file for specififying the appearance of LimeWire.  All
+# LimeWire colors and fonts can be customized below.  The 
+# documentation for these settings is provided at:
+#
+# http://www.limewire.com/skins
+#
+# Look under "Visual Design" and particularly "Themes."  This
+# will make the color and font names below much easier to 
+# understand.
+##################################################################
+# Halloween Theme
+THEME_VERSION=2
+
+PRIMARY1_COLOR=#000000
+PRIMARY2_COLOR=#333333
+PRIMARY3_COLOR=#3C3C3C
+SECONDARY1_COLOR=#323232
+SECONDARY2_COLOR=#141414
+SECONDARY3_COLOR=#3C3C3C
+WINDOW1_COLOR=#FFFFFF
+WINDOW2_COLOR=#3C3C3C
+WINDOW3_COLOR=#646464
+WINDOW4_COLOR=#FFFFFF
+WINDOW5_COLOR=#F68B00
+WINDOW6_COLOR=#000000
+WINDOW7_COLOR=#000000
+WINDOW8_COLOR=#FB8646
+WINDOW9_COLOR=#FF8000
+WINDOW10_COLOR=#FFFFFF
+WINDOW11_COLOR=#646464
+WINDOW12_COLOR=#3C3C3C
+TABLE_HEADER_BACKGROUND_COLOR=#FF5A00
+TABLE_BACKGROUND_COLOR=#000000
+TABLE_ALTERNATE_COLOR=#292929
+NOT_SHARING_LABEL_COLOR=#D00005
+SEARCH_FILTER_TITLE_TOP_COLOR=#FF5A00
+SEARCH_FILTER_TITLE_COLOR=#000000
+SEARCH_PANEL_BG_1=#333333
+SEARCH_PANEL_BG_2=#565656
+SEARCH_GRID_COLOR=#9B9B9B
+SEARCH_PRIVATE_IP_COLOR=#FF0000
+SEARCH_IP_COLOR=#FFFFFF
+SEARCH_RESULT_SPEED_COLOR=#FFFFFF
+
+
+##################################################################
+# Font settings can be set below.  For the style of the font,
+# only plain and bold are supported.  Plain is specified as
+# "0", wherease bold is specified as "1".
+##################################################################
+CONTROL_TEXT_FONT_NAME=dialog
+CONTROL_TEXT_FONT_STYLE=1
+CONTROL_TEXT_FONT_SIZE=11
+
+SYSTEM_TEXT_FONT_NAME=Verdana
+SYSTEM_TEXT_FONT_STYLE=0
+SYSTEM_TEXT_FONT_SIZE=10
+
+USER_TEXT_FONT_NAME=Verdana
+USER_TEXT_FONT_STYLE=0
+USER_TEXT_FONT_SIZE=10
+
+MENU_TEXT_FONT_NAME=Verdana
+MENU_TEXT_FONT_STYLE=0
+MENU_TEXT_FONT_SIZE=11
+
+WINDOW_TITLE_FONT_NAME=Verdana
+WINDOW_TITLE_FONT_STYLE=1
+WINDOW_TITLE_FONT_SIZE=11
+
+SUB_TEXT_FONT_NAME=Verdana
+SUB_TEXT_FONT_STYLE=0
+SUB_TEXT_FONT_SIZE=9
+

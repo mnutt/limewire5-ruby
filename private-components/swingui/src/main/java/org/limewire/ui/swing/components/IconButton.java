@@ -1,0 +1,119 @@
+package org.limewire.ui.swing.components;
+
+import java.awt.Insets;
+
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.SwingConstants;
+
+import org.jdesktop.swingx.JXButton;
+import org.limewire.ui.swing.listener.ActionHandListener;
+
+public class IconButton extends JXButton {
+
+    public IconButton() {
+        init();
+    }
+    
+    public IconButton(Action a) {
+        super(a);
+        init();
+    }
+
+    public IconButton(Icon icon) {
+        super(icon);
+        init();
+    }
+
+    public IconButton(String text, Icon icon) {
+        super(text, icon);
+        init();
+    }
+    
+    public IconButton(Icon icon, Icon rolloverIcon) {
+        super(icon);
+        init();
+        setRolloverIcon(rolloverIcon);
+    }
+    
+    public IconButton(Icon icon, Icon rolloverIcon, Icon pressedIcon) {
+        super(icon);
+        init();
+        setRolloverIcon(rolloverIcon);
+        setPressedIcon(pressedIcon);
+    }
+    
+    public IconButton(Icon icon, Icon rolloverIcon, Icon pressedIcon, Icon selectedIcon) {
+        super(icon);
+        init();
+        setRolloverIcon(rolloverIcon);
+        setPressedIcon(pressedIcon);
+        setSelectedIcon(selectedIcon);
+    }
+    
+    @Override
+    public void setIcon(Icon defaultIcon) {
+        super.setIcon(defaultIcon);
+        if(getSelectedIcon() == null || getSelectedIcon() instanceof CustomShiftedIcon) {
+            if(defaultIcon == null) {
+                setSelectedIcon(null);
+            } else {                
+                setSelectedIcon(new CustomShiftedIcon(1, 1, defaultIcon));
+            }
+        }
+    }
+    
+    private void init() {
+        setMargin(new Insets(0, 0, 0, 0));
+        setBorderPainted(false);
+        setContentAreaFilled(false);
+        setFocusPainted(false);
+        setRolloverEnabled(true);
+        setHideActionText(true);
+        setBorder(null);
+        setOpaque(false);
+        setHorizontalTextPosition(SwingConstants.CENTER);
+        setVerticalTextPosition(SwingConstants.BOTTOM);
+        setIconTextGap(2);
+        addMouseListener(new ActionHandListener());
+    }
+    
+    @Override
+    protected void configurePropertiesFromAction(Action a) {
+        super.configurePropertiesFromAction(a);
+        if (hasSelectedKey(a)) {
+            setSelectedFromAction(a);
+        }
+    }
+    
+    @Override
+    protected void actionPropertyChanged(Action action, String propertyName) {
+        super.actionPropertyChanged(action, propertyName);
+        if (propertyName == Action.SELECTED_KEY && hasSelectedKey(action)) {
+            setSelectedFromAction(action);
+        }
+    }
+    
+    /** Sets the selected state of the button from the action. */
+    private void setSelectedFromAction(Action a) {
+        boolean selected = false;
+        if (a != null) {
+            selected =  Boolean.TRUE.equals(a.getValue(Action.SELECTED_KEY));
+        }
+        
+        if (selected != isSelected()) {
+            setSelected(selected);
+        }
+    }    
+
+    private static boolean hasSelectedKey(Action a) {
+        return (a != null && a.getValue(Action.SELECTED_KEY) != null);
+    }
+    
+    /** An extension so we can check instanceof for our custom selected icons. */
+    private static class CustomShiftedIcon extends ShiftedIcon {
+        public CustomShiftedIcon(int shiftWidth, int shiftHeight, Icon icon) {
+            super(shiftWidth, shiftHeight, icon);
+        }        
+    }
+}

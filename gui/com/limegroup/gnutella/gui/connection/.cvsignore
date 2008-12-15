@@ -1,0 +1,8 @@
+*.class
+display.props
+limewire.props
+gnutella.net
+fileurns.cache
+hs_*.log
+log.txt
+java.hprof.txt

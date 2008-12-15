@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<project name="mojito-ui" default="compile-src" basedir=".">
+    <description>The Mojito DHT user interface components</description>
+	
+	<import file="../mojito/build.xml"/>
+	<import file="../common/build-macros.xml" />
+	
+	<target name="initialize" depends="mojito.initialize" unless="initialized.mojito-ui">
+        <do.setup-properties component="mojito-ui">
+			<src-classpath>
+				<path refid="build.limewire.components.mojito.buildpath"/>
+			</src-classpath>
+        </do.setup-properties>
+	</target>
+	
+	<target name="clean" depends="mojito.clean">
+	    <do.clean component="mojito-ui"/>
+	</target>
+	    
+    <target name="compile" depends="mojito.compile">
+        <!-- No tests for now - when tests arrive, use compile instead of compile-src -->
+    	<!--<do.compile component="mojito-ui"/>-->
+    	<do.compile-src component="mojito-ui"/>
+        <mkdir dir="${build.limewire.components.mojito-ui.tests}"/>
+    </target>
+	
+	<target name="compile-src" depends="mojito.compile-src">
+	    <do.compile-src component="mojito-ui"/>
+	</target>
+    
+	<target name="clean-src" depends="mojito.clean-src">
+	    <do.clean-src component="mojito-ui"/>
+	</target>
+	
+	<target name="compile-tests">
+	   <!-- There are currently no mojito-ui tests. -->
+	   <!-- <do.compile-tests component="mojito-ui"/> -->
+       <mkdir dir="${build.limewire.components.mojito-ui.tests}"/>
+	</target>
+	
+	<target name="clean-tests">
+	    <do.clean-tests component="mojito-ui"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="mojito-ui" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="mojito-ui" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="mojito-ui"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="mojito-ui"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="mojito-ui"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="mojito-ui"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="mojito-ui"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="mojito-ui"/>
+    </target>
+
+</project>
+

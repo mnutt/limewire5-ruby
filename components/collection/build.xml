@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-collection" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'collection'.
+	    This component contains advanced datastructures that other components can use.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize" unless="initialized.collection">
+        <do.setup-properties component="collection">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+				<pathelement location="${limewire.lib.jars}/glazedlists-1.7.0_java15.jar"/>				
+			    <path refid="build.limewire.components.common.buildpath"/>
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="lw-common.clean">
+	    <do.clean component="collection"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile">
+    	<do.compile component="collection"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src">
+	    <do.compile-src component="collection"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src">
+	    <do.clean-src component="collection"/>
+	</target>
+	
+	<target name="compile-tests">
+	    <do.compile-tests component="collection"/>
+	</target>
+	
+	<target name="clean-tests">
+	    <do.clean-tests component="collection"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="collection" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="collection" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="collection"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="collection"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="collection"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="collection"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="collection"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="collection"/>
+    </target>
+    
+</project>

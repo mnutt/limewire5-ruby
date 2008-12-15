@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-mock-core" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'mock-core'.
+		This components contains a mock implementation of core.
+	</description>
+	
+    <import file="../build-macros.xml"/>
+    <import file="../../components/core-api/build.xml"/>
+    
+    <target name="initialize" depends="lw-core-api.initialize" unless="initialized.mock-core">
+        <do.setup-private-properties component="mock-core">
+			<add-src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+				<pathelement location="${limewire.lib.jars}/guice-snapshot.jar"/>
+			    <path refid="build.limewire.components.core-api.buildpath"/>
+			</add-src-classpath>
+        </do.setup-private-properties>
+    </target>
+	
+	<target name="clean" depends="initialize">
+	    <do.clean component="mock-core"/>
+	</target>
+    
+    <target name="compile" depends="initialize, lw-core-api.compile">
+    	<!--<do.compile component="mock-core"/>-->
+    	<do.compile-src component="mock-core"/>
+    	<mkdir dir="${build.limewire.components.mock-core.tests}"/>
+    </target>
+	
+	<target name="compile-src" depends="initialize, lw-core-api.compile-src">
+	    <do.compile-src component="mock-core"/>
+	</target>
+    
+	<target name="clean-src" depends="initialize">
+	    <do.clean-src component="mock-core"/>
+	</target>
+	
+	<target name="compile-tests" depends="initialize">
+	    <!--<do.compile-tests component="mock-core"/>-->
+	    <mkdir dir="${build.limewire.components.mock-core.tests}"/>
+	</target>
+	
+	<target name="clean-tests" depends="initialize">
+	    <do.clean-tests component="collection"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="mock-core" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="mock-core" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="mock-core"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="mock-core"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="mock-core"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="mock-core"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="mock-core"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="mock-core"/>
+    </target>
+    
+</project>

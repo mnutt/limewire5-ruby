@@ -1,0 +1,25 @@
+/AbstractFileListPanel.java/1.7/Thu Dec 11 19:55:35 2008//
+/AbstractFriendLibraryPanel.java/1.2/Wed Dec 10 17:14:33 2008//
+/AllFriendsLibraryPanel.java/1.1/Sun Dec  7 20:28:07 2008//
+/Disposable.java/1.2/Fri Oct 24 19:14:40 2008//
+/EmptyLibraryFactory.java/1.2/Sun Dec  7 18:57:45 2008//
+/EmptyLibraryPanel.java/1.6/Sun Dec  7 18:57:45 2008//
+/FriendLibraryFactory.java/1.6/Sun Dec  7 18:57:45 2008//
+/FriendLibraryMediator.java/1.13/Mon Dec  8 22:45:02 2008//
+/FriendLibraryMediatorFactory.java/1.2/Sun Dec  7 18:57:45 2008//
+/FriendLibraryPanel.java/1.29/Sun Dec  7 20:28:07 2008//
+/FriendSharingPanel.java/1.3/Thu Dec 11 19:55:35 2008//
+/FriendSharingPanelFactory.java/1.1/Sun Dec  7 18:57:45 2008//
+/LibraryMediator.java/1.3/Mon Dec  8 22:24:05 2008//
+/LibraryOperable.java/1.2/Fri Dec 12 23:21:05 2008//
+/LibraryPanel.java/1.30/Thu Dec 11 19:55:35 2008//
+/LibrarySelectable.java/1.2/Mon Dec  8 04:10:20 2008//
+/LibrarySelectionPanel.java/1.2/Sun Dec  7 18:57:45 2008//
+/LibraryTextFilterator.java/1.3/Sun Dec  7 18:57:45 2008//
+/LibraryTraversable.java/1.2/Fri Dec 12 23:21:05 2008//
+/LimeWireUiLibraryModule.java/1.11/Wed Dec 10 18:42:51 2008//
+/MyLibraryPanel.java/1.69/Fri Dec 12 22:55:08 2008//
+/P2PNetworkSharingPanel.java/1.2/Mon Dec  8 15:40:28 2008//
+/Sharable.java/1.3/Wed Dec 10 21:07:29 2008//
+/SharingPanel.java/1.6/Thu Dec 11 21:43:45 2008//
+D

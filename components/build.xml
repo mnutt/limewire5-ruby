@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-components" basedir="." default="compile-src">
+
+	<description>
+	    Catch-all buildfile for every component.
+	</description>
+    
+	<property name="limewire.home" location="${basedir}/.."/>
+	
+    <import file="common/build-macros.xml" />
+    <import file="common/build.xml" />
+    <import file="collection/build.xml"/>
+    <import file="security/build.xml"/>
+    <import file="io/build.xml"/>
+    <import file="setting/build.xml"/>
+    <import file="mojito/build.xml"/>
+	<import file="mojito-ui/build.xml"/>
+	<import file="nio/build.xml"/>
+	<import file="rudp/build.xml"/>
+    <import file="statistic/build.xml"/>
+    <import file="resources/build.xml"/>
+	<import file="http/build.xml"/>
+	<import file="net/build.xml"/>
+	<import file="lwsserver/build.xml"/>
+	<import file="promotion/build.xml"/>
+	<import file="geocode/build.xml"/>
+    <import file="xmpp/build.xml"/>
+	<import file="player/build.xml"/>
+	<import file="core-api/build.xml"/>
+    <import file="core-settings/build.xml"/>
+    <import file="xmpp-api/build.xml"/>
+	<import file="player-api/build.xml"/>
+    <import file="swarm/build.xml"/>
+	
+    <target name="initialize" depends="lw-setting.initialize, lw-statistic.initialize, lw-rudp.initialize, lw-nio.initialize, lw-io.initialize, lw-security.initialize, lw-collection.initialize, lw-common.initialize, lw-test-util.initialize, mojito.initialize, mojito-ui.initialize, lw-resources.initialize, lw-http.initialize,lw-net.initialize, lw-lwsserver.initialize, lw-promotion.initialize, lw-geocode.initialize, lw-xmpp.initialize, lw-player.initialize, lw-core-api.initialize, lw-core-settings.initialize, lw-xmpp-api.initialize, lw-player-api.initialize, lw-swarm.initialize" unless="initialized.all">
+        <do.setup-properties component="all">
+			<tests-classpath>
+            	<path refid="tests.limewire.components.common.classpath"/>
+	            <path refid="tests.limewire.components.collection.classpath"/>
+	            <path refid="tests.limewire.components.security.classpath"/>
+		        <path refid="tests.limewire.components.io.classpath"/>
+		        <path refid="tests.limewire.components.nio.classpath"/>
+		        <path refid="tests.limewire.components.rudp.classpath"/>
+		        <path refid="tests.limewire.components.setting.classpath"/>
+		        <path refid="tests.limewire.components.statistic.classpath"/>
+				<path refid="tests.limewire.components.mojito.classpath"/>
+				<path refid="tests.limewire.components.mojito-ui.classpath"/>
+			    <path refid="tests.limewire.components.test-util.classpath"/>
+			    <path refid="tests.limewire.components.resources.classpath"/>
+			    <path refid="tests.limewire.components.http.classpath"/>
+			    <path refid="tests.limewire.components.net.classpath"/>
+				<path refid="tests.limewire.components.lwsserver.classpath"/>
+				<path refid="tests.limewire.components.promotion.classpath"/>
+				<path refid="tests.limewire.components.geocode.classpath"/>
+                <path refid="tests.limewire.components.xmpp.classpath"/>
+                <path refid="tests.limewire.components.player.classpath"/>
+                <path refid="tests.limewire.components.core-api.classpath"/>
+                <path refid="tests.limewire.components.core-settings.classpath"/>
+                <path refid="tests.limewire.components.xmpp-api.classpath"/>
+                <path refid="tests.limewire.components.player-api.classpath"/>
+                <path refid="tests.limewire.components.swarm.classpath"/>
+                <!-- Add as components are added. -->
+		    </tests-classpath>
+        </do.setup-properties>    
+        
+        <!-- setup a special property for the buildpath of each component combined. -->
+        <path id="build.limewire.components.classes.core">
+            <pathelement location="${build.limewire.components.common.classes}"/>
+            <pathelement location="${build.limewire.components.collection.classes}"/>
+            <pathelement location="${build.limewire.components.security.classes}"/>
+            <pathelement location="${build.limewire.components.io.classes}"/>
+            <pathelement location="${build.limewire.components.nio.classes}"/>
+            <pathelement location="${build.limewire.components.rudp.classes}"/>
+            <pathelement location="${build.limewire.components.setting.classes}"/>
+            <pathelement location="${build.limewire.components.statistic.classes}"/>
+			<pathelement location="${build.limewire.components.mojito.classes}"/>
+ 			<pathelement location="${build.limewire.components.http.classes}"/>
+ 			<pathelement location="${build.limewire.components.net.classes}"/>
+ 			<pathelement location="${build.limewire.components.lwsserver.classes}"/>
+ 			<pathelement location="${build.limewire.components.promotion.classes}"/>
+ 			<pathelement location="${build.limewire.components.geocode.classes}"/>
+            <pathelement location="${build.limewire.components.xmpp.classes}"/>
+            <pathelement location="${build.limewire.components.player.classes}"/>
+            <pathelement location="${build.limewire.components.core-api.classes}"/>
+            <pathelement location="${build.limewire.components.core-settings.classes}"/>
+            <pathelement location="${build.limewire.components.xmpp-api.classes}"/>
+            <pathelement location="${build.limewire.components.player-api.classes}"/>
+            <pathelement location="${build.limewire.components.swarm.classes}"/>
+            <!-- test-util not added purposely, as the classes are required for tests only -->
+            
+            <!-- Add as core components are added. -->
+        </path>
+	
+		<path id="build.limewire.components.classes.ui">
+			<pathelement location="${build.limewire.components.mojito-ui.classes}"/>
+			<pathelement location="${build.limewire.components.resources.classes}"/>
+			<path refid="build.limewire.components.classes.core"/>
+		    <!-- Add as UI components are added. -->
+        </path>
+    
+    	<fileset id="limewire.components.sources.all" dir="${limewire.components.home}">
+    		<include name="${limewire.components.common.relative.antglob.allsources}"/>
+			<include name="${limewire.components.collection.relative.antglob.allsources}"/>
+			<include name="${limewire.components.security.relative.antglob.allsources}"/>
+			<include name="${limewire.components.io.relative.antglob.allsources}"/>
+			<include name="${limewire.components.nio.relative.antglob.allsources}"/>
+			<include name="${limewire.components.rudp.relative.antglob.allsources}"/>
+			<include name="${limewire.components.setting.relative.antglob.allsources}"/>
+			<include name="${limewire.components.statistic.relative.antglob.allsources}"/>
+			<include name="${limewire.components.mojito.relative.antglob.allsources}"/>
+			<include name="${limewire.components.mojito-ui.relative.antglob.allsources}"/>
+	     	<include name="${limewire.components.http.relative.antglob.allsources}"/>    
+	     	<include name="${limewire.components.net.relative.antglob.allsources}"/>    
+    		<include name="${limewire.components.lwsserver.relative.antglob.allsources}"/>
+    		<include name="${limewire.components.promotion.relative.antglob.allsources}"/>
+    		<include name="${limewire.components.geocode.relative.antglob.allsources}"/>
+            <include name="${limewire.components.xmpp.relative.antglob.allsources}"/>
+            <include name="${limewire.components.player.relative.antglob.allsources}"/>
+            <include name="${limewire.components.core-api.relative.antglob.allsources}"/>
+            <include name="${limewire.components.core-settings.relative.antglob.allsources}"/>
+            <include name="${limewire.components.xmpp-api.relative.antglob.allsources}"/>
+            <include name="${limewire.components.player-api.relative.antglob.allsources}"/>
+            <include name="${limewire.components.swarm.relative.antglob.allsources}"/>
+            <!-- Add as components are added! -->
+		</fileset>
+    
+		<fileset id="limewire.components.sources.tests" dir="${limewire.components.home}">
+			<include name="${limewire.components.common.relative.antglob.tests}"/>
+			<include name="${limewire.components.collection.relative.antglob.tests}"/>
+			<include name="${limewire.components.security.relative.antglob.tests}"/>
+			<include name="${limewire.components.io.relative.antglob.tests}"/>
+			<include name="${limewire.components.nio.relative.antglob.tests}"/>
+			<include name="${limewire.components.rudp.relative.antglob.tests}"/>
+			<include name="${limewire.components.setting.relative.antglob.tests}"/>
+			<include name="${limewire.components.statistic.relative.antglob.tests}"/>
+			<include name="${limewire.components.mojito.relative.antglob.tests}"/>
+			<include name="${limewire.components.mojito-ui.relative.antglob.tests}"/>
+	     	<include name="${limewire.components.http.relative.antglob.tests}"/>    
+	     	<include name="${limewire.components.net.relative.antglob.tests}"/>    
+	     	<include name="${limewire.components.lwsserver.relative.antglob.tests}"/>    
+	     	<include name="${limewire.components.promotion.relative.antglob.tests}"/>    
+	     	<include name="${limewire.components.geocode.relative.antglob.tests}"/>
+            <include name="${limewire.components.xmpp.relative.antglob.tests}"/> 
+            <include name="${limewire.components.player.relative.antglob.tests}"/> 
+            <include name="${limewire.components.core-api.relative.antglob.tests}"/>
+            <include name="${limewire.components.core-settings.relative.antglob.tests}"/>
+            <include name="${limewire.components.xmpp-api.relative.antglob.tests}"/>
+            <include name="${limewire.components.player-api.relative.antglob.tests}"/>
+            <include name="${limewire.components.swarm.relative.antglob.tests}"/>
+            <!-- Add as components are added! -->
+		</fileset>
+    
+    </target>
+	
+	<target name="clean"
+	        description="Cleans all generated data in every component."
+          depends="lw-setting.clean, lw-statistic.clean, lw-rudp.clean, lw-nio.clean, lw-io.clean, lw-security.clean, lw-collection.clean, lw-common.clean, lw-test-util.clean, mojito.clean, mojito-ui.clean, lw-http.clean, lw-net.clean, lw-promotion.clean, lw-geocode.clean, lw-lwsserver.clean, lw-xmpp.clean, lw-player.clean, lw-core-api.clean, lw-core-settings.clean, lw-xmpp-api.clean, lw-player-api.clean, lw-swarm.clean"
+          >
+	    <do.clean component="all"/>
+    </target>
+    
+    
+    <target name="compile"
+        	description="Compiles the source and tests of every component."
+        	depends="compile-core, compile-ui"/>
+    
+    <target name="compile-core"
+            description="Compiles the source and tests of every non-UI component."
+            depends="lw-setting.compile, lw-statistic.compile, lw-rudp.compile, lw-nio.compile, lw-io.compile, lw-security.compile, lw-collection.compile, lw-common.compile, lw-test-util.compile, mojito.compile, mojito-ui.compile, lw-http.compile, lw-net.compile, lw-lwsserver.compile, lw-promotion.compile, lw-geocode.compile, lw-xmpp.compile, lw-player.compile, lw-core-api.compile, lw-core-settings.compile, lw-xmpp-api.compile, lw-player-api.compile, lw-swarm.compile">
+        <mkdir dir="${build.limewire.components.all.classes}"/>
+        <mkdir dir="${build.limewire.components.all.tests}"/>
+	</target>
+	
+	<target name="compile-ui"
+	            description="Compiles the source and tests of every component for a UI target."
+	            depends="mojito-ui.compile">
+	        <mkdir dir="${build.limewire.components.all.classes}"/>
+	        <mkdir dir="${build.limewire.components.all.tests}"/>
+	</target>
+    
+    <target name="compile-src"
+    		description="Compiles only the source code of every component."
+    		depends="compile-core-src, compile-ui-src"/>
+	
+	<target name="compile-core-src"
+	        description="Compiles only the source code of every non-UI component."
+	        depends="lw-setting.compile-src, lw-statistic.compile-src, lw-rudp.compile-src, lw-nio.compile-src, lw-io.compile-src, lw-security.compile-src, lw-collection.compile-src, lw-common.compile-src, mojito.compile-src, lw-http.compile-src, lw-net.compile-src, lw-lwsserver.compile-src, lw-promotion.compile-src, lw-geocode.compile-src, lw-xmpp.compile-src, lw-player.compile-src, lw-core-api.compile-src, lw-core-settings.compile-src, lw-xmpp-api.compile-src, lw-player-api.compile-src, lw-swarm.compile-src">
+        <mkdir dir="${build.limewire.components.all.classes}"/>
+	</target>
+	
+	<target name="compile-ui-src"
+		        description="Compiles only the source code of every component for a UI target."
+		        depends="mojito-ui.compile-src">
+	        <mkdir dir="${build.limewire.components.all.classes}"/>
+	</target>
+    
+	<target name="clean-src"
+	        description="Cleans files generated from compiling the source code of every component."
+	        depends="lw-setting.clean-src, lw-statistic.clean-src, lw-rudp.clean-src, lw-nio.clean-src, lw-io.clean-src, lw-security.clean-src, lw-collection.clean-src, lw-common.clean-src, mojito.clean-src, mojito-ui.clean-src, lw-http.clean-src, lw-net.clean-src, lw-lwsserver.clean-src, lw-promotion.clean-src, lw-geocode.clean-src, lw-xmpp.clean-src, lw-player.clean-src, lw-core-api.clean-src, lw-xmpp-api.clean-src, lw-player-api.clean-src, lw-swarm.clean-src">
+		<do.clean-src component="all"/>
+	</target>
+	
+	<target name="compile-tests"
+	        description="Compiles the tests of every component (and the source if necessary)"
+	        depends="compile-src, lw-test-util.compile-src, lw-setting.compile-tests, lw-statistic.compile-tests, lw-rudp.compile-tests, lw-nio.compile-tests, lw-io.compile-tests, lw-security.compile-tests, lw-collection.compile-tests, lw-common.compile-tests, lw-test-util.compile-src, lw-test-util.compile-tests, mojito.compile-tests, mojito-ui.compile-tests, lw-net.compile-tests, lw-http.compile-tests, lw-lwsserver.compile-tests, lw-promotion.compile-tests, lw-geocode.compile-tests, lw-xmpp.compile-tests, lw-player.compile-tests, lw-core-api.compile-tests, lw-core-settings.compile-tests, lw-xmpp-api.compile-tests, lw-player-api.compile-tests, lw-swarm.compile-tests">
+        <mkdir dir="${build.limewire.components.all.tests}"/>
+	</target>
+    
+	<target name="clean-tests"
+	        description="Cleans data generated from compiling and running the tests of every component."
+	        depends="initialize, lw-setting.clean-tests, lw-statistic.clean-tests, lw-rudp.clean-tests, lw-nio.clean-tests, lw-io.clean-tests, lw-security.clean-tests, lw-collection.clean-tests, lw-common.clean-tests, lw-test-util.clean-tests, mojito.clean-tests, mojito-ui.clean-tests, lw-http.clean-tests, lw-net.clean-tests, lw-lwsserver.clean-tests, lw-promotion.clean-tests, lw-geocode.clean-tests, lw-xmpp.clean-tests, lw-player.clean-tests, lw-core-api.clean-tests, lw-core-settings.clean-tests, lw-xmpp-api.clean-tests, lw-player-api.clean-tests, lw-swarm.clean-tests">
+	    <do.clean-tests component="all"/>
+	</target>
+	
+	<target name="test"
+            description="Runs a single test from one component. Requires: -Dclass=X and -Dcomponent=X."
+            if="class" depends="compile-tests, prep-tests">
+	    <do.test component="${component}" class="${class}"/>
+	</target>
+	
+	<target name="test-package"
+            description="Runs all tests in a package of one component.  Requires: -Dpackage=X -Dcomponent=X."
+            if="package" depends="compile-tests, prep-tests">
+	    <do.test-package component="${component}" package="${package}"/>
+	</target>
+	
+	<target name="test-all" 
+            description="Runs every test in every component."
+            depends="compile-tests, prep-tests">
+	    <do.test-all component="all">
+	        <testLocations>
+	            <fileset dir="${build.limewire.components.test-util.tests}" includes="**/*Test.class"/>
+                <fileset dir="${build.limewire.components.common.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.collection.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.security.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.io.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.nio.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.rudp.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.setting.tests}" includes="**/*Test.class"/>
+    	        <fileset dir="${build.limewire.components.statistic.tests}" includes="**/*Test.class"/> 
+    			<fileset dir="${build.limewire.components.mojito.tests}" includes="**/*Test.class"/>
+               	<fileset dir="${build.limewire.components.mojito-ui.tests}" includes="**/*Test.class"/>
+               	<fileset dir="${build.limewire.components.http.tests}" includes="**/*Test.class"/>
+	           	<fileset dir="${build.limewire.components.net.tests}" includes="**/*Test.class"/>
+	           	<fileset dir="${build.limewire.components.lwsserver.tests}" includes="**/*Test.class"/>
+	           	<fileset dir="${build.limewire.components.promotion.tests}" includes="**/*Test.class"/>
+	           	<fileset dir="${build.limewire.components.geocode.tests}" includes="**/*Test.class"/>
+                <fileset dir="${build.limewire.components.xmpp.tests}" includes="**/*Test.class"/>
+                <fileset dir="${build.limewire.components.player.tests}" includes="**/*Test.class"/>
+                <fileset dir="${build.limewire.components.core-api.tests}" includes="**/*Test.class"/>
+                <fileset dir="${build.limewire.components.core-settings.tests}" includes="**/*Test.class"/>
+                <fileset dir="${build.limewire.components.xmpp-api.tests}" includes="**/*Test.class"/>
+                <fileset dir="${build.limewire.components.player-api.tests}" includes="**/*Test.class"/>
+                <fileset dir="${build.limewire.components.swarm.tests}" includes="**/*Test.class"/>
+                <!-- Add as tests are added. -->
+	         </testLocations>
+	    </do.test-all>
+	</target>
+    
+    <target name="prep-tests">
+        <mkdir dir="${limewire.components.all.tests.resources}"/>
+        <!--<copy file="${limewire.components.home}/log4j.properties" todir="${limewire.components.all.tests.resources}" overwrite="true"/>-->
+    </target>
+	    
+    <target name="jar"
+            description="Creates a jar file of the compiled source of every component."
+            depends="initialize, compile-src, compile-ui-src">
+        <do.jar component="all" basedir="" resourcedir="" resexclude="**" excludes="**">
+			<more-jar-elements>
+			    <fileset dir="${build.limewire.components.common.classes}" />
+	    	    <fileset dir="${limewire.components.common.src.resources}" />
+			    <fileset dir="${build.limewire.components.collection.classes}"/>
+    	        <fileset dir="${build.limewire.components.security.classes}" />
+    	        <fileset dir="${build.limewire.components.io.classes}" />
+      	        <fileset dir="${build.limewire.components.nio.classes}" />
+      	        <fileset dir="${build.limewire.components.rudp.classes}" />
+    	    	<fileset dir="${build.limewire.components.setting.classes}" />
+    	    	<fileset dir="${build.limewire.components.statistic.classes}" />
+    	    	<fileset dir="${build.limewire.components.mojito.classes}" />
+    	    	<fileset dir="${build.limewire.components.mojito-ui.classes}" />
+    	    	<fileset dir="${limewire.components.resources.src.resources}" />
+    	    	<fileset dir="${build.limewire.components.http.classes}" />
+    	    	<fileset dir="${build.limewire.components.net.classes}" />
+    	    	<fileset dir="${build.limewire.components.lwsserver.classes}" />
+    	    	<fileset dir="${build.limewire.components.promotion.classes}" />
+    	    	<fileset dir="${build.limewire.components.geocode.classes}" />
+                <fileset dir="${build.limewire.components.xmpp.classes}" />
+                <fileset dir="${build.limewire.components.player.classes}" />
+                <fileset dir="${build.limewire.components.core-api.classes}"/>
+                <fileset dir="${build.limewire.components.core-settings.classes}"/>
+                <fileset dir="${build.limewire.components.xmpp-api.classes}"/>
+                <fileset dir="${build.limewire.components.player-api.classes}"/>
+                <fileset dir="${build.limewire.components.swarm.classes}"/>
+                <!-- Add as components & resources are added. -->
+			</more-jar-elements>
+        </do.jar>
+    </target>
+    
+	<target name="javadoc" description="Doesn't work.">
+    	<fail message="Use maven to generate javadocs."/>
+    </target>
+	    
+    <target name="clean-dist"
+            description="Cleans all generated distribution files."
+            depends="initialize">
+        <do.clean-dist component="all"/>
+    </target>
+    
+    <target name="with.clover"
+            description="Instructs the build to use clover's instrumenting."
+            depends="initialize">
+        <do.clover-setup component="all">
+	        <locations>
+	            <fileset refid="limewire.components.sources.all"/>
+			</locations>
+	    </do.clover-setup>
+	</target>
+    
+    <target name="clover2html"
+            description="Converts clover's generated data into HTML reports."
+            depends="initialize">
+    	<mkdir dir="${limewire.components.all.tests}"/>
+        <do.clover2html component="all">
+			<moretestinfo>
+    			<testsources refid="limewire.components.sources.tests"/>
+			</moretestinfo>
+	    </do.clover2html>
+    </target>
+</project>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-core-settings" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'core-settings'.
+	    The settings for the LimeWire Core.
+	</description>
+	
+    <import file="../common/build-macros.xml" />
+    <import file="../common/build.xml"/>
+    <import file="../setting/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize, lw-setting.initialize" unless="initialized.core-settings">
+        <do.setup-properties component="core-settings">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+				<path refid="build.limewire.components.setting.buildpath" />
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="initialize">
+	    <do.clean component="core-settings"/>
+	</target>
+    
+    <target name="compile" depends="initialize, lw-setting.compile">
+        <!-- Currently no tests - using compile-src in the meantime -->
+    	<!--<do.compile component="core-settings"/>-->
+    	<do.compile-src component="core-settings"/>
+        <mkdir dir="${build.limewire.components.core-settings.tests}"/>
+    </target>
+	
+	<target name="compile-src" depends="initialize, lw-setting.compile-src">
+	    <do.compile-src component="core-settings"/>
+	</target>
+    
+	<target name="clean-src" depends="initialize">
+	    <do.clean-src component="core-settings"/>
+	</target>
+	
+	<target name="compile-tests" depends="initialize">
+	    <!--<do.compile-tests component="core-settings"/>-->
+	    <mkdir dir="${build.limewire.components.core-settings.tests}"/>
+	</target>
+	
+	<target name="clean-tests" depends="initialize">
+	    <do.clean-tests component="core-settings"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="core-settings" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="core-settings" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="core-settings"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="core-settings"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="core-settings"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="core-settings"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="core-settings"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="core-settings"/>
+    </target>
+    
+</project>

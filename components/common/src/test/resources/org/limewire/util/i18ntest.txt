@@ -1,0 +1,103 @@
+﻿# BEGIN CASE
+he あ llo;ＨＥあＬＬＯ
+limewire;ＬＩＭＥＷＩＲＥ
+hello;ＨＥllo
+カ;ｶ
+アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワンヲ;ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝｦ
+ssss;ßｓｓ
+# END CASE
+# BEGIN ACCENTS
+ジャ;ｼﾞｬ
+ジャ;シﾞｬ
+s;š
+y;Ÿ
+aacute a;Aacute Á
+acircumflex a;Acircumflex Â
+a;Ã
+a;Ä
+a;Å
+c;Ç
+c;Ç
+e;É
+e;Ê
+e;Ë
+i;Ì
+s;Š
+s;š
+y;Ÿ
+a;ª
+o;º
+a;À
+a;Á
+や a や;やÂや
+sag;sÃg
+daaad;daÄad
+ecace;ecÅce
+c;Ç
+e;È
+e;É
+e;Ê
+e;Ë
+i;Ì
+i;Í
+i;Î
+i;Ï
+n;Ñ
+o;Ò
+o;Ó
+o;Ô
+o;Õ
+o;Ö
+u;Ù
+uuuyoyoyomama;ÚÚÚyoyoyomama
+u;Û
+u;Ü
+y;Ý
+a;à
+a;á
+a;â
+a;ã
+a;ä
+a;å
+c;ç
+e;è
+e;é
+e;ê
+e;ë
+i;ì
+i;í
+i;î
+i;ï
+n;ñ
+o;ò
+o;ó
+o;ô
+o;õ
+o;ö
+u;ù
+u;ú
+u;û
+u;ü
+y;ý
+y;ÿ
+ecec;ÈÇÈÇ
+aa;a¢a
+aa;a∆a
+# END ACCENTS
+# BEGIN OTHER
+tm;™
+カ;㋕
+エスクード;㌇
+メートル;㍍
+# END OTHER
+# BEGIN KEYWORD_SPLIT
+や a や;やÂや
+sag;sÃg
+daaad;dＡÄaＤ
+ecace;ecÅｃＥ
+hello ヤッホー;ＨＥＬＬＯヤッホー
+山田 たろう;山田たろう
+ライムワイヤー pro 購入;ライムワイヤーＰＲＯ購入
+this is ライムワイヤー;ｔHiS ＩＳ　ライムワイヤー
+i have no idea what this says 해결하였고 hmm 분산 hmm 업그레이드 시스템을 도입하였습니다;I　ＨＡＶＥ　no IDEA whAT THis SAYS해결하였고hmm분산ＨＭＭ업그레이드 시스템을 도입하였습니다 
+# END KEYWORD_SPLIT

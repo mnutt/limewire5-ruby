@@ -1,0 +1,175 @@
+package org.limewire.ui.swing.components;
+
+import java.awt.AWTEvent;
+import java.awt.event.MouseEvent;
+import java.util.Collection;
+
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.limewire.collection.AutoCompleteDictionary;
+import org.limewire.collection.StringTrieSet;
+
+/** An autocompleter that shows its suggestions in a list and can have new suggestions added. */
+public class BasicAutoCompleter implements AutoCompleter {
+    
+    private final JPanel entryPanel;
+    private final AutoCompleteList entryList;
+    
+    private AutoCompleterCallback callback;
+    private String currentText;
+    private AutoCompleteDictionary dictionary;
+    
+    public BasicAutoCompleter() {
+        this(new StringTrieSet(true));
+    }
+    
+    public BasicAutoCompleter(AutoCompleteDictionary dictionary) {
+        this.dictionary = dictionary;
+        
+        entryPanel = new JPanel(new MigLayout("insets 0, gap 0, fill"));
+        entryPanel.setBorder(UIManager.getBorder("List.border"));
+        entryPanel.setBackground(UIManager.getColor("List.background"));
+        
+        entryList = new AutoCompleteList();
+        JScrollPane entryScrollPane = new JScrollPane(entryList);
+        entryScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        entryScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        entryPanel.add(entryScrollPane, "grow");
+    }
+
+    public void setDictionary(AutoCompleteDictionary dictionary) {
+        this.dictionary = dictionary;
+    }    
+
+    public void addAutoCompleteSuggestion(String text) {
+        dictionary.addEntry(text);
+    }
+    
+    @Override
+    public void setAutoCompleterCallback(AutoCompleterCallback callback) {
+        this.callback = callback;
+    }
+
+    @Override
+    public boolean areSuggestionsAvailable() {
+        return entryList.getModel().getSize() != 0;
+    }
+
+    @Override
+    public void decrementSelection() {
+        entryList.decrementSelection();
+    }
+
+    @Override
+    public JComponent getComponent() {
+        return entryPanel;
+    }
+
+    @Override
+    public String getSelectedSuggestion() {
+        return (String)entryList.getSelectedValue();
+    }
+
+    @Override
+    public void incrementSelection() {
+        entryList.incrementSelection();
+    }
+
+    @Override
+    public void setInput(String input) {
+        if(input == null) {
+            input = "";
+        }
+        
+        currentText = input;
+        Collection<String> suggestions = dictionary.getPrefixedBy(currentText);        
+        ListModel model = entryList.getModel();
+        boolean different = suggestions.size() != model.getSize();
+        if(!different) {
+            // Look closer...
+            int i = 0;
+            for(String item : suggestions) {   
+                if(i < model.getSize() && item.equals(model.getElementAt(i))) {
+                    different = true;
+                    break;
+                }
+                i++;
+            }
+        }
+    
+        // if things were different, reset the data.
+        if(different) {
+            entryList.setModel(new org.limewire.ui.swing.components.CollectionBackedListModel(suggestions));
+            entryList.setVisibleRowCount(Math.min(8, suggestions.size()));
+            entryList.clearSelection();
+        }        
+    }
+    
+    /** A list that's used to show auto-complete items. */
+    private class AutoCompleteList extends JList {
+        AutoCompleteList() {
+            enableEvents(AWTEvent.MOUSE_EVENT_MASK);
+            setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            setFocusable(false);
+        }
+        
+        /**
+         * Sets the text field's selection with the clicked item.
+         */
+        @Override
+        protected void processMouseEvent(MouseEvent me) {
+            super.processMouseEvent(me);
+            
+            if(me.getID() == MouseEvent.MOUSE_CLICKED) {
+                int idx = locationToIndex(me.getPoint());
+                if(idx != -1 && isSelectedIndex(idx)) {
+                    callback.itemSuggested((String)getSelectedValue(), false);
+                }
+            }
+        }
+        
+        /**
+         * Increments the selection by one.
+         */
+        void incrementSelection() {
+            if(getSelectedIndex() == getModel().getSize() - 1) {
+                callback.itemSuggested(currentText, true);
+                clearSelection();
+            } else {
+                int selectedIndex = getSelectedIndex() + 1;
+                setSelectedIndex(selectedIndex);
+                ensureIndexIsVisible(selectedIndex);
+                callback.itemSuggested((String)getSelectedValue(), true);
+            }
+        }
+        
+        /**
+         * Decrements the selection by one.
+         */
+        void decrementSelection() {
+            if(getSelectedIndex() == 0) {
+                callback.itemSuggested(currentText, true);
+                clearSelection();
+            } else {
+                int selectedIndex = getSelectedIndex();
+                if(selectedIndex == -1)
+                    selectedIndex = getModel().getSize() - 1;
+                else
+                    selectedIndex--;
+                setSelectedIndex(selectedIndex);
+                ensureIndexIsVisible(selectedIndex);
+                callback.itemSuggested((String)getSelectedValue(), true);
+            }
+        }
+    }
+    
+}

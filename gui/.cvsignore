@@ -1,0 +1,14 @@
+*.class
+display.props
+limewire.props
+gnutella.net
+fileurns.cache
+hs_*.log
+log.txt
+java.hprof.txt
+.classpath
+.project
+.DS_Store
+log.xml
+target
+.settings

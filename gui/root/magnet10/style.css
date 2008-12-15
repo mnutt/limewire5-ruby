@@ -1,0 +1,21 @@
+td {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+.links {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #CC0000;
+}
+.yellow {
+	background-color: #FFFFF2;
+}
+
+/* CSS Document */
+.yellow2 {
+	background-color: #F0FCFF;
+}
+body {
+	background-color: #CCCCCC;
+}

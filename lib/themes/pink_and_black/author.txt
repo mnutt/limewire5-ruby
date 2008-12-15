@@ -1,0 +1,6 @@
+billingname=Kristy Pedersen
+email=ditzynitz@yahoo.com
+skinname=Pink and Black
+problem=A mix of my favorite colors. :D
+
+

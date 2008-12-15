@@ -1,0 +1,90 @@
+<html>
+	<body>
+
+		<h1>
+			Overview
+		</h1>
+		<p>
+			These tests are integration tests for testing both the connection of
+			the
+			<code>
+				com.limegroup.gnutella.ls.server
+			</code>
+			package with the
+			<code>
+				org.limewire.lws.server
+			</code>
+			, but also the this package with the rest of the Lime Wire core and
+			GUI modules.
+		</p>
+
+		<h2>
+			Simple tests
+		</h2>
+		<p>
+			There are a number of tests -- those that have the same name as the
+			ones in the
+			<code>
+				lwsserver
+			</code>
+			component tests that are used to assure that the authentication
+			scheme still holds when you incorporate the CORE, GUI, and other
+			modules.
+		</p>
+
+		<h2>
+			<code>
+				Handler
+			</code>
+			and
+			<code>
+				Listener
+			</code>
+			tests
+		</h2>
+		<p>
+			These tests test the following invariants. Here, handler means
+			<code>
+				LWSManager.Handler
+			</code>
+			and listener means
+			<code>
+				LWSManager.Listener
+			</code>
+			.
+		</p>
+		<ul>
+			<li>
+				You can only register one handler per command
+				<code>
+					String
+				</code>
+				, because each handler has to respond to a command.
+			</li>
+			<li>
+				You can register zero or more listeners for a
+				<code>
+					String
+				</code>
+				command. They simply need to
+				<i>do</i> something.
+			</li>
+			<li>
+				After registering a handler or listener, and then sending a message
+				to the LWS Manager, you should be guaranteed to have received that
+				message.
+			</li>
+			<li>
+				After unregistering a handler or listener, and then sending a
+				message to the LWS Manager, you should be guaranted to have
+				<b>NOT</b> received that message.
+			</li>
+			<li>
+				The arguments that your pass the LWS Manager should be exactly those
+				that are read by the handler of listeners.
+			</li>
+		</ul>
+
+
+	</body>
+</html>

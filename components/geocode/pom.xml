@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"> 
+  <modelVersion>4.0.0</modelVersion>  
+  <parent>
+    <groupId>org.limewire</groupId>
+    <artifactId>lw-components</artifactId>
+    <version>1.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>lw-geocode</artifactId>
+  <packaging>jar</packaging>
+  <version>${limewire.version}</version>
+  <name>LimeWire Geocode Component</name>
+
+  <repositories>
+    <repository>
+      <id>apache-snapshots</id>
+      <name>Apache Snapshot Repository</name>
+      <layout>default</layout>
+      <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <dependencies> 
+    <dependency>
+      <groupId>org.limewire</groupId>
+      <artifactId>lw-common</artifactId>
+      <version>${limewire.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.limewire</groupId>
+      <artifactId>lw-test-util</artifactId>
+      <version>${limewire.version}</version>
+	  <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

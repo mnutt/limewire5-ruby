@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="lw-io" basedir="." default="compile-src">
+
+	<description>
+		LimeWire component 'io'.
+	    This component contains utility classes for dealing with I/O.
+	</description>
+	
+    <import file="../common/build-macros.xml"/>
+    <import file="../common/build.xml"/>
+    
+    <target name="initialize" depends="lw-common.initialize" unless="initialized.io">
+        <do.setup-properties component="io">
+			<src-classpath>
+				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+			    <path refid="build.limewire.components.common.buildpath"/>
+			</src-classpath>
+        </do.setup-properties>
+    </target>
+	
+	<target name="clean" depends="lw-common.clean">
+	    <do.clean component="io"/>
+	</target>
+    
+    <target name="compile" depends="lw-common.compile">
+    	<do.compile component="io"/>
+    </target>
+	
+	<target name="compile-src" depends="lw-common.compile-src">
+	    <do.compile-src component="io"/>
+	</target>
+    
+	<target name="clean-src" depends="lw-common.clean-src">
+	    <do.clean-src component="io"/>
+	</target>
+	
+	<target name="compile-tests" depends="compile-src">
+	    <do.compile-tests component="io"/>
+	</target>
+	
+	<target name="clean-tests" depends="initialize">
+	    <do.clean-tests component="io"/>
+	</target>
+	
+	<target name="test" if="class" depends="compile">
+	    <do.test component="io" class="${class}"/>
+	</target>
+	
+	<target name="test-package" if="package" depends="compile">
+	    <do.test-package component="io" package="${package}"/>
+	</target>
+	
+	<target name="test-all" depends="compile">
+	    <do.test-all component="io"/>
+	</target>
+    
+    <target name="jar" depends="initialize, compile-src">
+        <do.jar component="io"/>
+    </target>
+    
+	<target name="javadoc" depends="initialize, compile-src">
+    	<do.javadoc component="io"/>
+	</target>
+    
+    <target name="clean-dist" depends="initialize">
+        <do.clean-dist component="io"/>
+    </target>
+	
+    <target name="with.clover" depends="initialize">
+        <do.clover-setup component="io"/>
+	</target>
+    
+    <target name="clover2html" depends="initialize">
+        <do.clover2html component="io"/>
+    </target>
+	
+</project>

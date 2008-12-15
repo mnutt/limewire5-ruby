@@ -1,0 +1,74 @@
+##################################################################
+# Theme file for specifying the appearance of LimeWire.  All
+# LimeWire colors and fonts can be customized below.  The 
+# documentation for these settings is provided at:
+#
+# http://java.sun.com/products/jlf/ed2/book/index.html
+#
+# Look under "Visual Design" and particularly "Themes."  This
+# will make the color and font names below much easier to 
+# understand.
+##################################################################
+# CarbonClassic_theme
+THEME_VERSION=2
+
+PRIMARY1_COLOR=#666666
+PRIMARY2_COLOR=#93C7FF
+PRIMARY3_COLOR=#E3E3E3
+SECONDARY1_COLOR=#666666
+SECONDARY2_COLOR=#B5B5B5
+SECONDARY3_COLOR=#E3E3E3
+WINDOW1_COLOR=#323232
+WINDOW2_COLOR=#E3E3E3
+WINDOW3_COLOR=#ffffff
+WINDOW4_COLOR=#000000
+WINDOW5_COLOR=#323232
+WINDOW6_COLOR=#FFFFFF
+WINDOW7_COLOR=#FFFFFF
+WINDOW8_COLOR=#323232
+WINDOW9_COLOR=#000000
+WINDOW10_COLOR=#000000
+WINDOW11_COLOR=#93C7FF
+WINDOW12_COLOR=#E3E3E3
+TABLE_HEADER_BACKGROUND_COLOR=#93C7FF
+TABLE_BACKGROUND_COLOR=#FFFFFF
+TABLE_ALTERNATE_COLOR=#EDF3FE
+NOT_SHARING_LABEL_COLOR=#323232
+SEARCH_FILTER_TITLE_TOP_COLOR=#ffffff
+SEARCH_FILTER_TITLE_COLOR=#FFCC00
+SEARCH_PANEL_BG_1=#D7D6D6
+SEARCH_PANEL_BG_2=#FFFFFF
+SEARCH_GRID_COLOR=#000000
+SEARCH_PRIVATE_IP_COLOR=#330000
+SEARCH_RESULT_SPEED_COLOR=#0066CC
+
+
+##################################################################
+# Font settings can be set below.  For the style of the font,
+# only plain and bold are supported.  Plain is specified as
+# "0", wherease bold is specified as "1".
+##################################################################
+CONTROL_TEXT_FONT_NAME=dialog
+CONTROL_TEXT_FONT_STYLE=1
+CONTROL_TEXT_FONT_SIZE=11
+
+SYSTEM_TEXT_FONT_NAME=Verdana
+SYSTEM_TEXT_FONT_STYLE=0
+SYSTEM_TEXT_FONT_SIZE=10
+
+USER_TEXT_FONT_NAME=Verdana
+USER_TEXT_FONT_STYLE=0
+USER_TEXT_FONT_SIZE=10
+
+MENU_TEXT_FONT_NAME=Verdana
+MENU_TEXT_FONT_STYLE=0
+MENU_TEXT_FONT_SIZE=10
+
+WINDOW_TITLE_FONT_NAME=Verdana
+WINDOW_TITLE_FONT_STYLE=1
+WINDOW_TITLE_FONT_SIZE=10
+
+SUB_TEXT_FONT_NAME=Verdana
+SUB_TEXT_FONT_STYLE=0
+SUB_TEXT_FONT_SIZE=10
+

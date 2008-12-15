@@ -1,0 +1,100 @@
+<project name="lw-gui" default="compile" basedir=".">
+
+    <property name="limewire.home" location="${basedir}/.."/>
+    
+    <import file="../components/build.xml"/>
+    
+    <target name="initialize" depends="lw-components.initialize" unless="initialized.gui">
+        <property name="initialized.gui"			 value="true"/>
+        <property name="limewire.gui.home"           location="${limewire.home}/gui"/>
+        <property name="limewire.gui.src"  		     location="${limewire.gui.home}"/>
+        <property name="build.limewire.gui.classes"  location="${limewire.gui.home}"/>
+        <property name="build.limewire.core.classes" location="${limewire.home}/core"/>
+        <path id="build.limewire.gui.classpath">
+            <fileset dir="${limewire.lib.jars}" includes="**/*.jar" excludes="tests/**"/>
+            <path refid="build.limewire.components.classes.ui"/>
+            <pathelement location="${build.limewire.core.classes}"/>
+        </path>
+    </target>
+    
+    <!-- compiles the gui & components -->
+    <target name="compile-all"
+            description="Compiles the components and the gui."
+            depends="initialize, lw-components.compile-src, lw-components.compile-ui-src, compile-gui"/>
+    
+	<!-- builds only the gui -->
+	<target name="compile-gui" 
+	        description="Compiles just the gui."
+	        depends="initialize">
+	    <javac destdir      ="${build.limewire.gui.classes}"
+			   debug	    ="${compile.debug}"
+			   deprecation  ="${compile.deprecation}"
+	           optimize     ="${compile.optimize}"
+			   encoding     ="UTF-8"
+	           source		="${compile.source}"
+	           target       ="${compile.target}"
+	           srcdir	    ="${limewire.gui.src}"
+	           excludes     ="macosx/**, windows/**"  
+	    >
+			<classpath refid="build.limewire.gui.classpath"/>
+	   	</javac>
+	</target>
+    
+    <!-- cleans the gui & components -->
+    <target name="clean-all" 
+            description="Cleans the classfiles generated from compiling the components and gui."
+            depends="initialize, lw-components.clean-src, clean-gui"/>
+	
+	<!-- cleans only the gui -->
+	<target name="clean-gui"
+	        description="Cleans just the gui classes."
+            depends="initialize">
+		<delete>
+			<fileset dir="${build.limewire.gui.classes}" includes="**/*.class"/>
+		</delete>
+	</target>
+    
+    <target name="clean" description="Cleans just the gui" depends="clean-gui"/>
+    <target name="compile" description="Compiles just the gui" depends="compile-gui"/>
+    
+    <!-- target for building a new jar for just the bugs classes -->
+    <target name="bugjar">
+        <javac target="1.5" source="1.5" destdir="." srcdir="com/limegroup/gnutella/bugs/" includes="LocalAbstractInfo.java, RemoteAbstractInfo.java"/>
+        <delete file="lw-bugs.jar"/>
+        <jar basedir="." destfile="lw-bugs.jar" includes="com/limegroup/gnutella/bugs/LocalAbstractInfo.class, com/limegroup/gnutella/bugs/RemoteAbstractInfo.class"/>
+	</target>
+    
+    <!--
+       everything below is just to erase the targets from 'ant -p'
+       they are listed because we import the component's buildfile.
+      -->
+    <target name="clean-src"/>
+    <target name="clean-dist"/>
+    <target name="clean-tests"/>
+    <target name="clover2html"/>
+    <target name="compile-src"/>
+    <target name="compile-core"/>
+    <target name="compile-core-src"/>
+	<target name="compile-ui-src"/>
+    <target name="compile-tests"/>
+	<target name="jar"/>
+    <target name="javadoc"/>
+    <target name="test"/>
+    <target name="test-all"/>
+    <target name="test-package"/>
+    <target name="with.clover"/>
+
+</project>
+
+
+
+
+
+
+
+
+
+
+
+
+

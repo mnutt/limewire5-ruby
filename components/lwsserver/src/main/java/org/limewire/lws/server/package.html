@@ -1,0 +1,210 @@
+<html>
+	<body>
+
+		<h1>
+			Overview
+		</h1>
+
+		<p>
+			This package provides a means for listening in one an HTTP connection
+			and recieving commands after being authenticated. The primary use
+			case is communication between Javascript running in a browser from
+			the Lime Wire Store web site and the Lime Wire Client. In order to do
+			this the core component, called the {@link Dispatcher}.will first
+			<a href="#authenticate">authenticate</a> who ever is talking on this
+			connection, and then pass along the remaining commands. To create a
+			{@link Dispatcher} one would call the following method:
+		</p>
+
+		<blockquote>
+			{@link LWSDispatcherFactory.createInstance(SenderOfMessagesToServer,
+			ReceivesCommandsFromDispatcher)}
+		</blockquote>
+
+		<p>
+			In this instance, the {@link SenderOfMessagesToServer} would have to
+			be able to encode a url and send it to a remote server; the {@link
+			ReceivesCommandsFromDispatcher} would do some action when a command
+			was receives on the HTTP connection.
+		</p>
+
+		<p>
+			{@link Dispatcher} is an instance of {@link
+			org.limewire.http.AsyncHttpRequestHandler} so can listen on the local
+			HTTP acceptor. So a typical use of this package would be the
+			following
+		</p>
+
+		<blockquote>
+			<pre>
+SenderOfMessagesToServer s = new SenderOfMessagesToServer() {
+	public String sendMessageToServer(String msg, Map<String , String> args) throws IOException {
+		// send the message, msg, and arguments args to a remote server
+		// ...
+		// return the result
+	}
+	ReceivesCommandsFromDispatcher r = new ReceivesCommandsFromDispatcher() {
+	
+	  private final List<ConnectionListener> connectionListeners = new ArrayList<ConnectionListener>();
+    private boolean isConnected;
+	
+
+ 			public String receiveCommand(String cmd, Map<String , String> args) {
+ 				// take some action
+ 			}
+ 					
+    public final void setConnected(boolean isConnected) {
+        this.isConnected = isConnected;
+        connectionChanged(this.isConnected);
+        if (!connectionListeners.isEmpty()) {
+            for (ConnectionListener lis : connectionListeners) {
+                lis.connectionChanged(isConnected);
+            }
+        }
+    }
+
+    public final boolean addConnectionListener(ConnectionListener lis) {
+        return connectionListeners.contains(lis) ? false : connectionListeners.add(lis);
+    }
+
+    public final boolean removeConnectionListener(ConnectionListener lis) {
+        return !connectionListeners.contains(lis) ? false : connectionListeners.remove(lis);
+    }
+};
+Dispatcher d = LWSDispatcherFactory.createInstance(s,r);
+
+// now attach d to the local HTTP connection using the 'registerHandler' command
+		</pre>
+		</blockquote>
+
+
+		<p>
+			The class {@link AbstractReceivesCommandsFromDispatcher} abstracts
+			away the management of the {@link ConnectionListener}s. Next is the
+			authentication scheme used in this package.
+		</p>
+
+		<a name="authenticate"></a>
+		<h2>
+			Authentication
+		</h2>
+
+		<p>
+			In order to do this securely (i.e. make sure the javascript sending
+			messages is actually from
+			<tt>limewire.com</tt> and not the ever-evil
+			<tt>pelzer.com</tt>), we need a scheme to authenticate the the
+			javascript, and in English it is:
+
+		</p>
+		<ul>
+			<li>
+				the javascript initiates a session with the local server
+			</li>
+			<li>
+				the local server generates a private- and public-key and sends these
+				plus its IP address to the remote server and the public key to the
+				javascript
+			</li>
+			<li>
+				the javascript send its IP address and this public key to the remote
+				server, and they match those sent from the local server, the remote
+				server sends back the private key
+			</li>
+			<li>
+				this private key is then used to authenticate the javascript with
+				the local server
+			</li>
+		</ul>
+		<p>
+			More formally (but just barely) this scheme consists of the following
+			participants:
+		</p>
+		<ul>
+			<li>
+				<strong>C</strong>: the javascript code
+			</li>
+			<li>
+				<strong>L</strong>: the local running server running on
+				<tt>localhost</tt>
+			</li>
+			<li>
+				<strong>R</strong>: the remote server running on
+				<tt>limewire.com</tt>
+
+			</li>
+		</ul>
+		<p>
+			and there are three pieces of data:
+		</p>
+		<ul>
+			<li>
+				<strong>p</strong>: public key
+			</li>
+			<li>
+				<strong>r</strong>: private key
+			</li>
+			<li>
+				<strong>i</strong>: IP address
+			</li>
+		</ul>
+		<p>
+			and the scheme is:
+		</p>
+
+		<ul>
+			<li>
+				<strong>C</strong> sends a start request to
+				<strong>L</strong>
+
+			</li>
+			<li>
+				<strong>L</strong> generates
+				<strong>p</strong> and
+				<strong>r</strong> and sends (
+				<strong>p</strong>,
+				<strong>r</strong>,
+				<strong>i<sub>L</sub> </strong>) to
+				<strong>R</strong> and sends
+				<strong>p</strong> to
+				<strong>C</strong>
+
+			</li>
+			<li>
+				<strong>C</strong> sends (
+				<strong>p</strong>',
+				<strong>i<sub>C</sub> </strong>) to
+				<strong>R</strong> and if
+				<strong>p</strong>' =
+				<strong>p</strong> and
+				<strong>i<sub>C</sub> </strong> =
+				<strong>i<sub>L</sub> </strong> then
+				<strong>R</strong> sends
+				<strong>r</strong> to
+				<strong>C</strong>
+
+			</li>
+			<li>
+				<strong>C</strong> sends
+				<strong>r</strong> to
+				<strong>L</strong> for authentication and then begins communication
+
+			</li>
+		</ul>
+
+		<h2>
+			Lifecycle of the local server
+		</h2>
+
+		<p>
+			The life cycle of the local server can be represented using an FSA
+			such as the following:
+		</p>
+		<p>
+			<a style="border: medium none ; padding: 0pt;" href="localServer.jpg"><img
+					src="localServer.jpg" alt="FSA of local server"
+					title="FSA of local server"> </a>
+		</p>
+
+	</body>
+</html>
