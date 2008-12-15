@@ -1,8 +1,12 @@
 package com.limegroup.gnutella.browser;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
+import org.apache.bsf.BSFException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -10,8 +14,10 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.nio.protocol.SimpleNHttpRequestHandler;
 import org.apache.http.protocol.HttpContext;
 import org.limewire.concurrent.ExecutorsHelper;
@@ -21,7 +27,12 @@ import org.limewire.http.auth.AuthenticationInterceptor;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.Constants;
+import com.limegroup.gnutella.LimeWireCore;
+import com.limegroup.gnutella.library.FileDesc;
+import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.util.LimeWireUtils;
+import com.limegroup.gnutella.URN;
+import com.limegroup.scripting.*;
 
 @Singleton
 public class LocalHTTPAcceptor extends BasicHttpAcceptor {
@@ -44,6 +55,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
 
     /** Magnet detail command */
     private static final String MAGNET_DETAIL = "magcmd/detail?";
+    private static final String FILE_URL = "/file/";
 
     private String lastCommand;
 
@@ -53,17 +65,23 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
 
     private final ExternalControl externalControl;
 
+    public LimeWireCore core;
+
     @Inject
-    public LocalHTTPAcceptor(ExternalControl externalControl,
+    public LocalHTTPAcceptor(ExternalControl externalControl, LimeWireCore core,
                         AuthenticationInterceptor requestAuthenticator) {
         super(createDefaultParams(LimeWireUtils.getHttpServer(), Constants.TIMEOUT),
                 requestAuthenticator, SUPPORTED_METHODS);
         this.externalControl = externalControl;
+	this.core = core;
         
         registerHandler("magnet:", new MagnetCommandRequestHandler());
         registerHandler("/magnet10/default.js", new MagnetCommandRequestHandler());
         registerHandler("/magnet10/pause", new MagnetPauseRequestHandler());
         registerHandler("/magcmd/detail", new MagnetDetailRequestHandler());
+	registerHandler("/script*", new RubyRequestHandler());
+	registerHandler("/file/*", new FileRequestHandler());
+	registerHandler("/crossdomain.xml", new CrossDomainRequestHandler());
         // TODO figure out which files we want to serve from the local file system
         //registerHandler("*", new FileRequestHandler(new File("root"), new BasicMimeTypeProvider()));
     }
@@ -119,6 +137,31 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
         }
     }
 
+    private class RubyRequestHandler extends SimpleNHttpRequestHandler {
+        public RubyEvaluator reval = null;
+        public ConsumingNHttpEntity entityRequest(HttpEntityEnclosingRequest request,
+                HttpContext context) throws HttpException, IOException {
+                System.out.println("RRHandler");
+            return null;
+        }
+        
+        @Override
+        public void handle(HttpRequest request, HttpResponse response,
+                HttpContext context) throws HttpException, IOException {
+            if(reval == null) {
+                reval = new RubyEvaluator();
+            }
+            System.out.println("going to evaluate");
+            AbstractHttpEntity entity = null;
+            try {
+                entity = reval.eval(core, request);
+                response.setEntity(entity);
+            } catch (BSFException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private class MagnetDetailRequestHandler extends SimpleNHttpRequestHandler {
         public ConsumingNHttpEntity entityRequest(HttpEntityEnclosingRequest request,
                 HttpContext context) throws HttpException, IOException {
@@ -134,6 +177,48 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
             String page = MagnetHTML.buildMagnetDetailPage(command);
             NStringEntity entity = new NStringEntity(page);
             entity.setContentType("text/html");
+            response.setEntity(entity);
+        }
+    }
+
+    
+    private class CrossDomainRequestHandler extends SimpleNHttpRequestHandler {
+        public ConsumingNHttpEntity entityRequest(HttpEntityEnclosingRequest request,
+                HttpContext context) throws HttpException, IOException {
+            return null;
+        }
+        
+        @Override
+        public void handle(HttpRequest request, HttpResponse response,
+                HttpContext context) throws HttpException, IOException {
+            String page = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+            page += "<cross-domain-policy xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://www.adobe.com/xml/schemas/PolicyFile.xsd\">";
+            page += "<allow-access-from domain=\"*.opentape.fm\" />";
+            page += "</cross-domain-policy>";
+            NStringEntity entity = new NStringEntity(page);
+            entity.setContentType("text/html");
+            response.setEntity(entity);
+        }
+    }
+    
+    private class FileRequestHandler extends SimpleNHttpRequestHandler {
+        public ConsumingNHttpEntity entityRequest(HttpEntityEnclosingRequest request,
+                HttpContext context) throws HttpException, IOException {
+            return null;
+        }
+        
+        @Override
+        public void handle(HttpRequest request, HttpResponse response,
+                HttpContext context) throws HttpException, IOException {
+            
+            String uri = request.getRequestLine().getUri();
+            int i = uri.indexOf(FILE_URL);
+            String sha1 = uri.substring(i + FILE_URL.length());
+            URN urn = URN.createSHA1Urn(sha1);
+            FileDesc fileDesc = core.getFileManager().getGnutellaFileList().getFileDesc(urn);
+            NFileEntity entity = new NFileEntity(fileDesc.getFile(), "text/html");
+            entity.setContentType("application/binary");    
+            response.setHeader("Content-disposition", "attachment; filename=\"" + fileDesc.getFileName() + "\";");
             response.setEntity(entity);
         }
     }
