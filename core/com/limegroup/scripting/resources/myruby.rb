@@ -86,17 +86,17 @@ handler = Francis.new do
     end
   end
 
-  get '/' do
+  get '/script' do
     response.body = "Welcome to Limewire!"
   end
 
   get '/script/playlist.xspf' do
-    @files = LWFile.all.select{|f| f.file_name =~ /\.mp3$/}
+    @files = LimeWire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
     response.body = erb "xspf.erb"
   end
 
   get '/script/playlist' do
-    @files = LWFile.all.select{|f| f.file_name =~ /\.mp3$/}
+    @files = LimeWire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
     response.body = erb "playlist.erb"
   end
 
