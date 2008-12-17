@@ -26,7 +26,6 @@ public class RubyEvaluator {
 	// Evaluate JRuby code from string.
 	try {	    
 	  String path = ClassLoader.getSystemResource("myruby.rb").toString();
-	  System.out.println(path);
 	  int i = path.indexOf("/");
 	  entity = (AbstractHttpEntity) engine.eval(new BufferedReader(new FileReader(path.substring(i))));
 	} catch (Exception exception) {
