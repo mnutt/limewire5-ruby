@@ -123,12 +123,8 @@ handler = Francis.new do
     response.body = erb "search.erb"
   end
 
-  get %r{/script/asset/(.*)} do
-    #FIXME: is this a security risk?  do we need to clean the path?
-    file_name = request.user_data[:match][0]
-    response.file_name = file_name
-
-
+  get %r{/script/sc/tracks.json} do
+    Limewire::Library.filter_by_name(/mp3$/)[0..1].collect(&:to_cloud).to_json
   end
   
   get '/script/stats' do
