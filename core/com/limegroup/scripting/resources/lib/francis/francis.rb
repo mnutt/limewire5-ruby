@@ -135,7 +135,7 @@ class Francis
                        )
     
     sess.instance_eval(&b.last)
-    puts "it called"
+
     @response = sess.response
     if @responder
       self.instance_eval(&@responder)

@@ -16,7 +16,7 @@ import 'org.apache.http.nio.entity.NFileEntity'
 #I wonder if there is someway we could parse this handler only once,
 #keep it in memory in javaland, and then just call dispatch() 
 #when we need to 
-puts "pre"
+
 handler = Francis.new do
   setup do
     Limewire.core = $core
@@ -125,7 +125,6 @@ handler = Francis.new do
 
   get %r{/script/asset/(.*)} do
     #FIXME: is this a security risk?  do we need to clean the path?
-    puts request.user_data[:match][0]
     file_name = request.user_data[:match][0]
     response.file_name = file_name
 
@@ -143,5 +142,5 @@ handler = Francis.new do
   end
 
 end
-puts "post"
+
 handler.dispatch($request)
