@@ -169,7 +169,8 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
     }
     
     /** Gets the library data, loading it if necessary. */
-    LibraryFileData getLibraryData() {
+    
+    public LibraryFileData getLibraryData() {
         if(!fileData.isLoaded()) {
             fileData.load();
         }
