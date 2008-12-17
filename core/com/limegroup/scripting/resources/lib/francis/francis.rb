@@ -133,8 +133,9 @@ class Francis
                        :request => request, 
                        :data => data
                        )
-
+    
     sess.instance_eval(&b.last)
+
     @response = sess.response
     if @responder
       self.instance_eval(&@responder)

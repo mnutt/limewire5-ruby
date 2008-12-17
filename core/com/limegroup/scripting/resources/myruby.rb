@@ -1,5 +1,6 @@
 search_for = File.join("core","com","limegroup","scripting","resources")
-$LOAD_PATH.unshift(File.join($LOAD_PATH.find{|t| t.scan(search_for).first}, "lib"))
+$LOAD_PATH.unshift(File.join($LOAD_PATH.find{|t| t.scan(search_for).first} || '.', "lib"))
+
 require 'francis/francis.rb'
 require 'erb'
 
@@ -52,19 +53,23 @@ handler = Francis.new do
       nstring
     else
       contents = if @response.file_name
-                   java.io.File.new("../core/com/limegroup/scripting/resources/assets/" + @response.file_name)
+                   java.io.File.new("core/com/limegroup/scripting/resources/assets/" + @response.file_name)
                  elsif @response.file
                    @response.file
                  else
                    "ERROR! no file or body specified"
                  end
-      
+
       content_type = if @response.content_type != "auto"
                        @response.content_type
                      else
                        extn = @response.file_name.split(".").last
 
                        case extn
+                       when "html"
+                         "text/html"
+                       when "html"
+                         "text/html"
                        when "css"
                          "text/css"
                        when "js"
@@ -117,11 +122,33 @@ handler = Francis.new do
     response.body = erb "search.erb"
   end
 
-  get %r{^/script/asset/(.*)} do
-    #FIXME: is this a security risk?  do we need to clean the path?
-    file_name = request.user_data[:match][0]
-    response.file_name = file_name
-    contents = java.io.File.new("../../core/com/limegroup/scripting/resources/assets/" + file_name)
+  get %r{/script/sc/tracks.json} do
+    #Limewire::Library.filter_by_name(/mp3$/)[0..1].collect(&:to_cloud).to_json
+    t = []
+    t<< {
+      "duration" => 35000,
+      "permalink" => "fooey",
+      "playback_count" => "0",
+      "uri" => "www.google.com",
+      "waveform_url" => "www.google.com",
+      "downloadable" => true,
+      "title" => "Temporary",
+      "download_count" => 0,
+      "id" => 3843,
+      "streamable" => true,
+      "user_id" => 3,
+      "downloadable_url" => "www.google.com",
+      "stream_url" => "google.com",
+      "artwork_url" => "google.com",
+      "description" => "It really whips the llamas ass",
+      "bpm" => 40,
+      "permalink_url" => "hi there",
+      "user"=>{"permalink"=>"asdf", "uri"=>"google.com", "username"=>"derek", "permalink_url"=>"rar"},
+      "sharing"=>"public",
+      "purchase_url"=>"amazon.com"
+      
+    }
+    response.json = t
   end
   
   get '/script/stats' do

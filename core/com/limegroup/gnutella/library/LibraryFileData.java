@@ -247,7 +247,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     }
 
     /** Returns a list of all files that should be managed. */
-    Iterable<File> getManagedFiles() {
+    public Iterable<File> getManagedFiles() {
         List<File> indivFiles = new ArrayList<File>();
         lock.readLock().lock();
         try {
