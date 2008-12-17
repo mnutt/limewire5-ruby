@@ -122,7 +122,32 @@ handler = Francis.new do
   end
 
   get %r{/script/sc/tracks.json} do
-    Limewire::Library.filter_by_name(/mp3$/)[0..1].collect(&:to_cloud).to_json
+    #Limewire::Library.filter_by_name(/mp3$/)[0..1].collect(&:to_cloud).to_json
+    t = []
+    t<< {
+      "duration" => 35000,
+      "permalink" => "fooey",
+      "playback_count" => "0",
+      "uri" => "www.google.com",
+      "waveform_url" => "www.google.com",
+      "downloadable" => true,
+      "title" => "Temporary",
+      "download_count" => 0,
+      "id" => 3843,
+      "streamable" => true,
+      "user_id" => 3,
+      "downloadable_url" => "www.google.com",
+      "stream_url" => "google.com",
+      "artwork_url" => "google.com",
+      "description" => "It really whips the llamas ass",
+      "bpm" => 40,
+      "permalink_url" => "hi there",
+      "user"=>{"permalink"=>"asdf", "uri"=>"google.com", "username"=>"derek", "permalink_url"=>"rar"},
+      "sharing"=>"public",
+      "purchase_url"=>"amazon.com"
+      
+    }
+    response.json = t
   end
   
   get '/script/stats' do
