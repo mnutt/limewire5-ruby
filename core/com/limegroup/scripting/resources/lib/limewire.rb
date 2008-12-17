@@ -47,11 +47,11 @@ module Limewire
     end
 
     def self.filter(&b)
-      all.find_all(&b)
+      all_files.find_all(&b)
     end
 
     def self.filter_by_name(regex)
-      all.find_all{ |f| f.file_name =~ regex }
+      all_files.find_all{ |f| f.file_name =~ regex }
     end
     
     def self.categories
