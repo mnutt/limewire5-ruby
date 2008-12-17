@@ -1,0 +1,3 @@
+[submodule "core/com/limegroup/scripting/resources/assets/cloud-player"]
+	path = core/com/limegroup/scripting/resources/assets/cloud-player
+	url = git://github.com/dhaas/the-cloud-player.git
