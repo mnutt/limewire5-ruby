@@ -1,5 +1,5 @@
 search_for = File.join("core","com","limegroup","scripting","resources")
-$LOAD_PATH.unshift(File.join($LOAD_PATH.find{|t| t.scan(search_for).first}, "lib"))
+$LOAD_PATH.unshift(File.join($LOAD_PATH.find{|t| t.scan(search_for).first} || '.', "lib"))
 
 require 'francis/francis.rb'
 require 'erb'
@@ -16,7 +16,7 @@ import 'org.apache.http.nio.entity.NFileEntity'
 #I wonder if there is someway we could parse this handler only once,
 #keep it in memory in javaland, and then just call dispatch() 
 #when we need to 
-
+puts "pre"
 handler = Francis.new do
   setup do
     Limewire.core = $core
@@ -53,19 +53,23 @@ handler = Francis.new do
       nstring
     else
       contents = if @response.file_name
-                   java.io.File.new("../core/com/limegroup/scripting/resources/assets/" + @response.file_name)
+                   java.io.File.new("core/com/limegroup/scripting/resources/assets/" + @response.file_name)
                  elsif @response.file
                    @response.file
                  else
                    "ERROR! no file or body specified"
                  end
-      
+
       content_type = if @response.content_type != "auto"
                        @response.content_type
                      else
                        extn = @response.file_name.split(".").last
 
                        case extn
+                       when "html"
+                         "text/html"
+                       when "html"
+                         "text/html"
                        when "css"
                          "text/css"
                        when "js"
@@ -78,10 +82,11 @@ handler = Francis.new do
                          "application/binary"
                        end
                      end
-
-        file_entity = NFileEntity.new(contents, content_type, false)
-        file_entity.setContentType(content_type)
-        file_entity
+      puts "content-type: #{content_type}"
+      file_entity = NFileEntity.new(contents, content_type, false)
+      file_entity.setContentType(content_type)
+      file_entity
+      
 
     end
   end
@@ -120,8 +125,10 @@ handler = Francis.new do
 
   get %r{/script/asset/(.*)} do
     #FIXME: is this a security risk?  do we need to clean the path?
+    puts request.user_data[:match][0]
     file_name = request.user_data[:match][0]
     response.file_name = file_name
+
 
   end
   
@@ -136,5 +143,5 @@ handler = Francis.new do
   end
 
 end
-
+puts "post"
 handler.dispatch($request)
