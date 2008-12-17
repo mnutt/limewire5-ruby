@@ -33,9 +33,9 @@ public class RubyEvaluator {
 	  StringWriter sw = new StringWriter();
 	  PrintWriter pw = new PrintWriter(sw);
 
-	  //pw.print("<pre>");
-	  //exception.printStackTrace(pw);
-	  //pw.print("</pre>");
+	  pw.print("<pre>");
+	  exception.printStackTrace(pw);
+	  pw.print("</pre>");
 
 	  entity = new NStringEntity(sw.toString());
 	  entity.setContentType("text/html");
