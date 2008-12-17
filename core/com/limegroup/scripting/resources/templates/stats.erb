@@ -9,8 +9,13 @@
 
     <h2>Files</h2>
     <div id="files">
-    <table border="1">
-      <tr><th>File Name</th><th>Size</th><th>Date</th><th>Download link</th></th>
+      <table border="1">
+	<tr>
+	  <th>File Name</th>
+	  <th>Size</th>
+	  <th>Date</th>
+	  <th>Download link</th>
+	</tr>
     <%= @files.collect{ |file|
 	  out = []
 	  out << "<tr><td><b>" + file.file_name.to_s + "</b></td>"
@@ -20,6 +25,7 @@
 	  out.join("")
 	}.join("")
 	%>
+      </table>
     </div>
   </body>
 </html>

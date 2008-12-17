@@ -72,7 +72,7 @@ class Francis
                    end
                  end
 
-      ERB.new(template).result(b)
+      ERB.new(template, 0, '-').result(b)
     end
   end
 
@@ -141,5 +141,9 @@ class Francis
     else
       sess.response
     end
+  rescue Exception => e
+    nstring = NStringEntity.new(e.backtrace.join("<br/>"))
+    nstring.setContentType("text/html")
+    nstring
   end
 end

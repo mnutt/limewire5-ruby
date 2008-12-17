@@ -9,6 +9,7 @@ require 'json.rb'
 
 import 'org.apache.http.nio.entity.NStringEntity'
 import 'org.apache.http.nio.entity.NFileEntity'
+import 'org.limewire.core.api.library.LibraryManager'
 
 
 #I wonder if there is someway we could parse this handler only once,
