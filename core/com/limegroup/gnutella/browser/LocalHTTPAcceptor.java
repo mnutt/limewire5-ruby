@@ -168,12 +168,13 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
             if(asset_name.endsWith("txt")) {
                 content_type = "text/plain";
             }
-            if(asset_name.endsWith("png")) {
+            if(asset_name.endsWith("png") || asset_name.endsWith("ico")) {
                 content_type = "image/png";
             }
             NFileEntity entity = new NFileEntity(f, content_type);
             entity.setContentType(content_type);
             response.setEntity(entity);
+            System.out.println("Serving " + asset_name + " as " + content_type);
         }
     }
 
