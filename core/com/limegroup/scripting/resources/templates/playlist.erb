@@ -9,14 +9,14 @@
     <title>LimeWire Playlist</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="stylesheet" type="text/css" href="/script/asset/tape.css" />
+    <link rel="stylesheet" type="text/css" href="/file/tape.css" />
     <style type="text/css">
       div.banner { background: #006699; }									
     </style>
 
     
-    <script type="text/javascript" src="/script/asset/mootools.js"></script>
-    <script type="text/javascript" src="/script/asset/swfobject.js"></script>
+    <script type="text/javascript" src="/file/mootools.js"></script>
+    <script type="text/javascript" src="/file/swfobject.js"></script>
     <script type="text/javascript">
       var fn = function() {
         if(!navigator.userAgent.match(/iPhone|iPod/i)) {
@@ -35,7 +35,7 @@
             name: "openplayer",
             styleclass: "flash_player"
           }
-          swfobject.embedSWF('/script/asset/mediaplayer.swf', "openplayer", "0", "0", "8.0.0", false, flashvars, params, attributes);
+          swfobject.embedSWF('/file/mediaplayer.swf', "openplayer", "0", "0", "8.0.0", false, flashvars, params, attributes);
         }
       }
       swfobject.addDomLoadEvent(fn);
@@ -58,8 +58,8 @@
 	<% @files.each_with_index do |file, i| %>
 	  <li class="song" id="song<%= i %>">
 	    <div class="name">
-	      <%= HTMLEntities.new.decode file.metadata.artist.to_s %> -
-	      <%= HTMLEntities.new.decode file.metadata.title.to_s %>
+	      <%= file.metadata.artist.to_s %> -
+	      <%= file.metadata.title.to_s %>
 	    </div>
 	    &nbsp;
 	    <div class="info">

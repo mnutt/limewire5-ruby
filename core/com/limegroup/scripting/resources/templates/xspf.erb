@@ -8,7 +8,7 @@
   <trackList>
     <% @files.each do |file| %>
       <track>
-	<location>/file/<%= file.sHA1Urn.to_s %></location>
+	<location>/library/<%= file.sHA1Urn.to_s %></location>
 	<meta rel="type">mp3</meta>
 	<creator><%= HTMLEntities.new.encode(file.metadata.artist) %></creator>
 	<title><%= HTMLEntities.new.encode(file.metadata.title) %></title>

@@ -1,11 +1,11 @@
 import 'org.limewire.geocode.Geocoder'
 import 'com.limegroup.gnutella.URN'
 import 'com.limegroup.gnutella.metadata.MetaDataFactoryImpl'
+import 'org.limewire.io.GUID'
 
 module Limewire
 
   def self.core=(c)
-
     @core = c
   end
   def self.core
@@ -22,14 +22,16 @@ module Limewire
       
   module Search
     def self.new
-      Limewire.core.search_services.newQueryGUID
+      GUID.new(Limewire.core.search_services.newQueryGUID).to_s
     end
 
     def self.query(guid, str)
+      guid = GUID.new(guid).bytes
       Limewire.core.search_services.query(guid, str.slice(0,29))
     end
 
     def self.stop(guid)
+      guid = GUID.new(guid).bytes
       Limewire.core.search_services.stopQuery(guid)
     end
 
@@ -40,29 +42,16 @@ module Limewire
 
   module Library
     def self.all_files
-      all_files = []
-#    puts "dbg=>" +
-      #    c.file_manager.get_managed_file_list.getLibraryData.getManagedFiles.to_s
-#    #.methods.sort.find_all{|x|x=~/^get/}.join("\n\t").to_s
-      Limewire.core.file_manager.get_managed_file_list.getLibraryData.getManagedFiles.each do |file|
-        metadata_reader = Limewire.core.get_meta_data_factory
-        metadata = metadata_reader.parse(file).meta_data rescue nil
-        
-        def file.metadata=(metadata); @metadata = metadata; end
-        def file.metadata; @metadata; end
-        file.metadata = metadata
-        def file.to_cloud; Limewire::CloudPlayer.convert(self); end
-        all_files << file unless file.nil?
-      end
-      all_files
+      file_list = Limewire.core.file_manager.gnutella_file_list
+      file_list.map{ |file| Limewire::File.new(file) }.compact
     end
 
     def self.filter(&b)
-      all_files.find_all(&b)
+      all.find_all(&b)
     end
 
     def self.filter_by_name(regex)
-      all_files.find_all{ |f| f.file_name =~ regex }
+      all.find_all{ |f| f.file_name =~ regex }
     end
     
     def self.categories
@@ -70,11 +59,24 @@ module Limewire
     end
     
   end
-  
-  module CloudPlayer
-    def self.convert(track)
-      puts track.metadata
+
+  class File
+    def initialize(file)
+      @file = file
+      @metadata = Limewire.core.meta_data_factory.parse(file.get_file) rescue nil
+    end
+
+    def metadata
+      @metadata
+    end
+
+    def method_missing(name, *args)
+      if @file.respond_to?(name)
+        @file.send(name, *args)
+      else
+        super
+      end
     end
   end
-
 end 
+

@@ -12,7 +12,6 @@ import 'org.apache.http.nio.entity.NStringEntity'
 import 'org.apache.http.nio.entity.NFileEntity'
 
 
-
 #I wonder if there is someway we could parse this handler only once,
 #keep it in memory in javaland, and then just call dispatch() 
 #when we need to 
@@ -82,11 +81,10 @@ handler = Francis.new do
                          "application/binary"
                        end
                      end
-      puts "content-type: #{content_type}"
-      file_entity = NFileEntity.new(contents, content_type, false)
-      file_entity.setContentType(content_type)
-      file_entity
-      
+
+        file_entity = NFileEntity.new(contents, content_type, false)
+        file_entity.setContentType(content_type)
+        file_entity
 
     end
   end
@@ -96,12 +94,12 @@ handler = Francis.new do
   end
 
   get '/script/playlist.xspf' do
-    @files = LimeWire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
+    @files = Limewire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
     response.body = erb "xspf.erb"
   end
 
   get '/script/playlist' do
-    @files = LimeWire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
+    @files = Limewire::Library.all_files.select{|f| f.file_name =~ /\.mp3$/}
     response.body = erb "playlist.erb"
   end
 
@@ -135,6 +133,10 @@ handler = Francis.new do
     @files = Limewire::Library.all_files
     @categories = Limewire::Library.categories
     response.body = erb 'stats.erb'
+  end
+
+  get %r{/.*} do
+    response.body = "404 not found."
   end
 
 end

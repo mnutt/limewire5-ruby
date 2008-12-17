@@ -6,9 +6,9 @@ require 'lib/htmlentities/lib/htmlentities/legacy'
 
 class HTMLEntities
 
-  VERSION = '4.0.0' unless const_defined?("VERSION")
-  FLAVORS = %w[html4 xhtml1] unless const_defined?("FLAVORS")
-  INSTRUCTIONS = [:basic, :named, :decimal, :hexadecimal] unless const_defined?("INSTRUCTIONS")
+  VERSION = '4.0.0' unless defined?(VERSION)
+  FLAVORS = %w[html4 xhtml1] unless defined?(FLAVORS)
+  INSTRUCTIONS = [:basic, :named, :decimal, :hexadecimal] unless defined?(INSTRUCTIONS)
 
   class InstructionError < RuntimeError
   end
