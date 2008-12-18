@@ -42,7 +42,7 @@ module Limewire
 
   module Library
     def self.all_files
-      file_list = Limewire.core.file_manager.gnutella_file_list
+      file_list = Limewire.core.get_file_manager.get_gnutella_file_list
       file_list.map{ |file| Limewire::File.new(file) }.compact
     end
 
@@ -68,6 +68,23 @@ module Limewire
 
     def metadata
       @metadata
+    end
+    def to_cloud
+      {
+        'duration' => metadata.get_length,
+        'permalink' => metadata.getTitle,
+        'uri' => "/library/#{self.sHA1Urn}",
+        'downloadable' => true,
+        'title' => metadata.getTitle,
+        'id' => self.object_id,
+        'streamable' => true,
+        'stream_url' => "/library/#{self.sHA1Urn}",
+        'description' => metadata.getComment,
+        'permalink_url' => "/library/#{self.sHA1Urn}",
+        'user' => {"username"=>"derek"},
+        'sharing' => 'public',
+        'purchase_url' => 'http://store.limewire.com'
+      }
     end
 
     def method_missing(name, *args)
