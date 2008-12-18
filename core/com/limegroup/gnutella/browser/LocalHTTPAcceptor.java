@@ -80,7 +80,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
         registerHandler("/magnet10/pause", new MagnetPauseRequestHandler());
         registerHandler("/magcmd/detail", new MagnetDetailRequestHandler());
         registerHandler("/script*", new RubyRequestHandler());
-        registerHandler("/file/*", new FileRequestHandler());
+        registerHandler("/script/asset/*", new FileRequestHandler());
         registerHandler("/library/*", new LibraryRequestHandler());
         registerHandler("/crossdomain.xml", new CrossDomainRequestHandler());
         // TODO figure out which files we want to serve from the local file system
@@ -213,24 +213,25 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
                 HttpContext context) throws HttpException, IOException {
             
             String uri = request.getRequestLine().getUri();
-            int i = uri.indexOf(FILE_URL);
-            String filepath = uri.substring(i + FILE_URL.length());
+            int i = uri.indexOf("/script/asset/");
+            String filepath = uri.substring(i + "/script/asset/".length());
             i = filepath.lastIndexOf('/');
             String filename = filepath.substring(i + 1);
             i = filename.lastIndexOf('.');
             String extension = filename.substring(i + 1);
             System.out.println(extension);
-
-            File file = new File("../../core/com/limegroup/scripting/resources/assets/" + filepath);
+            System.out.println(filepath);
+            File file = new File("core/com/limegroup/scripting/resources/assets/" + filepath);
             NFileEntity entity = new NFileEntity(file, "application/binary");
             if(extension.contentEquals("js")) {
                 entity.setContentType("text/javascript");
-                System.out.println("got javascript");
             } else if(extension.contentEquals("css")) {
                 entity.setContentType("text/css");
             } else if(extension.contentEquals("swf")) {
                 entity.setContentType("application/x-shockwave-flash");
-            } else {
+            } else if(extension.contentEquals("html")) { 
+                entity.setContentType("text/html");
+            }   else {
                 entity.setContentType("application/binary");
             }
             
@@ -251,9 +252,12 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
             String uri = request.getRequestLine().getUri();
             int i = uri.indexOf(LIBRARY_URL);
             String sha1 = uri.substring(i + LIBRARY_URL.length());
+            sha1 = sha1.substring(0, sha1.indexOf("?"));
+            System.out.println("sha1:" + sha1);
+            
             URN urn = URN.createSHA1Urn(sha1);
             FileDesc fileDesc = core.getFileManager().getGnutellaFileList().getFileDesc(urn);
-            NFileEntity entity = new NFileEntity(fileDesc.getFile(), "text/html");
+            NFileEntity entity = new NFileEntity(fileDesc.getFile(), "application/binary");
             entity.setContentType("application/binary");    
             response.setHeader("Content-disposition", "attachment; filename=\"" + fileDesc.getFileName() + "\";");
             response.setEntity(entity);
