@@ -123,31 +123,19 @@ handler = Francis.new do
 
   get %r{/script/sc/tracks.json} do
     #Limewire::Library.filter_by_name(/mp3$/)[0..1].collect(&:to_cloud).to_json
-    t = []
-    t<< {
-      "duration" => 35000,
-      "permalink" => "fooey",
-      "playback_count" => "0",
-      "uri" => "www.google.com",
-      "waveform_url" => "www.google.com",
-      "downloadable" => true,
-      "title" => "Temporary",
-      "download_count" => 0,
-      "id" => 3843,
-      "streamable" => true,
-      "user_id" => 3,
-      "downloadable_url" => "www.google.com",
-      "stream_url" => "google.com",
-      "artwork_url" => "google.com",
-      "description" => "It really whips the llamas ass",
-      "bpm" => 40,
-      "permalink_url" => "hi there",
-      "user"=>{"permalink"=>"asdf", "uri"=>"google.com", "username"=>"derek", "permalink_url"=>"rar"},
-      "sharing"=>"public",
-      "purchase_url"=>"amazon.com"
-      
-    }
-    response.json = t
+    response.json = Limewire::Library.filter_by_name(/mp3$/).collect{|x| x.to_cloud}
+#    puts response.json
+  end
+  get '/script/e' do
+    #eval(request.query_string["ev"])
+    val = eval(java.net.URLDecoder.decode(request.query_string["ev"]))
+    (ret ||=[]) << "To_s: " + val.to_s
+    ret << "each to_s:" + val.collect{|x| x.to_s}.join("<br>") rescue "none"
+    ret << "json:" + JSON(val) rescue "none"
+    ret << "Class:<b>#{val.class.to_s.tr("<>", "()")}</b>"
+    ret << "Size:<b>#{val.size rescue "n/a"}</b>"
+    ret << "Methods:<br>" + val.methods.sort.collect{|x| ((x=~/^get/) ? "<b>#{x}</b>" : x) }.join("<br>")
+    response.body = ret.join ("<br>")
   end
   
   get '/script/stats' do
@@ -158,10 +146,6 @@ handler = Francis.new do
     @files = Limewire::Library.all_files
     @categories = Limewire::Library.categories
     response.body = erb 'stats.erb'
-  end
-
-  get %r{/.*} do
-    response.body = "404 not found."
   end
 
 end
