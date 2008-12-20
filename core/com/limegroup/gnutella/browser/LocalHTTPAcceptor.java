@@ -77,7 +77,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
         registerHandler("/magnet10/pause", new MagnetPauseRequestHandler());
         registerHandler("/magcmd/detail", new MagnetDetailRequestHandler());
         registerHandler("/script*", new RubyRequestHandler());
-        registerHandler("/asset/*", new FileRequestHandler());
+        registerHandler("/script/asset/*", new FileRequestHandler());
         registerHandler("/library/*", new LibraryRequestHandler());
         registerHandler("/crossdomain.xml", new CrossDomainRequestHandler());
         // TODO figure out which files we want to serve from the local file system
@@ -210,8 +210,8 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
                 HttpContext context) throws HttpException, IOException {
             
             String uri = request.getRequestLine().getUri();
-            int i = uri.indexOf("/asset/");
-            String filepath = uri.substring(i + "/asset/".length());
+            int i = uri.indexOf("/script/asset/");
+            String filepath = uri.substring(i + "/script/asset/".length());
             i = filepath.lastIndexOf('/');
             String filename = filepath.substring(i + 1);
             i = filename.lastIndexOf('.');

@@ -1,6 +1,7 @@
 import 'org.limewire.geocode.Geocoder'
 import 'com.limegroup.gnutella.URN'
 import 'com.limegroup.gnutella.metadata.MetaDataFactoryImpl'
+import 'com.limegroup.gnutella.metadata.MetaDataFactory'
 import 'org.limewire.io.GUID'
 import 'org.limewire.core.api.library.LibraryManager'
 import 'org.limewire.core.api.search.SearchManager'
