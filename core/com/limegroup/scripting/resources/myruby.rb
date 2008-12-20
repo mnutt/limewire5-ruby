@@ -126,10 +126,12 @@ handler = Francis.new do
   end
 
   get %r{/script/sc/tracks.json} do
-    #Limewire::Library.filter_by_name(/mp3$/)[0..1].collect(&:to_cloud).to_json
-    response.json = Limewire::Library.filter_by_name(/mp3$/).collect{|x| x.to_cloud}
-#    puts response.json
+    limit = request.query_string['limit'].to_i || 40
+    offset = request.query_string['offset'].to_i || 0
+    
+    response.json = Limewire::Library.filter_by_name(/mp3$/).collect{|x| x.to_cloud}[offset..(offset+limit-1)]
   end
+
   get '/script/e' do
     #eval(request.query_string["ev"])
     val = eval(java.net.URLDecoder.decode(request.query_string["ev"]))
