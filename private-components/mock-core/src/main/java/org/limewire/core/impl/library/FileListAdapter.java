@@ -15,6 +15,8 @@ import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.api.library.FileItem;
 
+import com.limegroup.gnutella.library.FileDesc;
+
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
@@ -98,6 +100,12 @@ public class FileListAdapter implements LocalFileList, LibraryFileList {
 
     @Override
     public LocalFileItem getFileItem(File file) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<FileDesc> getFileDescsByURN(URN urn) {
         // TODO Auto-generated method stub
         return null;
     }

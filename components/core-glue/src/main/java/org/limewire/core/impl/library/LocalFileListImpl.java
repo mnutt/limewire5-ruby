@@ -76,6 +76,11 @@ abstract class LocalFileListImpl implements LocalFileList {
         }
     }
     
+    @Override
+    public List<FileDesc> getFileDescsByURN(URN urn) {
+        return getCoreFileList().getFileDescsMatching(((URNImpl)urn).getUrn());
+    }
+    
     protected boolean containsCoreUrn(com.limegroup.gnutella.URN urn) {
         return !getCoreFileList().getFileDescsMatching(urn).isEmpty();
     }

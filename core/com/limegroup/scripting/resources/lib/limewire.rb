@@ -96,19 +96,21 @@ module Limewire
     def metadata
       @metadata
     end
+
     def to_cloud
       {
-        'duration' => metadata.get_length,
-        'permalink' => metadata.getTitle,
+        'duration' => metadata.length * 1000,
+        'permalink' => metadata.title,
         'uri' => "/library/#{self.sHA1Urn}",
         'downloadable' => true,
-        'title' => metadata.getTitle,
+        'genre' => metadata.genre,
+        'title' => metadata.title.chop,
         'id' => self.object_id,
         'streamable' => true,
         'stream_url' => "/library/#{self.sHA1Urn}",
-        'description' => metadata.getComment,
+        'description' => metadata.album.chop,
         'permalink_url' => "/library/#{self.sHA1Urn}",
-        'user' => {"username"=>"derek"},
+        'user' => {"username"=>metadata.artist.chop},
         'sharing' => 'public',
         'purchase_url' => 'http://store.limewire.com'
       }
@@ -122,5 +124,5 @@ module Limewire
       end
     end
   end
-end 
+end
 

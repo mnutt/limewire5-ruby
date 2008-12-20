@@ -6,6 +6,8 @@ import java.util.List;
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.URN;
 
+import com.limegroup.gnutella.library.FileDesc;
+
 /** A list of FileItems that are locally stored on disk. */
 public interface LocalFileList extends FileList<LocalFileItem> {
 
@@ -34,6 +36,9 @@ public interface LocalFileList extends FileList<LocalFileItem> {
 
     /** Returns true if the list contains a file with this URN. */
     public boolean contains(URN urn);
+    
+    /** Finds a file by URN */
+    public List<FileDesc> getFileDescsByURN(URN urn);
     
     /**
      * Returns the of FileItem for the given file, or null if it is not in this list.

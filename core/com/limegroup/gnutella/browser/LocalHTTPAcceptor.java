@@ -20,6 +20,9 @@ import org.apache.http.protocol.HttpContext;
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.http.BasicHttpAcceptor;
 import org.limewire.http.auth.AuthenticationInterceptor;
+import org.limewire.core.api.library.LibraryManager;
+import org.limewire.core.api.URN;
+import org.limewire.core.impl.URNImpl;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -27,7 +30,6 @@ import com.limegroup.gnutella.Constants;
 import com.limegroup.gnutella.LimeWireCore;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.util.LimeWireUtils;
-import com.limegroup.gnutella.URN;
 import com.limegroup.scripting.*;
 
 @Singleton
@@ -61,16 +63,19 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
     private long MIN_REQUEST_INTERVAL = 1500;
 
     private final ExternalControl externalControl;
+    
+    private LibraryManager libraryManager;
 
     public LimeWireCore core;
 
     @Inject
-    public LocalHTTPAcceptor(ExternalControl externalControl, LimeWireCore core,
+    public LocalHTTPAcceptor(ExternalControl externalControl, LimeWireCore core, LibraryManager libraryManager,
                         AuthenticationInterceptor requestAuthenticator) {
         super(createDefaultParams(LimeWireUtils.getHttpServer(), Constants.TIMEOUT),
                 requestAuthenticator, SUPPORTED_METHODS);
         this.externalControl = externalControl;
-	this.core = core;
+        this.core = core;
+        this.libraryManager = libraryManager;
         
         registerHandler("magnet:", new MagnetCommandRequestHandler());
         registerHandler("/magnet10/default.js", new MagnetCommandRequestHandler());
@@ -218,7 +223,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
             String extension = filename.substring(i + 1);
             System.out.println(extension);
             System.out.println(filepath);
-            File file = new File("core/com/limegroup/scripting/resources/assets/" + filepath);
+            File file = new File("../../core/com/limegroup/scripting/resources/assets/" + filepath);
             NFileEntity entity = new NFileEntity(file, "application/binary");
             if(extension.contentEquals("js")) {
                 entity.setContentType("text/javascript");
@@ -246,17 +251,25 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
         public void handle(HttpRequest request, HttpResponse response,
                 HttpContext context) throws HttpException, IOException {
             
+            AbstractHttpEntity entity;
             String uri = request.getRequestLine().getUri();
             int i = uri.indexOf(LIBRARY_URL);
             String sha1 = uri.substring(i + LIBRARY_URL.length());
-            sha1 = sha1.substring(0, sha1.indexOf("?"));
+            if(sha1.indexOf("?") != -1) { 
+              sha1 = sha1.substring(0, sha1.indexOf("?"));
+            }
             System.out.println("sha1:" + sha1);
             
-            URN urn = URN.createSHA1Urn(sha1);
-            FileDesc fileDesc = core.getFileManager().getGnutellaFileList().getFileDesc(urn);
-            NFileEntity entity = new NFileEntity(fileDesc.getFile(), "application/binary");
-            entity.setContentType("application/binary");    
-            response.setHeader("Content-disposition", "attachment; filename=\"" + fileDesc.getFileName() + "\";");
+            URN urn = new URNImpl(com.limegroup.gnutella.URN.createSHA1Urn(sha1));
+            if(libraryManager.getLibraryManagedList().contains(urn)) {
+              FileDesc fileDesc = libraryManager.getLibraryManagedList().getFileDescsByURN(urn).get(0);
+              entity = new NFileEntity(fileDesc.getFile(), "application/binary");
+              entity.setContentType("application/binary");    
+              response.setHeader("Content-disposition", "attachment; filename=\"" + fileDesc.getFileName() + "\";");
+            } else {
+                entity = new NStringEntity("File not found: " + sha1);
+                entity.setContentType("text/plain");
+            }
             response.setEntity(entity);
         }
     }
