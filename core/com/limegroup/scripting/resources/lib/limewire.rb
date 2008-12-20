@@ -73,8 +73,29 @@ module Limewire
       file_list.map{ |file| Limewire::File.new(file) }.compact
     end
 
+    def self.first(limit=1)
+      self.all_files.first(limit)
+    end
+
     def self.filter(&b)
       all_files.find_all(&b)
+    end
+
+    def self.find(type_or_sha1, options={})
+      if(type == :all)
+        files = all_files
+      elsif(String === type)
+        files = all_files.select{|f| f.sha1urn == type}
+      end
+      
+      if options[:genres]
+        all_files = all_files.select{|f| f.metadata.genre == options[:genres] }
+      end
+
+      limit = options[:limit].to_i || (type == :first) ? 1 : 40
+      offset = options[:offset].to_i || 0
+      
+      all_files
     end
 
     def self.filter_by_name(regex)
@@ -104,13 +125,13 @@ module Limewire
         'uri' => "/library/#{self.sHA1Urn}",
         'downloadable' => true,
         'genre' => metadata.genre,
-        'title' => metadata.title.chop,
+        'title' => metadata.title.gsub(/\u0000/, ""),
         'id' => self.object_id,
         'streamable' => true,
         'stream_url' => "/library/#{self.sHA1Urn}",
-        'description' => metadata.album.chop,
+        'description' => metadata.album.gsub(/\u0000/, ""),
         'permalink_url' => "/library/#{self.sHA1Urn}",
-        'user' => {"username"=>metadata.artist.chop},
+        'user' => {"username"=>metadata.artist.gsub(/\u0000/, "")},
         'sharing' => 'public',
         'purchase_url' => 'http://store.limewire.com'
       }

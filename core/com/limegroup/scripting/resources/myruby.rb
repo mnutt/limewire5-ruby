@@ -132,6 +132,10 @@ handler = Francis.new do
     response.json = Limewire::Library.filter_by_name(/mp3$/).collect{|x| x.to_cloud}[offset..(offset+limit-1)]
   end
 
+  get %r{/script/sc/playlists} do
+    
+  end
+
   get '/script/e' do
     #eval(request.query_string["ev"])
     val = eval(java.net.URLDecoder.decode(request.query_string["ev"]))
