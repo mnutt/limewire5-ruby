@@ -72,6 +72,11 @@ public class CoreSearch implements Search {
     }
     
     @Override
+    public String getQuery() {
+        return searchDetails.getSearchQuery();
+    }
+    
+    @Override
     public void addSearchListener(SearchListener searchListener) {
         searchListeners.add(searchListener);
     }
@@ -79,6 +84,12 @@ public class CoreSearch implements Search {
     @Override
     public void removeSearchListener(SearchListener searchListener) {
         searchListeners.remove(searchListener);
+    }
+
+    @Override
+    public CopyOnWriteArrayList<SearchListener> getListenerList() {
+        // TODO Auto-generated method stub
+        return this.searchListeners;
     }
 
     @Override
@@ -200,7 +211,7 @@ public class CoreSearch implements Search {
         }
     }
 
-
+    @Override
     public GUID getQueryGuid() {
         return new GUID(searchGuid);
     }

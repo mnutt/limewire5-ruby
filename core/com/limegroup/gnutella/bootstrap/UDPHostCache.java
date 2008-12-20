@@ -295,7 +295,8 @@ public class UDPHostCache {
     }
     
     public void loadDefaults() {
-        // ADD DEFAULT UDP HOST CACHES HERE.
+        createAndAdd("gnutelladev1.udp-host-cache.com", 1234);
+        createAndAdd("gnutelladev2.udp-host-cache.com", 5678);
     }
     
     /**

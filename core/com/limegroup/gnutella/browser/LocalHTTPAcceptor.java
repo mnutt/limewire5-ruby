@@ -2,8 +2,6 @@ package com.limegroup.gnutella.browser;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.logging.Log;
@@ -28,7 +26,6 @@ import com.google.inject.Singleton;
 import com.limegroup.gnutella.Constants;
 import com.limegroup.gnutella.LimeWireCore;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.util.LimeWireUtils;
 import com.limegroup.gnutella.URN;
 import com.limegroup.scripting.*;
@@ -54,7 +51,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
 
     /** Magnet detail command */
     private static final String MAGNET_DETAIL = "magcmd/detail?";
-    private static final String FILE_URL = "/file/";
+    private static final String ASSET_URL = "/asset/";
     private static final String LIBRARY_URL = "/library/";
 
     private String lastCommand;
@@ -80,7 +77,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
         registerHandler("/magnet10/pause", new MagnetPauseRequestHandler());
         registerHandler("/magcmd/detail", new MagnetDetailRequestHandler());
         registerHandler("/script*", new RubyRequestHandler());
-        registerHandler("/file/*", new FileRequestHandler());
+        registerHandler("/asset/*", new FileRequestHandler());
         registerHandler("/library/*", new LibraryRequestHandler());
         registerHandler("/crossdomain.xml", new CrossDomainRequestHandler());
         // TODO figure out which files we want to serve from the local file system
@@ -213,8 +210,8 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
                 HttpContext context) throws HttpException, IOException {
             
             String uri = request.getRequestLine().getUri();
-            int i = uri.indexOf(FILE_URL);
-            String filepath = uri.substring(i + FILE_URL.length());
+            int i = uri.indexOf(ASSET_URL);
+            String filepath = uri.substring(i + ASSET_URL.length());
             i = filepath.lastIndexOf('/');
             String filename = filepath.substring(i + 1);
             i = filename.lastIndexOf('.');
@@ -230,10 +227,12 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
                 entity.setContentType("text/css");
             } else if(extension.contentEquals("swf")) {
                 entity.setContentType("application/x-shockwave-flash");
+            } else if(extension.contentEquals("html")) {
+                entity.setContentType("text/html");    
             } else {
                 entity.setContentType("application/binary");
             }
-            
+
             response.setEntity(entity);
         }
     }

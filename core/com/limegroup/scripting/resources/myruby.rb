@@ -10,7 +10,6 @@ require 'json.rb'
 
 import 'org.apache.http.nio.entity.NStringEntity'
 import 'org.apache.http.nio.entity.NFileEntity'
-import 'org.limewire.core.api.library.LibraryManager'
 
 
 #I wonder if there is someway we could parse this handler only once,
@@ -109,11 +108,15 @@ handler = Francis.new do
     @guid = request.query_string["guid"]
     puts "Handling: #{@guid}, and #{@q}"
     if @guid
-      response.json = {"guid"=>@guid, "results"=> Limewire::Search.get_response(@guid)}
+      @search = Limewire::Search.find(@guid)
+      response.json = {"guid"=>@guid, 
+                       "query"=>@search.query_string, 
+                       "results"=> @search.results }
     elsif @q
-      @guid = Limewire::Search.new
-      Limewire::Search.query(@guid, @q)
-      response.json = {"guid"=>@guid, "q"=>@q}
+      @q.gsub!(/%20/, " ")
+      @search = Limewire::Search.query(@q)
+      @search.start
+      response.json = {"guid"=> @search.guid}
     end
 
   end

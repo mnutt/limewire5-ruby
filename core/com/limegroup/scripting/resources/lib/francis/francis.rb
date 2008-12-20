@@ -72,7 +72,11 @@ class Francis
                    end
                  end
 
-      ERB.new(template, 0, '-').result(b)
+      begin
+        ERB.new(template, 0, '-').result(b)
+      rescue
+        raise "#{o} (#{$!.backtrace.first.split(':')[1] if $!.backtrace.first}) : #{$!.message}"
+      end
     end
   end
 
@@ -143,8 +147,9 @@ class Francis
       sess.response
     end
   rescue Exception => e
-    nstring = NStringEntity.new(e.backtrace.join("<br/>"))
+    nstring = NStringEntity.new(e.backtrace.unshift(e.message).join("<br/>"))
     nstring.setContentType("text/html")
     nstring
+#raise e
   end
 end

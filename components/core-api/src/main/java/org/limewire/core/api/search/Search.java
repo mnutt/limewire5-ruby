@@ -1,5 +1,9 @@
 package org.limewire.core.api.search;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.limewire.io.GUID;
+
 /**
  * A single search.
  */
@@ -7,6 +11,12 @@ public interface Search {
     
     /** Returns the category this search is for. */
     SearchCategory getCategory();
+    
+    /** Returns the search string */
+    String getQuery();
+    
+    /** Returns the search's unique GUID */
+    GUID getQueryGuid();
     
     /** Adds a new SearchListener. */
     void addSearchListener(SearchListener searchListener);
@@ -23,4 +33,6 @@ public interface Search {
     /** Stops the search. */
     void stop();
 
+    /** List of all of the listeners for this search. */
+    CopyOnWriteArrayList<SearchListener> getListenerList();
 }

@@ -14,6 +14,8 @@ import org.limewire.concurrent.SimpleTimer;
 import org.limewire.core.api.connection.FirewallStatusEvent;
 import org.limewire.core.api.connection.FirewallTransferStatusEvent;
 import org.limewire.core.api.download.SaveLocationManager;
+import org.limewire.core.api.search.SearchManager;
+import org.limewire.core.impl.search.SearchManagerImpl;
 import org.limewire.http.LimeWireHttpModule;
 import org.limewire.inject.AbstractModule;
 import org.limewire.inspection.Inspector;
@@ -366,6 +368,7 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(BTMetaInfoFactory.class).to(BTMetaInfoFactoryImpl.class);
         bind(OutgoingQueryReplyFactory.class).to(OutgoingQueryReplyFactoryImpl.class);
         bind(UPnPManagerConfiguration.class).to(UPnPManagerConfigurationImpl.class);
+        bind(SearchManager.class).to(SearchManagerImpl.class);
         
         bindAll(Names.named("fastExecutor"), ScheduledExecutorService.class, FastExecutorProvider.class, ExecutorService.class, Executor.class);
         bindAll(Names.named("unlimitedExecutor"), ListeningExecutorService.class, UnlimitedExecutorProvider.class, Executor.class, ExecutorService.class);
