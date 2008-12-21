@@ -81,7 +81,6 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
         registerHandler("/magnet10/default.js", new MagnetCommandRequestHandler());
         registerHandler("/magnet10/pause", new MagnetPauseRequestHandler());
         registerHandler("/magcmd/detail", new MagnetDetailRequestHandler());
-        registerHandler("/script*", new RubyRequestHandler());
         registerHandler("/script/asset/*", new FileRequestHandler());
         registerHandler("/library/*", new LibraryRequestHandler());
         registerHandler("/crossdomain.xml", new CrossDomainRequestHandler());
@@ -137,31 +136,6 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
                     }
                 }
             });
-        }
-    }
-
-    private class RubyRequestHandler extends SimpleNHttpRequestHandler {
-        public RubyEvaluator reval = null;
-        public ConsumingNHttpEntity entityRequest(HttpEntityEnclosingRequest request,
-                HttpContext context) throws HttpException, IOException {
-                System.out.println("RRHandler");
-            return null;
-        }
-        
-        @Override
-        public void handle(HttpRequest request, HttpResponse response,
-                HttpContext context) throws HttpException, IOException {
-            if(reval == null) {
-                reval = new RubyEvaluator();
-            }
-            System.out.println("going to evaluate");
-            AbstractHttpEntity entity = null;
-            try {
-                entity = reval.eval(core, request);
-                response.setEntity(entity);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 

@@ -17,6 +17,8 @@ import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.core.api.search.SearchManager;
 import org.limewire.core.impl.search.SearchManagerImpl;
 import org.limewire.http.LimeWireHttpModule;
+import org.limewire.http.mongrel.MongrelManager;
+import org.limewire.http.mongrel.MongrelManagerImpl;
 import org.limewire.inject.AbstractModule;
 import org.limewire.inspection.Inspector;
 import org.limewire.inspection.InspectorImpl;
@@ -369,6 +371,7 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(OutgoingQueryReplyFactory.class).to(OutgoingQueryReplyFactoryImpl.class);
         bind(UPnPManagerConfiguration.class).to(UPnPManagerConfigurationImpl.class);
         bind(SearchManager.class).to(SearchManagerImpl.class);
+        bind(MongrelManager.class).to(MongrelManagerImpl.class);
         
         bindAll(Names.named("fastExecutor"), ScheduledExecutorService.class, FastExecutorProvider.class, ExecutorService.class, Executor.class);
         bindAll(Names.named("unlimitedExecutor"), ListeningExecutorService.class, UnlimitedExecutorProvider.class, Executor.class, ExecutorService.class);

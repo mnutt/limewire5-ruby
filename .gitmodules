@@ -1,3 +1,6 @@
 [submodule "core/com/limegroup/scripting/resources/assets/cloud-player"]
 	path = core/com/limegroup/scripting/resources/assets/cloud-player
 	url = git://github.com/dhaas/the-cloud-player.git
+[submodule "scripting/gems/merb"]
+	path = scripting/gems/merb
+	url = git://github.com/wycats/merb.git
