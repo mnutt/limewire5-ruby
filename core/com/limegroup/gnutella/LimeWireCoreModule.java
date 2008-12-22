@@ -19,6 +19,7 @@ import org.limewire.core.impl.search.SearchManagerImpl;
 import org.limewire.http.LimeWireHttpModule;
 import org.limewire.http.mongrel.MongrelManager;
 import org.limewire.http.mongrel.MongrelManagerImpl;
+import org.limewire.http.mongrel.MongrelGlue;
 import org.limewire.inject.AbstractModule;
 import org.limewire.inspection.Inspector;
 import org.limewire.inspection.InspectorImpl;
@@ -392,6 +393,7 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(Statistics.class);
         bind(CoreRandomGlue.class);
         bind(ConnectionAcceptorGlue.class);
+        bind(MongrelGlue.class);
         bind(DownloadUpgradeTaskService.class);
         bind(LocalAcceptor.class);
         bind(Pinger.class);

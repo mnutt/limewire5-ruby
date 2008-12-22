@@ -4,7 +4,6 @@ import org.limewire.core.settings.LWSSettings;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceStage;
 import org.limewire.net.ConnectionDispatcher;
-import org.limewire.http.mongrel.MongrelManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -23,7 +22,6 @@ class ConnectionAcceptorGlue {
     
     private final LocalHTTPAcceptor localHttpAcceptor;
     private final HTTPAcceptor externalHttpAcceptor;
-    private final MongrelManager mongrelManager;
     private final PushDownloadManager pushDownloadManager;
     private final TorrentManager torrentManager;
     private final ControlRequestAcceptor controlRequestAcceptor;
@@ -35,7 +33,6 @@ class ConnectionAcceptorGlue {
             @Named("local") ConnectionDispatcher localDispatcher,
             HTTPAcceptor externalHttpAcceptor,
             LocalHTTPAcceptor localHttpAcceptor,
-            MongrelManager mongrelManager,
             PushDownloadManager pushDownloadManager,
             TorrentManager torrentManager,
             ControlRequestAcceptor controlRequestAcceptor,
@@ -46,7 +43,6 @@ class ConnectionAcceptorGlue {
         this.pushDownloadManager = pushDownloadManager;
         this.torrentManager = torrentManager;
         this.localHttpAcceptor = localHttpAcceptor;
-        this.mongrelManager = mongrelManager;
         this.controlRequestAcceptor = controlRequestAcceptor;
         this.lwsManager = lwsManager;
     }
@@ -73,7 +69,6 @@ class ConnectionAcceptorGlue {
                 torrentManager.initialize(externalDispatcher);
                 localDispatcher.addConnectionAcceptor(localHttpAcceptor, true, localHttpAcceptor
                         .getHttpMethods());
-                mongrelManager.start();
                 localDispatcher.addConnectionAcceptor(controlRequestAcceptor,
                             true, "MAGNET", "TORRENT");
                 externalDispatcher.addConnectionAcceptor(controlRequestAcceptor,
@@ -82,7 +77,6 @@ class ConnectionAcceptorGlue {
                 if (LWSSettings.LWS_IS_ENABLED.getValue()) {
                     localHttpAcceptor.registerHandler("/" + LWSManager.PREFIX + "*",  lwsManager.getHandler());
                 }
-
             }
 
             public void stop() {

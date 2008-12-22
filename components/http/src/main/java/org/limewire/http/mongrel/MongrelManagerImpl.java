@@ -16,6 +16,12 @@ public class MongrelManagerImpl implements MongrelManager {
     public MongrelManagerImpl(RubyEvaluator rubyEvaluator) {
         this.rubyEvaluator = rubyEvaluator;
     }
+    
+    @Override
+    public String getServiceName() {
+        return org.limewire.i18n.I18nMarker.marktr("Mongrel Manager");
+    }
+    
     @Override
     public void start() {
         System.out.println("Starting mongrel...");
@@ -27,6 +33,18 @@ public class MongrelManagerImpl implements MongrelManager {
         } catch(ScriptException exception) {
             exception.getCause().printStackTrace();
         }
+    }
+    @Override
+    public void stop() {
+        try {
+            this.rubyEvaluator.stop();
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public boolean isAsyncStop() {
+        return true;
     }
 
 }

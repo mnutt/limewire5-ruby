@@ -16,8 +16,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
     @Inject
     public LifeCycleManagerImpl(LifecycleManager lifecycleManager) {
-        this.lifecycleManager = Objects.nonNull(lifecycleManager, "lifecycleMaanger");
-
+        this.lifecycleManager = Objects.nonNull(lifecycleManager, "lifecycleManager");
     }
 
     @Override
