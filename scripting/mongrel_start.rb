@@ -8,4 +8,6 @@ Gem.refresh
 gem 'merb-core'
 require 'merb-core'
 
-Merb.start_environment(:adapter => :mongrel, :merb_root => ROOT, :verbose => true)
+Merb.start_environment(:adapter => :mongrel, 
+                       :merb_root => ROOT,
+                       :log_file => "log/development.log")

@@ -2,6 +2,8 @@
 merb_gems_version = "1.0.6.1"
 dm_gems_version   = "0.9.8"
 
+dependency "mongrel"
+
 # For more information about each component, please read http://wiki.merbivore.com/faqs/merb_components
 dependency "merb-action-args", merb_gems_version
 dependency "merb-assets", merb_gems_version  
@@ -14,12 +16,12 @@ dependency "merb-auth-more", merb_gems_version
 dependency "merb-auth-slice-password", merb_gems_version
 dependency "merb-param-protection", merb_gems_version
 dependency "merb-exceptions", merb_gems_version
-# dependency "merb-freezer"
+dependency "merb-gen"
 
 dependency "activerecord"
 dependency "merb_activerecord"
-# dependency "jdbc-hsqldb", "1.8.0.7"
-# dependency "activerecord-jdbchsqldb-adapter", "0.9"
+dependency "jdbc-hsqldb", :require_as => "jdbc/hsqldb"
+dependency "activerecord-jdbchsqldb-adapter", :require_as => "active_record/connection_adapters/jdbchsqldb_adapter" 
 
 # No datamapper
 # dependency "dm-core", dm_gems_version         
