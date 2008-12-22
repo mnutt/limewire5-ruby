@@ -3,3 +3,4 @@ components/*/build/*
 bin/*
 tests/build
 gui/log.txt
+private-components/integrated-ui/log
