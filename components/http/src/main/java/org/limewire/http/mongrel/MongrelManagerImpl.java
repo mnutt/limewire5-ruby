@@ -36,12 +36,8 @@ public class MongrelManagerImpl implements MongrelManager {
     }
     @Override
     public void stop() {
-        try {
-            this.rubyEvaluator.stop();
-        } catch (ScriptException e) {
-            e.printStackTrace();
-        }
     }
+    
     @Override
     public boolean isAsyncStop() {
         return true;
