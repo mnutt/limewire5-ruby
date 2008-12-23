@@ -121,7 +121,7 @@ SC.Playlist.prototype = {
     var format = "js";
     if(!baseUrl) { // if no baseUrl then use json
       var format = "json";
-      var baseUrl = "/script/sc/";
+      var baseUrl = "/cloud/";
     }
     var pl = this.properties.playlist;
     if(pl.smart) { // check for all smart playlist params

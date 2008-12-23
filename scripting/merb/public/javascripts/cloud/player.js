@@ -744,7 +744,7 @@ SC.Player.prototype = {
 };
 
 soundManager.flashVersion = 9;
-soundManager.url = '/script/asset/cloud-player/scripts';
+soundManager.url = '/flash';
 soundManager.useConsole = true;
 soundManager.consoleOnly = true;
 soundManager.debugMode = false; // disable debug mode
