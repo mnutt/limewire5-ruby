@@ -21,6 +21,6 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.limewire.ui.swing.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="LimeWire5"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;${workspace_loc:LimeWire5/lib/native/osx}&quot; -Djava.net.preferIPv4stack=true -ea -splash:src/main/resources/splash.PNG"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;${workspace_loc:LimeWire5/lib/native/osx}&quot; -Djava.net.preferIPv4stack=true -ea -splash:src/main/resources/splash.PNG -Xmx256m"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:LimeWire5/private-components/integrated-ui}"/>
 </launchConfiguration>
