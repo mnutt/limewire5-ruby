@@ -29,15 +29,17 @@ import org.limewire.ui.swing.components.HyperLinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.ResizeUtils;
 
 public class Wizard extends JPanel {
     
-    @Resource Color background;
-    @Resource Color border;
-    @Resource Color titleBarBackground;
-    @Resource Color titleBarForeground;
-    @Resource Color titleBarBorder;
-    @Resource Font titleBarFont;
+    @Resource private Dimension size;
+    @Resource private Color background;
+    @Resource private Color border;
+    @Resource private Color titleBarBackground;
+    @Resource private Color titleBarForeground;
+    @Resource private Color titleBarBorder;
+    @Resource private Font titleBarFont;
     
     private JDialog dialog;    
  
@@ -153,9 +155,7 @@ public class Wizard extends JPanel {
 
             dialog = new LimeJDialog(owner, true);
             
-            dialog.setPreferredSize(new Dimension(650, 490));
-            dialog.setMinimumSize(dialog.getPreferredSize());
-            dialog.setMaximumSize(dialog.getPreferredSize());
+            ResizeUtils.forceSize(dialog, size);
             
             dialog.setUndecorated(true);
             dialog.add(this);

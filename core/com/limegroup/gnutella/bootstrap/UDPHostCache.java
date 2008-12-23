@@ -98,7 +98,6 @@ public class UDPHostCache {
             NetworkInstanceUtils networkInstanceUtils) {
         this(10 * 60 * 1000, pinger, messageRouter, pingRequestFactory, connectionServices,
                 networkInstanceUtils);
-
     }
 
     /**
@@ -146,7 +145,7 @@ public class UDPHostCache {
      * Erases the attempted hosts & decrements the failure counts.
      */
     public synchronized void resetData() {
-        LOG.debug("Clearing attempted udp host caches");
+        LOG.debug("Clearing attempted UDP host caches");
         decrementFailures();
         attemptedHosts.clear();
     }
@@ -159,9 +158,12 @@ public class UDPHostCache {
             ep.decrementUDPHostCacheFailure();
             // if we brought this guy down back to a managable
             // failure size, add'm back if we have room.
-            if(ep.getUDPHostCacheFailures() == MAXIMUM_FAILURES &&
-               udpHosts.size() < PERMANENT_SIZE)
+            if(ep.getUDPHostCacheFailures() == MAXIMUM_FAILURES
+                    && udpHosts.size() < PERMANENT_SIZE) {
+                if(LOG.isDebugEnabled())
+                    LOG.debug("Restoring failed host cache " + ep);
                 add(ep);
+            }
             dirty = true;
             writeDirty = true;
         }
@@ -173,11 +175,12 @@ public class UDPHostCache {
      * Contacts 10 UDP hosts at a time.
      */
     public synchronized boolean fetchHosts() {
-        // If the order has possibly changed, resort.
+        // If the hosts have been used, shuffle and sort them
         if(dirty) {
             // shuffle then sort, ensuring that we're still going to use
             // hosts in order of failure, but within each of those buckets
             // the order will be random.
+            LOG.debug("Shuffling and sorting UDP host caches");
             Collections.shuffle(udpHosts);
             Collections.sort(udpHosts, FAILURE_COMPARATOR);
             dirty = false;
@@ -189,13 +192,18 @@ public class UDPHostCache {
         for(ExtendedEndpoint next : udpHosts) {
             if(validHosts.size() >= FETCH_AMOUNT)
                 break;
-            if(attemptedHosts.contains(next))
+            if(attemptedHosts.contains(next)) {
+                if(LOG.isDebugEnabled())
+                    LOG.debug("Already attempted " + next);
                 continue;
+            }
                 
             // if it was private (couldn't look up too) drop it.
             if(!networkInstanceUtils.isValidExternalIpPort(next) || 
                     !NetworkUtils.isValidIpPort(next) || // this does explicit resolving.
                     networkInstanceUtils.isPrivateAddress(next.getAddress())) {
+                if(LOG.isDebugEnabled())
+                    LOG.debug("Invalid address for " + next);
                 invalidHosts.add(next);
                 continue;
             }
@@ -218,12 +226,12 @@ public class UDPHostCache {
       */
      protected synchronized boolean fetch(Collection<? extends ExtendedEndpoint> hosts) {
         if(hosts.isEmpty()) {
-            LOG.debug("No hosts to fetch");
+            LOG.debug("No UDP host caches to try");
             return false;
         }
 
         if(LOG.isDebugEnabled())
-            LOG.debug("Fetching endpoints from " + hosts + " host caches");
+            LOG.debug("Fetching endpoints from " + hosts);
 
         pinger.rank(
             hosts,
@@ -268,9 +276,12 @@ public class UDPHostCache {
     public synchronized boolean add(ExtendedEndpoint e) {
         assert e.isUDPHostCache();
         
-        if (udpHostsSet.contains(e))
+        if(udpHostsSet.contains(e)) {
+            if(LOG.isDebugEnabled())
+                LOG.debug("Not adding known UDP host cache " + e);
             return false;
-            
+        }        
+        
         // note that we do not do any comparisons to ensure that
         // this host is "better" than existing hosts.
         // the rationale is that we'll only ever be adding hosts
@@ -391,8 +402,11 @@ public class UDPHostCache {
                     ep.recordUDPHostCacheFailure();
                     dirty = true;
                     writeDirty = true;
-                    if(ep.getUDPHostCacheFailures() > MAXIMUM_FAILURES)
+                    if(ep.getUDPHostCacheFailures() > MAXIMUM_FAILURES) {
+                        if(LOG.isTraceEnabled())
+                            LOG.trace("Removing failed cache: " + ep);
                         remove(ep);
+                    }
                 }
                 // Then record the successes...
                 allHosts.removeAll(hosts);

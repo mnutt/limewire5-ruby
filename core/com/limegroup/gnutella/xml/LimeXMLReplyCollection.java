@@ -299,39 +299,6 @@ public class LimeXMLReplyCollection {
         
         return null;
     }
-
-    /**
-     * Gets a list of keywords from all the documents in this collection.
-     * <p>
-     * delegates to the individual documents and collates the list
-     */
-    public List<String> getKeyWords(){
-        List<String> retList = new ArrayList<String>();
-        synchronized(LOCK){
-            for(LimeXMLDocument d : mainMap.values()) {
-                if( !isLWSDoc(d))
-                    retList.addAll(d.getKeyWords());
-            }
-        }
-        return retList;
-    }
-
-    /**
-     * Gets a list of indivisible keywords from all the documents in this 
-     * collection.
-     * <p>
-     * Delegates to the individual documents and collates the list
-     */
-    public List<String> getKeyWordsIndivisible(){
-        List<String> retList = new ArrayList<String>();
-        synchronized(LOCK){
-            for(LimeXMLDocument d : mainMap.values()) {
-                if( !isLWSDoc(d))
-                    retList.addAll(d.getKeyWordsIndivisible());
-            }
-        }
-        return retList;
-    }
     
     /**
      * Returns the schema URI of this collection.

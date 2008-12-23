@@ -10,7 +10,7 @@ import org.limewire.core.api.download.SaveLocationException;
 public interface GuiCallback {
 
     /**
-     * Attempts to handle the supplied savelocationexception with the supplied
+     * Attempts to handle the supplied SaveLocationException with the supplied
      * download action.
      */
     void handleSaveLocationException(DownloadAction downLoadAction, SaveLocationException sle,
@@ -23,7 +23,7 @@ public interface GuiCallback {
     boolean promptTorrentSeedRatioLow();
 
     /**
-     * Prompts the user about canceling the torrent uplaod, because it will
+     * Prompts the user about canceling the torrent upload, because it will
      * cancel a current download of that torrent as well.
      */
     boolean promptTorrentDownloading();

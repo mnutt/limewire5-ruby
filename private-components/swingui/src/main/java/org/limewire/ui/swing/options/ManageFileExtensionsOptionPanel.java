@@ -40,7 +40,7 @@ public class ManageFileExtensionsOptionPanel extends OptionPanel {
     public void initOptions() {
         this.removeAll();
         
-        this.add(new JLabel(I18n.tr("Select which file extensions belong in Audio, Video, etc..")), "span, wrap");
+        this.add(new JLabel(I18n.tr("Select which file extensions belong in each category")), "span, wrap");
         
         this.manager.initOptions();
         this.manager.buildUI();

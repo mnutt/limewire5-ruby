@@ -15,6 +15,7 @@ import com.limegroup.gnutella.ForMeReplyHandler;
 import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.ResponseFactory;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryReplyFactory;
 import com.limegroup.gnutella.util.DataUtils;
@@ -125,7 +126,7 @@ public class XMLDocFilterTest extends LimeTestCase {
     }
     
     protected QueryReply createReply(String response, ResponseFactory responseFactory) {
-        return createReply(responseFactory.createResponse(5, 5, response), new GUID(), 5555, address, queryReplyFactory); 
+        return createReply(responseFactory.createResponse(5, 5, response, UrnHelper.SHA1), new GUID(), 5555, address, queryReplyFactory); 
     }
     
     public static QueryReply createReply(Response resp, GUID guid, int port, byte[] address, QueryReplyFactory queryReplyFactory) {
@@ -153,6 +154,6 @@ public class XMLDocFilterTest extends LimeTestCase {
         NameValue<String> nameValue = new NameValue<String>(field, values);
         LimeXMLDocument doc = limeXMLDocumentFactory.createLimeXMLDocument(Collections.singletonList(nameValue),
                 LimeXMLNames.VIDEO_SCHEMA);
-        return responseFactory.createResponse(101, 1340, fileName, doc);
+        return responseFactory.createResponse(101, 1340, fileName, doc, UrnHelper.SHA1);
     }
 }

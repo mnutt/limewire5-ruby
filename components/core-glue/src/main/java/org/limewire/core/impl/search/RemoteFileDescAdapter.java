@@ -166,7 +166,8 @@ public class RemoteFileDescAdapter implements SearchResult {
 
     @Override
     public URN getUrn() {
-        return new URNImpl(rfd.getSHA1Urn());
+        com.limegroup.gnutella.URN urn = rfd.getSHA1Urn();
+        return urn == null ? null : new URNImpl(urn);
     }
 
     @Override

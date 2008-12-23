@@ -222,4 +222,22 @@ public class MockVisualSearchResult implements VisualSearchResult {
     public boolean isLicensed() {
         return false;
     }
+
+    @Override
+    public void toggleChildrenVisibility() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public boolean isShowingContextOptions() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void setShowingContextOptions(boolean showing) {
+        // TODO Auto-generated method stub
+        
+    }
 }

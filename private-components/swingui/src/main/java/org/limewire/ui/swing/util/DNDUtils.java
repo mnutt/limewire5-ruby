@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 import javax.swing.TransferHandler.TransferSupport;
 
 import org.limewire.ui.swing.dnd.LocalFileTransferable;
+import org.limewire.util.OSUtils;
 import org.limewire.util.URIUtils;
 
 /**
@@ -22,6 +23,17 @@ import org.limewire.util.URIUtils;
  */
 public class DNDUtils {
     public static final DataFlavor URIFlavor = createURIFlavor();
+    
+    private static final List<DataFlavor> fileDataFlavors = new ArrayList<DataFlavor>();
+    
+    static {
+        if(OSUtils.isLinux()) {
+            //the uri flavor does not play well with itunes on windows
+            fileDataFlavors.add(URIFlavor);
+        }
+        fileDataFlavors.add(DataFlavor.javaFileListFlavor);
+        fileDataFlavors.add(LocalFileTransferable.LOCAL_FILE_DATA_FLAVOR);
+    }
 
     /**
      * Returns array of uris extracted from transferable.
@@ -56,9 +68,19 @@ public class DNDUtils {
      * {@link DNDUtils#URIFlavor} for unix systems.
      */
     public static boolean containsFileFlavors(TransferSupport transferSupport) {
-        return transferSupport.isDataFlavorSupported(DataFlavor.javaFileListFlavor)
-                || transferSupport.isDataFlavorSupported(URIFlavor)
-                || transferSupport.isDataFlavorSupported(LocalFileTransferable.LOCAL_FILE_DATA_FLAVOR);
+        for(DataFlavor dataFlavor : getFileFlavors()) {
+            if(transferSupport.isDataFlavorSupported(dataFlavor)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Returns array of all flavors we consider to be file flavors. 
+     */
+    public static DataFlavor[] getFileFlavors() {
+        return fileDataFlavors.toArray(new DataFlavor[]{}); 
     }
 
     /**
@@ -105,6 +127,13 @@ public class DNDUtils {
         } catch (ClassNotFoundException cnfe) {
             return null;
         }
+    }
+
+    /**
+     * Returns true if the supplied flavor is what we consider to be a file flavor. 
+     */
+    public static boolean isFileFlavor(DataFlavor flavor) {
+       return fileDataFlavors.contains(flavor);
     }
 
 }

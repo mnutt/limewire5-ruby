@@ -2,19 +2,25 @@ package org.limewire.ui.swing.search.resultpanel;
 
 import static org.limewire.ui.swing.util.I18n.tr;
 
-import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.jdesktop.application.Resource;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.ui.swing.action.BitziLookupAction;
+import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.properties.Dialog;
 import org.limewire.ui.swing.properties.DialogParam;
+import org.limewire.ui.swing.properties.FilterList;
 import org.limewire.ui.swing.properties.Properties;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
@@ -26,52 +32,40 @@ import com.google.inject.Singleton;
 
 @Singleton
 public class SearchResultPropertiesFactory implements PropertiesFactory<VisualSearchResult> {
-    private final CategoryIconManager categoryIconManager;
     private final DialogParam dialogParam;
     
     @Inject
-    public SearchResultPropertiesFactory(CategoryIconManager categoryIconManager, DialogParam dialogParam) {
-        this.categoryIconManager = categoryIconManager;
+    public SearchResultPropertiesFactory(DialogParam dialogParam) {
         this.dialogParam = dialogParam;
     }
     
     @Override
     public Properties<VisualSearchResult> newProperties() {
-        return new SearchResultProperties(categoryIconManager, dialogParam);
+        return new SearchResultProperties(dialogParam);
     }
 
     public static class SearchResultProperties extends Dialog implements Properties<VisualSearchResult> {
         private final CategoryIconManager categoryIconManager;
-        private @Resource Font smallFont;
-        private @Resource Font mediumFont;
-        private @Resource Font largeFont;
+        private final FilterList filterList;
         
-        public SearchResultProperties(CategoryIconManager categoryIconManager, DialogParam dialogParam) {
+        public SearchResultProperties(DialogParam dialogParam) {
             super(dialogParam);
-            this.categoryIconManager = categoryIconManager;
+            this.categoryIconManager = dialogParam.getCategoryIconManager();
+            this.filterList = dialogParam.getFilterList();
             GuiUtils.assignResources(this);
             
-            disableEdit(genre, rating, platform);
-            disableEdit(album, author, artist, company, year, title, track, description);
+            disableEdit(album, author, artist, company, year, title, track);
+            disableComponent(description, genre, rating, platform);
             
             location.setLayout(new MigLayout("nocache", "[50%!]", "[]"));
             readOnlyInfoModel.setColumnIdentifiers(new Object[] { tr("Address"), tr("Filename") });
             location.add(new JScrollPane(readOnlyInfo));
         }
         
-        @Override
-        protected Font getSmallFont() {
-            return smallFont;
-        }
-
-        @Override
-        protected Font getLargeFont() {
-            return largeFont;
-        }
-
-        @Override
-        protected Font getMediumFont() {
-            return mediumFont;
+        protected void disableComponent(JComponent... comps) {
+            for(JComponent comp : comps) {
+                comp.setEnabled(false);
+            }
         }
 
         @Override
@@ -84,9 +78,9 @@ public class SearchResultPropertiesFactory implements PropertiesFactory<VisualSe
             rating.setModel(new DefaultComboBoxModel(new String[]{ vsr.getPropertyString(FilePropertyKey.RATING) }));
             populateMetadata(vsr);
             copyToClipboard.setAction(new CopyMagnetLinkToClipboardAction(vsr));
+            moreFileInfo.setAction(new BitziLookupAction(vsr));
             album.setText(vsr.getPropertyString(FilePropertyKey.ALBUM));
             title.setText(vsr.getPropertyString(FilePropertyKey.TITLE));
-            
             year.setText(vsr.getPropertyString(FilePropertyKey.YEAR));
             description.setText(vsr.getPropertyString(FilePropertyKey.COMMENTS));
 
@@ -99,13 +93,31 @@ public class SearchResultPropertiesFactory implements PropertiesFactory<VisualSe
                             result.getFileName() });
                 }
             }
+            
+            readOnlyInfo.addMouseListener(new MousePopupListener() {
+                @Override
+                public void handlePopupMouseEvent(final MouseEvent e) {
+                    JPopupMenu blockingMenu = new JPopupMenu();
+                    blockingMenu.add(new AbstractAction(tr("Block Address")) {
+                        @Override
+                        public void actionPerformed(ActionEvent actionEvent) {
+                            int blockRow = readOnlyInfo.rowAtPoint(e.getPoint());
+                            Object value = readOnlyInfoModel.getValueAt(blockRow, 0);
+                            if (value != null) {
+                                filterList.addIPToFilter(value.toString());
+                            }
+                        }
+                    });
+                    blockingMenu.show(readOnlyInfo, e.getX(), e.getY());
+                }
+            });
 
             showDialog(vsr.getPropertyString(FilePropertyKey.NAME), vsr.getCategory());
         }
         
         @Override
         protected void commit() {
-            // TODO
+            // no-op
         }
     }
 }

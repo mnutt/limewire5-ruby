@@ -156,10 +156,8 @@
              poDirectory="lib/messagebundles" keywords="-kgetStringResource
              -kgetFormattedStringResource -ktrc -ktr -kmarktr -ktrn:1,2
              -ktrl -k">
-<!--            <fileset dir="private-components" includes="**/*.java"/> -->
-            <fileset dir="components" includes="**/*.java"/>
-            <fileset dir="core" includes="**/*.java"/>
-            <fileset dir="gui" includes="**/*.java"/>
+          <fileset dir="components" includes="**/*.java"/>
+          <fileset dir="core" includes="**/*.java"/>
         </gettext-extract>
     </target>
 

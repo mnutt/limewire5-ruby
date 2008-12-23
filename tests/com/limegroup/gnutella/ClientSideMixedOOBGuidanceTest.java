@@ -14,6 +14,7 @@ import org.limewire.net.SocketsManager;
 import org.limewire.service.ErrorService;
 
 import com.limegroup.gnutella.connection.BlockingConnection;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.messages.BadPacketException;
@@ -161,17 +162,17 @@ public class ClientSideMixedOOBGuidanceTest extends ClientSideTestCase {
         // we're sending.
         for (int i = 0; i < testUP.length; i++) {
             Response[] res = new Response[] {
-                responseFactory.createResponse(10, 10, "susheel"+i),
-                responseFactory.createResponse(10, 10, "susheel smells good"+i),
-                responseFactory.createResponse(10, 10, "anita is sweet"+i),
-                responseFactory.createResponse(10, 10, "anita is prety"+i),
-                responseFactory.createResponse(10, 10, "susheel smells bad" + i),
-                responseFactory.createResponse(10, 10, "renu is sweet " + i),
-                responseFactory.createResponse(10, 10, "prety is spelled pretty " + i),
-                responseFactory.createResponse(10, 10, "go susheel go" + i),
-                responseFactory.createResponse(10, 10, "susheel runs fast" + i),
-                responseFactory.createResponse(10, 10, "susheel jumps high" + i),
-                responseFactory.createResponse(10, 10, "sleepy susheel" + i),
+                responseFactory.createResponse(10, 10, "susheel"+i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "susheel smells good"+i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "anita is sweet"+i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "anita is prety"+i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "susheel smells bad" + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "renu is sweet " + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "prety is spelled pretty " + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "go susheel go" + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "susheel runs fast" + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "susheel jumps high" + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "sleepy susheel" + i, UrnHelper.SHA1),
             };
             m = queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1, 6355,
                     myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,

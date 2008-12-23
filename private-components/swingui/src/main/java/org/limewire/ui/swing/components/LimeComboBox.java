@@ -20,6 +20,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeListener;
@@ -85,7 +86,28 @@ public class LimeComboBox extends JXButton {
         customMenu = true;
         initMenu();
     }
-
+    
+    /**
+     * A helper method for painting elements of overridden menus in the default style
+     */
+    public JComponent decorateMenuComponent(JComponent item) {
+        item.setFont(getFont());
+        item.setBackground(Color.WHITE);
+        item.setForeground(Color.BLACK);
+        item.setBorder(BorderFactory.createEmptyBorder(0,1,0,0));
+        return item;
+    }
+    
+    /**
+     * A helper method for creating menu items painted in the default style of an 
+     *  overridden menu.
+     */
+    public JMenuItem createMenuItem(Action a) {
+        JMenuItem item = new JMenuItem(a);
+        decorateMenuComponent(item);
+        return item;
+    }
+    
     /**
      * Adds the given actions to the combobox.  The actions will
      * be rendered as items that can be chosen.
@@ -375,21 +397,17 @@ public class LimeComboBox extends JXButton {
                 if (getText() == null) {
                     compoundAction = new SelectionActionWrapper(compoundAction);
                 }                
-                JMenuItem menuItem = new JMenuItem(compoundAction);
-                menuItem.setBackground(Color.WHITE);
-                menuItem.setForeground(Color.BLACK);
-                menuItem.setFont(getFont());                
-                menuItem.setBorder(BorderFactory.createEmptyBorder(0,1,0,0));                
+                JMenuItem menuItem = createMenuItem(compoundAction);
                 menu.add(menuItem);
             }
         }
     }
     
     private void initMenu() {
+        
+        decorateMenuComponent(menu);
         menu.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
-        menu.setBackground(Color.WHITE);
-        menu.setForeground(Color.BLACK);
-        menu.setFont(getFont());
+        
         menu.addPopupMenuListener(new PopupMenuListener() {
             @Override
             public void popupMenuCanceled(PopupMenuEvent e) {

@@ -21,8 +21,6 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.AbstractPainter;
@@ -40,22 +38,24 @@ import org.limewire.ui.swing.components.FancyTab;
 import org.limewire.ui.swing.components.FancyTabList;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.BaseResultPanel.ListViewTable;
 import org.limewire.ui.swing.table.TableCellHeaderRenderer;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.matchers.Matcher;
-
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
+
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.matchers.Matcher;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * This class displays search results in a panel.
  */
-public class SearchResultsPanel extends JXPanel {
+public class SearchResultsPanel extends JXPanel implements Disposable {
     private final Log LOG = LogFactory.getLog(getClass());
        
     private final LimeHeaderBarFactory headerBarFactory;
@@ -90,6 +90,8 @@ public class SearchResultsPanel extends JXPanel {
     private JLabel messageLabel;
     private JPanel messagePanel;
     
+    private final SettingListener viewTypeListener;
+    
     @Resource private Color tabHighlightTopGradientColor;
     @Resource private Color tabHighlightBottomGradientColor;
     @Resource private Color tabSelectionTopGradientColor;
@@ -102,7 +104,7 @@ public class SearchResultsPanel extends JXPanel {
     private boolean lifeCycleComplete = true;
 
     private boolean fullyConnected = true;
-    
+
     @AssistedInject
     public SearchResultsPanel(
             @Assisted SearchInfo searchInfo,
@@ -135,8 +137,7 @@ public class SearchResultsPanel extends JXPanel {
         // for the parameters annotated with @Assisted.
         this.resultsContainer = containerFactory.create(filteredList, search, searchInfo, preserver);
         
-        //TODO this is not a singleton, need to remove the listener when we are done with this panel
-        SearchSettings.SEARCH_VIEW_TYPE_ID.addSettingListener( new SettingListener() {
+        viewTypeListener = new SettingListener() {
            int oldSearchViewTypeId = SearchSettings.SEARCH_VIEW_TYPE_ID.getValue();
            @Override
             public void settingChanged(SettingEvent evt) {
@@ -148,7 +149,8 @@ public class SearchResultsPanel extends JXPanel {
                    oldSearchViewTypeId = newSearchViewTypeId;
                }
             } 
-        });
+        };
+        SearchSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);
 
         SearchTabItems.SearchTabListener listener =
             new SearchTabItems.SearchTabListener() {
@@ -175,7 +177,13 @@ public class SearchResultsPanel extends JXPanel {
         messagePanel.setVisible(false);
         layoutComponents();
     }
-    
+
+    @Override
+    public void dispose() {
+        SearchSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
+        sortAndFilterPanel.dispose();
+    }
+
     /**
     * Fills in the top right corner if a scrollbar appears
     * with an empty table header

@@ -22,13 +22,13 @@ import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPService;
 
-import ca.odell.glazedlists.event.ListEvent;
-import ca.odell.glazedlists.event.ListEventListener;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.ManagedListStatusEvent;
+
+import ca.odell.glazedlists.event.ListEvent;
+import ca.odell.glazedlists.event.ListEventListener;
 
 /**
  * Sends library changed messages to friends when:<BR>
@@ -70,7 +70,7 @@ class FriendShareListRefresher implements RegisteringEventListener<FriendShareLi
             listeners.put(event.getFriend().getId(), listener);
             event.getFileList().getModel().addListEventListener(listener);
         } else if(event.getType() == FriendShareListEvent.Type.FRIEND_SHARE_LIST_REMOVED) {
-            event.getFileList().getModel().removeListEventListener(listeners.get(event.getFriend().getId()));
+            event.getFileList().getModel().removeListEventListener(listeners.remove(event.getFriend().getId()));
         }
     }
     

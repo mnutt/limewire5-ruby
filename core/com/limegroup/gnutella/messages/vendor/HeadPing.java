@@ -122,7 +122,7 @@ public class HeadPing extends AbstractVendorMessage implements HeadPongRequestor
 		// extract the client guid if any
 		GUID clientGuid = null;
 		if (_ggep != null) {
-            if(_ggep.hasKey(GGEP_PUSH)) {
+            if(_ggep.hasValueFor(GGEP_PUSH)) {
     			try {
     				clientGuid = new GUID(_ggep.getBytes(GGEP_PUSH));
     			} catch (BadGGEPPropertyException noGuid) {}

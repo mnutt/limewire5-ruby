@@ -137,7 +137,7 @@ public class SystemOptionPanel extends OptionPanel {
 
             add(warnCheckBox);
 
-            warnLabel = new JLabel(I18n.tr("Warn me when other programs take these associations"));
+            warnLabel = new JLabel(I18n.tr("Warn me when other programs want to automatically open these types"));
             add(warnLabel, "wrap");
         }
 

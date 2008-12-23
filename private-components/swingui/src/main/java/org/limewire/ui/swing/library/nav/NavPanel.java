@@ -268,6 +268,10 @@ public class NavPanel extends JXPanel {
         libraryPanel.showSharingCard();
     }
     
+    public void showLibraryCard() {
+        libraryPanel.showLibraryCard();
+    }
+    
     public void removeBrowse() {
         if(libraryPanel != null) {
             unbusy(false);

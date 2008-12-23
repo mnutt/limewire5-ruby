@@ -1,12 +1,14 @@
 package org.limewire.ui.swing.library.sharing;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -15,6 +17,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
@@ -23,7 +28,6 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ComboBoxEditor;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -32,27 +36,29 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.plaf.basic.BasicComboBoxUI;
-import javax.swing.plaf.basic.ComboPopup;
+import javax.swing.plaf.basic.BasicComboPopup;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
+import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.painter.Painter;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.friend.Friend;
+import org.limewire.ui.swing.components.LimeEditableComboBox;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.components.ShapeDialog;
-import org.limewire.ui.swing.components.ShapeDialogComponent;
-import org.limewire.ui.swing.library.Disposable;
+import org.limewire.ui.swing.components.ShapeComponent;
 import org.limewire.ui.swing.library.sharing.model.LibraryShareModel;
+import org.limewire.ui.swing.painter.TextShadowPainter;
 import org.limewire.ui.swing.table.MouseableTable;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -61,38 +67,56 @@ import org.limewire.ui.swing.util.I18n;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
+import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.TextFilterator;
-import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.gui.WritableTableFormat;
+import ca.odell.glazedlists.matchers.Matcher;
+import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;
+import ca.odell.glazedlists.matchers.MatcherEditor.Event;
 import ca.odell.glazedlists.swing.EventComboBoxModel;
 import ca.odell.glazedlists.swing.EventTableModel;
 
 /**
  * This is used internally by ShareWidget.  Needs refactoring.
  */
-class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Disposable, ShapeDialogComponent {
+class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Disposable, ShapeComponent {
 
-    private static final int SHARED_ROW_COUNT = 20;
-    private static final int BORDER_INSETS = 10;
+    private static final int SHARED_ROW_COUNT = 10;
+    
+    public static enum ShadowMode {SHADOW, NO_SHADOW};
+    
+ //   private ShadowMode shadowMode = ShadowMode.SHADOW;
   //  private static final int HGAP = 5;
-    //TODO: move this to properties
-    private static final int WIDTH = 300;
+    
+    @Resource
+    private int panelWidth;
     
     private JXPanel titlePanel;
-    private JXPanel topPanel;
+    private JXPanel tablePanel;
     private JXPanel bottomPanel;
+    @Resource
+    private Color bottomPanelTopGradient;
+    @Resource
+    private Color bottomPanelBottomGradient;
+    
+    private GradientPaint bottomGradient;
     
     private LibraryShareModel shareModel;
     
     private JTextField inputField;
 
+    private String startTypingText = I18n.tr("Start typing a friend's name");
+    private String addFriendText = I18n.tr("Add another friend");
+    
+
+
     /**
      * all unshared friends
      */    
-    private EventList<SharingTarget> noShareFriendList;
+    private SortedList<SharingTarget> noShareFriendList;
     /**
      * filtered list of unshared friends
      */
@@ -101,29 +125,46 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
      * list of shared friends
      */
     private EventList<SharingTarget> shareFriendList;
-    
+
     /** list of all friends */
     private Collection<Friend> allFriends;
+    /** list of all friends */
+    private SortedList<SharingTarget> allFriendsSorted;
 
     private JScrollPane shareScroll;
 
-    private JXTable shareTable;
+    private MouseableTable shareTable;
     private JComboBox friendCombo;
-    private JXPanel comboPanel;
+    private LimeEditableComboBox comboPanel;
+    
+    private boolean bottomPanelHidden = false;
+    private boolean tableHidden = false;
 
-    private JLabel friendLabel;
+    private JXLabel friendLabel;
     private JLabel topLabel;
-    private JLabel bottomLabel;
+    private JXLabel bottomLabel;
     private JLabel titleLabel;
     
     private JXPanel mainPanel;
-    private JButton closeButton;
     
-   // private ShapePainter shapePainter;    
+    /**
+     * arc for RoundedRect
+     */
+    @Resource
+    private int arc = 10;
+
+    private JButton closeButton;
+    @Resource
+    private Icon closeIcon;
+    @Resource
+    private Icon closeIconRollover;
+    @Resource
+    private Icon closeIconPressed;   
+     
     
     private ShapeDialog dialog;
     
-    private ComboPopup comboPopup;
+    private BasicComboPopup comboPopup;
     
     private TextMatcherEditor<SharingTarget> textMatcher;
     
@@ -134,7 +175,11 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     @Resource
     private Icon removeIconPressed;   
     @Resource
-    private int shareTableIndent = 15;
+    private int shareTableIndent = 15;   
+    @Resource
+    private Color dividerColor;
+    @Resource
+    private Color borderColor;
     
     private Action up = new AbstractAction() {
         @Override
@@ -164,33 +209,24 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
                 }
             }
         }
-    };
+    };    
     
-    
+
     public LibrarySharePanel(Collection<Friend> allFriends, ShapeDialog dialog) {
+        this(allFriends, dialog, ShadowMode.SHADOW);
+    }
+    
+    public LibrarySharePanel(Collection<Friend> allFriends, ShapeDialog dialog, ShadowMode shadowMode) {
         this.allFriends = allFriends;
         this.dialog = dialog;
+        //this.shadowMode = shadowMode;
         initialize();
     }
   
     
     private void initialize(){
-        GuiUtils.assignResources(this);        
+        GuiUtils.assignResources(this);   
         
-        setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        setOpaque(false);
-        
-//        shapePainter = new ShapePainter();
-//        shapePainter.setFillPaint(getBackground());        
-//        shapePainter.setBorderPaint(Color.BLACK);
-//        shapePainter.setBorderWidth(2);
-//        shapePainter.setHorizontalAlignment(HorizontalAlignment.LEFT);
-//        shapePainter.setVerticalAlignment(VerticalAlignment.TOP);
-//        setBackgroundPainter(shapePainter);
-    //    setBorder(new LineBorder(Color.BLACK));
-        
-
-
         initializeLists();
 
         initializeShareTable();
@@ -201,19 +237,27 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         
         initializePanels();
         
+        initializePainters();
+        
         initializeButton();
         
         addComponents();
         
-        setKeyStrokes(this);
-        setKeyStrokes(mainPanel);
-        setKeyStrokes(inputField); 
-     
-        addComponentListener(); 
+        setChildComponentKeyStrokes(this);
+        
+        addComponentListener(new ComponentAdapter(){
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (friendCombo.isPopupVisible()) {
+                    friendCombo.showPopup();
+                }      
+            }
+       });
     }
   
     private void initializeButton() {
-        closeButton = new JButton("X");
+        closeButton = new IconButton(closeIcon, closeIconRollover, closeIconPressed);
         closeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 dialog.setVisible(false);
@@ -222,49 +266,88 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     }
 
 
-    private void initializePanels(){
-        //TODO use correct colors, gradients and move to properties
-        mainPanel = new JXPanel(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+    private void initializePanels(){        
+        
+        setLayout(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+        setOpaque(false);
+        
+        mainPanel = new JXPanel(new MigLayout("nocache, fill, ins 0 6 0 6 , gap 0! 0!, novisualpadding"));
         mainPanel.setOpaque(false);
 
         titlePanel = new JXPanel(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
-       // titlePanel.setBackground(Color.WHITE);
         titlePanel.setOpaque(false);
         
-        topPanel = new JXPanel(new BorderLayout());
-        topPanel.setOpaque(false);
+        tablePanel = new JXPanel(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+        tablePanel.setOpaque(false);
         
         bottomPanel = new JXPanel(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
-      //  bottomPanel.setBackground(Color.GRAY);
         bottomPanel.setOpaque(false);
-        
+
+        mainPanel.setMinimumSize(new Dimension(panelWidth, 0));
+        mainPanel.setMaximumSize(new Dimension(panelWidth, Integer.MAX_VALUE));
+    }
+    
+    private void initializePainters(){
         //TODO: sizes and shapes
+        
         setBackgroundPainter(new Painter() {
+           
+
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
-                int arc = 10;
+                               
+                Shape mainPanelShape = getShape();
+                Area panelArea = new Area(mainPanelShape);
+                Point bottomLocation = SwingUtilities.convertPoint(mainPanel, bottomPanel.getLocation(), LibrarySharePanel.this);
+                Area bottomArea = new Area(new Rectangle2D.Float(0, bottomLocation.y, getWidth(), 1000));
+               
+                bottomArea.intersect(panelArea);
+                
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
-//                g2.setColor(new Color(0, 0, 0, 125));
-//                g2.fillRoundRect(0, 0, width, height, arc, arc);
+                g2.setRenderingHint(RenderingHints.KEY_RENDERING,
+                        RenderingHints.VALUE_RENDER_SPEED);
+                
+               
+                
                 g2.setColor(Color.WHITE);
-                g2.fillRoundRect(mainPanel.getLocation().x, mainPanel.getLocation().y, mainPanel.getWidth(),
-                        mainPanel.getHeight() + 2, arc, arc);
-                g2.setColor(Color.BLACK);
-                g2.drawRoundRect(mainPanel.getLocation().x, mainPanel.getLocation().y, mainPanel.getWidth(),
-                        mainPanel.getHeight() + 2, arc, arc);
+                g2.fill(panelArea);        
+                if (bottomPanel.isVisible()) {
+                    bottomGradient = new GradientPaint(0, bottomLocation.y, bottomPanelTopGradient,
+                            0, bottomLocation.y + bottomPanel.getHeight(),
+                            bottomPanelBottomGradient);
+                    g2.setPaint(bottomGradient);
+                    g2.fill(bottomArea);
+                    g2.setColor(dividerColor);
+                    Rectangle panelBounds = mainPanelShape.getBounds();
+                    g2.drawLine(panelBounds.x, bottomLocation.y, panelBounds.x + panelBounds.width, bottomLocation.y);
+                }
+                g2.setColor(borderColor);
+                g2.draw(mainPanelShape);
+                g2.translate(1, 1);
+                g2.draw(mainPanelShape);
                 g2.dispose();
             }
-        });
+        });        
+        
     }
 
+    @Override
+    public Shape getShape() {
+        return new RoundRectangle2D.Float(mainPanel.getLocation().x, mainPanel.getLocation().y, mainPanel.getWidth()-2,
+                mainPanel.getHeight()-2, arc, arc);
+    }
+    
     private void initializeLabels() {
         titleLabel = new JLabel();
         FontUtils.bold(titleLabel);
         topLabel = new JLabel(I18n.tr("Currently sharing with"));
-        friendLabel = new JLabel(I18n.tr("Start typing a friend's name"));
+        friendLabel = new JXLabel(startTypingText);
         friendLabel.setForeground(Color.WHITE);
+        TextShadowPainter textPainter = new TextShadowPainter();
+        textPainter.setCacheable(false);
+        friendLabel.setForegroundPainter(textPainter);
         
         Dimension labelSize = friendLabel.getPreferredSize().width > topLabel.getPreferredSize().width ? 
                 friendLabel.getPreferredSize() : topLabel.getPreferredSize();
@@ -272,41 +355,25 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         
        // topLabel.setPreferredSize(labelSize);
         
-        bottomLabel = new MultiLineLabel("", WIDTH);
+        bottomLabel = new MultiLineLabel("", panelWidth);
         bottomLabel.setForeground(Color.WHITE);
-    }
-
-
-    private void addComponentListener() {
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                if (isVisible()) {
-                    dialog.revalidate();
-                }
-            }
-
-            @Override
-            public void componentShown(ComponentEvent e) {
-                System.out.println("shown");
-                inputField.requestFocusInWindow();
-            }
-        });
+     //   bottomLabel.setForegroundPainter(new TextShadowPainter());
     }
 
     private void initializeLists() {
-        shareFriendList = GlazedListsFactory.sortedList(new BasicEventList<SharingTarget>(), new SharingTargetComparator());
+        allFriendsSorted = GlazedListsFactory.sortedList(new BasicEventList<SharingTarget>(), new SharingTargetComparator());
+        
+        shareFriendList = new BasicEventList<SharingTarget>();
         shareFriendList.addListEventListener(new ListEventListener<SharingTarget>() {
             @Override
             public void listChanged(ListEvent<SharingTarget> listChanges) {
-                adjustFriendLabelVisibility();
+                adjustFriendLabel();
             }
         });
-
         
         noShareFriendList = GlazedListsFactory.sortedList(new BasicEventList<SharingTarget>(), new SharingTargetComparator());
-        
-      //using TextComponentMatcherEditor would cause problems because it also uses DocumentListener so we 
+
+        //using TextComponentMatcherEditor would cause problems because it also uses DocumentListener so we 
         //have no guarantee about the order of sorting and selecting
         TextFilterator<SharingTarget> textFilter = new TextFilterator<SharingTarget>() {
             @Override
@@ -316,90 +383,68 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
             }
         };
         textMatcher = new TextMatcherEditor<SharingTarget>(textFilter);
-        noShareFilterList = GlazedListsFactory.filterList(noShareFriendList, textMatcher);        
+        
+        final Matcher<SharingTarget> alwaysIncludeGnutellaMatcher = new Matcher<SharingTarget>() {
+            @Override
+            public boolean matches(SharingTarget item) {
+                if (item.isGnutellaNetwork()) {
+                    return true;
+                }
+                return textMatcher.getMatcher().matches(item);
+            }
+        };
+        
+        noShareFilterList = GlazedListsFactory.filterList(noShareFriendList, alwaysIncludeGnutellaMatcher);    
+        
+      
+        
+          
+
+        // force list to filter and sort when textMatcher is updated
+        textMatcher.addMatcherEditorListener(new MatcherEditor.Listener<SharingTarget>() {
+            @Override
+            public void changedMatcher(Event<SharingTarget> matcherEvent) {
+                noShareFilterList.setMatcher(alwaysIncludeGnutellaMatcher);
+                Comparator<SharingTarget> comparator = (inputField.getText() == null || inputField.getText().equals("")) ? 
+                        new SharingTargetComparator() : new FilteredSharingTargetComparator();
+                noShareFriendList.setComparator(comparator);
+            }
+        });
 
     }
 
     private void addComponents() {
-//        GridBagConstraints gbc = new GridBagConstraints();//        mainPanel.setLayout(new GridBagLayout());
-//        
-//        gbc.weightx = 1.0;
-//        gbc.weighty = 0;
-//        gbc.fill = GridBagConstraints.BOTH;
-//        gbc.insets = new Insets(0, HGAP, 0, HGAP);
-//
-//        gbc.gridy = 0;
-//        gbc.weighty = 0;
-//        mainPanel.add(titleLabel, gbc);
-//        
-//        gbc.gridy++;
-//        gbc.weighty = 0;
-//        mainPanel.add(topLabel, gbc);
-//        
-//        gbc.gridy++;
-//        gbc.weighty = 1.0;
-//        mainPanel.add(shareScroll, gbc);
-//       
-//        gbc.gridy++;
-//        mainPanel.add(friendLabel, gbc);
-//        
-//        gbc.gridy++;
-//        gbc.weighty = 1.0;
-//        mainPanel.add(friendCombo, gbc);
-//
-//        gbc.gridy++;
-//        mainPanel.add(bottomLabel, gbc);
         
-        titlePanel.add(titleLabel, "hidemode 3, wrap");
-        titlePanel.add(topLabel, "hidemode 3");
-        titlePanel.add(closeButton, "dock east, aligny top");
+        titlePanel.add(titleLabel, "aligny top, alignx left");
+        titlePanel.add(closeButton, "aligny top, alignx right");
         
-        topPanel.add(shareScroll);
+        tablePanel.add(topLabel, "hidemode 3, wrap");        
+        tablePanel.add(shareScroll, "gaptop 6, gapbottom 6, growx");
         
-        bottomPanel.add(friendLabel, "wrap");
-        bottomPanel.add(comboPanel, "growx, gap left 5, gap right 5, wrap");
-        bottomPanel.add(bottomLabel);
+        bottomPanel.add(friendLabel, "gaptop 6, hidemode 3, wrap");
+        bottomPanel.add(comboPanel, "growx, gaptop 4, gapbottom 6, hidemode 3, wrap");
+        bottomPanel.add(bottomLabel, "growy, gapbottom 6, hidemode 3");
         
 
-        mainPanel.add(titlePanel, "growx, wrap");
-        mainPanel.add(topPanel, "growx, wrap");
-        mainPanel.add(bottomPanel, "growx");
+        mainPanel.add(titlePanel, "growx, gaptop 6, gapbottom 6, wrap");
+        mainPanel.add(tablePanel, "growx, wrap, hidemode 3");
+        mainPanel.add(bottomPanel, "growx, hidemode 3");
         
-        add(mainPanel, "growx, gap left " + BORDER_INSETS + ", gap right " + BORDER_INSETS + ", gap above " + BORDER_INSETS + ", gap below " + BORDER_INSETS); 
+     //   add(mainPanel, "growx, gapleft " + BORDER_BUFFER + ", gapright " + BORDER_BUFFER + ", gaptop " + BORDER_BUFFER + ", gapbottom " + BORDER_BUFFER); 
+        int inset = 0;//shadowMode == ShadowMode.SHADOW ? SHADOW_INSETS : 0;
+        add(mainPanel, "alignx 50%, aligny 50%, gapleft " + inset + ", gapright " + inset + ", gaptop " + inset + ", gapbottom " + inset); 
     }
 
     private void initializeComboBox() {
-        friendCombo = new JComboBox(new EventComboBoxModel<SharingTarget>(noShareFilterList));
-        initializeInputField();
-        ShareComboBoxUI comboUI = new ShareComboBoxUI(); 
+        comboPanel = new LimeEditableComboBox();
+        comboPanel.setPreferredSize(new Dimension(230, 24));
+        comboPanel.setMaximumSize(comboPanel.getPreferredSize());   
+        comboPanel.setMinimumSize(comboPanel.getPreferredSize());
+        friendCombo = comboPanel.getComboBox();
+        friendCombo.setModel(new EventComboBoxModel<SharingTarget>(noShareFilterList));
+        initializeInputField();       
         
-        friendCombo.setUI(comboUI);
-        friendCombo.setEditor(new ShareComboBoxEditor());
-        friendCombo.setEditable(true);
-        friendCombo.setOpaque(false);
-        friendCombo.setBorder(new EmptyBorder(0, 0, 0, 0));
-        
-        comboPopup = comboUI.getPopup();     
-        
-        comboPanel = new JXPanel(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
-        comboPanel.setOpaque(false);
-        comboPanel.setBackgroundPainter(new Painter() {
-            public void paint(Graphics2D g, Object object, int width, int height) {
-                Graphics2D g2 = (Graphics2D)g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(0, 0, width - 1, height - 1, 5, height - 1);
-                g2.setColor(Color.BLACK);
-                g2.drawRoundRect(0, 0, width - 1, height - 1, 5, height - 1);
-                g2.dispose();
-            }
-        });
-        
-        comboPanel.add(friendCombo, "gap left 3, growx");
-        
- 
-        
+        comboPopup = comboPanel.getPopup();           
         // mouseClicked does not register on the combo box popup so we have to
         // use mousePressed and mouseReleased. (This is a workaround for
         // ActionEvents not being fired when the selected row is clicked)   
@@ -421,10 +466,9 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     }
 
     //must be called after friendCombo is initialized
-    private void initializeInputField() {
-        inputField = new JTextField(12);
-        inputField.setBorder(new EmptyBorder(0, 0, 0, 0));
-        inputField.setOpaque(false);
+    private void initializeInputField() {        
+        inputField = comboPanel.getTextField();
+        
         inputField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -433,7 +477,6 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
                     dialog.setVisible(false);
                 } else if (friendCombo.getSelectedIndex() >= 0) {
                     shareSelectedFriend();
-                    friendCombo.hidePopup();
                 }
             }
         });
@@ -459,14 +502,21 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
                 textMatcher.setFilterText(inputField.getText().split(" "));
                 if (noShareFilterList.size() > 0) {
                     friendCombo.setSelectedIndex(0);
-                    if (isVisible()) {
-                        friendCombo.showPopup();
-                    }
+                    fixPopupSize();
                 }
             }
             
         });
     }
+
+    //ensures popup is correct size when list filter is relaxed
+    private void fixPopupSize() {
+        if (friendCombo.isShowing()) {
+            friendCombo.hidePopup();
+            friendCombo.showPopup();
+        }
+    }
+
 
     private void initializeShareTable() {
         final int actionCol = 0;
@@ -481,14 +531,16 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
                inputField.requestFocusInWindow();
             }            
         });
+        removeEditor.setOpaque(false);
         //do nothing ColorHighlighter eliminates default striping
         shareTable.setHighlighters(new ColorHighlighter());
-        shareTable.setRowHeight(removeEditor.getPreferredSize().height);
+        shareTable.setRowHeight(removeEditor.getPreferredSize().height + 4);
         shareTable.getColumnModel().getColumn(actionCol).setCellEditor(removeEditor);
-        shareTable.getColumnModel().getColumn(actionCol).setPreferredWidth(removeEditor.getPreferredSize().width);    
-        shareTable.getColumnModel().getColumn(actionCol).setMaxWidth(removeEditor.getPreferredSize().width);    
+        shareTable.getColumnModel().getColumn(actionCol).setPreferredWidth(removeEditor.getPreferredSize().width + 4);    
+        shareTable.getColumnModel().getColumn(actionCol).setMaxWidth(removeEditor.getPreferredSize().width + 4);    
         shareTable.getColumnModel().getColumn(actionCol).setCellRenderer(new ShareRendererEditor(removeIcon, removeIconRollover, removeIconPressed));      
-        shareTable.setShowGrid(false);       
+        shareTable.setShowGrid(false);   
+        shareTable.setIntercellSpacing(new Dimension(0, 0));
         shareTable.setOpaque(false);
         shareTable.setColumnSelectionAllowed(false);
         shareTable.setRowSelectionAllowed(false);
@@ -509,14 +561,16 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     public void setTopLabel(String text){
         topLabel.setText(text);
     }
+    
 
     public void setBottomLabel(String text){
         bottomLabel.setText(text);
     }
     
 
-    private void adjustFriendLabelVisibility() {
-        friendLabel.setVisible(shareFriendList.size() == 0 && friendCombo.isVisible());
+    private void adjustFriendLabel() {
+        friendLabel.setText(shareFriendList.size() == 0 ? startTypingText : addFriendText);
+        friendLabel.paintImmediately(friendLabel.getVisibleRect());
     }
     
     private void shareSelectedFriend() {
@@ -527,11 +581,22 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
                 inputField.setText(null);
             }
             resetRowSelection(index);
+
+            if (noShareFriendList.size() > 0) {
+                friendCombo.showPopup();
+            }
         }
     }
     
     public void setComboBoxVisible(boolean visible){
-        friendCombo.setVisible(visible);
+        bottomPanel.setVisible(visible);
+        bottomPanelHidden = !visible;
+    }
+    
+
+    public void setTableVisible(boolean visible) {
+        tableHidden = !visible;
+        tablePanel.setVisible(visible);
     }
 
     public void setShareModel(LibraryShareModel shareModel){
@@ -543,6 +608,14 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         return shareModel;
     }
 
+    private void setChildComponentKeyStrokes(JComponent component){
+        setKeyStrokes(component);
+        for(Component child : component.getComponents()){
+            if (child instanceof JComponent) {
+                setChildComponentKeyStrokes((JComponent) child);                
+            }
+        }
+    }
     
     private void setKeyStrokes(JComponent component) {
         component.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up");
@@ -552,30 +625,22 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     }
 
     
-    public void show(Component c) {       
+    public void show(Component owner) {       
         inputField.setText(null);
         if (noShareFilterList.size() > 0) {
             friendCombo.setSelectedIndex(0);
         }
         reloadSharedBuddies();
         adjustSize();
-        dialog.show(this);
+        dialog.show(this, owner, true);
+        inputField.requestFocusInWindow();
     }
     
-    public boolean contains(Component c) {
-        for (; c != null; c = c.getParent()) {
-            if (c == this || c == comboPopup) {
-                return true;
-            }
-        }
-        return false;
+
+    @Override
+    public boolean contains(Point p) {
+        return super.contains(p) || comboPopup.contains(SwingUtilities.convertPoint(this, p, comboPopup));
     }
-    
- 
-//    private void adjustPainter(){
-//        Area area = new Area(new RoundRectangle2D.Float(1, 1, mainPanel.getWidth() + HGAP * 2-1, getHeight()-2, BORDER_INSETS, BORDER_INSETS));
-//        shapePainter.setShape(area);
-//    }
 
 
     private void resetRowSelection(int oldSelRow) {
@@ -600,6 +665,11 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         shareModel.shareFriend(friend);
         
         adjustSize();
+        if (shareScroll.getVerticalScrollBar().isShowing()){
+            shareTable.ensureRowVisible(shareTable.getRowCount() - 1);
+        }
+        //bit heavy handed here but it ensures that changes are reflected everywhere
+        GuiUtils.getMainFrame().repaint();
     }
     
     
@@ -610,54 +680,54 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         shareModel.unshareFriend(friend);
         
         adjustSize();
+      //bit heavy handed here but it ensures that changes are reflected everywhere
+        GuiUtils.getMainFrame().repaint();
     }
     
     private void adjustSize(){
-        adjustFriendLabelVisibility();
-        inputField.setVisible(noShareFriendList.size() > 1);
+        adjustFriendLabel();
+        bottomPanel.setVisible(!bottomPanelHidden && noShareFriendList.size() > 0);
         
-        int visibleRows = (shareTable.getRowCount() < SHARED_ROW_COUNT) ? shareTable.getRowCount() : SHARED_ROW_COUNT;
-        shareTable.setVisibleRowCount(visibleRows);
-        shareScroll.setVisible(visibleRows > 0);
-        topLabel.setVisible(visibleRows > 0);
-        
-        int height = 0;
-        int prefWidth = 0;
-        for(Component c : getComponents()){
-            if (c.isVisible()) {
-                height += c.getPreferredSize().height;
-            }
-            prefWidth = Math.max(prefWidth, c.getPreferredSize().width);
+        if (!tableHidden ) {
+            int visibleRows = (shareTable.getRowCount() < SHARED_ROW_COUNT) ? shareTable.getRowCount() : SHARED_ROW_COUNT;
+            shareTable.setVisibleRowCount(visibleRows);
+            tablePanel.setVisible(visibleRows > 0);
+            
+            //prevent flashing scrollbar
+            int scrollPolicy = shareTable.getRowCount() > visibleRows ? JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED : JScrollPane.VERTICAL_SCROLLBAR_NEVER;
+            shareScroll.setVerticalScrollBarPolicy(scrollPolicy);
         }
         
-         mainPanel.setPreferredSize(new Dimension(WIDTH, height)); 
-         mainPanel.setSize(mainPanel.getPreferredSize());
-         setPreferredSize(new Dimension(WIDTH + BORDER_INSETS * 2, height + BORDER_INSETS * 2));
-         setSize(getPreferredSize());
-       // adjustPainter();
+        setSize(getPreferredSize());  
     }
     
     
     
     public void dispose() {
-        if (noShareFriendList instanceof TransformedList) {
-            ((TransformedList) noShareFriendList).dispose();
-        }       
+        noShareFriendList.dispose();
+        noShareFilterList.dispose();
+        allFriendsSorted.dispose();
         
         ((EventTableModel)shareTable.getModel()).dispose();
+        ((EventComboBoxModel)comboPanel.getComboBox().getModel()).dispose();
     }
     
     
     private void reloadSharedBuddies() {
         shareFriendList.clear();
         noShareFriendList.clear();
+        allFriendsSorted.clear();
 
         if (shareModel.isGnutellaNetworkSharable()) {
             loadFriend(SharingTarget.GNUTELLA_SHARE);
         }
         
         for (Friend friend : allFriends) {
-            loadFriend(new SharingTarget(friend));
+            allFriendsSorted.add(new SharingTarget(friend));
+        }
+        
+        for (SharingTarget target : allFriendsSorted){            
+            loadFriend(target);
         }
     }
     
@@ -711,7 +781,7 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
 
     }
     
-    private class SharingTargetComparator implements Comparator<SharingTarget>{
+    private static class SharingTargetComparator implements Comparator<SharingTarget>{
 
         @Override
         public int compare(SharingTarget o1, SharingTarget o2) {
@@ -728,68 +798,29 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         }
         
     }
+    
+    private static class FilteredSharingTargetComparator implements Comparator<SharingTarget>{
+
+        @Override
+        public int compare(SharingTarget o1, SharingTarget o2) {
+            if (o1 == o2){
+                return 0;
+            }
+            if(o1.isGnutellaNetwork()){
+                return 1;
+            }
+            if (o2.isGnutellaNetwork()) {
+                    return -1;
+            }
+            return o1.getFriend().getRenderName().compareTo(o2.getFriend().getRenderName());
+        }
+        
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         // the share model file or category has changed - reload friends.
         reloadSharedBuddies();
     }
-    
-    
-    private class ShareComboBoxEditor implements ComboBoxEditor{
-        @Override
-        public Component getEditorComponent() {
-            return inputField;
-        }
-
-        @Override
-        public void addActionListener(ActionListener l) {
-            //Do nothing
-        }       
-
-        @Override
-        public Object getItem() {
-            //Do nothing
-            return null;
-        }
-
-        @Override
-        public void removeActionListener(ActionListener l) {
-            //Do nothing
-        }
-
-        @Override
-        public void selectAll() {
-            //Do nothing
-        }
-
-        @Override
-        public void setItem(Object anObject) {
-            //Do nothing
-        }
-        
-    }
-    
-    private static class ShareComboBoxUI extends BasicComboBoxUI {
-        @Resource private Icon arrowIcon;
-        @Resource private Icon rolloverArrowIcon;
-        @Resource private Icon downArrowIcon;
-        
-        public ShareComboBoxUI(){
-            GuiUtils.assignResources(this);
-        }
-        
-        public ComboPopup getPopup(){
-            return popup;
-        }
-        
-        @Override
-        protected JButton createArrowButton() {
-            JButton button = new IconButton(arrowIcon, rolloverArrowIcon, downArrowIcon);
-            button.setName("ComboBox.arrowButton");
-            return button;
-        }
-    }
-
-    
+     
 }

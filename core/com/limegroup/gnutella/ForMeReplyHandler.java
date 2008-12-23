@@ -18,6 +18,7 @@ import org.limewire.collection.FixedsizeForgetfulHashMap;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
@@ -49,7 +50,7 @@ import com.limegroup.gnutella.xml.LimeXMLUtils;
  * sent whose reply is for me.
  */
 @Singleton
-public final class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
+public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
     
     private static final Log LOG = LogFactory.getLog(ForMeReplyHandler.class);
     
@@ -126,6 +127,15 @@ public final class ForMeReplyHandler implements ReplyHandler, SecureMessageCallb
 	}
 	
 	public void handleQueryReply(QueryReply reply, ReplyHandler handler) {
+	    handleQueryReply(reply, handler, null);
+	}
+	
+	/**
+	 * Handles a query reply locally.
+	 * 
+	 * @param address can be null, if not null overrides the address info in <code>reply</code>
+	 */
+	public void handleQueryReply(QueryReply reply, ReplyHandler handler, Address address) {
         // do not allow a faked multicast reply.
         if(reply.isFakeMulticast()) {
             return;
@@ -156,20 +166,20 @@ public final class ForMeReplyHandler implements ReplyHandler, SecureMessageCallb
         if(reply.hasSecureData() && ApplicationSettings.USE_SECURE_RESULTS.getValue()) {
             secureMessageVerifier.verify(reply, this);
         } else {
-            routeQueryReplyInternal(reply);
+            routeQueryReplyInternal(reply, address);
         }
     }
     
     /** Notification that a message is secure.  Currently only possible for a QueryReply. */
     public void handleSecureMessage(SecureMessage sm, boolean passed) {
         if (passed)
-            routeQueryReplyInternal((QueryReply) sm);
+            routeQueryReplyInternal((QueryReply) sm, null);
     }
     
     /** Passes the QueryReply off to where it should go. */
-    private void routeQueryReplyInternal(QueryReply reply) {
+    private void routeQueryReplyInternal(QueryReply reply, Address address) {
         searchResultHandler.get().handleQueryReply(reply);
-        downloadManager.get().handleQueryReply(reply);
+        downloadManager.get().handleQueryReply(reply, address);
     }
 	
 	/**

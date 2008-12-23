@@ -8,4 +8,5 @@ public interface FeatureInitializer {
     @Inject
     void register(FeatureRegistry registry);
     void initializeFeature(FriendPresence friendPresence);
+    void removeFeature(FriendPresence friendPresence);
 }

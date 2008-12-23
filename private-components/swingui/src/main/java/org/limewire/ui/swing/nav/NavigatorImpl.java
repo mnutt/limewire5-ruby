@@ -24,7 +24,7 @@ class NavigatorImpl implements Navigator {
     private NavItemImpl selectedItem;
  
     @Override
-    public NavItem createNavItem(final NavCategory category, final String id, JComponent panel) {
+    public NavItem createNavItem(NavCategory category, String id, JComponent panel) {
         NavItemImpl item = new NavItemImpl(category, id, panel);
         addNavItem(item, panel);
         return item;

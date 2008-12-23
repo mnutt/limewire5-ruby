@@ -5,6 +5,7 @@ import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.EventMulticasterImpl;
 import org.limewire.listener.ListenerSupport;
+import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.api.client.ConnectBackRequestSender;
 import org.limewire.xmpp.api.client.FileOfferEvent;
 import org.limewire.xmpp.api.client.FriendRequestEvent;
@@ -56,6 +57,9 @@ public class LimeWireXMPPModule extends AbstractModule {
         bind(new TypeLiteral<EventBroadcaster<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
         bind(new TypeLiteral<ListenerSupport<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
         
+        EventMulticaster<XmppActivityEvent> activityMulticaster = new EventMulticasterImpl<XmppActivityEvent>(); 
+        bind(new TypeLiteral<EventBroadcaster<XmppActivityEvent>>(){}).toInstance(activityMulticaster);
+        bind(new TypeLiteral<ListenerSupport<XmppActivityEvent>>(){}).toInstance(activityMulticaster);
         
         // bind egearly, so it registers itself with SocketsManager
         bind(XMPPAddressResolver.class).asEagerSingleton();

@@ -40,4 +40,28 @@ public class SearchHighlightUtilTest extends TestCase {
         assertEquals("<b>foo</b> <b>foo</b>ey ooff <b>hoo</b>faa", 
                 highlight("foo faa hoo", "foo fooey ooff hoofaa"));
     }
+    
+    /** Tests highlighting with open bracket. */
+    public void testHighlightWithOpenBracket() {
+        // Define test strings.
+        String search = "Akon[";
+        String content = "Akon[hello]";
+        
+        // Verify highlighting.
+        String expectedReturn = "<b>Akon[</b>hello]";
+        String actualReturn = highlight(search, content);
+        assertEquals("highlight with open bracket", expectedReturn, actualReturn);
+    }
+    
+    /** Tests highlighting with asterisk character. */
+    public void testHighlightWithAsterisk() {
+        // Define test strings.
+        String search = "f*";
+        String content = "f*[x]";
+        
+        // Verify highlighting.
+        String expectedReturn = "<b>f*</b>[x]";
+        String actualReturn = highlight(search, content);
+        assertEquals("highlight with asterisk", expectedReturn, actualReturn);
+    }
 }

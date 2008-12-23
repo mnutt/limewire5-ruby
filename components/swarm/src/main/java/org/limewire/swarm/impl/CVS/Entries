@@ -1,12 +1,12 @@
-/AbstractSwarmCoordinator.java/1.2/Tue Sep  2 22:36:18 2008//
-/AbstractSwarmSource.java/1.2/Tue Sep  2 22:36:18 2008//
-/EchoSwarmCoordinatorListener.java/1.2/Tue Sep  2 22:36:18 2008//
-/EchoSwarmSourceListener.java/1.2/Tue Sep  2 22:36:18 2008//
-/FinishedSwarmStatus.java/1.2/Tue Sep  2 22:36:18 2008//
-/LoggingSwarmCoordinatorListener.java/1.2/Tue Sep  2 22:36:18 2008//
-/LoggingSwarmSourceListener.java/1.2/Tue Sep  2 22:36:18 2008//
-/ReconnectingSwarmSourceListener.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmCoordinatorListenerList.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmSourceListenerList.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmerImpl.java/1.2/Tue Sep  2 22:36:18 2008//
+/AbstractSwarmCoordinator.java/1.2/Wed Dec 17 01:21:20 2008//
+/AbstractSwarmSource.java/1.2/Wed Dec 17 01:21:20 2008//
+/EchoSwarmCoordinatorListener.java/1.2/Wed Dec 17 01:21:20 2008//
+/EchoSwarmSourceListener.java/1.2/Wed Dec 17 01:21:20 2008//
+/FinishedSwarmStatus.java/1.2/Wed Dec 17 01:21:20 2008//
+/LoggingSwarmCoordinatorListener.java/1.2/Wed Dec 17 01:21:20 2008//
+/LoggingSwarmSourceListener.java/1.2/Wed Dec 17 01:21:20 2008//
+/ReconnectingSwarmSourceListener.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmCoordinatorListenerList.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmSourceListenerList.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmerImpl.java/1.2/Wed Dec 17 01:21:20 2008//
 D

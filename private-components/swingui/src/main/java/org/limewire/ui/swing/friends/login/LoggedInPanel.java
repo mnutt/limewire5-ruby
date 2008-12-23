@@ -29,6 +29,7 @@ import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SwingUtils;
+import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.XMPPService;
@@ -77,15 +78,15 @@ class LoggedInPanel extends JXPanel {
     private void initComponents(final StatusActions statusActions,
                                 final XMPPService xmppService) {
         JPopupMenu optionsMenu = new JPopupMenu(); 
-        optionsMenu.add(new AbstractAction(I18n.tr("Add Friend")) {
+        optionsMenu.add(optionsBox.createMenuItem(new AbstractAction(I18n.tr("Add Friend")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new AddFriendDialog(LoggedInPanel.this,
                         xmppService.getActiveConnection());
             }
-        });
+        }));
         optionsMenu.addSeparator();
-        optionsMenu.add(new JLabel(I18n.tr("Show:")));
+        optionsMenu.add(optionsBox.decorateMenuComponent(new JLabel(I18n.tr("Show:"))));
         final JCheckBoxMenuItem showOfflineFriends = new JCheckBoxMenuItem(I18n.tr("Offline Friends"));
         showOfflineFriends.setSelected(XMPPSettings.XMPP_SHOW_OFFLINE.getValue());
         showOfflineFriends.addActionListener(new ActionListener() {
@@ -95,11 +96,11 @@ class LoggedInPanel extends JXPanel {
             } 
         });
 
-        optionsMenu.add(showOfflineFriends);
+        optionsMenu.add(optionsBox.decorateMenuComponent(showOfflineFriends));
         optionsMenu.addSeparator();
-        optionsMenu.add(statusMenuLabel);
-        optionsMenu.add(statusActions.getAvailableAction());
-        optionsMenu.add(statusActions.getDnDAction());
+        optionsMenu.add(optionsBox.decorateMenuComponent(statusMenuLabel));
+        optionsMenu.add(optionsBox.decorateMenuComponent(statusActions.getAvailableAction()));
+        optionsMenu.add(optionsBox.decorateMenuComponent(statusActions.getDnDAction()));
         optionsBox.overrideMenu(optionsMenu);
         optionsBox.setText(I18n.tr("Options"));
 
@@ -185,6 +186,28 @@ class LoggedInPanel extends JXPanel {
                     } 
                });
             } 
+        });
+    }
+    
+    /**
+     * Updates the connection status icon based on ActivityEvent messages
+     * indicating the current availability of the user
+     * @param listenerSupport
+     */
+    @Inject
+    void register(ListenerSupport<XmppActivityEvent> listenerSupport) {
+        listenerSupport.addListener(new EventListener<XmppActivityEvent>() {
+            @SwingEDTEvent
+            @Override
+            public void handleEvent(XmppActivityEvent event) {
+                switch(event.getSource()) {
+                case Idle:
+                    currentUser.setIcon(iconLibrary.getAway());
+                    break;
+                case Active:
+                    currentUser.setIcon(XMPPSettings.XMPP_DO_NOT_DISTURB.getValue() ? iconLibrary.getDoNotDisturb() : iconLibrary.getAvailable());
+                }
+            }
         });
     }
 

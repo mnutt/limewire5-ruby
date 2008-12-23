@@ -16,11 +16,12 @@ public class MultiFileShareWidget implements ShareWidget<LocalFileItem[]>{
     public MultiFileShareWidget(ShareListManager shareListManager, Collection<Friend> allFriends, ShapeDialog shapeDialog){
         sharePanel = new LibrarySharePanel(allFriends, shapeDialog);
         sharePanel.setShareModel(new MultiFileShareModel(shareListManager));
+        sharePanel.setTableVisible(false);
     }
     
     @Override
     public void show(Component c) {
-        sharePanel.show(c);
+        sharePanel.show(null);
     }
     
     @Override

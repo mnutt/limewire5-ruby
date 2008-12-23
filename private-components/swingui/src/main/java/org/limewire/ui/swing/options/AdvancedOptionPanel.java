@@ -84,5 +84,10 @@ public class AdvancedOptionPanel extends OptionPanel {
 
     @Override
     public void initOptions() {
+        for(OptionPanel optionPanel : list) {
+            if(optionPanel != null) {
+                optionPanel.initOptions();
+            }
+        }
     }
 }

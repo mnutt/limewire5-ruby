@@ -142,8 +142,12 @@ public class XMPPAddressResolver implements AddressResolver {
             LOG.debugf("{0} could not be resolved", address);
             observer.handleIOException(new IOException("Could not be resolved"));
         } else {
-            Address resolvedAddress = addressRegistry.get(xmppAddress);
-            if (resolvedAddress instanceof FirewalledAddress) {
+            // TODO have to use xmpp address with current presence id to make look up work
+            Address resolvedAddress = addressRegistry.get(new XMPPAddress(resolvedPresence.getPresenceId()));
+            if (resolvedAddress == null) {
+                LOG.debugf("could not resolve {0}, not in registry {1}", address, addressRegistry);
+                observer.handleIOException(new IOException("could not be resolved, no address"));
+            } else if (resolvedAddress instanceof FirewalledAddress) {
                 // if it's a firewalled address, see if sockets manager can resolve if further, i.e.
                 // if SameNATResolver can take care of it
                 if (socketsManager.canResolve(resolvedAddress)) {

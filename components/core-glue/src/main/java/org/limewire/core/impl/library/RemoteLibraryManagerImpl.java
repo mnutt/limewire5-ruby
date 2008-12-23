@@ -53,14 +53,6 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         allFriendsList = new AllFriendsLibraryImpl(lock);
     }
     
-    /**
-     * Required to make sure that {@link PresenceLibraryBrowser} locks before
-     * its internal locking. Remove ASAP.
-     */
-    ReadWriteLock getReadWriteLock() {
-        return lock;
-    }
-    
     @Override
     public FileList<RemoteFileItem> getAllFriendsFileList() {
         return allFriendsList;

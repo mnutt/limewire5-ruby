@@ -13,11 +13,15 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.limewire.collection.IntervalSet;
 import org.limewire.collection.Range;
 import org.limewire.core.settings.MessageSettings;
+import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.GGEP;
+import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortImpl;
 import org.limewire.io.IpPortSet;
@@ -29,6 +33,7 @@ import com.google.inject.Injector;
 import com.limegroup.gnutella.altlocs.AlternateLocation;
 import com.limegroup.gnutella.altlocs.AlternateLocationCollection;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
+import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.downloader.VerifyingFile;
 import com.limegroup.gnutella.downloader.VerifyingFileFactory;
 import com.limegroup.gnutella.filters.LocalIPFilter;
@@ -60,6 +65,9 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
     private LimeXMLDocumentHelper limeXMLDocumentHelper;
     private Injector injector;
     private FileDescFactory fileDescFactory;
+    private Mockery context;
+    private RemoteFileDescFactory remoteFileDescFactory;
+    private PushEndpointFactory pushEndpointFactory;
     
     /**
 	 * Constructs a new test instance for responses.
@@ -81,6 +89,7 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
 	
 	@Override
 	protected void setUp() throws Exception {
+	    context = new Mockery();
 	    injector = LimeTestUtils.createInjector();
 	    queryReplyFactory = injector.getInstance(QueryReplyFactory.class);
 	    responseFactoryImpl = (ResponseFactoryImpl) injector.getInstance(ResponseFactory.class);
@@ -88,6 +97,8 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
 	    limeXMLDocumentHelper = injector.getInstance(LimeXMLDocumentHelper.class);
 	    alternateLocationFactory = injector.getInstance(AlternateLocationFactory.class);
 	    fileDescFactory = injector.getInstance(FileDescFactory.class);
+	    remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
+	    pushEndpointFactory = injector.getInstance(PushEndpointFactory.class);
 	    
 	    final CountDownLatch latch = new CountDownLatch(1);
 	    injector.getInstance(LocalIPFilter.class).refreshHosts(new IPFilterCallback() {
@@ -104,7 +115,7 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
 	 * the Response class.
 	 */
 	public void testLegacyResponseUnitTest() throws Exception {
-        Response r = responseFactoryImpl.createResponse(3, 4096, "A.mp3");
+        Response r = responseFactoryImpl.createResponse(3, 4096, "A.mp3", UrnHelper.SHA1);
         assertEquals("A.mp3", r.getName());
         assertNull(r.getDocument());
 
@@ -152,8 +163,8 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
         LimeXMLDocument d2 = null;
         d1 = factory.createLimeXMLDocument(xml1);
         d2 = factory.createLimeXMLDocument(xml2);
-        Response ra = responseFactoryImpl.createResponse(12, 231, "def1.txt", d1);
-        Response rb = responseFactoryImpl.createResponse(13, 232, "def2.txt", d2);
+        Response ra = responseFactoryImpl.createResponse(12, 231, "def1.txt", d1, UrnHelper.SHA1);
+        Response rb = responseFactoryImpl.createResponse(13, 232, "def2.txt", d2, UrnHelper.SHA1);
 		assertEquals("problem with doc constructor", d1, ra.getDocument());
 		assertEquals("problem with doc constructor", d2, rb.getDocument());
 	}
@@ -822,35 +833,35 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
     }
     
     public void testHashCode() {
-        Response r1 = responseFactoryImpl.createResponse(0, 0, "name");
-        Response r2 = responseFactoryImpl.createResponse(0, 1, "name");
+        Response r1 = responseFactoryImpl.createResponse(0, 0, "name", UrnHelper.SHA1);
+        Response r2 = responseFactoryImpl.createResponse(0, 1, "name", UrnHelper.SHA1);
         assertNotEquals(r1.hashCode(), r2.hashCode());
         
-        Response r3 = responseFactoryImpl.createResponse(1, 0, "name");
+        Response r3 = responseFactoryImpl.createResponse(1, 0, "name", UrnHelper.SHA1);
         assertNotEquals(r1.hashCode(), r3.hashCode());
         assertNotEquals(r2.hashCode(), r3.hashCode());
         
-        assertEquals(r1.hashCode(), responseFactoryImpl.createResponse(0, 0, "name").hashCode());
+        assertEquals(r1.hashCode(), responseFactoryImpl.createResponse(0, 0, "name", UrnHelper.SHA1).hashCode());
         
         // max int values
         r1 = responseFactoryImpl
-                .createResponse(Integer.MAX_VALUE, Integer.MAX_VALUE, "name");
-        r2 = responseFactoryImpl.createResponse(0, Integer.MAX_VALUE, "name");
+                .createResponse(Integer.MAX_VALUE, Integer.MAX_VALUE, "name", UrnHelper.SHA1);
+        r2 = responseFactoryImpl.createResponse(0, Integer.MAX_VALUE, "name", UrnHelper.SHA1);
         assertNotEquals(r1.hashCode(), r2.hashCode());
     }
     
     public void testIllegalFilenamesInInputStream() throws Exception {
         // illegal filename
-        Response resp = responseFactoryImpl.createResponse(1, 2, "a;lksdflkfj../");
+        Response resp = responseFactoryImpl.createResponse(1, 2, "a;lksdflkfj../", UrnHelper.SHA1);
         assertResponseParsingFails(resp);
-        assertResponseParsingFails(responseFactoryImpl.createResponse(1, 4545, "s;lkdf\n\n\n"));
-        assertResponseParsingFails(responseFactoryImpl.createResponse(1, 4545, "../../index.html HTTP/1.0\r\n\r\nfoobar.mp3"));
-        assertResponseParsingFails(responseFactoryImpl.createResponse(4545, 3454, ""));
-        assertResponseParsingFails(responseFactoryImpl.createResponse(1454, 3245, "dlksdf\r"));
+        assertResponseParsingFails(responseFactoryImpl.createResponse(1, 4545, "s;lkdf\n\n\n", UrnHelper.SHA1));
+        assertResponseParsingFails(responseFactoryImpl.createResponse(1, 4545, "../../index.html HTTP/1.0\r\n\r\nfoobar.mp3", UrnHelper.SHA1));
+        assertResponseParsingFails(responseFactoryImpl.createResponse(4545, 3454, "", UrnHelper.SHA1));
+        assertResponseParsingFails(responseFactoryImpl.createResponse(1454, 3245, "dlksdf\r", UrnHelper.SHA1));
     }
     
     public void testLargeFiles() throws Exception {
-        Response resp = responseFactoryImpl.createResponse(1, Constants.MAX_FILE_SIZE, "asdf");
+        Response resp = responseFactoryImpl.createResponse(1, Constants.MAX_FILE_SIZE, "asdf", UrnHelper.SHA1);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         resp.writeToStream(baos);
         byte [] data = baos.toByteArray();
@@ -866,13 +877,16 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
         
         // find where the ggep starts
         int firstNull = 8;
+        // skip to first 0x0 to find extension bytes
         while(data[firstNull++] != 0x0);
+        // inside extension bytes skip over sha1, to ggep
+        while(data[firstNull++] != 0x1c);
         GGEP g = new GGEP(data, firstNull);
         assertEquals(Constants.MAX_FILE_SIZE, g.getLong(GGEPKeys.GGEP_HEADER_LARGE_FILE));
         
         // if the file is too large, we do not construct
         try {
-            resp = responseFactoryImpl.createResponse(1, Constants.MAX_FILE_SIZE + 1, "asdf");
+            resp = responseFactoryImpl.createResponse(1, Constants.MAX_FILE_SIZE + 1, "asdf", UrnHelper.SHA1);
             fail("constructed too large file");
         } catch (IllegalArgumentException expected){}
         
@@ -1022,6 +1036,34 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
         // go through the data, make sure its in HUGE
         String s = StringUtils.getASCIIString(data);
         assertTrue(s.toLowerCase().contains("ttroot"));
+    }
+    
+    /**
+     * Ensures the given address is used when creating the rfd.
+     */
+    public void testUsesGivenAddressForRemoteFileDesc() throws Exception {
+        Response response = responseFactoryImpl.createResponse(100, 200, "hello", UrnHelper.SHA1);
+        Address address = context.mock(Address.class);
+        final QueryReply queryReply = context.mock(QueryReply.class);
+        context.checking(new Expectations() {{
+            one(queryReply).getClientGUID();
+            will(returnValue(GUID.makeGuid()));
+            one(queryReply).getSpeed();
+            will(returnValue(5));
+            one(queryReply).getSupportsChat();
+            will(returnValue(true));
+            one(queryReply).calculateQualityOfService();
+            will(returnValue(0));
+            one(queryReply).getSupportsBrowseHost();
+            will(returnValue(true));
+            one(queryReply).isReplyToMulticastQuery();
+            will(returnValue(false));
+            one(queryReply).getVendor();
+            will(returnValue("vendor"));
+        }});
+        RemoteFileDesc rfd = response.toRemoteFileDesc(queryReply, address, remoteFileDescFactory, pushEndpointFactory);
+        assertSame(address, rfd.getAddress());
+        context.assertIsSatisfied();
     }
     
     public void testIsMetaFileWithAllLocales() throws Exception {

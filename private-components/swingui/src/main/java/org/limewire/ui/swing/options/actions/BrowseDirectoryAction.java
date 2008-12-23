@@ -11,11 +11,11 @@ import java.util.Random;
 
 import javax.swing.Action;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 
 import org.limewire.i18n.I18nMarker;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.FocusJOptionPane;
+import org.limewire.ui.swing.components.LabelTextField;
 import org.limewire.ui.swing.util.FileChooser;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.FileUtils;
@@ -41,9 +41,9 @@ public class BrowseDirectoryAction extends AbstractAction {
     
     private Container parent;
 
-    private JTextField currentDirectoryTextField;
+    private LabelTextField currentDirectoryTextField;
 
-    public BrowseDirectoryAction(Container parent, JTextField currentDirectoryTextField) {
+    public BrowseDirectoryAction(Container parent, LabelTextField currentDirectoryTextField) {
         this.parent = parent;
         this.currentDirectoryTextField = currentDirectoryTextField;
 

@@ -16,6 +16,7 @@ import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.friend.Network;
 import org.limewire.core.api.friend.feature.Feature;
+import org.limewire.core.api.friend.feature.FeatureRegistry;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventListenerList;
 import org.limewire.logging.Log;
@@ -38,6 +39,7 @@ public class UserImpl implements User {
     private static final Log LOG = LogFactory.getLog(UserImpl.class);
 
     private final String id;
+    private final FeatureRegistry featureRegistry;
     private final String idNoService;
     private AtomicReference<RosterEntry> rosterEntry;
     private final org.jivesoftware.smack.XMPPConnection connection;
@@ -67,8 +69,10 @@ public class UserImpl implements User {
 
 
     UserImpl(String id, RosterEntry rosterEntry, Network network,
-             org.jivesoftware.smack.XMPPConnection connection) {
+             org.jivesoftware.smack.XMPPConnection connection,
+             FeatureRegistry featureRegistry) {
         this.id = id;
+        this.featureRegistry = featureRegistry;
         this.idNoService = stripService(id, network.getNetworkName());
         this.network = network;
         this.rosterEntry = new AtomicReference<RosterEntry>(rosterEntry);
@@ -169,7 +173,7 @@ public class UserImpl implements User {
         }
         Collection<Feature> features = presence.getFeatures();
         for(Feature feature : features) {
-            presence.removeFeature(feature.getID());
+            featureRegistry.get(feature.getID()).removeFeature(presence);
         }
 
         synchronized (presenceLock) {

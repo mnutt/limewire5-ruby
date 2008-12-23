@@ -109,6 +109,13 @@ public class FilterSettings extends LimeProps {
         FACTORY.createStringArraySetting("BANNED_WORDS", new String[0]);
     
     /**
+     * An array of extensions that the user has banned from appearing in
+     * search results.
+     */
+    public static final StringArraySetting BANNED_EXTENSIONS =
+        FACTORY.createStringArraySetting("BANNED_EXTENSIONS", new String[]{".vbs",".asf",".asx",".wmv",".html",".htm"});
+    
+    /**
      * Whether to filter queries containing hashes.
      * TODO: naming convention for SIMPP keys?
      */

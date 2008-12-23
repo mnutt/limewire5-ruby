@@ -29,6 +29,7 @@ import org.limewire.io.IOUtils;
 import org.limewire.io.NetworkUtils;
 import org.limewire.lifecycle.Asynchronous;
 import org.limewire.lifecycle.Service;
+import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.net.AsyncConnectionDispatcher;
 import org.limewire.net.BlockingConnectionDispatcher;
@@ -357,7 +358,7 @@ public class AcceptorImpl implements ConnectionAcceptor, SocketProcessor, Accept
 	}
 	
 	@Inject
-    void register(org.limewire.lifecycle.ServiceRegistry registry) {
+    void register(ServiceRegistry registry) {
         registry.register(this);
         registry.register(new Service() {
             public String getServiceName() {
@@ -396,6 +397,8 @@ public class AcceptorImpl implements ConnectionAcceptor, SocketProcessor, Accept
 	}
 	
 	public void initialize() {
+        firewallBroadcaster.broadcast(new FirewallStatusEvent(
+                FirewallStatus.FIREWALLED));
 	}
 	
 	public void stop() {
@@ -614,7 +617,7 @@ public class AcceptorImpl implements ConnectionAcceptor, SocketProcessor, Accept
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.Acceptor#checkFirewall(java.net.InetAddress)
      */
-	public void checkFirewall(InetAddress address) {
+	private void checkFirewall(InetAddress address) {
 		// we have accepted an incoming socket -- only record
         // that we've accepted incoming if it's definitely
         // not from our local subnet and we aren't connected to

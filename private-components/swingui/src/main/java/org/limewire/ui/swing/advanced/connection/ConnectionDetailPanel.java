@@ -55,7 +55,7 @@ public class ConnectionDetailPanel extends JPanel {
         setOpaque(false);
         
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        scrollPane.setPreferredSize(new Dimension(120, 295));
+        scrollPane.setPreferredSize(new Dimension(120, 120));
 
         // Set table popup handler to display context menu.
         connectionTable.setPopupHandler(new TablePopupHandler() {

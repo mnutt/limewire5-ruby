@@ -95,7 +95,7 @@ public class LimeXMLDocument implements StringLookup {
      * Cached list of keywords.  Because keywords are only filled up
      * upon construction, they can be cached upon retrieval.
      */
-    private List<String> CACHED_KEYWORDS = null;
+    private volatile List<String> CACHED_KEYWORDS = null;
     
     /** The kind of license this has. */
     private volatile LicenseType licenseType = LicenseType.NO_LICENSE;

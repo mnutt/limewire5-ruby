@@ -170,10 +170,11 @@ public class QuestionsHandler extends LimeWireSettings {
     
     /**
      * Setting for whether or not to display a message that the user
-     * should let a seeding torrent reach 1:1 ratio.
+     * should let a seeding torrent reach 1:1 ratio. If true,
+     * display a warning dialog, if false, don't display anything
      */
-    public static final IntSetting TORRENT_SEED_MORE =
-    	FACTORY.createIntSetting("TORRENT_SEED_MORE", 0);
+    public static final BooleanSetting WARN_TORRENT_SEED_MORE =
+    	FACTORY.createBooleanSetting("TORRENT_SEED_MORE", true);
 	
 	/**
 	 * Setting for whether or to display a message when the user dropped files

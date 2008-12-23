@@ -15,7 +15,7 @@ import com.google.inject.Singleton;
 import ca.odell.glazedlists.EventList;
 
 @Singleton
-class DownloadMediator {
+public class DownloadMediator {
 
 	/**
 	 * unfiltered - common to all tables

@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.download.SaveLocationManager;
+import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.listener.ListenerSupport;
 
@@ -244,8 +245,9 @@ LWSIntegrationServicesDelegate, PushedSocketHandler, ListenerSupport<DownloadMan
     /** 
      * Adds all responses (and alternates) in <code>qr</code> to any downloaders, if
      * appropriate.
+     * @param address can be null, otherwise overrides the address information in <code>qr</code>
      */
-    public void handleQueryReply(QueryReply qr);
+    public void handleQueryReply(QueryReply qr, Address address);
 
     /**
      * Removes downloader entirely from the list of current downloads.

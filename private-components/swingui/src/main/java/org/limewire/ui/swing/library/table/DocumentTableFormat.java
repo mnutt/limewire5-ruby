@@ -1,11 +1,10 @@
 package org.limewire.ui.swing.library.table;
 
-import java.util.Comparator;
 import java.util.Date;
 
 import org.limewire.core.api.FilePropertyKey;
-import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
@@ -13,126 +12,49 @@ import org.limewire.ui.swing.util.IconManager;
  * Table format for the Document Table when it is in My Library
  */
 public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibraryFormat<T> {
-    public static enum Columns {
-        NAME(I18n.tr("Filename"), true, true, 160),
-        TYPE(I18n.tr("Type"), true, true, 80),
-        CREATED(I18n.tr("Date Created"), true, true, 100),
-        SIZE(I18n.tr("Size"), false, true, 60),
-        AUTHOR(I18n.tr("Author"), false, true, 60),
-        DESCRIPTION(I18n.tr("Description"), false, true, 100),
-        ACTION(I18n.tr("Sharing"), true, false, 60);
-        
-        private final String columnName;
-        private final boolean isShown;
-        private final boolean isHideable;
-        private final int initialWidth;
-        
-        Columns(String name, boolean isShown, boolean isHideable, int initialWidth) {
-            this.columnName = name;
-            this.isShown = isShown;
-            this.isHideable = isHideable;
-            this.initialWidth = initialWidth;
-        }
-        
-        public String getColumnName() { return columnName; }
-        public boolean isShown() { return isShown; }        
-        public boolean isHideable() { return isHideable; }
-        public int getInitialWidth() { return initialWidth; }
-    }
+    static final int NAME_INDEX = 0;
+    static final int TYPE_INDEX = 1;
+    static final int CREATED_INDEX = 2;
+    static final int SIZE_INDEX = 3;
+    static final int AUTHOR_INDEX = 4;
+    static final int DESCRIPTION_INDEX = 5;
+    static final int ACTION_INDEX = 6;
 
 	/** Icon manager used to find native file type information. */
 	private IconManager iconManager;
 	
-    /**
-     * Constructs a DocumentTableFormat with the specified icon manager.
-     */
-    public DocumentTableFormat() {
-    }
-	
-    /**
-     * Constructs a DocumentTableFormat with the specified icon manager.
-     */
 	public DocumentTableFormat(IconManager iconManager) {
-	    this.iconManager = iconManager;
-	}
-	
-    @Override
-    public int getColumnCount() {
-        return Columns.values().length;
-    }
-
-    @Override
-    public String getColumnName(int column) {
-        return Columns.values()[column].getColumnName();
+	    super(ACTION_INDEX, new ColumnStateInfo[] {
+                new ColumnStateInfo(NAME_INDEX, "LIBRARY_DOCUMENT_NAME", "Name", 160, true, true), 
+                new ColumnStateInfo(TYPE_INDEX, "LIBRARY_DOCUMENT_TYPE", I18n.tr("Type"), 80, true, true),     
+                new ColumnStateInfo(CREATED_INDEX, "LIBRARY_DOCUMENT_CREATED", I18n.tr("Date Created"), 100, true, true), 
+                new ColumnStateInfo(SIZE_INDEX, "LIBRARY_DOCUMENT_SIZE", I18n.tr("Size"), 60, false, true),
+                new ColumnStateInfo(AUTHOR_INDEX, "LIBRARY_DOCUMENT_AUTHOR", I18n.tr("Author"), 60, false, true), 
+                new ColumnStateInfo(DESCRIPTION_INDEX, "LIBRARY_DOCUMENT_DESCRIPTION", I18n.tr("Description"), 100, false, true), 
+                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_DOCUMENT_ACTION", I18n.tr("Sharing"), 50, true, false)
+        });
+	    
+        this.iconManager = iconManager;
     }
 
     @Override
     public Object getColumnValue(T baseObject, int column) {
-        Columns other = Columns.values()[column];
-        switch(other) {
-         case AUTHOR: return baseObject.getProperty(FilePropertyKey.AUTHOR);
-         case CREATED:
+        switch(column) {
+         case AUTHOR_INDEX: return baseObject.getProperty(FilePropertyKey.AUTHOR);
+         case CREATED_INDEX:
              // Return creation time if valid.
              long creationTime = baseObject.getCreationTime();
              return (creationTime >= 0) ? new Date(creationTime) : null;
-         case DESCRIPTION: return "";
-         case NAME: return baseObject;
-         case ACTION: return baseObject;
-         case SIZE: return baseObject.getSize();
-         case TYPE:
+         case DESCRIPTION_INDEX: return "";
+         case NAME_INDEX: return baseObject;
+         case ACTION_INDEX: return baseObject;
+         case SIZE_INDEX: return baseObject.getSize();
+         case TYPE_INDEX:
              // Use icon manager to return MIME description.
              return (iconManager != null) ?
                  iconManager.getMIMEDescription(baseObject) : 
                  baseObject.getProperty(FilePropertyKey.TOPIC);
          }
          throw new IllegalArgumentException("Unknown column:" + column);
-    }
-
-    @Override
-    public int getActionColumn() {
-        return Columns.ACTION.ordinal();
-    }
-    
-    @Override
-    public boolean isColumnHiddenAtStartup(int column) {
-        return Columns.values()[column].isShown();
-    }
-    
-    @Override
-    public boolean isColumnHideable(int column) {
-        return Columns.values()[column].isHideable();
-    }
-
-    @Override
-    public int getInitialWidth(int column) {
-        return Columns.values()[column].getInitialWidth();
-    }
-
-    @Override
-    public boolean isEditable(T baseObject, int column) {
-        return Columns.ACTION.ordinal() == column;
-    }
-
-    @Override
-    public T setColumnValue(T baseObject, Object editedValue, int column) {
-        return baseObject;
-    }
-    
-    @Override
-    public Class getColumnClass(int column) {
-        Columns other = Columns.values()[column];
-        switch(other) {
-            case ACTION: return FileItem.class;
-        }
-        return super.getColumnClass(column);
-    }
-
-    @Override
-    public Comparator getColumnComparator(int column) {
-        Columns other = Columns.values()[column];
-        switch(other) {
-            case ACTION: return new ActionComparator();
-        }
-        return super.getColumnComparator(column);
     }
 }

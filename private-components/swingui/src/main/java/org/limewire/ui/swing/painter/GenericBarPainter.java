@@ -5,6 +5,7 @@ import java.awt.Paint;
 
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.util.PaintUtils;
+import org.limewire.ui.swing.util.PainterUtils;
 
 /**
  * Actuates background painting of "bars" such as header, status, and the top panel.
@@ -22,6 +23,11 @@ public class GenericBarPainter<X> extends AbstractPainter<X> {
     private Paint gradient;
     
     private int cachedHeight = 0;
+    
+    public GenericBarPainter(Paint gradient) {
+        this(gradient, PainterUtils.TRASPARENT, PainterUtils.TRASPARENT,
+                PainterUtils.TRASPARENT,PainterUtils.TRASPARENT);
+    }
     
     public GenericBarPainter(Paint gradient, Paint topBorder1, 
             Paint topBorder2, Paint bottomBorder1, Paint bottomBorder2) {

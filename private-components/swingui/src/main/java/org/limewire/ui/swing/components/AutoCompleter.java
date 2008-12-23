@@ -15,16 +15,16 @@ public interface AutoCompleter {
     void setInput(String input);
 
     /**
-     * Returns true if any suggestions are currently available, based the data
+     * Returns true if any autocomplete suggestions are currently available, based the data
      * that was given to {@link #setInput(String)}.
      */
-    boolean areSuggestionsAvailable();
+    boolean isAutoCompleteAvailable();
 
-    /** Returns a component that renders the suggestions. */
-    JComponent getComponent();
+    /** Returns a component that renders the autocomplete items. */
+    JComponent getRenderComponent();
 
-    /** Returns the currently selected suggestion. */
-    String getSelectedSuggestion();
+    /** Returns the currently selected string. */
+    String getSelectedAutoCompleteString();
 
     /** Increments the selection. */
     void incrementSelection();
@@ -34,7 +34,8 @@ public interface AutoCompleter {
     
     /** A callback for users of autocompleter, so they know when items have been suggested. */
     public interface AutoCompleterCallback {
-        void itemSuggested(String suggestion, boolean keepSuggestionsVisible);
+        /** Notification that an item is suggested. */
+        void itemSuggested(String autoCompleteString, boolean keepPopupVisible, boolean triggerAction);
     }
 
 }

@@ -6,6 +6,9 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.font.TextAttribute;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.Action;
 
@@ -21,6 +24,7 @@ import org.limewire.ui.swing.util.FontUtils;
 public class HyperLinkButton extends JXButton implements MouseListener {
     protected Color mouseOverColor = getForeground();
     protected Color foregroundColor = getForeground();
+    protected Color disabledColor = getForeground();
     
     protected String text;
     
@@ -62,6 +66,16 @@ public class HyperLinkButton extends JXButton implements MouseListener {
         }
     }
     
+    public void removeUnderLine() {
+        Font font = getFont();
+        if (font == null) return;
+        Map<TextAttribute, ?> map = font.getAttributes();
+        Map<TextAttribute, Object> newMap = new HashMap<TextAttribute, Object>(map);
+        newMap.put(TextAttribute.UNDERLINE, Integer.valueOf(-1));
+
+        super.setFont(font.deriveFont(newMap));
+    }
+    
     public void setMouseOverColor(Color color) {
         this.mouseOverColor = color;
     }
@@ -80,6 +94,20 @@ public class HyperLinkButton extends JXButton implements MouseListener {
     public void setAction(Action a) {
         super.setAction(a);
         setText(text); // FIXME: ?
+    }
+    
+    public void setDisabledColor(Color color) {
+        this.disabledColor = color;
+    }
+    
+    @Override
+    public void setEnabled(boolean value) {
+        super.setEnabled(value);
+        if(value) {
+            super.setForeground(foregroundColor);
+        } else {
+            super.setForeground(disabledColor);
+        }
     }
     
     @Override

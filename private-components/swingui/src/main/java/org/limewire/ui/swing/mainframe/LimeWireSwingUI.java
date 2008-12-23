@@ -84,7 +84,7 @@ public class LimeWireSwingUI extends JPanel {
             layeredPane.add(proNag, JLayeredPane.MODAL_LAYER);
             proNag.loadContents();
         }
-        layeredPane.add(shapeDialog, JLayeredPane.MODAL_LAYER);
+        layeredPane.add(shapeDialog, JLayeredPane.POPUP_LAYER);
         layeredPane.addComponentListener(new PanelResizer(shapeDialog));
         add(layeredPane, gbc);
                 

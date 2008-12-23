@@ -116,6 +116,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
 
     @Override
     public void initOptions() {
+        eventList.clear();
         limewireChooseRadioButton.setSelected(!ConnectionSettings.CUSTOM_NETWORK_INTERFACE.getValue());
         meChooseRadioButton.setSelected(ConnectionSettings.CUSTOM_NETWORK_INTERFACE.getValue());
         
@@ -138,7 +139,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
                     eventList.add(networkItem);
                 }
             }
-            if(selectedItem == null) { 
+            if(selectedItem == null && eventList.size() > 0) { 
                 eventList.get(0).setSelected(true); 
                 selectedItem = eventList.get(0);
             }

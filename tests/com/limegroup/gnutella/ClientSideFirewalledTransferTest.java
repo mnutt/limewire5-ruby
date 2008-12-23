@@ -20,6 +20,8 @@ import java.util.StringTokenizer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import junit.framework.Test;
+
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
@@ -32,9 +34,9 @@ import org.limewire.util.Base32;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.messages.Message;
-import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.PushRequest;
 import com.limegroup.gnutella.messages.PushRequestImpl;
@@ -42,13 +44,12 @@ import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryReplyFactory;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
+import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.MessagesSupportedVendorMessage;
 import com.limegroup.gnutella.messages.vendor.PushProxyAcknowledgement;
 import com.limegroup.gnutella.messages.vendor.PushProxyRequest;
 import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 import com.limegroup.gnutella.stubs.NetworkManagerStub;
-
-import junit.framework.Test;
 
 /**
  * Checks whether (multi)leaves avoid forwarding messages to ultrapeers, do
@@ -271,7 +272,7 @@ public class ClientSideFirewalledTransferTest extends ClientSideTestCase {
         Set<IpPort> proxies = new IpPortSet();
         proxies.add(new IpPortImpl("127.0.0.1", 7000));
         Response[] res = new Response[1];
-        res[0] = responseFactory.createResponse(10, 10, "boalt.org");
+        res[0] = responseFactory.createResponse(10, 10, "boalt.org", UrnHelper.SHA1);
         m = queryReplyFactory.createQueryReply(m.getGUID(), (byte) 1, 9000,
                 myIP(), 0, res, clientGUID, new byte[0], true, false, true,
                 true, false, false, true, proxies, null);

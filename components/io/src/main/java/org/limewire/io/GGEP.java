@@ -607,6 +607,11 @@ public class GGEP {
     public boolean hasKey(String key) {
         return _props.containsKey(key);
     }
+    
+    /** Returns true if the GGEP has a non-null value for the key. */
+    public boolean hasValueFor(String key) {
+        return get(key) != null;
+    }
 
     /** 
      * Returns the set of keys.

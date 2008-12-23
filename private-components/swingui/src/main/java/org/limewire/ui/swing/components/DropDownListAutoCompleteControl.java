@@ -113,7 +113,7 @@ public class DropDownListAutoCompleteControl {
                     String input = textField.getText();
                     if (input != null && input.length() > 0) {
                         autoCompleter.setInput(input);
-                        if(autoCompleter.areSuggestionsAvailable()) {
+                        if(autoCompleter.isAutoCompleteAvailable()) {
                             showPopup();
                         } else {
                             hidePopup();
@@ -131,7 +131,7 @@ public class DropDownListAutoCompleteControl {
         // only show the popup if we're currently visible.
         // due to delay in focus-forwarding & key-pressing events,
         // we may not be visible by the time this is called.
-        if(popup == null && autoCompleter.areSuggestionsAvailable()) {
+        if(popup == null && autoCompleter.isAutoCompleteAvailable()) {
             if(textField.isShowing()) {
                 Point origin = textField.getLocationOnScreen();
                 PopupFactory pf = PopupFactory.getSharedInstance();
@@ -149,13 +149,13 @@ public class DropDownListAutoCompleteControl {
 					parent = new JPanel();
 					new MyPopup(textField, parent, 0, 0);
 				}
-				JComponent component = autoCompleter.getComponent();
+				JComponent component = autoCompleter.getRenderComponent();
 				// Null out our prior preferred size, then set a new one
 				// that overrides the width to be the size we want it, but
 				// preserves the height.
 				component.setPreferredSize(null);
-				int height = component.getPreferredSize().height;
-				component.setPreferredSize(new Dimension(textField.getWidth(), height));
+				Dimension pref = component.getPreferredSize();
+				component.setPreferredSize(new Dimension(textField.getWidth(), pref.height));
                 popup = pf.getPopup(parent, component, origin.x, origin.y + textField.getHeight());
                 showPending = false;
                 popup.show();
@@ -175,10 +175,14 @@ public class DropDownListAutoCompleteControl {
     }
     
     private class Listener implements ActionListener, KeyListener, HierarchyListener, FocusListener, AutoCompleterCallback {
+        
         @Override
-        public void itemSuggested(String selection, boolean keepSuggestionsVisible) {
-            textField.setText(selection);
-            if(!keepSuggestionsVisible) {
+        public void itemSuggested(String autoCompleteString, boolean keepPopupVisible, boolean triggerAction) {
+            textField.setText(autoCompleteString);
+            textField.setCaretPosition(textField.getDocument().getLength());
+            if(triggerAction) {
+                textField.postActionEvent();
+            } else if(!keepPopupVisible) {
                 hidePopup();
             }
         }
@@ -190,15 +194,13 @@ public class DropDownListAutoCompleteControl {
          * text to be the selection on the popup (if something was selected)
          * prior to firing the event.
          */
-        // TODO: This used to return w/o firing the event sometimes.
         @Override
         public void actionPerformed(ActionEvent e) {
             if(popup != null) {
-                String selection = autoCompleter.getSelectedSuggestion();
+                String selection = autoCompleter.getSelectedAutoCompleteString();
                 hidePopup();
                 if(selection != null) {
                     textField.setText(selection);
-                    // TODO: prevent event from firing?
                 }
             }
         }        
@@ -228,6 +230,15 @@ public class DropDownListAutoCompleteControl {
                         String input = textField.getText();
                         autoCompleter.setInput(input);
                         showPopup();
+                    }
+                    break;
+                case KeyEvent.VK_LEFT:
+                case KeyEvent.VK_RIGHT:
+                    if(popup != null) {
+                        String selection = autoCompleter.getSelectedAutoCompleteString();
+                        if(selection != null) {
+                            hidePopup();
+                        }
                     }
                     break;
                 }

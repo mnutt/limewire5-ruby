@@ -8,24 +8,29 @@ import org.limewire.i18n.I18nMarker;
 
 public enum Category {
 
-    AUDIO(I18nMarker.marktr("Audio")),
-    VIDEO(I18nMarker.marktr("Video")),
-    IMAGE(I18nMarker.marktr("Images")),
-    DOCUMENT(I18nMarker.marktr("Documents")),
-    PROGRAM(I18nMarker.marktr("Programs")),
-    OTHER(I18nMarker.marktr("Other")),
-    
+    AUDIO(I18nMarker.marktr("Audio"), I18nMarker.marktr("Audio")),
+    VIDEO(I18nMarker.marktr("Video"), I18nMarker.marktr("Videos")),
+    IMAGE(I18nMarker.marktr("Image"), I18nMarker.marktr("Images")),
+    DOCUMENT(I18nMarker.marktr("Document"), I18nMarker.marktr("Documents")),
+    PROGRAM(I18nMarker.marktr("Program"), I18nMarker.marktr("Programs")),
+    OTHER(I18nMarker.marktr("Other"), I18nMarker.marktr("Other")),
     ;
     
-    private final String name;
+    private final String plural;
+    private final String singular;
     
-    Category(String name) {
-        this.name = name;
+    Category(String singular, String plural) {
+        this.singular = singular;
+        this.plural = plural;
+    }
+    
+    public String getSingularName() {
+        return singular;
     }
     
     @Override
     public String toString() {
-        return name;
+        return plural;
     }
     
     public static List<Category> getCategoriesInOrder() {

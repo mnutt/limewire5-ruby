@@ -26,6 +26,11 @@ public class LibraryChangedNotifierFeatureInitializer implements FeatureInitiali
         friendPresence.addFeature(new LibraryChangedNotifierFeature(new LibraryChangedNotifierImpl(friendPresence.getPresenceId(), connection)));
     }
 
+    @Override
+    public void removeFeature(FriendPresence friendPresence) {
+        friendPresence.removeFeature(LibraryChangedNotifierFeature.ID);
+    }
+
     private static class LibraryChangedNotifierImpl implements LibraryChangedNotifier {
         private final String presenceId;
         private final XMPPConnection connection;

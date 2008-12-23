@@ -23,6 +23,7 @@ import org.limewire.net.ConnectBackRequestedEvent;
 import org.limewire.net.address.AddressEvent;
 import org.limewire.net.address.AddressFactory;
 import org.limewire.util.DebugRunnable;
+import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.api.client.ConnectBackRequestSender;
 import org.limewire.xmpp.api.client.FileOfferEvent;
 import org.limewire.xmpp.api.client.FriendRequestEvent;
@@ -48,6 +49,7 @@ import com.google.inject.Singleton;
 public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequestSender {
 
     private static final Log LOG = LogFactory.getLog(XMPPServiceImpl.class);
+    private static final int MAX_RECONNECTION_ATTEMPTS = 10;
 
     private final Provider<EventBroadcaster<RosterEvent>> rosterBroadcaster;
     private final Provider<EventBroadcaster<FileOfferEvent>> fileOfferBroadcaster;
@@ -101,6 +103,27 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
     @Inject
     void register(org.limewire.lifecycle.ServiceRegistry registry) {
         registry.register(this);
+    }
+    
+    /**
+     * Sets the connection mode to idle (extended away) after receiving activity
+     * events triggered by periods of inactivity
+     * @param listenerSupport
+     */
+    @Inject
+    void register(ListenerSupport<XmppActivityEvent> listenerSupport) {
+        listenerSupport.addListener(new EventListener<XmppActivityEvent>() {
+            @Override
+            public void handleEvent(XmppActivityEvent event) {
+                switch(event.getSource()) {
+                case Idle:
+                    setMode(Mode.xa);
+                    break;
+                case Active:
+                    setMode(jabberSettings.isDoNotDisturbSet() ? Mode.dnd : Mode.available);
+                }
+            }
+        });
     }
 
     @Override
@@ -268,7 +291,8 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
                         public void run() {
                             long sleepTime = 10000;
                             XMPPConnection newConnection = null;
-                            while(newConnection == null) {
+                            for(int i = 0; i < MAX_RECONNECTION_ATTEMPTS &&
+                                    newConnection == null; i++) {
                                 try {
                                     LOG.debugf("attempting to reconnect to {0} ..." + configuration.getServiceName());
                                     newConnection = login(configuration, true);
@@ -281,6 +305,7 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
                                     // Ignored
                                 }
                             }
+                            LOG.debugf("giving up trying to connect to {0}" + configuration.getServiceName());
                         }
                     }), "xmpp-reconnection-manager");
                     t.start();

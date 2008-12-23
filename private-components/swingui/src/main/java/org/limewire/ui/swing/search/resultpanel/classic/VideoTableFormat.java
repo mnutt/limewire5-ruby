@@ -1,10 +1,9 @@
 package org.limewire.ui.swing.search.resultpanel.classic;
 
-import java.util.Comparator;
-
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
+import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 
 /**
@@ -12,119 +11,63 @@ import org.limewire.ui.swing.util.I18n;
  * video descriptions.
  */
 public class VideoTableFormat extends ResultsTableFormat<VisualSearchResult> {
-
-    public static enum Columns {
-        FROM(I18n.tr("From"), true, 55),
-        NAME(I18n.tr("Filename"), true, 410),
-        EXTENSION(I18n.tr("Extension"), true, 60),
-        LENGTH(I18n.tr("Length"), true, 60),
-        MISC(I18n.tr("Misc"), true, 60),
-        QUALITY(I18n.tr("Quality"), true, 60),
-        SIZE(I18n.tr("Size"), true, 60),
-        RATING(I18n.tr("Rating"), false, 60),
-        DIMENSION(I18n.tr("Resolution"), false, 60),
-        YEAR(I18n.tr("Year"), false, 60),
-        DESCRIPTION(I18n.tr("Description"), false, 60);
-        
-        private final String columnName;
-        private boolean isShown;
-        private int initialWidth;
-        
-        Columns(String name, boolean isShown, int initialWidth) {
-            this.columnName = name;
-            this.isShown = isShown;
-            this.initialWidth = initialWidth;
-        }
-        
-        public String getColumnName() { return columnName; }
-        public boolean isShown() { return isShown; }
-        public int getInitialWidth() { return initialWidth; }
+    static final int FROM_INDEX = 0;
+    static final int NAME_INDEX = 1;
+    static final int EXTENSION_INDEX = 2;
+    public static final int LENGTH_INDEX = 3;
+    static final int MISC_INDEX = 4;
+    public static final int QUALITY_INDEX = 5;
+    public static final int SIZE_INDEX = 6;
+    static final int RATING_INDEX = 7;
+    static final int DIMENSION_INDEX = 8;
+    static final int YEAR_INDEX = 9;
+    static final int DESCRIPTION_INDEX = 10;
+    
+    public VideoTableFormat() {
+        super(NAME_INDEX, FROM_INDEX, new ColumnStateInfo[] {
+                new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_VIDEO_FROM", I18n.tr("From"), 55, true, true), 
+                new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_VIDEO_NAME", I18n.tr("Name"), 410, true, true),     
+                new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_VIDEO_EXTENSION", I18n.tr("Extension"), 60, true, true), 
+                new ColumnStateInfo(LENGTH_INDEX, "CLASSIC_SEARCH_VIDEO_LENGTH", I18n.tr("Length"), 60, true, true), 
+                new ColumnStateInfo(QUALITY_INDEX, "CLASSIC_SEARCH_VIDEO_QUALITY", I18n.tr("Quality"), 60, true, true), 
+                new ColumnStateInfo(SIZE_INDEX, "CLASSIC_SEARCH_VIDEO_SIZE", I18n.tr("Size"), 60, true, true),
+                new ColumnStateInfo(MISC_INDEX, "CLASSIC_SEARCH_VIDEO_MISC", I18n.tr("Misc"), 60, false, true),
+                new ColumnStateInfo(RATING_INDEX, "CLASSIC_SEARCH_VIDEO_RATING", I18n.tr("Rating"), 60, false, true), 
+                new ColumnStateInfo(DIMENSION_INDEX, "CLASSIC_SEARCH_VIDEO_RESOLUTION", I18n.tr("Resolution"), 60, false, true),
+                new ColumnStateInfo(YEAR_INDEX, "CLASSIC_SEARCH_VIDEO_YEAR", I18n.tr("Year"), 60, false, true), 
+                new ColumnStateInfo(DESCRIPTION_INDEX, "CLASSIC_SEARCH_VIDEO_DESCRIPTION", I18n.tr("Description"), 60, false, true)
+        });
     }
 
     @Override
     public Class getColumnClass(int index) {
-        Columns other = Columns.values()[index];
-        switch(other) {
-        case RATING: return Integer.class;
-        case YEAR: return Integer.class;
-        case FROM: return VisualSearchResult.class;
+        switch(index) {
+        case RATING_INDEX: return Integer.class;
+        case YEAR_INDEX: return Integer.class;
+        case FROM_INDEX: return VisualSearchResult.class;
         }
         return super.getColumnClass(index);
     }
 
     @Override
     public Object getColumnValue(VisualSearchResult vsr, int index) {
-        this.vsr = vsr;
-        
-        String fileExtension = vsr.getFileExtension();
-
-        Columns other = Columns.values()[index];
-        switch(other) {
-            case NAME: return getProperty(FilePropertyKey.NAME);
-            case EXTENSION: return fileExtension;
-            case LENGTH: return getProperty(FilePropertyKey.LENGTH);
-            case YEAR: return getProperty(FilePropertyKey.YEAR);
-            case QUALITY: return getProperty(FilePropertyKey.QUALITY);
-            case MISC: return getProperty(FilePropertyKey.COMMENTS);
-            case DESCRIPTION: return "";
-            case FROM: return vsr;
-            case RATING: return getProperty(FilePropertyKey.RATING);
-            case DIMENSION:
-                if(getProperty(FilePropertyKey.WIDTH) == null || getProperty(FilePropertyKey.HEIGHT) == null)
+        switch(index) {
+            case NAME_INDEX: return vsr.getProperty(FilePropertyKey.NAME);
+            case EXTENSION_INDEX: return  vsr.getFileExtension();
+            case LENGTH_INDEX: return vsr.getProperty(FilePropertyKey.LENGTH);
+            case YEAR_INDEX: return vsr.getProperty(FilePropertyKey.YEAR);
+            case QUALITY_INDEX: return vsr.getProperty(FilePropertyKey.QUALITY);
+            case MISC_INDEX: return vsr.getProperty(FilePropertyKey.COMMENTS);
+            case DESCRIPTION_INDEX: return "";
+            case FROM_INDEX: return vsr;
+            case RATING_INDEX: return vsr.getProperty(FilePropertyKey.RATING);
+            case DIMENSION_INDEX:
+                if(vsr.getProperty(FilePropertyKey.WIDTH) == null || vsr.getProperty(FilePropertyKey.HEIGHT) == null)
                     return null;
                 else
-                    return (getProperty(FilePropertyKey.WIDTH) + " X " + getProperty(FilePropertyKey.HEIGHT));
-            case SIZE: return vsr.getSize();
-            default: return null;
+                    return (vsr.getProperty(FilePropertyKey.WIDTH) + " X " + vsr.getProperty(FilePropertyKey.HEIGHT));
+            case SIZE_INDEX: return vsr.getSize();
         }
-    }
-    
-    @Override
-    public int getColumnCount() {
-        return Columns.values().length;
-    }
-
-    @Override
-    public String getColumnName(int column) {
-        return Columns.values()[column].getColumnName();
-    }
-    
-    @Override
-    public boolean isColumnHiddenAtStartup(int column) {
-        return Columns.values()[column].isShown();
-    }
-
-    @Override
-    public boolean isColumnHideable(int column) {
-        return true;
-    }
-
-    @Override
-    public int getInitialWidth(int column) {
-        return Columns.values()[column].getInitialWidth();
-    }
-    
-    @Override
-    public boolean isEditable(VisualSearchResult vsr, int column) {
-        return column == Columns.FROM.ordinal();
-    }
-
-    @Override
-    public int getNameColumn() {
-        return Columns.NAME.ordinal();
-    }
-    
-    /**
-     * If the FromColumn is sorted, use a custom column sorter
-     * otherwise it is assumed the column returns a value that 
-     * implements the Comparable interface
-     */
-    @Override
-    public Comparator getColumnComparator(int index) {
-        Columns other = Columns.values()[index];
-        switch(other) {
-            case FROM: return getFromComparator();
-        }
-        return super.getColumnComparator(index);
+        throw new IllegalArgumentException("Unknown column:" + index);
     }
 }

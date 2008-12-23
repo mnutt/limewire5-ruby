@@ -297,7 +297,7 @@ public class HeadPongImpl extends AbstractVendorMessage implements HeadPong {
     
     /** Returns the bytes of the field in the GGEP if it exists, otherwise an empty array. */
     private byte[] getOptionalGGEPField(GGEP ggep, String header) {
-        if(ggep.hasKey(header)) {
+        if(ggep.hasValueFor(header)) {
             try {
                 return ggep.getBytes(header);
             } catch(BadGGEPPropertyException ignored) {}

@@ -2,7 +2,7 @@ package org.limewire.ui.swing.downloads.table;
 
 import static org.limewire.ui.swing.util.I18n.tr;
 
-import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -13,58 +13,42 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.jdesktop.application.Resource;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.io.Address;
+import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.properties.AbstractPropertiableFileDialog;
 import org.limewire.ui.swing.properties.DialogParam;
 import org.limewire.ui.swing.properties.Properties;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.ui.swing.util.PropertiableHeadings;
+import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.NativeLaunchUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
 public class DownloadItemPropertiesFactory implements PropertiesFactory<DownloadItem> {
-    private final PropertiableHeadings propertiableHeadings;
     private final DialogParam dialogParam;
     
     @Inject
-    public DownloadItemPropertiesFactory(PropertiableHeadings propertiableHeadings, DialogParam dialogParam) {
-        this.propertiableHeadings = propertiableHeadings;
+    public DownloadItemPropertiesFactory(DialogParam dialogParam) {
         this.dialogParam = dialogParam;
     }
 
     public Properties<DownloadItem> newProperties() {
-        return new DownloadItemProperties(propertiableHeadings, dialogParam);
+        return new DownloadItemProperties(dialogParam);
     }
 
     private static class DownloadItemProperties extends AbstractPropertiableFileDialog implements Properties<DownloadItem>{
-        private @Resource Font smallFont;
-        private @Resource Font mediumFont;
-        private @Resource Font largeFont;
         private final JPanel download = newPanel(new MigLayout("fill", "[]", "[]"));
+        private final LibraryNavigator libraryNavigator;
         
-        private DownloadItemProperties(PropertiableHeadings propertiableHeadings, DialogParam dialogParam) {
-            super(propertiableHeadings, dialogParam);
+        private DownloadItemProperties(DialogParam dialogParam) {
+            super(dialogParam);
+            this.libraryNavigator = dialogParam.getLibraryNavigator();
             GuiUtils.assignResources(this);
-        }
-
-        @Override
-        protected Font getSmallFont() {
-            return smallFont;
-        }
-        
-        @Override
-        protected Font getLargeFont() {
-            return largeFont;
-        }
-
-        @Override
-        protected Font getMediumFont() {
-            return mediumFont;
         }
 
         @Override
@@ -72,6 +56,12 @@ public class DownloadItemPropertiesFactory implements PropertiesFactory<Download
             
             populateCommonFields(propertiable);
             
+            addDownload(propertiable);
+            
+            showDialog(propertiable.getFileName(), propertiable.getCategory());
+        }
+
+        private void addDownload(final DownloadItem propertiable) {
             readOnlyInfoModel.setColumnCount(2);
             readOnlyInfoModel.setColumnIdentifiers(new Object[]{tr("Address"), tr("Filename")});
             for(Address source : propertiable.getSources()) {
@@ -81,8 +71,11 @@ public class DownloadItemPropertiesFactory implements PropertiesFactory<Download
             
             readOnlyInfo.setShowGrid(true);
             download.add(new JScrollPane(readOnlyInfo));
+            addDownloadingFileLocation(propertiable);
+            
+            fileLocation.setText(propertiable.getDownloadingFile().getAbsolutePath());
             final JLabel completionLabel = new JLabel();
-            mainPanel.add(box(tr("Download from"), completionLabel, download), "wmin 250, grow, cell 1 3");
+            mainPanel.add(box(tr("Download from"), completionLabel, download), "wmin 250, grow, cell 0 3");
             propertiable.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
@@ -94,8 +87,27 @@ public class DownloadItemPropertiesFactory implements PropertiesFactory<Download
                     });
                 }
             });
-            
-            showDialog(propertiable.getFileName(), propertiable.getCategory());
+        }
+
+        private void addDownloadingFileLocation(final DownloadItem propertiable) {
+            location.setLayout(new MigLayout("", "[]10[]15[]", "[top]"));
+            location.add(fileLocation, "gapbottom 5,push");
+            location.add(locateOnDisk);
+            location.add(locateInLibrary);
+            locateOnDisk.setAction(new AbstractAction(I18n.tr("locate on disk")) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    NativeLaunchUtils.launchExplorer(propertiable.getDownloadingFile());
+                }
+            });
+
+            locateInLibrary.setAction(new AbstractAction(I18n.tr("locate in library")) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(false);
+                    libraryNavigator.selectInLibrary(propertiable.getDownloadingFile(), propertiable.getCategory());
+                }
+            });
         }
 
         @Override

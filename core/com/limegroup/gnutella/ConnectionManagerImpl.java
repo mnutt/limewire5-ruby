@@ -20,8 +20,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.limewire.core.api.connection.ConnectionLifecycleEventType;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ConnectionSettings;
@@ -36,6 +34,8 @@ import org.limewire.io.IpPort;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.io.NetworkUtils;
 import org.limewire.lifecycle.Service;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.net.ConnectionDispatcher;
 import org.limewire.net.SocketsManager;
 import org.limewire.net.SocketsManager.ConnectType;
@@ -2368,6 +2368,7 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
             this.endpoint = incoming;
             ConnectType type = endpoint.isTLSCapable() && networkManager.isOutgoingTLSEnabled() ? 
                                         ConnectType.TLS : ConnectType.PLAIN;
+            LOG.debugf("connecting to {0}, with connect type {1}", incoming, type);
             connection = managedConnectionFactory.createRoutedConnection(endpoint.getAddress(),
                     endpoint.getPort(), type);
             connection.setLocalePreferencing(_pref);

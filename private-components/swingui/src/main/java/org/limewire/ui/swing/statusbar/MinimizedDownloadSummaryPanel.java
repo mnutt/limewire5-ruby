@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import org.jdesktop.swingx.JXHyperlink;
 import org.limewire.ui.swing.downloads.DownloadSummaryPanel;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.VisibilityListener;
 
@@ -22,6 +23,9 @@ public class MinimizedDownloadSummaryPanel extends JPanel{
 
     @Inject
     public MinimizedDownloadSummaryPanel(final DownloadSummaryPanel downloadSummaryPanel){
+        
+        GuiUtils.assignResources(this);
+        
         this.downloadSummaryPanel = downloadSummaryPanel;
         
         downloadSummaryPanel.addVisibilityListener(new VisibilityListener() {
@@ -34,11 +38,16 @@ public class MinimizedDownloadSummaryPanel extends JPanel{
         
         setOpaque(false);
         
-       add(createShowButton());
+        showButton = new JXHyperlink();
+        showButton.setName("MinimizedDownloadSummaryPanel.showButton");
+        
+        initShowButton();
+        
+        add(showButton);
     }
     
-    private JButton createShowButton() {
-        showButton = new JXHyperlink();
+    private void initShowButton() {
+        
         showButton.setText(I18n.tr("Downloads"));
         showButton.addActionListener(new ActionListener() {
 
@@ -47,7 +56,6 @@ public class MinimizedDownloadSummaryPanel extends JPanel{
                 downloadSummaryPanel.forceInvisibility(false);
             }
         });
-        return showButton;
     }
     
     public void maybeSetVisible(boolean visible) {

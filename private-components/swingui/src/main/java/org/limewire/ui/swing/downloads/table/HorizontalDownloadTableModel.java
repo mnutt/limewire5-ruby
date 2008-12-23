@@ -45,6 +45,10 @@ public class HorizontalDownloadTableModel implements TableModel {
         return downloadItems.get(downloadItems.size() - 1 - index);
     }
 
+    public int indexOf(DownloadItem item) {
+        return downloadItems.size() - 1 - downloadItems.indexOf(item);
+    }
+
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {

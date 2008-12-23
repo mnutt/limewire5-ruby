@@ -58,7 +58,6 @@ public abstract class Dialog extends LimeJDialog {
     protected final JLabel filename = newLabel();
     protected final JLabel fileSize = new JLabel();
     protected final JLabel metadata = newLabel();
-    protected final JXHyperlink copyToClipboard = new JXHyperlink();
     protected final JTextField title = new JTextField();
     protected final JComboBox genre = new JComboBox();
     protected final JComboBox rating = new JComboBox();
@@ -72,9 +71,14 @@ public abstract class Dialog extends LimeJDialog {
     protected final JTextField company = new JTextField();
     protected final DefaultTableModel readOnlyInfoModel = new ReadOnlyTableModel();
     protected final JLabel fileLocation = newLabel();
-    protected final JXHyperlink locateOnDisk = new JXHyperlink();
-    protected final JXHyperlink locateInLibrary = new JXHyperlink();
+    protected final JXHyperlink locateOnDisk;
+    protected final JXHyperlink locateInLibrary;
+    protected final JXHyperlink copyToClipboard;
+    protected final JXHyperlink moreFileInfo;
     protected final JTable readOnlyInfo = new JTable(readOnlyInfoModel);
+    protected final Font smallFont;
+    protected final Font mediumFont;
+    protected final Font largeFont;
     
     protected final JPanel overview;
     protected final JPanel details = newPanel();
@@ -87,15 +91,23 @@ public abstract class Dialog extends LimeJDialog {
     public Dialog(DialogParam param) {
         this.iconManager = param.getIconManager();
         this.propertiableHeadings = param.getPropertiableHeadings();
-        GuiUtils.assignResources(this);
+        
+        this.smallFont = param.getSmallFont();
+        this.mediumFont = param.getMediumFont();
+        this.largeFont = param.getLargeFont();
         
         mainPanel = new JPanel(new MigLayout("insets 0 3 3 0", "[fill]push[]", "[][][][]push[]"));
+        Color hyperlinkColor = param.getLinkColor();
+        locateOnDisk = newHyperlink(hyperlinkColor);
+        locateInLibrary = newHyperlink(hyperlinkColor);
+        copyToClipboard = newHyperlink(hyperlinkColor);
+        moreFileInfo = newHyperlink(hyperlinkColor);
         
         add(mainPanel);
-        mainPanel.setBackground(Color.LIGHT_GRAY);
+        mainPanel.setBackground(param.getBackgroundColor());
         
-        setFont(getMediumFont(), heading, filename, fileSize);
-        setFont(getSmallFont(), metadata, copyToClipboard, locateOnDisk, locateInLibrary,
+        setFont(mediumFont, heading, filename, fileSize);
+        setFont(smallFont, metadata, copyToClipboard, moreFileInfo, locateOnDisk, locateInLibrary,
                 title, genre, rating, year, description, artist, album, track, author, platform,
                 company, fileLocation);
         //Use the same border that a textfield uses - JTextAreas by default are not given a border
@@ -107,16 +119,24 @@ public abstract class Dialog extends LimeJDialog {
         buttons.add(new JButton(new CancelAction()));
         mainPanel.add(buttons, "alignx right, cell 1 4");
         
-        overview = newPanel(new MigLayout("fillx", "[][]push[]", "[][][]"));
+        overview = newPanel(new MigLayout("fillx", "[][]push[]", "[top]3[top]"));
 
-        overview.add(icon);
+        overview.add(icon, "spany");
         overview.add(heading);
         overview.add(copyToClipboard, "wrap");
-        overview.add(metadata, "cell 1 2");
+        overview.add(metadata, "cell 1 1");
+        overview.add(moreFileInfo);
 
         addOverview();
     }
     
+    private JXHyperlink newHyperlink(Color linkColor) {
+        JXHyperlink link = new JXHyperlink();
+        link.setClickedColor(linkColor);
+        link.setUnclickedColor(linkColor);
+        return link;
+    }
+
     protected JPanel newPanel(LayoutManager manager) {
         JPanel panel = newPanel();
         panel.setLayout(manager);
@@ -129,10 +149,6 @@ public abstract class Dialog extends LimeJDialog {
         return panel;
     }
     
-    protected abstract Font getSmallFont();
-    protected abstract Font getMediumFont();
-    protected abstract Font getLargeFont();
-
     protected void setFont(Font font, JComponent... components) {
         for(JComponent comp : components) {
             comp.setFont(font);
@@ -190,7 +206,7 @@ public abstract class Dialog extends LimeJDialog {
     }
 
     private void addOverview() {
-        mainPanel.add(box("Overview", overview), "cell 0 0, spanx 2");
+        mainPanel.add(box(tr("Overview"), overview), "cell 0 0, spanx 2");
     }
 
     protected Component box(String string, JComponent component) {
@@ -201,8 +217,8 @@ public abstract class Dialog extends LimeJDialog {
         
         JPanel panel = new JPanel(new MigLayout("insets 3 3 3 3, fillx", "[fill]push[]", "[][][]"));
         panel.setOpaque(false);
-        JLabel label = new JLabel(tr(string));
-        label.setFont(getLargeFont());
+        JLabel label = new JLabel(string);
+        label.setFont(largeFont);
         panel.add(label, bannerComponent == null ? "wrap" : "");
         if (bannerComponent != null) {
             panel.add(bannerComponent, "wrap");
@@ -213,12 +229,12 @@ public abstract class Dialog extends LimeJDialog {
     }
 
     private void addDetails() {
-        detailsContainer = box("Details", details);
+        detailsContainer = box(tr("Details"), details);
         mainPanel.add(detailsContainer, "cell 0 1, spanx 2");
     }
 
     private void addLocation() {
-        mainPanel.add(box("Location", location), "cell 0 2, spanx 2");
+        mainPanel.add(box(tr("Location"), location), "cell 0 2, spanx 2");
     }
 
     private class OKAction extends AbstractAction {
@@ -293,7 +309,7 @@ public abstract class Dialog extends LimeJDialog {
     
     private JLabel newSmallLabel(String text) {
         JLabel label = new JLabel(tr(text));
-        label.setFont(getSmallFont());
+        label.setFont(smallFont);
         return label;
     }
 
@@ -376,7 +392,7 @@ public abstract class Dialog extends LimeJDialog {
                 addLengthMetadata(propertiableHeadings.getLength(propFile), metadata);
                 String bitRate = str(propFile.getProperty(FilePropertyKey.BITRATE));
                 if (bitRate != null) {
-                    addBitrateMetadata(bitRate + " " + propertiableHeadings.getQualityScore(propFile), metadata);
+                    addBitrateMetadata(bitRate + " (" + propertiableHeadings.getQualityScore(propFile) + ")", metadata);
                 }
                 break;
             case VIDEO:
@@ -386,9 +402,10 @@ public abstract class Dialog extends LimeJDialog {
                 addDateCreatedMetadata(convertDate(propFile), metadata);
                 break;
             case DOCUMENT:
+                addTypeMetadata(iconManager.getMIMEDescription(propFile), metadata);
                 addDateCreatedMetadata(convertDate(propFile), metadata);
                 //TODO: parse TOPIC property
-                // Fall into OTHER for type metadata
+                break;
             case OTHER:
                 addTypeMetadata(iconManager.getMIMEDescription(propFile), metadata);
         }
@@ -414,12 +431,6 @@ public abstract class Dialog extends LimeJDialog {
         }
     }
 
-    protected void disableEdit(JComboBox... combos) {
-        for(JComboBox combo : combos) {
-            combo.setEditable(false);
-        }
-    }
-    
     private static class ReadOnlyTableModel extends DefaultTableModel {
 
         @Override

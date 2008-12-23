@@ -42,7 +42,15 @@ public class CoreSearch implements Search {
     private final PromotionSearcher promotionSearcher;
     private final FriendSearcher friendSearcher;
     private final CachedGeoLocation geoLocation;
-    private final AtomicBoolean started = new AtomicBoolean(false);
+
+    /*
+     * A search is considered processed when it is acted upon (started or stopped)
+     * -cannot repeat a search that has not yet been processed
+     * -cannot start a search that has already been processed
+     * -stopping a search only stops searches that have already been processed.
+     */
+    private final AtomicBoolean processingStarted = new AtomicBoolean(false);
+
     private final CopyOnWriteArrayList<SearchListener> searchListeners = new CopyOnWriteArrayList<SearchListener>();
     private final QrListener qrListener = new QrListener();
     private final FriendSearchListener friendSearchListener = new FriendSearchListenerImpl();
@@ -94,8 +102,8 @@ public class CoreSearch implements Search {
 
     @Override
     public void start() {
-        if (started.getAndSet(true)) {
-            throw new IllegalStateException("already started!");
+        if (processingStarted.getAndSet(true)) {
+            throw new IllegalStateException("cannot start search which has already been processed!");
         }
         
         for(SearchListener listener : searchListeners) {
@@ -181,10 +189,15 @@ public class CoreSearch implements Search {
         startIndex = startIndex == -1 ? 0 :  startIndex + 2;
         return url.substring(startIndex, endIndex);
     }
-    
+
+    /**
+     * Stops current search and repeats search.
+     * 
+     * @throws IllegalStateException If search processing has already begun (started or stopped)
+     */
     @Override
     public void repeat() {
-        if(!started.get()) {
+        if(!processingStarted.get()) {
             throw new IllegalStateException("must start!");
         }
         
@@ -199,8 +212,8 @@ public class CoreSearch implements Search {
 
     @Override
     public void stop() {
-        if(!started.get()) {
-            throw new IllegalStateException("must start!");
+        if(!processingStarted.compareAndSet(true, true)) {
+            return;
         }
         
         listenerList.removeQueryReplyListener(searchGuid, qrListener);

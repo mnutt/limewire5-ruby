@@ -1,4 +1,29 @@
-/.cvsignore/1.2/Mon Jan  8 19:04:56 2007//
-/build.xml/1.38/Tue Sep  2 22:50:00 2008//
-/pom.xml/1.23/Tue Sep  2 22:36:18 2008//
-D
+D/collection////
+D/common////
+D/core-api////
+D/core-glue////
+D/core-settings////
+D/geocode////
+D/http////
+D/io////
+D/jingle////
+D/lwsserver////
+D/mojito////
+D/mojito-ui////
+D/net////
+D/nio////
+D/player////
+D/player-api////
+D/promotion////
+D/resources////
+D/rudp////
+D/security////
+D/setting////
+D/statistic////
+D/swarm////
+D/test-util////
+D/xmpp////
+D/xmpp-api////
+/.cvsignore/1.2/Wed Dec 17 01:21:16 2008//
+/build.xml/1.38/Wed Dec 17 01:21:16 2008//
+/pom.xml/1.23/Wed Dec 17 01:21:19 2008//

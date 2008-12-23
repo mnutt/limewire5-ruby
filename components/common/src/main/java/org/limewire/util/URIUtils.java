@@ -85,8 +85,8 @@ public class URIUtils {
     /**
      * Returns the port for the given URI. If no port can be found, it checks the scheme.
      * If the scheme is http port 80 is returned, if https 443.
-     * @param uri
-     * @return
+     * 
+     * -1 is returned if no port can be found.
      */
     public static int getPort(URI uri) {
         int port = uri.getPort();

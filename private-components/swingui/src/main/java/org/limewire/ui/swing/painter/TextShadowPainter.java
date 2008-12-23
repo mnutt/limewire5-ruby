@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Paint;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -12,13 +13,25 @@ import org.limewire.ui.swing.util.PainterUtils;
 
 public class TextShadowPainter<X extends Component> extends AbstractPainter<X> {
     
-    private static final Color SHADOW = new Color(0,0,0,150);
+    private static final Paint DEFAULT_SHADOW = new Color(0,0,0,150);
     
     private Insets insets = PainterUtils.BLANK_INSETS;
+    
+    private final Paint shadow;
+    
+    
+    public TextShadowPainter(Paint shadow, Insets insets, boolean cached) {
+        this.setAntialiasing(true);
+        this.setCacheable(cached);
+        this.shadow = shadow;
         
+        setInsets(insets);
+    }
+    
     public TextShadowPainter() {
         this.setAntialiasing(true);
         this.setCacheable(true);
+        this.shadow = DEFAULT_SHADOW;
     }
     
     /**
@@ -37,7 +50,7 @@ public class TextShadowPainter<X extends Component> extends AbstractPainter<X> {
         g.setFont(object.getFont());
         int h = g.getFontMetrics().getAscent();
            
-        g.setColor(SHADOW);
+        g.setPaint(shadow);
         g.drawString(label, insets.left + 1, insets.top + height/2 + h/2 - 1);
         g.setColor(object.getForeground());
         g.drawString(label, insets.left + 0, insets.top + height/2 + h/2 - 2);

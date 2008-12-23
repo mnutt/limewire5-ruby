@@ -26,8 +26,15 @@ public class ConfigurableTable<E> extends MouseableTable implements RowPresevati
     private EventTableModel<E> tableModel;
     private VisibleTableFormat<E> tableFormat;
     private E selectedRow;
-
-    public ConfigurableTable(boolean showHeaders) {
+    
+    private ColumnStateHandler handler;
+    
+    public ConfigurableTable(EventList<E> eventList, VisibleTableFormat<E> tableFormat, boolean showHeaders) {
+        this.eventList = eventList;
+        this.tableFormat = tableFormat;
+        tableModel = new EventTableModel<E>(eventList, tableFormat);
+        setModel(tableModel);
+        
         if (showHeaders) {
             // Set up table headers to have a context menu
             // that configures which columns are visible.
@@ -40,15 +47,26 @@ public class ConfigurableTable<E> extends MouseableTable implements RowPresevati
                     }
                 }
             });
+            
+            handler = new ColumnStateHandler(this, tableFormat);
         } else {
             // Remove the table header.
             setTableHeader(null);
         }
         setShowHorizontalLines(false);
+        setShowGrid(false, true);
     }
-
-    public EventList<E> getEventList() {
-        return eventList;
+    
+    /**
+	 * Sets up the state of the columns. 
+	 *
+	 * NOTE: this must be called after the renderers have been set and must
+	 * be called in this order: width/visibility/order
+	 */
+    public void setupColumnHandler() {
+        handler.setupColumnWidths();
+        handler.setupColumnVisibility();
+        handler.setupColumnOrder();
     }
     
     /**
@@ -65,44 +83,6 @@ public class ConfigurableTable<E> extends MouseableTable implements RowPresevati
      */
     public JPopupMenu createHeaderColumnMenu() {
         return new TableColumnSelector(this, tableFormat).getPopupMenu();
-    }
-
-    /**
-     * Sets the width of a given column.
-     * @param columnIndex the column index
-     * @param width the width
-     */
-    public void setColumnWidth(int columnIndex, int width) {
-        getColumnModel().getColumn(columnIndex).setPreferredWidth(width);
-    }
-    
-    public void initColumnVisibility() {
-        for(int i = tableFormat.getColumnCount() -1; i >= 0; i--) {
-            getColumnExt(i).setVisible(tableFormat.isColumnHiddenAtStartup(i));
-        }
-    }
-
-    /**
-     * Sets the EventList table model from which
-     * the data to be displayed is obtained.
-     * @param eventList the EventList
-     */
-    public void setEventList(EventList<E> eventList) {
-        this.eventList = eventList;
-    }
-
-    /**
-     * Set the object that controls the columns displayed in this table.
-     * @param tableFormat the TableFormat
-     */
-    public void setTableFormat(VisibleTableFormat<E> tableFormat) {
-        if (tableFormat == null) {
-            throw new IllegalArgumentException("tableFormat can't be null");
-        }
-
-        this.tableFormat = tableFormat;
-        tableModel = new EventTableModel<E>(eventList, tableFormat);
-        setModel(tableModel);
     }
     
     public EventTableModel<E> getEventTableModel() {

@@ -634,7 +634,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
                 // Skip to the next one since we already have a complete file.
                 if(hasCompleteFile(next.getUpdateURN())) {
                     if(md != null) {
-                        md.stop();
+                        md.stop(false);
                     }
                     continue;
                 }
@@ -813,7 +813,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
             if (downloader != null && downloader instanceof InNetworkDownloader) {
                 InNetworkDownloader iDownloader = (InNetworkDownloader)downloader;
                 if (isHopeless(iDownloader, now))  
-                    iDownloader.stop();
+                    iDownloader.stop(false);
             }
         }
     }

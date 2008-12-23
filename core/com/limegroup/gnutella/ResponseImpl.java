@@ -235,13 +235,14 @@ class ResponseImpl implements Response {
         return verified;
     }
 
-    public RemoteFileDesc toRemoteFileDesc(QueryReply queryReply, RemoteFileDescFactory remoteFileDescFactory, PushEndpointFactory pushEndpointFactory) throws UnknownHostException {
-        // TODO fberger move this to query reply, since they can all responses can share a common address
-        Address address = null;
-        if (queryReply.isFirewalled()) {
-            address = pushEndpointFactory.createPushEndpoint(queryReply.getClientGUID(), queryReply.getPushProxies(), PushEndpoint.PLAIN, queryReply.getFWTransferVersion(), new ConnectableImpl(queryReply.getIP(), queryReply.getPort(), queryReply.isTLSCapable()));
-        } else {
-            address = new ConnectableImpl(queryReply.getIP(), queryReply.getPort(), queryReply.isTLSCapable());
+    public RemoteFileDesc toRemoteFileDesc(QueryReply queryReply, Address address, RemoteFileDescFactory remoteFileDescFactory, PushEndpointFactory pushEndpointFactory) throws UnknownHostException {
+        // TODO fberger move this to query reply, since all responses can share a common address
+        if (address == null) {
+            if (queryReply.isFirewalled()) {
+                address = pushEndpointFactory.createPushEndpoint(queryReply.getClientGUID(), queryReply.getPushProxies(), PushEndpoint.PLAIN, queryReply.getFWTransferVersion(), new ConnectableImpl(queryReply.getIP(), queryReply.getPort(), queryReply.isTLSCapable()));
+            } else {
+                address = new ConnectableImpl(queryReply.getIP(), queryReply.getPort(), queryReply.isTLSCapable());
+            }
         }
         if (cachedRFD != null && cachedRFD.getAddress().equals(address)) {
             return cachedRFD;
@@ -288,5 +289,4 @@ class ResponseImpl implements Response {
                 "xml document: "+document+"\r\n"+
                 "urns:         "+urns);
     }
-    
 }

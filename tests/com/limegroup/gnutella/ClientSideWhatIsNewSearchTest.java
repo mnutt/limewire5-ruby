@@ -4,17 +4,18 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Set;
 
+import junit.framework.Test;
+
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.io.GUID;
 import org.limewire.util.MediaType;
 
-import junit.framework.Test;
-
-import com.limegroup.gnutella.connection.BlockingConnection;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
+import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.filters.XMLDocFilterTest;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryReplyFactory;
@@ -88,7 +89,7 @@ public class ClientSideWhatIsNewSearchTest extends ClientSideTestCase {
         assertQuery(testUP[0], guid);
         
         // send back a result that will be filtered
-        Response resp = responseFactory.createResponse(101, 1019, "sex");
+        Response resp = responseFactory.createResponse(101, 1019, "sex", UrnHelper.SHA1);
         sendAndAssertResponse(resp, guid, enabled);
         
         resp = XMLDocFilterTest.createXMLResponse("filename", LimeXMLNames.VIDEO_TYPE, "adult", responseFactory, limeXMLDocumentFactory);
@@ -97,7 +98,7 @@ public class ClientSideWhatIsNewSearchTest extends ClientSideTestCase {
         resp = XMLDocFilterTest.createXMLResponse("filename", LimeXMLNames.VIDEO_RATING, "NC-17", responseFactory, limeXMLDocumentFactory);
         sendAndAssertResponse(resp, guid, enabled);
         
-        resp = responseFactory.createResponse(105, 345, "harmless");
+        resp = responseFactory.createResponse(105, 345, "harmless", UrnHelper.SHA1);
         sendAndAssertResponse(resp, guid, false);
     }
     

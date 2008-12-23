@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.List;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.limewire.core.api.download.DownloadAction;
@@ -15,6 +16,7 @@ import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.downloads.MainDownloadPanel;
 import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
@@ -28,12 +30,13 @@ import org.limewire.util.FileUtils;
 public class OpenFileAction extends AbstractAction {
 
     private final Navigator navigator;
-    
+
     private final DownloadListManager downloadListManager;
 
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
 
-    public OpenFileAction(Navigator navigator, String name, DownloadListManager downloadListManager,
+    public OpenFileAction(Navigator navigator, String name,
+            DownloadListManager downloadListManager,
             SaveLocationExceptionHandler saveLocationExceptionHandler) {
         super(name);
         this.navigator = navigator;
@@ -44,8 +47,8 @@ public class OpenFileAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        List<File> files = FileChooser.getInput(GuiUtils.getMainFrame(), I18n.tr("Open File"), I18n.tr("Open"),
-                FileChooser.getLastInputDirectory(), JFileChooser.FILES_ONLY,
+        List<File> files = FileChooser.getInput(GuiUtils.getMainFrame(), I18n.tr("Open File"), I18n
+                .tr("Open"), FileChooser.getLastInputDirectory(), JFileChooser.FILES_ONLY,
                 JFileChooser.APPROVE_OPTION, true, new FileFilter() {
                     @Override
                     public boolean accept(File f) {
@@ -61,21 +64,28 @@ public class OpenFileAction extends AbstractAction {
 
         if (files != null) {
             for (final File file : files) {
-                try {
-                    DownloadItem item = downloadListManager.addTorrentDownload(file, null, false);
-                    navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME).select(
-                            SimpleNavSelectable.create(item));
-                } catch (SaveLocationException sle) {
-                    saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
-                        @Override
-                        public void download(File saveFile, boolean overwrite)
-                                throws SaveLocationException {
-                            DownloadItem item = downloadListManager.addTorrentDownload(file,
-                                    saveFile, overwrite);
-                            navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME)
-                                    .select(SimpleNavSelectable.create(item));
-                        }
-                    }, sle, false);
+                if (file.exists()) {
+                    try {
+                        DownloadItem item = downloadListManager.addTorrentDownload(file, null,
+                                false);
+                        navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME).select(
+                                SimpleNavSelectable.create(item));
+                    } catch (SaveLocationException sle) {
+                        saveLocationExceptionHandler.handleSaveLocationException(
+                                new DownloadAction() {
+                                    @Override
+                                    public void download(File saveFile, boolean overwrite)
+                                            throws SaveLocationException {
+                                        DownloadItem item = downloadListManager.addTorrentDownload(
+                                                file, saveFile, overwrite);
+                                        navigator.getNavItem(NavCategory.DOWNLOAD,
+                                                MainDownloadPanel.NAME).select(
+                                                SimpleNavSelectable.create(item));
+                                    }
+                                }, sle, false);
+                    }
+                } else {
+                    FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), I18n.tr("The file {0} does not exist.", file.getName()), I18n.tr("Unable to open torrent"), JOptionPane.ERROR_MESSAGE);
                 }
             }
         }

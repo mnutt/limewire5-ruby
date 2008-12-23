@@ -22,6 +22,7 @@ import org.limewire.security.MACCalculatorRepositoryManager;
 
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
@@ -320,7 +321,7 @@ public class QueryUnicasterTest extends com.limegroup.gnutella.util.LimeTestCase
     private QueryReply generateFakeReply(byte[] guid, int numResponses) {
         Response[] resps = new Response[numResponses];
         for (int i = 0; i< resps.length; i++)
-            resps[i] = responseFactory.createResponse(i, i, ""+i);
+            resps[i] = responseFactory.createResponse(i, i, ""+i, UrnHelper.SHA1);
         byte[] ip = {(byte)127, (byte)0, (byte)0, (byte)1};
         QueryReply toReturn = queryReplyFactory.createQueryReply(guid, (byte) 2, 1,
                 ip, 0, resps, GUID.makeGuid(), false);

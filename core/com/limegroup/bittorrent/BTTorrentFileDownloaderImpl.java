@@ -312,7 +312,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         return false;
     }
 
-    public void stop() {
+    public void stop(boolean deleteFile) {
         finish();
         downloadManager.remove(this, true);
     }

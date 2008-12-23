@@ -14,10 +14,12 @@ import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.friend.Friend;
+import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.dnd.LocalFileListTransferHandler;
 import org.limewire.ui.swing.library.table.LibraryTable;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
 import org.limewire.ui.swing.library.table.LibraryTableModel;
@@ -35,8 +37,10 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
     private final LibraryTableFactory tableFactory;
     private final DownloadListManager downloadListManager;
     private final LibraryManager libraryManager;
+    private final Friend friend;
     
-    public AbstractFriendLibraryPanel(
+    public AbstractFriendLibraryPanel(Friend friend,
+                    FriendFileList friendFileList,
                     EventList<RemoteFileItem> eventList, 
                     CategoryIconManager categoryIconManager, 
                     LibraryTableFactory tableFactory,
@@ -44,17 +48,22 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
                     LibraryManager libraryManager,
                     LimeHeaderBarFactory headerBarFactory) {        
         super(headerBarFactory);
-        
+        this.friend = friend;
         this.categoryIconManager = categoryIconManager;
         this.tableFactory = tableFactory;
         this.downloadListManager = downloadListManager;
         this.libraryManager = libraryManager;
+        
+       //All friends panel gives a null friend
+        if(friend != null) {
+            setTransferHandler(new LocalFileListTransferHandler(friendFileList));
+        }
     }    
     
-    protected void createMyCategories(EventList<RemoteFileItem> eventList, Friend friend) {
+    protected void createMyCategories(EventList<RemoteFileItem> eventList) {
         for(Category category : Category.getCategoriesInOrder()) {
             FilterList<RemoteFileItem> filtered = GlazedListsFactory.filterList(eventList, new CategoryFilter(category));
-            JComponent component = createMyCategoryAction(category, filtered, friend);
+            JComponent component = createMyCategoryAction(category, filtered);
             if(component != null) {
                 addCategory(categoryIconManager.getIcon(category), category, component, filtered, null);                
             }
@@ -62,7 +71,7 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
         }
     }
     
-    private JComponent createMyCategoryAction(Category category, EventList<RemoteFileItem> filtered, Friend friend) {
+    protected JComponent createMyCategoryAction(Category category, EventList<RemoteFileItem> filtered) {
         FilterList<RemoteFileItem> filterList = GlazedListsFactory.filterList(filtered, 
                 new TextComponentMatcherEditor<RemoteFileItem>(getFilterTextField(), new LibraryTextFilterator<RemoteFileItem>()));
         addDisposable(filterList);

@@ -26,6 +26,10 @@ public class BorderPainter<X> extends AbstractPainter<X> {
     private final Paint bevelRight;
     private final Paint bevelBottom;
     
+    private final Paint accentPaint1;
+    private final Paint accentPaint2;
+    private final Paint accentPaint3;
+    
     private Insets insets = PainterUtils.BLANK_INSETS;
     
     private final AccentType accentType;
@@ -37,6 +41,10 @@ public class BorderPainter<X> extends AbstractPainter<X> {
     private static final Paint SHADOW_PAINT1 = new Color(0x5f,0x5f,0x5f);
     private static final Paint SHADOW_PAINT2 = new Color(0x5e,0x5e,0x5e);
     private static final Paint SHADOW_PAINT3 = new Color(0x64,0x64,0x64);
+    
+    private static final Paint GREEN_SHADOW_PAINT1 = new Color(0xc3d9a1);
+    private static final Paint GREEN_SHADOW_PAINT2 = new Color(0xb9d78d);
+    private static final Paint GREEN_SHADOW_PAINT3 = new Color(0xe1eecc);
     
     public BorderPainter(int arcWidth, int arcHeight, Paint border, 
             Paint bevelLeft, Paint bevelTop1, Paint bevelTop2, 
@@ -52,6 +60,37 @@ public class BorderPainter<X> extends AbstractPainter<X> {
         this.bevelBottom = bevelBottom;
         
         this.accentType = accentType;
+        
+        switch (accentType) {
+        
+        case BUBBLE :
+            
+            accentPaint1 = BUBBLE_PAINT1;
+            accentPaint2 = BUBBLE_PAINT2;
+            accentPaint3 = BUBBLE_PAINT3;
+            break;
+            
+        case SHADOW :
+            
+            accentPaint1 = SHADOW_PAINT1;
+            accentPaint2 = SHADOW_PAINT2;
+            accentPaint3 = SHADOW_PAINT3;
+            break;
+            
+        case GREEN_SHADOW :    
+            
+            accentPaint1 = GREEN_SHADOW_PAINT1;
+            accentPaint2 = GREEN_SHADOW_PAINT2;
+            accentPaint3 = GREEN_SHADOW_PAINT3;
+            break;
+            
+        default:
+        
+            accentPaint1 = PainterUtils.TRASPARENT;
+            accentPaint2 = PainterUtils.TRASPARENT;
+            accentPaint3 = PainterUtils.TRASPARENT;
+            
+        }
         
         this.setCacheable(true);
     }
@@ -88,15 +127,14 @@ public class BorderPainter<X> extends AbstractPainter<X> {
         
         if (this.accentType != AccentType.NONE) {
             // Draw the bottom accent bubble or shadow
-            boolean hasBubble = this.accentType == AccentType.BUBBLE;        
         
             g.setClip(0+ix1, singleArcHeight, width-ix1-ix2, height);
-            g.setPaint(hasBubble ? BUBBLE_PAINT3 : SHADOW_PAINT3);
+            g.setPaint(accentPaint3);
             g.drawRoundRect(0+ix1, 0, width-1-ix1-ix2, height-1, this.arcWidth, this.arcHeight);
-            g.setPaint(hasBubble ? BUBBLE_PAINT2 : SHADOW_PAINT2);        
+            g.setPaint(accentPaint2);        
             g.drawLine(0+ix1,singleArcHeight,0+ix1,height/2);
             g.drawLine(width-1-ix2,singleArcHeight,width-1-ix2,height/2);
-            g.setPaint(hasBubble ? BUBBLE_PAINT1 : SHADOW_PAINT1);
+            g.setPaint(accentPaint1);
             g.drawLine(0+ix1,height/2,0+ix1,height-singleArcHeight);
             g.drawLine(width-1-ix2,height/2,width-1-ix2,height-singleArcHeight);
         }
@@ -124,7 +162,7 @@ public class BorderPainter<X> extends AbstractPainter<X> {
     }
     
     public enum AccentType {
-        SHADOW, BUBBLE, NONE
+        SHADOW, GREEN_SHADOW, BUBBLE, NONE
     }
 
 }

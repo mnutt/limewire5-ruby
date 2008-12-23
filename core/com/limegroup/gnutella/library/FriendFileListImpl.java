@@ -29,11 +29,52 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
         addNewAudioAlways = LibrarySettings.containsFriendShareNewAudio(id);
         addNewImagesAlways = LibrarySettings.containsFriendShareNewImages(id);
         addNewVideoAlways = LibrarySettings.containsFriendShareNewVideo(id);
+        initialize();
     }
     
     @Override
     public boolean add(FileDesc fileDesc) {
         return super.add(fileDesc);
+    }
+
+    /**
+     * This method initializes the friend file list.  It adds the files
+     * that are shared with the friend represented by this list.  This
+     * is necessary because friend file lists are populated/unpopulated when
+     * needed, not upon startup.
+     */
+    void initialize() {
+
+        // add files from the MASTER list which are for the current friend
+        managedList.getReadLock().lock();
+        try {
+            for (FileDesc fd : managedList) {
+                if(isPending(fd.getFile(), fd)) {
+                    add(fd);
+                }
+            }
+        } finally {
+            managedList.getReadLock().unlock();
+        }
+    }
+
+    /**
+     * Unloading the list makes the sharing
+     * characteristics of the files in the list invisible externally (files are still in list,
+     * but do not have the appearance of being shared)
+     */
+    public void unload() {
+        // for each file in the friend list, decrement its' file share count
+        getReadLock().lock();
+        try {
+            for (FileDesc fd : this) {
+                fd.decrementShareListCount();
+            }
+        } finally {
+            getReadLock().unlock();
+        }
+        clear();
+        dispose();
     }
     
     /**

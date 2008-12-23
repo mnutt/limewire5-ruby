@@ -6,7 +6,16 @@ import java.awt.Component;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import org.limewire.ui.swing.components.Disposable;
+
 class LibraryMediator extends JPanel implements Disposable {
+    
+    // Important implementation note:
+    // This class disposes of Disposables whereever possible.
+    // However, it is EXTREMELY IMPORTANT that the dispose is called
+    // after the components are removed from the UI.
+    // Otherwise, the act of removing them may require bits of the
+    // disposed code, and cause exceptions.
 
     private static final String LIBRRY_CARD = "LIBRARY_CARD";
     private static final String SHARING_CARD = "SHARING_CARD";
@@ -15,7 +24,8 @@ class LibraryMediator extends JPanel implements Disposable {
 
     private JComponent libraryComponent = null;
     private JComponent sharingComponent = null;
-    
+    protected boolean disposed;
+
     public LibraryMediator() {
         cardLayout = new CardLayout();
         
@@ -24,12 +34,14 @@ class LibraryMediator extends JPanel implements Disposable {
     
     protected void setLibraryCard(JComponent panel) {
         if(libraryComponent != null) {
-            ((Disposable)libraryComponent).dispose();
+            // Important: rm before dispose -- see note at top of class
             remove(libraryComponent);
+            ((Disposable)libraryComponent).dispose();
             libraryComponent = null;
         }
         libraryComponent = panel;
         add(panel, LIBRRY_CARD);
+        revalidate();
     }
     
     protected boolean isSharingCardSet() {
@@ -38,8 +50,9 @@ class LibraryMediator extends JPanel implements Disposable {
     
     protected void setSharingCard(JComponent panel) {
         if(sharingComponent != null) {
-            ((Disposable)sharingComponent).dispose();
+            // Important: rm before dispose -- see note at top of class
             remove(sharingComponent);
+            ((Disposable)sharingComponent).dispose();
             sharingComponent = null;
         }
         sharingComponent = panel;
@@ -57,11 +70,22 @@ class LibraryMediator extends JPanel implements Disposable {
         cardLayout.show(this, SHARING_CARD);
     }
 
+
     @Override
-    public void dispose() {
+    protected void addImpl(Component comp, Object constraints, int index) {
+        assert !disposed;
+        super.addImpl(comp, constraints, index);
+    }
+
+    @Override
+    public void dispose() {        
+        // Important: rm before dispose -- see note at top of class
+        Component[] components = getComponents();
         removeAll();
-        for(Component component : getComponents()) {
+        for(Component component : components) {
             ((Disposable)component).dispose();
         }
+        libraryComponent = null;
+        disposed = true;
     }
 }

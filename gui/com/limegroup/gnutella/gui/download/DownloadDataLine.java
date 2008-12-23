@@ -450,7 +450,7 @@ public final class DownloadDataLine extends AbstractDataLine<Downloader>
     public void cleanup() {
 	    BackgroundExecutorService.schedule(new Runnable() {
 	        public void run() {
-	            initializer.stop();
+	            initializer.stop(false);
             }
         });
 	    _cleaned = true;

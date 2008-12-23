@@ -10,9 +10,12 @@ import javax.swing.JSlider;
 
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.util.PaintUtils;
-import org.limewire.util.NotImplementedException;
 
-
+/**
+ * An implementation of SwingX Painter used to draw the progress bar 
+ * foreground on a specified Swing component.  At this time, the only 
+ * components supported are JProgressBar and JSlider.
+ */
 public class ProgressBarForegroundPainter<X extends JComponent> extends AbstractPainter<X> {
     
     private final boolean drawHandle;
@@ -84,7 +87,7 @@ public class ProgressBarForegroundPainter<X extends JComponent> extends Abstract
                    / (double)(slider.getMaximum() - slider.getMinimum()); 
         }
         
-        throw new NotImplementedException("ProgressForegroundPainter" +
-        		" applied to a not yet supported component");
+        throw new IllegalArgumentException(
+            "Progress bar painter does not support " + object.getClass().getName());
     }
 }

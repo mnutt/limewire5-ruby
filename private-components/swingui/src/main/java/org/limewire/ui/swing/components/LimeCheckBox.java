@@ -16,9 +16,19 @@ import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.limewire.ui.swing.painter.TextShadowPainter;
 import org.limewire.ui.swing.util.GuiUtils;
+import org.limewire.ui.swing.util.PainterUtils;
 
 public class LimeCheckBox extends JCheckBox{
 
+    public static final Insets TEXT_INSETS = new Insets(0,16,0,0);
+    
+    /**
+     * A shared painter that can be used to paint plain (unshadowed) check boxes.
+     *  This is pooled so caching is turned off. 
+     */
+    public static final TextShadowPainter<JCheckBox> NORMAL_TEXT_PAINTER 
+        = new TextShadowPainter<JCheckBox>(PainterUtils.TRASPARENT, TEXT_INSETS, false);
+    
     @Resource private Color checkBorder;
     
     private AbstractPainter<JCheckBox> checkPainter;
@@ -54,7 +64,7 @@ public class LimeCheckBox extends JCheckBox{
         
         TextShadowPainter<JCheckBox> textPainter 
             = new TextShadowPainter<JCheckBox>();
-        textPainter.setInsets(new Insets(0,16,0,0));
+        textPainter.setInsets(TEXT_INSETS);
         
         this.checkPainter = new CheckPainter();
         this.textPainter = textPainter;

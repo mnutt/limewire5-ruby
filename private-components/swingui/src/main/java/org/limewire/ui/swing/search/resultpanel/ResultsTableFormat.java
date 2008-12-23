@@ -2,59 +2,68 @@ package org.limewire.ui.swing.search.resultpanel;
 
 import java.util.Comparator;
 
-import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
-import org.limewire.ui.swing.table.VisibleTableFormat;
+import org.limewire.ui.swing.table.AbstractColumnStateFormat;
+import org.limewire.ui.swing.table.ColumnStateInfo;
 
 import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.gui.AdvancedTableFormat;
-import ca.odell.glazedlists.gui.WritableTableFormat;
 
 
 /**
  * This class is the base class for each of the TableFormat classes
  * that describe the various table views of search results.
  */
-public abstract class ResultsTableFormat<E> implements VisibleTableFormat<E>, AdvancedTableFormat<E>, WritableTableFormat<E> {
+public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T> {
 
     protected VisualSearchResult vsr;
+    private final int nameColumn;
+    private final int fromColumn;
 
+    public ResultsTableFormat(ColumnStateInfo... columnInfo) {
+        this(-1, -1, columnInfo);
+    }
+    
+    public ResultsTableFormat(int nameColumn, int fromColumn, ColumnStateInfo... columnInfo) {
+        super(columnInfo);
+        this.nameColumn = nameColumn;
+        this.fromColumn = fromColumn;
+    }
+    
     @Override
     public Class getColumnClass(int index) {
         return String.class;
     }
-
-    public Comparator getColumnComparator(int index) {
-        return GlazedLists.comparableComparator();
-    }
-
-    /**
-     * Gets the value of a given property.
-     * @param key the property key or name
-     * @return the property value
-     */
-    protected Object getProperty(FilePropertyKey key) {
-        return vsr.getProperty(key);
-    }
-
-    /**
-     * Gets the String value of a given property.
-     * @param key the property key or name
-     * @return the String property value
-     */
-    protected String getString(FilePropertyKey key) {
-        Object value = vsr.getProperty(key);
-        return value == null ? "?" : value.toString();
-    }
     
-    abstract public int getNameColumn();
-
-    abstract public boolean isEditable(VisualSearchResult vsr, int column);// {
+    @Override
+    public boolean isColumnHideable(int column) {
+        return true;
+    }
 
     public VisualSearchResult setColumnValue(
         VisualSearchResult vsr, Object value, int index) {
         // do nothing with the new value
         return vsr;
+    }
+    
+    public boolean isEditable(VisualSearchResult vsr, int column) {
+        return column == fromColumn;
+    }
+
+    public int getNameColumn() {
+        return nameColumn;
+    }
+
+    /**
+     * If the FromColumn is sorted, use a custom column sorter
+     * otherwise it is assumed the column returns a value that 
+     * implements the Comparable interface
+     */
+    @Override
+    public Comparator getColumnComparator(int index) {
+        if(index == fromColumn) 
+            return getFromComparator();
+        else
+            return GlazedLists.comparableComparator();
     }
     
     public FromComparator getFromComparator() {

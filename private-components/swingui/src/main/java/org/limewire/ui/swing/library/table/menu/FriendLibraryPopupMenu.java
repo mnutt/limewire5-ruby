@@ -10,11 +10,13 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
 import org.limewire.core.api.download.DownloadAction;
+import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.library.MagnetLinkFactory;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.library.MagnetLinkCopier;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.util.BackgroundExecutorService;
 import org.limewire.ui.swing.util.I18n;
@@ -32,13 +34,16 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
 
     private MagnetLinkFactory magnetFactory;
-    private PropertiesFactory<RemoteFileItem> propertiesFactory;
+    private PropertiesFactory<RemoteFileItem> remoteItemPropertiesFactory;
+    private PropertiesFactory<DownloadItem> downloadItemPropertiesFactory;
 
     public FriendLibraryPopupMenu(DownloadListManager downloadListManager, MagnetLinkFactory magnetFactory, 
-            PropertiesFactory<RemoteFileItem> propertiesFactory, SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            PropertiesFactory<RemoteFileItem> remoteItemPropertiesFactory, SaveLocationExceptionHandler saveLocationExceptionHandler,
+            PropertiesFactory<DownloadItem> downloadItemPropertiesFactory) {
         this.downloadListManager = downloadListManager;
         this.magnetFactory = magnetFactory;
-        this.propertiesFactory = propertiesFactory;
+        this.remoteItemPropertiesFactory = remoteItemPropertiesFactory;
+        this.downloadItemPropertiesFactory = downloadItemPropertiesFactory;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         linkItem = new JMenuItem(linkAction);
         propertiesItem = new JMenuItem(propertiesAction);
@@ -101,7 +106,14 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
         @Override
         public void actionPerformed(ActionEvent e) {
             //TODO - Is this correct? Only to show props for first one?
-            propertiesFactory.newProperties().showProperties(fileItems.get(0));
+            RemoteFileItem propertiable = fileItems.get(0);
+            for(DownloadItem item : downloadListManager.getDownloads()) {
+                if (item.getUrn().equals(propertiable.getUrn())) {
+                    downloadItemPropertiesFactory.newProperties().showProperties(item);
+                    return;
+                }
+            }
+            remoteItemPropertiesFactory.newProperties().showProperties(propertiable);
         }
     };
     

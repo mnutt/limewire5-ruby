@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
@@ -30,7 +31,9 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.FileItem;
+import org.limewire.core.api.library.FriendFileList;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.LimePromptTextField;
@@ -40,6 +43,7 @@ import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
+import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.TransformedList;
 
@@ -61,7 +65,8 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
     
     private ButtonItem currentItem = null;
 
-    private final JPanel selectionPanel = new LibrarySelectionPanel();
+    protected final LibrarySelectionPanel selectionPanel = new LibrarySelectionPanel();
+
     private final LimeHeaderBar headerPanel;    
     
     private final Next next = new Next();
@@ -78,10 +83,10 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         headerPanel.setLayout(new MigLayout("insets 0, gap 0, fill, alignx right"));
         headerPanel.add(filterField, "gapbefore push, cell 1 0, gapafter 10");
         
-        createSelectionPanel();
-        
         add(headerPanel, "span, grow, wrap");
         addMainPanels();
+        
+        addDisposable(selectionPanel);
     }
     
     protected abstract LimeHeaderBar createHeaderBar(LimeHeaderBarFactory headerBarFactory);
@@ -92,7 +97,7 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
     }
     
     protected void addMainPanels() {
-        add(selectionPanel, "growy, width 125!");
+        add(selectionPanel, "growy");
         // TODO: move to properties -- funky because this class gets subclassed.
         add(Line.createVerticalLine(Color.decode("#696969")), "growy, width 1!");
         add(cardPanel, "grow");
@@ -117,8 +122,8 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         headerPanel.add(player, constraints);
     }
     
-    public void createSelectionPanel() {
-        selectionPanel.setLayout(new MigLayout("insets 0, gap 0, fillx, wrap", "[125!]", ""));
+    protected void setInnerNavLayout(LayoutManager layout) {
+        selectionPanel.updateLayout(layout);
     }
     
     protected void select(Category id) {        
@@ -129,6 +134,7 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         currentItem.fireSelected(true);
         
         cardLayout.show(cardPanel, id.name());
+        selectionPanel.showCard(id);
     }
     
     protected void selectFirst() {
@@ -171,8 +177,25 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         Action action = new SelectionAction(icon, category, item, callback);
         JComponent button = createCategoryButton(action, category);
         
+        ((ButtonItemImpl) item).setAction(action);
+        
         addCategorySizeListener(category, action, filteredAllFileList, filteredList);
         selectionPanel.add(button, "growx");
+    }
+    
+    /** Adds a category to the InnerNav Info bar for My Library views*/
+    protected<T extends FileItem> void addLibraryInfoBar(Category category, EventList<T> fileList) {
+        selectionPanel.addCard(category, fileList, null, null, false);
+    }
+    
+    /** Adds a category to the InnerNav Info bar for Sharing views*/
+    protected<T extends FileItem> void addSharingInfoBar(Category category, EventList<T> fileList, FriendFileList friendList, FilterList<T> sharedList) {
+        selectionPanel.addCard(category, fileList, friendList, sharedList, false);
+    }
+    
+    /** Adds a category to the InnerNav Info bar for Friend views*/
+    protected<T extends FileItem> void addFriendInfoBar(Category category, EventList<T> fileList) {
+        selectionPanel.addCard(category, fileList, null, null, true);
     }
     
     /** Adds a listener to the category so things can bind to the action, if necessary. */
@@ -196,25 +219,53 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
     private void selectNext() {
         for(int i = 0; i < categoryOrder.size(); i++) {
             if(categoryOrder.get(i).equals(currentItem.getCategory())) {
-                if(i == categoryOrder.size() -1) {
-                    select(categoryOrder.get(0));
-                } else
-                    select(categoryOrder.get(i+1));
+                if(i == categoryOrder.size() -1)
+                    select(getNext(0));
+                else
+                    select(getNext(i+1));
                 break;
             }
         }
+    }
+    
+    /**
+     * Returns the next visible category. If only the currently selected category
+     * is visible, returns that category.
+     */
+    private Category getNext(int selectedIndex) {
+        for(int i = selectedIndex; i < categoryOrder.size() + selectedIndex; i++) {
+            int index = i % categoryOrder.size();
+            ButtonItem current = categoryTables.get(categoryOrder.get(index));
+            if(current.isEnabled())
+                return categoryOrder.get(index);
+        }
+        return categoryOrder.get(selectedIndex);
     }
     
     private void selectPrev() {
         for(int i = 0; i < categoryOrder.size(); i++) {
             if(categoryOrder.get(i).equals(currentItem.getCategory())) {
                 if(i == 0) {
-                    select(categoryOrder.get(categoryOrder.size()-1));
+                    select(getPrev(categoryOrder.size()-1));
                 } else
-                    select(categoryOrder.get(i-1));
+                    select(getPrev(i-1));
                 break;
             }
         }
+    }
+    
+    /**
+     * Returns the previous visible category. If only the currently selected category
+     * is visible, returns that category.
+     */
+    private Category getPrev(int selectedIndex) {
+        for(int i = categoryOrder.size() + selectedIndex; i > categoryOrder.size(); i--) {
+            int index = i % categoryOrder.size();
+            ButtonItem current = categoryTables.get(categoryOrder.get(index));
+            if(current.isEnabled())
+                return categoryOrder.get(index);
+        }
+        return categoryOrder.get(selectedIndex);
     }
     
     private class Next extends AbstractAction {
@@ -277,6 +328,8 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         public void select();
         
         public Category getCategory();
+        
+        public boolean isEnabled();
     }
     
     private interface ButtonItemListener {
@@ -288,9 +341,22 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         private final List<ButtonItemListener> listeners = new CopyOnWriteArrayList<ButtonItemListener>();
         
         private Category category;
+        private Action action;
         
         public ButtonItemImpl(Category category) {
             this.category = category;
+        }
+        
+        public void setAction(Action action) {
+            this.action = action;
+        }
+        
+        @Override
+        public boolean isEnabled() {
+            if(action == null)
+                return false;
+            else
+                return action.isEnabled();
         }
 
         @Override
@@ -383,5 +449,5 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         public JButton getButton() {
             return button;
         }
-    }    
+    }
 }

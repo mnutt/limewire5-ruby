@@ -26,7 +26,9 @@ public class SwarmHttpSource extends AbstractSwarmSource {
     private final String id;
 
     public SwarmHttpSource(URI uri, Range range) {
-        this.socketAddress = new InetSocketAddress(uri.getHost(), URIUtils.getPort(uri));
+        int port = URIUtils.getPort(uri) == -1 ? 80 : URIUtils.getPort(uri); //default to port 80 if no port can be found
+        String host = uri.getHost();
+        this.socketAddress = new InetSocketAddress(host, port);
         this.path = uri.getPath();
         this.availableRanges.add(range);
         addListener(new ReconnectingSwarmSourceListener());
@@ -90,12 +92,16 @@ public class SwarmHttpSource extends AbstractSwarmSource {
         if (getType() != source.getType()) {
             return false;
         }
-        
+
         return id.equals(source.id);
     }
 
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public static boolean isValidSource(URI uri) {
+        return uri.getHost() != null && ("http".equals(uri.getScheme()) || uri.getScheme() == null);
     }
 }

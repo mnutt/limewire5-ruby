@@ -370,9 +370,9 @@ public class TorrentFileFetcher implements HttpClientListener, CoreDownloader {
 			delegate.setSaveFile(saveDirectory, fileName, overwrite);
 	}
 
-	public void stop() {
+	public void stop(boolean deleteFile) {
 		if (delegate != null)
-			delegate.stop();
+			delegate.stop(deleteFile);
 		else {
 			stopped = true;
 			if (aborter != null) {

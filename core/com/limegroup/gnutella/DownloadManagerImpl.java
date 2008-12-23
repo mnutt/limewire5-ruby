@@ -16,8 +16,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.limewire.collection.DualIterator;
 import org.limewire.collection.MultiIterable;
 import org.limewire.core.api.download.SaveLocationException;
@@ -25,6 +23,7 @@ import org.limewire.core.api.download.SaveLocationException.LocationCode;
 import org.limewire.core.settings.DownloadSettings;
 import org.limewire.core.settings.UpdateSettings;
 import org.limewire.i18n.I18nMarker;
+import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.InvalidDataException;
 import org.limewire.io.IpPort;
@@ -33,9 +32,10 @@ import org.limewire.lifecycle.ServiceStage;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventListenerList;
 import org.limewire.listener.ListenerSupport;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.service.MessageService;
 import org.limewire.util.FileUtils;
-import org.limewire.util.NotImplementedException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -348,7 +348,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             CoreDownloader d = iter.next();
             if (d.getDownloadType() == DownloaderType.INNETWORK  && 
                     !urns.contains(d.getSha1Urn().httpStringValue())) 
-                d.stop();
+                d.stop(false);
         }
         
         Set<String> hopeless = UpdateSettings.FAILED_UPDATES.getValue();
@@ -568,7 +568,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             waiting.clear();
         }
         for(CoreDownloader md : buf ) { 
-            md.stop();
+            md.stop(false);
             fireEvent(md, DownloadManagerEvent.Type.REMOVED);
         }
     }
@@ -804,8 +804,8 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
         BTMetaInfo btMetaInfo = null;
         try {
             btMetaInfo = btMetaInfoFactory.createMetaInfo(torrentFile);
-        } catch (IOException e) {
-            throw new NotImplementedException("Need to implement good user feedback.");
+        } catch (IOException iox) {
+            throw new SaveLocationException(iox, torrentFile);
         }
         return downloadTorrent(btMetaInfo, overwrite);
     }
@@ -945,7 +945,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.DownloadManager#handleQueryReply(com.limegroup.gnutella.messages.QueryReply)
      */
-    public void handleQueryReply(QueryReply qr) {
+    public void handleQueryReply(QueryReply qr, Address address) {
         // first check if the qr is of 'sufficient quality', if not just
         // short-circuit.
         if (qr.calculateQualityOfService() < 1)
@@ -959,15 +959,16 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             return; // bad packet, do nothing.
         }
         
-        addDownloadWithResponses(responses, qr);
+        addDownloadWithResponses(responses, qr, address);
     }
 
     /**
      * Iterates through all responses seeing if they can be matched
      * up to any existing downloaders, adding them as possible
      * sources if they do.
+     * @param address can be null 
      */
-    private void addDownloadWithResponses(List<? extends Response> responses, QueryReply queryReply) {
+    private void addDownloadWithResponses(List<? extends Response> responses, QueryReply queryReply, Address address) {
         if(responses == null)
             throw new NullPointerException("null responses");
         if(queryReply == null)
@@ -993,7 +994,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             // Don't bother with making XML from the EQHD.
             RemoteFileDesc rfd;
             try {
-                rfd = r.toRemoteFileDesc(queryReply, remoteFileDescFactory, pushEndpointFactory);
+                rfd = r.toRemoteFileDesc(queryReply, address, remoteFileDescFactory, pushEndpointFactory);
             } catch (UnknownHostException e) {
                 throw new RuntimeException(e);
             }
@@ -1004,6 +1005,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
                 // If we were able to add this specific rfd,
                 // add any alternates that this response might have
                 // also.
+                LOG.debugf("adding rfd {0} to downloader {1}", rfd, currD);
                 if (currD.addDownload(rfd, true)) {
                     for(IpPort ipp : r.getLocations()) {
                         // don't cache alts.

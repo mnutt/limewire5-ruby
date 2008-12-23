@@ -16,6 +16,8 @@ import java.util.StringTokenizer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import junit.framework.Test;
+
 import org.limewire.core.api.browse.BrowseListener;
 import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.search.SearchResult;
@@ -27,6 +29,7 @@ import org.limewire.util.Base32;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PushRequest;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -34,8 +37,6 @@ import com.limegroup.gnutella.messages.QueryReplyFactory;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 import com.limegroup.gnutella.stubs.NetworkManagerStub;
-
-import junit.framework.Test;
 
 /**
  * Checks whether (multi)leaves avoid forwarding messages to ultrapeers, do
@@ -109,7 +110,7 @@ public class ClientSideBrowseHostTest extends ClientSideTestCase {
 
             // send a reply
             Response[] res = new Response[1];
-            res[0] = responseFactory.createResponse(10, 10, "boalt.org");
+            res[0] = responseFactory.createResponse(10, 10, "boalt.org", UrnHelper.SHA1);
             m = queryReplyFactory.createQueryReply(m.getGUID(), (byte) 1, 7000,
                     InetAddress.getLocalHost().getAddress(), 0, res, clientGUID, new byte[0], false, false,
                     true, true, false, false, null);
@@ -180,7 +181,7 @@ public class ClientSideBrowseHostTest extends ClientSideTestCase {
             final IpPortSet proxies = new IpPortSet();
             proxies.add(new IpPortImpl("127.0.0.1", 7000));
             Response[] res = new Response[1];
-            res[0] = responseFactory.createResponse(10, 10, "nyu.edu");
+            res[0] = responseFactory.createResponse(10, 10, "nyu.edu", UrnHelper.SHA1);
             m = queryReplyFactory.createQueryReply(m.getGUID(), (byte) 1, 6999,
                     InetAddress.getLocalHost().getAddress(), 0, res, clientGUID, new byte[0], true, false,
                     true, true, false, false, proxies);
@@ -288,7 +289,7 @@ public class ClientSideBrowseHostTest extends ClientSideTestCase {
 
         // send a reply with some BAD PushProxy info
         final IpPortSet proxies = new IpPortSet(new IpPortImpl("127.0.0.1", 7001));
-        Response[] res = new Response[] { responseFactory.createResponse(10, 10, "anita") };
+        Response[] res = new Response[] { responseFactory.createResponse(10, 10, "anita", UrnHelper.SHA1) };
         m = queryReplyFactory.createQueryReply(m.getGUID(), (byte) 1, 7000,
                 InetAddress.getLocalHost().getAddress(), 0, res, clientGUID, new byte[0], true, false, true,
                 true, false, false, proxies);

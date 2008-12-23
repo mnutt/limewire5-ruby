@@ -21,6 +21,7 @@ import org.limewire.core.api.library.MagnetLinkFactory;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.library.MagnetLinkCopier;
 import org.limewire.ui.swing.player.PlayerUtils;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.util.I18n;

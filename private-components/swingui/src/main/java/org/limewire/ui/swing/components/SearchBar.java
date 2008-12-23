@@ -13,6 +13,8 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
+import org.limewire.collection.AutoCompleteDictionary;
+import org.limewire.collection.StringTrieSet;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.friend.FriendAutoCompleters;
 import org.limewire.core.settings.LibrarySettings;
@@ -25,6 +27,7 @@ import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.search.DefaultSearchInfo;
+import org.limewire.ui.swing.search.HistoryAndFriendAutoCompleter;
 import org.limewire.ui.swing.search.SearchCategoryUtils;
 import org.limewire.ui.swing.search.SearchHandler;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -47,7 +50,7 @@ public class SearchBar extends JXPanel {
     private final LimePromptTextField searchField;
     private final JButton searchButton;
     
-    private final BasicAutoCompleter autoCompleter;
+    private final HistoryAndFriendAutoCompleter autoCompleter;
     private final FriendAutoCompleters friendLibraries;
     
     private SearchCategory categoryToSearch; 
@@ -62,7 +65,7 @@ public class SearchBar extends JXPanel {
         GuiUtils.assignResources(this);
 
         this.friendLibraries = friendLibraries;
-        this.autoCompleter = new BasicAutoCompleter();
+        this.autoCompleter = new HistoryAndFriendAutoCompleter();
         
         this.categoryToSearch = SearchCategory.forId(SearchSettings.DEFAULT_SEARCH_CATEGORY_ID.getValue());
         
@@ -105,6 +108,14 @@ public class SearchBar extends JXPanel {
         
         final DropDownListAutoCompleteControl autoCompleteControl = DropDownListAutoCompleteControl.install(this.searchField, autoCompleter);
         autoCompleteControl.setAutoComplete(true);
+        final AutoCompleteDictionary historyDictionary = new StringTrieSet(true);
+        autoCompleter.setHistoryDictionary(historyDictionary);
+        searchField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                historyDictionary.addEntry(searchField.getText());
+            }
+        });
         // TODO: this setting doesn't exist in options right now
 //        SearchSettings.POPULATE_SEARCH_BAR_FRIEND_FILES.addSettingListener(new SettingListener() {
 //            @Override
@@ -119,10 +130,10 @@ public class SearchBar extends JXPanel {
 //        });
         
         if (actionToSelect != null) {
-            autoCompleter.setDictionary(friendLibraries.getDictionary(categoryToSearch));
+            autoCompleter.setSuggestionDictionary(friendLibraries.getDictionary(categoryToSearch));
             this.comboBox.setSelectedAction(actionToSelect);
         } else {
-            autoCompleter.setDictionary(friendLibraries.getDictionary(SearchCategory.ALL));
+            autoCompleter.setSuggestionDictionary(friendLibraries.getDictionary(SearchCategory.ALL));
         }
         
         this.setOpaque(false);
@@ -204,7 +215,7 @@ public class SearchBar extends JXPanel {
         @Override
         public void actionPerformed(ActionEvent arg0) {
             categoryToSearch = category;            
-            autoCompleter.setDictionary(friendLibraries.getDictionary(category));
+            autoCompleter.setSuggestionDictionary(friendLibraries.getDictionary(category));
         }
     }
 }

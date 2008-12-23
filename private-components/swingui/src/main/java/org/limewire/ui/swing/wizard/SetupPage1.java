@@ -29,7 +29,7 @@ public class SetupPage1 extends WizardPage {
     
     private String learnMore = I18n.tr("Learn more"); 
     
-    private String filterCheckText = I18n.tr("Don't let me download or upload files copyright owners request not to be shared.");
+    private String filterCheckText = I18n.tr("Don't let me download or upload files copyright owners request not be shared.");
     private JCheckBox filterCheck;
 
     private String associationsAndStartupTitle = I18n.tr("File Associations and Startup");
@@ -69,23 +69,33 @@ public class SetupPage1 extends WizardPage {
         
         add(filterCheck, "gaptop 10, gapleft 40");
         label = new MultiLineLabel(filterCheckText, 500);
+        label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(filterCheck));
         decorator.decorateNormalText(label);       
         add(label, "gaptop 10, gapleft 10, wrap");
         add(learnMoreButton, "gapleft 76, wrap");
         
-        label = new JLabel(associationsAndStartupTitle);
-        decorator.decorateHeadingText(label);
-        add(label, "gaptop 20, gapleft 14, wrap");
+        if (LimeAssociations.isMagnetAssociationSupported() 
+               || LimeAssociations.isTorrentAssociationSupported()
+               || shouldShowStartOnStartupWindow()) {
+            label = new JLabel(associationsAndStartupTitle);
+            decorator.decorateHeadingText(label);
+            add(label, "gaptop 20, gapleft 14, wrap");
+        }
         
-        add(associationCheck, "gaptop 10, gapleft 40");
-        label = new MultiLineLabel(associationsText, 500);
-        decorator.decorateNormalText(label);       
-        add(label, "gaptop 10, gapleft 10, wrap");
+        if (LimeAssociations.isMagnetAssociationSupported() 
+                || LimeAssociations.isTorrentAssociationSupported()) {
+            add(associationCheck, "gaptop 10, gapleft 40");
+            label = new MultiLineLabel(associationsText, 500);
+            label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(associationCheck));
+            decorator.decorateNormalText(label);       
+            add(label, "gaptop 10, gapleft 10, wrap");
+        }
         
         if (shouldShowStartOnStartupWindow()) {
             startupCheck.setSelected(true);
             add(startupCheck, "gaptop 0, gapleft 40");
             label = new MultiLineLabel(startupText, 500);
+            label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(startupCheck));
             decorator.decorateNormalText(label);       
             add(label, "gaptop 10, gapleft 10, wrap");
         }

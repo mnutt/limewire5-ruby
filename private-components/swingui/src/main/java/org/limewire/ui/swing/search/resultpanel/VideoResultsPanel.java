@@ -47,8 +47,8 @@ public class VideoResultsPanel extends BaseResultPanel {
     @Override
     protected void setupCellRenderers(ResultsTableFormat<VisualSearchResult> tableFormat) {
         super.setupCellRenderers(tableFormat);
-        setCellRenderer(VideoTableFormat.Columns.SIZE.ordinal(), new OpaqueFileSizeRenderer());
-        setCellRenderer(VideoTableFormat.Columns.LENGTH.ordinal(), new OpaqueTimeRenderer());
-        setCellRenderer(VideoTableFormat.Columns.QUALITY.ordinal(), new OpaqueQualityRenderer());
+        setCellRenderer(VideoTableFormat.SIZE_INDEX, new OpaqueFileSizeRenderer());
+        setCellRenderer(VideoTableFormat.LENGTH_INDEX, new OpaqueTimeRenderer());
+        setCellRenderer(VideoTableFormat.QUALITY_INDEX, new OpaqueQualityRenderer());
     }
 }

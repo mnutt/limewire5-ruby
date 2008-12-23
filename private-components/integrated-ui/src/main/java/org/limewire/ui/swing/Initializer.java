@@ -21,7 +21,6 @@ import javax.swing.plaf.basic.BasicHTML;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdesktop.application.Application;
-import org.limewire.core.api.lifecycle.LifeCycleManager;
 import org.limewire.core.impl.mozilla.LimeMozillaOverrides;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.StartupSettings;
@@ -52,7 +51,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.ActiveLimeWireCheck;
-import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.LimeCoreGlue;
 import com.limegroup.gnutella.LimeWireCore;
 import com.limegroup.gnutella.LimeCoreGlue.InstallFailedException;
@@ -134,7 +132,7 @@ public final class Initializer {
 //        showAlphaInfo();
         
         //must agree not to use LW for copyright infringement on first running
-        confirmIntent();
+        confirmIntent(awtSplash);
 
         // Move from the AWT splash to the Swing splash & start early core.
         //assuming not showing splash screen if there are program arguments
@@ -193,8 +191,14 @@ public final class Initializer {
 //    }
     
     
-    /** shows legal stuff and exits if the user does not agree */
-    private void confirmIntent() {
+    /** 
+     * Shows legal conditions and exits if the user does not agree to them.
+     * 
+     *  Takes a parameter for the splash screen so it can hide it if
+     *   the intent dialogue needs to be shown to avoid a troublesome situation
+     *   where the splash screen actually covers the shown intent dialogue. 
+     */
+    private void confirmIntent(final Frame awtSplash) {
         File versionFile = new File(CommonUtils.getUserSettingsDir(), "versions.props");
         Properties properties = new Properties();        
         FileInputStream inputStream = null;
@@ -211,13 +215,21 @@ public final class Initializer {
             SwingUtils.invokeAndWait(new Runnable() {
                 @Override
                 public void run() {
+                    if (awtSplash != null) {
+                        awtSplash.setVisible(false);
+                    }
+                    
                     boolean confirmed = new IntentDialog().confirmLegal();
                     if (!confirmed) {
                         System.exit(0);
                     }
+                    
+                    if (awtSplash != null) {
+                        awtSplash.setVisible(true);
+                    }
                 }
             });
-
+            
             properties.put(LimeWireUtils.getLimeWireVersion(), "true");
             FileOutputStream outputStream = null;
             try {
@@ -294,8 +306,8 @@ public final class Initializer {
             SystemUtils.setOpenFileLimit(1024);
             stopwatch.resetAndLog("Open file limit raise");     
 
-//            MacEventHandler.instance();
-//            stopwatch.resetAndLog("MacEventHandler instance");
+            MacEventHandler.instance();
+            stopwatch.resetAndLog("MacEventHandler instance");
         }
     }
     
@@ -377,8 +389,7 @@ public final class Initializer {
         if(OSUtils.isMacOSX()) {
             GURLHandler.getInstance().enable(externalControl);
             stopwatch.resetAndLog("Enable GURL");
-            MacEventHandler.instance().enable(externalControl, this, injector.getInstance(DownloadManager.class), 
-                    injector.getInstance(LifeCycleManager.class));
+            injector.injectMembers(MacEventHandler.instance());
             stopwatch.resetAndLog("Enable macEventHandler");
         }
         

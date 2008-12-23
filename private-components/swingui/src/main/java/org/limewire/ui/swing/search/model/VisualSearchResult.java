@@ -45,6 +45,8 @@ public interface VisualSearchResult extends NavSelectable, PropertiableFile {
     
     void setChildrenVisible(boolean childrenVisible);
     
+    void toggleChildrenVisibility();
+    
     boolean isSpam();
     
     void setSpam(boolean spam);
@@ -62,6 +64,10 @@ public interface VisualSearchResult extends NavSelectable, PropertiableFile {
     String getSubHeading();
     
     double getRelevance();
+    
+    void setShowingContextOptions(boolean showing);
+    
+    boolean isShowingContextOptions();
     
     boolean isPreExistingDownload();
     void setPreExistingDownload(boolean preExistingDownload);

@@ -12,13 +12,12 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.application.Resource;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.player.api.AudioPlayer;
 import org.limewire.player.api.AudioPlayerEvent;
 import org.limewire.player.api.AudioPlayerListener;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.listener.ActionHandListener;
 import org.limewire.ui.swing.player.PlayerUtils;
 import org.limewire.ui.swing.table.TableRendererEditor;
@@ -26,7 +25,9 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.PropertyUtils;
 
-public class PlayRendererEditor extends TableRendererEditor implements AudioPlayerListener{
+import net.miginfocom.swing.MigLayout;
+
+public class PlayRendererEditor extends TableRendererEditor implements AudioPlayerListener, Disposable {
 
     private JToggleButton playButton;
     private JLabel label;
@@ -88,6 +89,11 @@ public class PlayRendererEditor extends TableRendererEditor implements AudioPlay
 //        add(label, "growx, wmin 10");
         
         player.addAudioPlayerListener(this);
+    }
+
+    @Override
+    public void dispose() {
+        this.player.removeAudioPlayerListener(this);    
     }
 
     @Override

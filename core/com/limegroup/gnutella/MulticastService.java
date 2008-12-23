@@ -10,6 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.io.NetworkUtils;
 import org.limewire.service.ErrorService;
@@ -35,7 +37,9 @@ import com.limegroup.gnutella.messages.Message.Network;
 @Singleton
 public final class MulticastService implements Runnable {
 
-	/** 
+    private static final Log LOG = LogFactory.getLog(MulticastService.class);
+    
+    /** 
      * LOCKING: Grab the _recieveLock before receiving.  grab the _sendLock
      * before sending.  Moreover, only one thread should be wait()ing on one of
      * these locks at a time or results cannot be predicted.
@@ -112,6 +116,8 @@ public final class MulticastService implements Runnable {
      * created.
      */
     MulticastSocket newListeningSocket(int port, InetAddress group) throws IOException {
+        if(LOG.isDebugEnabled())
+            LOG.debug("Binding port " + port + ", group address " + group);
         try {
             MulticastSocket sock = new MulticastSocket(port);
             sock.setTimeToLive(3);
@@ -121,9 +127,11 @@ public final class MulticastService implements Runnable {
             return sock;
         }
         catch (SocketException se) {
+            LOG.debug("Could not bind port", se);
             throw new IOException("socket could not be set on port: "+port);
         }
         catch (SecurityException se) {
+            LOG.debug("Could not bind port", se);
             throw new IOException("security exception on port: "+port);
         }
     }
@@ -139,29 +147,28 @@ public final class MulticastService implements Runnable {
      *  return value of newListeningSocket(int).  A value of null disables 
      *  Multicast sending and receiving.
 	 */
-	void setListeningSocket(MulticastSocket multicastSocket) {
+    void setListeningSocket(MulticastSocket multicastSocket) {
         //a) Close old socket (if non-null) to alert lock holders...
-        if (_socket != null) 
+        if(_socket != null) {
+            LOG.debug("Closing socket");
             _socket.close();
+        }
         //b) Replace with new sock.  Notify the udpThread.
         synchronized (_receiveLock) {
             // if the input is null, then the service will shut off ;) .
             // leave the group if we're shutting off the service.
-            if (multicastSocket == null 
-             && _socket != null
-             && _group != null) {
+            if(multicastSocket == null && _socket != null && _group != null) {
                 try {
-                    _socket.leaveGroup(_group);
-                } catch(IOException ignored) {
-                    // ideally we would check if the socket is closed,
-                    // which would prevent the exception from happening.
-                    // but that's only available on 1.4 ... 
+                    if(!_socket.isClosed())
+                        _socket.leaveGroup(_group);
+                } catch(IOException e) {
+                    LOG.debug("Could not leave multicast group", e);
                 }                        
             }
             _socket = multicastSocket;
             _receiveLock.notify();
         }
-	}
+    }
 
 
 	/**
@@ -194,30 +201,39 @@ public final class MulticastService implements Runnable {
                         continue;
                     } 
                     catch(IOException e) {
+                        LOG.debug("Could not receive packet", e);
                         continue;
                     } 
                 }
                 // ----------------------------*                
                 // process packet....
                 // *----------------------------
-                if(!NetworkUtils.isValidAddress(datagram.getAddress()))
+                if(!NetworkUtils.isValidAddress(datagram.getAddress())) {
+                    LOG.debug("Received packet with invalid address");
                     continue;
-                if(!NetworkUtils.isValidPort(datagram.getPort()))
+                }
+                if(!NetworkUtils.isValidPort(datagram.getPort())) {
+                    LOG.debug("Received packet with invalid port");
                     continue;
+                }
                 
                 byte[] data = datagram.getData();
                 try {
                     // we do things the old way temporarily
                     InputStream in = new ByteArrayInputStream(data);
                     Message message = messageFactory.read(in, Network.MULTICAST, HEADER_BUF, datagram.getSocketAddress());
-                    if(message == null)
+                    if(message == null) {
+                        LOG.debug("Received a null message");
                         continue;
+                    }
                     messageDispatcher.get().dispatchMulticast(message, (InetSocketAddress)datagram.getSocketAddress());
                 }
                 catch (IOException e) {
+                    LOG.debug("Could not parse packet", e);
                     continue;
                 }
                 catch (BadPacketException e) {
+                    LOG.debug("Could not parse packet", e);
                     continue;
                 }
                 // ----------------------------*
@@ -235,7 +251,9 @@ public final class MulticastService implements Runnable {
 	 */
     public synchronized void send(Message msg) {
         // only send the msg if we've initialized the port.
-        if( _port != -1 ) {
+        if(_port == -1) {
+            LOG.debug("Socket not ready for writing");
+        } else {
             udpService.get().send(msg, _group, _port);
         }
 	}
@@ -248,8 +266,14 @@ public final class MulticastService implements Runnable {
 	 *  Multicast messages, <tt>false</tt> otherwise
 	 */
 	public boolean isListening() {
-		if(_socket == null) return false;
-		return (_socket.getLocalPort() != -1);
+		int port = -1;
+        if(_socket != null)
+            port = _socket.getLocalPort();
+        if(port == -1) {
+            LOG.debug("Not listening");
+            return false;
+        }
+        return true;
 	}
 
 	/** 

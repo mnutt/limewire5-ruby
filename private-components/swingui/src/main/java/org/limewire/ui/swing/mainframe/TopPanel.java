@@ -1,6 +1,5 @@
 package org.limewire.ui.swing.mainframe;
 
-import java.awt.Color;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,10 +25,10 @@ import org.limewire.core.api.search.SearchListener;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.api.search.friend.FriendAutoCompleters;
 import org.limewire.core.api.search.sponsored.SponsoredResult;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.FancyTabList;
 import org.limewire.ui.swing.components.FancyTabListFactory;
 import org.limewire.ui.swing.components.IconButton;
-import org.limewire.ui.swing.components.Line;
 import org.limewire.ui.swing.components.NoOpAction;
 import org.limewire.ui.swing.components.SearchBar;
 import org.limewire.ui.swing.components.TabActionMap;
@@ -41,7 +40,7 @@ import org.limewire.ui.swing.nav.NavSelectable;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.nav.NavigatorUtils;
 import org.limewire.ui.swing.painter.BarPainterFactory;
-import org.limewire.ui.swing.painter.SearchTabSelectionPainter;
+import org.limewire.ui.swing.painter.SearchTabPainterFactory;
 import org.limewire.ui.swing.search.SearchHandler;
 import org.limewire.ui.swing.search.SearchNavItem;
 import org.limewire.ui.swing.search.SearchNavigator;
@@ -75,7 +74,8 @@ class TopPanel extends JXPanel implements SearchNavigator {
                     final LeftPanel leftPanel,
                     SearchBar searchBar,
                     FancyTabListFactory fancyTabListFactory,
-                    BarPainterFactory barPainterFactory) {        
+                    BarPainterFactory barPainterFactory,
+                    SearchTabPainterFactory tabPainterFactory) {        
         GuiUtils.assignResources(this);
         
         this.searchBar = searchBar;        
@@ -150,22 +150,15 @@ class TopPanel extends JXPanel implements SearchNavigator {
         searchList.setCloseOneText(I18n.tr("Close search"));
         searchList.setCloseOtherText(I18n.tr("Close other searches"));
         searchList.setRemovable(true);
-        searchList.setSelectionPainter(new SearchTabSelectionPainter());
-        searchList.setHighlightPainter(null);
-        searchList.setTabInsets(new Insets(0,10,3,10));
+        searchList.setSelectionPainter(tabPainterFactory.createSelectionPainter());
+        searchList.setHighlightPainter(tabPainterFactory.createHighlightPainter());
+        searchList.setTabInsets(new Insets(0,10,2,10));
 
-        Line line = Line.createVerticalLine(Color.GRAY);
-        Line lineShadow = Line.createVerticalLine(Color.WHITE);
-        
         setLayout(new MigLayout("gap 0, insets 0, filly, alignx leading"));        
-        add(homeButton, "gaptop 2");
-        add(storeButton, "gaptop 2");
-        add(line, "growy, gapleft 5, gaptop 4, gapbottom 3");
-        add(lineShadow, "growy, gaptop 4, gapbottom 3");
-        add(libraryButton, "gaptop 2, gapleft 8");
-        
+        add(homeButton, "gapbottom 2, gaptop 0");
+        add(storeButton, "gapbottom 2, gaptop 0");
 
-        add(searchBar, "gapleft 15");
+        add(searchBar, "gapleft 70, gapbottom 2, gaptop 0");
         add(searchList, "gapleft 10, gaptop 3, gapbottom 1, growy");
         
         // Do not show store if mozilla failed to load.
@@ -181,7 +174,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
 
     @Override
     public SearchNavItem addSearch(
-        String title, JComponent searchPanel, final Search search) {
+        String title, final JComponent searchPanel, final Search search) {
         
         final NavItem item = navigator.createNavItem(
             NavCategory.SEARCH, title, searchPanel);
@@ -189,13 +182,9 @@ class TopPanel extends JXPanel implements SearchNavigator {
         search.addSearchListener(action);
 
         final Action moreTextAction = new NoOpAction();
-        final Action repeat = new AbstractAction(I18n.tr("Repeat search")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                search.repeat();
-            }
-        };
-        
+        final RepeatSearchAction repeat = new RepeatSearchAction(search);
+        search.addSearchListener(repeat);
+
         final TabActionMap actionMap = new TabActionMap(
             action, action, moreTextAction, Collections.singletonList(repeat));
         
@@ -206,6 +195,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
             public void itemRemoved() {
                 searchList.removeTabActionMap(actionMap);
                 search.stop();
+                ((Disposable)searchPanel).dispose();
             }
 
             @Override
@@ -340,5 +330,35 @@ class TopPanel extends JXPanel implements SearchNavigator {
                 }
             });
         }
+    }
+
+    /**
+     * Action which repeats a search.  Since it makes no sense to
+     * repeat an unstarted search, this class only enables searches to be
+     * repeated if they have already started.
+     */
+    private class RepeatSearchAction extends AbstractAction implements SearchListener {
+
+        private final Search search;
+
+        RepeatSearchAction(Search search) {
+            super(I18n.tr("Repeat search"));
+            this.search = search;
+            setEnabled(false);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            search.repeat();
+        }
+
+        @Override
+        public void searchStarted() {
+            setEnabled(true);
+        }
+
+        @Override public void searchStopped() { }
+        @Override public void handleSponsoredResults(List<SponsoredResult> sponsoredResults) { }
+        @Override public void handleSearchResult(SearchResult searchResult) {}
     }
 }

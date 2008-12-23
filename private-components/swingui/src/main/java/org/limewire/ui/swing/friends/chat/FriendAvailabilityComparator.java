@@ -4,6 +4,17 @@ import java.util.Comparator;
 
 import org.limewire.util.Objects;
 
+/**
+ * Sorter for ChatFriends according to the following rules:
+ * a) The buddies will be sorted by status first 
+ *   - Chatting 
+ *   - Available 
+ *   - Do Not Disturb 
+ *   - Idle 
+ * b) Within the available, idle and away groups they will be sorted again alphabetically (a-z). 
+ * c) Within the chatting status, they will be sorted in the order in which the conversations
+ *    started (first to last chat)
+ */
 class FriendAvailabilityComparator implements Comparator<ChatFriend> {
 
     @Override

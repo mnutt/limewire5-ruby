@@ -13,12 +13,14 @@ import org.limewire.collection.CollectionUtils;
 import org.limewire.collection.Comparators;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.core.settings.MessageSettings;
+
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.lifecycle.Service;
 import org.limewire.statistic.StatsUtils;
 import org.limewire.util.RPNParser;
+
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -52,7 +54,7 @@ class FileManagerImpl implements FileManager, Service {
     
     /** The background executor. */
     private final ScheduledExecutorService backgroundExecutor;
-    
+
 	/**
 	 * Creates a new <tt>FileManager</tt> instance.
 	 */
@@ -62,12 +64,6 @@ class FileManagerImpl implements FileManager, Service {
         this.managedFileList = managedFileList;
         this.sharedFileList = new GnutellaFileListImpl(managedFileList.getLibraryData(), managedFileList);
         this.incompleteFileList = new IncompleteFileListImpl(managedFileList);
-        
-        synchronized(this) {
-            for(String name : LibrarySettings.SHARED_FRIEND_LIST_NAMES.getValue()) {
-                friendFileLists.put(name, new FriendFileListImpl(managedFileList.getLibraryData(), managedFileList, name));
-            }
-        }
     }
 
     @Override
@@ -146,6 +142,22 @@ class FileManagerImpl implements FileManager, Service {
             friendFileLists.remove(name);
             LibrarySettings.removeFriendListName(name);
         }
+    }
+
+
+    public void unloadFilesForFriend(String friendName) {
+        FriendFileListImpl removeFileList = null;
+
+        synchronized (this) {
+            removeFileList = friendFileLists.get(friendName);
+
+            if (removeFileList == null) {
+                return;
+            }
+            friendFileLists.remove(friendName);
+        }
+        removeFileList.unload();
+
     }
 
     @Override

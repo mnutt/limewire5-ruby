@@ -37,7 +37,7 @@ public class ListViewTableFormat extends ResultsTableFormat<VisualSearchResult> 
     }
 
     @Override
-    public boolean isColumnHiddenAtStartup(int column) {
+    public boolean isVisibleAtStartup(int column) {
         return false;
     }
 

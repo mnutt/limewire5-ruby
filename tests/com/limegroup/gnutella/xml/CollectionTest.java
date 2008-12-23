@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -117,9 +118,9 @@ public class CollectionTest extends LimeTestCase {
         assertNotNull(files[TEST2_IDX].getXMLDocument(audioSchemaURI));
 
         // test keyword generation
-        List keywords = collection.getKeyWords();
+        List keywords = getKeywords(audioSchemaURI);
 
-        assertEquals("Wrong keywords: " + keywords.toString(), 8, keywords.size());
+        assertEquals("Wrong keywords: " + keywords.toString(), 7, keywords.size());
 
         //Note: the Test1 and Test2 both contain the keyword "Movie", so we
         //check only 7 keywords while there are 8 entries
@@ -154,7 +155,7 @@ public class CollectionTest extends LimeTestCase {
         }
 
         // test keyword generation
-        List keywords = collection.getKeyWords();
+        List keywords = getKeywords(videoSchemaURI);
         assertEquals("Wrong keyword count!", 0,  keywords.size());
     }
 
@@ -288,8 +289,8 @@ public class CollectionTest extends LimeTestCase {
 
 
         // test keyword generation
-        List<String> keywords = audioCollection.getKeyWords();
-        assertEquals("Wrong keyword count!", 8, keywords.size());
+        List<String> keywords = getKeywords(audioSchemaURI);
+        assertEquals("Wrong keyword count!", 7, keywords.size());
         assertTrue("Correct keywords not in map!", 
                           (keywords.contains("othertfield") && 
                            keywords.contains("otherafield")  &&
@@ -299,7 +300,7 @@ public class CollectionTest extends LimeTestCase {
                            keywords.contains("Vocal") &&
                            keywords.contains("Movie") )
                           );
-        keywords = videoCollection.getKeyWords();
+        keywords = getKeywords(videoSchemaURI);
         assertEquals("Wrong keyword count!", 4, keywords.size());
         assertTrue("Correct keywords not in map!", 
                           (keywords.contains("null") && 
@@ -331,7 +332,7 @@ public class CollectionTest extends LimeTestCase {
         collection.addReply(files[1], newDoc2);
 
         //check the keywords.
-        List l = collection.getKeyWords();
+        List l = getKeywords(videoSchemaURI);
         assertTrue("Couldn't find all keywords",
                    (l.contains(keywds[0]) &&
                     l.contains(keywds[1]) &&
@@ -370,9 +371,22 @@ public class CollectionTest extends LimeTestCase {
         assertEquals("should not of found a match", 0, matchingReplies.size());
         
         //make sure the keywords got deleted as well
-        l = collection.getKeyWords();
+        l = getKeywords(videoSchemaURI);
         assertTrue("unexpected keywords",
                    l.contains(keywds[0]) && l.contains(keywds[1]) && !l.contains(keywds[2]));
+    }
+    
+    private List<String> getKeywords(String schema) {
+        Set<String> words = new HashSet<String>();
+        for(FileDesc fd : files) {
+            if(fd != null) {
+                LimeXMLDocument doc = fd.getXMLDocument(schema);
+                if(doc != null) {
+                    words.addAll(doc.getKeyWords());
+                }
+            }
+        }
+        return new ArrayList<String>(words);
     }
 
     // build xml string for video

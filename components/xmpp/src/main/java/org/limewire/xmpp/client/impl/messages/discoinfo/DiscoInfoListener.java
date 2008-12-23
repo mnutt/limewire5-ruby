@@ -55,6 +55,11 @@ public class DiscoInfoListener implements PacketListener, FeatureRegistry {
     }
 
     @Override
+    public FeatureInitializer get(URI uri) {
+        return featureInitializerMap.get(uri);
+    }
+
+    @Override
     public void processPacket(Packet packet) {
         DiscoverInfo discoverInfo = (DiscoverInfo)packet;
         User user = connection.getUser(StringUtils.parseBareAddress(discoverInfo.getFrom()));

@@ -1,9 +1,9 @@
-/.cvsignore/1.1/Mon Jan 13 04:51:14 2003//
-/ControlRequestAcceptor.java/1.6/Wed Feb  6 23:32:29 2008//
-/ExternalControl.java/1.64/Thu Nov 27 05:00:37 2008//
-/HTTPHandler.java/1.12/Tue Sep  2 22:36:18 2008//
-/LocalAcceptor.java/1.6/Tue May 27 16:49:59 2008//
 /LocalHTTPAcceptor.java/1.7/Sat Oct 25 23:15:23 2008//
-/MagnetHTML.java/1.4/Fri Jan  9 20:13:35 2004//
-/MagnetOptions.java/1.24/Wed Dec  3 22:02:04 2008//
+/.cvsignore/1.1/Wed Dec 17 01:21:20 2008//
+/ControlRequestAcceptor.java/1.6/Wed Dec 17 01:21:20 2008//
+/ExternalControl.java/1.64/Wed Dec 17 01:21:20 2008//
+/HTTPHandler.java/1.12/Wed Dec 17 01:21:20 2008//
+/LocalAcceptor.java/1.6/Wed Dec 17 01:21:20 2008//
+/MagnetHTML.java/1.4/Wed Dec 17 01:21:20 2008//
+/MagnetOptions.java/1.24/Wed Dec 17 01:21:20 2008//
 D

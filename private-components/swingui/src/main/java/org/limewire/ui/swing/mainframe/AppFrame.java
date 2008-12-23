@@ -3,6 +3,7 @@ package org.limewire.ui.swing.mainframe;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -44,6 +45,7 @@ import org.limewire.ui.swing.tray.TrayNotifier;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.SaveDirectoryHandler;
 import org.limewire.ui.swing.wizard.SetupWizard;
+import org.limewire.util.OSUtils;
 import org.mozilla.browser.MozillaInitialization;
 import org.mozilla.browser.MozillaInitialization.InitStatus;
 
@@ -105,7 +107,8 @@ public class AppFrame extends SingleFrameApplication {
         changeSessionStorage(getContext(), new NullSessionStorage(getContext()));
         
         GuiUtils.assignResources(this);        
-        initColors();
+
+        initUIDefaults();
         
         // Because we use a browser heavily, which is heavyweight,
         // we must disable all lightweight popups.
@@ -113,9 +116,6 @@ public class AppFrame extends SingleFrameApplication {
             JPopupMenu.setDefaultLightWeightPopupEnabled(false);
             ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
         }
-        
-        // Necessary to allow popups to behave normally.
-        UIManager.put("PopupMenu.consumeEventOnClose", false);
         
         isStartup = args.length > 0 && STARTUP.equals(args[0]);
     }
@@ -205,6 +205,7 @@ public class AppFrame extends SingleFrameApplication {
     @EventSubscriber
     public void handleShowOptionsDialog(OptionsDisplayEvent event) {
         if (!options.isVisible()) {
+            options.initOptions();
             options.setLocationRelativeTo(GuiUtils.getMainFrame());
             options.setVisible(true);
         }
@@ -269,12 +270,51 @@ public class AppFrame extends SingleFrameApplication {
     public static void main(String[] args) {
         launch(AppFrame.class, args);
     }
-
+    
     /**
-     * Changes all default background colors equal to Panel.background to the
+     * Sets the custom default UI colour and behaviour properties
+     */
+    private void initUIDefaults() {
+       
+        if (OSUtils.isAnyMac()) {
+            initMacUIDefaults();
+        }
+        
+        initBackgrounds();
+        
+        // Set the menu item highlight colours
+        Paint highlightBackground = new Color(0xdaf2b5);
+        UIManager.put("Menu.selectionBackground", highlightBackground);
+        UIManager.put("MenuItem.selectionBackground", highlightBackground);
+        UIManager.put("CheckBoxMenuItem.selectionBackground", highlightBackground);
+        UIManager.put("RadioButtonMenuItem.selectionBackground", highlightBackground);
+        
+        // Set the menu item highlight colours to avoid contrast issues with
+        //  new highlight background in default XP theme
+        Color highlightForeground = Color.BLACK;
+        UIManager.put("Menu.selectionForeground", highlightForeground);
+        UIManager.put("MenuItem.selectionForeground", highlightForeground);
+        UIManager.put("CheckBoxMenuItem.selectionForeground", highlightForeground);
+        UIManager.put("RadioButtonMenuItem.selectionForeground", highlightForeground);
+        
+        // Necessary to allow popups to behave normally.
+        UIManager.put("PopupMenu.consumeEventOnClose", false);
+    }
+    
+    /**
+     * Sets some mac only UI settings.
+     */
+    private void initMacUIDefaults() {
+        UIManager.put("MenuItemUI", "javax.swing.plaf.basic.BasicMenuItemUI");
+        UIManager.put("CheckBoxMenuItemUI", "javax.swing.plaf.basic.BasicCheckBoxMenuItemUI");
+        UIManager.put("RadioButtonMenuItemUI", "javax.swing.plaf.basic.BasicRadioButtonMenuItemUI");
+    }
+        
+    /**
+     * Changes all default background colors that are equal to Panel.background to the
      * bgColor set in properties. Also sets Table.background.
      */
-    private void initColors() {
+    private void initBackgrounds() {
         ColorUIResource bgColorResource = new ColorUIResource(bgColor);
         Color oldBgColor = UIManager.getDefaults().getColor("Panel.background");
         UIDefaults uiDefaults = UIManager.getDefaults();

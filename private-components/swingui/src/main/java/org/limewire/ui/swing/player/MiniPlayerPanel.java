@@ -16,11 +16,14 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
+import org.limewire.core.api.Category;
 import org.limewire.player.api.AudioPlayer;
 import org.limewire.player.api.AudioPlayerEvent;
 import org.limewire.player.api.AudioPlayerListener;
+import org.limewire.player.api.AudioSource;
 import org.limewire.player.api.PlayerState;
 import org.limewire.ui.swing.components.MarqueeButton;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.CommonUtils;
@@ -48,11 +51,15 @@ public class MiniPlayerPanel extends JPanel {
 
     private MarqueeButton statusButton;
     
-    private AudioPlayer player;
+    private final AudioPlayer player;
+    private final LibraryNavigator libraryNavigator;
 
-    public MiniPlayerPanel(AudioPlayer player) {
+    public MiniPlayerPanel(AudioPlayer player, LibraryNavigator libraryNavigator) {
         GuiUtils.assignResources(this);
+        
         this.player = player;
+        this.libraryNavigator = libraryNavigator;
+        
         setLayout(new MigLayout("insets 0", "4[][]", "0[]0"));
         setOpaque(false);
 
@@ -88,7 +95,11 @@ public class MiniPlayerPanel extends JPanel {
     private class ShowPlayerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            new DisplayPlayerEvent().publish();
+            AudioSource currentSource = player.getCurrentSong();
+            
+            if (currentSource != null) { 
+                libraryNavigator.selectInLibrary(currentSource.getFile(), Category.AUDIO);
+            }
         }
     }
     

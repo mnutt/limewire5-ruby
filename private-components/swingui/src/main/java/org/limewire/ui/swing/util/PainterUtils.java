@@ -70,6 +70,10 @@ public class PainterUtils {
         
     }
     
+    public static Color appendAlpha(Color c, double opacity) {
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), (int) Math.round(opacity*255));
+    }
+    
     /**
      * Simplifies a paint to a colour.  If the paint is already a colour
      * then simply cast.  If it is a gradient then return the second point.

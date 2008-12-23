@@ -1,19 +1,19 @@
-/SwarmBlockSelector.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmBlockVerifier.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmContent.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmCoordinator.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmCoordinatorListener.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmFile.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmFileSystem.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmSource.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmSourceDownloader.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmSourceListener.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmSourceType.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmStatus.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmWriteJob.java/1.2/Tue Sep  2 22:36:18 2008//
-/SwarmWriteJobControl.java/1.2/Tue Sep  2 22:36:18 2008//
-/Swarmer.java/1.2/Tue Sep  2 22:36:18 2008//
-/VerificationException.java/1.2/Tue Sep  2 22:36:18 2008//
 D/file////
 D/http////
 D/impl////
+/SwarmBlockSelector.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmBlockVerifier.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmContent.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmCoordinator.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmCoordinatorListener.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmFile.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmFileSystem.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmSource.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmSourceDownloader.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmSourceListener.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmSourceType.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmStatus.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmWriteJob.java/1.2/Wed Dec 17 01:21:20 2008//
+/SwarmWriteJobControl.java/1.2/Wed Dec 17 01:21:20 2008//
+/Swarmer.java/1.2/Wed Dec 17 01:21:20 2008//
+/VerificationException.java/1.2/Wed Dec 17 01:21:20 2008//

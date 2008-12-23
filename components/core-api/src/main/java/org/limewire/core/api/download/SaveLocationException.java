@@ -51,6 +51,15 @@ public class SaveLocationException extends IOException {
 	 */
 	private final File file;
 	
+	/**
+	 * Constructs a SaveLocationException with the specified cause and file.
+	 */
+	public SaveLocationException(IOException cause, File file) {
+	    super(cause);
+	    this.errorCode = LocationCode.FILESYSTEM_ERROR;
+	    this.file = file;
+	}
+	
 	public SaveLocationException(LocationCode errorCode, File file) {
 		super("error code " + errorCode + ", file " + file);
 		this.errorCode = errorCode;

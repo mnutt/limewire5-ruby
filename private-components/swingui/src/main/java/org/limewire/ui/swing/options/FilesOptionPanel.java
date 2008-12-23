@@ -12,7 +12,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -20,11 +19,13 @@ import org.limewire.core.api.daap.DaapManager;
 import org.limewire.core.settings.DaapSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.ui.swing.components.FocusJOptionPane;
+import org.limewire.ui.swing.components.LabelTextField;
 import org.limewire.ui.swing.options.actions.BrowseDirectoryAction;
 import org.limewire.ui.swing.options.actions.CancelDialogAction;
 import org.limewire.ui.swing.options.actions.DialogDisplayAction;
 import org.limewire.ui.swing.options.actions.OKDialogAction;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.IconManager;
 
 import com.google.inject.Inject;
 
@@ -36,6 +37,7 @@ public class FilesOptionPanel extends OptionPanel {
     private final ManageSaveFoldersOptionPanelFactory manageFoldersOptionPanelFactory;
     private final ManageFileExtensionsOptionPanel manageFileExtensionsOptionPanel;
     private final DaapManager daapManager;
+    private final IconManager iconManager;
     
     private ManageExtensionsPanel manageExtensionsPanel;
     private SaveFoldersPanel saveFoldersPanel;
@@ -44,11 +46,13 @@ public class FilesOptionPanel extends OptionPanel {
     
     @Inject
     FilesOptionPanel(ManageSaveFoldersOptionPanelFactory manageFoldersOptionPanelFactory, 
-            ManageFileExtensionsOptionPanel manageFileExtensionsOptionPanel, DaapManager daapManager) { 
+            ManageFileExtensionsOptionPanel manageFileExtensionsOptionPanel, DaapManager daapManager,
+            IconManager iconManager) { 
         
         this.manageFoldersOptionPanelFactory = manageFoldersOptionPanelFactory;
         this.manageFileExtensionsOptionPanel = manageFileExtensionsOptionPanel;
         this.daapManager = daapManager;
+        this.iconManager = iconManager;
         
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
     
@@ -187,7 +191,7 @@ public class FilesOptionPanel extends OptionPanel {
         private String currentSaveDirectory;
         private LWSFileNamingOptionPanel storeOptionPanel;
         
-        private JTextField storePathTextField;
+        private LabelTextField storePathTextField;
         private JButton browseStorePathButton;
         private JButton configureNamingButton;
         
@@ -197,9 +201,12 @@ public class FilesOptionPanel extends OptionPanel {
             storeOptionPanel = new LWSFileNamingOptionPanel(new OKDialogAction(), new CancelDialogAction());
             storeOptionPanel.setPreferredSize(new Dimension(350, 140));
             
-            storePathTextField = new JTextField(40);
+            storePathTextField = new LabelTextField(iconManager);
             storePathTextField.setEditable(false);
-            browseStorePathButton = new JButton(new BrowseDirectoryAction(FilesOptionPanel.this, storePathTextField));
+            
+            BrowseDirectoryAction directoryAction = new BrowseDirectoryAction(FilesOptionPanel.this, storePathTextField);
+            storePathTextField.addMouseListener(directoryAction);
+            browseStorePathButton = new JButton(directoryAction);
             configureNamingButton = new JButton(new DialogDisplayAction(FilesOptionPanel.this,
                     storeOptionPanel,I18n.tr("LimeWire Store File Organization"),
                     I18n.tr("Configure file naming..."),I18n.tr("Configure how files are automatically named")));
@@ -322,7 +329,7 @@ public class FilesOptionPanel extends OptionPanel {
             }
             
             //enable daap setting
-            DaapSettings.DAAP_ENABLED.setValue(requirePassWordCheckBox.isSelected());
+            DaapSettings.DAAP_ENABLED.setValue(shareWithITunesCheckBox.isSelected());
             
             //save password value
             if (!DaapSettings.DAAP_PASSWORD.equals(password)) {
@@ -374,13 +381,14 @@ public class FilesOptionPanel extends OptionPanel {
 
         @Override
         public void initOptions() {
-            shareWithITunesCheckBox.setSelected(DaapSettings.DAAP_ENABLED.getValue() && 
-                    daapManager.isServerRunning());
+            shareWithITunesCheckBox.setSelected(DaapSettings.DAAP_ENABLED.getValue());
 
             requirePassWordCheckBox.setSelected(DaapSettings.DAAP_REQUIRES_PASSWORD.getValue());
             if(requirePassWordCheckBox.isSelected()) {
                 passwordField.setText(DaapSettings.DAAP_PASSWORD.getValue());
             }
+            
+            setPasswordVisible(shareWithITunesCheckBox.isSelected());
         }
         
         private void setPasswordVisible(boolean value) {

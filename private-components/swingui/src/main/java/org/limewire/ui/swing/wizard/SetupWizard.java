@@ -23,12 +23,16 @@ public class SetupWizard {
     }
     
     public boolean shouldShowWizard() {
-        return needsPage1() || needsPage2();
+        return needsPage1() || needsPage2() || needsUpgrade();
     }
     
     public void showDialogIfNeeded(Frame owner) {
         if (shouldShowWizard()) {
             wizard.showDialogIfNeeded(owner);
+            
+            // Sets the upgraded flag after the setup wizard
+            //  completes
+            InstallSettings.UPGRADED_TO_5.setValue(true);
         }
     }
         
@@ -43,9 +47,17 @@ public class SetupWizard {
             wizard.addPage(new SetupPage1(decorator));
         }        
 
-        if(needsPage2()){
+        if (needsUpgrade()) {
+            wizard.addPage(new UpgradePage1(decorator, libraryData));
+        } 
+        else if(needsPage2()){
             wizard.addPage(new SetupPage2(decorator, libraryData));
         }
+    }
+    
+    private boolean needsUpgrade() {
+        return !InstallSettings.UPGRADED_TO_5.getValue() 
+            && InstallSettings.SCAN_FILES.getValue();
     }
     
     private boolean needsPage1() {

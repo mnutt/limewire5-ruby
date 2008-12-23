@@ -6,12 +6,12 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.font.FontRenderContext;
 import java.io.File;
 import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
@@ -35,12 +35,14 @@ import org.limewire.player.api.AudioPlayerListener;
 import org.limewire.player.api.PlayerState;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeSliderBarFactory;
+import org.limewire.ui.swing.components.MarqueeButton;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.painter.BorderPainter;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.ResizeUtils;
 
 import com.google.inject.Inject;
 
@@ -90,7 +92,7 @@ public class PlayerPanel extends JXPanel {
     private final JPopupMenu volumeControlPopup;
     private final JSlider volumeSlider; 
     
-    private final JLabel titleLabel;
+    private final MarqueeButton titleLabel;
     
     private final AudioPlayer player;
     private final LibraryNavigator libraryNavigator;
@@ -170,13 +172,11 @@ public class PlayerPanel extends JXPanel {
         
         statusPanel = new JPanel(new MigLayout());
         
-        titleLabel = new JLabel("Stopped");
+        titleLabel = new MarqueeButton("Stopped", 150);
         titleLabel.setFont(font);
-        titleLabel.setMaximumSize(new Dimension(206, (int)titleLabel.getMaximumSize().getHeight()));
-        titleLabel.setMinimumSize(new Dimension(206, (int)titleLabel.getMinimumSize().getHeight()));
-        titleLabel.setPreferredSize(new Dimension(206, (int)titleLabel.getPreferredSize().getHeight()));
-        titleLabel.setSize(new Dimension(206, (int)titleLabel.getSize().getHeight()));
-        titleLabel.setVisible(false);
+
+        ResizeUtils.forceSize(titleLabel, new Dimension(206, (int)
+                font.getMaxCharBounds(new FontRenderContext(null, false, false)).getHeight()));
         
         statusPanel.add(titleLabel);
         statusPanel.add(progressSlider, "dock south");
@@ -285,8 +285,14 @@ public class PlayerPanel extends JXPanel {
                 }
                 else {
                     player.stop();
-                    player.loadSong(file);
-                    player.playSong();
+                    
+                    // If somehow the user is able to press the back button
+                    //  when no song is loaded do not attempt to load an empty
+                    //  deck
+                    if (file != null) {
+                        player.loadSong(file);
+                        player.playSong();
+                    }
                 }
             } else if (e.getActionCommand() == VOLUME) {
                 if (System.currentTimeMillis() - menuInvizTime > 250f) {
@@ -381,6 +387,8 @@ public class PlayerPanel extends JXPanel {
             
            volumeController.resetVolume();
            titleLabel.setText(songText);
+           titleLabel.setToolTipText(songText);
+           titleLabel.start();
         
            Object duration = properties.get("duration");
            if (duration != null) {
@@ -399,7 +407,6 @@ public class PlayerPanel extends JXPanel {
                byteLength = 0;
            }
                       
-           titleLabel.setVisible(true);
            innerPanel.setVisible(true);
         }
 

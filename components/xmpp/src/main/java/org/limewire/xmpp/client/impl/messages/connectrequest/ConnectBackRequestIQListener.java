@@ -54,6 +54,11 @@ public class ConnectBackRequestIQListener implements PacketListener {
         public void initializeFeature(FriendPresence friendPresence) {
             friendPresence.addFeature(new ConnectBackRequestFeature());
         }
+
+        @Override
+        public void removeFeature(FriendPresence friendPresence) {
+            friendPresence.removeFeature(ConnectBackRequestFeature.ID);
+        }
     }
 
 }

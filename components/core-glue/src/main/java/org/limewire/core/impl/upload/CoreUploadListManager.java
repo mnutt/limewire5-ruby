@@ -12,6 +12,7 @@ import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadListManager;
 import org.limewire.core.api.upload.UploadState;
+import org.limewire.core.settings.SharingSettings;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -24,7 +25,6 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.UploadServices;
 import com.limegroup.gnutella.Uploader;
-import com.limegroup.gnutella.Uploader.UploadStatus;
 
 @Singleton
 public class CoreUploadListManager implements UploadListener, UploadListManager{
@@ -109,7 +109,7 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
 
     @Override
     public void uploadAdded(Uploader uploader) {
-        if (uploader.getState() != UploadStatus.BROWSE_HOST) {
+        if (!uploader.getUploadType().isInternal()) {
             UploadItem item = new CoreUploadItem(uploader);
             uploadItems.add(item);
             item.addPropertyChangeListener(new UploadPropertyListener(item));
@@ -118,8 +118,10 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
 
     @Override
     public void uploadRemoved(Uploader uploader) {
-        // ignore this. it is called when uploads complete.
-        // uploadItems.remove(new CoreUploadItem(uploader));
+        // This is called when uploads complete.  Remove if auto-clear is enabled.
+        if (new CoreUploadItem(uploader).getState() == UploadState.DONE && SharingSettings.CLEAR_UPLOAD.getValue()) {
+            uploadItems.remove(new CoreUploadItem(uploader));
+        }
     }
     
     @Override

@@ -215,7 +215,7 @@ public class DownloadTHEXTest extends DownloadTestCase {
             
             waitForComplete();
         } finally {
-            download.stop();
+            download.stop(false);
         }
     }
     

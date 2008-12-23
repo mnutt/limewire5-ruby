@@ -10,9 +10,9 @@ import org.limewire.ui.swing.util.PropertiableHeadings;
 public abstract class AbstractPropertiableFileDialog extends Dialog {
     private final PropertiableHeadings propertiableHeadings;
     
-    public AbstractPropertiableFileDialog(PropertiableHeadings propertiableHeadings, DialogParam dialogParam) {
+    public AbstractPropertiableFileDialog(DialogParam dialogParam) {
         super(dialogParam);
-        this.propertiableHeadings = propertiableHeadings;
+        this.propertiableHeadings = dialogParam.getPropertiableHeadings();
     }
 
     protected void populateCommonFields(final PropertiableFile propertiable) {

@@ -31,11 +31,11 @@ import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.ui.swing.dnd.FriendLibraryNavTransferHandler;
+import org.limewire.ui.swing.components.Disposable;
+import org.limewire.ui.swing.dnd.LocalFileListTransferHandler;
 import org.limewire.ui.swing.dnd.MyLibraryNavTransferHandler;
 import org.limewire.ui.swing.friends.login.FriendsSignInPanel;
 import org.limewire.ui.swing.library.AllFriendsLibraryPanel;
-import org.limewire.ui.swing.library.Disposable;
 import org.limewire.ui.swing.library.FriendLibraryMediator;
 import org.limewire.ui.swing.library.FriendLibraryMediatorFactory;
 import org.limewire.ui.swing.library.MyLibraryPanel;
@@ -48,12 +48,11 @@ import org.limewire.ui.swing.nav.NavigatorUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
-import ca.odell.glazedlists.EventList;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import ca.odell.glazedlists.EventList;
 import net.miginfocom.swing.MigLayout;
 
 @Singleton
@@ -123,7 +122,7 @@ class LibraryNavigatorImpl extends JXPanel implements LibraryNavigator {
         });
         
         p2pNetwork = initializePanel(I18n.tr("P2P Network"), p2pNetworkSharingPanel, "LibraryNavigator.p2pNetwork");
-        p2pNetwork.setTransferHandler(new FriendLibraryNavTransferHandler(shareListManager.getGnutellaShareList()));
+        p2pNetwork.setTransferHandler(new LocalFileListTransferHandler(shareListManager.getGnutellaShareList()));
         
         allFriends = initializePanel(I18n.tr("All Friends"), allFriendsLibraryPanel, "LibraryNavigator.allFriends");
 
@@ -368,7 +367,7 @@ class LibraryNavigatorImpl extends JXPanel implements LibraryNavigator {
         });
         navPanel.getInputMap(WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), NavKeys.MOVE_DOWN);
         navPanel.getInputMap(WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), NavKeys.MOVE_UP);
-        navPanel.setTransferHandler(new FriendLibraryNavTransferHandler(shareListManager.getOrCreateFriendShareList(friend)));
+        navPanel.setTransferHandler(new LocalFileListTransferHandler(shareListManager.getOrCreateFriendShareList(friend)));
         
         return navPanel;
     }

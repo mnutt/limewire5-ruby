@@ -40,24 +40,19 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
 
         //2. Keyword-based techniques.
         String[] badWords = FilterSettings.BANNED_WORDS.getValue();
+        String[] badExtensions = FilterSettings.BANNED_EXTENSIONS.getValue();
         
         boolean filterAdult = FilterSettings.FILTER_ADULT.getValue();
-        boolean filterVbs = FilterSettings.FILTER_VBS.getValue();
-        boolean filterHtml = FilterSettings.FILTER_HTML.getValue();
-        boolean filterWMVASF = FilterSettings.FILTER_WMV_ASF.getValue();
         
-        if (badWords.length!=0 || filterAdult || filterVbs || filterHtml) {
+        if (badWords.length!=0 || badExtensions.length!=0 || filterAdult) {
             KeywordFilter kf=new KeywordFilter();
-            for (int i=0; i<badWords.length; i++)
-                kf.disallow(badWords[i]);
+            for (String badWord : badWords)
+                kf.disallow(badWord);
+            for (String badExt : badExtensions)
+                kf.disallow(badExt);
             if (filterAdult)
                 kf.disallowAdult();
-            if (filterVbs)
-                kf.disallowVbs();
-            if (filterHtml)
-                kf.disallowHtml();
-            if (filterWMVASF)
-                kf.disallowWMVASF();
+
             buf.add(kf);
         }
 

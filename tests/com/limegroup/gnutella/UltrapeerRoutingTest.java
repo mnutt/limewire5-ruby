@@ -307,7 +307,7 @@ public final class UltrapeerRoutingTest extends LimeTestCase {
 		
 		//2. Check that replies are routed back.
 		BlockingConnectionUtils.drain(LEAF);
-		Response response1=responseFactory.createResponse(0L, 0L, "response1.txt");
+		Response response1=responseFactory.createResponse(0L, 0L, "response1.txt", UrnHelper.SHA1);
 		byte[] clientGUID = GUID.makeGuid();
 		QueryReply reply1=queryReplyFactory.createQueryReply(qr.getGUID(), (byte)2, 6346,
                 IP, 56, new Response[] {response1}, clientGUID, false);
@@ -319,7 +319,7 @@ public final class UltrapeerRoutingTest extends LimeTestCase {
 				   Arrays.equals(clientGUID, replyRead.getClientGUID()));
 		
 		BlockingConnectionUtils.drain(LEAF);
-		Response response2 = responseFactory.createResponse(0l, 0l, "response2.txt");
+		Response response2 = responseFactory.createResponse(0l, 0l, "response2.txt", UrnHelper.SHA1);
 		byte[] guid2 = GUID.makeGuid();
 		QueryReply reply2 = 
 			queryReplyFactory.createQueryReply(qr.getGUID(), (byte)2, 6346,

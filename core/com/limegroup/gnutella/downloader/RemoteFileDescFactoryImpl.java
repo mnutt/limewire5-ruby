@@ -6,9 +6,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -55,6 +57,8 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
     private final AddressFactory addressFactory;
     
     private final ConcurrentMap<String, RemoteFileDescDeserializer> deserializers = new ConcurrentHashMap<String, RemoteFileDescDeserializer>();
+    
+    private final List<RemoteFileDescCreator> creators = new CopyOnWriteArrayList<RemoteFileDescCreator>();
 
     @Inject
     public RemoteFileDescFactoryImpl(LimeXMLDocumentFactory limeXMLDocumentFactory,
@@ -284,6 +288,11 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
             long size, byte[] clientGUID, int speed, boolean chat, int quality, boolean browseHost,
             LimeXMLDocument xmlDoc, Set<? extends URN> urns, boolean replyToMulticast,
             String vendor, long createTime, boolean http1) {
+        for (RemoteFileDescCreator creator : creators) {
+            if (creator.canCreateFor(address)) {
+                return creator.create(address, index, filename, size, clientGUID, speed, chat, quality, browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime, http1);
+            }
+        }
         return new RemoteFileDescImpl(address, index, filename, size, clientGUID, speed, chat, quality,
                 browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime, http1, addressFactory);
     }
@@ -292,6 +301,10 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
     public void register(String type, RemoteFileDescDeserializer remoteFileDescDeserializer) {
         RemoteFileDescDeserializer other = deserializers.putIfAbsent(type, remoteFileDescDeserializer);
         assert other == null : "two deserializers registered for: " + type;
+    }
+    
+    public void register(RemoteFileDescCreator creator) {
+        creators.add(creator);
     }
 
 }

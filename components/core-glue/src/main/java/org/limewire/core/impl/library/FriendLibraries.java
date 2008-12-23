@@ -151,7 +151,11 @@ public class FriendLibraries {
             }
         }
         
-        return matches;
+        if (matches == null) {
+            return Collections.emptySet();
+        } else {
+            return matches;
+        }
     }
 
     private void insertMatchingItemsInto(Collection<Collection<RemoteFileItem>> prefixedBy, SearchCategory category,

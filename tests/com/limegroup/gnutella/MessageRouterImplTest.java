@@ -70,6 +70,7 @@ import com.limegroup.gnutella.handshaking.BadHandshakeException;
 import com.limegroup.gnutella.handshaking.HandshakeResponderFactory;
 import com.limegroup.gnutella.handshaking.HeadersFactory;
 import com.limegroup.gnutella.handshaking.NoGnutellaOkException;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.library.FileDescChangeEvent;
 import com.limegroup.gnutella.library.FileDescStub;
 import com.limegroup.gnutella.library.FileManager;
@@ -105,8 +106,6 @@ import com.limegroup.gnutella.util.TestConnection;
 import com.limegroup.gnutella.util.TestConnectionFactory;
 import com.limegroup.gnutella.util.TestConnectionManager;
 import com.limegroup.gnutella.version.UpdateHandler;
-import com.limegroup.gnutella.xml.LimeXMLSchemaRepository;
-import com.limegroup.gnutella.xml.SchemaReplyCollectionMapper;
 
 // TODO write test for storing bypassed results
 public final class MessageRouterImplTest extends LimeTestCase {
@@ -242,7 +241,7 @@ public final class MessageRouterImplTest extends LimeTestCase {
         uploadManager.start();
         try {
             Response[] res = new Response[20];
-            Arrays.fill(res, responseFactory.createResponse(0, 10, "test"));
+            Arrays.fill(res, responseFactory.createResponse(0, 10, "test", UrnHelper.SHA1));
             QueryRequest query = queryRequestFactory.createQuery("test");
             
             Iterable iter = messageRouterImpl.responsesToQueryReplies(res, query, 10, null); 
@@ -1135,10 +1134,8 @@ public final class MessageRouterImplTest extends LimeTestCase {
         @Inject
         public TestQRPUpdater(FileManager fileManager, 
                 @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
-                Provider<SchemaReplyCollectionMapper> schemaReplyCollectionMapper,
-                Provider<LimeXMLSchemaRepository> limeXMLSchemaRepository,
                 ListenerSupport<FileDescChangeEvent> fileDescListenerSupport) {
-            super(fileManager, backgroundExecutor, schemaReplyCollectionMapper, limeXMLSchemaRepository, fileDescListenerSupport);
+            super(fileManager, backgroundExecutor, fileDescListenerSupport);
         }
         
         @Override

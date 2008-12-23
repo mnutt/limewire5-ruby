@@ -108,7 +108,7 @@ public final class LimeACKVendorMessage extends AbstractVendorMessage {
         if (getVersion() > OLD_VERSION) {
             try {
                 GGEP ggep = new GGEP(getPayload(), 1);
-                if (ggep.hasKey(GGEPKeys.GGEP_HEADER_SECURE_OOB)) {
+                if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_SECURE_OOB)) {
                     // we return a oob query key, but cannot verify it when it is not from us
                     return new UnknownSecurityToken(ggep.getBytes(GGEPKeys.GGEP_HEADER_SECURE_OOB));
                 }

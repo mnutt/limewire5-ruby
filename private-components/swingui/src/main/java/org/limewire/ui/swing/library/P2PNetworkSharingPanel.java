@@ -1,5 +1,7 @@
 package org.limewire.ui.swing.library;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
@@ -26,6 +28,8 @@ public class P2PNetworkSharingPanel extends SharingPanel {
                 shareListManager.getGnutellaShareList(), categoryIconManager, 
                 tableFactory, headerBarFactory);
 
+        setInnerNavLayout(new MigLayout("insets 0, gap 0, fill, wrap, hidemode 3", "[138!]", ""));
+        
         getHeaderPanel().setText(I18n.tr("Share with {0}", getFullPanelName()));
 
         createMyCategories(libraryManager.getLibraryManagedList().getSwingModel(),

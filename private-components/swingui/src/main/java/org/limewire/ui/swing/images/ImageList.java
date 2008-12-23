@@ -17,15 +17,18 @@ import org.limewire.core.api.library.LocalFileList;
 import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
+import org.limewire.ui.swing.components.Disposable;
 
 import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.ListSelection;
+import ca.odell.glazedlists.swing.EventSelectionModel;
 
 /**
  *	Draws a list of images. Images are displayed in a horizontal left
  *  to right space before wrapping to a new line. Spaces between the
  *  images are injected with the inset values list below.
  */
-public class ImageList extends JXList {
+public class ImageList extends JXList implements Disposable{
 
     @Resource
     private Color backgroundListcolor;
@@ -62,6 +65,20 @@ public class ImageList extends JXList {
         
         //enable double click launching of image files.
         addMouseListener(new ImageDoubleClickMouseListener());
+        EventSelectionModel<LocalFileItem> selectionModel = new EventSelectionModel<LocalFileItem>(eventList);
+        setSelectionModel(selectionModel);
+        selectionModel.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
+    }
+
+    @Override
+    public void dispose() {
+        ((ImageListModel)getModel()).dispose();
+        ((EventSelectionModel)getSelectionModel()).dispose();
+    }
+
+    @SuppressWarnings("unchecked")
+    public EventList<LocalFileItem> getListSelection() {
+        return ((EventSelectionModel<LocalFileItem>)getSelectionModel()).getSelected();
     }
     
     /**

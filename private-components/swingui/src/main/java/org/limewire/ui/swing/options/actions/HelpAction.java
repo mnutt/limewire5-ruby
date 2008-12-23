@@ -21,6 +21,6 @@ public class HelpAction extends AbstractAction {
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        NativeLaunchUtils.openURL("http://wiki.limewire.org/index.php?title=Options");
+        NativeLaunchUtils.openURL("http://www.limewire.com/client_redirect/?page=options");
     }
 }

@@ -59,8 +59,8 @@ public class ConnectionsPanel extends TabPanel implements ActionListener {
     private void initComponents() {
         setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         setLayout(new MigLayout("fill",
-            "[left,fill]12[left,grow,fill]",    // col constraints
-            "[top]12[top]12[top,grow,fill]"));  // row constraints
+            "[left,fill]12[left,grow,fill]",        // col constraints
+            "[top,fill]12[top]12[top,grow,fill]")); // row constraints
 
         add(summaryPanel      , "cell 0 0");
         add(detailPanel       , "cell 1 0 1 2");

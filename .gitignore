@@ -1,4 +1,5 @@
 *.class
+.#*
 components/*/build/*
 bin/*
 tests/build

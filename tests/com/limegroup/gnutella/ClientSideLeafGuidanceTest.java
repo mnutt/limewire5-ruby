@@ -2,15 +2,14 @@ package com.limegroup.gnutella;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import junit.framework.Test;
 
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
-
-import junit.framework.Test;
 
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -18,7 +17,12 @@ import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
-import com.limegroup.gnutella.messages.*;
+import com.limegroup.gnutella.helpers.UrnHelper;
+import com.limegroup.gnutella.messages.BadPacketException;
+import com.limegroup.gnutella.messages.Message;
+import com.limegroup.gnutella.messages.QueryReply;
+import com.limegroup.gnutella.messages.QueryReplyFactory;
+import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
 import com.limegroup.gnutella.messages.vendor.MessagesSupportedVendorMessage;
 import com.limegroup.gnutella.messages.vendor.QueryStatusResponse;
@@ -116,17 +120,17 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
         assertGreaterThan(REPORT_INTERVAL, 6*testUP.length);
         for (int i = 0; i < testUP.length; i++) {
             Response[] res = new Response[] {
-                responseFactory.createResponse(10, 10, "susheel"+i),
-                responseFactory.createResponse(10, 10, "susheel smells good"+i),
-                responseFactory.createResponse(10, 10, "anita is sweet"+i),
-                responseFactory.createResponse(10, 10, "anita is prety"+i),
-                responseFactory.createResponse(10, 10, "susheel smells bad" + i),
-                responseFactory.createResponse(10, 10, "renu is sweet " + i),
-                responseFactory.createResponse(10, 10, "prety is spelled pretty " + i),
-                responseFactory.createResponse(10, 10, "go susheel go" + i),
-                responseFactory.createResponse(10, 10, "susheel runs fast" + i),
-                responseFactory.createResponse(10, 10, "susheel jumps high" + i),
-                responseFactory.createResponse(10, 10, "sleepy susheel" + i),
+                responseFactory.createResponse(10, 10, "susheel"+i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "susheel smells good"+i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "anita is sweet"+i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "anita is prety"+i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "susheel smells bad" + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "renu is sweet " + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "prety is spelled pretty " + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "go susheel go" + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "susheel runs fast" + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "susheel jumps high" + i, UrnHelper.SHA1),
+                responseFactory.createResponse(10, 10, "sleepy susheel" + i, UrnHelper.SHA1),
             };
             m = queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1, 6355,
                     myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
@@ -177,7 +181,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
             //send enough responses per ultrapeer to shut off querying.
             Response[] res = new Response[150/testUP.length + 10];
             for (int j = 0; j < res.length; j++)
-                res[j] = responseFactory.createResponse(10, 10, "susheel good"+i+j);
+                res[j] = responseFactory.createResponse(10, 10, "susheel good"+i+j, UrnHelper.SHA1);
 
             m = queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1, 6355,
                     myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
@@ -211,7 +215,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
         // leaf guidance...
         Response[] res = new Response[REPORT_INTERVAL*4];
         for (int j = 0; j < res.length; j++)
-            res[j] = responseFactory.createResponse(10, 10, "anita is pretty"+j);
+            res[j] = responseFactory.createResponse(10, 10, "anita is pretty"+j, UrnHelper.SHA1);
         m = queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1, 6355,
                 myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
                 true, true, false, false, null);
@@ -245,7 +249,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
         // from the leaf
         Response[] res = new Response[REPORT_INTERVAL*4];
         for (int j = 0; j < res.length; j++)
-            res[j] = responseFactory.createResponse(10, 10, "anita is pretty"+j);
+            res[j] = responseFactory.createResponse(10, 10, "anita is pretty"+j, UrnHelper.SHA1);
 
         m = queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1, 6355,
                 myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
@@ -266,7 +270,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
         // REPORT_INTERVAL - and confirm we don't get messages
         res = new Response[REPORT_INTERVAL-1];
         for (int j = 0; j < res.length; j++)
-            res[j] = responseFactory.createResponse(10, 10, "anita is sweet"+j);
+            res[j] = responseFactory.createResponse(10, 10, "anita is sweet"+j, UrnHelper.SHA1);
 
         m = queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1, 6355,
                 myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
@@ -284,7 +288,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
         // simply send 2 more responses....
         res = new Response[2];
         for (int j = 0; j < res.length; j++)
-            res[j] = responseFactory.createResponse(10, 10, "anita is young"+j);
+            res[j] = responseFactory.createResponse(10, 10, "anita is young"+j, UrnHelper.SHA1);
 
         m = queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1, 6355,
                 myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
@@ -316,7 +320,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
         // more results should not result in more status messages...
         res = new Response[REPORT_INTERVAL*2];
         for (int j = 0; j < res.length; j++)
-            res[j] = responseFactory.createResponse(10, 10, "anita is pretty"+j);
+            res[j] = responseFactory.createResponse(10, 10, "anita is pretty"+j, UrnHelper.SHA1);
 
         m = queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1, 6355,
                 myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
@@ -358,7 +362,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
         // because they have the same address and size as the spam result
         Response[] res = new Response[REPORT_INTERVAL*4];
         for (int i = 0; i < res.length; i++)
-            res[i] = responseFactory.createResponse(10, size, query + i);
+            res[i] = responseFactory.createResponse(10, size, query + i, UrnHelper.SHA1);
 
         QueryReply reply = queryReplyFactory.createQueryReply(
                 queryGuid.bytes(), (byte) 1, 6355, myIP(), 0, res,
@@ -393,7 +397,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
         // now send back results
         Response[] res = new Response[REPORT_INTERVAL*4];
         for (int i = 0; i < res.length; i++)
-            res[i] = responseFactory.createResponse(10, 10, "anita kesavan "+i);
+            res[i] = responseFactory.createResponse(10, 10, "anita kesavan "+i, UrnHelper.SHA1);
 
         QueryReply reply =
             queryReplyFactory.createQueryReply(queryGuid.bytes(), (byte) 1,

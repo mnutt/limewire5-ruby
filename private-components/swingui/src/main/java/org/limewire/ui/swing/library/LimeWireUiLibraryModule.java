@@ -9,8 +9,6 @@ import org.limewire.ui.swing.library.table.LibraryTableFactory;
 import org.limewire.ui.swing.library.table.LibraryTableFactoryImpl;
 import org.limewire.ui.swing.library.table.ShareTableRendererEditor;
 import org.limewire.ui.swing.library.table.ShareTableRendererEditorFactory;
-import org.limewire.ui.swing.library.table.menu.LocalFileItemPropertiesFactory;
-import org.limewire.ui.swing.library.table.menu.RemoteFileItemPropertiesFactory;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 
 import com.google.inject.AbstractModule;

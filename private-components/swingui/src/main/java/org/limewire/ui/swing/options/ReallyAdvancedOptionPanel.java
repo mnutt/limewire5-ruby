@@ -129,5 +129,8 @@ public class ReallyAdvancedOptionPanel extends OptionPanel {
 
     @Override
     public void initOptions() {
+        for(OptionPanel panel : panels.values()) {
+            panel.initOptions();
+        }
     }
 }

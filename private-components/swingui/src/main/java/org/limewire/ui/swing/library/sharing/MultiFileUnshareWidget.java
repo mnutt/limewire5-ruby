@@ -20,7 +20,7 @@ public class MultiFileUnshareWidget implements ShareWidget<LocalFileItem[]>{
     }
     
     public void show(Component c) {
-        unsharePanel.show(c);
+        unsharePanel.show(null);
     }
     
 

@@ -8,10 +8,15 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Locale;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.limewire.core.api.Category;
 import org.limewire.core.settings.URLHandlerSettings;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
+import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.util.MediaType;
-import org.limewire.util.NotImplementedException;
 import org.limewire.util.OSUtils;
 import org.limewire.util.QuotedStringTokenizer;
 import org.limewire.util.StringUtils;
@@ -49,7 +54,8 @@ import org.limewire.util.SystemUtils;
  * @version 1.4b1 (Released June 20, 2001)
  */
 public final class NativeLaunchUtils {
-
+    private static final Log LOG = LogFactory.getLog(NativeLaunchUtils.class);
+            
 	/**
 	 * <tt>boolean</tt> specifying whether or not the necessary Mac
 	 * classes were loaded successfully.
@@ -101,9 +107,9 @@ public final class NativeLaunchUtils {
                     // Other OS
                     launchFileOther(url);
                 }
-    	    } catch(IOException iox) {
-    	        throw new NotImplementedException("show good error message.");
-    	    }
+            } catch (IOException iox) {
+                logException(I18n.tr("Unable to open URL"), I18n.tr("Open URL"), iox);
+            }
         } 
     }
 
@@ -166,8 +172,7 @@ public final class NativeLaunchUtils {
 	 * .bat, .sys, or .com extensions, diplaying an error if one of the file is
 	 * of one of these types.
 	 * 
-	 * @param path
-	 *            The path of the file to launch
+	 * @param file the file to launch
 	 * @return an object for accessing the launch process; null, if the process
 	 *         can be represented (e.g. the file was launched through a native
 	 *         call)
@@ -175,14 +180,17 @@ public final class NativeLaunchUtils {
 	private static void launchFile(File file) {
 	    try {
 	        launchFileImpl(file);
-	    } catch(LaunchException le) {
-	        throw new NotImplementedException();
-	    } catch(IOException iox) {
-	        throw new NotImplementedException();
-	    } catch(SecurityException se) {
-	        throw new NotImplementedException();
-	    }
-	}
+        } catch (LaunchException lex) {
+            logException(I18n.tr("Unable to open file: {0}", file.getName()),
+                    I18n.tr("Open File"), lex);
+        } catch (IOException iox) {
+            logException(I18n.tr("Unable to open file: {0}", file.getName()),
+                    I18n.tr("Open File"), iox);
+        } catch (SecurityException ex) {
+            logException(I18n.tr("Unable to open file: {0}", file.getName()),
+                    I18n.tr("Open File"), ex);
+        }
+    }
 	
 	private static void launchFileImpl(File file) throws IOException, SecurityException {
 		String path = file.getCanonicalPath();
@@ -234,12 +242,18 @@ public final class NativeLaunchUtils {
     public static Process launchExplorer(File file) {
         try {
             return launchExplorerImpl(file);
-        } catch(LaunchException le) {
-            throw new NotImplementedException();
-        } catch (SecurityException e) {
-            throw new NotImplementedException();
-        } catch (IOException e) {
-            throw new NotImplementedException();
+        } catch (LaunchException lex) {
+            logException(I18n.tr("Unable to locate file: {0}", file.getName()),
+                    I18n.tr("Locate File"), lex);
+            return null;
+        } catch (SecurityException ex) {
+            logException(I18n.tr("Unable to locate file: {0}", file.getName()),
+                    I18n.tr("Locate File"), ex);
+            return null;
+        } catch (IOException iox) {
+            logException(I18n.tr("Unable to locate file: {0}", file.getName()),
+                    I18n.tr("Locate File"), iox);
+            return null;
         }
     }
     
@@ -398,6 +412,22 @@ public final class NativeLaunchUtils {
             throw new LaunchException(e, commands);
         }
 	}
+    
+    /**
+     * Logs the specified exception, and displays the specified user message
+     * if the current thread is the UI thread.
+     */
+    private static void logException(String userMessage, String title, Exception ex) {
+        // Report exception to logger.
+        LOG.error(userMessage, ex);
+        
+        // Display user message only on UI thread.  Failed calls from 
+        // background threads are not displayed to the user.
+        if (SwingUtilities.isEventDispatchThread()) {
+            FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(),
+                userMessage, title, JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
 	
 	public static class LaunchException extends IOException {
 	    

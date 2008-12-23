@@ -34,8 +34,11 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.text.JTextComponent;
@@ -72,17 +75,18 @@ import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.action.CopyAction;
 import org.limewire.ui.swing.action.CopyAllAction;
 import org.limewire.ui.swing.action.PopupUtil;
+import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.event.RuntimeTopicEventSubscriber;
 import org.limewire.ui.swing.friends.chat.Message.Type;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.util.DNDUtils;
 import org.limewire.ui.swing.util.GuiUtils;
+import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 import org.limewire.util.FileUtils;
-import org.limewire.util.NotImplementedException;
 import org.limewire.xmpp.api.client.ChatState;
 import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.xmpp.api.client.MessageWriter;
@@ -121,6 +125,8 @@ public class ConversationPane extends JPanel implements Displayable {
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
     @Resource(key="ChatConversation.buttonBarColor") private Color buttonBarColor;
     @Resource(key="ChatConversation.buttonFont") private Font buttonFont;
+    private JButton shareButton;
+    private JScrollPane conversationScroll;
     
     @AssistedInject
     public ConversationPane(@Assisted MessageWriter writer, @Assisted ChatFriend chatFriend, @Assisted String loggedInID,
@@ -144,11 +150,18 @@ public class ConversationPane extends JPanel implements Displayable {
         GuiUtils.assignResources(this);
 
         setLayout(new BorderLayout());
+        
+        editor = new JEditorPane();
+        editor.setEditable(false);
+        editor.setContentType("text/html");
+        editor.addHyperlinkListener(new HyperlinkListener());
+        HTMLEditorKit editorKit = (HTMLEditorKit) editor.getEditorKit();
+        editorKit.setAutoFormSubmission(false);
 
-        JScrollPane scroll = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scroll.setOpaque(false);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
-
+        conversationScroll = new JScrollPane(editor, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        conversationScroll.setOpaque(false);
+        conversationScroll.setBorder(BorderFactory.createEmptyBorder());
+        
         //Needed to add margin to the left side of the scrolling chat pane
         JPanel chatWrapper = new JPanel(new GridBagLayout());
         chatWrapper.setBackground(BACKGROUND_COLOR);
@@ -157,22 +170,14 @@ public class ConversationPane extends JPanel implements Displayable {
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
-        chatWrapper.add(scroll,constraints);
+        chatWrapper.add(conversationScroll,constraints);
 
         add(chatWrapper, BorderLayout.CENTER);
-
-        editor = new JEditorPane();
-        editor.setEditable(false);
-        editor.setContentType("text/html");
-        editor.addHyperlinkListener(new HyperlinkListener());
-        HTMLEditorKit editorKit = (HTMLEditorKit) editor.getEditorKit();
-        editorKit.setAutoFormSubmission(false);
 
         PopupUtil.addPopupMenus(editor, new CopyAction(editor), new CopyAllAction());
 
         FriendShareDropTarget friendShare = new FriendShareDropTarget(editor, libraryManager.getOrCreateFriendShareList(chatFriend.getFriend()));
         editor.setDropTarget(friendShare.getDropTarget());
-        scroll.getViewport().add(editor);
 
         add(footerPanel(writer, chatFriend), BorderLayout.SOUTH);
 
@@ -255,7 +260,7 @@ public class ConversationPane extends JPanel implements Displayable {
         }
     }
 
-    public void closeChat() {
+    public void setChatStateGone() {
         try {
             writer.setChatState(ChatState.gone);
         } catch (XMPPException e) {
@@ -284,7 +289,23 @@ public class ConversationPane extends JPanel implements Displayable {
     private void displayMessages(boolean friendSignedOff) {
         String chatDoc = ChatDocumentBuilder.buildChatText(messages, currentChatState, conversationName, friendSignedOff);
         LOG.debugf("Chat doc: {0}", chatDoc);
+        final JScrollBar verticalScrollBar = conversationScroll.getVerticalScrollBar();
+        final int scrollValue = verticalScrollBar.getValue();
         editor.setText(chatDoc);
+        
+        //LWC-2262: If the scroll bar was moved above the bottom of the scrollpane, reset the value of
+        //the bar to where it was before the text was updated.  This needs to be issued to the end of the
+        //queue because the actual repainting/resizing of the scrollbar happens later in a 
+        //task added to the EDT by the plaf listener of the editor's document.
+        //A better fix for this behavior may be possible
+        if (verticalScrollBar.getMaximum() > (verticalScrollBar.getValue() + verticalScrollBar.getVisibleAmount())) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    verticalScrollBar.setValue(scrollValue);
+                }
+            });
+        }
         decorateFileOfferButtons();
     }
 
@@ -301,19 +322,22 @@ public class ConversationPane extends JPanel implements Displayable {
             if (component instanceof JButton) {
                 JButton button = (JButton)component;
                 String buttonText = button.getText();
+
+                // Using end of button text to determine whether button shouild be disabled
+                // then disable it.  This is because JEditorPane does not disable buttons
+                // disabled in the form html
+                if (buttonText.endsWith(":disabled")) {
+                    buttonText = buttonText.substring(0, buttonText.lastIndexOf(":disabled"));
+                    button.setText(buttonText);
+                    button.setEnabled(false);
+                }
+
                 String extension = FileUtils.getFileExtension(buttonText);
                 if (!extension.isEmpty()) {
                     Icon icon = iconManager.getIconForExtension(extension);
                     button.setIcon(icon);
                 }
 
-                // Using end of button text to determine whether button shouild be disabled
-                // then disable it.  This is because JEditorPane does not disable buttons
-                // disabled in the form html
-                if (buttonText.endsWith(":disabled")) {
-                    button.setText(buttonText.substring(0, buttonText.lastIndexOf(":disabled")));
-                    button.setEnabled(false);
-                }
             }
         }
     }
@@ -326,7 +350,7 @@ public class ConversationPane extends JPanel implements Displayable {
         JPanel buttonBar = new JPanel(new BorderLayout());
         buttonBar.setBackground(buttonBarColor);
         buttonBar.add(downloadButton, BorderLayout.WEST);
-        JButton shareButton = new JButton(new ShareAction());
+        shareButton = new JXButton(new ShareAction());
         shareButton.setFont(buttonFont);
         buttonBar.add(shareButton, BorderLayout.EAST);
         inputPanel = new ResizingInputPanel(writer);
@@ -342,15 +366,14 @@ public class ConversationPane extends JPanel implements Displayable {
 
     @Override
     public void handleDisplay() {
-        editor.invalidate();
-        editor.repaint();
-        downloadButton.repaint();
+        invalidate();
+        repaint();
         inputPanel.handleDisplay();
     }
 
     private class DownloadFromFriendLibraryAction extends AbstractAction {
         public DownloadFromFriendLibraryAction() {
-            super(tr("Download"));
+            super(tr("View Files"));
         }
 
         @Override
@@ -407,9 +430,11 @@ public class ConversationPane extends JPanel implements Displayable {
                         }
                     }, sle, true); 
                 } catch (InvalidDataException ide) {
-                    // not exactly broken, but need better behavior --
                     // this means the FileMetaData we received isn't well-formed.
-                    throw new NotImplementedException(ide);
+                    LOG.error("Unable to access remote file", ide);
+                    FocusJOptionPane.showMessageDialog(ConversationPane.this, 
+                            I18n.tr("Unable to access remote file"), 
+                            I18n.tr("Hyperlink"), JOptionPane.WARNING_MESSAGE);
                 } catch(UnsupportedEncodingException uee) {
                     throw new RuntimeException(uee); // impossible
                 }

@@ -12,6 +12,7 @@ import org.limewire.ui.swing.mainframe.LimeWireUiMainframeModule;
 import org.limewire.ui.swing.nav.LimeWireUiNavModule;
 import org.limewire.ui.swing.options.LimeWireUiOptionsModule;
 import org.limewire.ui.swing.player.LimeWireUiPlayerModule;
+import org.limewire.ui.swing.properties.LimeWireUiPropertiesModule;
 import org.limewire.ui.swing.search.LimeWireUiSearchModule;
 import org.limewire.ui.swing.statusbar.LimeWireUiStatusbarModule;
 import org.limewire.ui.swing.tray.LimeWireUiTrayModule;
@@ -43,5 +44,6 @@ public class LimeWireSwingUiModule extends AbstractModule {
         install(new LimeWireUiUploadModule());
         install(new LimeWireUiDockModule());
         install(new LimeWireUiWizardModule());
+        install(new LimeWireUiPropertiesModule());
     }
 }

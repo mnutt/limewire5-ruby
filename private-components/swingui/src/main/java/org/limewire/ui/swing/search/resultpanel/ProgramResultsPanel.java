@@ -45,6 +45,6 @@ public class ProgramResultsPanel extends BaseResultPanel {
     @Override
     protected void setupCellRenderers(ResultsTableFormat<VisualSearchResult> tableFormat) {
         super.setupCellRenderers(tableFormat);
-        setCellRenderer(ProgramTableFormat.Columns.SIZE.ordinal(), new OpaqueFileSizeRenderer());
+        setCellRenderer(ProgramTableFormat.SIZE_INDEX, new OpaqueFileSizeRenderer());
     }
 }

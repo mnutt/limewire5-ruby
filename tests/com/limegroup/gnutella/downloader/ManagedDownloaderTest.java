@@ -306,7 +306,7 @@ public class ManagedDownloaderTest extends LimeTestCase {
         assertEquals(amountDownloaded, downloader.getAmountRead());
         
         DownloadMemento memento = downloader.toMemento();
-        downloader.stop();
+        downloader.stop(false);
         downloader = (ManagedDownloader)downloadManager.prepareMemento(memento);
         downloader.initialize();
         requestStart(downloader);
@@ -315,7 +315,7 @@ public class ManagedDownloaderTest extends LimeTestCase {
         try {Thread.sleep(500);}catch(InterruptedException ignroed){}
         //assertEquals(Downloader.WAITING_FOR_RESULTS, downloader.getState());
         assertEquals(amountDownloaded, downloader.getAmountRead());
-        downloader.stop();
+        downloader.stop(false);
         Thread.sleep(1000); 
     }
     
@@ -370,7 +370,7 @@ public class ManagedDownloaderTest extends LimeTestCase {
             if (uploader!=null)
                 uploader.stopThread();
             if (downloader!=null)
-                downloader.stop();
+                downloader.stop(false);
         }
     }
 

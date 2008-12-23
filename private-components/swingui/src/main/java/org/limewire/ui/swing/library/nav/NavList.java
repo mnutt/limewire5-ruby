@@ -246,6 +246,7 @@ class NavList extends JXPanel {
         NavPanel panel = getPanelForFriend(friend);
         if(panel != null) {
             panel.select();
+            panel.showLibraryCard();
         }
         return panel;
     } 

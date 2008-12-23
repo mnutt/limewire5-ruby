@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -138,6 +139,8 @@ public class MouseableTable extends StripedJXTable {
 		                colors.getOddHighLighter(),
 		                new ColorHighlighter(new MenuHighlightPredicate(this), colors.menuRowColor,  colors.menuRowForeground, colors.menuRowColor, colors.menuRowForeground));
 		
+		setGridColor(colors.getGridColor());
+		
 		//so that mouseovers will work within table		
 		mouseOverEditorListener = new MouseMotionAdapter() {
             @Override
@@ -179,13 +182,17 @@ public class MouseableTable extends StripedJXTable {
                             }
                         }
 					}
-					TableCellEditor editor = getCellEditor();
-					if (editor != null) {
-						// force update editor colors
-						prepareEditor(editor, row, col);
-						// editor.repaint() takes about a second to show sometimes
-						repaint();
-					}
+					
+					if (isCellEditable(row, col)) {					    
+                        TableCellEditor editor = getCellEditor(row, col);
+                        if (editor != null) {
+                            // force update editor colors
+                            prepareEditor(editor, row, col);
+                            // editor.repaint() takes about a second to show
+                            // sometimes
+                            repaint();
+                        }                        
+                    }
 				}
 			}
 			
@@ -341,6 +348,8 @@ public class MouseableTable extends StripedJXTable {
 	    public Color selectionForeground;
 	    @Resource
 	    private Color disabledForegroundColor;
+	    @Resource
+	    private Color gridColor;
 	    
 	    private ColorHighlighter evenHighLighter;
 	    
@@ -363,6 +372,10 @@ public class MouseableTable extends StripedJXTable {
 	    
 	    public Color getDisabledForegroundColor() {
 	        return disabledForegroundColor;
+	    }
+	    
+	    public Color getGridColor() {
+	        return gridColor;
 	    }
 	}
 	
@@ -415,6 +428,25 @@ public class MouseableTable extends StripedJXTable {
         } else {
             super.setDefaultRenderer(clazz, renderer);
         }
+    }
+    
+    /**
+     * Ensures the given row is visible.
+     */
+    public void ensureRowVisible(int row) {
+        if(row != -1) {
+            Rectangle cellRect = getCellRect(row, 0, false);
+            Rectangle visibleRect = getVisibleRect();
+            if( !visibleRect.intersects(cellRect) )
+                scrollRectToVisible(cellRect);
+        }
+
+    }
+    
+    public boolean isColumnVisible(int column) {
+        Rectangle cellRect = getCellRect(0, column, false);
+        Rectangle visibleRect = getVisibleRect();
+        return visibleRect.intersects(cellRect);
     }
     
     public void setStripesPainted(boolean painted){

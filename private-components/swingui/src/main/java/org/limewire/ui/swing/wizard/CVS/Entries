@@ -1,11 +1,12 @@
-/IntentDialog.java/1.9/Mon Dec  8 19:14:59 2008//
-/LimeWireUiWizardModule.java/1.1/Fri Dec  5 21:57:21 2008//
-/SetupComponentDecorator.java/1.8/Sat Dec  6 08:19:59 2008//
-/SetupComponentDecoratorFactory.java/1.1/Fri Dec  5 21:57:21 2008//
-/SetupPage1.java/1.10/Mon Dec  8 01:30:23 2008//
-/SetupPage2.java/1.13/Mon Dec  8 02:12:53 2008//
-/SetupWizard.java/1.6/Sat Dec  6 01:20:13 2008//
-/UpgradePage1.java/1.1/Mon Dec  8 01:30:23 2008//
-/Wizard.java/1.11/Mon Dec  8 01:30:23 2008//
-/WizardPage.java/1.3/Mon Dec  8 01:30:23 2008//
+/AutoDirectoryManageConfig.java/1.8/Mon Dec 22 19:12:50 2008//
+/IntentDialog.java/1.11/Tue Dec 23 20:13:42 2008//
+/LimeWireUiWizardModule.java/1.1/Wed Dec 17 01:21:27 2008//
+/SetupComponentDecorator.java/1.9/Tue Dec 23 20:13:42 2008//
+/SetupComponentDecoratorFactory.java/1.1/Wed Dec 17 01:21:27 2008//
+/SetupPage1.java/1.12/Tue Dec 23 20:13:42 2008//
+/SetupPage2.java/1.21/Tue Dec 23 20:13:42 2008//
+/SetupWizard.java/1.8/Tue Dec 23 20:13:42 2008//
+/UpgradePage1.java/1.8/Tue Dec 23 20:13:42 2008//
+/Wizard.java/1.12/Tue Dec 23 20:13:42 2008//
+/WizardPage.java/1.3/Wed Dec 17 01:21:27 2008//
 D

@@ -84,7 +84,7 @@ class CoreDownloadItem implements DownloadItem {
         cancelled = true;
         support.firePropertyChange("state", null, getState());
         File file = downloader.getFile();
-        downloader.stop();
+        downloader.stop(true);
         //attempt to delete file will not catch some aborted files necessary here for deleting files in error or stalled states
         if (file != null) {
             FileUtils.forceDelete(file);

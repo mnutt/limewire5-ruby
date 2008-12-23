@@ -33,6 +33,15 @@ class GnutellaFileListImpl extends FriendFileListImpl implements GnutellaFileLis
     public boolean add(FileDesc fileDesc) {
         return super.add(fileDesc);
     }
+
+    /**
+     * Called from super constructor. Empty here because gnutella list is populated by file added
+     * events dispatched upon lw startup
+     */
+    @Override
+    void initialize() {
+        // no initialization done
+    }
     
     @Override
     public void clear() {

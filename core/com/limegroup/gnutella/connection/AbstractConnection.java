@@ -13,6 +13,8 @@ import org.limewire.core.settings.NetworkSettings;
 import org.limewire.io.IOUtils;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.io.NetworkUtils;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.nio.ssl.SSLUtils;
 import org.limewire.setting.StringSetting;
@@ -70,6 +72,8 @@ import com.limegroup.gnutella.messages.vendor.VendorMessage;
  * </ul>
  */
 public abstract class AbstractConnection implements Connection {
+    
+    private static Log LOG = LogFactory.getLog(AbstractConnection.class);
 
     /** Lock for maintaining accurate data for when to allow ping forwarding. */
     private final Object pingLock = new Object();
@@ -238,6 +242,7 @@ public abstract class AbstractConnection implements Connection {
      * updated capabilities.
      */
     public void sendUpdatedCapabilities() {
+        LOG.debug("updated capabilities");
         try {
             if (getConnectionCapabilities().getHeadersRead().supportsVendorMessages() > 0)
                 send(capabilitiesVMFactory.getCapabilitiesVM());

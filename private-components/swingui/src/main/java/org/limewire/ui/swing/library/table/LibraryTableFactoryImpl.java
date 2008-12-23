@@ -14,6 +14,7 @@ import javax.swing.TransferHandler;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
+import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.LibraryManager;
@@ -23,7 +24,7 @@ import org.limewire.core.api.library.MagnetLinkFactory;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.player.api.AudioPlayer;
-import org.limewire.ui.swing.dnd.FriendLibraryNavTransferHandler;
+import org.limewire.ui.swing.dnd.LocalFileTransferable;
 import org.limewire.ui.swing.dnd.MyLibraryTransferHandler;
 import org.limewire.ui.swing.dnd.RemoteFileTransferable;
 import org.limewire.ui.swing.library.image.LibraryImagePanel;
@@ -72,6 +73,8 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
 
     private PropertiesFactory<RemoteFileItem> remoteItemPropFactory;
     
+    private PropertiesFactory<DownloadItem> downloadItemPropFactory;
+    
     private LibraryImageSubPanelFactory subPanelFactory;
     
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
@@ -96,6 +99,7 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
             MagnetLinkFactory magnetLinkFactory,
             PropertiesFactory<LocalFileItem> localItemPropFactory,
             PropertiesFactory<RemoteFileItem> remoteItemPropFactory,
+            PropertiesFactory<DownloadItem> downloadItemPropFactory,
             LibraryImageSubPanelFactory factory, 
             SaveLocationExceptionHandler saveLocationExceptionHandler,
             @Named("known") Collection<Friend> allFriends,
@@ -109,6 +113,7 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         this.magnetLinkFactory = magnetLinkFactory;
         this.localItemPropFactory = localItemPropFactory;
         this.remoteItemPropFactory = remoteItemPropFactory;
+        this.downloadItemPropFactory = downloadItemPropFactory;
         this.subPanelFactory = factory;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         this.allFriends = allFriends;
@@ -183,23 +188,23 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
             break;
         case VIDEO:
             libTable = new LibraryTable<T>(sortedList,  new VideoTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(VideoTableFormat.Columns.LENGTH.ordinal()).setCellRenderer(timeRenderer);
-            libTable.getColumnModel().getColumn(VideoTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(VideoTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer);
+            libTable.getColumnModel().getColumn(VideoTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
             break;
         case DOCUMENT:
             libTable = new LibraryTable<T>(sortedList, new DocumentTableFormat<T>(iconManager), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(DocumentTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(DocumentTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(DocumentTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(DocumentTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
             break;
         case OTHER:
             libTable = new LibraryTable<T>(sortedList, new OtherTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(OtherTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(OtherTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(OtherTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(OtherTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
             break;
         case PROGRAM:
             libTable = new LibraryTable<T>(sortedList, new ProgramTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(ProgramTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(ProgramTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(ProgramTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(ProgramTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
             break;
         default:
             throw new IllegalArgumentException("Unknown category: " + category);
@@ -228,34 +233,34 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         switch (category) {
         case AUDIO:
             libTable = new LibraryTable<T>(sortedList, new RemoteAudioTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(RemoteAudioTableFormat.Columns.LENGTH.ordinal()).setCellRenderer(timeRenderer);
-            libTable.getColumnModel().getColumn(RemoteAudioTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(RemoteAudioTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer);
+            libTable.getColumnModel().getColumn(RemoteAudioTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
             break;
         case VIDEO:
             libTable = new LibraryTable<T>(sortedList, new RemoteVideoTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(RemoteVideoTableFormat.Columns.LENGTH.ordinal()).setCellRenderer(timeRenderer);
-            libTable.getColumnModel().getColumn(RemoteVideoTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(RemoteVideoTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer);
+            libTable.getColumnModel().getColumn(RemoteVideoTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
             break;
         case DOCUMENT:
             libTable = new LibraryTable<T>(sortedList, new RemoteDocumentTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(RemoteDocumentTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(RemoteDocumentTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
-            libTable.getColumnModel().getColumn(RemoteDocumentTableFormat.Columns.CREATED.ordinal()).setCellRenderer(calendarRenderer);
+            libTable.getColumnModel().getColumn(RemoteDocumentTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(RemoteDocumentTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(RemoteDocumentTableFormat.CREATED_INDEX).setCellRenderer(calendarRenderer);
             break;
         case IMAGE:
             libTable = new LibraryTable<T>(sortedList, new RemoteImageTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(RemoteImageTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
-            libTable.getColumnModel().getColumn(RemoteImageTableFormat.Columns.CREATED.ordinal()).setCellRenderer(calendarRenderer);
+            libTable.getColumnModel().getColumn(RemoteImageTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(RemoteImageTableFormat.CREATED_INDEX).setCellRenderer(calendarRenderer);
             break;
         case OTHER:
             libTable = new LibraryTable<T>(sortedList, new RemoteOtherTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(RemoteOtherTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(RemoteOtherTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(RemoteOtherTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(RemoteOtherTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
             break;
         case PROGRAM:
             libTable = new LibraryTable<T>(sortedList, new RemoteProgramTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(RemoteProgramTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(RemoteProgramTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(RemoteProgramTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(RemoteProgramTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
             break;
         default:
             throw new IllegalArgumentException("Unknown category: " + category);
@@ -266,7 +271,7 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         }
         libTable.setPopupHandler(new FriendLibraryPopupHandler(
                 castToRemoteLibraryTable(libTable), downloadListManager, magnetLinkFactory,
-                remoteItemPropFactory, saveLocationExceptionHandler));
+                remoteItemPropFactory, saveLocationExceptionHandler, downloadItemPropFactory));
 
         EventListJXTableSorting.install(libTable, sortedList);
         libTable.setDropMode(DropMode.ON);
@@ -285,52 +290,48 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         
         switch (category) {
         case AUDIO:
-            libTable = new AudioLibraryTable<T>(sortedList, player, saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(AudioTableFormat.Columns.ACTION.ordinal()).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().getColumn(AudioTableFormat.Columns.ACTION.ordinal()).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().moveColumn(AudioTableFormat.Columns.ACTION.ordinal(), 0);
+            libTable = new SharedAudioLibraryTable<T>(sortedList, new SharedAudioTableFormat<T>(friendFileList), player, saveLocationExceptionHandler, shareTableRendererEditorFactory);
+            libTable.getColumnModel().getColumn(SharedAudioTableFormat.ACTION_INDEX).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
+            libTable.getColumnModel().getColumn(SharedAudioTableFormat.ACTION_INDEX).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
             break;
         case VIDEO:
             libTable = new LibraryTable<T>(sortedList, new SharedVideoTableFormat<T>(friendFileList), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(VideoTableFormat.Columns.LENGTH.ordinal()).setCellRenderer(timeRenderer);
-            libTable.getColumnModel().getColumn(VideoTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
-            libTable.getColumnModel().getColumn(VideoTableFormat.Columns.ACTION.ordinal()).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().getColumn(VideoTableFormat.Columns.ACTION.ordinal()).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().moveColumn(VideoTableFormat.Columns.ACTION.ordinal(), 0);
+            libTable.getColumnModel().getColumn(SharedVideoTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer);
+            libTable.getColumnModel().getColumn(SharedVideoTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(SharedVideoTableFormat.ACTION_INDEX).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
+            libTable.getColumnModel().getColumn(SharedVideoTableFormat.ACTION_INDEX).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
             break;
         case DOCUMENT:
             libTable = new LibraryTable<T>(sortedList, new SharedDocumentTableFormat<T>(friendFileList), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(DocumentTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(DocumentTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
-            libTable.getColumnModel().getColumn(DocumentTableFormat.Columns.ACTION.ordinal()).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().getColumn(DocumentTableFormat.Columns.ACTION.ordinal()).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().moveColumn(DocumentTableFormat.Columns.ACTION.ordinal(), 0);
+            libTable.getColumnModel().getColumn(SharedDocumentTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(SharedDocumentTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(SharedDocumentTableFormat.ACTION_INDEX).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
+            libTable.getColumnModel().getColumn(SharedDocumentTableFormat.ACTION_INDEX).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
             break;
         case OTHER:
             libTable = new LibraryTable<T>(sortedList, new SharedOtherTableFormat<T>(friendFileList), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(OtherTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(OtherTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
-            libTable.getColumnModel().getColumn(OtherTableFormat.Columns.ACTION.ordinal()).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().getColumn(OtherTableFormat.Columns.ACTION.ordinal()).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().moveColumn(OtherTableFormat.Columns.ACTION.ordinal(), 0);
+            libTable.getColumnModel().getColumn(SharedOtherTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(SharedOtherTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(SharedOtherTableFormat.ACTION_INDEX).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
+            libTable.getColumnModel().getColumn(SharedOtherTableFormat.ACTION_INDEX).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
             break;
         case PROGRAM:
             libTable = new LibraryTable<T>(sortedList, new SharedProgramTableFormat<T>(friendFileList), saveLocationExceptionHandler, shareTableRendererEditorFactory);
-            libTable.getColumnModel().getColumn(ProgramTableFormat.Columns.NAME.ordinal()).setCellRenderer(iconLabelRenderer);
-            libTable.getColumnModel().getColumn(ProgramTableFormat.Columns.SIZE.ordinal()).setCellRenderer(fileSizeRenderer);
-            libTable.getColumnModel().getColumn(ProgramTableFormat.Columns.ACTION.ordinal()).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().getColumn(ProgramTableFormat.Columns.ACTION.ordinal()).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
-            libTable.getColumnModel().moveColumn(ProgramTableFormat.Columns.ACTION.ordinal(), 0);
+            libTable.getColumnModel().getColumn(SharedProgramTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
+            libTable.getColumnModel().getColumn(SharedProgramTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+            libTable.getColumnModel().getColumn(SharedProgramTableFormat.ACTION_INDEX).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
+            libTable.getColumnModel().getColumn(SharedProgramTableFormat.ACTION_INDEX).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
             break;
         default:
             throw new IllegalArgumentException("Unknown category: " + category);
         }
         
-        
-        libTable.setTransferHandler(new FriendLibraryNavTransferHandler(friendFileList));
         libTable.setPopupHandler(new MyLibraryPopupHandler(castToLocalLibraryTable(libTable), category, libraryManager, shareListManager, 
                     magnetLinkFactory, allFriends, localItemPropFactory, shareFactory));
         
+
+        libTable.setTransferHandler(new SharingLibraryTransferHandler(libTable, friendFileList));
+
         EventListJXTableSorting.install(libTable, sortedList);
         libTable.setDropMode(DropMode.ON);
         
@@ -352,7 +353,10 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         return (EventSelectionModel<LocalFileItem>) table.getSelectionModel();
     }
 
-
+    /**
+     * Drops with this handler will add the file to the ManagedLibrary and share
+     * with this friend
+     */
     private class FriendLibraryTransferHandler extends TransferHandler {
 
         private LibraryTable table;
@@ -407,6 +411,67 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
                         .getFileItem(indices[i]));
             }
             return new RemoteFileTransferable(files);
+        }
+    }
+    
+    /**
+     * Drops with this handler will add the file to the ManagedLibrary and share
+     * with the owner of this LocalFileList
+     */
+    private class SharingLibraryTransferHandler extends TransferHandler {
+
+        private LibraryTable table;
+
+        private LocalFileList friendFileList;
+
+        public SharingLibraryTransferHandler(LibraryTable table, LocalFileList friendFileList) {
+            this.table = table;
+            this.friendFileList = friendFileList;
+        }
+
+        @Override
+        public int getSourceActions(JComponent comp) {
+            return COPY;
+        }
+
+        @Override
+        public boolean canImport(TransferHandler.TransferSupport info) {
+            return DNDUtils.containsFileFlavors(info);
+        }
+
+        @Override
+        public boolean importData(TransferHandler.TransferSupport info) {
+            if (!info.isDrop()) {
+                return false;
+            }
+
+            Transferable t = info.getTransferable();
+
+            final List<File> fileList;
+            try {
+                fileList = Arrays.asList(DNDUtils.getFiles(t));
+            } catch (Exception e) {
+                return false;
+            }
+            for (File file : fileList) {
+                if (file.isDirectory()) {
+                    friendFileList.addFolder(file);
+                } else {
+                    friendFileList.addFile(file);
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public Transferable createTransferable(JComponent comp) {
+            int indices[] = table.getSelectedRows();
+            List<File> files = new ArrayList<File>();
+            for (int i = 0; i < indices.length; i++) {
+                LocalFileItem localFileItem = (LocalFileItem) ((LibraryTableModel) table.getModel()).getFileItem(indices[i]); 
+                files.add(localFileItem.getFile());
+            }
+            return new LocalFileTransferable(files.toArray(new File[0]));
         }
     }
 }

@@ -120,6 +120,7 @@ class XMPPFirewalledAddressConnector implements AddressConnector, PushedSocketHa
         }
         if (isFWT) {
             LOG.debug("Starting fwt communication");
+            assert NetworkUtils.isValidIpPort(firewalledAddress.getPublicAddress()) : "invalid public address" + firewalledAddress;
             AbstractNBSocket socket = udpSelectorProvider.get().openSocketChannel().socket();
             socket.connect(firewalledAddress.getPublicAddress().getInetSocketAddress(), 20000, new ConnectObserver() {
                 @Override

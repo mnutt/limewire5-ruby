@@ -34,7 +34,7 @@ class HelpMenu extends JMenu {
         add(new AbstractAction(I18n.tr("Using LimeWire")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                NativeLaunchUtils.openURL("http://www.limewire.com/support/");
+                NativeLaunchUtils.openURL("http://www.limewire.com/client_redirect/?page=support");
             }
         });
 
@@ -42,7 +42,7 @@ class HelpMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NativeLaunchUtils
-                        .openURL("http://wiki.limewire.org/index.php?title=Frequently_Asked_Questions");
+                        .openURL("http://www.limewire.com/client_redirect/?page=faq");
             }
         });
         
@@ -52,7 +52,7 @@ class HelpMenu extends JMenu {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     NativeLaunchUtils
-                    .openURL("http://limewire.com/download/pro.php?ref=H");
+                    .openURL("http://www.limewire.com/client_redirect/?page=gopro");
                 }
             });
         }

@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -89,8 +88,7 @@ public class SplashWindow {
         Dimension size = new Dimension(imgWidth + 2, imgHeight + 2);
         splashWindow.setSize(size);        
   
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        splashWindow.setLocation((screenSize.width - size.width) / 2, (screenSize.height - size.height) / 2);
+        splashWindow.setLocationRelativeTo(null);
         splashLabel.setIcon(new ImageIcon(splashImage));
         splashWindow.getContentPane().add(splashLabel, BorderLayout.CENTER);
 

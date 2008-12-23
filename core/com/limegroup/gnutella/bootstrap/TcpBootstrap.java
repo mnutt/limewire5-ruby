@@ -92,7 +92,6 @@ public class TcpBootstrap {
         this.httpExecutor = httpExecutor;
         this.defaultParams = defaultParams;
         this.connectionServices = connectionServices;
-        
         this.attemptedHosts = new FixedSizeExpiringSet<URI>(100, expiryTime);
     }
     
@@ -107,7 +106,7 @@ public class TcpBootstrap {
      * Erases the attempted hosts & decrements the failure counts.
      */
     public synchronized void resetData() {
-        LOG.debug("Clearing attempted host caches");
+        LOG.debug("Clearing attempted TCP host caches");
         attemptedHosts.clear();
     }
     
@@ -115,9 +114,9 @@ public class TcpBootstrap {
      * Attempts to contact a host cache to retrieve endpoints.
      */
     public synchronized boolean fetchHosts(TcpBootstrapListener listener) {
-        // If the order has possibly changed, resort.
+        // If the hosts have been used, shuffle them
         if(dirty) {
-            LOG.debug("shuffling hosts");
+            LOG.debug("Shuffling TCP host caches");
             Collections.shuffle(hosts);
             dirty = false;
         }
@@ -129,18 +128,18 @@ public class TcpBootstrap {
         List<HttpUriRequest> requests = new ArrayList<HttpUriRequest>();
         Map<HttpUriRequest, URI> requestToHost = new HashMap<HttpUriRequest, URI>();
         for(URI host : hosts) {
-            if(attemptedHosts.contains(host))
-                continue;
-            
-            LOG.debugf("creating request for {0}", host);
-            
+            if(attemptedHosts.contains(host)) {
+                if(LOG.isDebugEnabled())
+                    LOG.debug("Already attempted " + host);
+                continue;            
+            }
             HttpUriRequest request = newRequest(host);
             requests.add(request);
             requestToHost.put(request, host);
         }
         
         if(requests.isEmpty()) {
-            LOG.debug("all hosts tried");
+            LOG.debug("No TCP host caches to try");
             return false;
         }
         
@@ -148,6 +147,9 @@ public class TcpBootstrap {
         HttpConnectionParams.setConnectionTimeout(params, 5000);
         HttpConnectionParams.setSoTimeout(params, 5000);
         params = new DefaultedHttpParams(params, defaultParams.get());
+        
+        if(LOG.isDebugEnabled())
+            LOG.debug("Trying 1 of " + requests.size() + " TCP host caches");
         
         httpExecutor.executeAny(new Listener(requestToHost, listener),
                 bootstrapQueue,
@@ -158,7 +160,6 @@ public class TcpBootstrap {
                           return connectionServices.isConnected();
                       }
                 });
-        
         return true;        
     }
     
@@ -248,16 +249,14 @@ public class TcpBootstrap {
      * Adds a new hostcache to this.
      */
     public synchronized boolean add(URI e) {
-        if (hostsSet.contains(e)) {
-            LOG.debugf("already knows about {0}", e);
+        if(hostsSet.contains(e)) {
+            LOG.debugf("Not adding known TCP host cache {0}", e);
             return false;
-        }
-        
-        LOG.debugf("adding host {0}", e);
-        // just insert.  we'll sort later.
+        }        
+        LOG.debugf("Adding TCP host cache {0}", e);
         hosts.add(e);
         hostsSet.add(e);
-        dirty = true;
+        dirty = true; // Shuffle before using
         return true;
     }
     

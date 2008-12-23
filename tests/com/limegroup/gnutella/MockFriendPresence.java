@@ -11,7 +11,7 @@ import org.limewire.core.api.friend.feature.Feature;
 import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.listener.EventListenerList;
 
-public class MockFriendPresence implements FriendPresence{
+public class MockFriendPresence implements FriendPresence {
     
     private MockFriend friend;
     private Map<URI, Feature> features;

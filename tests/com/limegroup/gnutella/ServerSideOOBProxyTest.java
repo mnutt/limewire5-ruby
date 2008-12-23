@@ -558,7 +558,7 @@ public final class ServerSideOOBProxyTest extends ServerSideTestCase {
         {
             Response[] res = new Response[1];
             for (int j = 0; j < res.length; j++)
-                res[j] = responseFactory.createResponse(10, 10, "stanford0");
+                res[j] = responseFactory.createResponse(10, 10, "stanford0", UrnHelper.SHA1);
             Message m = 
                 queryReplyFactory.createQueryReply(proxiedGuid, (byte) 3, 6355,
                     myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
@@ -583,7 +583,7 @@ public final class ServerSideOOBProxyTest extends ServerSideTestCase {
         {
             Response[] res = new Response[1];
             for (int j = 0; j < res.length; j++)
-                res[j] = responseFactory.createResponse(10, 10, "stanford1");
+                res[j] = responseFactory.createResponse(10, 10, "stanford1", UrnHelper.SHA1);
             
             
             SecurityToken token = exchangeRNVMACK(proxiedGuid);
@@ -627,7 +627,7 @@ public final class ServerSideOOBProxyTest extends ServerSideTestCase {
 
             Response[] res = new Response[1];
             for (int j = 0; j < res.length; j++)
-                res[j] = responseFactory.createResponse(10, 10, "stanford2");
+                res[j] = responseFactory.createResponse(10, 10, "stanford2", UrnHelper.SHA1);
             Message m = 
                 queryReplyFactory.createQueryReply(proxiedGuid, (byte) 3, 6356,
                     myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,
@@ -707,7 +707,7 @@ public final class ServerSideOOBProxyTest extends ServerSideTestCase {
         // create a bunch of responses for that guid 
         Response[] res = new Response[1];
         for (int j = 0; j < res.length; j++)
-            res[j] = responseFactory.createResponse(10, 10, "not proxied");
+            res[j] = responseFactory.createResponse(10, 10, "not proxied", UrnHelper.SHA1);
         Message m = 
             queryReplyFactory.createQueryReply(query.getGUID(), (byte) 3, 6356,
                 myIP(), 0, res, GUID.makeGuid(), new byte[0], false, false,

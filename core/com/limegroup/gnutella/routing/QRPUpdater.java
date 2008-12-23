@@ -1,9 +1,7 @@
 package com.limegroup.gnutella.routing;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,7 +18,6 @@ import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.library.FileDesc;
@@ -30,9 +27,7 @@ import com.limegroup.gnutella.library.FileListChangedEvent;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
 import com.limegroup.gnutella.util.LimeWireUtils;
-import com.limegroup.gnutella.xml.LimeXMLReplyCollection;
-import com.limegroup.gnutella.xml.LimeXMLSchemaRepository;
-import com.limegroup.gnutella.xml.SchemaReplyCollectionMapper;
+import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 /**
  * Updates the QueryRouteTable. Listens for changes to shared files in the
@@ -49,8 +44,6 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
 
     private final FileManager fileManager;
     private final ScheduledExecutorService backgroundExecutor;
-    private final Provider<LimeXMLSchemaRepository> limeXMLSchemaRepository;
-    private final Provider<SchemaReplyCollectionMapper> schemaReplyCollectionMapper;
     private final ListenerSupport<FileDescChangeEvent> fileDescListenerSupport;
    
     /**
@@ -78,13 +71,9 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
     @Inject
     public QRPUpdater(FileManager fileManager, 
             @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
-            Provider<SchemaReplyCollectionMapper> schemaReplyCollectionMapper,
-            Provider<LimeXMLSchemaRepository> limeXMLSchemaRepository,
             ListenerSupport<FileDescChangeEvent> fileDescListenerSupport) {
         this.fileManager = fileManager;
         this.backgroundExecutor = backgroundExecutor;
-        this.limeXMLSchemaRepository = limeXMLSchemaRepository;
-        this.schemaReplyCollectionMapper = schemaReplyCollectionMapper;
         this.fileDescListenerSupport = fileDescListenerSupport;
 
         for (String entry : SearchSettings.LIME_QRP_ENTRIES.getValue())
@@ -101,22 +90,24 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
             newWords.add(entry);
 
         // any change in words?
-        if (newWords.containsAll(qrpWords) && qrpWords.containsAll(newWords))
+        if (newWords.containsAll(qrpWords) && qrpWords.containsAll(newWords)) {
             return;
+        }
 
         qrpWords.clear();
         qrpWords.addAll(newWords);
 
         // if its already schedule to be rebuilt or a build is already needed return
-        if( needRebuild || (scheduledSimppRebuildTimer != null && !scheduledSimppRebuildTimer.isDone()))
+        if( needRebuild || (scheduledSimppRebuildTimer != null && !scheduledSimppRebuildTimer.isDone())) {
             return;
+        }
 
         // schedule a rebuild sometime in the next hour
-        scheduledSimppRebuildTimer = backgroundExecutor.schedule( new Runnable(){
-            public void run(){
+        scheduledSimppRebuildTimer = backgroundExecutor.schedule(new Runnable() {
+            public void run() {
                 needRebuild = true;
-            }}
-            , (int) (Math.random() * QRP_DELAY), TimeUnit.MICROSECONDS);
+            }
+        }, (int) (Math.random() * QRP_DELAY), TimeUnit.MICROSECONDS);
     }
 
     /**
@@ -146,11 +137,20 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
                 queryRouteTable.addIndivisible(entry);
             }
         }
+        
         FileList gnutella = fileManager.getGnutellaFileList();
         gnutella.getReadLock().lock();
         try {
             for (FileDesc fd : gnutella) {
-                queryRouteTable.add(fd.getPath());
+                queryRouteTable.add(fd.getFileName());
+                for(LimeXMLDocument doc : fd.getLimeXMLDocuments()) {
+                    for(String word : doc.getKeyWords()) {
+                        queryRouteTable.add(word);
+                    }
+                    for(String word : doc.getKeyWordsIndivisible()) {
+                        queryRouteTable.addIndivisible(word);
+                    }
+                }
             }
         } finally {
             gnutella.getReadLock().unlock();
@@ -171,53 +171,6 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
                 incompletes.getReadLock().unlock();
             }
         }
-
-        for (String string : getXMLKeyWords()) {
-            queryRouteTable.add(string);
-        }
-
-        for (String string : getXMLIndivisibleKeyWords()) {
-            queryRouteTable.addIndivisible(string);
-        }
-    }
-
-    /**
-     * Returns a list of all the words in the annotations - leaves out numbers.
-     * The list also includes the set of words that is contained in the names of
-     * the files.
-     */
-    private List<String> getXMLKeyWords() {
-        List<String> words = new ArrayList<String>();
-        // Now get a list of keywords from each of the ReplyCollections
-        String[] schemas = limeXMLSchemaRepository.get().getAvailableSchemaURIs();
-        LimeXMLReplyCollection collection;
-        int len = schemas.length;
-        for (int i = 0; i < len; i++) {
-            collection = schemaReplyCollectionMapper.get().getReplyCollection(schemas[i]);
-            if (collection == null)// not loaded? skip it and keep goin'
-                continue;
-            words.addAll(collection.getKeyWords());
-        }
-        return words;
-    }
-
-    /**
-     * @return A List of KeyWords from the FS that one does NOT want broken upon
-     *         hashing into a QRT. Initially being used for schema uri hashing.
-     */
-    private List<String> getXMLIndivisibleKeyWords() {
-        List<String> words = new ArrayList<String>();
-        String[] schemas = limeXMLSchemaRepository.get().getAvailableSchemaURIs();
-        LimeXMLReplyCollection collection;
-        for (int i = 0; i < schemas.length; i++) {
-            if (schemas[i] != null)
-                words.add(schemas[i]);
-            collection = schemaReplyCollectionMapper.get().getReplyCollection(schemas[i]);
-            if (collection == null)// not loaded? skip it and keep goin'
-                continue;
-            words.addAll(collection.getKeyWordsIndivisible());
-        }
-        return words;
     }
     
     @Inject

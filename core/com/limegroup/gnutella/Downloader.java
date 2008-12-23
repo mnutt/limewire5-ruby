@@ -57,10 +57,11 @@ public interface Downloader extends BandwidthTracker, ListenerSupport<DownloadSt
     
     
     /**
-     * Stops this.  If the download is already stopped, does nothing.
+     * Stops this download if it is not already stopped.  If 
+     * <code>deleteFile</code> is true, then the file is deleted. 
      * @modifies this
      */
-    public void stop();
+    public void stop(boolean deleteFile);
     
     /**
      * Pauses this download.  If the download is already paused or stopped, does nothing.

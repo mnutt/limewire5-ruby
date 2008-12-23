@@ -35,7 +35,7 @@ public class MarqueeButton extends JButton {
         setOpaque(false);
         setFocusPainted(false);
         setMaxChars(maxCharsShown);
-        setToolTipText(getText() + " (1:23/4:56)");
+        setToolTipText(getText());
     }
     
     public void start() {
@@ -68,17 +68,20 @@ public class MarqueeButton extends JButton {
     
     @Override
     public void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D)g.create();
+
+        g2.setFont(getFont());
+        FontMetrics metrics = g2.getFontMetrics();
+        g2.setColor(getForeground());
+        
         if (timer != null && timer.isRunning()) {
-            Graphics2D g2 = (Graphics2D)g.create();
-            g2.setFont(getFont());
-            FontMetrics metrics = g2.getFontMetrics();
-            g2.setColor(getForeground());
             //TODO: do this properly, ie not - 1
-            g2.drawString(marqueeString, -position, getHeight() / 2 + metrics.getAscent()/2 - 1);
-            g2.dispose();
+            g2.drawString(marqueeString, -position, getHeight() / 2 + metrics.getAscent()/2 -1);
         } else {
-            super.paintComponent(g);
+            g2.drawString(getText(), 0, getHeight() / 2 + metrics.getAscent()/2 -1);
         }
+        
+        g2.dispose();
     }
     
     public void setMaxChars(int maxCharsShown){

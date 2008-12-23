@@ -411,7 +411,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
      */
     public List<GeoRestriction> getGeoRestrictions() {
         List<GeoRestriction> list = new ArrayList<GeoRestriction>();
-        if (payload.hasKey(KEY_GEO_RESTRICT)) {
+        if (payload.hasValueFor(KEY_GEO_RESTRICT)) {
             byte[] encoded = payload.get(KEY_GEO_RESTRICT);
             for (int i = 0; i < encoded.length - 6; i += 7) {
                 byte[] geoBytes = new byte[7];
@@ -509,13 +509,13 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
     /** Parses out the given key, or returns "" if the key is not present. */
     private String get(String key) {
         try {
-            if (!payload.hasKey(key)) {
+            if (!payload.hasValueFor(key)) {
                 return "";
             } else {
                 return StringUtils.toUTF8String(payload.getBytes(key));
             }
         } catch (BadGGEPPropertyException ex) {
-            throw new RuntimeException("GGEP exception parsing value." + ex.getMessage());
+            throw new RuntimeException("GGEP exception parsing value.", ex);
         }
     }
 

@@ -26,6 +26,7 @@ import org.limewire.net.address.StrictIpPortSet;
 import org.limewire.service.ErrorService;
 import org.limewire.swarm.SwarmSourceType;
 import org.limewire.swarm.Swarmer;
+import org.limewire.swarm.http.SwarmHttpSource;
 import org.limewire.swarm.http.SwarmHttpSourceDownloader;
 import org.limewire.swarm.impl.SwarmerImpl;
 import org.limewire.util.FileUtils;
@@ -301,8 +302,10 @@ public class ManagedTorrentImpl implements ManagedTorrent, DiskManagerListener {
 
             long completeSize = torrentFileSystem.getTotalSize();
             for (URI uri : metaInfo.getWebSeeds()) {
-                webSeedSwarmer.addSource(new BTSwarmHttpSource(uri, completeSize));
-                webseeding.set(true);
+                if(SwarmHttpSource.isValidSource(uri)) {
+                    webSeedSwarmer.addSource(new BTSwarmHttpSource(uri, completeSize));
+                    webseeding.set(true);
+                }
             }
         }
     }

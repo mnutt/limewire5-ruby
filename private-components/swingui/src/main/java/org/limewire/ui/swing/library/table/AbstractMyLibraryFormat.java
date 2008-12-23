@@ -4,19 +4,51 @@ import java.util.Comparator;
 
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.ui.swing.table.AbstractColumnStateFormat;
+import org.limewire.ui.swing.table.ColumnStateInfo;
 
 import ca.odell.glazedlists.GlazedLists;
 
-public abstract class AbstractMyLibraryFormat<T extends FileItem> implements LibraryTableFormat<T> {
-
-    @Override
-    public Class getColumnClass(int column) {
-        return String.class;
+/**
+ * Abstract table format for columns for local file items
+ */
+public abstract class AbstractMyLibraryFormat<T extends FileItem> extends AbstractColumnStateFormat<T> implements LibraryTableFormat<T>{
+    
+    private final int actionIndex;
+    
+    public AbstractMyLibraryFormat(int actionIndex, ColumnStateInfo... columnInfo) {
+        super(columnInfo);
+        this.actionIndex = actionIndex;
     }
     
     @Override
+    public T setColumnValue(T baseObject, Object editedValue, int column) {
+        return baseObject;
+    }
+    
+    public int getActionColumn() {
+        return actionIndex;
+    }
+    
+    @Override
+    public boolean isEditable(T baseObject, int column) {
+        return column == actionIndex;
+    }
+        
+    @Override
+    public Class getColumnClass(int column) {
+        if(column == actionIndex)
+           return FileItem.class;
+        else
+            return String.class;
+    }
+
+    @Override
     public Comparator getColumnComparator(int column) {
-        return GlazedLists.comparableComparator();
+        if(column == actionIndex) 
+            return new ActionComparator();
+        else
+            return GlazedLists.comparableComparator();
     }
     
     public class ActionComparator implements Comparator<FileItem> {

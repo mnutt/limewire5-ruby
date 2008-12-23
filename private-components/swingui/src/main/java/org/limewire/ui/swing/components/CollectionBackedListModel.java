@@ -12,7 +12,7 @@ public class CollectionBackedListModel extends AbstractListModel {
     
     private final List<?> data;
     
-    CollectionBackedListModel(Collection<?> data) {
+    public CollectionBackedListModel(Collection<?> data) {
         if(data instanceof List) {
             this.data = (List)data;
         } else {

@@ -3,6 +3,7 @@ package org.limewire.xmpp.client.impl;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.limewire.io.Address;
+import org.limewire.util.StringUtils;
 import org.limewire.xmpp.api.client.XMPPAddress;
 
 import com.google.inject.Singleton;
@@ -33,4 +34,8 @@ public class XMPPAddressRegistry {
         addressMap.remove(xmppAddress);
     }
     
+    @Override
+    public String toString() {
+        return StringUtils.toString(this);
+    }
 }

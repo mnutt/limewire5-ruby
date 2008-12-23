@@ -182,7 +182,11 @@ public class ConnectionsOptionPanel extends OptionPanel {
         @Override
         boolean applyOptions() {
             DownloadSettings.MAX_SIM_DOWNLOAD.setValue((Integer) maxDownloadSpinner.getModel().getValue());
-            DownloadSettings.DOWNLOAD_SPEED.setValue(bandWidthSlider.getValue());
+            if(limitBandWidthCheckBox.isSelected()) {
+                DownloadSettings.DOWNLOAD_SPEED.setValue(bandWidthSlider.getValue());
+            } else {
+                DownloadSettings.DOWNLOAD_SPEED.setValue(MAX_SLIDER);
+            }
             return false;
         }
 
@@ -247,8 +251,13 @@ public class ConnectionsOptionPanel extends OptionPanel {
         @Override
         boolean applyOptions() {
             UploadSettings.HARD_MAX_UPLOADS.setValue((Integer)maxUploadSpinner.getModel().getValue());
-            UploadSettings.UPLOAD_SPEED.setValue(bandWidthSlider.getValue());
             SharingSettings.CLEAR_UPLOAD.setValue(clearUploadCheckBox.isSelected());
+            
+            if(uploadBandwidthCheckBox.isSelected()) {
+                UploadSettings.UPLOAD_SPEED.setValue(bandWidthSlider.getValue());
+            } else {
+                UploadSettings.UPLOAD_SPEED.setValue(MAX_SLIDER);
+            }
             return false;
         }
 

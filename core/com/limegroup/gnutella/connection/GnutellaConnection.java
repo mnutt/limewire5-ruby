@@ -11,8 +11,6 @@ import java.util.Properties;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.limewire.core.api.connection.ConnectionLifecycleEventType;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.MessageSettings;
@@ -25,6 +23,8 @@ import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventListenerList;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.net.SocketsManager;
 import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.nio.NBThrottle;
@@ -753,6 +753,7 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
      * @see com.limegroup.gnutella.RoutedConnection#send(com.limegroup.gnutella.messages.Message)
      */
     public void send(Message m) {
+        LOG.debugf("send message: {0}, class: {1}", m);
         if (m instanceof QueryRequest && !shouldSendQuery((QueryRequest)m))
                 return;
         
@@ -1367,11 +1368,13 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
         }
 
         public void shutdown() {
+            LOG.debug("shutdown");
             observer.shutdown();
         }
 
         // ignored.
         public void handleIOException(IOException iox) {
+            LOG.debug("", iox);
         }
     }
 

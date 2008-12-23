@@ -17,6 +17,7 @@ import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.http.httpclient.LimeHttpClient;
 import org.limewire.http.httpclient.SimpleLimeHttpClient;
+import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.listener.EventListener;
@@ -262,11 +263,6 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             }
 
             @Override
-            public void handleQueryReply(QueryReply qr) {
-                
-            }
-
-            @Override
             public boolean hasInNetworkDownload() {
                 return false;
             }
@@ -344,6 +340,10 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             @Override
             public boolean removeListener(EventListener<DownloadManagerEvent> listener) {
                 return false;
+            }
+
+            @Override
+            public void handleQueryReply(QueryReply qr, Address address) {
             }
 
         },new NoOpSaveLocationManager(), new DefaultHttpExecutor(new Provider<LimeHttpClient>() {

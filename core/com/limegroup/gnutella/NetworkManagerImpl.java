@@ -26,6 +26,7 @@ import org.limewire.listener.CachingEventMulticaster;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.ListenerSupport;
+import org.limewire.listener.BroadcastPolicy;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.net.address.AddressEvent;
@@ -78,7 +79,7 @@ public class NetworkManagerImpl implements NetworkManager {
     private volatile String tlsDisabledReason;
     
     private final EventMulticaster<AddressEvent> listeners =
-        new CachingEventMulticaster<AddressEvent>();
+        new CachingEventMulticaster<AddressEvent>(BroadcastPolicy.IF_NOT_EQUALS);
     private final ApplicationServices applicationServices;
     private volatile boolean started;
 
@@ -116,8 +117,10 @@ public class NetworkManagerImpl implements NetworkManager {
         firewallStatusSupport.addListener(new EventListener<FirewallStatusEvent>() {
             @Override
             public void handleEvent(FirewallStatusEvent event) {
-                // TODO use event
-                maybeFireNewDirectConnectionAddress();
+                if(started) {
+                    // TODO use event
+                    maybeFireNewDirectConnectionAddress();
+                }
             }
         });    
         firewallTransferStatusSupport.addListener(new EventListener<FirewallTransferStatusEvent>() {

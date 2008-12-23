@@ -47,8 +47,8 @@ public class AudioResultsPanel extends BaseResultPanel {
     @Override
     protected void setupCellRenderers(ResultsTableFormat<VisualSearchResult> tableFormat) {
         super.setupCellRenderers(tableFormat);
-        setCellRenderer(AudioTableFormat.Columns.SIZE.ordinal(), new OpaqueFileSizeRenderer());
-        setCellRenderer(AudioTableFormat.Columns.LENGTH.ordinal(), new OpaqueTimeRenderer());
-        setCellRenderer(AudioTableFormat.Columns.QUALITY.ordinal(), new OpaqueQualityRenderer());
+        setCellRenderer(AudioTableFormat.SIZE_INDEX, new OpaqueFileSizeRenderer());
+        setCellRenderer(AudioTableFormat.LENGTH_INDEX, new OpaqueTimeRenderer());
+        setCellRenderer(AudioTableFormat.QUALITY_INDEX, new OpaqueQualityRenderer());
     }
 }

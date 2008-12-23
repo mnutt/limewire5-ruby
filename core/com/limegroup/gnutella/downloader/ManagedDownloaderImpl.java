@@ -675,7 +675,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                 } catch(Throwable t) {
                     // if any unhandled errors occurred, remove this
                     // download completely and message the error.
-                    ManagedDownloaderImpl.this.stop();
+                    ManagedDownloaderImpl.this.stop(false);
                     setState(DownloadStatus.ABORTED);
                     downloadManager.remove(ManagedDownloaderImpl.this, true);
                     
@@ -1385,6 +1385,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     }
     
     protected synchronized final boolean addDownloadForced(Collection<? extends RemoteFileDesc> c, boolean cache) {
+        LOG.debug("add download forced", new Exception());
         // create copy, argument might not be modifiable
         Set<RemoteFileDesc> copy = new HashSet<RemoteFileDesc>(c);
         // remove any rfds we're currently downloading from
@@ -1532,7 +1533,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     public synchronized void pause() {
         // do not pause if already stopped.
         if(!stopped && !isCompleted()) {
-            stop();
+            stop(false);
             stopped = false;
             paused = true;
             // if we're already inactive, mark us as paused immediately.
@@ -1571,10 +1572,12 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     	return state == DownloadStatus.COMPLETE || amountForPreview() > 0;
     }
     
-    /* (non-Javadoc)
+    /**
+     * Stops this download if it is not already stopped.  If 
+     * <code>deleteFile</code> is true, then the file is deleted. 
      * @see com.limegroup.gnutella.downloader.ManagedDownloader#stop()
      */
-    public void stop() {
+    public void stop(boolean deleteFile) {
     
         if(paused) {
             stopped = true;
@@ -1585,25 +1588,30 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         // this change is pretty safe because stopped is only set in two
         // places - initialized and here.  so long as this is true, we know
         // this is safe.
-        if (stopped || paused)
-            return;
+        if (!(stopped || paused)) {
+            
+            LOG.debug("STOPPING ManagedDownloader");
 
-        LOG.debug("STOPPING ManagedDownloader");
+            //This method is tricky.  Look carefully at run.  The most important
+            //thing is to set the stopped flag.  That guarantees run will terminate
+            //eventually.
+            stopped=true;
+            killAllWorkers();
 
-        //This method is tricky.  Look carefully at run.  The most important
-        //thing is to set the stopped flag.  That guarantees run will terminate
-        //eventually.
-        stopped=true;
-        killAllWorkers();
-        
-        synchronized(this) {
-            // must capture in local variable so the value doesn't become null
-            // between if & contents of if.
-            Thread dlMan = dloaderManagerThread;
-            if(dlMan != null)
-                dlMan.interrupt();
-            else
-                LOG.warn("MANAGER: no thread to interrupt");
+            synchronized(this) {
+                // must capture in local variable so the value doesn't become null
+                // between if & contents of if.
+                Thread dlMan = dloaderManagerThread;
+                if(dlMan != null)
+                    dlMan.interrupt();
+                else
+                    LOG.warn("MANAGER: no thread to interrupt");
+            }
+        }
+
+        if (deleteFile) {
+            // Remove file from incomplete file list.
+            incompleteFileManager.removeEntry(incompleteFile);
         }
     }
 
@@ -1968,7 +1976,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                     public void handleResponse(URN urn, ContentResponseData response) {
                         if(response != null && !response.isOK()) {
                             invalidated = true;
-                            stop();
+                            stop(false);
                         }
                     }
                 }, 5000);           
@@ -2355,7 +2363,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                     LOG.warn("MANAGER: terminating because of stop|pause");
                     throw new InterruptedException();
                 }
-                stop();
+                stop(false);
                 reportDiskProblem(dio);
                 return DownloadStatus.DISK_PROBLEM;
             }
@@ -2586,7 +2594,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                 }
 
                 if (delete)
-                    stop();
+                    stop(false);
                 else 
                     commonOutFile.setDiscardUnverified(false);
                 

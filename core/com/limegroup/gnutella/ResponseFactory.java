@@ -13,17 +13,18 @@ public interface ResponseFactory {
      * 
      * @requires index and size can fit in 4 unsigned bytes, i.e., 0 <= index,
      *           size < 2^32
+     * @param urn TODO
      */
-    public Response createResponse(long index, long size, String name);
+    public Response createResponse(long index, long size, String name, URN urn);
 
     /**
      * Creates a new response with parsed metadata. Typically this is used to
      * respond to query requests.
-     * 
      * @param doc the metadata to include
+     * @param urn TODO
      */
     public Response createResponse(long index, long size, String name,
-            LimeXMLDocument doc);
+            LimeXMLDocument doc, URN urn);
     
     /**
      * Constructs a new <tt>Response</tt> instance from the data in the
@@ -46,5 +47,4 @@ public interface ResponseFactory {
      */
     public Response createFromStream(InputStream is) throws IOException;
 
-    public Response createPureMetadataResponse();
 }

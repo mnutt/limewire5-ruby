@@ -21,7 +21,4 @@ public interface ShareListManager {
     
     /** Returns a {@link LocalFileList} for the given friend, returns null if none exist. */
     FriendFileList getFriendShareList(Friend friend);
-
-    /** Removes a {@link LocalFileList} from being counted as a share list for the given friend. */
-    void removeFriendShareList(Friend friend);
 }

@@ -96,11 +96,8 @@ public class IntervalEncoder {
         IntervalSet ret = null;
         for (int i = 1; i <= 4; i++ ) {
             String key = GGEPKeys.GGEP_HEADER_PARTIAL_RESULT_PREFIX+i;
-            if (ggep.hasKey(key)) {
-                byte [] b = ggep.get(key);
-                if (b == null)
-                    continue;
-                
+            if (ggep.hasValueFor(key)) {
+                byte [] b = ggep.get(key);                
                 if (ret == null)
                     ret = new IntervalSet();
 

@@ -133,7 +133,7 @@ public class ResumeDownloaderTest extends LimeTestCase {
         assertEquals(amountDownloaded, downloader.getAmountRead());
                 
         DownloadMemento memento = downloader.toMemento();
-        downloader.stop();
+        downloader.stop(false);
         
         // Verify that in a new instance of LW, things are still right.
         Injector newInjector = LimeTestUtils.createInjector();
@@ -150,7 +150,7 @@ public class ResumeDownloaderTest extends LimeTestCase {
         }
         assertEquals(DownloadStatus.WAITING_FOR_USER, newDownloader.getState());
         assertEquals(amountDownloaded, newDownloader.getAmountRead());
-        newDownloader.stop();
+        newDownloader.stop(false);
     }
 
 }

@@ -1,26 +1,27 @@
 package org.limewire.ui.swing.wizard;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.Iterator;
+
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.limewire.core.api.library.LibraryData;
+import org.limewire.core.settings.InstallSettings;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.util.I18n;
 
 public class UpgradePage1 extends WizardPage {
 
     private final String line1 = I18n.tr("LimeWire is ready to fill your Library");
-    private final String line2 = I18n.tr("Your Library is a central location to view, share and unshare your files " +
-    		"with the P2P Network and, or your friends.");
-    private final String footer = I18n.tr("You can change this option later from Tools > Options");
-    
-    private final String noteText = I18n.tr("LimeWire will import old shared files into your Library " +
-    		"and continue sharing them");
+    private final String line2 = I18n.tr("My Library is where you view, share and unshare your files.");
+    private final String footer = I18n.tr("You can change this option later from Tools > Options");    
+    private final String noteText = I18n.tr("LimeWire will import old shared files into your Library and continue sharing them");
     private final String autoTitle = I18n.tr("Automatically manage my Library");
-    private final String autoCheckText = I18n.tr("Allow LimeWire to automatically scan new files into your" +
-    		" Library from My Documents and the Desktop.  This will not automatically share your files.");
+    private final String autoCheckText = I18n.tr("Allow LimeWire to automatically scan new files into your Library from My Documents and the Desktop.  This will not automatically share your files.");
     
     private final LibraryData libraryData;
     
@@ -47,6 +48,7 @@ public class UpgradePage1 extends WizardPage {
         
         add(autoCheck, "gaptop 10, gapleft 40");
         label = new MultiLineLabel(autoCheckText, 500);
+        label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(autoCheck));
         decorator.decorateNormalText(label);       
         add(label, "gaptop 10, gapleft 10, wrap");
         
@@ -54,8 +56,39 @@ public class UpgradePage1 extends WizardPage {
     
     @Override
     public void applySettings() {
-        // TODO Auto-generated method stub
         
+        // Make sure the user consents to scanning new directories before enabling it
+        if (!autoCheck.isSelected()) {
+            return;
+        }
+        
+        InstallSettings.SCAN_FILES.setValue(true);
+        
+        Collection<File> manage = AutoDirectoryManageConfig.getManagedDirectories();
+        Collection<File> exclude = AutoDirectoryManageConfig.getExcludedDirectories();
+        
+        // Remove any bad directories to be safe
+        
+        for( Iterator<File> iter = manage.iterator() ; iter.hasNext() ; ) {
+            File i = iter.next();
+            if(!libraryData.isDirectoryAllowed(i)) {
+                iter.remove();
+            }
+        }
+        
+        for( Iterator<File> iter = exclude.iterator() ; iter.hasNext() ; ) {
+            File i = iter.next();
+            if(!libraryData.isDirectoryAllowed(i)) {
+                iter.remove();
+            }
+        }
+        
+        // Add old directories to the list because this is an upgrade and we
+        //  want to preserve old settings as much as possible
+        manage.addAll(libraryData.getDirectoriesToManageRecursively());
+        exclude.addAll(libraryData.getDirectoriesToExcludeFromManaging());
+        
+        libraryData.setManagedOptions(manage, exclude, libraryData.getManagedCategories());        
     }
 
     @Override

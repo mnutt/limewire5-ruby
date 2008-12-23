@@ -460,7 +460,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
         lwsManager.registerHandler("StopDownload", new LWSManagerCommandResponseForDownloading("StopDownload", lwsIntegrationServicesDelegate) {
             @Override
             protected void takeAction(Downloader d) {
-                d.stop();
+                d.stop(false);
             }              
         }); 
         // ====================================================================================================================================
@@ -502,7 +502,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
         lwsManager.registerHandler("StopAllDownloads", new LWSManagerCommandResponseForDownloadingAll("StopAllDownloads", lwsIntegrationServicesDelegate) {
             @Override
             protected void takeAction(Downloader d) {
-                d.stop();
+                d.stop(false);
             }              
         }); 
         // ====================================================================================================================================

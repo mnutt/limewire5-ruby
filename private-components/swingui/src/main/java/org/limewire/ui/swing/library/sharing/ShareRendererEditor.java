@@ -1,7 +1,6 @@
 package org.limewire.ui.swing.library.sharing;
 
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -16,6 +15,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.limewire.ui.swing.components.IconButton;
 
 public class ShareRendererEditor extends JPanel implements  TableCellEditor, TableCellRenderer {
@@ -25,10 +26,10 @@ public class ShareRendererEditor extends JPanel implements  TableCellEditor, Tab
     private SharingTarget friend;
     
     public ShareRendererEditor(Icon icon, Icon rolloverIcon, Icon pressedIcon){
-        super(new FlowLayout(FlowLayout.LEADING, 0,0));
+        super(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
         setOpaque(true);
         button = new IconButton(icon, rolloverIcon, pressedIcon);
-        add(button);
+        add(button, "aligny 50%");
     }
     
     public SharingTarget getFriend() {

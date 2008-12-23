@@ -37,7 +37,7 @@ class BrowseHostHandlerManagerImpl implements BrowseHostHandlerManager, Service 
     private final Map<GUID, BrowseHostHandler.PushRequestDetails> _pushedHosts = new HashMap<GUID, BrowseHostHandler.PushRequestDetails>();
 
     private final SocketsManager socketsManager;
-    private final Provider<ReplyHandler> forMeReplyHandler;
+    private final Provider<ForMeReplyHandler> forMeReplyHandler;
     private final ScheduledExecutorService backgroundExecutor;
 
     private final MessageFactory messageFactory;
@@ -51,7 +51,7 @@ class BrowseHostHandlerManagerImpl implements BrowseHostHandlerManager, Service 
     public BrowseHostHandlerManagerImpl(@Named("backgroundExecutor")
     ScheduledExecutorService backgroundExecutor,
                                         SocketsManager socketsManager,
-                                        @Named("forMeReplyHandler") Provider<ReplyHandler> forMeReplyHandler,
+                                        Provider<ForMeReplyHandler> forMeReplyHandler,
                                         MessageFactory messageFactory,
                                         NetworkManager networkManager,
                                         PushEndpointFactory pushEndpointFactory, 

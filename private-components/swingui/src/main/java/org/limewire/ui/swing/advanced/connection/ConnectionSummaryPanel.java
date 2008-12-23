@@ -16,7 +16,14 @@ import net.miginfocom.swing.MigLayout;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.connection.ConnectionItem;
+import org.limewire.core.api.connection.FWTStatusReason;
+import org.limewire.core.api.connection.FirewallStatus;
+import org.limewire.core.api.connection.FirewallStatusEvent;
+import org.limewire.core.api.connection.FirewallTransferStatus;
+import org.limewire.core.api.connection.FirewallTransferStatusEvent;
 import org.limewire.core.api.connection.GnutellaConnectionManager;
+import org.limewire.listener.EventBean;
+import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.EventList;
@@ -31,6 +38,10 @@ public class ConnectionSummaryPanel extends JPanel {
 
     private static final String IS_ULTRAPEER = I18n.tr("You are an Ultrapeer node");
     private static final String IS_LEAF = I18n.tr("You are a Leaf node");
+    private static final String IS_NOT_FIREWALLED = I18n.tr("You are not behind a firewall");
+    private static final String IS_FIREWALLED_TRANSFERS = I18n.tr("You are behind a firewall and support firewall transfers");
+    private static final String IS_FIREWALLED_NO_TRANSFERS = I18n.tr("You are behind a firewall and do not support firewall transfers");
+    private static final String WHY = I18n.tr("why");
     private static final String CONNECTED_TO = I18n.tr("Connected to:");
     
     private static final String CONNECTING = I18n.tr("Connecting");
@@ -40,12 +51,20 @@ public class ConnectionSummaryPanel extends JPanel {
     private static final String ULTRAPEERS = I18n.tr("Ultrapeers");
     
     /** Manager instance for connection data. */
-    private GnutellaConnectionManager gnutellaConnectionManager;
+    private final GnutellaConnectionManager gnutellaConnectionManager;
+    
+    /** Bean instance for firewall status. */
+    private final EventBean<FirewallStatusEvent> firewallStatusBean;
+    
+    /** Bean instance for firewall transfer status. */
+    private final EventBean<FirewallTransferStatusEvent> firewallTransferBean;
 
     /** List of connections. */
     private TransformedList<ConnectionItem, ConnectionItem> connectionList;
 
     private JLabel nodeLabel = new JLabel();
+    private JLabel firewallLabel = new MultiLineLabel();
+    private JLabel reasonLabel = new JLabel();
     private JLabel summaryLabel = new JLabel();
     private JTable summaryTable = new JTable();
     private SummaryTableModel summaryTableModel = new SummaryTableModel();
@@ -54,15 +73,24 @@ public class ConnectionSummaryPanel extends JPanel {
      * Constructs the ConnectionDetailPanel to display connections details.
      */
     @Inject
-    public ConnectionSummaryPanel(GnutellaConnectionManager gnutellaConnectionManager) {
+    public ConnectionSummaryPanel(GnutellaConnectionManager gnutellaConnectionManager,
+            EventBean<FirewallStatusEvent> firewallStatusBean,
+            EventBean<FirewallTransferStatusEvent> firewallTransferBean) {
+        
         this.gnutellaConnectionManager = gnutellaConnectionManager;
+        this.firewallStatusBean = firewallStatusBean;
+        this.firewallTransferBean = firewallTransferBean;
         
         setBorder(BorderFactory.createTitledBorder(""));
         setLayout(new MigLayout("insets 0 0 0 0,fill",
-            "[]",
-            "[top]12[bottom][top,fill]"));
+            "[left]3[left]",                   // col constraints
+            "[top][top][bottom][top,fill]"));  // row constraints
         setPreferredSize(new Dimension(120, 120));
         setOpaque(false);
+        
+        reasonLabel.setForeground(Color.BLUE);
+        reasonLabel.setMinimumSize(new Dimension(30, 14));
+        reasonLabel.setPreferredSize(new Dimension(30, 14));
 
         summaryLabel.setText(CONNECTED_TO);
 
@@ -77,9 +105,11 @@ public class ConnectionSummaryPanel extends JPanel {
         // Install renderer to align summary value.
         summaryTable.getColumnModel().getColumn(0).setCellRenderer(new SummaryCellRenderer());
 
-        add(nodeLabel   , "cell 0 0");
-        add(summaryLabel, "cell 0 1");
-        add(summaryTable, "cell 0 2");
+        add(nodeLabel    , "cell 0 0 2 1");
+        add(firewallLabel, "cell 0 1,growx 100");
+        add(reasonLabel  , "cell 1 1,bottom");
+        add(summaryLabel , "cell 0 2 2 1");
+        add(summaryTable , "cell 0 3 2 1");
     }
 
     @Override
@@ -103,6 +133,9 @@ public class ConnectionSummaryPanel extends JPanel {
             // Set node description.
             boolean ultrapeer = gnutellaConnectionManager.isUltrapeer();
             nodeLabel.setText(ultrapeer ? IS_ULTRAPEER : IS_LEAF);
+
+            // Set firewall status.
+            updateFirewallStatus();
         }
     }
     
@@ -118,7 +151,60 @@ public class ConnectionSummaryPanel extends JPanel {
      * Triggers a refresh of the data being displayed. 
      */
     public void refresh() {
+        updateFirewallStatus();
         summaryTableModel.update(connectionList);
+    }
+
+    /**
+     * Updates the firewall status fields.
+     */
+    private void updateFirewallStatus() {
+        // Get firewall status.
+        FirewallStatus firewallStatus = firewallStatusBean.getLastEvent().getSource();
+        
+        if (firewallStatus == FirewallStatus.FIREWALLED) {
+            // Get firewall transfer status and reason.
+            FirewallTransferStatusEvent event = firewallTransferBean.getLastEvent();
+            FirewallTransferStatus transferStatus = event.getSource();
+            FWTStatusReason transferReason = event.getType();
+
+            // Set firewall status and reason.
+            if (transferStatus == FirewallTransferStatus.DOES_NOT_SUPPORT_FWT) {
+                firewallLabel.setText(IS_FIREWALLED_NO_TRANSFERS);
+                reasonLabel.setText("<html>(<u>" + WHY + "</u>)</html>");
+                reasonLabel.setToolTipText(getReasonText(transferReason));
+            } else {
+                firewallLabel.setText(IS_FIREWALLED_TRANSFERS);
+                reasonLabel.setText("");
+                reasonLabel.setToolTipText(null);
+            }
+            
+        } else {
+            // Not firewalled so clear transfer status and reason.
+            firewallLabel.setText(IS_NOT_FIREWALLED);
+            reasonLabel.setText("");
+            reasonLabel.setToolTipText(null);
+        }
+    }
+
+    /**
+     * Returns the display text for the specified firewall transfer status 
+     * reason.
+     */
+    private String getReasonText(FWTStatusReason reason) {
+        switch (reason) {
+        case INVALID_EXTERNAL_ADDRESS:
+            return I18n.tr("Invalid external address");
+        case NO_SOLICITED_INCOMING_MESSAGES:
+            return I18n.tr("No solicited incoming messages");
+        case REUSING_STATUS_FROM_PREVIOUS_SESSION:
+            return I18n.tr("Reusing status from previous session");
+        case PORT_UNSTABLE:
+            return I18n.tr("Port unstable");
+        case UNKNOWN:
+        default:
+            return I18n.tr("Unknown");
+        }
     }
 
     /**

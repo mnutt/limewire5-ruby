@@ -112,5 +112,10 @@ public class AuthTokenIQListener implements PacketListener {
                 }
             }
         }
+
+        @Override
+        public void removeFeature(FriendPresence friendPresence) {
+            friendPresence.removeFeature(AuthTokenFeature.ID);
+        }
     }
 }

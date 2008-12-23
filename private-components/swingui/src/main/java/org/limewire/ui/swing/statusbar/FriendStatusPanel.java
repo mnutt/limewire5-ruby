@@ -3,7 +3,6 @@ package org.limewire.ui.swing.statusbar;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
@@ -41,8 +40,6 @@ class FriendStatusPanel {
         JPanel chatPanel = new JPanel(new BorderLayout());
         chatPanel.setBorder(BorderFactory.createLineBorder(new Color(159, 159, 159)));
         chatPanel.setOpaque(true);
-        chatPanel.setMinimumSize(new Dimension(0, 20));
-        chatPanel.setMaximumSize(new Dimension(150, 20));
         chatPanel.setBackground(whiteBackground);
         
         friendsButton = new JXButton(new AbstractAction(I18n.tr("Chat")) {
@@ -56,8 +53,8 @@ class FriendStatusPanel {
             }
         });
         friendsButton.setBackgroundPainter(new RectanglePainter<JXButton>(whiteBackground, whiteBackground));
+        
         chatPanel.add(friendsButton, BorderLayout.EAST);
-        chatPanel.setVisible(false);
         
         friendsPanel.setUnseenMessageListener(new UnseenMessageFlasher(friendsButton));       
         

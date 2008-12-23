@@ -141,7 +141,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         
         if (event.getMessage().getType() != Message.Type.Sent && !GuiUtils.getMainFrame().isActive()) {
             LOG.debug("Sending a message to the tray notifier");
-            notifier.showMessage(new Notification(getNoticeForMessage(event)));
+            notifier.showMessage(getNoticeForMessage(event));
             
             URL soundURL = ChatFramePanel.class.getResource(MESSAGE_SOUND_PATH);
             if (soundURL != null && UISettings.PLAY_NOTIFICATION_SOUND.getValue()) {
@@ -157,9 +157,11 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         }
     }
 
-    private String getNoticeForMessage(MessageReceivedEvent event) {
+    private Notification getNoticeForMessage(MessageReceivedEvent event) {
         Message message = event.getMessage();
-        return tr("Chat from {0} - LimeWire 5", message.getSenderName());
+        String title = tr("Chat from {0}", message.getSenderName());
+        String messageString = message.toString();
+        return new Notification(title, messageString);
     }
     
     private void handleConnectionEstablished(XMPPConnectionEvent event) {

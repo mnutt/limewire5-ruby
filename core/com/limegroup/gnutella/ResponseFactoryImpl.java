@@ -48,7 +48,6 @@ import com.limegroup.gnutella.util.DataUtils;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 import com.limegroup.gnutella.xml.LimeXMLDocumentFactory;
 import com.limegroup.gnutella.xml.LimeXMLNames;
-import com.limegroup.gnutella.xml.LimeXMLProperties;
 
 @Singleton
 public class ResponseFactoryImpl implements ResponseFactory {
@@ -89,16 +88,16 @@ public class ResponseFactoryImpl implements ResponseFactory {
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.ResponseFactory#createResponse(long, long, java.lang.String)
      */
-    public Response createResponse(long index, long size, String name) {
-        return createResponse(index, size, name, -1, null, null, null, null);
+    public Response createResponse(long index, long size, String name, URN urn) {
+        return createResponse(index, size, name, -1, new UrnSet(urn), null, null, null);
     }
   
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.ResponseFactory#createResponse(long, long, java.lang.String, com.limegroup.gnutella.xml.LimeXMLDocument)
      */
     public Response createResponse(long index, long size, String name,
-            LimeXMLDocument doc) {
-        return createResponse(index, size, name, -1, null, doc, null, null);
+            LimeXMLDocument doc, URN urn) {
+        return createResponse(index, size, name, -1, new UrnSet(urn), doc, null, null);
     }
     
     /* (non-Javadoc)
@@ -260,12 +259,6 @@ public class ResponseFactoryImpl implements ResponseFactory {
                 ggepData.locations, ggepData.createTime, extensions, ggepData.ranges, ggepData.verified);
     }
     
-
-    public Response createPureMetadataResponse() {
-        return createResponse(LimeXMLProperties.DEFAULT_NONFILE_INDEX, 0, " ");
-    }
-
-    
     private void checkFilename(String name) throws IOException {
         if (name.length() == 0) {
             throw new IOException("empty name in response");
@@ -414,7 +407,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
      */
     private Set<? extends IpPort> getAsIpPorts(
             AlternateLocationCollection<DirectAltLoc> col) {
-        if (col == null || !col.hasAlternateLocations())
+        if (!col.hasAlternateLocations())
             return Collections.emptySet();
 
         long now = System.currentTimeMillis();
@@ -503,9 +496,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
         // if the block has a ALTS value, get it, parse it,
         // and move to the next.
-        if (ggep.hasKey(GGEPKeys.GGEP_HEADER_ALTS)) {
+        if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_ALTS)) {
             byte[] tlsData = null;
-            if (ggep.hasKey(GGEPKeys.GGEP_HEADER_ALTS_TLS)) {
+            if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_ALTS_TLS)) {
                 try {
                     tlsData = ggep.getBytes(GGEPKeys.GGEP_HEADER_ALTS_TLS);
                 } catch (BadGGEPPropertyException ignored) {
@@ -519,25 +512,24 @@ public class ResponseFactoryImpl implements ResponseFactory {
             }
         }
 
-        if (ggep.hasKey(GGEPKeys.GGEP_HEADER_CREATE_TIME)) {
+        if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_CREATE_TIME)) {
             try {
                 createTime = ggep.getLong(GGEPKeys.GGEP_HEADER_CREATE_TIME) * 1000;
             } catch (BadGGEPPropertyException bad) {
             }
         }
 
-        if (ggep.hasKey(GGEPKeys.GGEP_HEADER_LARGE_FILE)) {
+        if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_LARGE_FILE)) {
             try {
                 size64 = ggep.getLong(GGEPKeys.GGEP_HEADER_LARGE_FILE);
             } catch (BadGGEPPropertyException bad) {
             }
         }
         
-        if (ggep.hasKey(GGEPKeys.GGEP_HEADER_TTROOT)) {
+        if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_TTROOT)) {
             try {
                 byte []tt = ggep.get(GGEPKeys.GGEP_HEADER_TTROOT);
-                if (tt != null)
-                    ttroot = URN.createTTRootFromBytes(tt);
+                ttroot = URN.createTTRootFromBytes(tt);
             } catch (IOException bad){}
         }
         
@@ -633,4 +625,5 @@ public class ResponseFactoryImpl implements ResponseFactory {
                     ttroot == null;
         }
     }
+
 }

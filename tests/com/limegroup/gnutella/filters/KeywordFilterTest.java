@@ -14,6 +14,7 @@ import com.google.inject.Injector;
 import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.ResponseFactory;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.PingRequest;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -201,7 +202,7 @@ public class KeywordFilterTest extends BaseTestCase {
         long size = 0;
         LimeXMLDocument emptyDoc = null;
         
-        qrResponse = responseFactory.createResponse(index, size, response, emptyDoc);
+        qrResponse = responseFactory.createResponse(index, size, response, emptyDoc, UrnHelper.SHA1);
                      
         /*
          * add Response to Response List

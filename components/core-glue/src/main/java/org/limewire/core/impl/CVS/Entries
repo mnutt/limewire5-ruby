@@ -1,5 +1,25 @@
-/ApplicationImpl.java/1.7/Fri Dec  5 19:30:03 2008//
-/CoreGlueModule.java/1.26/Fri Dec  5 19:30:03 2008//
-/GlueActivityCallback.java/1.26/Sat Dec 13 03:46:24 2008//
-/URNImpl.java/1.2/Wed Oct 15 15:29:33 2008//
-D
+D/browse////
+D/connection////
+D/daap////
+D/download////
+D/friend////
+D/itunes////
+D/library////
+D/lifecycle////
+D/magnet////
+D/mojito////
+D/monitor////
+D/mozilla////
+D/network////
+D/player////
+D/search////
+D/spam////
+D/support////
+D/updates////
+D/upload////
+D/util////
+D/xmpp////
+/ApplicationImpl.java/1.7/Wed Dec 17 01:21:17 2008//
+/CoreGlueModule.java/1.26/Wed Dec 17 01:21:17 2008//
+/GlueActivityCallback.java/1.30/Tue Dec 23 20:13:18 2008//
+/URNImpl.java/1.2/Wed Dec 17 01:21:17 2008//

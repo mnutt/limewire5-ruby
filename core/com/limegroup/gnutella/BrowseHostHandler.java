@@ -37,6 +37,7 @@ import org.limewire.core.api.friend.feature.Feature;
 import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.friend.feature.features.AuthTokenFeature;
 import org.limewire.http.httpclient.SocketWrapperProtocolSocketFactory;
+import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.IOUtils;
 import org.limewire.io.NetworkUtils;
@@ -90,7 +91,7 @@ public class BrowseHostHandler {
     private volatile long _stateStarted = 0;
 
     private final SocketsManager socketsManager;
-    private final Provider<ReplyHandler> forMeReplyHandler;
+    private final Provider<ForMeReplyHandler> forMeReplyHandler;
 
     private final MessageFactory messageFactory;
     private final Provider<HttpParams> httpParams;
@@ -107,7 +108,7 @@ public class BrowseHostHandler {
      */
     BrowseHostHandler(GUID sessionGuid, 
                       SocketsManager socketsManager,
-                      Provider<ReplyHandler> forMeReplyHandler,
+                      Provider<ForMeReplyHandler> forMeReplyHandler,
                       MessageFactory messageFactory,
                       Provider<HttpParams> httpParams,
                       NetworkManager networkManager,
@@ -225,7 +226,7 @@ public class BrowseHostHandler {
                 client.setCredentials(new UsernamePasswordCredentials(username, password));
             } else {
                 if (LOG.isDebugEnabled())
-                    LOG.debug("no auth token yet for: " + friendPresence);
+                    LOG.debug("no auth token for: " + friendPresence);
             }
         }
         // TODO
@@ -283,7 +284,8 @@ public class BrowseHostHandler {
     }
 
     private void readQueryRepliesFromStream(HttpResponse response, FriendPresence friendPresence) {
-        if(response.getEntity() != null) {
+        Address address = ((AddressFeature)friendPresence.getFeature(AddressFeature.ID)).getFeature();
+        if(response.getEntity() != null && address != null) { // addres can be null if either party is concurrently logging out
             InputStream in;
             try {
                 in = response.getEntity().getContent();
@@ -315,7 +317,7 @@ public class BrowseHostHandler {
                         reply.setGUID(_guid);
                         reply.setBrowseHostReply(true);
                         
-                        forMeReplyHandler.get().handleQueryReply(reply, null);
+                        forMeReplyHandler.get().handleQueryReply(reply, null, address);
                     }
                 }
             }

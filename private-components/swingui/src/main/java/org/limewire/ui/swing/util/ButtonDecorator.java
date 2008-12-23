@@ -52,6 +52,14 @@ public class ButtonDecorator {
         decorateDarkFullButton(button, DrawMode.FULLY_ROUNDED, AccentType.SHADOW);
     }
     
+    public void decorateDarkFullImageButton(JXButton button, AccentType accent) {
+        decorateDarkFullButton(button, button.getForegroundPainter(), 
+                painterFactory.createDarkFullButtonBackgroundPainter(DrawMode.FULLY_ROUNDED, accent));
+        
+        button.setContentAreaFilled(false);
+        button.setPaintBorderInsets(true);
+    }
+    
     public void decorateDarkFullImageButton(JXButton button, DrawMode mode) {
         decorateDarkFullButton(button, button.getForegroundPainter(), 
                 painterFactory.createDarkFullButtonBackgroundPainter(mode, AccentType.SHADOW));

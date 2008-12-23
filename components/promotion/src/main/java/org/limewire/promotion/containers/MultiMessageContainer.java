@@ -23,7 +23,7 @@ public class MultiMessageContainer extends MapMessageContainer {
 
     @Override
     public void decode(final GGEP rawGGEP) throws BadGGEPBlockException {
-        if (!rawGGEP.hasKey(KEY_WRAPPED_BYTES))
+        if (!rawGGEP.hasValueFor(KEY_WRAPPED_BYTES))
             throw new BadGGEPBlockException("Missing wrappedBytes");
         super.decode(rawGGEP);
     }

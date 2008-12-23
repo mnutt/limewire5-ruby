@@ -19,15 +19,14 @@ import org.limewire.core.api.URN;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.settings.SharingSettings;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.images.ImageList;
 import org.limewire.ui.swing.images.ImageListModel;
-import org.limewire.ui.swing.library.Disposable;
 import org.limewire.ui.swing.library.LibraryOperable;
 import org.limewire.ui.swing.library.sharing.ShareWidget;
 import org.limewire.ui.swing.library.table.menu.MyImageLibraryPopupHandler.ImageLibraryPopupParams;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.SwingUtils;
-import org.limewire.util.NotImplementedException;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GroupingList;
@@ -143,12 +142,12 @@ public class LibraryImagePanel extends JPanel
         add(subPanel);
     }
         
-    private File getParentFolder(LocalFileItem localFileItem){
+    private static File getParentFolder(LocalFileItem localFileItem){
         return localFileItem.isIncomplete() ? SharingSettings.INCOMPLETE_DIRECTORY.getValue() : 
             ((localFileItem.getFile() == null) ? SharingSettings.INCOMPLETE_DIRECTORY.getValue() : localFileItem.getFile().getParentFile());
     }
     
-    private class DirectoryMatcher implements Matcher<LocalFileItem>{
+    private static class DirectoryMatcher implements Matcher<LocalFileItem>{
         
         private File parentDirectory;
 
@@ -211,7 +210,7 @@ public class LibraryImagePanel extends JPanel
         if (getParent() == null)
             return dimension;
         if (dimension.height > scrollPane.getSize().height){
-            return new Dimension(scrollPane.getWidth(), dimension.height);
+            return new Dimension(scrollPane.getWidth() -20, dimension.height);
         } else {
             return scrollPane.getSize(); 
         }
@@ -263,14 +262,14 @@ public class LibraryImagePanel extends JPanel
         }
     }
 
-    @Override
+   @Override
     public File getNextItem(File file) {
-        throw new NotImplementedException("Image library traversal not implemented");
+        throw new IllegalStateException("Image library traversal not available");
     }
 
     @Override
     public File getPreviousItem(File file) {
-        throw new NotImplementedException("Image library traversal not implemented");
+        throw new IllegalStateException("Image library traversal not available");
     }
-    
+
 }

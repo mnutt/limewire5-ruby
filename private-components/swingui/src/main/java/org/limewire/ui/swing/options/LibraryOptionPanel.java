@@ -7,13 +7,15 @@ import java.util.Collection;
 import java.util.EnumSet;
 
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
-import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -24,8 +26,8 @@ import org.limewire.core.settings.LibrarySettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.components.FocusJOptionPane;
+import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.library.manager.LibraryManagerItemImpl;
 import org.limewire.ui.swing.library.manager.LibraryManagerModel;
 import org.limewire.ui.swing.library.manager.LibraryManagerTreeTable;
@@ -42,6 +44,8 @@ public class LibraryOptionPanel extends OptionPanel {
 
     private LibraryManagerOptionPanel libraryManagerPanel;
     
+    private ShareCategoryPanel shareCategoryPanel;
+    
     private LibraryManager libraryManager;
     
     @Inject
@@ -51,6 +55,7 @@ public class LibraryOptionPanel extends OptionPanel {
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
         
         add(getLibraryManagerPanel(), "pushx, growx");
+        add(getShareCategoryPanel(), "pushx, growx");
     }
     
     private LibraryManagerOptionPanel getLibraryManagerPanel() {
@@ -58,6 +63,13 @@ public class LibraryOptionPanel extends OptionPanel {
             libraryManagerPanel = new LibraryManagerOptionPanel(libraryManager.getLibraryData());
         }
         return libraryManagerPanel;
+    }
+    
+    private OptionPanel getShareCategoryPanel() {
+        if (shareCategoryPanel == null) {
+            shareCategoryPanel = new ShareCategoryPanel();
+        }
+        return shareCategoryPanel;
     }
 
     @Override
@@ -73,6 +85,54 @@ public class LibraryOptionPanel extends OptionPanel {
     @Override
     public void initOptions() {
         getLibraryManagerPanel().initOptions();
+        getShareCategoryPanel().initOptions();
+    }
+    
+    
+    /**
+     * Share Category Panel
+     * 
+     */
+    private class ShareCategoryPanel extends OptionPanel {
+
+        private JRadioButton shareSnapshot;
+
+        private JRadioButton shareCollection;
+
+        private ButtonGroup buttonGroup;
+
+        public ShareCategoryPanel() {
+            super(I18n.tr("Sharing Categories"));
+            setLayout(new MigLayout("", "", "[][][]"));
+
+            shareSnapshot = new JRadioButton(I18n.tr("Only share files in that category at that point"));
+            shareSnapshot.setContentAreaFilled(false);
+            shareCollection = new JRadioButton(I18n.tr("Share my entire collection, including new files that automatically get added to My Library"));
+            shareCollection.setContentAreaFilled(false);
+            
+            buttonGroup = new ButtonGroup();
+            buttonGroup.add(shareSnapshot);
+            buttonGroup.add(shareCollection);
+            
+            add(new JLabel(I18n.tr("When I share a category:")), "wrap");
+            add(shareSnapshot, "gapleft 15, wrap");
+            add(shareCollection, "gapleft 15");
+        }
+        
+        @Override
+        boolean applyOptions() {
+            return false;
+        }
+
+        @Override
+        boolean hasChanged() {
+            return false;
+        }
+
+        @Override
+        public void initOptions() {
+            shareSnapshot.setSelected(true);    //need to hit props file I'm guessing?
+        }
     }
     
     /**

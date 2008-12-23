@@ -9,34 +9,27 @@ import javax.swing.Icon;
  */
 public class Notification {
 
+    private String title;
+
     private String message;
 
     private Action[] actions;
 
     private Icon icon;
 
-    private boolean verticleActionOrientation = false;
-    
-    public Notification(String message, Icon icon, Action... actions) {
+    public Notification(String title, String message, Icon icon, Action... actions) {
+        this.title = title;
         this.message = message;
         this.icon = icon;
         this.actions = actions;
     }
 
-    public Notification(String message, Icon icon, 
-            boolean useVerticleActionOrientation, Action... actions) {
-        
-        this(message, icon, actions);
-        
-        verticleActionOrientation = true;
-    }
-    
-    public Notification(String message, Icon icon) {
-        this(message, icon, (Action[]) null);
+    public Notification(String message, Icon icon, Action... actions) {
+        this(null, message, icon, actions);
     }
 
-    public Notification(String message) {
-        this(message, null, (Action[]) null);
+    public Notification(String title, String message) {
+        this(title, message, null, new Action[0]);
     }
 
     public String getMessage() {
@@ -50,9 +43,8 @@ public class Notification {
     public Icon getIcon() {
         return icon;
     }
-    
-    public boolean useVerticleActionOrientation() {
-        return verticleActionOrientation;
-    }
 
+    public String getTitle() {
+        return title;
+    }
 }

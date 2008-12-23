@@ -62,7 +62,7 @@ public abstract class MapMessageContainer implements MessageContainer {
     protected String getString(String key) {
         if (key == null)
             throw new NullPointerException("key must not be null.");
-        if (!payload.hasKey(key))
+        if (!payload.hasValueFor(key))
             return null;
         return StringUtils.toUTF8String(payload.get(key));
     }
@@ -74,7 +74,7 @@ public abstract class MapMessageContainer implements MessageContainer {
     protected byte[] getBytes(String key) {
         if (key == null)
             throw new NullPointerException("key must not be null.");
-        if (!payload.hasKey(key))
+        if (!payload.hasValueFor(key))
             return null;
         try {
             return payload.getBytes(key);
@@ -90,7 +90,7 @@ public abstract class MapMessageContainer implements MessageContainer {
     protected Long getLong(String key) {
         if (key == null)
             throw new NullPointerException("key must not be null.");
-        if (!payload.hasKey(key))
+        if (!payload.hasValueFor(key))
             return null;
         try {
             return payload.getLong(key);
@@ -106,7 +106,7 @@ public abstract class MapMessageContainer implements MessageContainer {
     protected Date getDate(String key) {
         if (key == null)
             throw new NullPointerException("key must not be null.");
-        if (!payload.hasKey(key))
+        if (!payload.hasValueFor(key))
             return null;
         try {
             return new Date(payload.getLong(key));

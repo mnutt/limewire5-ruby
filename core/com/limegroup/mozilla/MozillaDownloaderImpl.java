@@ -276,7 +276,7 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     }
 
     @Override
-    public void stop() {
+    public void stop(boolean deleteFile) {
         finish();
         downloadManager.remove(this, true);
     }

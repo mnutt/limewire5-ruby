@@ -1222,13 +1222,13 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
             BitNumbers bn = null;
             
             // First try and get the bits for which PPs support TLS.
-            if(ggep.hasKey(GGEPKeys.GGEP_HEADER_PUSH_PROXY_TLS)) {
+            if(ggep.hasValueFor(GGEPKeys.GGEP_HEADER_PUSH_PROXY_TLS)) {
                 try {
                     bn = new BitNumbers(ggep.getBytes(GGEPKeys.GGEP_HEADER_PUSH_PROXY_TLS));
                 } catch(BadGGEPPropertyException bad) {}
             }
             
-            if (ggep.hasKey(GGEPKeys.GGEP_HEADER_PUSH_PROXY)) {
+            if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_PUSH_PROXY)) {
                 try {
                     byte[] proxyBytes = ggep.getBytes(GGEPKeys.GGEP_HEADER_PUSH_PROXY);
                     ByteArrayInputStream bais = new ByteArrayInputStream(proxyBytes);

@@ -117,4 +117,6 @@ public interface RemoteFileDescFactory {
      * returned by {@link RemoteHostMemento#getType()}.
      */
     public void register(String type, RemoteFileDescDeserializer remoteFileDescDeserializer);
+
+    public void register(RemoteFileDescCreator remoteFileDescCreator);
 }

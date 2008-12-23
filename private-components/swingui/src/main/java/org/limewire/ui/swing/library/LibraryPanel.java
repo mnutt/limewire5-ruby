@@ -4,6 +4,10 @@ import javax.swing.Action;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.FileItem;
+import org.limewire.core.settings.LibrarySettings;
+import org.limewire.setting.evt.SettingEvent;
+import org.limewire.setting.evt.SettingListener;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.LimePromptTextField;
@@ -38,7 +42,7 @@ class LibraryPanel extends AbstractFileListPanel {
         addDisposable(listener);
     }
     
-    private static class ButtonSizeListener<T> implements Disposable, ListEventListener<T> {
+    private static class ButtonSizeListener<T> implements Disposable, ListEventListener<T>, SettingListener {
         private final Category category;
         private final Action action;
         private final FilterList<T> list;
@@ -47,24 +51,37 @@ class LibraryPanel extends AbstractFileListPanel {
             this.category = category;
             this.action = action;
             this.list = list;
+            action.putValue(Action.NAME, I18n.tr(category.toString()));
             setText();
+            if(category == Category.PROGRAM) {
+                LibrarySettings.ALLOW_PROGRAMS.addSettingListener(this);
+            }
         }
 
         private void setText() {
-            action.putValue(Action.NAME, I18n.tr(category.toString()) + " (" + list.size() + ")");
             //disable other category if size is 0
             if(category == Category.OTHER) {
                 action.setEnabled(list.size() > 0);
+            } else if(category == Category.PROGRAM) { // hide program category is not enabled
+                action.setEnabled(LibrarySettings.ALLOW_PROGRAMS.getValue());
             }
         }
         
         @Override
         public void dispose() {
             list.removeListEventListener(this);
+            if(category == Category.PROGRAM) {
+                LibrarySettings.ALLOW_PROGRAMS.removeSettingListener(this);
+            }
         }
 
         @Override
         public void listChanged(ListEvent<T> listChanges) {
+            setText();
+        }
+
+        @Override
+        public void settingChanged(SettingEvent evt) {
             setText();
         }
     }        

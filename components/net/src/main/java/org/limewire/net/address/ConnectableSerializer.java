@@ -70,7 +70,7 @@ public class ConnectableSerializer implements AddressSerializer {
         try {
             GGEP ggep = new GGEP(serializedSet);
             StrictIpPortSet<Connectable> set = new StrictIpPortSet<Connectable>();    
-            for (int i = 0; ggep.hasKey(CONNECTABLE + i); i++) {
+            for (int i = 0; ggep.hasValueFor(CONNECTABLE + i); i++) {
                 set.add(deserialize(ggep.getBytes(CONNECTABLE + i)));
             }
             return set;

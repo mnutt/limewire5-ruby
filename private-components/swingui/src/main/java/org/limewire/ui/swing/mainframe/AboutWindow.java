@@ -176,22 +176,29 @@ class AboutWindow {
                 "  <li>Sam Berlin</li>" + 
                 "  <li>David Chen</li>" +
                 "  <li>Mike Everett</li>" +              
-                "  <li>Bobby Fonacier</li>" +                
                 "  <li>Tim Julien</li>" +
-                "  <li>Akshay Kumar</li>" +
-                "  <li>Greg Maggioncalda</li>" +
                 "  <li>Jorge Mancheno</li>" +                
                 "  <li>Jason Pelzer</li>" +
                 "  <li>Michael Rogers</li>" +
                 "  <li>Anthony Roscoe</li>" +
                 "  <li>Mike Sorvillo</li>" +
-                "  <li>Dan Sullivan</li>" +
                 "  <li>Michael Tiraborrelli</li>" +
                 "  <li>Matt Turkel</li>" +
                 "  <li>Peter Vertenten</li>" +
                 "  <li>Peng Wang</li>" +
                 "  <li>Ernie Yu</li>" +
                 "</ul>");
+        //behind the scenes technical
+        sb.append(I18n.tr("Providing key support:"));
+        sb.append("<ul>\n" +  
+                "  <li>Ari Amanatidis</li>" +
+                "  <li>Bobby Fonacier</li>" +                
+                "  <li>Catherine Herdlick</li>" +
+                "  <li>Akshay Kumar</li>" +
+                "  <li>Greg Maggioncalda</li>" +
+                "  <li>Dan Sullivan</li>" +
+                "</ul>");        
+        
         
         //  business developers
         sb.append(I18n.tr("Behind the scenes business strategy and day-to-day affairs are handled by LimeWire\'s business developers:"));

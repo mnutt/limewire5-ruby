@@ -50,6 +50,7 @@ import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.dht.DHTManager;
 import com.limegroup.gnutella.dht.DHTManagerStub;
 import com.limegroup.gnutella.handshaking.HeadersFactory;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.QueryReplyFactory;
@@ -593,7 +594,7 @@ public class UDPCrawlerMessagesTest extends LimeTestCase {
     	// send a few query replies on each conn
     	Response[] res = new Response[1];
         for (int j = 0; j < res.length; j++)
-            res[j] = responseFactory.createResponse(10, 10, "not proxied");
+            res[j] = responseFactory.createResponse(10, 10, "not proxied", UrnHelper.SHA1);
         Message reply = 
             queryReplyFactory.createQueryReply(GUID.makeGuid(), (byte) 3, 6356,
                 InetAddress.getLocalHost().getAddress(), 0, res, GUID.makeGuid(), new byte[0], false, false,

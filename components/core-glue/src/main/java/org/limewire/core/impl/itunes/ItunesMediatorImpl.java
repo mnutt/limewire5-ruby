@@ -107,7 +107,13 @@ public final class ItunesMediatorImpl implements ItunesMediator {
         }
 
         public void run() {
-            addFileToLibrary(file);
+            try {
+                addFileToLibrary(file);
+            } catch (com.jacob.com.ComFailException e) {
+                LOG.warn("Error adding file to itunes library", e);
+            } catch (IllegalStateException e) {
+                LOG.warn("Error adding file to itunes library", e);
+            }
         }
 
         /**

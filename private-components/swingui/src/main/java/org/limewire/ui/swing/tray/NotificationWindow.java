@@ -1,118 +1,54 @@
 package org.limewire.ui.swing.tray;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
+import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
+import java.util.StringTokenizer;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
-import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
-import javax.swing.MutableComboBoxModel;
-import javax.swing.Timer;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
+import javax.swing.JWindow;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.painter.MattePainter;
-import org.limewire.ui.swing.components.BoxPanel;
+import org.jdesktop.swingx.painter.CompoundPainter;
+import org.jdesktop.swingx.painter.RectanglePainter;
+import org.limewire.listener.EventListener;
+import org.limewire.listener.EventListenerList;
+import org.limewire.listener.ListenerSupport;
+import org.limewire.ui.swing.animate.AnimatorEvent;
+import org.limewire.ui.swing.animate.FadeInOutAnimator;
+import org.limewire.ui.swing.animate.MoveAnimator;
+import org.limewire.ui.swing.painter.BorderPainter;
+import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.util.OSUtils;
+import org.limewire.util.StringUtils;
 import org.limewire.util.SystemUtils;
 
 /**
- * An animated notification window that can display multiple notifications. The
- * window automatically scrolls through the messages and hides the window if the
- * last message has been displayed for <code>timeout</code> milliseconds.
- * 
- * <p>
- * If the mouse enters the notification window the timer is stopped and no more
- * automatic scrolling or hiding will occur. If the mouse leaves the window the
- * timer is restarted. The window is closed instantly when it is clicked.
- * 
- * <p>
- * Buttons are provided in the top right corner to manually scroll through the
- * messages.
- * 
- * <p>
- * Based on JDIC GnomeTrayIconService.BalloonMessageWindow.
+ * Notification window for system messages. This class handles drawing the
+ * window and kickstarts the animation.
  */
-class NotificationWindow extends AnimatedWindow {
+class NotificationWindow extends JWindow implements ListenerSupport<WindowDisposedEvent> {
+    private final Notification notification;
 
-    private final static int DEFAULT_TIMEOUT = 6 * 1000;
-
-    private JLabel titleLabel;
-
-    /**
-     * Automatically scrolls to next message / hides window after
-     * <code>timeout</code>.
-     */
-    private Timer autoHideTimer;
-
-    private String title;
-
-    private JXPanel mainPanel;
-
-    private Icon titleIcon;
-
-    private Point parentLocation;
-
-    private Dimension parentSize;
-
-    private BoxPanel topPanel;
-
-    private ComboBoxModel model;
-
-    private ModelListener modelListener = new ModelListener();
-
-    private NotificationRenderer renderer = new DefaultNotificationRenderer();
-
-    private Action previousNotificationAction = new PreviousNotificationAction();
-
-    private Action nextNotificationAction = new NextNotificationAction();
-    
-    private Action closeAction = new CloseAction();
-
-    private JLabel notificationIndexLabel;
-
-    private Dimension locationOffset = new Dimension(0, 0);
-
-    private boolean pendingScreenUpdate;
-
-    @Resource
-    private Icon trayNotifyBack;
-
-    @Resource
-    private Icon trayNotifyBackPressed;
-
-    @Resource
-    private Icon trayNotifyForward;
-
-    @Resource
-    private Icon trayNotifyForwardPressed;
+    private final EventListenerList<WindowDisposedEvent> eventListenerList = new EventListenerList<WindowDisposedEvent>();
 
     @Resource
     private Icon trayNotifyClose;
@@ -120,596 +56,274 @@ class NotificationWindow extends AnimatedWindow {
     @Resource
     private Icon trayNotifyCloseRollover;
 
-    public NotificationWindow(Window parent, ComboBoxModel model) {
-        super(parent);
+    @Resource
+    private Font titleFont;
 
+    @Resource
+    private Font messageFont;
+
+    private MoveAnimator currentMoveAnimator;
+
+    public NotificationWindow(Icon icon, final Notification notification) {
         GuiUtils.assignResources(this);
-        
-        setModel(model);
+        this.notification = notification;
 
-        initialize();
-
-        autoHideTimer = new javax.swing.Timer(DEFAULT_TIMEOUT,
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        showNextNotificationOrHideWindow();
-                    }
-                });
-        // timer scrolls through all messages before hiding the window and needs
-        // to repeat therefore
-        autoHideTimer.setRepeats(true);
-        
-        addMouseListener(new MouseAdapter() {
+        FadeInOutAnimator fadeInOutAnimator = new FadeInOutAnimator(this, 500, 2500, 500);
+        fadeInOutAnimator.addListener(new EventListener<AnimatorEvent<JWindow>>() {
             @Override
-            public void mouseClicked(final MouseEvent e) {
-                //hideWindowImmediately();
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                stopAutoHideTimer();
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                startAutoHideTimer();
-            }
-        });
-        
-        addAnimatedWindowListener(new AnimatedWindowListener() {
-            public void animationCompleted(AnimatedWindowEvent event) {
-                if (event.getAnimationType() == AnimationType.SHOW) {
-                    if (pendingScreenUpdate) {
-                        pendingScreenUpdate = false;
-                        doNotificationLayout();
-                    }
-                    startAutoHideTimer();
+            public void handleEvent(AnimatorEvent event) {
+                if (event.getType() == AnimatorEvent.Type.STOPPED) {
+                    eventListenerList.broadcast(new WindowDisposedEvent(NotificationWindow.this));
                 }
             }
-
-            public void animationStarted(AnimatedWindowEvent event) {
-            }
-
-            public void animationStopped(AnimatedWindowEvent event) {
-            }            
         });
-    }
-    
-    public NotificationWindow(Window parent) {
-        this(parent, new DefaultComboBoxModel());
+
+        JXPanel panel = new JXPanel(new MigLayout("fillx"));
+        add(panel);
+
+        panel.setBackgroundPainter(createPainter(panel));
+
+        JCheckBox iconCheckBox = new JCheckBox(icon);
+       
+
+        final JCheckBox closeButton = new JCheckBox(trayNotifyClose);
+        closeButton.setVisible(false);
+        closeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                eventListenerList.broadcast(new WindowDisposedEvent(NotificationWindow.this));
+            }
+        });
+
+        closeButton.addMouseListener(new HoverButtonMouseListener(closeButton, trayNotifyClose,
+                trayNotifyCloseRollover));
+
+        panel.addMouseListener(new HoverPanelMouseListener(closeButton));
+        closeButton.addMouseListener(new HoverPanelMouseListener(closeButton));
+        iconCheckBox.addMouseListener(new HoverPanelMouseListener(closeButton));
+
+        
+
+        String title = notification.getTitle();
+        String message = notification.getMessage();
+
+        
+
+        JEditorPane editor = new JEditorPane();
+        editor.addMouseListener(new HoverPanelMouseListener(closeButton));
+        HTMLEditorKit htmlEditorKit = new HTMLEditorKit();
+        StyleSheet styleSheet = new StyleSheet();
+        styleSheet.setBaseFontSize(messageFont.getSize());
+        htmlEditorKit.setStyleSheet(styleSheet);
+        editor.setMaximumSize(new Dimension(200, 50));
+        editor.setEditorKit(htmlEditorKit);
+        editor.setFont(messageFont);
+
+        message = getLines(message, htmlEditorKit, messageFont, 180);
+        String html = "<html><body><a href=\"action\"> " + message + "</a></body></html>";
+        editor.setContentType("text/html");
+        editor.setText(html);
+        editor.setEditable(false);
+        editor.addHyperlinkListener(new HyperlinkListener() {
+            @Override
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    if (notification.getActions() != null) {
+                        for (Action action : notification.getActions()) {
+                            action.actionPerformed(new ActionEvent(NotificationWindow.this,
+                                    ActionEvent.ACTION_PERFORMED, "Message Clicked"));
+                        }
+                    }
+                }
+            }
+        });
+        
+        panel.add(iconCheckBox, "");
+        panel.add(closeButton, "alignx right, wrap");
+        if (!StringUtils.isEmpty(title)) {
+            JLabel titleLabel = new JLabel(getTruncatedMessage(title, htmlEditorKit, titleFont, 180));
+            titleLabel.setFont(titleFont);
+            panel.add(titleLabel, "spanx 2, wrap");
+        }
+        panel.add(editor, "spanx 2");
+        setPreferredSize(new Dimension(200, 110));
+        pack();
+
+        fadeInOutAnimator.start();
     }
 
-    /** Ensure this is always on top. */
+    /**
+     * Returns the notification represented by this window.
+     */
+    public Notification getNotification() {
+        return notification;
+    }
+
     @Override
     public void addNotify() {
         super.addNotify();
-
         SystemUtils.setWindowTopMost(this);
     }
 
-    public void addNotification(Object notification) {
-        ((MutableComboBoxModel) model).addElement(notification);
-    }
-
-    private void doNotificationLayout() {
-        if (isHideAnimationInProgress()) {
-            // redisplay message
-            pendingScreenUpdate = true;
-            doShow();
-            return;
-        } else if (isShowAnimationInProgress()) {
-            // update screen when animation is complete
-            pendingScreenUpdate = true;
-            return;
-        }
-        
-        titleLabel.setIcon(getIcon());
-        titleLabel.setText(getTitle());
-        
-        setInitialHeight(titleLabel.getPreferredSize().height + 10);
-        
-        int selectedIndex = getSelectedIndex();
-        if (selectedIndex != -1) {
-            notificationIndexLabel.setText((selectedIndex + 1) + " of "
-                    + getModel().getSize());
-
-            previousNotificationAction.setEnabled(selectedIndex > 0);
-            nextNotificationAction
-                    .setEnabled(selectedIndex < getNotficationCount() - 1);
-        } else {
-            notificationIndexLabel.setText("");
-
-            previousNotificationAction.setEnabled(false);
-            nextNotificationAction.setEnabled(false);
-        }
-
-        Component component = getRenderer().getNotificationRendererComponent(
-                this, model.getSelectedItem(), selectedIndex);
-        mainPanel.add(component, BorderLayout.CENTER);
-
-        pack();
-        ensureVisibility();
+    @Override
+    public void addListener(EventListener<WindowDisposedEvent> listener) {
+        eventListenerList.addListener(listener);
     }
 
     @Override
-    public Point getFinalLocation() {
-        final Point parentLocation = new Point(
-                (getParentLocation() != null) ? getParentLocation()
-                        : getDefaultParentLocation());
-        final Rectangle screenBounds;
-        final Insets screenInsets;
-
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        GraphicsConfiguration gc = getGraphicsConfiguration(parentLocation);
-        if (gc != null) {
-            screenInsets = toolkit.getScreenInsets(gc);
-            screenBounds = gc.getBounds();
-        } else {
-            screenInsets = new Insets(0, 0, 0, 0);
-            screenBounds = new Rectangle(toolkit.getScreenSize());
-        }
-
-        final int screenWidth = screenBounds.width - Math.abs(screenInsets.left+screenInsets.right);
-        final int screenHeight = screenBounds.height - Math.abs(screenInsets.top+screenInsets.bottom);
-        
-        // adjust location
-        final Dimension parentSize = new Dimension(
-                (getParentSize() != null) ? getParentSize()
-                        : getDefaultParentSize());
-        parentLocation.x -= getLocationOffset().width;
-        parentLocation.y -= getLocationOffset().height;
-        parentSize.width += getLocationOffset().width * 2;
-        parentSize.height += getLocationOffset().height * 2;
-
-        final AnimationMode mode;
-        final Dimension preferredSize = getPreferredSize();
-        
-        // determine animation mode and initialize location
-        Point location = new Point();
-        if (parentLocation.y - preferredSize.height > 0) {
-            // sufficient space to display window above parent location
-            mode = AnimationMode.BOTTOM_TO_TOP; 
-            location.y = parentLocation.y - preferredSize.height;
-        } else {
-            mode = AnimationMode.TOP_TO_BOTTOM;
-            location.y = parentLocation.y + parentSize.height;
-        }
-        location.x = parentLocation.x;
-        
-        // make sure window is displayed within screen bounds 
-        if (location.x + preferredSize.width > screenBounds.x + screenWidth) {
-            location.x = screenBounds.x + screenWidth -preferredSize.width - 1; 
-        }
-        if (location.y + preferredSize.height > screenBounds.y + screenHeight) {
-            location.y = screenBounds.y + screenHeight - preferredSize.height - 1; 
-        }
-         
-        if (location.x < screenBounds.x) {
-            location.x = screenBounds.x;
-        }
-        if (location.y < screenBounds.y) {
-            location.y = screenBounds.y;
-        }
-
-        if (OSUtils.isMacOSX()) {
-            setMode(AnimationMode.FADE);
-        } else {
-            setMode(mode);
-        }
-        
-        return location;
+    public boolean removeListener(EventListener<WindowDisposedEvent> listener) {
+        return eventListenerList.removeListener(listener);
     }
 
-    private GraphicsConfiguration getGraphicsConfiguration(Point location) {
-        GraphicsEnvironment ge =
-            GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] screenDevices = ge.getScreenDevices();
-        for (GraphicsDevice screenDevice : screenDevices) {
-            if(screenDevice.getType() == GraphicsDevice.TYPE_RASTER_SCREEN) {
-                GraphicsConfiguration gc = screenDevice.getDefaultConfiguration();
-                if (gc.getBounds().contains(location)) {
-                    return gc;
-                }
+    /**
+     * Creates a painter to render the rounded corners of this component.
+     */
+    private CompoundPainter<JXPanel> createPainter(JXPanel panel) {
+        CompoundPainter<JXPanel> compoundPainter = new CompoundPainter<JXPanel>();
+        RectanglePainter<JXPanel> painter = new RectanglePainter<JXPanel>();
+
+        int arcWidth = 5;
+        int arcHeight = 5;
+        Color borderColour = Color.BLACK;
+        Color bevelLeft = Color.GRAY;
+        Color bevelTop1 = Color.GRAY;
+        Color bevelTop2 = Color.GRAY;
+        Color bevelRight = Color.GRAY;
+        Color bevelBottom = Color.GRAY;
+
+        painter.setRounded(true);
+        painter.setFillPaint(Color.WHITE);
+        painter.setRoundWidth(arcWidth);
+        painter.setRoundHeight(arcHeight);
+        painter.setInsets(new Insets(1, 1, 1, 1));
+        painter.setBorderPaint(null);
+        painter.setFillVertical(true);
+        painter.setFillHorizontal(true);
+        painter.setAntialiasing(true);
+        painter.setCacheable(true);
+        painter.setBorderWidth(1);
+
+        compoundPainter.setPainters(painter, new BorderPainter<JXPanel>(arcWidth, arcHeight,
+                borderColour, bevelLeft, bevelTop1, bevelTop2, bevelRight, bevelBottom,
+                AccentType.SHADOW));
+        compoundPainter.setCacheable(true);
+        return compoundPainter;
+    }
+
+    /**
+     * Calculates two lines for the notification window. The first line is found
+     * by finding where the last word will wrap on that line. The second line is
+     * the rest of the text, truncated to a maxWidth in pixels with '...'
+     * appended
+     */
+    private String getLines(String message, HTMLEditorKit editorKit, Font font, int pixelWidth) {
+        StringTokenizer stringTokenizer = new StringTokenizer(message, " \n\t\r");
+        String line1 = "";
+        String line2 = "";
+
+        // find the first line.
+        while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            int pixels = getPixelWidth(line1 + token + " ", editorKit, font);
+            if (pixels < (pixelWidth)) {
+                line1 += token + " ";
+            } else {
+                line2 = token + " ";
+                break;
             }
         }
-        return null;
-    }
-    
-    /**
-     * Ensures that the window is displayed within the bounds of screen size.
-     */
-    private void ensureVisibility() {
-        if (!isVisible()) {
-            return;
+        // build the second line.
+        while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            line2 += token + " ";
         }
 
-        setLocation(getFinalLocation());
-    }
+        // truncate the second line.
+        line2 = getTruncatedMessage(line2, editorKit, font, pixelWidth);
 
-    public int getAutoHideTimeout() {
-        return autoHideTimer.getDelay();
-    }
-
-    /**
-     * Returns the lower right corner of the screen.
-     */
-    @Override
-    public Point getDefaultParentLocation() {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        return new Point(screenSize.width - 1, screenSize.height - 1);
+        return (line1.trim() + " " + line2.trim()).trim();
     }
 
     /**
-     * Returns (0, 0).
+     * Truncates the given message to a maxWidth in pixels.
      */
-    @Override
-    public Dimension getDefaultParentSize() {
-        return new Dimension(0, 0);
-    }
-
-    public Icon getIcon() {
-        return titleIcon;
-    }
-
-    public Dimension getLocationOffset() {
-        return locationOffset;
-    }
-
-    public ComboBoxModel getModel() {
-        return model;
-    }
-
-    public int getNotficationCount() {
-        return model.getSize();
-    }
-
-    public Point getParentLocation() {
-        return parentLocation;
-    }
-
-    public Dimension getParentSize() {
-        return parentSize;
-    }
-
-    public NotificationRenderer getRenderer() {
-        return renderer;
-    }
-
-    public int getSelectedIndex() {
-        Object selectedItem = model.getSelectedItem();
-        int size = model.getSize();
-        for (int i = 0; i < size; i++) {
-            Object item = model.getElementAt(i);
-            if (item != null && item.equals(selectedItem)) {
-                return i;
-            }
+    private String getTruncatedMessage(String message, HTMLEditorKit editorKit, Font font,
+            int maxWidth) {
+        String ELIPSES = "...";
+        while (getPixelWidth(message, editorKit, font) > (maxWidth)) {
+            message = message.substring(0, message.length() - (ELIPSES.length() + 1)) + ELIPSES;
         }
-        return -1;
-    }
-
-    public Object getSelectedNotification() {
-        return model.getSelectedItem();
-    }
-
-    public String getTitle() {
-        return title;
+        return message;
     }
 
     /**
-     * Hides the window slowly using an animation.
+     * Returns the width of the message in the given font and editor kit.
      */
-    @Override
-    public void hideWindow() {
-        doHide();
-    }
-
-    private void initialize() {
-        setAlwaysOnTop(true);
-        mainPanel = new JXPanel(new BorderLayout(0, 10));
-        mainPanel.setBackgroundPainter(new MattePainter(new GradientPaint(new Point2D.Double(0, 0.2d), Color.LIGHT_GRAY, new Point2D.Double(0, .8d), Color.WHITE), true));
-        mainPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-                .createLineBorder(Color.black, 2), BorderFactory
-                .createEmptyBorder(10, 10, 10, 10)));
-        mainPanel.setOpaque(true);
-        setContentPane(mainPanel);
-
-        // top panel that displays title and scroll buttons
-
-        topPanel = new BoxPanel(BoxLayout.X_AXIS);
-        topPanel.setOpaque(false);
-        mainPanel.add(topPanel, BorderLayout.NORTH);
-
-        titleLabel = new JLabel();
-        titleLabel.setOpaque(false);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
-        topPanel.add(titleLabel);
-
-        topPanel.add(Box.createHorizontalStrut(10));
-        topPanel.add(Box.createHorizontalGlue());
-
-        // TODO use better icons and set rollover icon
-
-        JButton previousNotificationButton = new IconButton(
-                previousNotificationAction);
-        previousNotificationButton.setIcon(trayNotifyBack);
-        previousNotificationButton.setPressedIcon(trayNotifyBackPressed);
-        topPanel.add(previousNotificationButton);
-        topPanel.add(Box.createHorizontalStrut(3));
-
-        notificationIndexLabel = new JLabel();
-        notificationIndexLabel.setOpaque(false);
-        notificationIndexLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        topPanel.add(notificationIndexLabel);
-        topPanel.add(Box.createHorizontalStrut(3));
-
-        JButton nextNotificationButton = new IconButton(nextNotificationAction);
-        nextNotificationButton.setIcon(trayNotifyForward);
-        nextNotificationButton.setPressedIcon(trayNotifyForwardPressed);
-        topPanel.add(nextNotificationButton);
-
-        topPanel.add(Box.createHorizontalStrut(5));
-        
-        JButton closeButton = new IconButton(closeAction);
-        closeButton.setIcon(trayNotifyClose);
-        closeButton.setRolloverIcon(trayNotifyCloseRollover);
-        topPanel.add(closeButton);
-    }
-
-    public void removeAllNotifications() {
-        if (model instanceof DefaultComboBoxModel) {
-            ((DefaultComboBoxModel) model).removeAllElements();
-        } else {
-            MutableComboBoxModel mutableModel = (MutableComboBoxModel) model;
-            int size = model.getSize();
-            for (int i = 0; i < size; i++) {
-                Object item = model.getElementAt(0);
-                mutableModel.removeElement(item);
-            }
-        }
+    private int getPixelWidth(String text, HTMLEditorKit editorKit, Font font) {
+        StyleSheet css = editorKit.getStyleSheet();
+        FontMetrics fontMetrics = css.getFontMetrics(font);
+        return fontMetrics.stringWidth(text);
     }
 
     /**
-     * Removes a notification from the data model.
-     * 
-     * @param notification
+     * Sets the closeButton visible whenever this component is hovered over.
      */
-    public void removeNotification(Object notification) {
-        ((MutableComboBoxModel) model).removeElement(notification);
-    }
+    private final class HoverPanelMouseListener extends MouseAdapter {
+        private final JCheckBox closeButton;
 
-    /**
-     * Sets the timeout for scrolling/hiding the notification window.
-     * 
-     * @param timeout timeout in milliseconds
-     */
-    public void setAutoHideTimeout(int timeout) {
-        autoHideTimer.setDelay(timeout);
-    }
-
-    public void setLocationOffset(Dimension locationOffset) {
-        this.locationOffset = locationOffset;
-    }
-
-    /**
-     * Sets the icon displayed in the title.
-     */
-    public void setIcon(Icon icon) {
-        this.titleIcon = icon;
-        doNotificationLayout();
-    }
-
-    /**
-     * Sets the underlying data model.
-     */
-    public void setModel(ComboBoxModel model) {
-        ComboBoxModel oldModel = this.model;
-        if (oldModel != null) {
-            oldModel.removeListDataListener(modelListener);
-        }
-
-        this.model = model;
-        model.addListDataListener(modelListener);
-
-        firePropertyChange("model", oldModel, model);
-    }
-
-    /**
-     * Sets the location of the parent component. If the parent component is
-     * located at the upper border of the screen the notification window is
-     * displayed underneath it. If it is located on the lower border or if there
-     * is enough space to display the notification window it is displayed above
-     * it.
-     * 
-     * @param parentLocation screen location of the parent component
-     * @see #setParentSize(Dimension)
-     */
-    public void setParentLocation(Point parentLocation) {
-        this.parentLocation = parentLocation;
-    }
-
-    /**
-     * If the notification window is displayed underneath the parent component
-     * the height of <code>parentSize</code> is added as an offset to
-     * <code>parentLocation</code> to calculate the location of notification
-     * window.
-     */
-    public void setParentSize(Dimension parentSize) {
-        this.parentSize = parentSize;
-    }
-
-    public void setRenderer(NotificationRenderer renderer) {
-        this.renderer = renderer;
-    }
-
-    /**
-     * Scrolls to <code>notification</code>.
-     * 
-     * @param notification
-     */
-    public void setSelectedNotification(Object notification) {
-        model.setSelectedItem(notification);
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-        doNotificationLayout();
-    }
-
-    /**
-     * Shows the window slowly using an animation.
-     */
-    public void showWindow() {
-        if (isVisible()) {
-            return;
-        }
-
-        doShow();
-    }
-
-    @Override
-    public void setVisible(boolean visible) {
-        if (!visible) {
-            removeAllNotifications();
-            stopAutoHideTimer();
-        }
-
-        super.setVisible(visible);
-    }
-    
-    public void showNextNotificationOrHideWindow() {
-        if (!showNextNotification()) {
-            doHide();
-        }
-    }
-
-    /**
-     * Scrolls to the next notification.
-     * 
-     * @return false, if the current notification is the last notification or if
-     *         no notifications are displayed
-     */
-    public boolean showNextNotification() {
-        int i = getSelectedIndex();
-        if (i != -1 && i < getNotficationCount() - 1) {
-            model.setSelectedItem(model.getElementAt(i + 1));
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Scrolls to the previous notification.
-     * 
-     * @return false, if the current notification is the first notification or
-     *         if no notifications are displayed
-     */
-    public boolean showPreviousNotification() {
-        int i = getSelectedIndex();
-        if (i != -1 && i > 0) {
-            model.setSelectedItem(model.getElementAt(i - 1));
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Starts the timer that scrolls notifications and hides the window.
-     * 
-     * @see #stopAutoHideTimer()
-     */
-    public void startAutoHideTimer() {
-        autoHideTimer.start();
-    }
-
-    /**
-     * Stops the timer that scrolls notifications and hides the window.
-     * 
-     * @see #startAutoHideTimer()
-     */
-    public void stopAutoHideTimer() {
-        autoHideTimer.stop();
-    }
-
-    /**
-     * A border-less button that is represented by an icon only.
-     */
-    private class IconButton extends JButton {
-
-        public IconButton(Action action) {
-            super(action);
-            setText("");
+        private HoverPanelMouseListener(JCheckBox closeButton) {
+            this.closeButton = closeButton;
         }
 
         @Override
-        public void updateUI() {
-            super.updateUI();
+        public void mouseEntered(MouseEvent e) {
+            closeButton.setVisible(true);
+        }
 
-            setContentAreaFilled(false);
-            // setBorderPainted(ThemeSettings.isNativeOSXTheme());
-            setBorder(BorderFactory.createEmptyBorder());
-            setFocusable(false);
-            if (getIcon() != null) {
-                setPreferredSize(new Dimension(getIcon().getIconWidth(),
-                        getIcon().getIconHeight()));
-            } else {
-                setPreferredSize(null);
-            }
-            setMargin(new Insets(0, 0, 0, 0));
+        @Override
+        public void mouseExited(MouseEvent e) {
+            closeButton.setVisible(false);
         }
     }
 
     /**
-     * Updates the notification window when the underlying data model changes.
+     * Sets the rollover image for the close button when moused over.
      */
-    private class ModelListener implements ListDataListener {
+    private final class HoverButtonMouseListener extends MouseAdapter {
+        private final JCheckBox closeButton;
 
-        public void contentsChanged(ListDataEvent e) {
-            doNotificationLayout();
+        private final Icon trayNotifyClose;
+
+        private final Icon trayNotifyCloseRollover;
+
+        private HoverButtonMouseListener(JCheckBox closeButton, Icon trayNotifyClose,
+                Icon trayNotifyCloseRollover) {
+            this.closeButton = closeButton;
+            this.trayNotifyClose = trayNotifyClose;
+            this.trayNotifyCloseRollover = trayNotifyCloseRollover;
         }
 
-        public void intervalAdded(ListDataEvent e) {
-            doNotificationLayout();
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            closeButton.setIcon(trayNotifyCloseRollover);
         }
 
-        public void intervalRemoved(ListDataEvent e) {
-            doNotificationLayout();
+        @Override
+        public void mouseExited(MouseEvent e) {
+            closeButton.setIcon(trayNotifyClose);
         }
-
     }
 
-    private class NextNotificationAction extends AbstractAction {
-
-        public NextNotificationAction() {
-            putValue(Action.NAME, ">");
+    /**
+     * Moves the window from its current location to the new one. 
+     */
+    public synchronized void moveTo(Point newLocation) {
+        if(this.currentMoveAnimator != null) {
+            currentMoveAnimator.stop();
         }
-
-        public void actionPerformed(ActionEvent e) {
-            showNextNotification();
-        }
-
+        MoveAnimator moveAnimator = new MoveAnimator(this, 250, newLocation);
+        moveAnimator.start();
+        currentMoveAnimator = moveAnimator;
     }
 
-    private class PreviousNotificationAction extends AbstractAction {
-
-        public PreviousNotificationAction() {
-            putValue(Action.NAME, "<");
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            showPreviousNotification();
-        }
-
-    }
-
-    private class CloseAction extends AbstractAction {
-
-        public CloseAction() {
-            putValue(Action.NAME, "X");
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            hideWindowImmediately();
-        }
-
-    }
 }

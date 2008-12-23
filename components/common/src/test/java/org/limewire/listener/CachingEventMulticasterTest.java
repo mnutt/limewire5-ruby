@@ -22,8 +22,38 @@ public class CachingEventMulticasterTest extends TestCase {
         assertEquals(1, intListener.notifications);
     }
     
-    public void testBroadcast() {
+    public void testBroadcastBroadcastPolicyDefault() {
         EventMulticaster<Integer> multicaster = new CachingEventMulticaster<Integer>();
+        IntListener intListener = new IntListener();
+        multicaster.addListener(intListener);
+        multicaster.broadcast(10);
+        assertEquals(10, intListener.value);
+        assertEquals(1, intListener.notifications);
+        multicaster.broadcast(10);
+        assertEquals(10, intListener.value);
+        assertEquals(2, intListener.notifications);
+        multicaster.broadcast(15);
+        assertEquals(15, intListener.value);
+        assertEquals(3, intListener.notifications);
+    }
+    
+    public void testBroadcastBroadcastPolicyAlways() {
+        EventMulticaster<Integer> multicaster = new CachingEventMulticaster<Integer>(BroadcastPolicy.ALWAYS);
+        IntListener intListener = new IntListener();
+        multicaster.addListener(intListener);
+        multicaster.broadcast(10);
+        assertEquals(10, intListener.value);
+        assertEquals(1, intListener.notifications);
+        multicaster.broadcast(10);
+        assertEquals(10, intListener.value);
+        assertEquals(2, intListener.notifications);
+        multicaster.broadcast(15);
+        assertEquals(15, intListener.value);
+        assertEquals(3, intListener.notifications);
+    }
+    
+    public void testBroadcastBroadcastPolicyIfNotEqual() {
+        EventMulticaster<Integer> multicaster = new CachingEventMulticaster<Integer>(BroadcastPolicy.IF_NOT_EQUALS);
         IntListener intListener = new IntListener();
         multicaster.addListener(intListener);
         multicaster.broadcast(10);

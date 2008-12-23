@@ -14,7 +14,6 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -176,15 +175,9 @@ public class SearchResultFromWidget extends JPanel {
         }
     }
 
-    private void decoreateMenuComponent(JComponent item) {
-        item.setFont(this.comboBoxMenu.getFont());
-        item.setForeground(this.comboBoxMenu.getForeground());
-        item.setBackground(this.comboBoxMenu.getBackground());
-    }
-    
     private JMenuItem createItem(Action a) {
         JMenuItem item = new JMenuItem(a);        
-        decoreateMenuComponent(item);        
+        comboBox.decorateMenuComponent(item);        
         return item;
     }
     
@@ -200,7 +193,7 @@ public class SearchResultFromWidget extends JPanel {
         List<JMenuItem> p2pUsersDisabled = new ArrayList<JMenuItem>();
         for (RemoteHost person : people) {
             JMenu submenu = new JMenu(person.getFriendPresence().getFriend().getRenderName());
-            decoreateMenuComponent(submenu);
+            comboBox.decorateMenuComponent(submenu);
 
             if (person.isChatEnabled()) {
                 submenu.add(createItem(getChatAction(person)));

@@ -3,28 +3,37 @@ package org.limewire.ui.swing.library;
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 
+import net.miginfocom.swing.MigLayout;
+
+import org.jdesktop.application.Resource;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
-import org.limewire.ui.swing.painter.BorderPainter.AccentType;
-import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.CategoryIconManager;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
+
+import ca.odell.glazedlists.EventList;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
-import ca.odell.glazedlists.EventList;
-
 public class FriendSharingPanel extends SharingPanel {
     
     private final Friend friend;
-
+    
+    // TODO: Resource injection to leaf nodes here does not work. (because we are not singleton?)
+    @Resource(key="FriendSharingPanel.backButton.icon") Icon icon;
+    @Resource(key="FriendSharingPanel.backButton.rolloverIcon") Icon rolloverIcon;
+    @Resource(key="FriendSharingPanel.backButton.pressedIcon") Icon pressedIcon;
+    
     @AssistedInject
     public FriendSharingPanel(
             @Assisted LibraryMediator returnToLibraryPanel,
@@ -34,14 +43,29 @@ public class FriendSharingPanel extends SharingPanel {
             IconManager iconManager,
             CategoryIconManager categoryIconManager,
             LibraryTableFactory tableFactory,
-            LimeHeaderBarFactory headerBarFactory,
-            ButtonDecorator buttonDecorator) {
+            LimeHeaderBarFactory headerBarFactory) {
+
         super(wholeLibraryList, friendFileList, categoryIconManager, tableFactory, headerBarFactory);
+        
+        setInnerNavLayout(new MigLayout("insets 0, gap 0, fill, wrap, hidemode 3", "[138!]", ""));
+        
+        GuiUtils.assignResources(this);
+        
         this.friend = friend;
         
-        addButtonToHeader(new BackToLibraryAction(returnToLibraryPanel), buttonDecorator, AccentType.NONE);
         getHeaderPanel().setText(I18n.tr("Share with {0}", getFullPanelName()));
         
+        IconButton backButton = new IconButton(new BackToLibraryAction(returnToLibraryPanel));
+        
+        // TODO: See above todo
+        //backButton.setName("FriendSharingPanel.backButton");
+        backButton.setIcon(icon);
+        backButton.setPressedIcon(pressedIcon);
+        backButton.setRolloverIcon(rolloverIcon);
+        
+        backButton.setFocusPainted(false);
+        addBackButton(backButton);
+                
         createMyCategories(wholeLibraryList, friendFileList);
         selectFirst();
     }
@@ -59,8 +83,8 @@ public class FriendSharingPanel extends SharingPanel {
 
         public BackToLibraryAction(LibraryMediator basePanel) {
             this.basePanel = basePanel;
-            putValue(Action.NAME, I18n.tr("Back"));
-            putValue(Action.SHORT_DESCRIPTION, I18n.tr("Returns to what's being shared with you."));
+            
+            putValue(Action.SHORT_DESCRIPTION, I18n.tr("Return to what's being shared with you."));
         }
         
         @Override

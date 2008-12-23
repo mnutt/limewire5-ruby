@@ -12,13 +12,11 @@
  */
 package org.limewire.ui.swing;
  
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
-import java.awt.Toolkit;
 import java.awt.Window;
 
 /**
@@ -103,11 +101,8 @@ public class AWTSplashWindow extends Window {
         if(imgHeight < 1)
             imgHeight = 1;
         setSize(imgWidth, imgHeight);
-        Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation(
-            (screenDim.width - imgWidth) / 2,
-            (screenDim.height - imgHeight) / 2
-        );
+        
+        setLocationRelativeTo(null);
     }
 
     /**

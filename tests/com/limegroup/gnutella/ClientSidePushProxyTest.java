@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
@@ -22,6 +23,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 
+import junit.framework.Test;
+
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
@@ -32,22 +35,21 @@ import org.limewire.util.Base32;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
+import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.messages.Message;
-import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.PushRequest;
 import com.limegroup.gnutella.messages.PushRequestImpl;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryReplyFactory;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
+import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.MessagesSupportedVendorMessage;
 import com.limegroup.gnutella.messages.vendor.PushProxyAcknowledgement;
 import com.limegroup.gnutella.messages.vendor.PushProxyRequest;
 import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 import com.limegroup.gnutella.stubs.NetworkManagerStub;
-
-import junit.framework.Test;
 
 /**
  * Checks whether (multi)leaves avoid forwarding messages to ultrapeers, do
@@ -283,7 +285,7 @@ public class ClientSidePushProxyTest extends ClientSideTestCase {
             Set<IpPort> proxies = new TreeSet<IpPort>(IpPort.COMPARATOR);
             proxies.add(new IpPortImpl("127.0.0.1", 7000));
             Response[] res = new Response[1];
-            res[0] = responseFactory.createResponse(10, 10, "boalt.org");
+            res[0] = responseFactory.createResponse(10, 10, "boalt.org", UrnHelper.SHA1);
             m = queryReplyFactory.createQueryReply(m.getGUID(), (byte) 1, 6355,
                     myIP(), 0, res, clientGUID, new byte[0], true, false,
                     true, true, false, false, proxies);
@@ -380,12 +382,12 @@ public class ClientSidePushProxyTest extends ClientSideTestCase {
           
                BufferedReader reader = new BufferedReader(new InputStreamReader(push.getInputStream())); 
                String currLine = reader.readLine(); 
-               assertEquals("GET /get/10/boalt.org HTTP/1.1", currLine); 
+               assertEquals(MessageFormat.format("GET /uri-res/N2R?{0} HTTP/1.1", UrnHelper.SHA1), currLine); 
            } finally { 
                push.close(); 
            }
            
-           download.stop();
+           download.stop(false);
            
        } finally { 
            ss.close(); 
@@ -423,7 +425,7 @@ public class ClientSidePushProxyTest extends ClientSideTestCase {
 
         // send a reply with NO PushProxy info
         Response[] res = new Response[1];
-        res[0] = responseFactory.createResponse(10, 10, "golf is awesome");
+        res[0] = responseFactory.createResponse(10, 10, "golf is awesome", UrnHelper.SHA1);
         m = queryReplyFactory.createQueryReply(m.getGUID(), (byte) 1, 6355,
                 myIP(), 0, res, clientGUID, new byte[0], false, false, true,
                 true, false, false, null);
@@ -452,7 +454,7 @@ public class ClientSidePushProxyTest extends ClientSideTestCase {
         assertEquals(10, pr.getIndex());
         assertFalse(pr.isFirewallTransferPush());
         
-        downloader.stop();
+        downloader.stop(false);
     }
 
     public void testCanReactToBadPushProxy() throws Exception {
@@ -486,7 +488,7 @@ public class ClientSidePushProxyTest extends ClientSideTestCase {
             proxies.add(new IpPortImpl("127.0.0.1", 7000));
             proxies.add(new IpPortImpl("127.0.0.1", 8000));
             Response[] res = new Response[1];
-            res[0] = responseFactory.createResponse(10, 10, "berkeley.edu");
+            res[0] = responseFactory.createResponse(10, 10, "berkeley.edu", UrnHelper.SHA1);
             m = queryReplyFactory.createQueryReply(m.getGUID(), (byte) 1, 6355,
                     myIP(), 0, res, clientGUID, new byte[0], true, false,
                     true, true, false, false, proxies);

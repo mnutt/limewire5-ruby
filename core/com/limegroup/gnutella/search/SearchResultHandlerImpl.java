@@ -225,12 +225,12 @@ final class SearchResultHandlerImpl implements SearchResultHandler {
         try {
             qr.validate();
         } catch(BadPacketException bpe) {
-            LOG.debug("bad packet reading qr", bpe);
+            LOG.debug("Ignoring corrupt query reply", bpe);
             return;
         }
 
         // always handle reply to multicast queries.
-        if( !qr.isReplyToMulticastQuery() && !qr.isBrowseHostReply() ) {
+        if(!qr.isReplyToMulticastQuery() && !qr.isBrowseHostReply()) {
             // note that the minimum search quality will always be greater
             // than -1, so -1 qualities (the impossible case) are never
             // displayed
@@ -301,6 +301,7 @@ final class SearchResultHandlerImpl implements SearchResultHandler {
         
         for(Response response : results) {
             if(!responseFilter.allow(qr, response)) {
+                LOG.debug("Ignoring result because of response filter");
                 continue;
             }
             
@@ -324,7 +325,7 @@ final class SearchResultHandlerImpl implements SearchResultHandler {
             countClassC(qr,response);
             RemoteFileDesc rfd;
             try {
-                rfd = response.toRemoteFileDesc(qr, remoteFileDescFactory, pushEndpointFactory);
+                rfd = response.toRemoteFileDesc(qr, null, remoteFileDescFactory, pushEndpointFactory);
             } catch (UnknownHostException e) {
                 throw new RuntimeException("should not have happened", e);
             }

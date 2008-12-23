@@ -60,7 +60,7 @@ public class BasicAutoCompleter implements AutoCompleter {
     }
 
     @Override
-    public boolean areSuggestionsAvailable() {
+    public boolean isAutoCompleteAvailable() {
         return entryList.getModel().getSize() != 0;
     }
 
@@ -70,12 +70,12 @@ public class BasicAutoCompleter implements AutoCompleter {
     }
 
     @Override
-    public JComponent getComponent() {
+    public JComponent getRenderComponent() {
         return entryPanel;
     }
 
     @Override
-    public String getSelectedSuggestion() {
+    public String getSelectedAutoCompleteString() {
         return (String)entryList.getSelectedValue();
     }
 
@@ -108,7 +108,7 @@ public class BasicAutoCompleter implements AutoCompleter {
     
         // if things were different, reset the data.
         if(different) {
-            entryList.setModel(new org.limewire.ui.swing.components.CollectionBackedListModel(suggestions));
+            entryList.setModel(new CollectionBackedListModel(suggestions));
             entryList.setVisibleRowCount(Math.min(8, suggestions.size()));
             entryList.clearSelection();
         }        
@@ -132,7 +132,7 @@ public class BasicAutoCompleter implements AutoCompleter {
             if(me.getID() == MouseEvent.MOUSE_CLICKED) {
                 int idx = locationToIndex(me.getPoint());
                 if(idx != -1 && isSelectedIndex(idx)) {
-                    callback.itemSuggested((String)getSelectedValue(), false);
+                    callback.itemSuggested((String)getSelectedValue(), false, true);
                 }
             }
         }
@@ -142,13 +142,13 @@ public class BasicAutoCompleter implements AutoCompleter {
          */
         void incrementSelection() {
             if(getSelectedIndex() == getModel().getSize() - 1) {
-                callback.itemSuggested(currentText, true);
+                callback.itemSuggested(currentText, true, false);
                 clearSelection();
             } else {
                 int selectedIndex = getSelectedIndex() + 1;
                 setSelectedIndex(selectedIndex);
                 ensureIndexIsVisible(selectedIndex);
-                callback.itemSuggested((String)getSelectedValue(), true);
+                callback.itemSuggested((String)getSelectedValue(), true, false);
             }
         }
         
@@ -157,7 +157,7 @@ public class BasicAutoCompleter implements AutoCompleter {
          */
         void decrementSelection() {
             if(getSelectedIndex() == 0) {
-                callback.itemSuggested(currentText, true);
+                callback.itemSuggested(currentText, true, false);
                 clearSelection();
             } else {
                 int selectedIndex = getSelectedIndex();
@@ -167,7 +167,7 @@ public class BasicAutoCompleter implements AutoCompleter {
                     selectedIndex--;
                 setSelectedIndex(selectedIndex);
                 ensureIndexIsVisible(selectedIndex);
-                callback.itemSuggested((String)getSelectedValue(), true);
+                callback.itemSuggested((String)getSelectedValue(), true, false);
             }
         }
     }

@@ -140,12 +140,7 @@ public class MockLibraryManager implements ShareListManager, LibraryManager {
     @Override
     public FriendFileList getOrCreateFriendShareList(Friend name) {
         return new FriendFileListAdapter();
-    }
-
-    @Override
-    public void removeFriendShareList(Friend name) {
-        // TODO Auto-generated method stub
-    }    
+    }  
     
     @Override
     public FriendFileList getFriendShareList(Friend friend) {

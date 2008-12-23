@@ -27,13 +27,13 @@ public class TabActionMap {
     private final Action main;
     private final Action remove;
     private final Action moreText;
-    private final List<Action> rightClick;
+    private final List<? extends Action> rightClick;
     
     private Action removeOthers;
     private Action removeAll;
         
     public TabActionMap(Action mainAction, Action removeAction,
-            Action moreTextAction, List<Action> rightClickActions) {
+            Action moreTextAction, List<? extends Action> rightClickActions) {
         this.main = mainAction;
         this.remove = removeAction;
         this.moreText = moreTextAction;
@@ -72,7 +72,7 @@ public class TabActionMap {
         return moreText;
     }
     
-    public List<Action> getRightClickActions() {
+    public List<? extends Action> getRightClickActions() {
         return rightClick;
     }
     

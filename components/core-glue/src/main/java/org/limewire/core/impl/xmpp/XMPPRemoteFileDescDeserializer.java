@@ -18,8 +18,8 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
 @Singleton
 public class XMPPRemoteFileDescDeserializer implements RemoteFileDescDeserializer {
 
-    private AddressFactory addressFactory;
-    private XMPPAddressResolver addressResolver;
+    private final AddressFactory addressFactory;
+    private final XMPPAddressResolver addressResolver;
 
     @Inject
     public XMPPRemoteFileDescDeserializer(AddressFactory addressFactory, XMPPAddressResolver addressResolver) {

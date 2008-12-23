@@ -28,6 +28,12 @@ public class FileOfferInitializer implements FeatureInitializer{
     public void initializeFeature(FriendPresence friendPresence) {
         friendPresence.addFeature(new FileOfferFeature(new FileOffererImpl(friendPresence.getPresenceId(), connection)));
     }
+    
+
+    @Override
+    public void removeFeature(FriendPresence friendPresence) {
+        friendPresence.removeFeature(FileOfferFeature.ID);
+    }
 
     private static class FileOffererImpl implements FileOfferer {
         private static final Log LOG = LogFactory.getLog(FileOffererImpl.class);

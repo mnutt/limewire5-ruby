@@ -32,6 +32,8 @@ public class NumberedHyperLinkButton extends HyperLinkButton {
     
     public NumberedHyperLinkButton(String text) {
         super(text);
+        
+        setDisabledColor(disabledColor);
     }
     
     public NumberedHyperLinkButton(String text, Action action) {
@@ -58,16 +60,6 @@ public class NumberedHyperLinkButton extends HyperLinkButton {
             setEnabled(false);
         }
         super.setText(text + "(" + displayNumber + ")");
-    }
-    
-    @Override
-    public void setEnabled(boolean value) {
-        super.setEnabled(value);
-        if(value) {
-            super.setForeground(foregroundColor);
-        } else {
-            super.setForeground(disabledColor);
-        }
     }
     
     public void setDisabledColor(Color color) {

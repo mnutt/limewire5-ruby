@@ -25,8 +25,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.application.Resource;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.effect.LayerEffect;
@@ -41,9 +39,14 @@ import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
+import org.limewire.core.settings.LibrarySettings;
+import org.limewire.setting.evt.SettingEvent;
+import org.limewire.setting.evt.SettingListener;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.LimePromptTextField;
+import org.limewire.ui.swing.dnd.LocalFileListTransferHandler;
 import org.limewire.ui.swing.library.image.LibraryImagePanel;
 import org.limewire.ui.swing.library.table.LibraryTable;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
@@ -51,8 +54,8 @@ import org.limewire.ui.swing.library.table.LibraryTableModel;
 import org.limewire.ui.swing.lists.CategoryFilter;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.player.PlayerUtils;
-import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.table.MouseableTable.TableColors;
+import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -65,6 +68,7 @@ import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
+import net.miginfocom.swing.MigLayout;
 
 abstract class SharingPanel extends AbstractFileListPanel implements PropertyChangeListener {
     private final LibraryTableFactory tableFactory;
@@ -73,6 +77,8 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
     
     private final Map<Category, LockableUI> locked = new EnumMap<Category, LockableUI>(Category.class);
     private final Map<Category, SharingSelectionPanel> listeners = new EnumMap<Category, SharingSelectionPanel>(Category.class);
+    
+    private JPanel backButtonSlot;
     
     SharingPanel(EventList<LocalFileItem> wholeLibraryList,
                  FriendFileList friendFileList,
@@ -85,24 +91,42 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         this.tableFactory = tableFactory;
         this.friendFileList = friendFileList;        
         this.friendFileList.addPropertyChangeListener(this);
-
-        //TODO: fix this. Turns text to Black for the time being till we get some sort of color spec
-        getHeaderPanel().setForeground(Color.BLACK);
+        setTransferHandler(new LocalFileListTransferHandler(friendFileList));
     }
     
     /** Returns the full name of the panel, which may be very long. */
     abstract String getFullPanelName();
     /** Returns a shorter more concise version of the panel name. */
     abstract String getShortPanelName();
-    
+        
     @Override
     protected LimeHeaderBar createHeaderBar(LimeHeaderBarFactory headerBarFactory) {
-        return headerBarFactory.createSpecial();
+        JPanel headerTitlePanel = new JPanel(new MigLayout("insets 0, gap 0, fill, aligny center"));
+        headerTitlePanel.setOpaque(false);
+        
+        JLabel titleTextLabel = new JLabel();
+        
+        backButtonSlot = new JPanel(new MigLayout("insets 0, gap 0, fill, aligny center"));
+        backButtonSlot.setOpaque(false);
+        
+        backButtonSlot.setVisible(false);
+        
+        headerTitlePanel.add(backButtonSlot);
+        headerTitlePanel.add(titleTextLabel, "gapbottom 2");
+        
+        LimeHeaderBar bar = headerBarFactory.createSpecial(headerTitlePanel, titleTextLabel);
+                
+        return bar;
     }
     
     @Override
     protected LimePromptTextField createFilterField(String prompt) {
-        return new LimePromptTextField(prompt, AccentType.NONE);
+        return new LimePromptTextField(prompt, AccentType.GREEN_SHADOW);
+    }
+    
+    protected void addBackButton(JButton button) {
+        backButtonSlot.add(button, "gapafter 6");
+        backButtonSlot.setVisible(true);
     }
     
     protected void createMyCategories(EventList<LocalFileItem> wholeLibraryList, LocalFileList friendFileList) {
@@ -113,28 +137,19 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
                         createMyCategoryAction(category, filteredAll, friendFileList), filteredAll, filteredShared, null);
             addDisposable(filteredAll);
             addDisposable(filteredShared);
+            addSharingInfoBar(category, filteredAll, this.friendFileList, filteredShared);
         }
     }
     
     private JComponent createMyCategoryAction(Category category, EventList<LocalFileItem> filtered, final LocalFileList friendFileList) {
-        EventList<LocalFileItem> filterList = GlazedListsFactory.filterList(filtered, 
+        FilterList<LocalFileItem> filterList = GlazedListsFactory.filterList(filtered, 
                 new TextComponentMatcherEditor<LocalFileItem>(getFilterTextField(), new LibraryTextFilterator<LocalFileItem>()));
+        addDisposable(filterList);
 
-        Comparator<LocalFileItem> c = new java.util.Comparator<LocalFileItem>() {
-            @Override
-            public int compare(LocalFileItem fileItem1, LocalFileItem fileItem2) {
-                boolean containsF1 = friendFileList.contains(fileItem1.getFile());
-                boolean containsF2 = friendFileList.contains(fileItem2.getFile());
-                if(containsF1 && containsF2)
-                    return 0;
-                else if(containsF1 && !containsF2)
-                    return -1;
-                else
-                    return 1;
-            }
-        };
+        Comparator<LocalFileItem> c = new LocalFileItemComparator(friendFileList);
         
         SortedList<LocalFileItem> sortedList = new SortedList<LocalFileItem>(filterList, c);
+        addDisposable(sortedList);
 
         JScrollPane scrollPane;
         
@@ -165,7 +180,7 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         }
         
         if(category == Category.AUDIO || category == Category.VIDEO || category == Category.IMAGE) {
-            LockableUI blurUI = new LockedUI(category.toString());
+            LockableUI blurUI = new LockedUI(category);
             JXLayer<JComponent> jxlayer = new JXLayer<JComponent>(scrollPane, blurUI);
             
             if(category == Category.AUDIO && this.friendFileList.isAddNewAudioAlways()) {
@@ -203,30 +218,45 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
     @Override
     protected <T extends FileItem> void addCategorySizeListener(Category category,
             Action action, FilterList<T> filteredAllFileList, FilterList<T> filteredList) {
-        ButtonSizeListener<T> listener = new ButtonSizeListener<T>(category, action, filteredAllFileList, filteredList);
+        ButtonSizeListener<T> listener = new ButtonSizeListener<T>(category, action, filteredAllFileList, filteredList, friendFileList);
         filteredAllFileList.addListEventListener(listener);
         filteredList.addListEventListener(listener);
         addDisposable(listener);
     }
     
-    private static class ButtonSizeListener<T> implements Disposable, ListEventListener<T> {
+    private static class ButtonSizeListener<T> implements Disposable, ListEventListener<T>, SettingListener {
         private final Category category;
         private final Action action;
         private final FilterList<T> allFileList;
         private final FilterList<T> list;
+        private final FriendFileList friendList;
         
-        private ButtonSizeListener(Category category, Action action, FilterList<T> allFileList, FilterList<T> list) {
+        private ButtonSizeListener(Category category, Action action, FilterList<T> allFileList, FilterList<T> list, FriendFileList friendList) {
             this.category = category;
             this.action = action;
             this.allFileList = allFileList;
             this.list = list;
+            this.friendList = friendList;
             setText();
+            if(category == Category.PROGRAM) {
+                LibrarySettings.ALLOW_PROGRAMS.addSettingListener(this);
+            }
         }
 
         private void setText() {
-            action.putValue(Action.NAME, I18n.tr(category.toString()) + " (" + list.size() + "/" + allFileList.size() + ")");
+            if(category == Category.AUDIO && friendList.isAddNewAudioAlways()) {
+                action.putValue(Action.NAME, I18n.tr(category.toString()) + I18n.tr(" ({0})", "all"));
+            } else if(category == Category.VIDEO && friendList.isAddNewVideoAlways()) {
+                action.putValue(Action.NAME, I18n.tr(category.toString()) + I18n.tr(" ({0})", "all"));
+            } else if(category == Category.IMAGE && friendList.isAddNewImageAlways()) {
+                action.putValue(Action.NAME, I18n.tr(category.toString()) + I18n.tr(" ({0})", "all"));
+            } else {
+                action.putValue(Action.NAME, I18n.tr(category.toString()) + " (" + list.size() + ")");//+ "/" + allFileList.size() + ")");
+            }
             if(category == Category.OTHER) {
                 action.setEnabled(allFileList.size() > 0);
+            } else if(category == Category.PROGRAM) {// hide program category is not enabled
+                action.setEnabled(LibrarySettings.ALLOW_PROGRAMS.getValue());
             }
         }
         
@@ -234,10 +264,18 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         public void dispose() {
             list.removeListEventListener(this);
             allFileList.removeListEventListener(this);
+            if(category == Category.PROGRAM) {
+                LibrarySettings.ALLOW_PROGRAMS.removeSettingListener(this);
+            }
         }
 
         @Override
         public void listChanged(ListEvent<T> listChanges) {
+            setText();
+        }
+
+        @Override
+        public void settingChanged(SettingEvent evt) {
             setText();
         }
     }    
@@ -389,17 +427,17 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         private JLabel label;
         private JLabel minLabel;
         
-        public LockedUI(String category, LayerEffect... lockedEffects) {
+        public LockedUI(Category category, LayerEffect... lockedEffects) {
             super(lockedEffects);
             
             messagePanel = new JPanel(new MigLayout("insets 5, gapy 10, wrap, alignx 50%"));
             messagePanel.setBackground(new Color(209,247,144));
             
-            label = new JLabel(I18n.tr("Sharing entire {0} Collection with {1}", category, getFullPanelName()));
+            label = new JLabel(I18n.tr("Sharing entire {0} Collection with {1}", category.getSingularName(), getFullPanelName()));
             FontUtils.setSize(label, 12);
             FontUtils.bold(label);
             
-            minLabel = new JLabel(I18n.tr("Sharing your {0} collection shares new {1} files that automatically get added to your Library", category, category.toLowerCase()));
+            minLabel = new JLabel(I18n.tr("Sharing your {0} collection shares new {1} files that automatically get added to your Library", category.getSingularName(), category.getSingularName().toLowerCase()));
             FontUtils.setSize(minLabel, 10);
             
             panel = new JXPanel(new MigLayout("aligny 50%, alignx 50%"));
@@ -450,6 +488,26 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         } else if(evt.getPropertyName().equals("imageCollection")) {
             locked.get(Category.IMAGE).setLocked((Boolean)evt.getNewValue());
             listeners.get(Category.IMAGE).setSelect((Boolean)evt.getNewValue());
+        }
+    }
+
+    private static class LocalFileItemComparator implements Comparator<LocalFileItem> {
+        private final LocalFileList friendFileList;
+
+        public LocalFileItemComparator(LocalFileList friendFileList) {
+            this.friendFileList = friendFileList;
+        }
+
+        @Override
+            public int compare(LocalFileItem fileItem1, LocalFileItem fileItem2) {
+            boolean containsF1 = friendFileList.contains(fileItem1.getFile());
+            boolean containsF2 = friendFileList.contains(fileItem2.getFile());
+            if(containsF1 && containsF2)
+                return 0;
+            else if(containsF1 && !containsF2)
+                return -1;
+            else
+                return 1;
         }
     }
 }

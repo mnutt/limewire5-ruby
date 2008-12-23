@@ -312,6 +312,41 @@ public class BTDownloaderImplTest extends LimeTestCase {
             }
         }
     }
+    
+    /**
+     * This test has a peer and a bad webseed address. 
+     * The bad address should be ignored and the download will happen from the peer. 
+     */
+    public void testSingleBadWebSeedSingleFilePeers() throws Exception {
+        File torrentFile = createFile("test-single-badwebseed-single-file-peer.torrent");
+
+        BTDownloaderImpl downloader = createBTDownloader(torrentFile);
+        TorrentContext torrentContext = downloader.getTorrentContext();
+        TorrentFileSystem torrentFileSystem = torrentContext.getFileSystem();
+
+        File rootFile = torrentFileSystem.getCompleteFile();
+        try {
+            FileUtils.deleteRecursive(rootFile);
+            rootFile.deleteOnExit();
+
+            File incompleteFile1 = torrentFileSystem.getIncompleteFiles().get(0);
+            incompleteFile1.delete();
+            incompleteFile1.deleteOnExit();
+
+            File completeFile1 = torrentFileSystem.getFiles().get(0);
+            completeFile1.delete();
+            completeFile1.deleteOnExit();
+
+            downloader.startDownload();
+            finishDownload(downloader);
+
+            assertDownload("8055d620ba0c507c1af957b43648c99f", completeFile1, 44425);
+        } finally {
+            if (rootFile != null) {
+                FileUtils.deleteRecursive(rootFile);
+            }
+        }
+    }
 
     private File createFile(String fileName) {
         String torrentfilePath = TORRENT_DIR.getAbsolutePath() + "/" + fileName;

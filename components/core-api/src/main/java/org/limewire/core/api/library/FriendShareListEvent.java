@@ -6,7 +6,7 @@ import org.limewire.util.StringUtils;
 public class FriendShareListEvent {
     
     public enum Type {
-        FRIEND_SHARE_LIST_ADDED, FRIEND_SHARE_LIST_REMOVED;
+        FRIEND_SHARE_LIST_ADDED, FRIEND_SHARE_LIST_REMOVED, FRIEND_SHARE_LIST_DELETED;
     }
     
     private final Type type;

@@ -15,4 +15,9 @@ public class LimewireFeatureInitializer implements FeatureInitializer{
     public void initializeFeature(FriendPresence friendPresence) {
         friendPresence.addFeature(new LimewireFeature());
     }
+
+    @Override
+    public void removeFeature(FriendPresence friendPresence) {
+        friendPresence.removeFeature(LimewireFeature.ID);
+    }
 }

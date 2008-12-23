@@ -48,7 +48,7 @@ public class ChatPanelHarness {
                     public ConversationPane create(MessageWriter writer, ChatFriend chatFriend, String loggedInID) {
                         return new ConversationPane(writer, chatFriend, loggedInID, libraryManager, new IconManagerStub(), null, null, null, friendSupport, null, featureSupport);
                     }
-                }, icons, friendsPane, new ChatTopPanel(icons)));
+                }, icons, friendsPane, new ChatTopPanel()));
                 
                 frame.pack();
                 frame.setVisible(true);

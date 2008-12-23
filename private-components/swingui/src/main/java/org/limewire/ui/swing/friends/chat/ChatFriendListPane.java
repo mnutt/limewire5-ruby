@@ -785,7 +785,7 @@ public class ChatFriendListPane extends JPanel {
                 return;
             }
             
-            item.setText(I18n.tr("Download from \"{0}\"", chatFriend.getFriend().getFirstName()));
+            item.setText(I18n.tr("View Files"));
         }
 
         @Override
@@ -820,13 +820,13 @@ public class ChatFriendListPane extends JPanel {
                 return;
             }
             
-            item.setText(tr("Share with \"{0}\"", chatFriend.getFriend().getFirstName()));
+            item.setText(tr("Share"));
         }
     }
     
     private class CloseChat extends AbstractContextAction {
         public CloseChat(FriendContext context) {
-            super(I18n.tr("Close chat (closes the current chat window)"), context);
+            super(I18n.tr("Close chat"), context);
         }
 
         @Override

@@ -294,7 +294,8 @@ public class CoreDownloadListManager implements DownloadListManager {
         public void downloadRemoved(Downloader downloader) {
             DownloadItem item = getDownloadItem(downloader);
             //don't automatically remove finished downloads or downloads in error states
-            if (item.getState() != DownloadState.DONE && item.getState() != DownloadState.ERROR) {
+            if ((item.getState() != DownloadState.DONE || SharingSettings.CLEAR_DOWNLOAD.getValue()) && 
+                    item.getState() != DownloadState.ERROR) {
                 list.remove(item);
             }
             urnMap.remove(item.getUrn());

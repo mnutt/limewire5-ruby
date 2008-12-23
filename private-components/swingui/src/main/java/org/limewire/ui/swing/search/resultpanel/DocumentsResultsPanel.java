@@ -48,6 +48,6 @@ public class DocumentsResultsPanel extends BaseResultPanel {
     @Override
     protected void setupCellRenderers(ResultsTableFormat<VisualSearchResult> tableFormat) {
         super.setupCellRenderers(tableFormat);
-        setCellRenderer(DocumentTableFormat.Columns.SIZE.ordinal(), new OpaqueFileSizeRenderer());
+        setCellRenderer(DocumentTableFormat.SIZE_INDEX, new OpaqueFileSizeRenderer());
     }
 }

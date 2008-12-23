@@ -39,44 +39,43 @@ class FramePositioner {
 
     
     void setWindowPosition() {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration gc = gd.getDefaultConfiguration();
         Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
         
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        
-        int locX = 0;
-        int locY = 0;
-
         int appWidth  = Math.min(screenSize.width-insets.left-insets.right, ApplicationSettings.APP_WIDTH.getValue());
         int appHeight = Math.min(screenSize.height-insets.top-insets.bottom, ApplicationSettings.APP_HEIGHT.getValue());
+
+        // TODO: Get a real minimum size? 
+        frame.setMinimumSize(new Dimension(500, 500));
+        frame.setSize(new Dimension(appWidth, appHeight));
         
         // Set the location of our window based on whether or not
         // the user has run the program before, and therefore may have 
         // modified the location of the main window.
         if(ApplicationSettings.POSITIONS_SET.getValue()) {
-            locX = Math.max(insets.left, ApplicationSettings.WINDOW_X.getValue());
-            locY = Math.max(insets.top, ApplicationSettings.WINDOW_Y.getValue());
+            
+            int locX = Math.max(insets.left, ApplicationSettings.WINDOW_X.getValue());
+            int locY = Math.max(insets.top, ApplicationSettings.WINDOW_Y.getValue());
+        
+            // Make sure the Window is visible and not for example 
+            // somewhere in the very bottom right corner.
+            if (locX+appWidth > screenSize.width) {
+                locX = Math.max(insets.left, screenSize.width - insets.left - insets.right - appWidth);
+            }
+            
+            if (locY+appHeight > screenSize.height) {
+                locY = Math.max(insets.top, screenSize.height - insets.top - insets.bottom - appHeight);
+            }
+        
+            frame.setLocation(locX, locY);
+            
         } else {
-            locX = (screenSize.width - appWidth) / 2;
-            locY = (screenSize.height - appHeight) / 2;
+            frame.setLocationRelativeTo(null);
         }
-        
-        // Make sure the Window is visible and not for example 
-        // somewhere in the very bottom right corner.
-        if (locX+appWidth > screenSize.width) {
-            locX = Math.max(insets.left, screenSize.width - insets.left - insets.right - appWidth);
-        }
-        
-        if (locY+appHeight > screenSize.height) {
-            locY = Math.max(insets.top, screenSize.height - insets.top - insets.bottom - appHeight);
-        }
-        
-        // TODO: Get a real minimum size? 
-		frame.setMinimumSize(new Dimension(500, 500));
-        frame.setLocation(locX, locY);
-        frame.setSize(new Dimension(appWidth, appHeight));
         
         //re-maximize if we shutdown while maximized.
         if(ApplicationSettings.MAXIMIZE_WINDOW.getValue() 

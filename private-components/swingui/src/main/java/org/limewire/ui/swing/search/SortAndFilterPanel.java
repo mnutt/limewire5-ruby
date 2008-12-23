@@ -1,9 +1,5 @@
 package org.limewire.ui.swing.search;
 
-import static org.limewire.ui.swing.util.I18n.tr;
-import static org.limewire.util.Objects.compareToNull;
-import static org.limewire.util.Objects.compareToNullIgnoreCase;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -26,8 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
@@ -38,25 +32,30 @@ import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.LimeComboBox;
+import org.limewire.ui.swing.components.LimeComboBox.SelectionListener;
 import org.limewire.ui.swing.components.LimeComboBoxFactory;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.LimePromptTextField;
-import org.limewire.ui.swing.components.LimeComboBox.SelectionListener;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.painter.ButtonBackgroundPainter.DrawMode;
 import org.limewire.ui.swing.search.model.SimilarResultsGroupingComparator;
 import org.limewire.ui.swing.search.model.SimilarResultsGroupingDelegateComparator;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.GuiUtils;
+import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.util.CommonUtils;
+import static org.limewire.util.Objects.compareToNull;
+import static org.limewire.util.Objects.compareToNullIgnoreCase;
+
+import com.google.inject.Inject;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.TextFilterator;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
-
-import com.google.inject.Inject;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * This class manages the UI components for filtering and sorting
@@ -64,7 +63,7 @@ import com.google.inject.Inject;
  * 
  * @see org.limewire.ui.swing.search.SearchResultsPanel.
  */
-public class SortAndFilterPanel {
+public class SortAndFilterPanel implements Disposable {
 
     private final ButtonDecorator buttonDecorator;
     
@@ -109,6 +108,7 @@ public class SortAndFilterPanel {
             filterBox, filterator, true); // true for "live"
     
     private boolean repopulatingCombo;
+    private SettingListener viewTypeListener;
 
     @Inject
     SortAndFilterPanel(LimeComboBoxFactory comboBoxFactory,
@@ -130,6 +130,11 @@ public class SortAndFilterPanel {
         tableViewToggleButton.setModel(new JToggleButton.ToggleButtonModel());
         setSearchCategory(SearchCategory.ALL);
         configureViewButtons();
+    }
+
+    @Override
+    public void dispose() {
+        SearchSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
     }
 
     private void sizeSortCombo() {
@@ -210,16 +215,15 @@ public class SortAndFilterPanel {
             }
         });
 
-        
-        //TODO this is not a singleton, need to remove the listener when we are done with this panel
-        SearchSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(new SettingListener() {
+        viewTypeListener = new SettingListener() {
             @Override
             public void settingChanged(SettingEvent evt) {
                 int newViewTypeId = SearchSettings.SEARCH_VIEW_TYPE_ID.getValue();
                 SearchViewType newSearchViewType = SearchViewType.forId(newViewTypeId);
                 updateView(outerThis, newSearchViewType);
             }
-        });
+        };
+        SearchSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);
         ButtonGroup viewGroup = new ButtonGroup();
         viewGroup.add(listViewToggleButton);
         viewGroup.add(tableViewToggleButton);

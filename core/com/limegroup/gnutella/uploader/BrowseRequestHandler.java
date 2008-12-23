@@ -25,6 +25,7 @@ import org.limewire.collection.MultiIterable;
 import org.limewire.core.api.browse.server.BrowseTracker;
 import org.limewire.http.HttpCoreUtils;
 import org.limewire.http.entity.AbstractProducingNHttpEntity;
+import org.limewire.i18n.I18nMarker;
 import org.limewire.io.GUID;
 import org.limewire.nio.channel.NoInterestWritableByteChannel;
 
@@ -88,25 +89,26 @@ public class BrowseRequestHandler extends SimpleNHttpRequestHandler {
     @Override
     public void handle(HttpRequest request, HttpResponse response,
             HttpContext context) throws HttpException, IOException {
-        
-        HTTPUploader uploader = sessionManager.getOrCreateUploader(request,
-                context, UploadType.BROWSE_HOST, "Browse-File");
-        uploader.setState(UploadStatus.BROWSE_HOST);
-        
+
         if (request.getHeaders(HTTPHeaderName.FW_NODE_INFO.name()).length > 0) {
             requestorCanDoFWT = true;
         }
-        
+        HTTPUploader uploader = null;
         try {
             // TODO handler code should not know that much about request uris
             String uri = request.getRequestLine().getUri();
             String friendID;
             if(uri.equals("/")) {
                 friendID = null;
+                uploader = sessionManager.getOrCreateUploader(request,
+                        context, UploadType.BROWSE_HOST, I18nMarker.marktr("Browse"));
             } else {
                 friendID = getFriend(request);
                 tracker.browsed(friendID);
-            }            
+                uploader = sessionManager.getOrCreateUploader(request,
+                        context, UploadType.BROWSE_HOST, friendID);
+            }
+            uploader.setState(UploadStatus.BROWSE_HOST);
             Iterable<SharedFileList> lists = browseRequestFileListProvider.getFileLists(friendID, context);
             List<Iterable<FileDesc>> iterables = new ArrayList<Iterable<FileDesc>>();
             for (FileList list : lists) {
@@ -128,6 +130,9 @@ public class BrowseRequestHandler extends SimpleNHttpRequestHandler {
             response.setReasonPhrase(he.getMessage());
         }
         
+        if (uploader == null) {
+            uploader = sessionManager.getOrCreateUploader(request, context, UploadType.BROWSE_HOST, I18nMarker.marktr("Browse"));
+        }
         sessionManager.sendResponse(uploader, response);
     }
     

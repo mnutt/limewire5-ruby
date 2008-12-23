@@ -199,23 +199,24 @@ class SharedFilesKeywordIndexImpl implements SharedFilesKeywordIndex {
                 desc = fileManager.getIncompleteFileList().getFileDescForIndex(i);
             }
 
-            assert desc != null : "unexpected null in FileManager for query:\n" + request;
-
-            if ((filter != null) && !filter.allow(desc.getFileName()))
-                continue;
-
-            desc.incrementHitCount();
-            activityCallback.handleSharedFileUpdate(desc.getFile());
-
-            Response resp = responseFactory.get().createResponse(desc);
-            if (includeXML) {
-                if (doc != null && resp.getDocument() != null && !isValidXMLMatch(resp, doc))
+            if(desc != null) {
+                //desc can bet null if items were removed after the IntSet matches were built
+                if ((filter != null) && !filter.allow(desc.getFileName()))
                     continue;
-            } else {
-            	//remove xml doc to save bandwidth
-                resp.setDocument(null);
+    
+                desc.incrementHitCount();
+                activityCallback.handleSharedFileUpdate(desc.getFile());
+    
+                Response resp = responseFactory.get().createResponse(desc);
+                if (includeXML) {
+                    if (doc != null && resp.getDocument() != null && !isValidXMLMatch(resp, doc))
+                        continue;
+                } else {
+                	//remove xml doc to save bandwidth
+                    resp.setDocument(null);
+                }
+                responses.add(resp);
             }
-            responses.add(resp);
         }
         if (responses.size() == 0)
             return Collections.emptySet();
@@ -577,26 +578,23 @@ class SharedFilesKeywordIndexImpl implements SharedFilesKeywordIndex {
         for (LimeXMLDocument currDoc : documents) {
             File file = currDoc.getIdentifier();// returns null if none
             Response res = null;
-            if (file == null) { // pure metadata (no file)
-                res = responseFactory.get().createPureMetadataResponse();
-            } else { // meta-data about a specific file
-                FileDesc fd = fileManager.getGnutellaFileList().getFileDesc(file);
-                if (fd == null) {
-                    // fd == null is bad -- would mean MetaFileManager is out of
-                    // sync.
-                    // fd incomplete should never happen, but apparently is
-                    // somehow...
-                    // fd is store file, shouldn't be returning query hits for
-                    // it then..
-                    continue;
-                } else { // we found a file with the right name
-                    res = responseFactory.get().createResponse(fd);
-                    res.setDocument(null);
-                    fd.incrementHitCount();
-                    activityCallback.handleSharedFileUpdate(fd.getFile());
-                }
+            assert(file != null);
+            FileDesc fd = fileManager.getGnutellaFileList().getFileDesc(file);
+            if (fd == null) {
+                // fd == null is bad -- would mean MetaFileManager is out of
+                // sync.
+                // fd incomplete should never happen, but apparently is
+                // somehow...
+                // fd is store file, shouldn't be returning query hits for
+                // it then..
+                continue;
+            } else { // we found a file with the right name
+                res = responseFactory.get().createResponse(fd);
+                res.setDocument(null);
+                fd.incrementHitCount();
+                activityCallback.handleSharedFileUpdate(fd.getFile());
             }
-
+        
             res.setDocument(currDoc);
             responses.add(res);
         }

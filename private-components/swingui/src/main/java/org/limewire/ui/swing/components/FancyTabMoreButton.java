@@ -10,6 +10,7 @@ import javax.swing.AbstractButton;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -18,7 +19,6 @@ import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXPanel;
 
 public class FancyTabMoreButton extends LimeComboBox {
@@ -65,7 +65,7 @@ public class FancyTabMoreButton extends LimeComboBox {
             });
         }
         
-        JXBusyLabel busyLabel = tab.createBusyLabel();
+        JLabel busyLabel = tab.createBusyLabel();
         
         GroupLayout layout = new GroupLayout(jp);
         jp.setLayout(layout);
@@ -111,8 +111,8 @@ public class FancyTabMoreButton extends LimeComboBox {
         
         @Override
         public void mouseEntered(MouseEvent e) {
-            panel.setBackgroundPainter(props.getHighlightPainter());
-            removeButton.setIcon(removeButton.getSelectedIcon());
+            panel.setBackgroundPainter(null);
+            removeButton.setIcon(removeButton.getPressedIcon());
         }
         
         @Override

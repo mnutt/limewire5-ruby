@@ -72,7 +72,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
         
         removeButton.setActionCommand(UploadActionHandler.REMOVE_COMMAND);
 
-        Action removeAction = new AbstractAction(I18n.tr("Remove")) {
+        Action removeAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                actionHandler.performAction(removeButton.getActionCommand(), editItem);
@@ -99,15 +99,15 @@ public class UploadTableRendererEditor extends TableRendererEditor {
     }
     
     private void initializeComponents(LimeProgressBarFactory progressBarFactory){
-        nameLabel = new JLabel("Name");
-        statusLabel = new JLabel("Status");
-        cancelButton = new JXButton("X"); 
+        nameLabel = new JLabel(I18n.tr("Name"));
+        statusLabel = new JLabel(I18n.tr("Status"));
+        cancelButton = new JXButton(I18n.tr("X")); 
         removeButton = new JXHyperlink();
-        removeButton.setText("Remove");
+        removeButton.setText("<HTML><U>" + I18n.tr("Remove") + "</U></HTML>");
         removeButton.setForeground(linkColor);        
         removeButton.setClickedColor(linkColor);
 
-        timeLabel = new JLabel("Time");
+        timeLabel = new JLabel(I18n.tr("Time"));
         timeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         
         progressBar = progressBarFactory.create();

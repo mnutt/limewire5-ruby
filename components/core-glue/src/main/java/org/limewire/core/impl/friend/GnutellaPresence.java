@@ -1,8 +1,10 @@
 package org.limewire.core.impl.friend;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.limewire.core.api.friend.Friend;
@@ -41,7 +43,12 @@ public class GnutellaPresence implements FriendPresence {
     private String describe(Address address) {
         if(address instanceof Connectable || address instanceof PushEndpoint) {
             // Convert IP addr into a #.
-            return Long.toString(ByteUtils.uint2long(ByteUtils.beb2int(((IpPort)address).getInetAddress().getAddress(), 0)));
+            IpPort ipp = (IpPort)address;
+            InetAddress inetAddr = ipp.getInetAddress();
+            byte[] addr = inetAddr.getAddress();
+            int addrAsInt = ByteUtils.beb2int(addr, 0);
+            long addrAsLong = ByteUtils.uint2long(addrAsInt);
+            return Long.toString(addrAsLong, 36).toUpperCase(Locale.US);
         } else {
             return address.getAddressDescription();
         }

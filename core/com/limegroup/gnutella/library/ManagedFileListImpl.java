@@ -370,13 +370,13 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
         // Step 3: Go through all newly managed dirs & manage them.
         List<ListeningFuture<FileDesc>> futures = new ArrayList<ListeningFuture<FileDesc>>();
         for(File dir : addedDirs) {
-            updateManagedDirectories(extensions, dir, startRevision, false, false, true, futures);
+            addManagedDirectory(extensions, dir, startRevision, false, false, true, futures);
         }
         
         // Step 4: Go through all unchanged dirs & manage new extensions.
         if(!addedExtensions.isEmpty() && !preservedDirs.isEmpty()) {            
             for(File directory : preservedDirs) {
-                updateManagedDirectories(addedExtensions, directory, startRevision, false, false, false, futures);
+                addManagedDirectory(addedExtensions, directory, startRevision, false, false, false, futures);
             }
         }
         
@@ -456,7 +456,7 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
             public List<ListeningFuture<FileDesc>> call() {
                 int rev = revision.get();
                 List<ListeningFuture<FileDesc>> futures = new ArrayList<ListeningFuture<FileDesc>>();
-                updateManagedDirectories(extensions, folder, rev, true, true, true, futures);
+                addManagedDirectory(extensions, folder, rev, true, true, true, futures);
                 addLoadingListener(futures, rev);
                 return futures;
             }
@@ -1000,8 +1000,8 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
         List<ListeningFuture<FileDesc>> futures = new ArrayList<ListeningFuture<FileDesc>>();
         
         // TODO: We want to always share this stuff, not just approved extensions.
-        updateManagedDirectories(extensions, LibraryUtils.PROGRAM_SHARE, rev, false, true, true, futures);
-        updateManagedDirectories(extensions, LibraryUtils.PREFERENCE_SHARE, rev, false, true, true, futures);
+//        addManagedDirectory(extensions, LibraryUtils.PROGRAM_SHARE, rev, false, true, true, futures);
+//        addManagedDirectory(extensions, LibraryUtils.PREFERENCE_SHARE, rev, false, true, true, futures);
 
         List<File> directories = getLibraryData().getDirectoriesToManageRecursively();
         // Sorting is not terribly necessary, but we'll do it anyway...
@@ -1015,7 +1015,7 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
             if(rev != revision.get()) {
                 break;
             }
-            updateManagedDirectories(extensions, directory, rev, true, true, false, futures);        
+            addManagedDirectory(extensions, directory, rev, true, true, false, futures);        
         }
         
         Set<File> managedDirs = new HashSet<File>();
@@ -1047,7 +1047,7 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
      * per-directory basis.  If the current revision ever changes from the
      * expected revision, this returns immediately.
      */
-    private void updateManagedDirectories(Collection<String> managedExts, File directory, int rev,
+    private void addManagedDirectory(Collection<String> managedExts, File directory, int rev,
             boolean recurse, boolean validateDir, boolean allowExcludedFiles,
             List<ListeningFuture<FileDesc>> futures) {
         LOG.debugf("Adding [{0}] to managed directories", directory);
@@ -1110,7 +1110,7 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
              File[] dirList = directory.listFiles(new ManagedDirectoryFilter());
              if(dirList != null) {
                  for(int i = 0; i < dirList.length && rev == revision.get(); i++) {
-                     updateManagedDirectories(managedExts, dirList[i], rev, recurse,
+                     addManagedDirectory(managedExts, dirList[i], rev, recurse,
                                               validateDir, allowExcludedFiles, futures);
                  }
             }
@@ -1279,7 +1279,7 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
     };
     
     /** A future that delegates on another future, occasionally. */
-    private class PendingFuture extends ListeningFutureTask<FileDesc> {
+    private static class PendingFuture extends ListeningFutureTask<FileDesc> {
         public PendingFuture() {
             super(EMPTY_CALLABLE);
         }

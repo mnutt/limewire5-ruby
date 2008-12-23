@@ -149,7 +149,9 @@ public interface Uploader extends BandwidthTracker, Connectable {
     public UploadType getUploadType();
 
     /**
-     * Returns the file backing this uploader. 
+     * Returns the file backing this uploader.
+     * 
+     * @return null if an entity different from a file is uploaded
      */
     public File getFile();
     

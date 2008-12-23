@@ -130,5 +130,11 @@ public class AddressIQListener implements PacketListener, EventListener<AddressE
                 }
             }
         }
+
+        @Override
+        public void removeFeature(FriendPresence friendPresence) {
+            addressRegistry.remove(new XMPPAddress(friendPresence.getPresenceId()));
+            friendPresence.removeFeature(AddressFeature.ID);
+        }
     }
 }

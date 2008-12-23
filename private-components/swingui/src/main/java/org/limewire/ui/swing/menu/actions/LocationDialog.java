@@ -82,11 +82,11 @@ class LocationDialog extends LimeJDialog {
                 LocationDialog.this.dispose();
             }
         });
-        urlPanel.setLayout(new MigLayout("", "[]5[]5[]", "[]5[]"));
-        urlPanel.add(new JLabel(I18n.tr("Enter a magnet or torrent link below:")), "span 3, wrap");
-        urlPanel.add(urlField, "span 3");
-        urlPanel.add(errorLabel, "wrap");
-        urlPanel.add(openButton, "skip 2, alignx right");
+        urlPanel.setLayout(new MigLayout("", "", ""));
+        urlPanel.add(new JLabel(I18n.tr("Enter a magnet or torrent link below:")), "wrap");
+        urlPanel.add(urlField, "wrap");
+        urlPanel.add(errorLabel, "split 3");
+        urlPanel.add(openButton, "gapleft push");
         urlPanel.add(cancelButton, "alignx right");
 
         setContentPane(urlPanel);

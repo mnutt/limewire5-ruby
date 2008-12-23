@@ -216,6 +216,10 @@ public class UDPService implements ReadWriteObserver {
         OUTGOING_MSGS = new LinkedList<SendBundle>();
 	    byte[] backing = new byte[BUFFER_SIZE];
 	    BUFFER = ByteBuffer.wrap(backing);
+        // TODO convert this to a Service and move this
+        // TODO initialize()
+        fwtStatusBroadcaster.broadcast(new FirewallTransferStatusEvent(
+                FirewallTransferStatus.DOES_NOT_SUPPORT_FWT, FWTStatusReason.UNKNOWN));
     }
     
     /**
@@ -291,28 +295,29 @@ public class UDPService implements ReadWriteObserver {
 	public void setListeningSocket(DatagramSocket datagramSocket) {
 	    if(_channel != null) {
 	        try {
+	            LOG.debug("Closing socket");
 	            _channel.close();
 	        } catch(IOException ignored) {}
 	    }
-	    
+
 	    if(datagramSocket != null) {
 	        boolean wasStarted;
 	        synchronized(this) {
-        	    _channel = datagramSocket.getChannel();
-        	    if(_channel == null)
-        	        throw new IllegalArgumentException("No channel!");
-        	        
-                wasStarted = _started;
-            
-                // set the port in the FWT records
-                _lastReportedPort=_channel.socket().getLocalPort();
-                _portStable=true;
-            }
-            
-            // If it was already started at one point, re-start to register this new channel.
-            if(wasStarted)
-                start();
-        }
+	            _channel = datagramSocket.getChannel();
+	            if(_channel == null)
+	                throw new IllegalArgumentException("No channel!");
+                
+	            wasStarted = _started;
+
+	            // set the port in the FWT records
+	            _lastReportedPort=_channel.socket().getLocalPort();
+	            _portStable=true;
+	        }
+
+	        // If it was already started at one point, re-start to register this new channel.
+	        if(wasStarted)
+	            start();
+	    }
 	}
 	
 	int getListeningPort() {
@@ -366,8 +371,10 @@ public class UDPService implements ReadWriteObserver {
                     continue;
 
                 // don't go further if filtered.
-                if (!hostileFilter.get().allow(addr.getAddress().getAddress()))
+                if(!hostileFilter.get().allow(addr.getAddress().getAddress())) {
+                    LOG.debug("Received packet from hostile host");
                     return;
+                }
                 
                 byte[] data = BUFFER.array();
                 int length = BUFFER.position();
@@ -375,12 +382,15 @@ public class UDPService implements ReadWriteObserver {
                     // we do things the old way temporarily
                     InputStream in = new ByteArrayInputStream(data, 0, length);
                     Message message = messageFactory.read(in, Network.UDP, IN_HEADER_BUF, addr);
-                    if (message == null)
+                    if(message == null) {
+                        LOG.debug("Received a null message");
                         continue;
-
+                    }
                     processMessage(message, addr);
-                } catch (IOException ignored) {
-                } catch (BadPacketException ignored) {
+                } catch(IOException e) {
+                    LOG.debug("Could not parse message", e);
+                } catch(BadPacketException e) {
+                    LOG.debug("Could not parse message", e);
                 }
             } 
         } catch(Throwable t) {
@@ -397,16 +407,20 @@ public class UDPService implements ReadWriteObserver {
         if( !(iox instanceof java.nio.channels.ClosedChannelException ) )
             ErrorService.error(iox, "UDP Error.");
         else
-            LOG.trace("Swallowing a UDPService ClosedChannelException", iox);
+            LOG.debug("Swallowing a UDPService ClosedChannelException", iox);
 	}
 	
 	/**
 	 * Processes a single message.
 	 */
     protected void processMessage(Message message, InetSocketAddress addr) {
-        if (!hostileFilter.get().allow(message))
+        // FIXME: redundant check?
+        if(!hostileFilter.get().allow(message)) {
+            LOG.debug("Received packet from hostile host");
             return;
-        if (message instanceof PingReply) 
+        }
+        // FIXME: why do we mutate the GUIDs of ping replies?
+        if(message instanceof PingReply)
             mutateGUID(message.getGUID(), addr.getAddress(), addr.getPort());
         updateState(message, addr);
         messageDispatcher.get().dispatchUDP(message, addr);
@@ -437,7 +451,13 @@ public class UDPService implements ReadWriteObserver {
                 if (r.getMyPort() != 0) {
                     synchronized(this){
                         _numReceivedIPPongs++;
-                        
+                        if(LOG.isDebugEnabled()) {
+                            LOG.debug("Received IP pong from " +
+                                    r.getAddress() + ":" + r.getPort() +
+                                    " reporting " +
+                                    r.getMyInetAddress().getHostAddress() +
+                                    ":" + r.getMyPort());
+                        }
                         if (_numReceivedIPPongs==1) 
                             _lastReportedPort=r.getMyPort();
                         else if (_lastReportedPort!=r.getMyPort()) {
@@ -517,13 +537,10 @@ public class UDPService implements ReadWriteObserver {
             throw new IllegalArgumentException("Null Message");
         if (!NetworkUtils.isValidSocketAddress(addr))
             throw new IllegalArgumentException("Invalid addr: " + addr);
-        if(_channel == null || _channel.socket().isClosed())
-            return; // ignore if not open.
-
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Sending message: " + msg + "to " + addr);
+        if(_channel == null || _channel.socket().isClosed()) {
+            LOG.debug("Socket not ready for writing");
+            return;
         }
-        
         int length = msg.getTotalLength();
         ByteBuffer buffer = NIODispatcher.instance().getBufferCache().getHeap(length);
         if(buffer.remaining() != length)
@@ -795,12 +812,16 @@ public class UDPService implements ReadWriteObserver {
 	 * @return <tt>true</tt> if the UDP socket is listening for incoming
 	 *  UDP messages, <tt>false</tt> otherwise
 	 */
-	public boolean isListening() {
-		if(_channel == null)
-		    return false;
-		    
-		return (_channel.socket().getLocalPort() != -1);
-	}
+    public boolean isListening() {
+        int port = -1;
+        if(_channel != null)
+            port = _channel.socket().getLocalPort();
+        if(port == -1) {
+            LOG.debug("Not listening");
+            return false;
+        }
+        return true;
+    }
 
 	/** 
 	 * Overrides Object.toString to give more informative information
