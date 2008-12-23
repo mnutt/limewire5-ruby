@@ -12,6 +12,8 @@ schema/*.db
 *.sqlite
 *.sqlite3
 *.db
+*.db.log
+*.db.properties
 src/*
 .hgignore
 .hg/*

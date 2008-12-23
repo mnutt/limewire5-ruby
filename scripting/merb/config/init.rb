@@ -17,6 +17,8 @@ Merb::Config.use do |c|
 end
  
 Merb::BootLoader.before_app_loads do
+  require 'lib/limewire'
+  Limewire.core = $core unless $core.nil?
   # This will get executed after dependencies have been loaded but before your app's classes have loaded.
 end
  
