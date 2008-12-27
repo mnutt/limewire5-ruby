@@ -1,21 +1,21 @@
 if($core)
+  puts "Running from Limewire, good..."
   include Java
 
-  import_java org.limewire.geocode.Geocoder
-  import_java com.limegroup.gnutella.URN
-  import_java com.limegroup.gnutella.metadata.MetaDataFactoryImpl
-  import_java com.limegroup.gnutella.metadata.MetaDataFactory
-  import_java org.limewire.io.GUID
-  import_java org.limewire.core.api.library.LibraryManager
-  import_java org.limewire.core.api.search.SearchManager
+  java_import org.limewire.geocode.Geocoder
+  java_import com.limegroup.gnutella.URN
+  java_import com.limegroup.gnutella.metadata.MetaDataFactoryImpl
+  java_import com.limegroup.gnutella.metadata.MetaDataFactory
+  java_import org.limewire.io.GUID
+  java_import org.limewire.core.api.library.LibraryManager
+  java_import org.limewire.core.api.search.SearchManager
+else
+  puts "Not running from limewire, no $core available"
 end
 
 module Limewire
-  def self.core=(c)
-    @core = c
-  end
   def self.core
-    @core
+    @core ||= $core rescue nil
   end
 
   def self.get_singleton(klass)
@@ -71,7 +71,7 @@ module Limewire
 
   module Library
     def self.all_files
-      file_list = Limewire.get_singleton(LibraryManager).library_managed_list.core_file_list
+      file_list = Limewire.get_singleton(org.limewire.core.api.library.LibraryManager).library_managed_list.core_file_list
       file_list.map{ |file| Limewire::File.new(file) }.compact
     end
 
@@ -84,9 +84,9 @@ module Limewire
     end
 
     def self.find(type_or_sha1, options={})
-      if(type == :all)
+      if(type_or_sha1 == :all)
         files = all_files
-      elsif(String === type)
+      elsif(String === type_or_sha1)
         files = all_files.select{|f| f.sha1urn == type}
       end
       
@@ -97,7 +97,7 @@ module Limewire
       limit = options[:limit].to_i || (type == :first) ? 1 : 40
       offset = options[:offset].to_i || 0
       
-      all_files
+      all_files[offset..(offset + limit - 1)]
     end
 
     def self.filter_by_name(regex)
@@ -113,7 +113,7 @@ module Limewire
   class File
     def initialize(file)
       @file = file
-      @metadata = Limewire.get_singleton(MetaDataFactory).parse(file.get_file) rescue nil
+      @metadata = Limewire.get_singleton(com.limegroup.gnutella.metadata.MetaDataFactory).parse(file.get_file) rescue nil
     end
 
     def metadata

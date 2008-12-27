@@ -30,6 +30,7 @@ Merb::Router.prepare do
   # RESTful routes
   # resources :posts
   match('/cloud').to(:controller => 'cloud', :action => 'index')
+  match('/library/:sha1').to(:controller => 'library', :action => 'show', :sha1 => nil)
   
   # Adds the required routes for merb-auth using the password slice
   slice(:merb_auth_slice_password, :name_prefix => nil, :path_prefix => "")
