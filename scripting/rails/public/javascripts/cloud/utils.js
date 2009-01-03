@@ -16,7 +16,7 @@ $.extend(SC, {
   formatMs: function(ms) {
     var s = Math.floor((ms/1000) % 60);
     if (s < 10) { s = "0"+s; }
-    return Math.floor(ms/60000) + ":" + s;
+    return Math.floor(ms/60000) + "." + s;
   },
 
   format: function(str, props) {
@@ -41,12 +41,12 @@ $.extend(SC, {
 	utcLastMonth : function () {
     var d = new Date();
     d.setDate(d.getDate()-30);
-    return SC.utcDate(d);
+    return SC.utcDate(d);	  
 	},
 	utcYesterday : function () {
     var d = new Date();
     d.setDate(d.getDate()-1);
-    return SC.utcDate(d);
+    return SC.utcDate(d);	  
 	},
   arraySum : function(a) {
     var sum = 0
@@ -68,7 +68,7 @@ $.extend(SC, {
         // We are the last call made, so cancel the previous last call
         clearTimeout(partial.futureTimeout);
 
-        if (last === null || now - last > delay) {
+        if (last === null || now - last > delay) { 
           fn.apply(scope, args);
           last = now;
         } else {

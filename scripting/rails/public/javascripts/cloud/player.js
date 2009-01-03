@@ -2,6 +2,7 @@ SC.Player = SC.Class();
 SC.Player.prototype = {
   isPlaying: false,
   initialize: function() {
+
     this.audioTracks = {}; // has for all sounds
     this.progress = $('#progress div:first');
     this.loading = $('#progress div.loading');
@@ -95,7 +96,7 @@ SC.Player.prototype = {
         artist : $("#pl-artist").val().toLowerCase().replace(/\s/,"-") // FIXME: cheap username->permalink algoritm
       }
 
-      $.post("/playlists",props,function(data) {
+      $.post("/cloud/playlists",props,function(data) {
         var pl = eval('(' + data + ')');
         self.playlists[pl.playlist.id] = new SC.Playlist(pl,self);
         self.switchPlaylist(pl.playlist.id);
@@ -399,7 +400,7 @@ SC.Player.prototype = {
     if($("body").hasClass("logged-in")) {
 
       // load playlists for user
-      $.getJSON("/script/sc/playlists",function(playlists) {
+      $.getJSON("/playlists",function(playlists) {
         $.each(playlists,function() {
           self.playlists[this.playlist.id] = new SC.Playlist(this, self);
         });
@@ -418,34 +419,39 @@ SC.Player.prototype = {
           }
         }
 
+        // init back-button support
+        $.ajaxHistory.initialize(function() {
+          $("#playlists a:first").click();
+        });
+
       });
     } else { // not logged in, then load a few standard playlists without persisting
-	self.playlists['latest'] = new SC.Playlist({
-            is_owner: true,
-            playlist: {
-		id : "latest",
-		name : "All Tracks",
-		smart : true,
-		version : 0,
-		smart_filter : {
-		    order : "latest"
-		}
-            }
-	},self);
+      self.playlists['latest'] = new SC.Playlist({
+        is_owner: true,
+        playlist: {
+          id : "latest",
+          name : "Latest Tracks",
+          smart : true,
+          version : 0,
+          smart_filter : {
+            order : "latest"
+          }
+        }
+      },self);
 
-	self.playlists['indie'] = new SC.Playlist({
-            is_owner: true,
-            playlist: {
-		id : "indie",
-		name : "Indie",
-		smart : true,
-		version : 0,
-		smart_filter : {
-		    order : "latest",
-		    genres : "indie"
-		}
-            }
-	},self);
+      self.playlists['indie'] = new SC.Playlist({
+        is_owner: true,
+        playlist: {
+          id : "indie",
+          name : "Indie",
+          smart : true,
+          version : 0,
+          smart_filter : {
+            order : "latest",
+            genres : "indie"
+          }
+        }
+      },self);
 
       self.playlists['deephouse'] = new SC.Playlist({
         is_owner: true,
@@ -521,6 +527,12 @@ SC.Player.prototype = {
       // $("#about-box").fadeIn();
 
       self.switchPlaylist("latest");
+
+      // init back-button support
+      $.ajaxHistory.initialize(function() {
+        $("#playlists a:first").click();
+      });
+
     }
 
     $("#playlists").sortable({
@@ -583,7 +595,7 @@ SC.Player.prototype = {
 
     $("#artist")
       .hide()
-      .html("<a href='#' class='artist-link'>" + track.user.username + "</a> <span>" + track.title + "</span>" + " <a href='" + track.permalink_url + "' target='_blank'>»</a>" + (track.purchase_url ? " <a href='" + track.purchase_url + "' target='_blank'>Buy »</a>" : ""))
+      .html("<a href='#' class='artist-link'>" + track.user.username + "</a> · <span>" + track.title + "</span>" + " <a href='" + track.permalink_url + "' target='_blank'>»</a>" + (track.purchase_url ? " <a href='" + track.purchase_url + "' target='_blank'>Buy »</a>" : ""))
       .find("a.artist-link")
         .click(function(ev) {
           self.removePlaylist("artist");
@@ -744,7 +756,7 @@ SC.Player.prototype = {
 };
 
 soundManager.flashVersion = 9;
-soundManager.url = '/flash';
+soundManager.url = '/flash/.';
 soundManager.useConsole = true;
 soundManager.consoleOnly = true;
 soundManager.debugMode = false; // disable debug mode
