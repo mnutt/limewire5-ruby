@@ -27,7 +27,7 @@ SC.Playlist.prototype = {
     this.currentPos = 0; // this is the current position in the list at which a track is playing, needed for continous play through playlists
     this.persisted = (props.playlist.dontPersist ? false : true);
 
-    this.editable = (!self.properties.playlist.smart && (self.properties.playlist.collaborative || (self.properties.is_owner && !self.properties.playlist.collaborative)));
+    this.editable = (!self.properties.playlist.smart && (self.properties.playlist.collaborative || (self.properties.is_owner && !self.properties.playlist.collaborative)));
 
     $('#playlist')
       .clone()
@@ -120,15 +120,15 @@ SC.Playlist.prototype = {
   generateTracksUrl : function(baseUrl) { // generates the API url based on properties of the playlist
     var format = "js";
     if(!baseUrl) { // if no baseUrl then use json
-      var format = "json";
-      var baseUrl = "/cloud/";
+      format = "json";
+      baseUrl = "/cloud/";
     }
     var pl = this.properties.playlist;
     if(pl.smart) { // check for all smart playlist params
       if(pl.smart_filter.user_favorites) { // user favs pl
-        baseUrl += "users/" + pl.smart_filter.user_favorites + "/favorites." + format + "?filter=streamable"
+        baseUrl += "users/" + pl.smart_filter.user_favorites + "/favorites." + format + "?filter=streamable";
       } else if(pl.smart_filter.artist) { // artist pl
-        baseUrl += "users/" + pl.smart_filter.artist + "/tracks." + format + "?filter=streamable"
+        baseUrl += "users/" + pl.smart_filter.artist + "/tracks." + format + "?filter=streamable";
       } else { // dynamic smart pl
         baseUrl += "tracks." + format + "?filter=streamable";
       }
