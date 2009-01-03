@@ -1,0 +1,21 @@
+<h1>Files</h1>
+
+<div id="files">
+  <table border="1">
+    <tr>
+      <th>File Name</th>
+      <th>Size</th>
+      <th>Date</th>
+      <th>Download link</th>
+    </tr>
+    <%= @files.collect{ |file|
+	  out = []
+	  out << "<tr><td><b>" + file.file_name.to_s + "</b></td>"
+	  out << "<td>" + file.file_size.to_s + "</td><td>Unknown</td>"
+	  out << "<td><a href='/library/" + file.sHA1Urn.to_s + "'>Download!</a></td></tr>"
+	  
+	  out.join("")
+	}.join("")
+	%>
+  </table>
+</div>

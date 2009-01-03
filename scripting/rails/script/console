@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+ROOT = File.expand_path(File.dirname(__FILE__))
+require 'rubygems'
+Gem.clear_paths
+puts "Adding gempath: #{ROOT}/../vendor/gems"
+Gem.path.unshift(ROOT+"/../vendor/gems")
+Gem.refresh
+
+require File.dirname(__FILE__) + '/../config/boot'
+require 'commands/console'

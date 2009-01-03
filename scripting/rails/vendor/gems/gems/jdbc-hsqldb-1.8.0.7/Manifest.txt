@@ -1,0 +1,7 @@
+Manifest.txt
+Rakefile
+README.txt
+LICENSE.txt
+lib/hsqldb-1.8.0.7.jar
+lib/jdbc
+lib/jdbc/hsqldb.rb

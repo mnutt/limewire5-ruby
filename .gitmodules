@@ -4,3 +4,6 @@
 [submodule "scripting/gems/merb"]
 	path = scripting/gems/merb
 	url = git://github.com/wycats/merb.git
+[submodule "scripting/rails/vendor/rails"]
+	path = scripting/rails/vendor/rails
+	url = git://github.com/rails/rails.git

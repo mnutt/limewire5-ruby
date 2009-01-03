@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>The Cloud Player</title>
+    <meta name="generator" content="TextMate http://macromates.com/" />
+    <meta name="author" content="Eric Wahlforss" />
+    <link href="/stylesheets/player.css" rel="stylesheet" media="screen" type="text/css" />
+    <script src="/javascripts/cloud/soundmanager2.js" type="text/javascript"></script>
+    <script src="/javascripts/firebugx.js" type="text/javascript"></script>
+    <script src="/javascripts/jquery-1.2.6.js" type="text/javascript"></script>
+    <script src="/javascripts/md5.js" type="text/javascript"></script>
+    <script src="/javascripts/jquery-ui-personalized-1.6rc2.js" type="text/javascript"></script>
+    <script src="/javascripts/jquery.cookie.js" type="text/javascript"></script>
+    <script src="/javascripts/cloud/utils.js" type="text/javascript"></script>
+    <script src="/javascripts/cloud/player.js" type="text/javascript"></script>
+    <script src="/javascripts/cloud/playlist.js" type="text/javascript"></script>
+
+    <link href="/images/cloud/favicon.ico" rel="shortcut icon" />
+
+  </head>
+  <body class="" unselectable="on">
+    <div id="flash"><div></div></div>
+    <div id="header">
+      <div id="login">
+	<a href="" id="about">About</a> |
+	  <a href="{{login_url}}">Limewire?</a>
+      </div>
+      <img src="/images/cloud/logo.png" id="logo" />
+      <input name="q" maxlength="50" accesskey="f" id="q" type="search" value="Search Artists &amp; Tracks" />
+    </div>
+
+    <%= yield -%>
+
+  </body>
+</html>

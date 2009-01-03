@@ -1,0 +1,178 @@
+<div id="main-container">
+  <div id="artist-info">
+    <div>
+      <a href="#close" class="close">x</a>
+      <h3>This is the artist</h3>
+      <p>This is the desc</p>
+      <p class="check-on-sc"><a href="#">Go to the artist on SoundCloud »</a></p>
+    </div>
+    <img src="http://a1.soundcloud.com/avatars/0001/1308/i039964_big.jpg" />
+  </div>
+
+  <div id="create-smart-playlist">
+    <h4>Create a smart playlist</h4>
+    <form id="pl-create-form">
+      <div class="col-1">
+	<label for="pl-genre">Genre</label>
+	<input id="pl-genre" type="text" />
+
+	<label for="pl-favorite">User favorite</label>
+	<input id="pl-favorite" type="text" value="Username" />
+
+	<input id="pl-bpm-range-start" type="hidden" />
+	<input id="pl-bpm-range-stop" type="hidden" />
+	<label id="bpm-range-label">BPM Range</label>
+	<div class="bpm-range">
+	  <label id="bpm-range-start">0</label>
+	  <div class="ui-slider-1" id="pl-bpm-range-slider">
+	    <div class="ui-slider-handle" id="bpm-handle-start"></div>
+	    <div class="ui-slider-handle" id="bpm-handle-stop"></div>
+	  </div>
+	  <label id="bpm-range-stop">250</label>
+	</div>
+
+      </div>
+      <div class="col-2">
+	<label for="pl-search-term">Search term</label>
+	<input id="pl-search-term" type="text" />
+
+	<label for="pl-artist">Artist</label>
+	<input id="pl-artist" type="text" />
+
+	<label for="pl-order">Order by</label>
+	<select id="pl-order">
+	  <option value="hotness">Hotness</option>
+	  <option selected="selected" value="created_at">Latest</option>
+	</select>
+      </div>
+
+      <div class="buttons">
+	<input id="pl-create" type="submit" value="Create" />
+	<a href="#cancel" id="pl-cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <div id="lists">
+
+    <table id="track-drag-holder">
+    </table>
+
+  </div>
+</div>
+<div id="sidebar">
+  <ul id="playlists">
+  </ul>
+  <div id="create-playlists">
+    <a href="{{login_url}}" id="add-playlist">Playlist</a>
+    <a href="{{login_url}}" class="smart-playlist" id="add-smart-playlist">Smart Playlist</a>
+  </div>
+  <div id="artwork">
+    <img src="http://a1.soundcloud.com/avatars/0001/1308/i039964_big.jpg" />
+  </div>
+</div>
+<div id="footer">
+  <input src="/images/cloud/empty.png" id="prev" type="image" value="&nbsp;" />
+  <input src="/images/cloud/empty.png" id="play" type="image" value="&nbsp;" />
+  <input src="/images/cloud/empty.png" id="next" type="image" value="&nbsp;" />
+  <input title="Shuffle Playlist" src="/images/cloud/empty.png" id="rand" type="image" value="&nbsp;" />
+  <input title="Repeat Playlist" src="/images/cloud/empty.png" id="loop" type="image" value="&nbsp;" />
+  <div id="speaker-mute"></div>
+  <div class="ui-slider-1" id="volume">
+    <div class="ui-slider-handle"></div>
+  </div>
+  <div id="speaker"></div>
+  <div id="player-display">
+    <img class="logo" src="/images/cloud/logo-mini.png" />
+    <div id="artist">
+
+    </div>
+    <div id="position"></div>
+    <div id="progress">
+      <img class="waveform" src="/images/cloud/empty.png" />
+      <div class="inner">
+	<div class="playhead"></div>
+      </div>
+      <div class="loading"></div>
+    </div>
+    <div id="duration"></div>
+  </div>
+
+</div>
+
+
+<div id="about-box">
+  <a href="#close" class="close">X</a>
+  <h1>The Cloud Player</h1>
+  <img src="/images/cloud/about-thumb.png" id="about-thumb" height="238" alt="Thumbnail" width="294" />
+  <p>The Cloud Player is a <strong>web-based music player</strong> that let’s you...</p>
+  <ul id="feature-list">
+    <li id="feature-find"><span></span><strong>Find and play</strong> all tracks from SoundCloud</li>
+    <li id="feature-save"><span></span><strong>Save playlists</strong> to your Google Account</li>
+    <li id="feature-smart"><span></span>Make <strong>smart playlists</strong> based on genre, BPM, etc</li>
+    <li id="feature-share"><span></span><strong>Share</strong> your ready-made playlists with your friends</li>
+    <li id="feature-collaborate"><span></span><strong>Collaborate</strong> in making the best playlists ever</li>
+  </ul>
+  <div id="built-by">
+    <p>
+      <img src="/images/cloud/erichenrik.png" height="51" alt="Henrik &amp; Eric" width="90" />
+      Built by <a href="http://eric.wahlforss.com">Eric Wahlforss</a> &amp; <a href="http://hinkeb.com">Henrik Berggren</a> using
+      <a href="http://appengine.google.com">Google App Engine</a>, <a href="http://python.org">Python</a>, <a href="http://jquery.com">jQuery</a>,
+      <a href="http://www.schillmania.com/projects/soundmanager2/">SoundManager 2</a>, <a href="http://www.everaldo.com/crystal/">Crystal</a> and the <a href="http://soundcloud.com/api">SoundCloud API</a>.
+      Do you want to contribute? Go ahead and <a href="http://github.com/hinke/the-cloud-player/tree/master">fork from GitHub</a>!
+    </p>
+  </div>
+
+</div>
+
+
+<!-- TEMPLATES -->
+<div id="templates">
+
+  <div id="playlist">
+    <table class="list-header">
+      <thead>
+	<tr>
+	  <th>&nbsp;</th>
+	  <th>Title</th>
+	  <th>Artist</th>
+	  <th>Time</th>
+	  <th>Description</th>
+	  <th>BPM</th>
+	  <th>Genre</th>
+	</tr>
+      </thead>
+    </table>
+    <div>
+      <table>
+	<tbody>
+	</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="playlist-row">
+    <table>
+      <tr>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<div id="share-playlist">
+  <div class="share-playlist">
+    <a href="#close" class="close">X</a>
+    <h1>Share This Playlist</h1>
+    <p>Send this link to anyone who you want to share this playlist with:</p>
+    <input type="text" value="foobar" />
+  </div>
+</div>
+<!-- END TEMPLATES -->
