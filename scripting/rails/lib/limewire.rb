@@ -118,7 +118,7 @@ end
     end
 
     def self.filter_by_name(regex)
-      all_files.find_all{ |f| f.file_name =~ regex }
+      all_files.find_all{ |f| f.file_name =~ regex || f.metadata.artist.to_s =~ regex || f.metadata.title =~ regex rescue false }
     end
     
     def self.categories
@@ -137,21 +137,25 @@ end
       @metadata
     end
 
+    def title
+      @metadata.title || self.file_name
+    end
+
     def to_cloud
       return nil if metadata.nil?
       {
         'duration' => metadata.length * 1000,
-        'permalink' => metadata.title,
+        'permalink' => title,
         'uri' => "/library/#{self.sHA1Urn}",
         'downloadable' => true,
-        'genre' => metadata.genre,
-        'title' => metadata.title.to_s.gsub(/\u0000/, ""),
+        'genre' => metadata.genre.to_s.gsub(/\00/, ""),
+        'title' => title.to_s.gsub(/\00/, ""),
         'id' => self.object_id,
         'streamable' => true,
         'stream_url' => "/library/#{self.sHA1Urn}",
-        'description' => metadata.album.to_s.gsub(/\u0000/, ""),
+        'description' => metadata.album.to_s.gsub(/\00/, ""),
         'permalink_url' => "/library/#{self.sHA1Urn}",
-        'user' => {"username"=>metadata.artist.to_s.gsub(/\u0000/, "")},
+        'user' => {"username"=>metadata.artist.to_s.gsub(/\00/, "")},
         'sharing' => 'public',
         'purchase_url' => 'http://store.limewire.com'
       }
