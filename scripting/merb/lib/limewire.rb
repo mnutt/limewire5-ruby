@@ -71,8 +71,13 @@ module Limewire
 
   module Library
     def self.all_files
-      file_list = Limewire.get_singleton(org.limewire.core.api.library.LibraryManager).library_managed_list.core_file_list
-      file_list.map{ |file| Limewire::File.new(file) }.compact
+      @_all_files_cached = begin
+                             file_list = Limewire.get_singleton(org.limewire.core.api.library.LibraryManager).library_managed_list.core_file_list
+                             file_list.map{ |file| Limewire::File.new(file) }.compact
+                           end if (@_all_files_cached == nil || Time.now - @_all_files_cached_time > 60)
+      @_all_files_cached_time = Time.now
+      @_all_files_cached
+                                 
     end
 
     def self.first(limit=1)
