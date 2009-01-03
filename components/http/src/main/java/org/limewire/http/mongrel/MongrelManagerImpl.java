@@ -26,7 +26,7 @@ public class MongrelManagerImpl implements MongrelManager {
     public void start() {
         System.out.println("Starting mongrel...");
         try {
-            this.rubyEvaluator.eval("mongrel_start.rb");
+            this.rubyEvaluator.eval("rails_start.rb");
         } catch(FileNotFoundException exception) {
             System.out.println("couldn't find mongrel start script.");
             exception.printStackTrace();
