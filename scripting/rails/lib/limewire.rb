@@ -138,19 +138,20 @@ end
     end
 
     def to_cloud
+      return nil if metadata.nil?
       {
         'duration' => metadata.length * 1000,
         'permalink' => metadata.title,
         'uri' => "/library/#{self.sHA1Urn}",
         'downloadable' => true,
         'genre' => metadata.genre,
-        'title' => metadata.title.gsub(/\u0000/, ""),
+        'title' => metadata.title.to_s.gsub(/\u0000/, ""),
         'id' => self.object_id,
         'streamable' => true,
         'stream_url' => "/library/#{self.sHA1Urn}",
-        'description' => metadata.album.gsub(/\u0000/, ""),
+        'description' => metadata.album.to_s.gsub(/\u0000/, ""),
         'permalink_url' => "/library/#{self.sHA1Urn}",
-        'user' => {"username"=>metadata.artist.gsub(/\u0000/, "")},
+        'user' => {"username"=>metadata.artist.to_s.gsub(/\u0000/, "")},
         'sharing' => 'public',
         'purchase_url' => 'http://store.limewire.com'
       }
