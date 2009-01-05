@@ -85,7 +85,10 @@ end
   module Library
     def self.all_files
       file_list = Limewire.get_singleton(org.limewire.core.api.library.LibraryManager).library_managed_list.core_file_list
-      file_list.map{ |file| Limewire::File.new(file) }.compact
+      file_list = file_list.map{ |file| Limewire::File.new(file) }.compact
+      
+      file_list.extend(Filterable)
+      file_list
     end
 
     def self.first(limit=1)
@@ -115,10 +118,6 @@ end
       offset = options[:offset].to_i || 0
       
       all_files[offset..(offset + limit - 1)]
-    end
-
-    def self.filter_by_name(regex)
-      all_files.find_all{ |f| f.file_name =~ regex || f.metadata.artist.to_s =~ regex || f.metadata.title =~ regex rescue false }
     end
     
     def self.categories
@@ -168,5 +167,27 @@ end
         super
       end
     end
+  end
+end
+
+module Filterable
+  def filter_by_name(regex)
+    filtered = self.find_all{ |f| f.file_name =~ regex || f.metadata.artist.to_s =~ regex || f.metadata.title =~ regex rescue false }
+    filtered.extend(Filterable)
+  end
+
+  def filter_by_extension(extension)
+    filtered = self.find_all{ |f| f.file_name =~ /#{extension.to_s}$/ }
+    filtered.extend(Filterable)
+  end
+
+  def filter_by_genre(genre)
+    filtered = self.find_all{ |f| f.metadata.genre.downcase == genre.downcase rescue false }
+    filtered.extend(Filterable)
+  end
+
+  def filter_by_artist(artist)
+    filtered = self.find_all{ |f| f.metadata.artist.downcase == artist.downcase rescue false }
+    filtered.extend(Filterable)
   end
 end
