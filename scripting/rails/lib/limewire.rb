@@ -154,8 +154,11 @@ end
         'stream_url' => "/library/#{self.sHA1Urn}",
         'description' => metadata.album.to_s.gsub(/\00/, ""),
         'permalink_url' => "/library/#{self.sHA1Urn}",
-        'user' => {"username"=>metadata.artist.to_s.gsub(/\00/, "")},
+        'user' => {
+          "username"=>metadata.artist.to_s.gsub(/\00/, ""), 
+          "permalink" => metadata.artist.to_s.gsub(/\00/, "") },
         'sharing' => 'public',
+        'waveform_url' => '/images/waveform.png', # until we actually do waveform calculations
         'purchase_url' => 'http://store.limewire.com'
       }
     end
