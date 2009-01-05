@@ -128,7 +128,7 @@ SC.Playlist.prototype = {
       if(pl.smart_filter.user_favorites) { // user favs pl
         baseUrl += "users/" + pl.smart_filter.user_favorites + "/favorites." + format + "?filter=streamable";
       } else if(pl.smart_filter.artist) { // artist pl
-        baseUrl += "users/" + pl.smart_filter.artist + "/tracks." + format + "?filter=streamable";
+        baseUrl += "tracks." + format + "?artist=" + pl.smart_filter.artist + "&filter=streamable";
       } else { // dynamic smart pl
         baseUrl += "tracks." + format + "?filter=streamable";
       }
@@ -286,7 +286,7 @@ SC.Playlist.prototype = {
       tracks = "0";
     }
 
-    $.post("/playlists/" + this.id ,{"_method":"PUT","tracks":tracks,"version":this.version},function(dataJS) {
+    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","tracks":tracks,"version":this.version},function(dataJS) {
       var data = eval('(' + dataJS + ')');
       if(data.response == 200) {
         self.version++;
@@ -300,7 +300,7 @@ SC.Playlist.prototype = {
   saveName : function() {
     var self = this;
     this.name = this.name.replace(/<.*?>/,""); // sanitize name
-    $.post("/playlists/" + this.id ,{"_method":"PUT","name":this.name},function(dataJS) {
+    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","name":this.name},function(dataJS) {
       var data = eval('(' + dataJS + ')');
       if(data.response == 200) {
         self.version++;
@@ -314,7 +314,7 @@ SC.Playlist.prototype = {
     var self = this;
     // find out position index, ignore non-persisted playlists
     var pos = $("#playlists li:not(.dont-persist)").index($("#playlists li:not(.dont-persist)[listid=" + this.id + "]"));
-    $.post("/playlists/" + this.id ,{"_method":"PUT","position":pos},function(dataJS) {
+    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","position":pos},function(dataJS) {
       var data = eval('(' + dataJS + ')');
       if(data.response == 200) {
         console.log('saved position');
@@ -325,7 +325,7 @@ SC.Playlist.prototype = {
   },
   destroy : function() {
     if(this.persisted) {
-      $.post("/playlists/" + this.id,{"_method":"DELETE"},function() {
+      $.post("/cloud/playlists/" + this.id,{"_method":"DELETE"},function() {
         console.log('deleted from server...')
       });
     }
@@ -440,7 +440,7 @@ SC.Playlist.prototype = {
             }
           },self.player);
           self.player.switchPlaylist("artist");
-          self.player.loadArtistInfo(track.user.uri);
+          // self.player.loadArtistInfo(track.user.uri);
         }).end()
       .end()
       .find("td:nth-child(4)").css("width",self.colWidths[3]).text(SC.formatMs(track.duration)).end()
@@ -472,7 +472,7 @@ SC.Playlist.prototype = {
   },
   addToPlaylistsList: function() { // add the tab for the playlist
     var self = this;
-    $("<li listId='" + this.id + "' class='" + (this.properties.is_owner ? "" : "shared") + " " + (this.properties.playlist.collaborative ? "collaborative" : "") + " " + (this.persisted ? "" : "dont-persist") + " " + (this.properties.playlist.smart ? "smart" : "") + " " + (this.properties.playlist.search ? "search" : "") + "'><span></span><a href='#" + this.name.replace(/\s/, "+") + "'>" + this.name + (this.properties.is_owner ? "" : " <em>by " + this.properties.playlist.owner.nickname + "</em>") + "</a><a class='collaborative' title='Make Playlist Collaborative' href='/playlists/" + this.id + "'>&nbsp;</a><a class='share' title='Share Playlist' href='/share/" + this.properties.playlist.share_hash + "'>&nbsp;</a><a class='delete' title='Remove Playlist' href='/playlists/" + this.id + "'>&nbsp;</a></li>")
+    $("<li listId='" + this.id + "' class='" + (this.properties.is_owner ? "" : "shared") + " " + (this.properties.playlist.collaborative ? "collaborative" : "") + " " + (this.persisted ? "" : "dont-persist") + " " + (this.properties.playlist.smart ? "smart" : "") + " " + (this.properties.playlist.search ? "search" : "") + "'><span></span><a href='#" + this.name.replace(/\s/, "+") + "'>" + this.name + (this.properties.is_owner ? "" : " <em>by " + this.properties.playlist.owner.nickname + "</em>") + "</a><a class='collaborative' title='Make Playlist Collaborative' href='/cloud/playlists/" + this.id + "'>&nbsp;</a><a class='share' title='Share Playlist' href='/share/" + this.properties.playlist.share_hash + "'>&nbsp;</a><a class='delete' title='Remove Playlist' href='/cloud/playlists/" + this.id + "'>&nbsp;</a></li>")
       .find('a:first').history(function(ev) {
         if($(this).parents("li").hasClass("active") && self.properties.is_owner && $("body").hasClass("logged-in")) {
           var that = this; // very strange that i can't use self here
@@ -554,7 +554,7 @@ SC.Playlist.prototype = {
       }).end()
       .find('a.collaborative').click(function() {
         if(!$(this).parents("li").hasClass("shared")) {
-          $.post("/playlists/" + self.id ,{"_method":"PUT","collaborative":!self.properties.playlist.collaborative,"version":self.version},function() {
+          $.post("/cloud/playlists/" + self.id ,{"_method":"PUT","collaborative":!self.properties.playlist.collaborative,"version":self.version},function() {
             self.properties.playlist.collaborative = !self.properties.playlist.collaborative;
             $("#playlists li[listid=" + self.id + "]").toggleClass("collaborative");
             if(self.properties.playlist.collaborative) {

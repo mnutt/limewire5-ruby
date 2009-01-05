@@ -280,7 +280,7 @@ SC.Player.prototype = {
     $("#add-playlist").click(function(ev) {
       if($("body").hasClass("logged-in")) {
         var pos = $("#playlists li:not(.dont-persist)").index($("#playlists li:not(.dont-persist):last"))+1; //FIXME respect non-persisted playlists, and first
-        $.post("/playlists",{'name':"Untitled playlist",'position': pos},function(data) {
+        $.post("/cloud/playlists",{'name':"Untitled playlist",'position': pos},function(data) {
           var item = eval('(' + data + ')');
           self.playlists[item.playlist.id] = new SC.Playlist(item, self);
           self.switchPlaylist(item.playlist.id);
@@ -400,7 +400,7 @@ SC.Player.prototype = {
     if($("body").hasClass("logged-in")) {
 
       // load playlists for user
-      $.getJSON("/playlists",function(playlists) {
+      $.getJSON("/cloud/playlists",function(playlists) {
         $.each(playlists,function() {
           self.playlists[this.playlist.id] = new SC.Playlist(this, self);
         });
@@ -711,6 +711,7 @@ SC.Player.prototype = {
     this.showingArtwork = false;
   },
   switchPlaylist: function(id) {
+    console.log("switching playlists");
     $("#lists > div").hide();
     $("#lists > #list-"+id).show();
     $("#playlists li").removeClass("active");
