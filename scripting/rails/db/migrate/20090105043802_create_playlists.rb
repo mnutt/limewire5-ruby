@@ -9,7 +9,7 @@ class CreatePlaylists < ActiveRecord::Migration
       t.string :version
       t.integer :owner_id
       t.string :genres
-      t.stirng :artist
+      t.string :artist
       t.string :tags
       t.datetime :uploaded_from
       t.datetime :uploaded_to
@@ -17,9 +17,9 @@ class CreatePlaylists < ActiveRecord::Migration
       t.integer :bpm_to
       t.string :search_term
       t.string :user_favorites
-      t.string :order
+      t.string :list_order
       t.integer :duration_from
-      t.integer :duration-to
+      t.integer :duration_to
 
       t.timestamps
     end
