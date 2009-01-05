@@ -3,7 +3,9 @@
 development: &defaults
   # These are the settings for repository :default
   adapter:  jdbchsqldb
-  database: limewire_development.db
+  database: db/limewire_development.db
+  username: sa
+  password:
  
   # Add more repositories
   # repositories:
@@ -15,7 +17,7 @@ development: &defaults
  
 test:
   <<:       *defaults
-  database: limewire_test.db
+  database: db/limewire_test.db
  
   # repositories:
   #   repo1:
@@ -23,7 +25,7 @@ test:
  
 production:
   <<:       *defaults
-  database: limewire_production.db
+  database: db/limewire_production.db
  
   # repositories:
   #   repo1:
