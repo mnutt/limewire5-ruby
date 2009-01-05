@@ -15,7 +15,7 @@
 (function($) { // block scope
 
 /**
- * Initialize the history manager. Subsequent calls will not result in additional history state change 
+ * Initialize the history manager. Subsequent calls will not result in additional history state change
  * listeners. Should be called soonest when the DOM is ready, because in IE an iframe needs to be added
  * to the body to enable history support.
  *
@@ -24,7 +24,7 @@
  * @param Function callback A single function that will be executed in case there is no fragment
  *                          identifier in the URL, for example after navigating back to the initial
  *                          state. Use to restore such an initial application state.
- *                          Optional. If specified it will overwrite the default action of 
+ *                          Optional. If specified it will overwrite the default action of
  *                          emptying all containers that are used to load content into.
  * @type undefined
  *
@@ -47,7 +47,7 @@ $.ajaxHistory = new function() {
         $('.remote-output').empty();
     };
     $(document).bind(RESET_EVENT, _defaultReset);
-    
+
     // TODO fix for Safari 3
     // if ($.browser.msie)
     // else if hash != _currentHash
@@ -188,7 +188,7 @@ $.ajaxHistory = new function() {
  * The link's href attribute gets altered to a fragment identifier, such as "#remote-1", so that the browser's
  * URL gets updated on each click, whereas the former value of that attribute is used to load content via
  * XmlHttpRequest from and update the specified element. If no target element is found, a new div element will be
- * created and appended to the body to load the content into. The link informs the history manager of the 
+ * created and appended to the body to load the content into. The link informs the history manager of the
  * state change on click and adds an entry to the browser's history.
  *
  * jQuery's Ajax implementation adds a custom request header of the form "X-Requested-With: XmlHttpRequest"
@@ -211,7 +211,7 @@ $.ajaxHistory = new function() {
  * @param Object settings An object literal containing key/value pairs to provide optional settings.
  * @option String hashPrefix A String that is used for constructing the hash the link's href attribute
  *                           gets altered to, such as "#remote-1". Default value: "remote-".
- * @param Function callback A single function that will be executed when the request is complete. 
+ * @param Function callback A single function that will be executed when the request is complete.
  * @type jQuery
  *
  * @name remote
@@ -226,7 +226,7 @@ $.ajaxHistory = new function() {
  * The link's href attribute gets altered to a fragment identifier, such as "#remote-1", so that the browser's
  * URL gets updated on each click, whereas the former value of that attribute is used to load content via
  * XmlHttpRequest from and update the specified element. If no target element is found, a new div element will be
- * created and appended to the body to load the content into. The link informs the history manager of the 
+ * created and appended to the body to load the content into. The link informs the history manager of the
  * state change on click and adds an entry to the browser's history.
  *
  * jQuery's Ajax implementation adds a custom request header of the form "X-Requested-With: XmlHttpRequest"
@@ -248,7 +248,7 @@ $.ajaxHistory = new function() {
  * @param Object settings An object literal containing key/value pairs to provide optional settings.
  * @option String hashPrefix A String that is used for constructing the hash the link's href attribute
  *                           gets altered to, such as "#remote-1". Default value: "remote-".
- * @param Function callback A single function that will be executed when the request is complete. 
+ * @param Function callback A single function that will be executed when the request is complete.
  * @type jQuery
  *
  * @name remote
@@ -261,7 +261,7 @@ $.fn.remote = function(output, settings, callback) {
     if (typeof settings == 'function') { // shift arguments
         callback = settings;
     }
-    
+
     settings = $.extend({
         hashPrefix: 'remote-'
     }, settings || {});
@@ -299,12 +299,12 @@ $.fn.remote = function(output, settings, callback) {
  * identifier, informs the history manager of the state change and adds an entry to the browser's
  * history.
  *
- * @param Function callback A single function that will be executed as the click handler of the 
- *                          matched element. It will be executed on click (adding an entry to 
- *                          the history) as well as in case the history manager needs to trigger 
- *                          it depending on the value of the URL fragment identifier, e.g. if its 
+ * @param Function callback A single function that will be executed as the click handler of the
+ *                          matched element. It will be executed on click (adding an entry to
+ *                          the history) as well as in case the history manager needs to trigger
+ *                          it depending on the value of the URL fragment identifier, e.g. if its
  *                          current value matches the href attribute of the matched element.
- *                           
+ *
  * @type jQuery
  *
  * @name history
@@ -312,20 +312,21 @@ $.fn.remote = function(output, settings, callback) {
  * @author Klaus Hartl/klaus.hartl@stilbuero.de
  */
 $.fn.history = function(callback,bypassHistory) {
-    return this.click(function(e) {        
+    return this.click(function(e) {
 		  // add to history only if true click occured,
 		  // not a triggered click...
-		  
+			console.log("e.clientX: "+e.clientX);
       if (e.clientX) {
 	      // ...and die if already active
 			  if (this.hash == location.hash && !bypassHistory) { // eric bypass patch here to enable renaming
 			    return false;
-			  } 
+			  }
         $.ajaxHistory.update(this.hash);
-      }
-		  if (typeof callback == 'function') {
+if (typeof callback == 'function') {
 			  callback.call(this, e);
 		  }
+      }
+
     });
 };
 
@@ -336,7 +337,7 @@ var logger;
 $(function() {
     logger = $('<div style="position: fixed; top: 0; overflow: hidden; border: 1px solid; padding: 3px; width: 120px; height: 150px; background: #fff; color: red;"></div>').appendTo(document.body);
 });
-function log(m) {    
+function log(m) {
     logger.prepend(m + '<br />');
 };
 */
