@@ -7184,3 +7184,546 @@ NoMethodError (undefined method `to_xml' for #<String:0x7cb3d937>):
 Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (62.4ms)
 Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.0ms)
 Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:22:31) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:22:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (85.8ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (13.3ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:24:21) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:22:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (88.1ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.0ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+  [4;36;1mSQL (2.1ms)[0m   [0;1mCREATE TABLE schema_migrations (version varchar(255) NOT NULL) [0m
+  [4;35;1mSQL (0.4ms)[0m   [0mCREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations (version)[0m
+  [4;36;1mSQL (1.6ms)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreatePlaylists (20090105043802)
+  [4;35;1mSQL (1.2ms)[0m   [0mCREATE TABLE playlists (id INTEGER GENERATED BY DEFAULT AS IDENTITY(START WITH 0) PRIMARY KEY, name varchar(255), collaborative integer, tracks varchar(255), smart integer, share_hash varchar(255), version varchar(255), owner_id integer, genres varchar(255), artist varchar(255), tags varchar(255), uploaded_from DATETIME, uploaded_to DATETIME, bpm_from integer, bpm_to integer, search_term varchar(255), user_favorites varchar(255), list_order varchar(255), duration_from integer, duration_to integer, created_at DATETIME, updated_at DATETIME) [0m
+  [4;36;1mSQL (0.4ms)[0m   [0;1mINSERT INTO schema_migrations (version) VALUES ('20090105043802')[0m
+  [4;35;1mSQL (0.5ms)[0m   [0mSELECT IDENTITY() FROM schema_migrations[0m
+Migrating to AddPositionToPlaylists (20090106024458)
+  [4;36;1mSQL (0.6ms)[0m   [0;1mALTER TABLE playlists ADD list_position integer[0m
+  [4;35;1mSQL (0.3ms)[0m   [0mINSERT INTO schema_migrations (version) VALUES ('20090106024458')[0m
+  [4;36;1mSQL (0.4ms)[0m   [0;1mSELECT IDENTITY() FROM schema_migrations[0m
+  [4;35;1mSQL (0.4ms)[0m   [0mSELECT version FROM schema_migrations[0m
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:27:42) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+NoMethodError (You have a nil object when you didn't expect it!
+The error occurred while evaluating nil.getSearchResults):
+    /lib/limewire.rb:60:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (729.6ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (50.9ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:27:50) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+Completed in 78ms (View: 1, DB: 0) | 200 OK [http://localhost/search/q/phish]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:28:05) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"CD3DC763C660A9F00886346A8EA46B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself: #{value.to_s}):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:22:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (185.6ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.9ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+  [4;36;1mSQL (1.7ms)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreatePlaylists (20090105043802)
+Migrating to AddPositionToPlaylists (20090106024458)
+  [4;35;1mSQL (0.3ms)[0m   [0mSELECT version FROM schema_migrations[0m
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:29:18) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+Completed in 166ms (View: 1, DB: 0) | 200 OK [http://localhost/search/q/phish]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:29:38) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself: YEAR):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:22:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (195.3ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (52.1ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:30:02) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself: TRACK_NUMBER):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:22:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (147.6ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.4ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:30:12) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+Completed in 48ms (View: 25, DB: 0) | 200 OK [http://localhost/search/FEC55BB7311DBBD68A4D4B69CE754C00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:31:16) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+Completed in 237ms (View: 139, DB: 0) | 200 OK [http://localhost/search/FEC55BB7311DBBD68A4D4B69CE754C00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:31:17) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+Completed in 255ms (View: 162, DB: 0) | 200 OK [http://localhost/search/FEC55BB7311DBBD68A4D4B69CE754C00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:31:23) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+Completed in 62ms (View: 27, DB: 0) | 200 OK [http://localhost/search/FEC55BB7311DBBD68A4D4B69CE754C00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:31:25) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+Completed in 101ms (View: 33, DB: 0) | 200 OK [http://localhost/search/FEC55BB7311DBBD68A4D4B69CE754C00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:31:29) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+Completed in 53ms (View: 26, DB: 0) | 200 OK [http://localhost/search/FEC55BB7311DBBD68A4D4B69CE754C00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:31:38) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"FEC55BB7311DBBD68A4D4B69CE754C00", "query"=>"results"}
+Completed in 220ms (View: 111, DB: 0) | 200 OK [http://localhost/search/FEC55BB7311DBBD68A4D4B69CE754C00/results]

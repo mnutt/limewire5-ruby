@@ -63,7 +63,7 @@ end
           :filename => result.fileName, 
           :magnet_url => result.getMagnetURL,
           :properties => result.getProperties.inject({}) do |memo, obj|
-            memo[obj[0]] = obj[1]
+            memo[obj[0].to_s] = obj[1].to_s
             memo
           end
         }
