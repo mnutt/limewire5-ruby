@@ -5279,3 +5279,1908 @@ ActionController::RoutingError (No route matches "/undefined.js" with {:method=>
     :1:in `initialize'
 
 Rendering /Users/michael/code/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (not_found)
+
+
+Processing CloudController#index (for 0:0:0:0:0:0:0:1%0 at 2009-01-05 15:49:58) [GET]
+  Session ID: 81ea7af511e000981d95290780df02c7
+  Parameters: {"controller"=>"cloud", "action"=>"index"}
+Rendering template within layouts/cloud
+Rendering cloud/index
+Completed in 109ms (View: 101, DB: 0) | 200 OK [http://localhost/cloud]
+
+
+Processing CloudController#playlists (for 0:0:0:0:0:0:0:1%0 at 2009-01-05 15:50:00) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"cloud", "action"=>"playlists"}
+
+
+ActionController::UnknownAction (No action responded to playlists. Actions: index and tracks):
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (not_found)
+
+
+Processing CloudController#playlists (for 0:0:0:0:0:0:0:1%0 at 2009-01-05 15:50:14) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"cloud", "action"=>"playlists"}
+
+
+ActionController::UnknownAction (No action responded to playlists. Actions: index and tracks):
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (not_found)
+
+
+Processing PlaylistsController#index (for 0:0:0:0:0:0:0:1%0 at 2009-01-05 15:50:18) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"playlists", "action"=>"index"}
+  [4;36;1mPlaylist Load (0.0ms)[0m   [0;1mActiveRecord::ActiveRecordError: Table not found in statement [SELECT * FROM playlists]: SELECT * FROM playlists [0m
+
+
+ActiveRecord::StatementInvalid (ActiveRecord::ActiveRecordError: Table not found in statement [SELECT * FROM playlists]: SELECT * FROM playlists ):
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract_adapter.rb:189:in `log'
+    /vendor/gems/gems/activerecord-jdbc-adapter-0.9/lib/active_record/connection_adapters/jdbc_adapter.rb:581:in `execute'
+    /vendor/gems/gems/activerecord-jdbc-adapter-0.9/lib/active_record/connection_adapters/jdbc_adapter.rb:641:in `select'
+    /vendor/gems/gems/activerecord-jdbc-adapter-0.9/lib/active_record/connection_adapters/jdbc_adapter.rb:566:in `jdbc_select_all'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:74:in `select_all_with_query_cache'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:95:in `cache_sql'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:74:in `select_all_with_query_cache'
+    /vendor/rails/activerecord/lib/active_record/base.rb:635:in `find_by_sql'
+    /vendor/rails/activerecord/lib/active_record/base.rb:1490:in `find_every'
+    /vendor/rails/activerecord/lib/active_record/base.rb:589:in `find'
+    /app/controllers/playlists_controller.rb:3:in `index'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (588.8ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (46.8ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing ApplicationController#index (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 11:10:45) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {}
+
+
+ActionController::RoutingError (No route matches "/stats" with {:method=>:get}):
+    /vendor/rails/actionpack/lib/action_controller/routing/recognition_optimisation.rb:66:in `recognize_path'
+    /vendor/rails/actionpack/lib/action_controller/routing/route_set.rb:385:in `recognize'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:179:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (not_found)
+
+
+Processing SearchController#index (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 11:59:24) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"index"}
+Rendering search/index
+
+
+ActionView::MissingTemplate (Missing template search/index.erb in view path /Users/dhaas/projects/limewire5-ruby/scripting/rails/app/views:):
+    /vendor/rails/actionpack/lib/action_view/template.rb:95:in `find_full_path'
+    /vendor/rails/actionpack/lib/action_view/template.rb:16:in `initialize'
+    /vendor/rails/actionpack/lib/action_view/base.rb:321:in `_pick_template'
+    /vendor/rails/activesupport/lib/active_support/memoizable.rb:99:in `_pick_template'
+    /vendor/rails/actionpack/lib/action_view/base.rb:250:in `render'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1156:in `render_for_file'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:886:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:858:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1208:in `default_render'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1214:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:00:07) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:8:in `perform'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (5923.3ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (579.1ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:01:42) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+HI
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:9:in `perform'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (4072.1ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (21.9ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:02:23) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+HI
+Completed in 2571ms (View: 3, DB: 0) | 200 OK [http://localhost/search/q/phish]
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:03:11) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+HI
+
+
+ActionController::DoubleRenderError (Can only render or redirect once per action):
+    /vendor/rails/actionpack/lib/action_controller/base.rb:855:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:10:in `perform'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (18508.7ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (118271.8ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:19:18) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+HI
+Completed in 9ms (View: 1, DB: 0) | 200 OK [http://localhost/search/q/phish]
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:20:27) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+Completed in 174ms (View: 1, DB: 0) | 200 OK [http://localhost/search/q/phish]
+
+
+Processing SearchController#perform (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:22:17) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"perform", "query"=>"phish"}
+Completed in 55ms (View: 2, DB: 0) | 200 OK [http://localhost/search/q/phish]
+
+
+Processing SearchController#results (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:23:17) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "action"=>"results"}
+
+
+ActionController::UnknownAction (No action responded to results. Actions: control, index, and perform):
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (not_found)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:23:44) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+Rendering search/control
+
+
+ActionView::MissingTemplate (Missing template search/control.erb in view path /Users/dhaas/projects/limewire5-ruby/scripting/rails/app/views:):
+    /vendor/rails/actionpack/lib/action_view/template.rb:95:in `find_full_path'
+    /vendor/rails/actionpack/lib/action_view/template.rb:16:in `initialize'
+    /vendor/rails/actionpack/lib/action_view/base.rb:321:in `_pick_template'
+    /vendor/rails/activesupport/lib/active_support/memoizable.rb:99:in `_pick_template'
+    /vendor/rails/actionpack/lib/action_view/base.rb:250:in `render'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1156:in `render_for_file'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:886:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:858:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1208:in `default_render'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1214:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing ApplicationController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:24:01) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+NoMethodError (undefined method `render' for SearchController:Class):
+    /app/controllers/search_controller.rb:27
+    /app/controllers/search_controller.rb:368:in `load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:368:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:507:in `new_constants_in'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:367:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:248:in `require_or_load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:413:in `load_missing_constant'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:77:in `const_missing_with_dependencies'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:89:in `const_missing'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:353:in `constantize'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:352:in `each'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:352:in `constantize'
+    /vendor/rails/activesupport/lib/active_support/core_ext/string/inflections.rb:162:in `constantize'
+    /vendor/rails/actionpack/lib/action_controller/routing/route_set.rb:387:in `recognize'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:179:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (94.0ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (57.2ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:24:34) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+Completed in 10ms (View: 2, DB: 0) | 200 OK [http://localhost/search/8E472F77B6D960EB151A1542951E9B00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:25:11) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActionController::DoubleRenderError (Can only render or redirect once per action):
+    /vendor/rails/actionpack/lib/action_controller/base.rb:855:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:25:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (102.0ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (5.0ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:25:31) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+Completed in 81ms (View: 21, DB: 0) | 200 OK [http://localhost/search/8E472F77B6D960EB151A1542951E9B00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:26:17) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+NameError (undefined local variable or method `result' for #<Limewire::Search:0x394ec3fe>):
+    /lib/limewire.rb:61:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (77.4ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.9ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:26:32) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+======~__id____jcreate!__jsend!__jtrap__send__`acts_like?altsalts__methodb64encodeblank?breakpointcategorycategory__methodclassclass__methodclass_evalcloneclone__methodcomcopy_instance_variables_fromdaemonizedclonedebuggerdecode64decode_bdisplaydupduplicable?enable_warningsencode64enum_foreql?equal?equalsequals?equals__methodequals__method?extendextend_with_included_modules_fromextended_byfileExtensionfileExtension__methodfileNamefileName__methodfile_extensionfile_extension__methodfile_namefile_name__methodfinalizefinalize__methodfreezefriendPresencefriendPresence__methodfriend_presencefriend_presence__methodfrozen?getAltsgetAlts__methodgetCategorygetCategory__methodgetClassgetClass__methodgetFileExtensiongetFileExtension__methodgetFileNamegetFileName__methodgetFriendPresencegetFriendPresence__methodgetMagnetURLgetMagnetURL__methodgetPropertiesgetProperties__methodgetPropertygetProperty__methodgetRelevancegetRelevance__methodgetRfdgetRfd__methodgetSizegetSize__methodgetSourcesgetSources__methodgetUrngetUrn__methodget_altsget_alts__methodget_categoryget_category__methodget_classget_class__methodget_file_extensionget_file_extension__methodget_file_nameget_file_name__methodget_friend_presenceget_friend_presence__methodget_magnet_urlget_magnet_url__methodget_propertiesget_properties__methodget_propertyget_property__methodget_relevanceget_relevance__methodget_rfdget_rfd__methodget_sizeget_size__methodget_sourcesget_sources__methodget_urnget_urn__methodhandle_different_importshashhashCodehashCode__methodhash_codehash_code__methodidinclude_classinitializeinspectinstance_evalinstance_execinstance_of?instance_valuesinstance_variable_defined?instance_variable_getinstance_variable_namesinstance_variable_setinstance_variablesisLicensedisLicensed__methodisSpamisSpam__methodis_a?is_licensedis_licensed?is_licensed__methodis_licensed__method?is_spamis_spam?is_spam__methodis_spam__method?javajava_classjava_kind_of?java_objectjava_object=javaxkind_of?licensedlicensed?licensed__methodlicensed__method?load_with_new_constant_markingmagnetURLmagnetURL__methodmagnet_urlmagnet_url__methodmetaclassmethodmethodsnil?notifynotifyAllnotifyAll__methodnotify__methodnotify_allnotify_all__methodobject_idorgpresent?private_methodspropertiesproperties__methodprotected_methodspublic_methodsrelevancerelevance__methodremove_subclasses_ofrequirerequire_associationrequire_dependencyrequire_library_or_gemrequire_or_loadrespond_to?returningrfdrfd__methodsendsilence_stderrsilence_streamsilence_warningssingleton_methodssizesize__methodsourcessources__methodspamspam?spam__methodspam__method?subclasses_ofsuppresssynchronizedtaguritainttainted?toStringtoString__methodto_ato_enumto_java_objectto_jsonto_paramto_queryto_sto_stringto_string__methodto_yamlto_yaml_nodeto_yaml_propertiesto_yaml_styletypeunloadableuntainturnurn__methodwaitwait__methodwith_options
+Completed in 59ms (View: 20, DB: 0) | 200 OK [http://localhost/search/8E472F77B6D960EB151A1542951E9B00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:26:51) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+==, ===, =~, __id__, __jcreate!, __jsend!, __jtrap, __send__, `, acts_like?, alts, alts__method, b64encode, blank?, breakpoint, category, category__method, class, class__method, class_eval, clone, clone__method, com, copy_instance_variables_from, daemonize, dclone, debugger, decode64, decode_b, display, dup, duplicable?, enable_warnings, encode64, enum_for, eql?, equal?, equals, equals?, equals__method, equals__method?, extend, extend_with_included_modules_from, extended_by, fileExtension, fileExtension__method, fileName, fileName__method, file_extension, file_extension__method, file_name, file_name__method, finalize, finalize__method, freeze, friendPresence, friendPresence__method, friend_presence, friend_presence__method, frozen?, getAlts, getAlts__method, getCategory, getCategory__method, getClass, getClass__method, getFileExtension, getFileExtension__method, getFileName, getFileName__method, getFriendPresence, getFriendPresence__method, getMagnetURL, getMagnetURL__method, getProperties, getProperties__method, getProperty, getProperty__method, getRelevance, getRelevance__method, getRfd, getRfd__method, getSize, getSize__method, getSources, getSources__method, getUrn, getUrn__method, get_alts, get_alts__method, get_category, get_category__method, get_class, get_class__method, get_file_extension, get_file_extension__method, get_file_name, get_file_name__method, get_friend_presence, get_friend_presence__method, get_magnet_url, get_magnet_url__method, get_properties, get_properties__method, get_property, get_property__method, get_relevance, get_relevance__method, get_rfd, get_rfd__method, get_size, get_size__method, get_sources, get_sources__method, get_urn, get_urn__method, handle_different_imports, hash, hashCode, hashCode__method, hash_code, hash_code__method, id, include_class, initialize, inspect, instance_eval, instance_exec, instance_of?, instance_values, instance_variable_defined?, instance_variable_get, instance_variable_names, instance_variable_set, instance_variables, isLicensed, isLicensed__method, isSpam, isSpam__method, is_a?, is_licensed, is_licensed?, is_licensed__method, is_licensed__method?, is_spam, is_spam?, is_spam__method, is_spam__method?, java, java_class, java_kind_of?, java_object, java_object=, javax, kind_of?, licensed, licensed?, licensed__method, licensed__method?, load_with_new_constant_marking, magnetURL, magnetURL__method, magnet_url, magnet_url__method, metaclass, method, methods, nil?, notify, notifyAll, notifyAll__method, notify__method, notify_all, notify_all__method, object_id, org, present?, private_methods, properties, properties__method, protected_methods, public_methods, relevance, relevance__method, remove_subclasses_of, require, require_association, require_dependency, require_library_or_gem, require_or_load, respond_to?, returning, rfd, rfd__method, send, silence_stderr, silence_stream, silence_warnings, singleton_methods, size, size__method, sources, sources__method, spam, spam?, spam__method, spam__method?, subclasses_of, suppress, synchronized, taguri, taint, tainted?, toString, toString__method, to_a, to_enum, to_java_object, to_json, to_param, to_query, to_s, to_string, to_string__method, to_yaml, to_yaml_node, to_yaml_properties, to_yaml_style, type, unloadable, untaint, urn, urn__method, wait, wait__method, with_options
+Completed in 51ms (View: 21, DB: 0) | 200 OK [http://localhost/search/8E472F77B6D960EB151A1542951E9B00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:28:38) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+NoMethodError (undefined method `join' for #<Java::JavaUtil::HashMap:0x946573f>):
+    /lib/limewire.rb:61:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (69.0ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.6ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:29:05) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+DATE_CREATED1163502545000, LENGTH406, AUTHORPhish & Ani Difranco, QUALITY2, GENREHippie, BITRATE128, NAMEPhish & Ani Difranco - Stash, FILE_SIZE6495914, TITLEStash
+
+
+NoMethodError (undefined method `getMagnetUrl' for #<Java::OrgLimewireCoreImplSearch::RemoteFileDescAdapter:0x12d58b99>):
+    /lib/limewire.rb:63:in `results'
+    /builtin/java/collections.rb:47:in `call'
+    /builtin/java/collections.rb:47:in `each'
+    /lib/limewire.rb:62:in `map'
+    /lib/limewire.rb:62:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (70.6ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (11.3ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:29:29) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+SyntaxError (/Users/dhaas/projects/limewire5-ruby/scripting/rails/lib/limewire.rb:65: , unexpected kRESCUE_MOD
+):
+    /lib/limewire.rb:368
+    /lib/limewire.rb:368:in `load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:368:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:507:in `new_constants_in'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:367:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:248:in `require_or_load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:413:in `load_missing_constant'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:77:in `const_missing_with_dependencies'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:89:in `const_missing'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:425:in `load_missing_constant'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:93:in `const_missing'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (109.0ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (5.0ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:29:55) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+SyntaxError (/Users/dhaas/projects/limewire5-ruby/scripting/rails/lib/limewire.rb:65: , unexpected kRESCUE_MOD
+):
+    /lib/limewire.rb:368
+    /lib/limewire.rb:368:in `load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:368:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:507:in `new_constants_in'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:367:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:248:in `require_or_load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:413:in `load_missing_constant'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:77:in `const_missing_with_dependencies'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:89:in `const_missing'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:425:in `load_missing_constant'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:93:in `const_missing'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (112.3ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (7.6ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:30:18) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+{DATE_CREATED=1163502545000, LENGTH=406, AUTHOR=Phish & Ani Difranco, QUALITY=2, GENRE=Hippie, BITRATE=128, NAME=Phish & Ani Difranco - Stash, FILE_SIZE=6495914, TITLE=Stash}
+
+
+NoMethodError (undefined method `getMagnetUrl' for #<Java::OrgLimewireCoreImplSearch::RemoteFileDescAdapter:0x12d58b99>):
+    /lib/limewire.rb:63:in `results'
+    /builtin/java/collections.rb:47:in `call'
+    /builtin/java/collections.rb:47:in `each'
+    /lib/limewire.rb:62:in `map'
+    /lib/limewire.rb:62:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (66.9ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.9ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:30:51) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+==, ===, =~, [], []=, __id__, __jcreate!, __jsend!, __jtrap, __send__, `, acts_like?, all?, any?, b64encode, blank?, breakpoint, class, class__method, class_eval, clear, clear__method, clone, clone__method, collect, com, containsKey, containsKey__method, containsValue, containsValue__method, contains_key, contains_key?, contains_key__method, contains_key__method?, contains_value, contains_value?, contains_value__method, contains_value__method?, copy_instance_variables_from, daemonize, dclone, debugger, decode64, decode_b, detect, display, dup, duplicable?, each, each_cons, each_slice, each_with_index, each_with_object, empty, empty?, empty__method, empty__method?, enable_warnings, encode64, entries, entrySet, entrySet__method, entry_set, entry_set__method, enum_cons, enum_for, enum_slice, enum_with_index, eql?, equal?, equals, equals?, equals__method, equals__method?, extend, extend_with_included_modules_from, extended_by, finalize, finalize__method, find, find_all, freeze, frozen?, get, getClass, getClass__method, get__method, get_class, get_class__method, grep, group_by, handle_different_imports, hash, hashCode, hashCode__method, hash_code, hash_code__method, id, include?, include_class, index_by, initialize, inject, inspect, instance_eval, instance_exec, instance_of?, instance_values, instance_variable_defined?, instance_variable_get, instance_variable_names, instance_variable_set, instance_variables, isEmpty, isEmpty__method, is_a?, is_empty, is_empty?, is_empty__method, is_empty__method?, java, java_class, java_kind_of?, java_object, java_object=, javax, keySet, keySet__method, key_set, key_set__method, kind_of?, load_with_new_constant_marking, many?, map, max, member?, metaclass, method, methods, min, nil?, notify, notifyAll, notifyAll__method, notify__method, notify_all, notify_all__method, object_id, org, partition, present?, private_methods, protected_methods, public_methods, put, putAll, putAll__method, put__method, put_all, put_all__method, reject, remove, remove__method, remove_subclasses_of, require, require_association, require_dependency, require_library_or_gem, require_or_load, respond_to?, returning, select, send, silence_stderr, silence_stream, silence_warnings, singleton_methods, size, size__method, sort, sort_by, subclasses_of, sum, suppress, synchronized, taguri, taint, tainted?, toString, toString__method, to_a, to_enum, to_java_object, to_json, to_param, to_query, to_s, to_set, to_string, to_string__method, to_yaml, to_yaml_node, to_yaml_properties, to_yaml_style, type, unloadable, untaint, values, values__method, wait, wait__method, with_options, zip
+
+
+NoMethodError (undefined method `getMagnetUrl' for #<Java::OrgLimewireCoreImplSearch::RemoteFileDescAdapter:0x3772f1a1>):
+    /lib/limewire.rb:63:in `results'
+    /builtin/java/collections.rb:47:in `call'
+    /builtin/java/collections.rb:47:in `each'
+    /lib/limewire.rb:62:in `map'
+    /lib/limewire.rb:62:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (61.3ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.6ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:31:39) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /builtin/java/collections.rb:5:in `call'
+    /builtin/java/collections.rb:5:in `each'
+    /builtin/java/collections.rb:47:in `call'
+    /builtin/java/collections.rb:47:in `each'
+    /builtin/java/collections.rb:5:in `each'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /lib/limewire.rb:61:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (137.4ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.5ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:32:01) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+-968998532
+
+
+NoMethodError (undefined method `getMagnetUrl' for #<Java::OrgLimewireCoreImplSearch::RemoteFileDescAdapter:0x3772f1a1>):
+    /lib/limewire.rb:63:in `results'
+    /builtin/java/collections.rb:47:in `call'
+    /builtin/java/collections.rb:47:in `each'
+    /lib/limewire.rb:62:in `map'
+    /lib/limewire.rb:62:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (52.8ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (5.3ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:32:54) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+DATE_CREATED - 1163502545000,LENGTH - 406,AUTHOR - Phish & Ani Difranco,QUALITY - 2,GENRE - Hippie,BITRATE - 128,NAME - Phish & Ani Difranco - Stash,FILE_SIZE - 6495914,TITLE - Stash
+
+
+NoMethodError (undefined method `getMagnetUrl' for #<Java::OrgLimewireCoreImplSearch::RemoteFileDescAdapter:0x4de592dc>):
+    /lib/limewire.rb:63:in `results'
+    /builtin/java/collections.rb:47:in `call'
+    /builtin/java/collections.rb:47:in `each'
+    /lib/limewire.rb:62:in `map'
+    /lib/limewire.rb:62:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (171.9ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.9ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:37:18) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (101.9ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.4ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:37:46) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (111.2ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (6.2ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:41:01) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /lib/limewire.rb:71:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (89.8ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.4ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:41:14) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+filenamePhish & Ani Difranco - Stash.mp3magnet_urlmagnet:?&xt=urn:sha1:6IXFAGMPSO5VB6ES3WYZ2V35MVAXUGFO&dn=Phish+%26+Ani+Difranco+-+Stash.mp3&xs=urn:guid:F24084C19980B1DF457112CAB1F37600&xl=6495914propertiesDATE_CREATED1163502545000LENGTH406AUTHORPhish & Ani DifrancoQUALITY2GENREHippieBITRATE128NAMEPhish & Ani Difranco - StashFILE_SIZE6495914TITLEStashfilenamePhish - 1998.11.21 Hampton - Wilson.m4amagnet_urlmagnet:?&xt=urn:sha1:6F2L2K7PAWESXQHVVY2MP4BTQHZRYBIK&dn=Phish+-+1998.11.21+Hampton+-+Wilson.m4a&xs=urn:guid:F24084C19980B1DF457112CAB1F37600&xl=6861963propertiesDATE_CREATED1163567576000LENGTH423AUTHORPhishALBUMHampton Comes Alive 11/21/98 (Disc 1)QUALITY3GENRERockYEAR1999BITRATE128NAMEPhish - 1998.11.21 Hampton - WilsonTRACK_NUMBERFILE_SIZE6861963TITLEWilsonfilenamePhish - Bittersweet Motel.mp3magnet_urlmagnet:?&xt=urn:sha1:OM44USOYDHFKJM5RO3XOL762Q42RNKT7&dn=Phish+-+Bittersweet+Motel.mp3&xs=urn:guid:F24084C19980B1DF457112CAB1F37600&xl=6786822propertiesDATE_CREATED1163566815000LENGTH212AUTHORPhishQUALITY3GENREOtherBITRATE256NAMEPhish - Bittersweet MotelFILE_SIZE6786822filenamePhish - Rift.mp3magnet_urlmagnet:?&xt=urn:sha1:JW7U7F3RUITAOSPDCMCXURKL3PN2PC2R&dn=Phish+-+Rift.mp3&xs=urn:guid:F24084C19980B1DF457112CAB1F37600&xl=5795776propertiesDATE_CREATED1163566771000LENGTH210AUTHORphishQUALITY3BITRATE224NAMEPhish - RiftFILE_SIZE5795776filenamePhish - Sample In A Jar.mp3magnet_urlmagnet:?&xt=urn:sha1:YGUZDOIDZWTJF277PSPFUQ6CM3FS4JPM&dn=Phish+-+Sample+In+A+Jar.mp3&xs=urn:guid:F24084C19980B1DF457112CAB1F37600&xl=4466393propertiesDATE_CREATED1163566805000LENGTH279AUTHORPhishQUALITY2BITRATE128NAMEPhish - Sample In A JarFILE_SIZE4466393TITLESample In A JarfilenamePhish - Wading In the Velvet Sea.mp3magnet_urlmagnet:?&xt=urn:sha1:EVSPCZTC7R7ZZMODB5YX4QNEPFBXJPZS&dn=Phish+-+Wading+In+the+Velvet+Sea.mp3&xs=urn:guid:FC75198FEB642239125B8709FC209500&xl=4298720propertiesDATE_CREATED1230432029000LENGTH268AUTHORPhishALBUMThe Story of the GhostQUALITY2GENREOtherYEAR1998BITRATE128NAMEPhish - Wading In the Velvet SeaTRACK_NUMBER12FILE_SIZE4298720TITLEWading In the Velvet SeafilenamePhish - (OAR) - Gin and Juice.mp3magnet_urlmagnet:?&xt=urn:sha1:ZHAUHOOO6MHF3AB7L5OGB5AMW2ODWG3G&dn=Phish+-+%28OAR%29+-+Gin+and+Juice.mp3&xs=urn:guid:462547AF25D44CBDEE436CF228363B00&xl=4841472propertiesDATE_CREATED9551000LENGTH302QUALITY2BITRATE128NAMEPhish - (OAR) - Gin and JuiceTRACK_NUMBER0FILE_SIZE4841472filenamePhish - Super Mario Brothers.mp3magnet_urlmagnet:?&xt=urn:sha1:NWVZ4PLCXDLAYRIFSAUCJFFZ4NFME3S7&dn=Phish+-+Super+Mario+Brothers.mp3&xs=urn:guid:961F8D1CD116EFDE1B8D0D3BAE48B600&xl=2304295propertiesDATE_CREATED1179968918000LENGTH144AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Super Mario BrothersTRACK_NUMBER0FILE_SIZE2304295TITLESuper Mario BrothersfilenamePhish - Marijuana.mp3magnet_urlmagnet:?&xt=urn:sha1:VIF35DCAIXAFNA7EHVSETRT4HPH7GGPL&dn=Phish+-+Marijuana.mp3&xs=urn:guid:961F8D1CD116EFDE1B8D0D3BAE48B600&xl=4767872propertiesDATE_CREATED15866000LENGTH297AUTHORPhishQUALITY2GENREAlternativeBITRATE128NAMEPhish - MarijuanaTRACK_NUMBER0FILE_SIZE4767872TITLEMarijuanafilenamePhish - Bouncing Around the Room.mp3magnet_urlmagnet:?&xt=urn:sha1:CZFRDB5JOVXDDSCSNS6UYDQYH2HP74BP&dn=Phish+-+Bouncing+Around+the+Room.mp3&xs=urn:guid:961F8D1CD116EFDE1B8D0D3BAE48B600&xl=3771308propertiesDATE_CREATED852621821000LENGTH235AUTHORPhishQUALITY2BITRATE128NAMEPhish - Bouncing Around the RoomTRACK_NUMBER0FILE_SIZE3771308TITLEBouncing Around the RoomfilenamePhish - (OAR) - Gin and Juice.mp3magnet_urlmagnet:?&xt=urn:sha1:EXFXH3LKFKIHV5DPV7EVN57REHR2GKC3&dn=Phish+-+%28OAR%29+-+Gin+and+Juice.mp3&xs=urn:guid:961F8D1CD116EFDE1B8D0D3BAE48B600&xl=4841472propertiesDATE_CREATED1227904259000LENGTH302AUTHORPhishQUALITY2BITRATE128NAMEPhish - (OAR) - Gin and JuiceFILE_SIZE4841472TITLEGin and JuicefilenamePhish - Gumbo.mp3magnet_urlmagnet:?&xt=urn:sha1:NZNHQPW256DZQOJDZU6CNZ5DGZ5JIJRH&dn=Phish+-+Gumbo.mp3&xs=urn:guid:456BB2E4DDF18167956F496431492000&xl=5046400propertiesDATE_CREATED362000LENGTH315AUTHORPhishQUALITY2GENRE(255)BITRATE128NAMEPhish - GumboTRACK_NUMBER0FILE_SIZE5046400filenamePhish - Farmhouse.mp3magnet_urlmagnet:?&xt=urn:sha1:DRDSLDECGICVY32EKHYQXVC6DWEZL7KQ&dn=Phish+-+Farmhouse.mp3&xs=urn:guid:961F8D1CD116EFDE1B8D0D3BAE48B600&xl=3905536propertiesDATE_CREATED40522000LENGTH244AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - FarmhouseTRACK_NUMBER1FILE_SIZE3905536TITLEFarmhousefilenamePhish - Wading in the Velvet Sea.mp3magnet_urlmagnet:?&xt=urn:sha1:RVUIVGUCZONDTZJTO7UP3SS6CPWL6E4U&dn=Phish+-+Wading+in+the+Velvet+Sea.mp3&xs=urn:guid:961F8D1CD116EFDE1B8D0D3BAE48B600&xl=4294112propertiesDATE_CREATED1227902429000LENGTH268AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Wading in the Velvet SeaFILE_SIZE4294112TITLEWading in the Velvet SeafilenameMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett Barkley.mp3magnet_urlmagnet:?&xt=urn:sha1:6S4MBS6XM2B5RKMZ6KV3652M2RVVVZNP&dn=My+Heart+is+Yours+-+Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%2C+Country_Brett+Barkley.mp3&xs=urn:guid:EE08B9705C3EC51AD245866892692900&xl=6693093propertiesDATE_CREATED468000LENGTH334QUALITY2BITRATE160NAMEMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett BarkleyFILE_SIZE6693093filenameDave Mathews Band-Sexual Healing (Dave Matthews Band & Phish live Marvin Gaye cover).mp3magnet_urlmagnet:?&xt=urn:sha1:JP4J7IP3HHXR7FJZSMEGYLU4K727KYSO&dn=Dave+Mathews+Band-Sexual+Healing+%28Dave+Matthews+Band+%26+Phish+live+Marvin+Gaye+cover%29.mp3&xs=urn:guid:A84BB78DC0898FA07CD013E14502E900&xl=6886302propertiesDATE_CREATED959685408000LENGTH430QUALITY2BITRATE128NAMEDave Mathews Band-Sexual Healing (Dave Matthews Band & Phish live Marvin Gaye cover)FILE_SIZE6886302filenamePhish - Sweet Emotion.mp3magnet_urlmagnet:?&xt=urn:sha1:AJGKICKMOX4LCRUBYF545254W3SP72QO&dn=Phish+-+Sweet+Emotion.mp3&xs=urn:guid:58DC0F9BDBB1A942697AA6051C552700&xl=8689895propertiesDATE_CREATED1147136557000LENGTH542AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Sweet EmotionTRACK_NUMBER0FILE_SIZE8689895TITLESweet EmotionfilenameDave Mathews Band-Sexual Healing (Dave Matthews Band & Phish live Marvin Gaye cover).mp3.xmlmagnet_urlmagnet:?&xt=urn:sha1:SM7PBIU7V63GCP6KOZU5TDLHIDDUH5OL&dn=Dave+Mathews+Band-Sexual+Healing+%28Dave+Matthews+Band+%26+Phish+live+Marvin+Gaye+cover%29.mp3.xml&xs=urn:guid:95F2ADC76D9AE0BD4CE33AE8E9E0C100&xl=243propertiesDATE_CREATED1191877664000NAMEDave Mathews Band-Sexual Healing (Dave Matthews Band & Phish live Marvin Gaye cover).mp3FILE_SIZE243filenamepop goes punk covers - phish - mmm bop hanson cover.mp3magnet_urlmagnet:?&xt=urn:sha1:SUXDLFTUNEOG33IORCMDT74M763FHNFQ&dn=pop+goes+punk+covers+-+phish+-+mmm+bop+hanson+cover.mp3&xs=urn:guid:8B27DAA42E2482DB21DCD7A0A2679400&xl=4171650propertiesDATE_CREATED997103312000LENGTH261QUALITY2BITRATE128NAMEpop goes punk covers - phish - mmm bop hanson coverFILE_SIZE4171650filenameDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks).mp3magnet_urlmagnet:?&xt=urn:sha1:NWTC7EN3XH3FMJEGXHCVGFK3SNCRUG3C&dn=Dave+Matthews+Band+-+My+Heart+is+Yours+%28Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%29.mp3&xs=urn:guid:68AA562DEB10BA4B3CED01D527727800&xl=6697317propertiesDATE_CREATED1197743978000LENGTH334QUALITY2GENREOtherBITRATE160NAMEDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks)TRACK_NUMBER0FILE_SIZE6697317TITLEDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks)filenamePhish - Gin and Juice.mp3magnet_urlmagnet:?&xt=urn:sha1:ZHAUHOOO6MHF3AB7L5OGB5AMW2ODWG3G&dn=Phish+-+Gin+and+Juice.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=4841472propertiesDATE_CREATED9551000LENGTH302QUALITY2BITRATE128NAMEPhish - Gin and JuiceTRACK_NUMBER0FILE_SIZE4841472filenamePhish - Bouncing Round the Room.mp3magnet_urlmagnet:?&xt=urn:sha1:TMIAUBXUDZNIZIOBSZB24ZGUIKELZJLZ&dn=Phish+-+Bouncing+Round+the+Room.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=3975627propertiesDATE_CREATED84543000LENGTH249QUALITY2BITRATE128NAMEPhish - Bouncing Round the RoomFILE_SIZE3975627filenamePhish - Heavy Things.mp3magnet_urlmagnet:?&xt=urn:sha1:OCA5A5KDJPATC74OPC34TNHQTAFGJHDW&dn=Phish+-+Heavy+Things.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=6236914propertiesALBUMFarmhouseCOMMENTS[KSi] sLop [KSi]TRACK_NUMBER5DATE_CREATED9626000LENGTH259AUTHORPhishQUALITY3GENRERockBITRATE192YEAR2000NAMEPhish - Heavy ThingsFILE_SIZE6236914TITLEHeavy ThingsfilenamePhish - Blister in the Sun.mp3magnet_urlmagnet:?&xt=urn:sha1:QLO5V3WEWXJ3X3USRZWMRPXLC5SVZQSD&dn=Phish+-+Blister+in+the+Sun.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=1148928propertiesDATE_CREATED1189780877000LENGTH71AUTHORphishQUALITY2GENREOtherBITRATE128NAMEPhish - Blister in the SunFILE_SIZE1148928TITLEblister in the sunfilenamePhish - Funky Bitch.mp3magnet_urlmagnet:?&xt=urn:sha1:AT3UZDH4FQZRSXRU6ODRUAKJ4JARHMWR&dn=Phish+-+Funky+Bitch.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=9908153propertiesDATE_CREATED1189993171000LENGTH413AUTHORPhishQUALITY3GENREOtherBITRATE192NAMEPhish - Funky BitchFILE_SIZE9908153filenamePhish - Riders On The Storm (live Doors cover) (12).mp3magnet_urlmagnet:?&xt=urn:sha1:GA7ZAF7IARNAE7ORY7H62D5XX25MUNCQ&dn=Phish+-+Riders+On+The+Storm+%28live+Doors+cover%29+%2812%29.mp3&xs=urn:guid:B3141319FC3DDCAA13AC6210C6EFBF00&xl=6365184propertiesDATE_CREATED1230408889000LENGTH397QUALITY2BITRATE128NAMEPhish - Riders On The Storm (live Doors cover) (12)FILE_SIZE6365184filenameMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett Barkley.mp3magnet_urlmagnet:?&xt=urn:sha1:6S4MBS6XM2B5RKMZ6KV3652M2RVVVZNP&dn=My+Heart+is+Yours+-+Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%2C+Country_Brett+Barkley.mp3&xs=urn:guid:B3141319FC3DDCAA13AC6210C6EFBF00&xl=6693093propertiesDATE_CREATED1230320334000LENGTH334QUALITY2BITRATE160NAMEMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett BarkleyFILE_SIZE6693093filenameDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks).mp3magnet_urlmagnet:?&xt=urn:sha1:CZSAMXCCZXFLSK6GEDDXH2YW475VM3TH&dn=Dave+Matthews+Band+-+My+Heart+is+Yours+%28Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%29.mp3&xs=urn:guid:B3141319FC3DDCAA13AC6210C6EFBF00&xl=6693264propertiesDATE_CREATED1230497351000LENGTH334QUALITY2BITRATE160NAMEDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks)FILE_SIZE6693264filenameMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett Barkley.mp3magnet_urlmagnet:?&xt=urn:sha1:6S4MBS6XM2B5RKMZ6KV3652M2RVVVZNP&dn=My+Heart+is+Yours+-+Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%2C+Country_Brett+Barkley.mp3&xs=urn:guid:26623703E4F1B437AD55EE272AB70000&xl=6693093propertiesDATE_CREATED468000LENGTH334QUALITY2BITRATE160NAMEMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett BarkleyFILE_SIZE6693093filenamePhish - Mikes Song.mp3magnet_urlmagnet:?&xt=urn:sha1:5RZKLBHUPG2HL3IXCMVRRKLIBHLIHNV6&dn=Phish+-+Mikes+Song.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=5489750propertiesDATE_CREATED1210529940000LENGTH343AUTHORwidespread panicQUALITY2GENREOtherBITRATE128NAMEPhish - Mikes SongTRACK_NUMBER0FILE_SIZE5489750filenameDave Matthews Band, Phish, Guster, John Popper, Bela Fleck, Vic Wooten, Santana, Peter Greisar, Butch Taylor, Rusted Root, and Ben Harper - Two Step (live, rare).mp3magnet_urlmagnet:?&xt=urn:sha1:YTWCHJ6KVVY43JBUE6RHPYUX73JK4QCK&dn=Dave+Matthews+Band%2C+Phish%2C+Guster%2C+John+Popper%2C+Bela+Fleck%2C+Vic+Wooten%2C+Santana%2C+Peter+Greisar%2C+Butch+Taylor%2C+Rusted+Root%2C+and+Ben+Harper+-+Two+Step+%28live%2C+rare%29.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=212992propertiesDATE_CREATED1133313337000LENGTH13QUALITY2BITRATE128NAMEDave Matthews Band, Phish, Guster, John Popper, Bela Fleck, Vic Wooten, Santana, Peter Greisar, Butch Taylor, Rusted Root, and Ben Harper - Two Step (live, rare)FILE_SIZE212992filenamePhish - Dirt.mp3magnet_urlmagnet:?&xt=urn:sha1:ELUAZ3HVJMUZ6THWTGVNPMSVIA2KKGQ7&dn=Phish+-+Dirt.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=4399438propertiesDATE_CREATED100094000LENGTH274AUTHORPhishALBUMFarmhouseQUALITY2GENREPorn GrooveYEAR2000BITRATE128NAMEPhish - DirtTRACK_NUMBER0FILE_SIZE4399438TITLE7 - DirtfilenamePhish - Farmhouse.mp3magnet_urlmagnet:?&xt=urn:sha1:ODYTPH22SEJPAH74MXY3EUDVDM6FZY6B&dn=Phish+-+Farmhouse.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=3905536propertiesDATE_CREATED1111002988000LENGTH244AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - FarmhouseTRACK_NUMBER1FILE_SIZE3905536TITLETrack 01filenamePhish - Marijuana.mp3magnet_urlmagnet:?&xt=urn:sha1:VIF35DCAIXAFNA7EHVSETRT4HPH7GGPL&dn=Phish+-+Marijuana.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=4767872propertiesDATE_CREATED15866000LENGTH297AUTHORPhishQUALITY2GENREAlternativeBITRATE128NAMEPhish - MarijuanaFILE_SIZE4767872TITLEMarijuanafilenamePhish - Northern Lights.mp3magnet_urlmagnet:?&xt=urn:sha1:3IB2P4E7TAVGIXPNR7CTS7PODFLQ6G2I&dn=Phish+-+Northern+Lights.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=4470784propertiesDATE_CREATED15868000LENGTH279AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Northern LightsFILE_SIZE4470784filenamePhish - A Picture Of Nectar.mp3magnet_urlmagnet:?&xt=urn:sha1:UAXFHUANINNSWYR3HZYEZOUNY4B5ZJCB&dn=Phish+-+A+Picture+Of+Nectar.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=6174955propertiesDATE_CREATED1179471013000LENGTH385AUTHORPhishALBUMA Picture of NectarQUALITY2BITRATE128NAMEPhish - A Picture Of NectarTRACK_NUMBER12FILE_SIZE6174955TITLEThe Mango SongfilenamePhish - Wading in the Velvet Sea.mp3magnet_urlmagnet:?&xt=urn:sha1:D76OOCZ5TF3KWEYQEVEF34EIW45XQT4H&dn=Phish+-+Wading+in+the+Velvet+Sea.mp3&xs=urn:guid:B9B26D61D09FA8DC253946F5319DA700&xl=4294112propertiesDATE_CREATED15848000LENGTH268AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Wading in the Velvet SeaTRACK_NUMBER0FILE_SIZE4294112filenamePhish - Bouncing Round The Room.mp3magnet_urlmagnet:?&xt=urn:sha1:TMIAUBXUDZNIZIOBSZB24ZGUIKELZJLZ&dn=Phish+-+Bouncing+Round+The+Room.mp3&xs=urn:guid:B9B26D61D09FA8DC253946F5319DA700&xl=3975627propertiesDATE_CREATED84543000LENGTH248QUALITY2BITRATE128NAMEPhish - Bouncing Round The RoomFILE_SIZE3975627filenamePhish - Waste.mp3magnet_urlmagnet:?&xt=urn:sha1:SZLAKVNIJUCJP4HAVNTICDTXS7FJUZRY&dn=Phish+-+Waste.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=4641982propertiesALBUMBilly BreathesCOMMENTS, AG# AD27872BTRACK_NUMBER1DATE_CREATED1118346080000LENGTH290AUTHORPhishQUALITY2GENRERockBITRATE128YEAR1990NAMEPhish - WasteFILE_SIZE4641982TITLEWastefilenameDave Mathews Band-Sexual Healing (Dave Matthews Band & Phish live Marvin Gaye cover).mp3magnet_urlmagnet:?&xt=urn:sha1:JP4J7IP3HHXR7FJZSMEGYLU4K727KYSO&dn=Dave+Mathews+Band-Sexual+Healing+%28Dave+Matthews+Band+%26+Phish+live+Marvin+Gaye+cover%29.mp3&xs=urn:guid:1548BEB0BA96E72FB14B4C5D8B3F7900&xl=6886302propertiesDATE_CREATED958142792000LENGTH430QUALITY2BITRATE128NAMEDave Mathews Band-Sexual Healing (Dave Matthews Band & Phish live Marvin Gaye cover)FILE_SIZE6886302filenamePhish - (OAR) - Gin and Juice.mp3magnet_urlmagnet:?&xt=urn:sha1:IOETR6RXCYHUCELJLYHNDEAXPMKBJUL3&dn=Phish+-+%28OAR%29+-+Gin+and+Juice.mp3&xs=urn:guid:B0BBEF3C51FB1780210656AA3544B700&xl=4845568propertiesDATE_CREATED1228259147000LENGTH302AUTHORThe GourdsALBUMWay Beyond NashvilleQUALITY2GENREOtherYEAR2003BITRATE128NAMEPhish - (OAR) - Gin and JuiceFILE_SIZE4845568filenamePhish - You Enjoy Myself.mp3magnet_urlmagnet:?&xt=urn:sha1:TIT77TFD75ROOPEZGOPUUVXVJDDQDX2Z&dn=Phish+-+You+Enjoy+Myself.mp3&xs=urn:guid:00D7605ACD965D61FFFCFC8727FFE300&xl=9441280propertiesDATE_CREATED214995741000LENGTH590AUTHORPhishALBUMsinglesQUALITY2GENRESlow RockBITRATE128NAMEPhish - You Enjoy MyselfTRACK_NUMBER0FILE_SIZE9441280TITLEYou Enjoy MyselffilenamePhish - (OAR) - Gin and Juice.mp3magnet_urlmagnet:?&xt=urn:sha1:ZHAUHOOO6MHF3AB7L5OGB5AMW2ODWG3G&dn=Phish+-+%28OAR%29+-+Gin+and+Juice.mp3&xs=urn:guid:00D7605ACD965D61FFFCFC8727FFE300&xl=4841472propertiesDATE_CREATED9551000LENGTH302QUALITY2BITRATE128NAMEPhish - (OAR) - Gin and JuiceTRACK_NUMBER0FILE_SIZE4841472filenamePhish - Rift.mp3magnet_urlmagnet:?&xt=urn:sha1:FE6HTYM53MYHFWGIDY5QV4DKV7GKAFZJ&dn=Phish+-+Rift.mp3&xs=urn:guid:AEFEBB2C86A24493082BB2A002360400&xl=5795776propertiesDATE_CREATED1163965822000LENGTH362AUTHORPhishQUALITY2GENREJamBITRATE128NAMEPhish - RiftTRACK_NUMBER0FILE_SIZE5795776TITLERiftfilenamePhish - Prince Caspian.mp3magnet_urlmagnet:?&xt=urn:sha1:B5QYBQUS6LN6AUKDP5FNX7XQLAJHMEHV&dn=Phish+-+Prince+Caspian.mp3&xs=urn:guid:AEFEBB2C86A24493082BB2A002360400&xl=5112905propertiesDATE_CREATED1186437674000LENGTH319AUTHORPhishALBUMBilly BreathesQUALITY2GENREOtherYEAR1996BITRATE128NAMEPhish - Prince CaspianTRACK_NUMBER13FILE_SIZE5112905TITLEPrince CaspianfilenamePhish - If I Could I Would.mp3magnet_urlmagnet:?&xt=urn:sha1:QEOTITOL66B3BPLSPPAQSRE2XP7KRHHF&dn=Phish+-+If+I+Could+I+Would.mp3&xs=urn:guid:AEFEBB2C86A24493082BB2A002360400&xl=3979110propertiesDATE_CREATED558688000LENGTH248AUTHORPhishQUALITY2COMMENTSserBITRATE128NAMEPhish - If I Could I WouldTRACK_NUMBER0FILE_SIZE3979110TITLEIf I Could, I WouldfilenamePhish - Farmhouse.mp3magnet_urlmagnet:?&xt=urn:sha1:DRDSLDECGICVY32EKHYQXVC6DWEZL7KQ&dn=Phish+-+Farmhouse.mp3&xs=urn:guid:AEFEBB2C86A24493082BB2A002360400&xl=3905536propertiesDATE_CREATED40522000LENGTH244AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - FarmhouseTRACK_NUMBER1FILE_SIZE3905536TITLEFarmhousefilenamePhish - Dirt.mp3magnet_urlmagnet:?&xt=urn:sha1:K7IWS4564SDZ256PQLFX4VKPQKQL3SD3&dn=Phish+-+Dirt.mp3&xs=urn:guid:AEFEBB2C86A24493082BB2A002360400&xl=4404046propertiesDATE_CREATED1198169631000LENGTH275AUTHORPhishALBUMFarmhouseQUALITY2GENREPorn GrooveYEAR2000BITRATE128NAMEPhish - DirtTRACK_NUMBER7FILE_SIZE4404046TITLE7 - DirtfilenamePhish - Farmhouse.mp3magnet_urlmagnet:?&xt=urn:sha1:DRDSLDECGICVY32EKHYQXVC6DWEZL7KQ&dn=Phish+-+Farmhouse.mp3&xs=urn:guid:5E739F5CFE6B68D5DC24096E46C34400&xl=3905536propertiesDATE_CREATED40522000LENGTH244AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - FarmhouseTRACK_NUMBER1FILE_SIZE3905536TITLEFarmhousefilenamePhish - Super Mario Brothers.mp3magnet_urlmagnet:?&xt=urn:sha1:Z4J6CNHLNM3OIMCGWOLM2WKOTEHXNYXR&dn=Phish+-+Super+Mario+Brothers.mp3&xs=urn:guid:5E739F5CFE6B68D5DC24096E46C34400&xl=2304295propertiesDATE_CREATED24197000LENGTH144AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Super Mario BrothersTRACK_NUMBER0FILE_SIZE2304295filenamePhish - Stash.mp3magnet_urlmagnet:?&xt=urn:sha1:6IXFAGMPSO5VB6ES3WYZ2V35MVAXUGFO&dn=Phish+-+Stash.mp3&xs=urn:guid:B9137CAC6CF19957008103068DDC4F00&xl=6495914propertiesDATE_CREATED28977000LENGTH405QUALITY2BITRATE128NAMEPhish - StashFILE_SIZE6495914filenamePhish - (OAR) - Gin and Juice.mp3magnet_urlmagnet:?&xt=urn:sha1:MBWWRHOFXZWTMXAUOKWJWHMAB4ZIZVDE&dn=Phish+-+%28OAR%29+-+Gin+and+Juice.mp3&xs=urn:guid:F6B0D460CEC30C790DC989316140CC00&xl=4841472propertiesDATE_CREATED1226200174000LENGTH302AUTHORPhishQUALITY2BITRATE128NAMEPhish - (OAR) - Gin and JuiceFILE_SIZE4841472filenamePhish - Super Mario Brothers.mp3magnet_urlmagnet:?&xt=urn:sha1:Z4J6CNHLNM3OIMCGWOLM2WKOTEHXNYXR&dn=Phish+-+Super+Mario+Brothers.mp3&xs=urn:guid:F8A248E5155A2566873DF313DB20FA00&xl=2304295propertiesDATE_CREATED24197000LENGTH144AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Super Mario BrothersTRACK_NUMBER0FILE_SIZE2304295filenamePhish - Sample In A Jar.mp3magnet_urlmagnet:?&xt=urn:sha1:YGUZDOIDZWTJF277PSPFUQ6CM3FS4JPM&dn=Phish+-+Sample+In+A+Jar.mp3&xs=urn:guid:F8A248E5155A2566873DF313DB20FA00&xl=4466393propertiesDATE_CREATED1219335937000LENGTH279AUTHORPhishQUALITY2BITRATE128NAMEPhish - Sample In A JarFILE_SIZE4466393TITLESample In A JarfilenamePhish - Wading In the Velvet Sea.mp3magnet_urlmagnet:?&xt=urn:sha1:D76OOCZ5TF3KWEYQEVEF34EIW45XQT4H&dn=Phish+-+Wading+In+the+Velvet+Sea.mp3&xs=urn:guid:F8A248E5155A2566873DF313DB20FA00&xl=4294112propertiesDATE_CREATED15848000LENGTH268AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Wading In the Velvet SeaTRACK_NUMBER0FILE_SIZE4294112filenamePhish - Fee.mp3magnet_urlmagnet:?&xt=urn:sha1:5WRVRTEPXAD22UGSMYTWQM5PKMCPBHR2&dn=Phish+-+Fee.mp3&xs=urn:guid:FC6B8B0F05FF384F28EFB233B2810300&xl=5196614propertiesDATE_CREATED5142986000LENGTH325AUTHORPhishQUALITY2BITRATE128NAMEPhish - FeeTRACK_NUMBER0FILE_SIZE5196614TITLEFeefilenamePhish - Roses Are Free.mp3magnet_urlmagnet:?&xt=urn:sha1:LXHDIY3FBM7WKUCUZEFV5NMT465H57NH&dn=Phish+-+Roses+Are+Free.mp3&xs=urn:guid:F6B0D460CEC30C790DC989316140CC00&xl=5301938propertiesDATE_CREATED883225532000LENGTH331AUTHORPhishQUALITY2COMMENTSlivBITRATE128NAMEPhish - Roses Are FreeTRACK_NUMBER0FILE_SIZE5301938TITLERoses Are FreefilenamePhish- Wonderwall.mp3magnet_urlmagnet:?&xt=urn:sha1:2AYBU6QQQZJI7HGTUYBLZLOH2HWLAHBA&dn=Phish-+Wonderwall.mp3&xs=urn:guid:9DF1DD4C56DCC0030FDF799E1AFA8800&xl=3205332propertiesDATE_CREATED1200760536000LENGTH200AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish- WonderwallTRACK_NUMBER0FILE_SIZE3205332TITLEWonderwallfilenamePhish - Farmhouse.mp3magnet_urlmagnet:?&xt=urn:sha1:ODYTPH22SEJPAH74MXY3EUDVDM6FZY6B&dn=Phish+-+Farmhouse.mp3&xs=urn:guid:F6B0D460CEC30C790DC989316140CC00&xl=3905536propertiesDATE_CREATED4797016000LENGTH244AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - FarmhouseTRACK_NUMBER1FILE_SIZE3905536TITLETrack 01filenamePhish - Bouncing Around the Room.mp3magnet_urlmagnet:?&xt=urn:sha1:ET5YR3B6BABOZBELM5RDIYWKH6TWNVKO&dn=Phish+-+Bouncing+Around+the+Room.mp3&xs=urn:guid:8A50BE14887D4AF74DE8BBB052F33600&xl=3771308propertiesDATE_CREATED1203812928000LENGTH235AUTHORPhishQUALITY2BITRATE128NAMEPhish - Bouncing Around the RoomTRACK_NUMBER0FILE_SIZE3771308filenamePhish - Ooh Child.MP3magnet_urlmagnet:?&xt=urn:sha1:TPACK4646WSR2EAZWJY4QOWQX2JWRJ7K&dn=Phish+-+Ooh+Child.MP3&xs=urn:guid:8A50BE14887D4AF74DE8BBB052F33600&xl=5665362propertiesDATE_CREATED2406600000LENGTH354AUTHORPhishQUALITY2BITRATE128NAMEPhish - Ooh ChildTRACK_NUMBER0FILE_SIZE5665362filenameDave Mathews Band - Sexual Healing (Dave Matthews Band & Phish live Marvin Gaye cover).mp3magnet_urlmagnet:?&xt=urn:sha1:JP4J7IP3HHXR7FJZSMEGYLU4K727KYSO&dn=Dave+Mathews+Band+-+Sexual+Healing+%28Dave+Matthews+Band+%26+Phish+live+Marvin+Gaye+cover%29.mp3&xs=urn:guid:D992852CBAA17752A74BA191FFBBE400&xl=6886302propertiesDATE_CREATED958142792000LENGTH430QUALITY2BITRATE128NAMEDave Mathews Band - Sexual Healing (Dave Matthews Band & Phish live Marvin Gaye cover)FILE_SIZE6886302filenamePhish - Farmhouse.mp3magnet_urlmagnet:?&xt=urn:sha1:DRDSLDECGICVY32EKHYQXVC6DWEZL7KQ&dn=Phish+-+Farmhouse.mp3&xs=urn:guid:F8A248E5155A2566873DF313DB20FA00&xl=3905536propertiesDATE_CREATED40522000LENGTH244AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - FarmhouseTRACK_NUMBER1FILE_SIZE3905536TITLEFarmhousefilenamePhish - Roses Are Free.mp3magnet_urlmagnet:?&xt=urn:sha1:LXHDIY3FBM7WKUCUZEFV5NMT465H57NH&dn=Phish+-+Roses+Are+Free.mp3&xs=urn:guid:F8A248E5155A2566873DF313DB20FA00&xl=5301938propertiesDATE_CREATED883225532000LENGTH331AUTHORPhishQUALITY2COMMENTSlivBITRATE128NAMEPhish - Roses Are FreeTRACK_NUMBER0FILE_SIZE5301938TITLERoses Are FreefilenameDave Matthews Band + Phish - Hurricane_(live Bob dylan cover.mp3magnet_urlmagnet:?&xt=urn:sha1:ASIFNN6SK7ETQPQ3SEBQYN4Z36OWYC6L&dn=Dave+Matthews+Band+%2B+Phish+-+Hurricane_%28live+Bob+dylan+cover.mp3&xs=urn:guid:4DDB8AE9E72B58AE47F9FE500CBA0700&xl=8440373propertiesDATE_CREATED1184654251000LENGTH527QUALITY2BITRATE128NAMEDave Matthews Band + Phish - Hurricane_(live Bob dylan coverFILE_SIZE8440373filenameMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett Barkley.mp3magnet_urlmagnet:?&xt=urn:sha1:SERPKGRO2H7YUMVZDFVCPRXJ4JXCUMFL&dn=My+Heart+is+Yours+-+Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%2C+Country_Brett+Barkley.mp3&xs=urn:guid:700989067DFD15F38E5020182F10D800&xl=6693733propertiesDATE_CREATED1206857535000LENGTH334AUTHORDave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett BarkleyQUALITY2GENREOtherBITRATE160NAMEMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett BarkleyTRACK_NUMBER0FILE_SIZE6693733TITLEMy Heart is YoursfilenameDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks).mp3magnet_urlmagnet:?&xt=urn:sha1:6S4MBS6XM2B5RKMZ6KV3652M2RVVVZNP&dn=Dave+Matthews+Band+-+My+Heart+is+Yours+%28Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%29.mp3&xs=urn:guid:FFD8D3F1810A3D05CE2F37121400B000&xl=6693093propertiesDATE_CREATED468000LENGTH334QUALITY2BITRATE160NAMEDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks)FILE_SIZE6693093filenameDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks)(1).mp3magnet_urlmagnet:?&xt=urn:sha1:VERQRBGBVHL3DWOYPRZY7XBH3LWL53QJ&dn=Dave+Matthews+Band+-+My+Heart+is+Yours+%28Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%29%281%29.mp3&xs=urn:guid:3E8E9387F1DD6DEEC304569540626700&xl=6693358propertiesDATE_CREATED1221603789000LENGTH334AUTHORDave Matthews BandQUALITY2COMMENTS0000012E 0000012E 0000079F 0000079E 000445D7 000445D7 000040A4 000041B3 000186A0 000186A0BITRATE160NAMEDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks)(1)FILE_SIZE6693358TITLEMy Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks)(1)filenameDave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett Barkley - my heart is yours.mp3magnet_urlmagnet:?&xt=urn:sha1:6S4MBS6XM2B5RKMZ6KV3652M2RVVVZNP&dn=Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%2C+Country_Brett+Barkley+-+my+heart+is+yours.mp3&xs=urn:guid:CEEFC995A987F616A0A7335A5FE15C00&xl=6693093propertiesDATE_CREATED1226972596000LENGTH334QUALITY2BITRATE160NAMEDave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett Barkley - my heart is yoursFILE_SIZE6693093filenamePhish - (OAR) - Gin and Juice.mp3magnet_urlmagnet:?&xt=urn:sha1:EXFXH3LKFKIHV5DPV7EVN57REHR2GKC3&dn=Phish+-+%28OAR%29+-+Gin+and+Juice.mp3&xs=urn:guid:72B7FEE7108ADC4AAA7982BE7BE19A00&xl=4841472propertiesDATE_CREATED1223048631000LENGTH302AUTHORPhishQUALITY2BITRATE128NAMEPhish - (OAR) - Gin and JuiceFILE_SIZE4841472TITLEGin and JuicefilenameMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett Barkley.mp3magnet_urlmagnet:?&xt=urn:sha1:JGSYOEVVXZNREGAD5JTRCZVBRQIVAMWX&dn=My+Heart+is+Yours+-+Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%2C+Country_Brett+Barkley.mp3&xs=urn:guid:5D6686212C9470859F769D264CFADA00&xl=6697317propertiesDATE_CREATED1200428770000LENGTH334QUALITY2GENREOtherBITRATE160NAMEMy Heart is Yours - Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks, Country_Brett BarkleyFILE_SIZE6697317filenameDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks).mp3magnet_urlmagnet:?&xt=urn:sha1:5NKRASISCKLGNGCTBQLPW5FFLIALLMZ7&dn=Dave+Matthews+Band+-+My+Heart+is+Yours+%28Dave+Matthews%2C+Matchbox+20%2C+Billy+Joel%2C+Elton+John%2C+Phish%2C+Counting+Crows%2C+Garth+Brooks%29.mp3&xs=urn:guid:BBF9CBE6C26E4F00497A236C2A210C00&xl=6693139propertiesDATE_CREATED1211242450000LENGTH334QUALITY2BITRATE160NAMEDave Matthews Band - My Heart is Yours (Dave Matthews, Matchbox 20, Billy Joel, Elton John, Phish, Counting Crows, Garth Brooks)FILE_SIZE6693139filenameDave Matthews Band - All Along the Watchtower (Live with Trey Anastasio of Phish and John Popper of Blues Traveler on Harmonica).mp3magnet_urlmagnet:?&xt=urn:sha1:IWDVHKG4E26SDR644DIUMSY3KO2QOHGI&dn=Dave+Matthews+Band+-+All+Along+the+Watchtower+%28Live+with+Trey+Anastasio+of+Phish+and+John+Popper+of+Blues+Traveler+on+Harmonica%29.mp3&xs=urn:guid:D9B8B08F69D30A738BCDF622836E0F00&xl=9998336propertiesDATE_CREATED1229736364000LENGTH624AUTHORDave Matthews BandALBUMWith a Little Help from My Friends Disc 2QUALITY2GENREAlternRockBITRATE128NAMEDave Matthews Band - All Along the Watchtower (Live with Trey Anastasio of Phish and John Popper of Blues Traveler on Harmonica)TRACK_NUMBER2FILE_SIZE9998336TITLEAll Along the WatchtowerfilenamePhish - (OAR) - Gin and Juice.mp3magnet_urlmagnet:?&xt=urn:sha1:ZHAUHOOO6MHF3AB7L5OGB5AMW2ODWG3G&dn=Phish+-+%28OAR%29+-+Gin+and+Juice.mp3&xs=urn:guid:4CB9C20E64E4091467ACD6DE65AF0100&xl=4841472propertiesDATE_CREATED9551000LENGTH302QUALITY2BITRATE128NAMEPhish - (OAR) - Gin and JuiceTRACK_NUMBER0FILE_SIZE4841472filenamePhish - Heavy Things.mp3magnet_urlmagnet:?&xt=urn:sha1:OCA5A5KDJPATC74OPC34TNHQTAFGJHDW&dn=Phish+-+Heavy+Things.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=6236914propertiesALBUMFarmhouseCOMMENTS[KSi] sLop [KSi]TRACK_NUMBER5DATE_CREATED9626000LENGTH259AUTHORPhishQUALITY3GENRERockBITRATE192YEAR2000NAMEPhish - Heavy ThingsFILE_SIZE6236914TITLEHeavy ThingsfilenamePhish - Layla (live).mp3magnet_urlmagnet:?&xt=urn:sha1:2XBEHJTLXAHUGDKKSQAGJRPUT7UIJVRP&dn=Phish+-+Layla+%28live%29.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=4144128propertiesDATE_CREATED154708000LENGTH259AUTHORPhishQUALITY2BITRATE128NAMEPhish - Layla (live)TRACK_NUMBER0FILE_SIZE4144128filenamePhish - Mikes Song.mp3magnet_urlmagnet:?&xt=urn:sha1:ZEK5JFDZ4C5BFCLIHCAVZTQEOKGWXY3Z&dn=Phish+-+Mikes+Song.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=4772224propertiesDATE_CREATED1009923519000LENGTH298QUALITY2BITRATE128NAMEPhish - Mikes SongTRACK_NUMBER0FILE_SIZE4772224TITLEPhish - Mikes Song.mp3filenamePhish - Northern Lights.mp3magnet_urlmagnet:?&xt=urn:sha1:3IB2P4E7TAVGIXPNR7CTS7PODFLQ6G2I&dn=Phish+-+Northern+Lights.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=4470784propertiesDATE_CREATED1167882899000LENGTH279AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Northern LightsFILE_SIZE4470784filenamePhish - Roses Are Free.mp3magnet_urlmagnet:?&xt=urn:sha1:LXHDIY3FBM7WKUCUZEFV5NMT465H57NH&dn=Phish+-+Roses+Are+Free.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=5301938propertiesDATE_CREATED1191124018000LENGTH331AUTHORPhishQUALITY2COMMENTSlivBITRATE128NAMEPhish - Roses Are FreeTRACK_NUMBER0FILE_SIZE5301938TITLERoses Are Freefilenamephish - run like an antelope.mp3magnet_urlmagnet:?&xt=urn:sha1:LD4YRQYJJQP272AWYUX3Y4C72FHH6RZ7&dn=phish+-+run+like+an+antelope.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=9478060propertiesDATE_CREATED1191179458000LENGTH592AUTHORPhishQUALITY2BITRATE128NAMEphish - run like an antelopeTRACK_NUMBER0FILE_SIZE9478060TITLErun like an antelopefilenamePhish - Silent In The Morning.mp3magnet_urlmagnet:?&xt=urn:sha1:6ZYRPV37I375NQGBKX6Z7OTL5X4MMGWQ&dn=Phish+-+Silent+In+The+Morning.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=5256254propertiesDATE_CREATED402000LENGTH328AUTHORPhishQUALITY2BITRATE128NAMEPhish - Silent In The MorningTRACK_NUMBER0FILE_SIZE5256254filenamePhish - Super Mario Brothers.mp3magnet_urlmagnet:?&xt=urn:sha1:IQX5D3PHHF2URXYGFKG37DRZ6H2XD2JX&dn=Phish+-+Super+Mario+Brothers.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=2304295propertiesDATE_CREATED1186897994000LENGTH144AUTHORPhishQUALITY2GENREOtherBITRATE128NAMEPhish - Super Mario BrothersTRACK_NUMBER0FILE_SIZE2304295filenamePhish - Waste.mp3magnet_urlmagnet:?&xt=urn:sha1:SZLAKVNIJUCJP4HAVNTICDTXS7FJUZRY&dn=Phish+-+Waste.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=4641982propertiesALBUMBilly BreathesCOMMENTS, AG# AD27872BTRACK_NUMBER1DATE_CREATED15140000LENGTH290AUTHORPhishQUALITY2GENRERockBITRATE128YEAR1990NAMEPhish - WasteFILE_SIZE4641982TITLEWastefilenamePhish - Wonderwall (Live Acoustic).mp3magnet_urlmagnet:?&xt=urn:sha1:IYOYBQ7HLLUIBGKI4SDAZWQKBHBFSNIS&dn=Phish+-+Wonderwall+%28Live+Acoustic%29.mp3&xs=urn:guid:989D5F7ECE6E83F93E50329DEF336500&xl=3203328propertiesDATE_CREATED20279000LENGTH200AUTHORPhishQUALITY2GENRE(255)BITRATE128NAMEPhish - Wonderwall (Live Acoustic)TRACK_NUMBER0FILE_SIZE3203328
+Completed in 122ms (View: 0, DB: 0) | 200 OK [http://localhost/search/8E472F77B6D960EB151A1542951E9B00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:44:08) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /lib/limewire.rb:71:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (92.8ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.1ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:46:04) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:902:in `render'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /vendor/rails/activesupport/lib/active_support/core_ext/benchmark.rb:8:in `realtime'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render_with_benchmark'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (115.4ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (5.6ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:46:20) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (112.1ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.4ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:47:11) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"query_string"}
+Completed in 26ms (View: 6, DB: 0) | 200 OK [http://localhost/search/8E472F77B6D960EB151A1542951E9B00/query_string]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:47:33) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+ActiveSupport::JSON::CircularReferenceError (object references itself):
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:28:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/object.rb:4:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/enumerable.rb:10:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:21:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:31:in `raise_on_circular_reference'
+    /vendor/rails/activesupport/lib/active_support/json/encoding.rb:20:in `encode'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:42:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `map'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:43:in `to_json'
+    /vendor/rails/activesupport/lib/active_support/core_ext/object/misc.rb:39:in `returning'
+    /vendor/rails/activesupport/lib/active_support/json/encoders/hash.rb:40:in `to_json'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (103.8ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.2ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 12:59:28) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+NameError (uninitialized constant Limewire::Search::JSON):
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:102:in `const_missing'
+    /lib/limewire.rb:72:in `results'
+    /app/controllers/search_controller.rb:21:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (47.0ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.4ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:00:23) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+NameError (uninitialized constant SearchController::JSON):
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:102:in `const_missing'
+    /app/controllers/search_controller.rb:22:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (43.7ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.5ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing ApplicationController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:00:38) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+MissingSourceFile (no such file to load -- json):
+    file:/Users/dhaas/projects/limewire5-ruby/lib/jars/jruby.jar!/META-INF/jruby.home/lib/ruby/site_ruby/1.8/rubygems/custom_require.rb:31:in `require'
+    file:/Users/dhaas/projects/limewire5-ruby/lib/jars/jruby.jar!/META-INF/jruby.home/lib/ruby/site_ruby/1.8/rubygems/custom_require.rb:31:in `require'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:148:in `require'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:507:in `new_constants_in'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:148:in `require'
+    /app/controllers/search_controller.rb:1
+    /app/controllers/search_controller.rb:368:in `load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:368:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:507:in `new_constants_in'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:367:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:248:in `require_or_load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:413:in `load_missing_constant'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:77:in `const_missing_with_dependencies'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:89:in `const_missing'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:353:in `constantize'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:352:in `each'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:352:in `constantize'
+    /vendor/rails/activesupport/lib/active_support/core_ext/string/inflections.rb:162:in `constantize'
+    /vendor/rails/actionpack/lib/action_controller/routing/route_set.rb:387:in `recognize'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:179:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (52.6ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.5ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing ApplicationController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:00:46) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+MissingSourceFile (no such file to load -- json):
+    file:/Users/dhaas/projects/limewire5-ruby/lib/jars/jruby.jar!/META-INF/jruby.home/lib/ruby/site_ruby/1.8/rubygems/custom_require.rb:31:in `require'
+    file:/Users/dhaas/projects/limewire5-ruby/lib/jars/jruby.jar!/META-INF/jruby.home/lib/ruby/site_ruby/1.8/rubygems/custom_require.rb:31:in `require'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:148:in `require'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:507:in `new_constants_in'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:148:in `require'
+    /app/controllers/search_controller.rb:2
+    /app/controllers/search_controller.rb:368:in `load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:368:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:507:in `new_constants_in'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:367:in `load_file'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:248:in `require_or_load'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:413:in `load_missing_constant'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:77:in `const_missing_with_dependencies'
+    /vendor/rails/activesupport/lib/active_support/dependencies.rb:89:in `const_missing'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:353:in `constantize'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:352:in `each'
+    /vendor/rails/activesupport/lib/active_support/inflector.rb:352:in `constantize'
+    /vendor/rails/activesupport/lib/active_support/core_ext/string/inflections.rb:162:in `constantize'
+    /vendor/rails/actionpack/lib/action_controller/routing/route_set.rb:387:in `recognize'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:179:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (49.0ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.4ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:05:31) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+Completed in 935ms (View: 872, DB: 0) | 200 OK [http://localhost/search/8E472F77B6D960EB151A1542951E9B00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:07:56) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+Completed in 492ms (View: 1, DB: 0) | 200 OK [http://localhost/search/8E472F77B6D960EB151A1542951E9B00/results]
+
+
+Processing SearchController#control (for 0:0:0:0:0:0:0:1%0 at 2009-01-06 13:08:10) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNoSGFzaHsABjoKQHVzZWR7AA==--fd2061db40379e18c52432c72d22e95caa1f36f1
+  Parameters: {"controller"=>"search", "action"=>"control", "guid"=>"8E472F77B6D960EB151A1542951E9B00", "query"=>"results"}
+
+
+NoMethodError (undefined method `to_xml' for #<String:0x7cb3d937>):
+    /app/controllers/search_controller.rb:22:in `control'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:1213:in `perform_action'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:617:in `call_filters'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:610:in `perform_action_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /benchmark.rb:293:in `measure'
+    /vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_with_benchmark'
+    /vendor/rails/actionpack/lib/action_controller/rescue.rb:136:in `perform_action_with_rescue'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:13:in `perform_action_with_caching'
+    /vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:48:in `cache'
+    /vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    /vendor/rails/actionpack/lib/action_controller/caching/sql_cache.rb:12:in `perform_action_with_caching'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:533:in `process'
+    /vendor/rails/actionpack/lib/action_controller/filters.rb:606:in `process_with_filters'
+    /vendor/rails/actionpack/lib/action_controller/session_management.rb:134:in `process_with_session_management_support'
+    /vendor/rails/actionpack/lib/action_controller/base.rb:401:in `process'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:180:in `handle_request'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:107:in `dispatch_unlocked'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:120:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:119:in `dispatch'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:129:in `dispatch_cgi'
+    /vendor/rails/actionpack/lib/action_controller/dispatcher.rb:36:in `dispatch'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:76:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/bin/../lib/mongrel/rails.rb:74:in `process'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:159:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `each'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:158:in `process_client'
+    /vendor/gems/gems/mongrel-1.1.5-java/lib/mongrel.rb:285:in `run'
+    :1:in `initialize'
+
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_trace (62.4ms)
+Rendered /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/_request_and_response (4.0ms)
+Rendering /Users/dhaas/projects/limewire5-ruby/scripting/rails/vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.erb (internal_server_error)

@@ -1,4 +1,4 @@
-ROOT = File.expand_path(File.join(Dir.pwd, '..', '..', 'scripting', 'rails'))
+ROOT = File.expand_path(File.join(Dir.pwd, 'scripting', 'rails'))
 $LOAD_PATH.unshift(ROOT)
 Dir.chdir(ROOT)
 require 'rubygems'

@@ -1,4 +1,4 @@
-ROOT = File.expand_path(File.join(Dir.pwd, '..', '..', 'scripting', 'merb'))
+ROOT = File.expand_path(File.join(Dir.pwd , 'scripting', 'merb'))
 
 require 'rubygems'
 Gem.clear_paths
