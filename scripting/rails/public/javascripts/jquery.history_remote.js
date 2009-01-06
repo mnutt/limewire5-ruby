@@ -322,10 +322,11 @@ $.fn.history = function(callback,bypassHistory) {
 			    return false;
 			  }
         $.ajaxHistory.update(this.hash);
+
+      }
 if (typeof callback == 'function') {
 			  callback.call(this, e);
 		  }
-      }
 
     });
 };
