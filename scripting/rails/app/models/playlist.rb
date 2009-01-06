@@ -1,4 +1,6 @@
 class Playlist < ActiveRecord::Base
+  validates_presence_of :name
+
   before_create :generate_hash
   
   def to_playlist
@@ -30,5 +32,21 @@ class Playlist < ActiveRecord::Base
 
   def generate_hash
     self.share_hash = Digest::MD5.new.to_s
+  end
+
+  def position
+    self.list_position
+  end
+
+  def position=(position)
+    self.list_position = position
+  end
+
+  def order
+    self.list_order
+  end
+
+  def order=(order)
+    self.list_order = order
   end
 end
