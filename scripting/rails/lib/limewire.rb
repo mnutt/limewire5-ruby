@@ -1,31 +1,21 @@
-
-
 module Limewire
 
-if($core)
-  puts "Running from Limewire, good..."
-  include Java
-
-  java_import org.limewire.geocode.Geocoder
-  #include     org.limewire.geocode
-  java_import com.limegroup.gnutella.URN
-  #include     com.limegroup.gnutella
-  java_import com.limegroup.gnutella.metadata.MetaDataFactoryImpl
-  java_import com.limegroup.gnutella.metadata.MetaDataFactory
-  #include     com.limegroup.gnutella.metadata
-  java_import org.limewire.io.GUID
-  #include     org.limewire.io
-  java_import org.limewire.core.api.URN
-  #include     org.limewire.core.api
-  java_import org.limewire.core.impl.URNImpl
-  #include     org.limewire.core.impl
-  java_import org.limewire.core.api.library.LibraryManager
-  #include     org.limewire.core.api.library
-  java_import org.limewire.core.api.search.SearchManager
-  #include     org.limewire.core.api.search
-else
-  puts "Not running from limewire, no $core available"
-end
+  if($core)
+    # Running from Limewire
+    include Java
+    
+    Geocoder            = org.limewire.geocode.Geocoder
+    OldURN              = com.limegroup.gnutella.URN
+    MetaDataFactoryImpl = com.limegroup.gnutella.metadata.MetaDataFactoryImpl
+    MetaDataFactory     = com.limegroup.gnutella.metadata.MetaDataFactory
+    GUID                = org.limewire.io.GUID
+    URN                 = org.limewire.core.api.URN
+    URNImpl             = org.limewire.core.impl.URNImpl
+    LibraryManager      = org.limewire.core.api.library.LibraryManager
+    SearchManager       = org.limewire.core.api.search.SearchManager
+  else
+    # Not running from limewire, no $core available
+  end
 
   def self.core
     @core ||= $core rescue nil
@@ -44,12 +34,16 @@ end
   end
       
   class Search
+    def self.search_manager
+      @search_manager ||= Limewire.get_singleton(SearchManager)
+    end
+    
     def self.find(guid)
-      self.new Limewire.get_singleton(SearchManager).getSearchByGuid(GUID.new(guid))
+      self.new self.search_manager.getSearchByGuid(GUID.new(guid))
     end
 
     def self.query(query)
-      self.new Limewire.get_singleton(SearchManager).createSearchFromQuery(query)
+      self.new self.search_manager.createSearchFromQuery(query)
     end
 
     def initialize(search)
@@ -83,10 +77,16 @@ end
   end
 
   module Library
-    def self.all_files
-      file_list = Limewire.get_singleton(org.limewire.core.api.library.LibraryManager).library_managed_list.core_file_list
-      file_list = file_list.map{ |file| Limewire::File.new(file) }.compact
+    def self.library_manager
+      @library_manager ||= Limewire.get_singleton(LibraryManager)
+    end
+
+    def self.core_file_list
+      @core_file_list ||= self.library_manager.library_managed_list.core_file_list
+    end
       
+    def self.all_files
+      file_list = self.core_file_list.map{ |file| Limewire::File.new(file) }.compact
       file_list.extend(Filterable)
       file_list
     end
@@ -100,24 +100,43 @@ end
     end
 
     def self.find(type_or_sha1, options={})
-      if(type_or_sha1 == :all)
-        files = all_files || []
-      elsif(String === type_or_sha1)
-        old_urn = com.limegroup.gnutella.URN.createSHA1Urn(type_or_sha1)
-        urn = org.limewire.core.impl.URNImpl.new(old_urn)
-        library_manager = Limewire.get_singleton(org.limewire.core.api.library.LibraryManager)
-        file = library_manager.library_managed_list.core_file_list.get_file_descs_matching(old_urn)
-        return file[0]
+      return self.find_by_sha1(type_or_sha1) if String === type_or_sha1
+      return all_files[0] if :first == type_or_sha1
+
+      files = all_files
+
+      if options[:search]
+        files = files.filter_by_name(/#{options[:search].downcase}/i)
+      end
+
+      if options[:artist]
+        files = files.filter_by_artist(options[:artist])
       end
       
       if options[:genres]
-        all_files = all_files.select{|f| f.metadata.genre == options[:genres] }
+        files = files.filter_by_genre(options[:genres])
       end
 
-      limit = options[:limit].to_i || (type == :first) ? 1 : 40
-      offset = options[:offset].to_i || 0
-      
-      all_files[offset..(offset + limit - 1)]
+      if options[:extension]
+        files = files.filter_by_extension(options[:extension])
+      end
+
+      if(options[:limit] || options[:offset])
+        limit = options[:limit].to_i || 40
+        offset = options[:offset].to_i || 0
+        files[offset..(offset + limit - 1)]
+      else
+        files
+      end
+    end
+
+    def self.find_by_sha1(sha1)
+      old_urn = OldURN.createSHA1Urn(sha1)
+      urn = URNImpl.new(old_urn)
+      file = self.core_file_list.get_file_descs_matching(old_urn)
+      file[0]
+    rescue
+      nil
     end
     
     def self.categories
@@ -127,9 +146,13 @@ end
   end
 
   class File
+    def self.metadata_factory
+      @metadata_factory ||= Limewire.get_singleton(MetaDataFactory)
+    end
+
     def initialize(file)
       @file = file
-      @metadata = Limewire.get_singleton(com.limegroup.gnutella.metadata.MetaDataFactory).parse(file.get_file) rescue nil
+      @metadata = File.metadata_factory.parse(file.get_file) rescue nil
     end
 
     def metadata
@@ -171,26 +194,27 @@ end
       end
     end
   end
+
+  module Filterable
+    def filter_by_name(regex)
+      filtered = self.find_all{ |f| f.file_name =~ regex || f.metadata.artist.to_s =~ regex || f.metadata.title =~ regex rescue false }
+      filtered.extend(Filterable)
+    end
+    
+    def filter_by_extension(extension)
+      filtered = self.find_all{ |f| f.file_name =~ /#{extension.to_s}$/ }
+      filtered.extend(Filterable)
+    end
+    
+    def filter_by_genre(genre)
+      filtered = self.find_all{ |f| f.metadata.genre.downcase == genre.downcase rescue false }
+      filtered.extend(Filterable)
+    end
+    
+    def filter_by_artist(artist)
+      filtered = self.find_all{ |f| f.metadata.artist.downcase == artist.downcase rescue false }
+      filtered.extend(Filterable)
+    end
+  end
 end
 
-module Filterable
-  def filter_by_name(regex)
-    filtered = self.find_all{ |f| f.file_name =~ regex || f.metadata.artist.to_s =~ regex || f.metadata.title =~ regex rescue false }
-    filtered.extend(Filterable)
-  end
-
-  def filter_by_extension(extension)
-    filtered = self.find_all{ |f| f.file_name =~ /#{extension.to_s}$/ }
-    filtered.extend(Filterable)
-  end
-
-  def filter_by_genre(genre)
-    filtered = self.find_all{ |f| f.metadata.genre.downcase == genre.downcase rescue false }
-    filtered.extend(Filterable)
-  end
-
-  def filter_by_artist(artist)
-    filtered = self.find_all{ |f| f.metadata.artist.downcase == artist.downcase rescue false }
-    filtered.extend(Filterable)
-  end
-end
