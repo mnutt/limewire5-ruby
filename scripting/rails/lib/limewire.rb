@@ -191,7 +191,7 @@ module Limewire
         'downloadable' => true,
         'genre' => metadata.genre.to_s.gsub(/\00/, ""),
         'title' => title.to_s.gsub(/\00/, ""),
-        'id' => self.object_id,
+        'id' => self.sHA1Urn.to_s,
         'streamable' => true,
         'stream_url' => "/library/#{self.sHA1Urn}",
         'description' => metadata.album.to_s.gsub(/\00/, ""),
