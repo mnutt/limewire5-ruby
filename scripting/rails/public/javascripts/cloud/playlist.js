@@ -17,7 +17,7 @@ SC.Playlist.prototype = {
   init : function(props) { // this will init the playlist
     this.properties = props;
     var self = this;
-    this.limit = 40; // limit of ajax requests
+    this.limit = 100; // limit of ajax requests
     this.name = props.playlist.name;
     this.id = props.playlist.id;
     this.version = props.playlist.version;

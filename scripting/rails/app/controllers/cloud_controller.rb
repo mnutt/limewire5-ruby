@@ -5,7 +5,7 @@ class CloudController < ApplicationController
   end
 
   def tracks
-    limit = params[:limit].to_i || 40
+    limit = params[:limit].to_i || 100
     offset = params[:offset].to_i || 0
 
     @tracks = Limewire::Library.all_files.filter_by_extension(:mp3)
