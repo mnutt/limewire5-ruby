@@ -52,7 +52,18 @@ module Limewire
 
     def results
       results = @search.getSearchResults
-      results.map {|result| {:filename => result.fileName }}
+      ret=results.map do |result| 
+        {
+          :filename => result.fileName, 
+          :magnet_url => result.getMagnetURL,
+          :properties => result.getProperties.inject({}) do |memo, obj|
+            memo[obj[0].to_s] = obj[1].to_s
+            memo
+          end
+        }
+      end
+
+      ret
     end
 
     def start
