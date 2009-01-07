@@ -14,7 +14,9 @@ class PlaylistsController < ApplicationController
   def create
     @playlist = Playlist.new(params[:playlist])
     @playlist.save
-    render :text => { :playlist => @playlist.to_playlist, :position => Playlist.count }.to_json
+    render :text => { :playlist => @playlist.to_playlist, 
+                      :position => Playlist.count, 
+                      :is_owner => true }.to_json
   end
 
   def destroy
