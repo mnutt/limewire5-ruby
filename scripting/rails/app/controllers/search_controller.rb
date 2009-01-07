@@ -1,4 +1,6 @@
 class SearchController < ApplicationController
+  self.allow_forgery_protection = false
+
   def index
   end
 
