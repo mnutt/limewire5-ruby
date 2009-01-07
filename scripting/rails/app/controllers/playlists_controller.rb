@@ -12,7 +12,7 @@ class PlaylistsController < ApplicationController
   end
 
   def create
-    @playlist = Playlist.new(:name => params[:name], :order => params[:order])
+    @playlist = Playlist.new(params[:playlist])
     @playlist.save
     render :text => { :playlist => @playlist.to_playlist, :position => Playlist.count }.to_json
   end
@@ -25,8 +25,7 @@ class PlaylistsController < ApplicationController
 
   def update
     @playlist = Playlist.find(params[:id])
-    @playlist.name = params[:name] if params[:name]
-    @playlist.position = params[:position] if params[:position]
+    @playlist.attributes = params[:playlist]
     @playlist.save
     render :json => {:response => 200}
   end

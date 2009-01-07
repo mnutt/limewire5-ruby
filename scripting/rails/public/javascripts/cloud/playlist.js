@@ -17,7 +17,7 @@ SC.Playlist.prototype = {
   init : function(props) { // this will init the playlist
     this.properties = props;
     var self = this;
-    this.limit = 40; // limit of ajax requests
+    this.limit = 100; // limit of ajax requests
     this.name = props.playlist.name;
     this.id = props.playlist.id;
     this.version = props.playlist.version;
@@ -315,13 +315,13 @@ SC.Playlist.prototype = {
     var self = this;
     var tracks = "";
     $("tr:not(.droppable-placeholder)",this.list).each(function() {
-      tracks += this.track.id + ",";
+							 tracks += this.track.id + ",";
     });
     if($("tr:not(.droppable-placeholder)",this.list).length == 0) {
       tracks = "0";
     }
 
-    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","tracks":tracks,"version":this.version},function(dataJS) {
+    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","playlist[tracks]":tracks,"playlist[version]":this.version},function(dataJS) {
       var data = eval('(' + dataJS + ')');
       if(data.response == 200) {
         self.version++;
@@ -335,7 +335,7 @@ SC.Playlist.prototype = {
   saveName : function() {
     var self = this;
     this.name = this.name.replace(/<.*?>/,""); // sanitize name
-    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","name":this.name},function(dataJS) {
+    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","playlist[name]":this.name},function(dataJS) {
       var data = eval('(' + dataJS + ')');
       if(data.response == 200) {
         self.version++;
@@ -349,7 +349,7 @@ SC.Playlist.prototype = {
     var self = this;
     // find out position index, ignore non-persisted playlists
     var pos = $("#playlists li:not(.dont-persist)").index($("#playlists li:not(.dont-persist)[listid=" + this.id + "]"));
-    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","position":pos},function(dataJS) {
+    $.post("/cloud/playlists/" + this.id ,{"_method":"PUT","playlist[position]":pos},function(dataJS) {
       var data = eval('(' + dataJS + ')');
       if(data.response == 200) {
         console.log('saved position');
@@ -427,7 +427,6 @@ SC.Playlist.prototype = {
 
       }
     track.description = (track.description ? track.description.replace(/(<([^>]+)>)/ig,"") : "");
-
     if (track.bpm == null) {
       track.bpm = "";
     }
@@ -604,7 +603,7 @@ SC.Playlist.prototype = {
       }).end()
       .find('a.collaborative').click(function() {
         if(!$(this).parents("li").hasClass("shared")) {
-          $.post("/cloud/playlists/" + self.id ,{"_method":"PUT","collaborative":!self.properties.playlist.collaborative,"version":self.version},function() {
+          $.post("/cloud/playlists/" + self.id ,{"_method":"PUT","playlist[collaborative]":!self.properties.playlist.collaborative,"version":self.version},function() {
             self.properties.playlist.collaborative = !self.properties.playlist.collaborative;
             $("#playlists li[listid=" + self.id + "]").toggleClass("collaborative");
             if(self.properties.playlist.collaborative) {

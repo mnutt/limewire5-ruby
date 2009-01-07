@@ -5,25 +5,14 @@ class CloudController < ApplicationController
   end
 
   def tracks
-    limit = params[:limit].to_i || 40
-    offset = params[:offset].to_i || 0
-
-    @tracks = Limewire::Library.all_files.filter_by_extension(:mp3)
-
-    if params[:q]
-      @search = params[:q].downcase
-      @tracks = @tracks.filter_by_name(/#{@search}/i)
-    end
-
-    if params[:artist]
-      @tracks = @tracks.filter_by_artist(params[:artist])
-    end
-
-    if params[:genres]
-      @tracks = @tracks.filter_by_genre(params[:genres])
-    end
-
-    @tracks = @tracks[offset..(offset+limit-1)]
+    @tracks = Limewire::Library.find(:all, 
+                                     :limit => params[:limit], 
+                                     :offset => params[:offset],
+                                     :extension => :mp3,
+                                     :artist => params[:artist],
+                                     :search => params[:q],
+                                     :order => params[:order],
+                                     :genres => params[:genres])
     render :json => @tracks.collect{|x| x.to_cloud}
   end
 end
