@@ -83,18 +83,18 @@ SC.Player.prototype = {
 
       var pos = $("#playlists li:not(.dont-persist)").index($("#playlists li:not(.dont-persist):last"))+1; //FIX ME don't duplicate this code, break out to function
       var props = {
-        position: pos,
-        smart : true,
-        name : "New Smart Playlist",
-        version : 0,
-        genres : $("#pl-genre").val(),
-        bpm_from : Math.floor($("#pl-bpm-range-start").val()),
-        bpm_to : Math.floor($("#pl-bpm-range-stop").val()),
-        user_favorites : $("#pl-favorite").val().toLowerCase().replace(/\s/,"-"),  // FIXME: cheap username->permalink algoritm
-        order : $("#pl-order").val(),
-        search_term : $("#pl-search-term").val(),
-        artist : $("#pl-artist").val().toLowerCase().replace(/\s/,"-") // FIXME: cheap username->permalink algoritm
-      }
+        "playlist[position]": pos,
+        "playlist[smart]" : 1,
+        "playlist[name]" : "New Smart Playlist",
+        "playlist[version]" : 0,
+        "playlist[genres]" : $("#pl-genre").val(),
+        "playlist[bpm_from]" : Math.floor($("#pl-bpm-range-start").val()),
+        "playlist[bpm_to]" : Math.floor($("#pl-bpm-range-stop").val()),
+        "playlist[user_favorites]" : $("#pl-favorite").val().toLowerCase().replace(/\s/,"-"),  // FIXME: cheap username->permalink algoritm
+        "playlist[order]" : $("#pl-order").val(),
+        "playlist[search_term]" : $("#pl-search-term").val(),
+        "playlist[artist]" : $("#pl-artist").val().toLowerCase().replace(/\s/,"-") // FIXME: cheap username->permalink algoritm
+      };
 
       $.post("/cloud/playlists",props,function(data) {
         var pl = eval('(' + data + ')');
