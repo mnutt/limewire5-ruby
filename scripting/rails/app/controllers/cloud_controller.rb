@@ -9,6 +9,7 @@ class CloudController < ApplicationController
                                      :limit => params[:limit], 
                                      :offset => params[:offset],
                                      :extension => :mp3,
+                                     :artist => params[:artist],
                                      :search => params[:q],
                                      :order => params[:order],
                                      :genres => params[:genres])
