@@ -132,10 +132,18 @@ module Limewire
         files = files.filter_by_extension(options[:extension])
       end
 
-      if(options[:limit] || options[:offset])
+      if options[:limit] || options[:offset]
         limit = options[:limit].to_i || 40
         offset = options[:offset].to_i || 0
-        files[offset..(offset + limit - 1)]
+        files = files[offset..(offset + limit - 1)]
+      end
+
+      if options[:order]
+        if options[:order] == "artist"
+          files.select{|f| f.metadata.artist rescue false}.sort_by {|f| f.metadata.artist.to_s.downcase }.sort_by{|f| f.metadata.artist.empty? ? 1 : 0 }
+        elsif options[:order] == "created_at"
+          files.sort_by {|f| f.last_modified.to_s rescue 9999999999999 }
+        end
       else
         files
       end
