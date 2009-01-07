@@ -157,6 +157,10 @@ module Limewire
     rescue
       nil
     end
+
+    def self.find_by_sha1s(sha1s)
+      sha1s.collect{ |sha1| self.find_by_sha1(sha1) }.compact
+    end
     
     def self.categories
       Limewire.core.get_file_manager.get_managed_file_list.managed_categories rescue []
