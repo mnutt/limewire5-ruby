@@ -124,6 +124,11 @@ SC.Playlist.prototype = {
       baseUrl = "/cloud/";
     }
     var pl = this.properties.playlist;
+      if(pl.search) {
+	  baseUrl = "/search/q/" + pl.smart_filter.search_term + "?version=0";
+	  return baseUrl;
+      }
+
     if(pl.smart) { // check for all smart playlist params
       if(pl.smart_filter.user_favorites) { // user favs pl
         baseUrl += "users/" + pl.smart_filter.user_favorites + "/favorites." + format + "?filter=streamable";
@@ -173,7 +178,23 @@ SC.Playlist.prototype = {
             self.processTrackData(dataNonCached);
           })
         } else {
-          self.processTrackData(data);
+	    var pl = self.properties.playlist;
+	    pl.search_options.key = data.guid;
+	    setInterval(function() {
+		if(self._loadingSearch || (pl.search_options.times_refreshed && pl.search_options.times_refreshed > 20))
+		    return;
+		self._loadingSearch = true;
+		pl.search_options.times_refreshed ? pl.search_options.times_refreshed++ : pl.search_options.times_refreshed = 1;
+
+		$.getJSON("/search/" + pl.search_options.key + "/results", function(realData) {
+		    var pl = self.properties.playlist.search_options;
+		    pl.results = eval(realData).results;
+		    self.processTrackData(pl.results);
+		    self._loadingSearch = false;
+		    
+		});
+	    }, 5000);
+
         }
       });
     }
@@ -268,12 +289,26 @@ SC.Playlist.prototype = {
         }
       });
     };
+      var pl = self.properties.playlist;
+      if(pl.search) {
+	  var to_show = self.tracks;
+	  
+	  if(!pl.search_options.results_shown) {
+	      pl.search_options.results_shown = 0;
+	  }
+	  to_show = to_show.slice(pl.search_options.results_shown);
+	  $.each(to_show,function() {
+	      self.addTrack(this);
+	  });
+	  pl.search_options.results_shown = pl.search_options.results_shown + to_show.length;
+      } else {
+	  $.each(self.tracks, function() {
+	      self.addTrack(this);
+	  });
+      }
 
-    $.each(self.tracks,function() {
-      self.addTrack(this);
-    });
-    //show new tracks with fade fx
-    self.loading = false;
+      //show new tracks with fade fx
+      self.loading = false;
 
   },
   save : function() {
@@ -378,22 +413,33 @@ SC.Playlist.prototype = {
     this.player.load(tr[0].track);
   },
   addTrack : function(track,single) {
-    if (track.user == null) {
-      return;
-    }
+      if(this.properties.playlist.search) {
+	  var old = track;
+	  var new_track = {};
+	  new_track.user = {};
+	  new_track.user.username = ""
+	  new_track.title = track.properties.TITLE;
+	  new_track.description = track.filename;
+	  new_track.bpm = 0;
+	  new_track.duration = 10;
+	  new_track.genre="Awesome";
+	  track = new_track;
 
+      }
     track.description = (track.description ? track.description.replace(/(<([^>]+)>)/ig,"") : "");
     if (track.bpm == null) {
       track.bpm = "";
     }
 
     var self = this;
+      if(!track.title) {
+	  track.title = "No title";
+      }
+      if(!track.genre) {
+	  track.genre = "";
+      }
 
-    if(!track.genre) {
-      track.genre = "";
-    }
-
-    //populate table
+//    populate table
     $('#playlist-row table tr')
       .clone()
       .css("width",SC.arraySum(self.colWidths)+7*7)
@@ -424,7 +470,7 @@ SC.Playlist.prototype = {
       })
       .find("td:nth-child(1)").css("width",self.colWidths[0]).end()
       .find("td:nth-child(2)").css("width",self.colWidths[1]).text(track.title).end()
-      .find("td:nth-child(3)").css("width",self.colWidths[2]).html("<a href='#" + track.user.username.replace(/\s/, "+") + "'>" + track.user.username + "</a>")
+     .find("td:nth-child(3)").css("width",self.colWidths[2]).html("<a href='#" + track.user.username.replace(/\s/, "+") + "'>" + track.user.username + "</a>")
         .find("a")
         .history(function(ev) {
           self.player.removePlaylist("artist");
@@ -450,28 +496,28 @@ SC.Playlist.prototype = {
       .find("td:nth-child(5)").css("width",self.colWidths[4]).html(track.description).attr("title",track.description).end()
       .find("td:nth-child(6)").css("width",self.colWidths[5]).text(track.bpm).end()
       .find("td:nth-child(7)").css("width",self.colWidths[6]).html("<a href='#" + track.genre.replace(/\s/, "+") + "'>" + track.genre + "</a>")
-        .find("a")
-        .history(function(ev) {
+      .find("a")
+      .history(function(ev) {
           var genre = this.innerHTML;
           self.player.removePlaylist("genre");
           self.player.playlists["genre"] = new SC.Playlist({
-            is_owner: true,
-            playlist : {
-              id : "genre",
-              smart: true,
-              smart_filter: {
-                genres : genre,
-                order: "created_at"
-              },
-              dontPersist : true,
-              dontShowPlaylistItem : true
-            }
+              is_owner: true,
+              playlist : {
+		  id : "genre",
+		  smart: true,
+		  smart_filter: {
+                      genres : genre,
+                      order: "created_at"
+		  },
+		  dontPersist : true,
+		  dontShowPlaylistItem : true
+              }
           }, self.player);
           self.player.switchPlaylist("genre");
-        }).end()
+      }).end()
       .end()
       .appendTo(this.list);
-    $("tr:last",this.list)[0].track = track;
+      $("tr:last",this.list)[0].track = track;
   },
   addToPlaylistsList: function() { // add the tab for the playlist
     var self = this;

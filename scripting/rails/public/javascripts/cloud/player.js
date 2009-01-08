@@ -2,7 +2,6 @@ SC.Player = SC.Class();
 SC.Player.prototype = {
   isPlaying: false,
   initialize: function() {
-
     this.audioTracks = {}; // has for all sounds
     this.progress = $('#progress div:first');
     this.loading = $('#progress div.loading');
@@ -248,39 +247,49 @@ SC.Player.prototype = {
       })
       .blur(function() {
         this.focused = false;
-        $(this).val('Search Artists & Tracks');
+        $(this).val('Search');
       })
       .keydown(function(ev) {
         if(ev.keyCode === 13) {
-          self.removePlaylist("search1");
+//          self.removePlaylist("search1");
           var q = $("#q").val();
-
-          self.playlists["search1"] = new SC.Playlist({
+	  var unique_id = "";
+	    for(var i=0;i<16;i++) {
+	      unique_id += Math.floor(Math.random()*16).toString(16)
+	    }
+	  var s_id = "search" + unique_id;
+	  console.log("Hey ");
+          var pl = new SC.Playlist({
             is_owner: true,
             playlist: {
-              id : "search1",
+              id : s_id,	
+	      category: "Searches",
               name : "Search for '" + q + "'",
               version : 0,
               dontPersist : true,
               search : true,
-              smart : true,
+              smart : false,
+		search_options: {
+		    search_term: q  
+		},
               smart_filter : {
                 search_term : q,
                 order: "created_at"
               }
             }
           },self);
-          self.switchPlaylist("search1");
+	    self.playlists[s_id] = pl;
+	    self.switchPlaylist(s_id);
         } else if (ev.keyCode === 27) {
           $("#q").blur();
         }
-      });
+    });
 
     // add playlist button
     $("#add-playlist").click(function(ev) {
       if($("body").hasClass("logged-in")) {
         var pos = $("#playlists li:not(.dont-persist)").index($("#playlists li:not(.dont-persist):last"))+1; //FIXME respect non-persisted playlists, and first
-        $.post("/cloud/playlists",{'name':"Untitled playlist",'position': pos},function(data) {
+        $.post("/cloud/playlists",{'playlist[name]':"Untitled playlist",'playlist[position]': pos},function(data) {
           var item = eval('(' + data + ')');
           self.playlists[item.playlist.id] = new SC.Playlist(item, self);
           self.switchPlaylist(item.playlist.id);
@@ -760,7 +769,7 @@ soundManager.flashVersion = 9;
 soundManager.url = '/flash/.';
 soundManager.useConsole = true;
 soundManager.consoleOnly = true;
-soundManager.debugMode = false; // disable debug mode
+soundManager.debugMode = true; // disable debug mode
 soundManager.defaultOptions.multiShot = false;
 soundManager.useHighPerformance = false;
 
