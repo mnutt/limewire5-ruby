@@ -247,7 +247,7 @@ SC.Player.prototype = {
       })
       .blur(function() {
         this.focused = false;
-        $(this).val('Search Artists & Tracks');
+        $(this).val('Search');
       })
       .keydown(function(ev) {
         if(ev.keyCode === 13) {
@@ -283,13 +283,13 @@ SC.Player.prototype = {
         } else if (ev.keyCode === 27) {
           $("#q").blur();
         }
-      });
+    });
 
     // add playlist button
     $("#add-playlist").click(function(ev) {
       if($("body").hasClass("logged-in")) {
         var pos = $("#playlists li:not(.dont-persist)").index($("#playlists li:not(.dont-persist):last"))+1; //FIXME respect non-persisted playlists, and first
-        $.post("/cloud/playlists",{'name':"Untitled playlist",'position': pos},function(data) {
+        $.post("/cloud/playlists",{'playlist[name]':"Untitled playlist",'playlist[position]': pos},function(data) {
           var item = eval('(' + data + ')');
           self.playlists[item.playlist.id] = new SC.Playlist(item, self);
           self.switchPlaylist(item.playlist.id);
