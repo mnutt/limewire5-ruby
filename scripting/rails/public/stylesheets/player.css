@@ -817,7 +817,7 @@ table {
 #logo {
   position : absolute;
   top: 3px;
-  left: 8px;
+  left: -8px;
   width: 214px;
   height: 27px;
 }
@@ -890,7 +890,7 @@ table {
   right: 0;
   height: 32px;
   border-bottom: 1px solid #aaa;
-  background: url(/images/cloud/header-fade.png);
+  background-color: #2A2A2A;
   -webkit-background-size: 100% 100%;
   padding: 0em 0em 0 0em;
   -moz-user-select : none;
@@ -1277,6 +1277,12 @@ table {
     width: 100%;
     font-size: 16px;
   }
+
+/* get rid of single pixel that is flash player */
+#sm2movie {
+  position: absolute;
+  top: -2px;
+}
 
 /* clearing */
 #header:after,#playlists:after, #lists table tr:after, .buttons:after {
