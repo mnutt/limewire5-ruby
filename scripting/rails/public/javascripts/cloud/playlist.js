@@ -179,6 +179,10 @@ SC.Playlist.prototype = {
           })
         } else {
 	    var pl = self.properties.playlist;
+	    if(!pl.search_options) {
+		self.processTrackData(data);
+		return;
+	    }
 	    pl.search_options.key = data.guid;
 	    setInterval(function() {
 		if(self._loadingSearch || (pl.search_options.times_refreshed && pl.search_options.times_refreshed > 20))
