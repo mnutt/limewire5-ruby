@@ -195,7 +195,7 @@ SC.Playlist.prototype = {
 		    pl.results = eval(realData).results;
 		    self.processTrackData(pl.results);
 		    self._loadingSearch = false;
-		    
+
 		});
 	    }, 5000);
 
@@ -296,7 +296,7 @@ SC.Playlist.prototype = {
       var pl = self.properties.playlist;
       if(pl.search) {
 	  var to_show = self.tracks;
-	  
+
 	  if(!pl.search_options.results_shown) {
 	      pl.search_options.results_shown = 0;
 	  }
@@ -433,6 +433,16 @@ SC.Playlist.prototype = {
     track.description = (track.description ? track.description.replace(/(<([^>]+)>)/ig,"") : "");
     if (track.bpm == null) {
       track.bpm = "";
+    }
+
+    if (track.name == null) {
+      track.name = "";
+    }
+
+    if (track.user == null) {
+      track.user = {
+	username: ""
+      };
     }
 
     var self = this;
