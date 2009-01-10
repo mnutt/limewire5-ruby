@@ -30,7 +30,6 @@ import com.limegroup.gnutella.Constants;
 import com.limegroup.gnutella.LimeWireCore;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.util.LimeWireUtils;
-import com.limegroup.scripting.*;
 
 @Singleton
 public class LocalHTTPAcceptor extends BasicHttpAcceptor {
@@ -53,7 +52,6 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
 
     /** Magnet detail command */
     private static final String MAGNET_DETAIL = "magcmd/detail?";
-    private static final String FILE_URL = "/file/";
     private static final String LIBRARY_URL = "/library/";
 
     private String lastCommand;
