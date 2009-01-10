@@ -1,0 +1,68 @@
+
+    <div class="toolbar">
+        <h1 id="pageTitle"></h1>
+        <a id="backButton" class="button" href="#"></a>
+        <a class="button" href="#searchForm">Search</a>
+    </div>
+    
+    <ul id="home" title="LimeWire" selected="true">
+      <center>
+        <img src="/images/limewire.png" alt="limewire" style="margin: 10px auto;"/>
+      </center>
+        <li><a href="#artists">Artists</a></li>
+        <li><a href="#songs">Songs</a></li>
+        <li><a href="#stats">Stats</a></li>
+    </ul>
+    <ul id="artists" title="Artists">
+       <% @artists_by_alpha.each do |alpha, artists| -%>
+	 <li class="group"><%= alpha.to_s.capitalize -%></li>
+	 <% artists.each do |artist| -%>
+	   <li><a href="#<%= artist.gsub(/\s/, "") -%>"><%= artist.titleize -%></a></li>
+	 <% end -%>
+       <% end -%>
+    </ul>
+    <% @tracks_by_artist.each do |artist, tracks| -%>
+      <ul id="<%= artist.gsub(/\s/, "") -%>" title="<%= artist.titleize -%>">
+	<% tracks.each do |track| -%>
+	  <li>
+	    <a target="_self" href="/library/<%= track.sha1 -%>.mp3">
+	      <%= track.metadata.title rescue "Unnamed" -%>
+	    </a>
+	  </li>
+	<% end -%>
+      </ul>
+    <% end -%>
+    <ul id="songs" title="Songs">
+      <% @tracks_by_alpha.each do |alpha, tracks| -%>
+	<li class="group"><%= alpha.to_s.capitalize -%></li>
+	<% tracks.each do |track| -%>
+	  <li>
+	    <a target="_self" href="/library/<%= track.sha1 -%>.mp3">
+	      <%= track.metadata.title rescue "Unnamed" -%>
+	    </a>
+	  </li>
+	<% end -%>
+      <% end -%>
+    </ul>
+
+    <ul id="stats" title="Stats">
+      <li><%= @tracks_by_artist.size.to_s -%> Artists</li>
+      <li><%= @tracks.size.to_s -%> Songs</li>
+    </ul>
+    
+    <div id="player" class="panel" title="Now Playing">
+        <h2>If this weren't just a demo, you might be hearing a song...</h2>
+    </div>
+    
+    <form id="searchForm" class="dialog" action="search.php">
+        <fieldset>
+            <h1>Music Search</h1>
+            <a class="button leftButton" type="cancel">Cancel</a>
+            <a class="button blueButton" type="submit">Search</a>
+            
+            <label>Artist:</label>
+            <input id="artist" type="text" name="artist"/>
+            <label>Song:</label>
+            <input type="text" name="song"/>
+        </fieldset>
+    </form>

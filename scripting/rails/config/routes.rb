@@ -1,6 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
 
-  map.file "/library/:sha1", :controller => 'library', :action => 'show'
+  map.file "/library/:sha1.mp3", :controller => 'library', :action => 'show'
   
   # Cloud Player
   map.resources :playlists, :path_prefix => "/cloud"
@@ -8,6 +8,8 @@ ActionController::Routing::Routes.draw do |map|
   map.new_search "/search/q/:query", :controller => 'search', :action => 'perform'
   map.search_control "/search/:guid/:query", :controller => 'search', :action => 'control'
   map.cloud "/cloud", :controller => 'cloud', :action => 'index'
+  map.iphone "/iphone", :controller => 'iphone', :action => 'index'
+
   # The priority is based upon order of creation: first created -> highest priority.
 
   # Sample of regular route:

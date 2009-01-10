@@ -187,20 +187,24 @@ module Limewire
       @metadata.title || self.file_name
     end
 
+    def sha1
+      self.sHA1Urn.to_s.split(":").last
+    end
+
     def to_cloud
       return nil if metadata.nil?
       {
         'duration' => metadata.length * 1000,
         'permalink' => title,
-        'uri' => "/library/#{self.sHA1Urn}",
+        'uri' => "/library/#{self.sha1}.mp3",
         'downloadable' => true,
         'genre' => metadata.genre.to_s.gsub(/\00/, ""),
         'title' => title.to_s.gsub(/\00/, ""),
         'id' => self.sHA1Urn.to_s,
         'streamable' => true,
-        'stream_url' => "/library/#{self.sHA1Urn}",
+        'stream_url' => "/library/#{self.sha1}.mp3",
         'description' => metadata.album.to_s.gsub(/\00/, ""),
-        'permalink_url' => "/library/#{self.sHA1Urn}",
+        'permalink_url' => "/library/#{self.sha1}.mp3",
         'user' => {
           "username"=>metadata.artist.to_s.gsub(/\00/, ""), 
           "permalink" => metadata.artist.to_s.gsub(/\00/, "") },
