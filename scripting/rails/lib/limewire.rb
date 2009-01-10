@@ -1,28 +1,6 @@
 module Limewire
-
-  if($core)
-    # Running from Limewire
-    include Java
-    
-    Geocoder            = org.limewire.geocode.Geocoder
-    OldURN              = com.limegroup.gnutella.URN
-    MetaDataFactoryImpl = com.limegroup.gnutella.metadata.MetaDataFactoryImpl
-    MetaDataFactory     = com.limegroup.gnutella.metadata.MetaDataFactory
-    GUID                = org.limewire.io.GUID
-    URN                 = org.limewire.core.api.URN
-    URNImpl             = org.limewire.core.impl.URNImpl
-    LibraryManager      = org.limewire.core.api.library.LibraryManager
-    SearchManager       = org.limewire.core.api.search.SearchManager
-  else
-    # Not running from limewire, no $core available
-  end
-
   def self.core
     @core ||= $core rescue nil
-  end
-
-  def self.get_singleton(klass)
-    $core.injector.get_instance(klass.java_class)
   end
 
   def self.uptime
@@ -34,16 +12,14 @@ module Limewire
   end
       
   class Search
-    def self.search_manager
-      @search_manager ||= Limewire.get_singleton(SearchManager)
-    end
+
     
     def self.find(guid)
-      self.new self.search_manager.getSearchByGuid(GUID.new(guid))
+      self.new Core::SearchManager.getSearchByGuid(Core::GUID.new(guid))
     end
 
     def self.query(query)
-      self.new self.search_manager.createSearchFromQuery(query)
+      self.new Core::SearchManager.createSearchFromQuery(query)
     end
 
     def initialize(search)
@@ -89,12 +65,9 @@ module Limewire
   end
 
   module Library
-    def self.library_manager
-      @library_manager ||= Limewire.get_singleton(LibraryManager)
-    end
 
     def self.core_file_list
-      @core_file_list ||= self.library_manager.library_managed_list.core_file_list
+      @core_file_list ||= Core::LibraryManager.library_managed_list.core_file_list
     end
       
     def self.all_files
@@ -151,8 +124,8 @@ module Limewire
     end
 
     def self.find_by_sha1(sha1)
-      old_urn = OldURN.createSHA1Urn(sha1)
-      urn = URNImpl.new(old_urn)
+      old_urn = Core::OldURN.createSHA1Urn(sha1)
+      urn = Core::URNImpl.new(old_urn)
       file = self.core_file_list.get_file_descs_matching(old_urn)
       file[0]
     rescue
@@ -170,13 +143,9 @@ module Limewire
   end
 
   class File
-    def self.metadata_factory
-      @metadata_factory ||= Limewire.get_singleton(MetaDataFactory)
-    end
-
     def initialize(file)
       @file = file
-      @metadata = File.metadata_factory.parse(file.get_file) rescue nil
+      @metadata = Core::MetaDataFactory.parse(file.get_file) rescue nil
     end
 
     def metadata
