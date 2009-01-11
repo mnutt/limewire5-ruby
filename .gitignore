@@ -7,3 +7,5 @@ gui/log.txt
 private-components/integrated-ui/log
 scripting/rails/db/*.db.*
 scripting/rails/log/*.log
+build/
+deploy/

@@ -26,9 +26,7 @@ public class RubyEvaluator {
     throws FileNotFoundException, ScriptException {
         // Evaluate JRuby code from string.
         try {
-            String path = ClassLoader.getSystemResource(file).toString();
-            int i = path.indexOf("/");
-            engine.eval(new BufferedReader(new FileReader(path.substring(i))));
+            engine.eval(new BufferedReader(new FileReader(file)));
         } catch (Exception exception) {
             exception.getCause().printStackTrace();
         }

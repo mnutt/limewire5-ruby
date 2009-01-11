@@ -5,6 +5,6 @@ require 'rubygems'
 Gem.path.unshift(File.expand_path(ROOT+"/vendor/gems"))
 Gem.refresh
 
-require 'core'
+require '../core'
 require "#{ROOT}/config/boot"
 require 'commands/server'
