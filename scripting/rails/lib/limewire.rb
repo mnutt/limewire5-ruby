@@ -33,6 +33,7 @@ module Limewire
           :filename => result.fileName, 
           :magnet_url => result.getMagnetURL,
           :spam => result.isSpam?,
+          :sha1 => result.urn.to_s.split(':').last,
           :properties => result.getProperties.inject({}) do |memo, obj|
             memo[obj[0].to_s] = obj[1].to_s
             memo
