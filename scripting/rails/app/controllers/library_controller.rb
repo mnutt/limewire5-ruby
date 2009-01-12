@@ -1,4 +1,5 @@
 class LibraryController < ApplicationController
+  self.allow_forgery_protection = false
   def index
     @files = Limewire::Library.all_files
   end
@@ -10,6 +11,7 @@ class LibraryController < ApplicationController
     urn = start + "?&" + params.map{|k,v| "#{k}=#{v}"}.join("&")
 
     Limewire.download(urn)
+    render :json => "ok"
   end
 
 
