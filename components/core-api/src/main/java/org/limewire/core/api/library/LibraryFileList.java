@@ -2,8 +2,6 @@ package org.limewire.core.api.library;
 
 import java.beans.PropertyChangeListener;
 
-import com.limegroup.gnutella.library.ManagedFileList;
-
 /** An extension of LocalFileList that adds a retrievable state. */
 public interface LibraryFileList extends LocalFileList {
 

@@ -1,0 +1,221 @@
+<project default="jar">
+
+	<!-- Compile and package LimeWire's 4.18.8 source code into LimeWire.jar -->
+
+	<target name="clean" description="Clean temporary files to compile everything from scratch">
+
+		<!-- Delete our temporary folders -->
+		<delete dir="build"/>
+		<delete dir="deploy"/>
+	</target>
+
+	<target name="jar" description="Compile and package LimeWire's source code into LimeWire.jar">
+
+		<!-- Make folders for files this script will create -->
+		<mkdir dir="build"/>
+		<mkdir dir="deploy"/>
+
+		<!-- Bring in resource files so they'll get bundled into the .jar file we'll make -->
+		<copy todir="build">
+
+			<!-- Paths to folders that each have a tree of image and text files in them -->
+			<fileset dir="components/common/src/main/resources"/>
+			<fileset dir="components/resources/src/main/resources"/>
+			<fileset dir="private-components/swingui/src/main/resources"/>
+			<fileset dir="lib/resources/osx"/>
+			<fileset dir="lib/resources/windows"/>
+			<fileset dir="lib/resources/linux"/>
+		</copy>
+
+		<!--
+		Compile all the .java files into .class files
+
+		fork = yes         Run the compiler in a separate process
+		memoryinitialzie   Give the compiler more memory than the default
+		memorymaximumsize
+		debug = yes        Include debug information in the .class files
+		destdir            Where to put the .class files
+		excludes           Don't take the .java files in the windows and macosx folders
+		                   These were compiled on those platforms separately and put in ProgressTabs.jar
+		source and target  Use Java version 1.5
+		-->
+		<javac
+			fork="yes"
+			memoryinitialsize="256m"
+			memorymaximumsize="256m"
+			debug="yes"
+			destdir="build"
+			excludes="macosx/**,windows/**"
+			source="1.6"
+			target="1.6">
+
+			<!-- Compile the code in these folders, each has a tree of .java files in it -->
+			<src path="core"/>
+			<src path="private-components/integrated-ui/src/main/java"/>
+			<src path="private-components/swingui/src/main/java"/>
+			<src path="private-components/mock-core/src/main/java"/>
+
+			<src path="components/collection/src/main/java"/>
+			<src path="components/common/src/main/java"/>
+			<src path="components/core-api/src/main/java"/>
+			<src path="components/core-glue/src/main/java"/>
+
+			<src path="components/core-settings/src/main/java"/>
+			<!-- skip  components/CVS -->
+			<src path="components/geocode/src/main/java"/>
+			<src path="components/http/src/main/java"/>
+
+			<src path="components/io/src/main/java"/>
+			<src path="components/lwsserver/src/main/java"/>
+			<src path="components/mojito/src/main/java"/>
+			<src path="components/mojito-ui/src/main/java"/>
+
+			<src path="components/net/src/main/java"/>
+			<src path="components/nio/src/main/java"/>
+			<src path="components/player/src/main/java"/>
+			<src path="components/player-api/src/main/java"/>
+
+			<src path="components/promotion/src/main/java"/>
+			<!-- skip  components/resources -->
+			<src path="components/rudp/src/main/java"/>
+			<src path="components/security/src/main/java"/>
+
+			<src path="components/setting/src/main/java"/>
+			<src path="components/statistic/src/main/java"/>
+			<src path="components/swarm/src/main/java"/>
+			<src path="components/xmpp/src/main/java"/>
+
+			<src path="components/xmpp-api/src/main/java"/>
+			<!-- skip  components/test-util -->
+
+			<!-- Tell the Java compiler where .jar files are that the code above uses -->
+			<classpath>
+
+				<!-- Paths to all the .jar files in lib/jars and subfolders, but not lib/jars/tests -->
+				<pathelement location="lib/jars/aopalliance.jar"/>
+				<pathelement location="lib/jars/AppFramework.jar"/>
+				<pathelement location="lib/jars/base64-2.2.2.jar"/>
+				<pathelement location="lib/jars/clink.jar"/>
+				<pathelement location="lib/jars/commons-codec-1.3.jar"/>
+
+				<pathelement location="lib/jars/commons-logging.jar"/>
+				<pathelement location="lib/jars/commons-math.jar"/>
+				<pathelement location="lib/jars/commons-net.jar"/>
+				<pathelement location="lib/jars/daap.jar"/>
+
+				<pathelement location="lib/jars/dnsjava.jar"/>
+				<pathelement location="lib/jars/EventBus-1.2b.jar"/>
+				<pathelement location="lib/jars/forms.jar"/>
+				<pathelement location="lib/jars/foxtrot.jar"/>
+
+				<pathelement location="lib/jars/gettext-commons.jar"/>
+				<pathelement location="lib/jars/glazedlists-1.7.0_java15.jar"/>
+				<pathelement location="lib/jars/guice-snapshot.jar"/>
+				<pathelement location="lib/jars/guice-assistedinject-snapshot.jar"/>
+
+				<pathelement location="lib/jars/hsqldb.jar"/>
+				<pathelement location="lib/jars/httpclient-4.0-beta1.jar"/>
+				<pathelement location="lib/jars/httpcore-4.0-beta2.jar"/>
+				<pathelement location="lib/jars/httpcore-nio-4.0-beta2.jar"/>
+
+				<pathelement location="lib/jars/icu4j.jar"/>
+				<pathelement location="lib/jars/jaudiotagger.jar"/>
+				<pathelement location="lib/jars/jcip-annotations.jar"/>
+				<pathelement location="lib/jars/jcraft.jar"/>
+
+				<pathelement location="lib/jars/jdic.jar"/>
+				<pathelement location="lib/jars/jflac.jar"/>
+				<pathelement location="lib/jars/jl.jar"/>
+				<pathelement location="lib/jars/jmdns.jar"/>
+
+				<pathelement location="lib/jars/jna.jar"/>
+				<pathelement location="lib/jars/jogg.jar"/>
+				<pathelement location="lib/jars/jorbis.jar"/>
+				<pathelement location="lib/jars/jruby.jar"/>
+
+				<pathelement location="lib/jars/jruby-engine.jar"/>
+				<pathelement location="lib/jars/jxlayer.jar"/>
+				<pathelement location="lib/jars/log4j.jar"/>
+				<pathelement location="lib/jars/looks.jar"/>
+
+				<pathelement location="lib/jars/messages.jar"/>
+				<pathelement location="lib/jars/miglayout.jar"/>
+				<pathelement location="lib/jars/mozdom4java.jar"/>
+				<pathelement location="lib/jars/MozillaGlue-1.9.jar"/>
+
+				<pathelement location="lib/jars/MozillaInterfaces-1.9.jar"/>
+				<pathelement location="lib/jars/mozswing.jar"/>
+				<pathelement location="lib/jars/mp3spi.jar"/>
+				<pathelement location="lib/jars/onion-common.jar"/>
+
+				<pathelement location="lib/jars/onion-fec.jar"/>
+				<pathelement location="lib/jars/ProgressTabs.jar"/>
+				<pathelement location="lib/jars/smack.jar"/>
+				<pathelement location="lib/jars/smackx-debug.jar"/>
+
+				<pathelement location="lib/jars/smackx.jar"/>
+				<pathelement location="lib/jars/smackx-debug.jar"/>
+				<pathelement location="lib/jars/swing-worker-1.1.jar"/>
+				<pathelement location="lib/jars/swingx-0.9.4.jar"/>
+
+				<pathelement location="lib/jars/tritonus.jar"/>
+				<pathelement location="lib/jars/vorbisspi.jar"/>
+				<pathelement location="lib/jars/ant/gettext-ant-tasks.jar"/>
+				<pathelement location="lib/jars/compile/cocoaFoundation.jar"/>
+
+				<pathelement location="lib/jars/compile/messages.jar"/>
+				<pathelement location="lib/jars/compile/swt-stub.jar"/>
+				<pathelement location="lib/jars/linux/jdic_stub.jar"/>
+				<pathelement location="lib/jars/osx/MRJAdapter.jar"/>
+
+				<pathelement location="lib/jars/other/themes.jar"/>
+				<pathelement location="lib/jars/windows/iTunes-0.0.1.jar"/>
+				<pathelement location="lib/jars/windows/jacob-1.14.1.jar"/>
+				<pathelement location="lib/jars/windows/jdic_stub.jar"/>
+			</classpath>
+		</javac>
+
+		<!--
+		Bundle resource files and .class files together to make LimeWire.jar
+
+		jarfile          Where to make the .jar file, this will overwrite a file already there
+		basedir          Find the files to put in the jar here
+		filesonly = yes  Store only file entries
+		compress = no    Don't compress the contents
+		-->
+		<jar
+			jarfile="deploy/LimeWire.jar"
+			basedir="build"
+			filesonly="yes"
+			compress="no">
+
+			<!-- Add all 33 cross-platform jars to the classpath -->
+			<manifest>
+				<attribute name="Class-Path" value="gettext-ant-tasks.jar aopalliance.jar AppFramework.jar base64-2.2.2.jar bsf.jar clink.jar commons-codec-1.3.jar commons-logging.jar commons-math-1.2.jar commons-net.jar cocoaFoundation.jar messages.jar daap.jar dnsjava.jar EventBus-1.2b.jar forms.jar foxtrot.jar gettext-commons.jar glazedlists-1.7.0_java15.jar guice-assistedinject-snapshot.jar guice-snapshot.jar hsqldb.jar httpclient-4.0-beta1.jar httpcore-4.0-beta2.jar httpcore-nio-4.0-beta2.jar icu4j.jar jaudiotagger.jar jcip-annotations.jar jcraft.jar jdic.jar jflac.jar jl.jar jmdns.jar jna.jar jogg.jar jorbis.jar jruby-engine.jar jruby-rack-0.9.3.jar jruby.jar jxlayer.jar log4j.jar looks.jar messages.jar miglayout.jar mozdom4java.jar MozillaGlue-1.9.jar MozillaInterfaces-1.9.jar mozswing.jar mp3spi.jar onion-common.jar onion-fec.jar ProgressTabs.jar smack.jar smackx-debug.jar smackx.jar swing-worker-1.1.jar swingx-0.9.4.jar tritonus.jar vorbisspi.jar"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- Make empty jars with just a main class and classpath in the manifest, adding LimeWire.jar and the platform-specific jars -->
+
+	<target name="launch" description="Make platform-specific launch jars">
+		<jar jarfile="deploy/launch-mac.jar">
+			<manifest>
+				<attribute name="Main-Class" value="org.limewire.ui.swing.Main"/>
+				<attribute name="Class-Path" value="LimeWire.jar mac-MRJAdapter.jar"/>
+			</manifest>
+		</jar>
+		<jar jarfile="deploy/launch-win.jar">
+			<manifest>
+				<attribute name="Main-Class" value="org.limewire.ui.swing.Main"/>
+				<attribute name="Class-Path" value="LimeWire.jar win-jdic_stub.jar win-jacob-1.14.1.jar win-iTunes-0.0.1.jar"/>
+			</manifest>
+		</jar>
+		<jar jarfile="deploy/launch-linux.jar">
+			<manifest>
+				<attribute name="Main-Class" value="org.limewire.ui.swing.Main"/>
+				<attribute name="Class-Path" value="LimeWire.jar linux-jdic_stub.jar"/>
+			</manifest>
+		</jar>
+	</target>
+</project>
