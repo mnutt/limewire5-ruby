@@ -384,3 +384,16 @@ fieldset > .row:last-child {
     background-image: url(/images/iui/loading.gif), url(/images/iui/selection.png),
         url(/images/iui/blueButton.png), url(/images/iui/listArrowSel.png), url(/images/iui/listGroup.png);
 }
+
+
+/* Extra stuff -- move elsewhere */
+#results .result .percent {
+  color: #090;
+  position: absolute;
+  top: 0.6em;
+  right: 0.6em;
+}
+
+#results .downloading {
+  background-color: #DFD;
+}

@@ -464,7 +464,7 @@ SC.Playlist.prototype = {
           self.currentPos = $(this).parents("tbody").find("tr").index(this);
           $(this).addClass("selected");
 	  if(self.properties.playlist.search) {
-	      $.post("/download/" + track.magnet);
+	    $.post("/downloads", { magnet: track.magnet });
 	  } else {
               self.loadTrack(self.currentPos);
 	  }

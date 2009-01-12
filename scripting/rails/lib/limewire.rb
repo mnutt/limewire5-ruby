@@ -80,6 +80,7 @@ module Limewire
       @download = download
       @attributes = {
         :title => @download.title,
+        :sha1 => @download.urn.to_s.split(":").last,
         :download_speed => @download.download_speed,
         :percent_complete => @download.percent_complete,
         :remaining_time => @download.remaining_download_time,
@@ -89,21 +90,26 @@ module Limewire
       }
     end
 
-    def self.create(magnet)
-      raise Core::DownloadListManager.methods.join(", ")
+    def self.create(urn)
+      opts = com.limegroup.gnutella.browser.MagnetOptions.parseMagnet(urn)[0]
+      Limewire.core.get_download_services.download(opts, true) rescue nil
     end
 
     def self.all
       Core::DownloadListManager.downloads.map {|d| self.new(d) }
     end
 
+    def self.find(sha1)
+      self.all.select {|d| d.sha1 == sha1}.first
+    end
+
     def to_yaml
       @attributes.to_yaml
     end
     
-    def method_missing(name, *args)
+    def method_missing(name)
       if @attributes.has_key?(name)
-        args ? @attributes[name].send(*args) : @attributes[name]
+        @attributes[name]
       else
         super
       end
