@@ -114,13 +114,13 @@ module Limewire
 
       if options[:order]
         if options[:order] == "artist"
-          files.select{|f| f.metadata.artist rescue false}.sort_by {|f| f.metadata.artist.to_s.downcase }.sort_by{|f| f.metadata.artist.empty? ? 1 : 0 }
+          files = files.select{|f| f.metadata.artist rescue false}.sort_by {|f| f.metadata.artist.to_s.downcase }.sort_by{|f| f.metadata.artist.empty? ? 1 : 0 }
         elsif options[:order] == "created_at"
-          files.sort_by {|f| f.last_modified.to_s rescue 9999999999999 }
+          files = files.sort_by {|f| f.last_modified.to_s rescue 9999999999999 }
         end
-      else
-        files
       end
+      
+      files.extend(Filterable)
     end
 
     def self.find_by_sha1(sha1)
@@ -152,8 +152,21 @@ module Limewire
       @metadata
     end
 
+    def artist
+      @metadata.artist.to_s.gsub(/\x00/, "")
+    end
+
     def title
-      @metadata.title || self.file_name
+      title = @metadata.title.to_s.gsub(/\x00/, "") rescue nil
+      title.blank? ? self.file_name : title
+    end
+
+    def album
+      @metadata.title.to_s.gsub(/\x00/, "")
+    end
+
+    def genre
+      @metadata.title.to_s.gsub(/\x00/, "")
     end
 
     def sha1
@@ -167,16 +180,16 @@ module Limewire
         'permalink' => title,
         'uri' => "/library/#{self.sha1}.mp3",
         'downloadable' => true,
-        'genre' => metadata.genre.to_s.gsub(/\00/, ""),
-        'title' => title.to_s.gsub(/\00/, ""),
+        'genre' => genre,
+        'title' => title,
         'id' => self.sHA1Urn.to_s,
         'streamable' => true,
         'stream_url' => "/library/#{self.sha1}.mp3",
-        'description' => metadata.album.to_s.gsub(/\00/, ""),
+        'description' => album,
         'permalink_url' => "/library/#{self.sha1}.mp3",
         'user' => {
-          "username"=>metadata.artist.to_s.gsub(/\00/, ""), 
-          "permalink" => metadata.artist.to_s.gsub(/\00/, "") },
+          "username" => artist, 
+          "permalink" => artist },
         'sharing' => 'public',
         'waveform_url' => '/images/waveform.png', # until we actually do waveform calculations
         'purchase_url' => 'http://store.limewire.com'

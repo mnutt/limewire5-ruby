@@ -26,7 +26,7 @@
 	<% tracks.each do |track| -%>
 	  <li>
 	    <a target="_self" href="/library/<%= track.sha1 -%>.mp3">
-	      <%= track.metadata.title rescue "Unnamed" -%>
+	      <%= track.title rescue "Unnamed" -%>
 	    </a>
 	  </li>
 	<% end -%>
@@ -38,7 +38,7 @@
 	<% tracks.each do |track| -%>
 	  <li>
 	    <a target="_self" href="/library/<%= track.sha1 -%>.mp3">
-	      <%= track.metadata.title rescue "Unnamed" -%>
+	      <%= track.title rescue "Unnamed" -%>
 	    </a>
 	  </li>
 	<% end -%>
