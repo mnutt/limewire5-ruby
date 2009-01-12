@@ -11,6 +11,13 @@ module Limewire
     Limewire.core.get_statistics.calculate_daily_uptime
   end
       
+  def self.download(urn)
+    RAILS_DEFAULT_LOGGER.warn "#{com.limegroup.gnutella.browser}"
+    RAILS_DEFAULT_LOGGER.warn "URN: #{urn}"
+    opts = com.limegroup.gnutella.browser.MagnetOptions.parseMagnet(urn)[0]
+    Limewire.core.get_download_services.download(opts, true) rescue nil
+  end
+
   class Search
 
     
