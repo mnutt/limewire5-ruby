@@ -10,6 +10,7 @@ ActionController::Routing::Routes.draw do |map|
   map.cloud "/cloud", :controller => 'cloud', :action => 'index'
   map.iphone "/iphone", :controller => 'iphone', :action => 'index'
   map.resources :downloads
+  map.download '/download/:magnet', :controller => 'library', :action => 'download'
 
   # The priority is based upon order of creation: first created -> highest priority.
 

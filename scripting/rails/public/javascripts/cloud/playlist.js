@@ -420,6 +420,7 @@ SC.Playlist.prototype = {
       if(this.properties.playlist.search) {
 	  var old = track;
 	  var new_track = {};
+	  new_track.magnet = track.magnet_url;
 	  new_track.user = {};
 	  new_track.user.username = ""
 	  new_track.title = track.properties.TITLE;
@@ -458,11 +459,15 @@ SC.Playlist.prototype = {
       .clone()
       .css("width",SC.arraySum(self.colWidths)+7*7)
       .dblclick(function() {
-        self.player.currentPlaylist = self;
-        // find out at which position we are at in the playlist, and store that as the currentPos
-        self.currentPos = $(this).parents("tbody").find("tr").index(this);
-        $(this).addClass("selected");
-        self.loadTrack(self.currentPos);
+          self.player.currentPlaylist = self;
+          // find out at which position we are at in the playlist, and store that as the currentPos
+          self.currentPos = $(this).parents("tbody").find("tr").index(this);
+          $(this).addClass("selected");
+	  if(self.properties.playlist.search) {
+	      $.post("/download/" + track.magnet);
+	  } else {
+              self.loadTrack(self.currentPos);
+	  }
       })
       .click(function(e) {
         if(e.shiftKey) {

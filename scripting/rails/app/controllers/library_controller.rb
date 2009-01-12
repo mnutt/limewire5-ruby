@@ -1,7 +1,19 @@
 class LibraryController < ApplicationController
+  self.allow_forgery_protection = false
   def index
     @files = Limewire::Library.all_files
   end
+  
+  def download
+    start = params.delete(:magnet)
+    params.delete(:controller)
+    params.delete(:action)
+    urn = start + "?&" + params.map{|k,v| "#{k}=#{v}"}.join("&")
+
+    Limewire.download(urn)
+    render :json => "ok"
+  end
+
 
   def show
     file = Limewire::Library.find("urn:sha1:#{params[:sha1]}")
