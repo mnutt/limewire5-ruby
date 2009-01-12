@@ -28,11 +28,12 @@ module Limewire
 
     def results
       results = @search.getSearchResults
-      ret=results.map do |result| 
+      ret=results.map do |result|
+        is_spam = result.isSpam? rescue false
         {
           :filename => result.fileName, 
           :magnet_url => result.getMagnetURL,
-          :spam => result.isSpam?,
+          :spam => is_spam,
           :sha1 => result.urn.to_s.split(':').last,
           :properties => result.getProperties.inject({}) do |memo, obj|
             memo[obj[0].to_s] = obj[1].to_s
