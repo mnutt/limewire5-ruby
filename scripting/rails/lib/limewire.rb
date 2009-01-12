@@ -66,6 +66,43 @@ module Limewire
     end
   end
 
+  class Download
+    attr_accessor :attributes
+
+    def initialize(download)
+      @download = download
+      @attributes = {
+        :title => @download.title,
+        :download_speed => @download.download_speed,
+        :percent_complete => @download.percent_complete,
+        :remaining_time => @download.remaining_download_time,
+        :source_count => @download.download_source_count,
+        :file_name => @download.file_name,
+        :total_size => @download.total_size
+      }
+    end
+
+    def self.create(magnet)
+      raise Core::DownloadListManager.methods.join(", ")
+    end
+
+    def self.all
+      Core::DownloadListManager.downloads.map {|d| self.new(d) }
+    end
+
+    def to_yaml
+      @attributes.to_yaml
+    end
+    
+    def method_missing(name, *args)
+      if @attributes.has_key?(name)
+        args ? @attributes[name].send(*args) : @attributes[name]
+      else
+        super
+      end
+    end
+  end
+
   module Library
 
     def self.core_file_list
