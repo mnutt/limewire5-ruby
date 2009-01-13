@@ -33,6 +33,10 @@ module Limewire
       @search = search
     end
 
+    def raw_results
+      @search.getSearchResults
+    end
+
     def results
       results = @search.getSearchResults
       ret=results.map do |result|
@@ -90,9 +94,11 @@ module Limewire
       }
     end
 
-    def self.create(urn)
-      opts = com.limegroup.gnutella.browser.MagnetOptions.parseMagnet(urn)[0]
-      Limewire.core.get_download_services.download(opts, true) rescue nil
+    def self.create(urn, guid)
+      search = Search.find(guid)
+      result = search.raw_results.select {|r| r.urn.to_s.split(':').last == urn }.first
+      rfi = org.limewire.core.impl.library.CoreRemoteFileItem.new(result)
+      Core::DownloadListManager.add_download(rfi)
     end
 
     def self.all
