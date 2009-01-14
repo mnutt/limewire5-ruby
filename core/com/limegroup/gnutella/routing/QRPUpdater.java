@@ -36,6 +36,8 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
 @Singleton
 public class QRPUpdater implements SettingListener, Service, Inspectable {
 
+    // private static Log LOG = LogFactory.getLog(QRPUpdater.class);
+    
     /**
      * delay between qrp updates should the simpp words change.
      * Not final for testing.  Betas update faster for experiments.

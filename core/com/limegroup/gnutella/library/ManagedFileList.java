@@ -82,6 +82,12 @@ public interface ManagedFileList extends FileList {
     boolean isProgramManagingAllowed();
     
     /**
+     * Returns a collection of all directories that are not managed, but
+     * do have files that were imported into LW.
+     */
+    Collection<File> getDirectoriesWithImportedFiles();
+    
+    /**
      * Sets the new options for managing directories.
      * This includes the new directories to manage, directories to exclude,
      * and categories to manage.
@@ -90,4 +96,7 @@ public interface ManagedFileList extends FileList {
             Collection<File> recursiveFoldersToManage,
             Collection<File> foldersToExclude,
             Collection<Category> managedCategories);
+    
+    /** Stops managing all files in the given folder. */
+    void removeFolder(File folder);
 }

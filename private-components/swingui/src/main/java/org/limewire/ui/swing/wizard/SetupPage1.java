@@ -5,12 +5,12 @@ import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ContentSettings;
-import org.limewire.core.settings.InstallSettings;
-import org.limewire.core.settings.StartupSettings;
-import org.limewire.ui.swing.components.HyperLinkButton;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.settings.InstallSettings;
+import org.limewire.ui.swing.settings.StartupSettings;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.shell.LimeAssociationOption;
 import org.limewire.ui.swing.shell.LimeAssociations;
 import org.limewire.ui.swing.util.I18n;
@@ -22,8 +22,7 @@ import org.limewire.util.OSUtils;
 
 public class SetupPage1 extends WizardPage {
 
-    private String line1 = I18n.tr("A few things before we begin...");
-    private String line2 = I18n.tr("Please take a minute to configure these options before moving on.");
+    private String titleLine = I18n.tr("Please take a minute to configure these options before moving on.");
     
     private String filterTitle = I18n.tr("Content Filters");
     
@@ -44,7 +43,7 @@ public class SetupPage1 extends WizardPage {
         setOpaque(false);
         setLayout(new MigLayout("insets 0, gap 0, nogrid"));
         
-        HyperLinkButton learnMoreButton = new HyperLinkButton(learnMore);
+        HyperlinkButton learnMoreButton = new HyperlinkButton(learnMore);
         decorator.decorateNormalText(learnMoreButton);
         decorator.decorateLink(learnMoreButton);
         
@@ -104,12 +103,12 @@ public class SetupPage1 extends WizardPage {
 
     @Override
     public String getLine1() {
-        return line1;
+        return titleLine;
     }
     
     @Override
     public String getLine2() {
-        return line2;
+        return null;
     }
     
     @Override
@@ -124,13 +123,13 @@ public class SetupPage1 extends WizardPage {
         ContentSettings.USER_WANTS_MANAGEMENTS.setValue(filterCheck.isSelected());
         InstallSettings.FILTER_OPTION.setValue(true);
 
-        ApplicationSettings.HANDLE_MAGNETS.setValue(associationCheck.isSelected());
+        SwingUiSettings.HANDLE_MAGNETS.setValue(associationCheck.isSelected());
         LimeAssociationOption magnetAssociationOption = LimeAssociations.getMagnetAssociation();
         if (magnetAssociationOption != null) {
             magnetAssociationOption.setEnabled(associationCheck.isSelected());
         }
 
-        ApplicationSettings.HANDLE_TORRENTS.setValue(associationCheck.isSelected());
+        SwingUiSettings.HANDLE_TORRENTS.setValue(associationCheck.isSelected());
         LimeAssociationOption torrentAssociationOption = LimeAssociations.getTorrentAssociation();
         if (torrentAssociationOption != null) {
             torrentAssociationOption.setEnabled(associationCheck.isSelected());
@@ -146,7 +145,8 @@ public class SetupPage1 extends WizardPage {
                 WindowsUtils.setLoginStatus(startupCheck.isSelected());
 
             StartupSettings.RUN_ON_STARTUP.setValue(startupCheck.isSelected());
-        }
+        } else
+            StartupSettings.RUN_ON_STARTUP.setValue(false);
         InstallSettings.START_STARTUP.setValue(true);
     }
     

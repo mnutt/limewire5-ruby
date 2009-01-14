@@ -19,7 +19,6 @@ import javax.jmdns.ServiceInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.concurrent.ExecutorsHelper;
-import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.settings.DaapSettings;
 import org.limewire.i18n.I18nMarker;
 import org.limewire.io.NetworkInstanceUtils;
@@ -52,7 +51,6 @@ import de.kapsi.net.daap.DaapAuthenticator;
 import de.kapsi.net.daap.DaapConfig;
 import de.kapsi.net.daap.DaapFilter;
 import de.kapsi.net.daap.DaapServer;
-import de.kapsi.net.daap.DaapServerFactory;
 import de.kapsi.net.daap.DaapStreamSource;
 import de.kapsi.net.daap.DaapUtil;
 import de.kapsi.net.daap.Database;
@@ -69,13 +67,6 @@ import de.kapsi.net.daap.Transaction;
 public final class DaapManager {
     
     private static final Log LOG = LogFactory.getLog(DaapManager.class);
-    
-    private static final String CONNECTION_ERROR = I18nMarker.marktr("LimeWire was unable to start the Digital Audio Access Protocol Service (for sharing files in iTunes). This feature will be turned off. You can turn it back on in options, under iTunes -> Sharing.");
-    private static final String SERVER_ERROR = I18nMarker.marktr("LimeWire encountered an error in the Digital Audio Access Protocol (for sharing files in iTunes). This feature will be turned off. You can turn it back on in options, under iTunes -> Sharing.");
-    
-    
-    private static final boolean USE_LIME_NIO = true;
-    
     private final ScheduledExecutorService backgroundExecutor;
     private final Provider<FileManager> fileManager;
     private final Provider<IPFilter> ipFilter;
@@ -126,7 +117,7 @@ public final class DaapManager {
                     try {
                         DaapManager.this.start();
                     } catch (IOException err) {
-                        MessageService.showError(CONNECTION_ERROR);
+                        MessageService.showError(I18nMarker.marktr("LimeWire was unable to start the Digital Audio Access Protocol Service (for sharing files in iTunes). This feature will be turned off. You can turn it back on in options, under iTunes -> Sharing."));
                         DaapSettings.DAAP_ENABLED.setValue(false);
                     }
                 }
@@ -206,10 +197,7 @@ public final class DaapManager {
                     config.setAuthenticationScheme(DaapConfig.BASIC_SCHEME);
                 }
                 
-                if(USE_LIME_NIO)
-                    server = new LimeDaapServerNIO(library, config, backgroundExecutor);
-                else
-                    server = DaapServerFactory.createServer(library, config, true);
+                server = new LimeDaapServerNIO(library, config, backgroundExecutor);
 
                 server.setAuthenticator(new LimeAuthenticator());
                 server.setStreamSource(new LimeStreamSource());
@@ -231,29 +219,7 @@ public final class DaapManager {
                     }
                 }
 
-                if(USE_LIME_NIO) {
-                    server.run();
-                } else {
-                    Thread serverThread = ThreadExecutor.newManagedThread(new Runnable() {
-                        public void run() {
-                            try {
-                                server.run();
-                            } catch (Throwable t) {
-                                DaapManager.this.stop();
-                                if (!activityCallback.get().handleDAAPConnectionError(t)) {
-                                    MessageService.showError(SERVER_ERROR);
-                                    DaapSettings.DAAP_ENABLED.setValue(false);
-                                    if (t instanceof RuntimeException)
-                                        throw (RuntimeException) t;
-                                    else
-                                        throw new RuntimeException(t);
-                                }
-                            }
-                        }
-                    }, "DaapServerThread");
-                    serverThread.setDaemon(true);
-                    serverThread.start();
-                }
+                server.run();
 
                 bonjour.registerService();
 

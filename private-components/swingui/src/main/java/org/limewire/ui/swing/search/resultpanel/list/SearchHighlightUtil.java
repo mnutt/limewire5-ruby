@@ -8,7 +8,6 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 
 public class SearchHighlightUtil {
-    private static final Pattern FIND_SPACES = Pattern.compile(" ");
     private static final Log LOG = LogFactory.getLog(SearchHighlightUtil.class);
 
     private SearchHighlightUtil() {
@@ -28,21 +27,16 @@ public class SearchHighlightUtil {
         if (search == null) {
             return content;
         }
-        
-        StringBuilder bldr = new StringBuilder();
-        int index = 0;
-        
-        // Replace space characters with logical OR operator.
-        String scrubbedSearch = FIND_SPACES.matcher(search).replaceAll("|");
 
-        // Create literal string with escaped characters.
-        String literalSearch = escapeLiteralChars(scrubbedSearch);
+        // Create literal string with escaped regex characters.
+        String literalSearch = createLiteralSearch(search);
         
         // Create pattern to match on word boundary, and match content.
         Pattern pattern = Pattern.compile("\\b(" + literalSearch + ")", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(content);
         
-        index = 0;
+        StringBuilder bldr = new StringBuilder();
+        int index = 0;
         while (matcher.find()) {
             MatchResult result = matcher.toMatchResult();
 
@@ -63,28 +57,31 @@ public class SearchHighlightUtil {
     }
     
     /**
-     * Returns a literal String for the specified String by inserting a 
-     * backslash ('\') to escape special characters.  This method is a 
-     * substitute for <code>Matcher.quoteReplacement(String)</code>, which only 
-     * escapes backslash and dollar sign ('$') characters.
+     * Creates literal string for use in the highlight pattern.  The method 
+     * splits the specified search string into space-separated tokens, quotes 
+     * each token to escape regex characters, and inserts an OR operator 
+     * between each token.  Zero-length tokens caused by consecutive space 
+     * characters are ignored.
      */
-    private static String escapeLiteralChars(String s) {
-        // Define characters that require escape.  Note that many regex
-        // characters are changed into literals because real-world users would
-        // not expect regex behavior.
-        final String SPECIAL_CHARS = "[\\$*()";
-        
-        // Process all characters, and insert escape when needed.
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (SPECIAL_CHARS.indexOf(c) >= 0) {
-                sb.append('\\');
-            }
-            sb.append(c);
-        }
+    private static String createLiteralSearch(String search) {
+        // Split search string into space-separated tokens.
+        String[] tokens = search.split(" ");
 
-        // Return result
-        return sb.toString();
+        // Build literal string. 
+        StringBuilder bldr = new StringBuilder();
+        for (String token : tokens) {
+            if (token.length() > 0) {
+                // Precede each token with OR operator.
+                if (bldr.length() > 0) {
+                    bldr.append("|");
+                }
+                // Append quoted token to result.
+                String literal = Pattern.quote(token);
+                bldr.append(literal);
+            }
+        }
+        
+        // Return result.
+        return bldr.toString();
     }
 }

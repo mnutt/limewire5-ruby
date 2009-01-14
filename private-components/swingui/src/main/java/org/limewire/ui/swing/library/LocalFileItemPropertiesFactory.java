@@ -199,7 +199,7 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
             connectTextDocumentListener(year, FilePropertyKey.YEAR);
             connectTextDocumentListener(title, FilePropertyKey.TITLE);
             connectTextDocumentListener(track, FilePropertyKey.TRACK_NUMBER);
-            connectTextDocumentListener(description, FilePropertyKey.COMMENTS);
+            connectTextDocumentListener(description, FilePropertyKey.DESCRIPTION);
             
             showDialog(propertiable.getFileName(), propertiable.getCategory());
         }

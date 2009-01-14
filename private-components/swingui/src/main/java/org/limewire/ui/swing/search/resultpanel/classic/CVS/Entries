@@ -1,17 +1,11 @@
-/AllTableFormat.java/1.10/Tue Dec 23 20:13:42 2008//
-/AudioTableFormat.java/1.13/Tue Dec 23 20:13:42 2008//
-/ClassicDoubleClickHandler.java/1.1/Wed Dec 17 01:21:27 2008//
-/DocumentTableFormat.java/1.10/Tue Dec 23 20:13:42 2008//
-/FromTableCellRenderer.java/1.2/Wed Dec 17 01:21:27 2008//
-/HyperlinkTextUtil.java/1.1/Wed Dec 17 01:21:27 2008//
-/ImageTableFormat.java/1.10/Tue Dec 23 20:13:42 2008//
-/OpaqueCalendarRenderer.java/1.1/Wed Dec 17 01:21:27 2008//
-/OpaqueFileSizeRenderer.java/1.1/Wed Dec 17 01:21:27 2008//
-/OpaqueQualityRenderer.java/1.1/Wed Dec 17 01:21:27 2008//
-/OpaqueStringRenderer.java/1.1/Wed Dec 17 01:21:27 2008//
-/OpaqueTableCellRenderer.java/1.2/Wed Dec 17 01:21:27 2008//
-/OpaqueTimeRenderer.java/1.1/Wed Dec 17 01:21:27 2008//
-/OtherTableFormat.java/1.9/Tue Dec 23 20:13:42 2008//
-/ProgramTableFormat.java/1.11/Tue Dec 23 20:13:42 2008//
-/VideoTableFormat.java/1.14/Tue Dec 23 20:13:42 2008//
+/AllTableFormat.java/1.11/Mon Jan 12 23:41:46 2009//
+/AudioTableFormat.java/1.15/Mon Jan 12 23:41:46 2009//
+/ClassicDoubleClickHandler.java/1.2/Mon Jan 12 23:41:46 2009//
+/DocumentTableFormat.java/1.10/Mon Jan  5 17:05:13 2009//
+/FromTableCellRenderer.java/1.5/Mon Jan 12 23:41:46 2009//
+/HyperlinkTextUtil.java/1.1/Wed Nov 26 22:05:04 2008//
+/ImageTableFormat.java/1.11/Mon Jan 12 23:41:46 2009//
+/OtherTableFormat.java/1.9/Mon Jan  5 17:05:13 2009//
+/ProgramTableFormat.java/1.11/Mon Jan  5 17:05:13 2009//
+/VideoTableFormat.java/1.19/Mon Jan 12 23:41:46 2009//
 D

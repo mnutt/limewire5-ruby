@@ -12,6 +12,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.html.HTML;
 
 import org.jdesktop.swingx.JXPanel;
+import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.Application;
 import org.limewire.ui.swing.components.HTMLPane;
 import org.limewire.ui.swing.components.Resizable;
@@ -66,18 +67,25 @@ public class ProNag extends JXPanel implements Resizable {
 
     @Override
     public void resize() {
-        if (isVisible()) {
-            Rectangle parentBounds = getParent().getBounds();
-            Dimension childPreferredSize = parent.getPreferredSize();
-            int w = childPreferredSize.width;
-            int h = childPreferredSize.height; 
-            setBounds(parentBounds.width / 2 - w / 2, parentBounds.height - h, w, h);
+        Rectangle parentBounds = getParent().getBounds();
+        Dimension childPreferredSize = parent.getPreferredSize();
+        int w = childPreferredSize.width;
+        int h = childPreferredSize.height; 
+        setBounds(parentBounds.width / 2 - w / 2, parentBounds.height - h, w, h);
+    }
+    
+    @Override
+    public void setVisible(boolean flag) {
+        boolean notViz = !isVisible();
+        super.setVisible(flag);
+        if(notViz && isVisible()) {
+            resize();
         }
     }
     
     
-    public void loadContents() {
-        editorPane.setPageAsynchronous(application.getUniqueUrl("http://client-data.limewire.com/client_startup/nag/?html32=true"), createDefaultPage());
+    public ListeningFuture<Void> loadContents() {
+        return editorPane.setPageAsynchronous(application.getUniqueUrl("http://client-data.limewire.com/client_startup/nag/?html32=true"), createDefaultPage());
     }
     
     private String createDefaultPage() {

@@ -21,7 +21,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class ConnectableConnector implements AddressConnector {
 
-    private static final Log LOG = LogFactory.getLog(ConnectableConnector.class);
+    private static final Log LOG = LogFactory.getLog(ConnectableConnector.class, "address-connecting");
 
     private final SocketsManager socketsManager;
     private final TLSManager tlsManager;

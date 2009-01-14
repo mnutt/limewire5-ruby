@@ -27,7 +27,6 @@ import org.jdesktop.swingx.JXButton;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.search.SearchCategory;
-import org.limewire.core.settings.SearchSettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
@@ -41,6 +40,7 @@ import org.limewire.ui.swing.painter.ButtonBackgroundPainter.DrawMode;
 import org.limewire.ui.swing.search.model.SimilarResultsGroupingComparator;
 import org.limewire.ui.swing.search.model.SimilarResultsGroupingDelegateComparator;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.GuiUtils;
 import static org.limewire.ui.swing.util.I18n.tr;
@@ -134,7 +134,7 @@ public class SortAndFilterPanel implements Disposable {
 
     @Override
     public void dispose() {
-        SearchSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
+        SwingUiSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
     }
 
     private void sizeSortCombo() {
@@ -193,7 +193,7 @@ public class SortAndFilterPanel implements Disposable {
             @Override
             public void itemStateChanged(ItemEvent event) {
                 if (event.getStateChange() == ItemEvent.SELECTED) {
-                    SearchSettings.SEARCH_VIEW_TYPE_ID.setValue(SearchViewType.LIST.getId());
+                    SwingUiSettings.SEARCH_VIEW_TYPE_ID.setValue(SearchViewType.LIST.getId());
                     selectListView(outerThis);
                 }
             }
@@ -209,7 +209,7 @@ public class SortAndFilterPanel implements Disposable {
             @Override
             public void itemStateChanged(ItemEvent event) {
                 if (event.getStateChange() == ItemEvent.SELECTED) {
-                    SearchSettings.SEARCH_VIEW_TYPE_ID.setValue(SearchViewType.TABLE.getId());
+                    SwingUiSettings.SEARCH_VIEW_TYPE_ID.setValue(SearchViewType.TABLE.getId());
                     selectTableView(outerThis);
                 }
             }
@@ -218,17 +218,17 @@ public class SortAndFilterPanel implements Disposable {
         viewTypeListener = new SettingListener() {
             @Override
             public void settingChanged(SettingEvent evt) {
-                int newViewTypeId = SearchSettings.SEARCH_VIEW_TYPE_ID.getValue();
+                int newViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
                 SearchViewType newSearchViewType = SearchViewType.forId(newViewTypeId);
                 updateView(outerThis, newSearchViewType);
             }
         };
-        SearchSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);
+        SwingUiSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);
         ButtonGroup viewGroup = new ButtonGroup();
         viewGroup.add(listViewToggleButton);
         viewGroup.add(tableViewToggleButton);
         
-        int viewTypeId = SearchSettings.SEARCH_VIEW_TYPE_ID.getValue();
+        int viewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
         SearchViewType searchViewType = SearchViewType.forId(viewTypeId);
         
         updateView(outerThis, searchViewType);

@@ -87,7 +87,7 @@ import com.limegroup.gnutella.util.URLDecoder;
 @Singleton
 public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHandlerRegistry, AddressConnector, RegisteringEventListener<AddressEvent> {
 
-    private static final Log LOG = LogFactory.getLog(PushDownloadManager.class);
+    private static final Log LOG = LogFactory.getLog(PushDownloadManager.class, LOGGING_CATEGORY);
     
     private static final int SPECIAL_INDEX = 0;
    
@@ -375,8 +375,7 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     }
     
     
-    private IpPort getPublicAddress(RemoteFileDesc rfd) {
-        Address address = rfd.getAddress();
+    private IpPort getPublicAddress(Address address) {
         if (address instanceof PushEndpoint) {
             IpPort externalAddress = ((PushEndpoint)address).getValidExternalAddress();
             return externalAddress != null ? externalAddress : ConnectableImpl.INVALID_CONNECTABLE;
@@ -406,7 +405,7 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
                     
         UDPService udpService = this.udpService.get();
         //and send the push to the node 
-        IpPort publicAddress = getPublicAddress(file);
+        IpPort publicAddress = getPublicAddress(file.getAddress());
         //don't bother sending direct push if the node reported invalid
         //address and port.
         if (NetworkUtils.isValidIpPort(publicAddress)) {
@@ -637,7 +636,7 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     			    LOG.debug("Starting fwt communication");
     			    AbstractNBSocket socket = udpSelectorProvider.get().openSocketChannel().socket();
                     data.getMultiShutdownable().addShutdownable(socket);
-                    IpPort publicAddress = getPublicAddress(data.getFile());
+                    IpPort publicAddress = getPublicAddress(data.getFile().getAddress());
                     assert(NetworkUtils.isValidIpPort(publicAddress)) : "invalid public address: " + publicAddress;
     				socket.connect(publicAddress.getInetSocketAddress(), 20000, new FWTConnectObserver(socketProcessor.get()));
                 }
@@ -937,11 +936,11 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
                 LOG.debug("can connect: local address accepted incoming connection");
                 return true;
             }
-            if (networkManager.canDoFWT() && fwtVersion > 0) {
+            if (networkManager.canDoFWT() && fwtVersion > 0 && NetworkUtils.isValidIpPort(getPublicAddress(address))) {
                 LOG.debug("can connect: local and remote address can do fwt");
                 return true;
             }
-            LOG.debug("can not connect: have not accepted incoming connection and can not do FWT");
+            LOG.debugf("can not connect: have not accepted incoming connection and can not do FWT or invalid address: {0}", address);
         } else {
             LOG.debug(" can not connect: no local valid address");
         }
@@ -995,7 +994,7 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
         public boolean acceptPushedSocket(String file, int index, byte[] clientGUID, Socket socket) {
             if (Arrays.equals(rfd.getClientGUID(), clientGUID)) {
                 pushHandlers.remove(this);
-                IpPort publicAddress = getPublicAddress(rfd);
+                IpPort publicAddress = getPublicAddress(rfd.getAddress());
                 // this ensures that no malicious push proxy pretends to be the connecting client 
                 if (NetworkUtils.isValidIpPort(publicAddress) && !publicAddress.getInetAddress().equals(socket.getInetAddress())) {
                     if (LOG.isDebugEnabled()) {

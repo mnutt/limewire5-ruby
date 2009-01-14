@@ -54,10 +54,7 @@ import org.limewire.util.VersionUtils;
 
 import com.google.inject.Provider;
 import com.limegroup.gnutella.bugs.FatalBugManager;
-import com.limegroup.gnutella.chat.InstantMessenger;
 import com.limegroup.gnutella.gui.actions.AbstractAction;
-import com.limegroup.gnutella.gui.chat.ChatFrame;
-import com.limegroup.gnutella.gui.chat.ChatUIManager;
 import com.limegroup.gnutella.gui.connection.ConnectionMediator;
 import com.limegroup.gnutella.gui.download.DownloadMediator;
 import com.limegroup.gnutella.gui.library.LibraryMediator;
@@ -951,17 +948,17 @@ public final class GUIMediator {
             // that we want
 
             // cache whether or not to use our little hack, since setAppVisible
-            // changes the value of _visibleOnce
-            boolean doHack = false;
-            if (!_visibleOnce)
-                doHack = true;
-			GUIMediator.setAppVisible(true);
-            if (ApplicationSettings.DISPLAY_TRAY_ICON.getValue())
-                GUIMediator.showTrayIcon();
-            else
-                GUIMediator.hideTrayIcon();
-            if (doHack)
-                restoreView();
+//            // changes the value of _visibleOnce
+//            boolean doHack = false;
+//            if (!_visibleOnce)
+//                doHack = true;
+//			GUIMediator.setAppVisible(true);
+//            if (ApplicationSettings.DISPLAY_TRAY_ICON.getValue())
+//                GUIMediator.showTrayIcon();
+//            else
+//                GUIMediator.hideTrayIcon();
+//            if (doHack)
+//                restoreView();
 		}
 
         // If shutdown sequence was initiated, cancel it.  Auto shutdown is
@@ -994,8 +991,8 @@ public final class GUIMediator {
             //com.apple.eawt.ApplicationListener.handleReOpenApplication event
             //in order to restore the GUI.
             GUIMediator.setAppVisible(false);
-        } else if (ApplicationSettings.SHUTDOWN_AFTER_TRANSFERS.getValue()) {
-			GUIMediator.shutdownAfterTransfers();
+//        } else if (ApplicationSettings.SHUTDOWN_AFTER_TRANSFERS.getValue()) {
+//			GUIMediator.shutdownAfterTransfers();
 		} else {
 		    shutdown();
         }
@@ -1760,13 +1757,6 @@ public final class GUIMediator {
 	public void setFrameCursor(Cursor cursor) {
 		FRAME.setCursor(cursor);
 	}
-    
-    public static ChatFrame createChat(String host, int port) {
-        InstantMessenger chatter = GuiCoreMediator.getChatManager().createConnection(host, port);
-        ChatFrame frame = ChatUIManager.instance().acceptChat(chatter);
-        chatter.start();
-        return frame;
-    }
     
 }
 

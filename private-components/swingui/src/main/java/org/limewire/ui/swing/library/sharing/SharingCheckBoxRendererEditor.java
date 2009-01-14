@@ -49,7 +49,12 @@ public class SharingCheckBoxRendererEditor extends JCheckBox implements TableCel
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
             boolean hasFocus, int row, int column) {
-
+		if(value == null || !(value instanceof LocalFileItem)) {
+		    setEnabled(false);
+            setSelected(false);
+            return this;
+		}
+			
         LocalFileItem fileItem = (LocalFileItem) value;
         updateCheckbox(fileItem);
         
@@ -59,20 +64,30 @@ public class SharingCheckBoxRendererEditor extends JCheckBox implements TableCel
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
             int row, int column) {
+        if(value == null || !(value instanceof LocalFileItem)) {
+            setEnabled(false);
+            setSelected(false);
+            return this;
+        }
+        
         currentItem = (LocalFileItem) value;
         updateCheckbox(currentItem);
         return this;
     }
     
     private void updateCheckbox(LocalFileItem fileItem) {
-        if(fileItem.getCategory() == Category.PROGRAM && !LibrarySettings.ALLOW_PROGRAMS.getValue()) {
+        if(!fileItem.isShareable()) {
+            setEnabled(false);
+            setSelected(false);
+        }
+        else if(fileItem.getCategory() == Category.PROGRAM && !LibrarySettings.ALLOW_PROGRAMS.getValue()) {
             setEnabled(false);
             setSelected(false);
         } else if(fileItem.getCategory() == Category.DOCUMENT && !LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.getValue() && GnutellaFileList.class.isInstance(localFileList)) {
             setEnabled(false);
             setSelected(false);
         } else {
-            setSelected(localFileList.contains(fileItem.getUrn()));
+            setSelected(localFileList.contains(fileItem.getFile()));
             setEnabled(true);    
         }
     }

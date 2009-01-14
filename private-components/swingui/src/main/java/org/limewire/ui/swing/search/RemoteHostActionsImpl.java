@@ -42,7 +42,7 @@ public class RemoteHostActionsImpl implements RemoteHostActions {
         LOG.debugf("chatWith: {0}", person.getFriendPresence().getFriend());
         Friend friend = person.getFriendPresence().getFriend();
         friendsPanel.setChatPanelVisible(true);
-        friendsPane.fireConversationStarted(friend);
+        friendsPane.fireConversationStarted(friend.getId());
 
         // TODO make sure the input box for chat gets focus, the code is
         // calling requestFocusInWindow, but I think it is gettting some

@@ -62,7 +62,8 @@ public class RIFFMetaData implements MetaReader {
 		// read total number of frames
 		dis.readFully(dword);
 		int totalFrames = ByteUtils.leb2int(dword, 0, 4);
-		videoData.setLength((short) (1L * microsPerFrame * totalFrames / 1000 ));
+		// in microseconds, we want seconds
+		videoData.setLength((short) (1L * microsPerFrame * totalFrames / 1000 /1000 ));
 
 		// boring data
 		IOUtils.ensureSkip(dis, 4);

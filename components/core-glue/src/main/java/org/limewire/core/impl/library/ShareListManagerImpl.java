@@ -1,14 +1,10 @@
 package org.limewire.core.impl.library;
 
 import java.awt.EventQueue;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
-import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendEvent;
@@ -17,13 +13,17 @@ import org.limewire.core.api.library.FileList;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.FriendShareListEvent;
 import org.limewire.core.api.library.GnutellaFileList;
-import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+
+import ca.odell.glazedlists.CompositeList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.TransformedList;
+import ca.odell.glazedlists.matchers.Matcher;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -32,19 +32,12 @@ import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileListChangedEvent;
 import com.limegroup.gnutella.library.FileManager;
 
-import ca.odell.glazedlists.CompositeList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.FilterList;
-import ca.odell.glazedlists.TransformedList;
-import ca.odell.glazedlists.matchers.Matcher;
-
 @Singleton
 class ShareListManagerImpl implements ShareListManager {
     
     private static final Log LOG = LogFactory.getLog(ShareListManagerImpl.class);
     
     private final FileManager fileManager;
-    private final LibraryManager libraryManager;
     
     private final CombinedShareList combinedShareList;
     
@@ -58,9 +51,8 @@ class ShareListManagerImpl implements ShareListManager {
 
     @Inject
     ShareListManagerImpl(FileManager fileManager, CoreLocalFileItemFactory coreLocalFileItemFactory,
-            EventListener<FriendShareListEvent> friendShareListEventListener, LibraryManager libraryManager) {
+            EventListener<FriendShareListEvent> friendShareListEventListener) {
         this.fileManager = fileManager;
-        this.libraryManager = libraryManager;
         this.coreLocalFileItemFactory = coreLocalFileItemFactory;
         this.friendShareListEventListener = friendShareListEventListener;
         this.combinedShareList = new CombinedShareList();
@@ -118,6 +110,13 @@ class ShareListManagerImpl implements ShareListManager {
     @Override
     public FriendFileList getOrCreateFriendShareList(Friend friend) {
         LOG.debugf("get|Create library for friend {0}", friend.getId());
+        
+        FriendFileList list = friendLocalFileLists.get(friend.getId());
+        if(list != null){
+            LOG.debugf("Returning existing library for friend {0}", friend.getId());
+            return list;
+        }
+        
         FriendFileListImpl newList = new FriendFileListImpl(fileManager, friend.getId());        
         FriendFileList existing = friendLocalFileLists.putIfAbsent(friend.getId(), newList);        
         
@@ -147,10 +146,8 @@ class ShareListManagerImpl implements ShareListManager {
         }        
     }
     
-    private class GnutellaFileListImpl extends LocalFileListImpl implements GnutellaFileList {
+    private class GnutellaFileListImpl extends AbstractFriendFileList implements GnutellaFileList {
         private final com.limegroup.gnutella.library.GnutellaFileList shareList;
-
-        private final PropertyChangeSupport propertyChange = new PropertyChangeSupport(this);
         
         public GnutellaFileListImpl(com.limegroup.gnutella.library.GnutellaFileList shareList) {
             super(combinedShareList.createMemberList(), coreLocalFileItemFactory);            
@@ -164,80 +161,18 @@ class ShareListManagerImpl implements ShareListManager {
             return shareList;
         }
 
-        public boolean isAddNewAudioAlways() {
-            return getCoreFileList().isAddNewAudioAlways();
-        }
-        
-        public void setAddNewAudioAlways(boolean value) {
-            getCoreFileList().setAddNewAudioAlways(value);
-            audioCollectionUpdate(value);
-        }
-        
-        public boolean isAddNewVideoAlways() {
-            return getCoreFileList().isAddNewVideoAlways();
-        }
-        
-        public void setAddNewVideoAlways(boolean value) {
-            getCoreFileList().setAddNewVideoAlways(value);
-            videoCollectionUpdate(value);
-        }
-        
-        public boolean isAddNewImageAlways() {
-            return getCoreFileList().isAddNewImageAlways();
-        }
-        
-        public void setAddNewImageAlways(boolean value) {
-            getCoreFileList().setAddNewImageAlways(value);
-            imageCollectionUpdate(value);
-        }
-        
-        private void setSharing(boolean value, Category category) {
-            if(value)
-                addAll(getCoreFileList(), category);
-            else
-                removeAll(getCoreFileList(), category, readOnlyList);
-        }
-
-        public void addPropertyChangeListener(PropertyChangeListener listener) {
-            propertyChange.addPropertyChangeListener(listener);
-        }
-        
-        public void removePropertyChangeListener(PropertyChangeListener listener) {
-            propertyChange.removePropertyChangeListener(listener);
-        }
-        
-        @Override
-        protected void imageCollectionUpdate(boolean value) {
-            fireImageCollectionChange(propertyChange, value);
-            setSharing(value, Category.IMAGE);
-        }
-        
-        @Override
-        protected void audioCollectionUpdate(boolean value) {
-            fireAudioCollectionChange(propertyChange, value);
-            setSharing(value, Category.AUDIO);
-        }
-        
-        @Override
-        protected void videoCollectionUpdate(boolean value) {
-            fireVideoCollectionChange(propertyChange, value);
-            setSharing(value, Category.VIDEO);
-        }
-
         @Override
         public void removeDocuments() {
             getCoreFileList().removeDocuments();
         }
     }
     
-    private class FriendFileListImpl extends LocalFileListImpl implements FriendFileList {
+    private class FriendFileListImpl extends AbstractFriendFileList {
         private final FileManager fileManager;
         private com.limegroup.gnutella.library.FriendFileList friendFileList;
         private final String name;
         private volatile boolean committed = false;
         private volatile EventListener<FileListChangedEvent> eventListener;
-        
-        private final PropertyChangeSupport propertyChange = new PropertyChangeSupport(this);
         
         FriendFileListImpl(FileManager fileManager, String name) {
             super(combinedShareList.createMemberList(), coreLocalFileItemFactory);            
@@ -278,66 +213,6 @@ class ShareListManagerImpl implements ShareListManager {
             } finally {
                 fileList.getReadLock().unlock();
             }
-        }
-        
-        public boolean isAddNewAudioAlways() {
-            return getCoreFileList().isAddNewAudioAlways();
-        }
-        
-        public void setAddNewAudioAlways(boolean value) {
-            getCoreFileList().setAddNewAudioAlways(value);
-            audioCollectionUpdate(value);
-        }
-        
-        public boolean isAddNewVideoAlways() {
-            return getCoreFileList().isAddNewVideoAlways();
-        }
-        
-        public void setAddNewVideoAlways(boolean value) {
-            getCoreFileList().setAddNewVideoAlways(value);
-            videoCollectionUpdate(value);
-        }
-        
-        public boolean isAddNewImageAlways() {
-            return getCoreFileList().isAddNewImageAlways();
-        }
-        
-        public void setAddNewImageAlways(boolean value) {
-            getCoreFileList().setAddNewImageAlways(value);
-            imageCollectionUpdate(value);
-        }
-        
-        private void setSharing(boolean value, Category category) {
-            if(value)
-                addAll(getCoreFileList(), category);
-            else
-                removeAll(getCoreFileList(), category, readOnlyList);
-        }
-        
-        public void addPropertyChangeListener(PropertyChangeListener listener) {
-            propertyChange.addPropertyChangeListener(listener);
-        }
-        
-        public void removePropertyChangeListener(PropertyChangeListener listener) {
-            propertyChange.removePropertyChangeListener(listener);
-        }
-        
-        @Override
-        protected void imageCollectionUpdate(boolean value) {
-            fireImageCollectionChange(propertyChange, value);
-            setSharing(value, Category.IMAGE);
-        }
-        
-        @Override
-        protected void audioCollectionUpdate(boolean value) {
-            fireAudioCollectionChange(propertyChange, value);
-            setSharing(value, Category.AUDIO);
-        }
-        
-        @Override
-        protected void videoCollectionUpdate(boolean value) {
-            fireVideoCollectionChange(propertyChange, value);
-            setSharing(value, Category.VIDEO);
         }
     } 
     
@@ -397,48 +272,7 @@ class ShareListManagerImpl implements ShareListManager {
         @Override
         public int size() {
             return threadSafeUniqueList.size();
-        }        
-
-    }
-    
-    private void addAll(final com.limegroup.gnutella.library.FileList fileList, final Category category) {
-        ThreadExecutor.startThread(new Runnable(){
-            @Override
-            public void run() {
-                FilterList<LocalFileItem> filtered = GlazedListsFactory.filterList(libraryManager.getLibraryManagedList().getModel(), new CategoryFilter(category));
-                List<LocalFileItem> copyList = GlazedListsFactory.copyList(filtered);
-                filtered.dispose();
-                for(LocalFileItem item : copyList) {
-                    fileList.add(item.getFile());
-                }
-            }
-        }, "File Category Adder");
-    }
-    
-    private void removeAll(final com.limegroup.gnutella.library.FileList fileList, final Category category, final EventList<LocalFileItem> list) {
-        ThreadExecutor.startThread(new Runnable(){
-            @Override
-            public void run() {
-                FilterList<LocalFileItem> filtered = GlazedListsFactory.filterList(list, new CategoryFilter(category));
-                List<LocalFileItem> copyList = GlazedListsFactory.copyList(filtered);
-                filtered.dispose();
-                for(LocalFileItem item : copyList) {
-                    fileList.remove(item.getFile());
-                }
-            }
-        }, "File Category Remover");
-    }
-    
-    private void fireAudioCollectionChange(PropertyChangeSupport propertyChange, boolean newValue) {
-        propertyChange.firePropertyChange("audioCollection", !newValue, newValue);
-    }
-    
-    private void fireVideoCollectionChange(PropertyChangeSupport propertyChange, boolean newValue) {
-        propertyChange.firePropertyChange("videoCollection", !newValue, newValue);
-    }
-    
-    private void fireImageCollectionChange(PropertyChangeSupport propertyChange, boolean newValue) {
-        propertyChange.firePropertyChange("imageCollection", !newValue, newValue);
+        }
     }
     
     public class CategoryFilter implements Matcher<FileItem>{

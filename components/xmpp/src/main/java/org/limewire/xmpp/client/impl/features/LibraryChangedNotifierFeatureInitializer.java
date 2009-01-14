@@ -41,11 +41,21 @@ public class LibraryChangedNotifierFeatureInitializer implements FeatureInitiali
         }
 
         public void sendLibraryRefresh() {
-            final LibraryChangedIQ libraryChangedIQ = new LibraryChangedIQ();
-            libraryChangedIQ.setType(IQ.Type.SET);
-            libraryChangedIQ.setTo(presenceId);
-            libraryChangedIQ.setPacketID(IQ.nextID());
-            connection.sendPacket(libraryChangedIQ);
+            if(connection.isConnected()) {
+                final LibraryChangedIQ libraryChangedIQ = new LibraryChangedIQ();
+                libraryChangedIQ.setType(IQ.Type.SET);
+                libraryChangedIQ.setTo(presenceId);
+                libraryChangedIQ.setPacketID(IQ.nextID());
+                try {
+                    connection.sendPacket(libraryChangedIQ);
+                } catch(IllegalStateException ise) {
+                    // This can unfortunately happen because the smack
+                    // API isn't thread-safe and the 'connected' variable
+                    // can be set & read from any thread, but isn't volatile.
+                    // So even though we're only sending if we're connected,
+                    // the variable might change out from under us.
+                }
+            }
         }
     }
 }

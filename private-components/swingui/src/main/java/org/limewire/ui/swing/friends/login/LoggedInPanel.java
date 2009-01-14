@@ -19,12 +19,13 @@ import org.limewire.listener.SwingEDTEvent;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.StatusActions;
-import org.limewire.ui.swing.components.HyperLinkButton;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeComboBox;
 import org.limewire.ui.swing.components.LimeComboBoxFactory;
 import org.limewire.ui.swing.friends.AddFriendDialog;
 import org.limewire.ui.swing.friends.chat.IconLibrary;
 import org.limewire.ui.swing.painter.BarPainterFactory;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -66,9 +67,9 @@ class LoggedInPanel extends JXPanel {
         statusMenuLabel = new JLabel();        
         currentUser = new JLabel(iconLibrary.getEndChat());
         loggingInLabel = new JLabel(I18n.tr("Signing in..."));
-        signInButton = new HyperLinkButton();
+        signInButton = new HyperlinkButton();
         buttonDecorator.decorateMiniButton(signInButton);
-        switchUserButton = new HyperLinkButton();
+        switchUserButton = new HyperlinkButton();
         buttonDecorator.decorateMiniButton(switchUserButton);
         setBackgroundPainter(barPainterFactory.createFriendsBarPainter()); 
 
@@ -88,11 +89,11 @@ class LoggedInPanel extends JXPanel {
         optionsMenu.addSeparator();
         optionsMenu.add(optionsBox.decorateMenuComponent(new JLabel(I18n.tr("Show:"))));
         final JCheckBoxMenuItem showOfflineFriends = new JCheckBoxMenuItem(I18n.tr("Offline Friends"));
-        showOfflineFriends.setSelected(XMPPSettings.XMPP_SHOW_OFFLINE.getValue());
+        showOfflineFriends.setSelected(SwingUiSettings.XMPP_SHOW_OFFLINE.getValue());
         showOfflineFriends.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                XMPPSettings.XMPP_SHOW_OFFLINE.setValue(showOfflineFriends.isSelected());
+                SwingUiSettings.XMPP_SHOW_OFFLINE.setValue(showOfflineFriends.isSelected());
             } 
         });
 

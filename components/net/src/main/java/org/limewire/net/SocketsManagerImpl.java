@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.limewire.io.Address;
 import org.limewire.io.NetworkUtils;
 import org.limewire.io.SimpleNetworkInstanceUtils;
+import org.limewire.io.AddressConnectingLoggingCategory;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventMulticaster;
@@ -35,7 +36,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class SocketsManagerImpl implements SocketsManager, EventBroadcaster<ConnectivityChangeEvent>, ListenerSupport<ConnectivityChangeEvent> {
     
-    private final static Log LOG = LogFactory.getLog(SocketsManagerImpl.class);
+    private final static Log LOG = LogFactory.getLog(SocketsManagerImpl.class, AddressConnectingLoggingCategory.CATEGORY);
     
     private final SocketController socketController;
     

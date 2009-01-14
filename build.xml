@@ -5,11 +5,10 @@
 
     <import file="components/build.xml"/>
     <import file="core/build.xml"/>
-    <import file="gui/build.xml" />
     <import file="tests/build.xml" />
     <import file="components/core-glue/build.xml"/>
     
-    <target name="initialize" depends="lw-core.initialize, lw-gui.initialize, lw-tests.initialize, lw-components.initialize, lw-core-glue.initialize" unless="initialized.limewire">
+    <target name="initialize" depends="lw-core.initialize, lw-tests.initialize, lw-components.initialize, lw-core-glue.initialize" unless="initialized.limewire">
         <property name="limewire.components.limewire.home"
                   location="${limewire.home}"/>
         <property name="limewire.components.limewire.tests"
@@ -19,11 +18,11 @@
     
     <target name="compile"
             description="Compiles all code."
-            depends="initialize, lw-components.compile-core-src, lw-components.compile-ui-src, lw-core.compile-core, lw-gui.compile-gui, lw-tests.compile-src, lw-tests.compile-tests, lw-core-glue.compile-src"/>
+            depends="initialize, lw-components.compile-core-src, lw-components.compile-ui-src, lw-core.compile-core, lw-tests.compile-src, lw-tests.compile-tests, lw-core-glue.compile-src"/>
     
     <target name="compile-src"
             description="Compiles all source code (not tests)."
-            depends="initialize, lw-components.compile-core-src, lw-components.compile-ui-src, lw-core.compile-core, lw-gui.compile-gui, lw-core-glue.compile-src"/>
+            depends="initialize, lw-components.compile-core-src, lw-components.compile-ui-src, lw-core.compile-core, lw-core-glue.compile-src"/>
     
     <target name="compile-tests"
             description="Compiles all code required for tests."
@@ -31,14 +30,14 @@
     
     <target name="clean" 
             description="Cleans everything."
-            depends="initialize, lw-components.clean, clean-core, clean-gui, lw-tests.clean, lw-core-glue.clean">
+            depends="initialize, lw-components.clean, clean-core, lw-tests.clean, lw-core-glue.clean">
         <do.clean component="limewire"/>
         <delete dir="${limewire.components.limewire.home}/unused"/>
     </target>
     
     <target name="clean-src"
             description="Cleans artifacts from compiling src."
-            depends="initialize, lw-components.clean-src, clean-core, clean-gui, lw-core-glue.clean-src"/>
+            depends="initialize, lw-components.clean-src, clean-core, lw-core-glue.clean-src"/>
     
     <target name="clean-tests"
             description="Cleans artifacts from compiling tests."
@@ -96,16 +95,13 @@
         
         <mkdir dir="${limewire.home}/dist"/>        
        
-        <!-- build limewire's main jar -->
-        <!-- TODO: Mark Volkmann commented out the next line. -->
-        <!--delete file="${limewire.home}/dist/LimeWire.jar"/-->
+        <delete file="${limewire.home}/dist/LimeWire.jar"/>
         <jar jarfile="${limewire.home}/dist/LimeWire.jar" compress="false">
-            <fileset dir="${build.limewire.gui.classes}" includes="com/limegroup/**/*.class"/>
             <fileset dir="${build.limewire.core.classes}" includes="com/limegroup/**/*.class"/>
             <zipfileset src="${dist.limewire.components.all.jar}"/>  
             <zipfileset src="${dist.limewire.components.core-glue.jar}"/>
             <manifest>
-                <attribute name="Main-Class" value="com.limegroup.gnutella.gui.Main" />
+                <attribute name="Main-Class" value="org.limewire.ui.swing.Main" />
                 <attribute name="Class-Path" value=". ${classpath}"/>
             </manifest>
         </jar>
@@ -139,7 +135,6 @@
         <do.clover-setup component="limewire" defaultfileset="${limewire.components.limewire.home}/unused">
               <locations>    
                 <fileset dir="${limewire.core.src}"/>
-                <fileset dir="${limewire.gui.src}"/>
                 <fileset dir="${limewire.components.tests.home}"/>
                 <fileset refid="limewire.components.sources.all"/>
                 <fileset dir="${limewire.components.core-glue.src}"/>
@@ -219,18 +214,6 @@
         <!-- clean up -->
         <delete dir="lib/messagebundles/org"/>
     </target>
-
-    <!-- TODO: Need to finish getting this target to work!
-    <target name="run" depends="jar" description="runs the GUI">
-        <path id="classpath">
-            <pathelement location="private-components/swingui/build/classes"/>
-            <pathelement location="dist/LimeWire.jar"/>
-            <fileset dir="lib"/>
-        </path>
-        <java classname="org.limewire.ui.swing.mainframe.AppFrame"
-              classpathref="classpath"/>
-    </target>
-    -->
 
     <!-- mask imported targets -->
     <target name="test"/>

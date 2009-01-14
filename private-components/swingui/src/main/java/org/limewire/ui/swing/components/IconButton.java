@@ -1,15 +1,19 @@
 package org.limewire.ui.swing.components;
 
 import java.awt.Insets;
+import java.awt.event.MouseListener;
 
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXButton;
+import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.listener.ActionHandListener;
 
 public class IconButton extends JXButton {
+    
+    private MouseListener actionHandListener;
 
     public IconButton() {
         init();
@@ -68,14 +72,19 @@ public class IconButton extends JXButton {
         setBorderPainted(false);
         setContentAreaFilled(false);
         setFocusPainted(false);
-        setRolloverEnabled(true);
+        setRolloverEnabled(false);
         setHideActionText(true);
         setBorder(null);
         setOpaque(false);
         setHorizontalTextPosition(SwingConstants.CENTER);
         setVerticalTextPosition(SwingConstants.BOTTOM);
         setIconTextGap(2);
-        addMouseListener(new ActionHandListener());
+        actionHandListener = new ActionHandListener();
+        addMouseListener(actionHandListener);
+    }
+    
+    public void removeActionHandListener() {
+        removeMouseListener(actionHandListener);
     }
     
     @Override
@@ -84,6 +93,16 @@ public class IconButton extends JXButton {
         if (hasSelectedKey(a)) {
             setSelectedFromAction(a);
         }
+        
+        Icon icon = (Icon)a.getValue(AbstractAction.PRESSED_ICON);
+        if(icon != null) {
+            setPressedIcon(icon);
+        }
+        
+        icon = (Icon)a.getValue(AbstractAction.ROLLOVER_ICON);
+        if(icon != null) {
+            setRolloverIcon(icon);
+        }
     }
     
     @Override
@@ -91,6 +110,10 @@ public class IconButton extends JXButton {
         super.actionPropertyChanged(action, propertyName);
         if (propertyName == Action.SELECTED_KEY && hasSelectedKey(action)) {
             setSelectedFromAction(action);
+        } else if (propertyName == AbstractAction.PRESSED_ICON) {
+            setPressedIcon((Icon)action.getValue(AbstractAction.PRESSED_ICON));
+        } else if (propertyName == AbstractAction.ROLLOVER_ICON) {
+            setRolloverIcon((Icon)action.getValue(AbstractAction.ROLLOVER_ICON));
         }
     }
     

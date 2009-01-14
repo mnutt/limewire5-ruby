@@ -13,13 +13,6 @@ public class BittorrentSettings extends LimeProps {
     }
 
     /**
-     * Setting whether LimeWire should manage the BT settings
-     * automatically.
-     */
-    public static BooleanSetting AUTOMATIC_SETTINGS = 
-        FACTORY.createBooleanSetting("BT_AUTOMATIC_SETTINGS", true);
-                
-    /**
      * minimum tracker reask delay in seconds that we will use
      */
     public static IntSetting TRACKER_MIN_REASK_INTERVAL = FACTORY
@@ -54,13 +47,6 @@ public class BittorrentSettings extends LimeProps {
      */
     public static BooleanSetting TORRENT_USE_MMAP =
         FACTORY.createBooleanSetting("TORRENT_USE_MMAP", false);
-    
-    /**
-     * Whether to automatically start torrents for .torrent files
-     * downloaded through LimeWire.
-     */
-    public static BooleanSetting TORRENT_AUTO_START =
-        FACTORY.createBooleanSetting("TORRENT_AUTO_START_2", true);
     
     /**
      * Whether to report Disk problems to the bug server

@@ -1,5 +1,7 @@
 package org.limewire.ui.swing.search.resultpanel.classic;
 
+import java.awt.Component;
+
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
@@ -27,7 +29,7 @@ public class AudioTableFormat extends ResultsTableFormat<VisualSearchResult> {
     static final int DESCRIPTION_INDEX = 13;
     
     public AudioTableFormat() {
-        super(NAME_INDEX, FROM_INDEX, new ColumnStateInfo[] {
+        super(TITLE_INDEX, FROM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_AUDIO_FROM", I18n.tr("From"), 55, true, true), 
                 new ColumnStateInfo(TITLE_INDEX, "CLASSIC_SEARCH_AUDIO_TITLE", I18n.tr("Name"), 550, true, true),     
                 new ColumnStateInfo(ARTIST_INDEX, "CLASSIC_SEARCH_AUDIO_ARTIST", I18n.tr("Artist"), 80, true, true), 
@@ -48,21 +50,22 @@ public class AudioTableFormat extends ResultsTableFormat<VisualSearchResult> {
     @Override
     public Class getColumnClass(int column) {
         switch(column) {
+        case TITLE_INDEX: return Component.class;
         case BITRATE_INDEX: return Integer.class;
         case TRACK_INDEX: return Integer.class;
         case FROM_INDEX: return VisualSearchResult.class;
         }
         return super.getColumnClass(column);
     }
-
+    
     public Object getColumnValue(VisualSearchResult vsr, int column) {
         switch(column) {
             case FROM_INDEX: return vsr;
-            case TITLE_INDEX: return (vsr.getProperty(FilePropertyKey.TITLE) == null) ? vsr.getProperty(FilePropertyKey.NAME) : vsr.getProperty(FilePropertyKey.TITLE);
+            case TITLE_INDEX: return vsr;
             case ARTIST_INDEX: return vsr.getProperty(FilePropertyKey.AUTHOR);
             case ALBUM_INDEX: return vsr.getProperty(FilePropertyKey.ALBUM);
             case LENGTH_INDEX: return vsr.getProperty(FilePropertyKey.LENGTH);
-            case QUALITY_INDEX: return vsr.getProperty(FilePropertyKey.QUALITY);
+            case QUALITY_INDEX: return vsr;
             case BITRATE_INDEX: return vsr.getProperty(FilePropertyKey.BITRATE);
             case GENRE_INDEX: return vsr.getProperty(FilePropertyKey.GENRE);
             case TRACK_INDEX: return vsr.getProperty(FilePropertyKey.TRACK_NUMBER);

@@ -2,6 +2,8 @@ package org.limewire.ui.swing.friends.chat;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,19 +18,15 @@ import org.limewire.core.api.friend.FriendEvent;
 import org.limewire.core.api.friend.FriendPresenceEvent;
 import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.core.impl.library.MockLibraryManager;
+import org.limewire.core.impl.xmpp.MockXMPPConnection;
+import org.limewire.listener.EventListener;
 import org.limewire.listener.EventListenerList;
-import org.limewire.ui.swing.friends.chat.ChatFriend;
-import org.limewire.ui.swing.friends.chat.ChatPanel;
-import org.limewire.ui.swing.friends.chat.ConversationPane;
-import org.limewire.ui.swing.friends.chat.ConversationPaneFactory;
-import org.limewire.ui.swing.friends.chat.ChatFriendListPane;
-import org.limewire.ui.swing.friends.chat.IconLibraryImpl;
-import org.limewire.ui.swing.friends.chat.MessageReceivedEvent;
-import org.limewire.ui.swing.friends.chat.ChatTopPanel;
+import org.limewire.listener.ListenerSupport;
 import org.limewire.ui.swing.friends.chat.Message.Type;
 import org.limewire.ui.swing.util.IconManagerStub;
 import org.limewire.xmpp.api.client.MessageWriter;
 import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.Presence.Mode;
 
 public class ChatPanelHarness {
@@ -42,16 +40,41 @@ public class ChatPanelHarness {
                 EventListenerList<FriendPresenceEvent> presenceSupport = new EventListenerList<FriendPresenceEvent>();
                 final EventListenerList<FriendEvent> friendSupport = new EventListenerList<FriendEvent>();
                 final EventListenerList<FeatureEvent> featureSupport = new EventListenerList<FeatureEvent>();
-                ChatFriendListPane friendsPane = new ChatFriendListPane(icons, libraryManager, null, presenceSupport);
-                frame.add(new ChatPanel(new ConversationPaneFactory() {
+                ChatFriendListPane friendsPane = new ChatFriendListPane(icons, null, presenceSupport);
+                ChatPanel chatPanel = new ChatPanel(new ConversationPaneFactory() {
                     @Override
                     public ConversationPane create(MessageWriter writer, ChatFriend chatFriend, String loggedInID) {
-                        return new ConversationPane(writer, chatFriend, loggedInID, libraryManager, new IconManagerStub(), null, null, null, friendSupport, null, featureSupport);
+                        return new ConversationPane(writer, chatFriend, loggedInID, libraryManager, new IconManagerStub(), null, null, null, friendSupport, null, featureSupport,
+                                new IconLibraryImpl());
                     }
-                }, icons, friendsPane, new ChatTopPanel()));
+                }, icons, friendsPane, new ChatTopPanel());
+                
+                ChatFramePanel chatFramePanel = new ChatFramePanel(chatPanel, friendsPane, new MockTrayNotifier());
+                XMPPConnectionEvent connectionEvent = new XMPPConnectionEvent(
+                        new MockXMPPConnection(
+                                new MockXMPPConnectionConfiguration("foo", "bar", "baz", null)), XMPPConnectionEvent.Type.CONNECTED);
+                final List<EventListener<XMPPConnectionEvent>> listeners = new ArrayList<EventListener<XMPPConnectionEvent>>();
+                chatFramePanel.register(new ListenerSupport<XMPPConnectionEvent>() {
+
+                    @Override
+                    public void addListener(EventListener<XMPPConnectionEvent> listener) {
+                        listeners.add(listener);
+                    }
+
+                    @Override
+                    public boolean removeListener(EventListener<XMPPConnectionEvent> listener) {
+                        return false;
+                    }
+                });
+                chatFramePanel.setUnseenMessageListener(new MockUnseenMessageListener());
+                frame.add(chatFramePanel);
+                
+                listeners.get(0).handleEvent(connectionEvent);
+                chatFramePanel.setVisibility(true);
                 
                 frame.pack();
                 frame.setVisible(true);
+
                 
                 JFrame frame2 = new JFrame();
                 frame2.add(addFriendPanel(presenceSupport, friendSupport));

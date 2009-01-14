@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.swing.JCheckBox;
 
-import org.limewire.core.settings.SearchSettings;
 import org.limewire.i18n.I18nMarker;
 
 import com.limegroup.gnutella.gui.I18n;
@@ -41,16 +40,17 @@ public class PromotionalSearchPaneItem extends AbstractPaneItem {
      */
     @Override
     public void initOptions() {
-        disableResultsCheckBox.setSelected(SearchSettings.DISABLE_PROMOTIONAL_RESULTS.getValue());
+//        disableResultsCheckBox.setSelected(SearchSettings.DISABLE_PROMOTIONAL_RESULTS.getValue());
     }
 
     @Override
     public boolean applyOptions() throws IOException {
-        SearchSettings.DISABLE_PROMOTIONAL_RESULTS.setValue(disableResultsCheckBox.isSelected());
+//        SearchSettings.DISABLE_PROMOTIONAL_RESULTS.setValue(disableResultsCheckBox.isSelected());
         return false;
     }
     
     public boolean isDirty() {
-        return SearchSettings.DISABLE_PROMOTIONAL_RESULTS.getValue() != disableResultsCheckBox.isSelected();
+        return false;
+//        return SearchSettings.DISABLE_PROMOTIONAL_RESULTS.getValue() != disableResultsCheckBox.isSelected();
     }
 }

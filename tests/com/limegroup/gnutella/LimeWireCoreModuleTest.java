@@ -9,12 +9,11 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
 import com.google.inject.name.Names;
-import com.limegroup.gnutella.gui.LimeWireGUIModule;
 
 public class LimeWireCoreModuleTest extends TestCase {
 
     public void testConnectionDispatcher() {
-        Injector injector = Guice.createInjector(new LimeWireCoreModule(), new LimeWireGUIModule());
+        Injector injector = Guice.createInjector(new LimeWireCoreModule(ActivityCallbackAdapter.class));
         ConnectionDispatcher globalInstance = injector.getInstance(Key.get(ConnectionDispatcher.class, Names.named("global")));
         ConnectionDispatcher localInstance = injector.getInstance(Key.get(ConnectionDispatcher.class, Names.named("local")));
         

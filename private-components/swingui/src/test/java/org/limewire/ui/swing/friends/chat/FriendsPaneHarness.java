@@ -6,10 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.limewire.core.api.friend.FriendPresenceEvent;
-import org.limewire.core.impl.library.MockLibraryManager;
 import org.limewire.listener.EventListenerList;
-import org.limewire.ui.swing.friends.chat.ChatFriendListPane;
-import org.limewire.ui.swing.friends.chat.IconLibraryImpl;
 import org.limewire.xmpp.api.client.Presence.Mode;
 
 /**
@@ -24,7 +21,7 @@ public class FriendsPaneHarness {
             public void run() {
                 JFrame frame = new JFrame();
                 final EventListenerList<FriendPresenceEvent> presenceSupport = new EventListenerList<FriendPresenceEvent>();
-                ChatFriendListPane pane = new ChatFriendListPane(new IconLibraryImpl(), new MockLibraryManager(), null, presenceSupport);
+                ChatFriendListPane pane = new ChatFriendListPane(new IconLibraryImpl(), null, presenceSupport);
                 frame.add(pane);
 
                 final ArrayList<Duo> presences = new ArrayList<Duo>();

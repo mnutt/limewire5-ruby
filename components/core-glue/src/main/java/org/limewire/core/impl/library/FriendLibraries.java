@@ -273,7 +273,9 @@ public class FriendLibraries {
 
         private void index(RemoteFileItem newFile) {
             String fileName = newFile.getName();
-            indexPhrase(newFile, fileName);
+            if(fileName != null) {
+                indexPhrase(newFile, fileName);
+            }
             
             for(FilePropertyKey filePropertyKey : FilePropertyKey.getIndexableKeys()) {
                 Object property = newFile.getProperty(filePropertyKey);

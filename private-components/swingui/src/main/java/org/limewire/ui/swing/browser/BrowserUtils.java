@@ -1,22 +1,41 @@
 package org.limewire.ui.swing.browser;
 
+import org.limewire.concurrent.ManagedThread;
+import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.mozilla.browser.XPCOMUtils;
 import org.mozilla.interfaces.nsIDOMEventTarget;
 import org.mozilla.interfaces.nsIDOMWindow2;
 import org.mozilla.interfaces.nsIWebBrowserChrome;
 import org.w3c.dom.Node;
 
-class BrowserUtils {
-    
+public class BrowserUtils {
 
-    private static final  LimeDomListener DOM_ADAPTER = new LimeDomListener();
+    private static final LimeDomListener DOM_ADAPTER = new LimeDomListener();
     
+    static {
+        addTargetedUrlAction("_blank", new TargetedUrlAction() {
+            @Override
+            public void targettedUrlClicked(final TargetedUrl targetedUrl) {
+                // Open url in new thread to keep Mozilla thread responsive
+                new ManagedThread(new Runnable() {
+                    public void run() {
+                        NativeLaunchUtils.openURL(targetedUrl.getUrl());
+                    }
+                }).start();
+            }
+        });
+    }
+    
+    /** Adds an action to be performed when the given target is clicked. */
+    public static void addTargetedUrlAction(String target, TargetedUrlAction action) {
+        DOM_ADAPTER.addTargetedUrlAction(target, action);
+    }
 
     /**
      * 
      * @return true if node is a text input, password input or textarea
      */
-    public static boolean isTextControl(Node node) {
+    static boolean isTextControl(Node node) {
 
         boolean isText = false;
 
@@ -36,7 +55,7 @@ class BrowserUtils {
     /**
      * Adds LimeDomListener to chromeAdapter
      */
-    public static void addDomListener(final nsIWebBrowserChrome chrome) {         
+    static void addDomListener(final nsIWebBrowserChrome chrome) {         
         nsIDOMEventTarget eventTarget = XPCOMUtils.qi(
                 chrome.getWebBrowser().getContentDOMWindow(), nsIDOMWindow2.class)
                 .getWindowRoot();
@@ -45,7 +64,7 @@ class BrowserUtils {
     }
     
     
-    public static void removeDomListener(final nsIWebBrowserChrome chrome){
+    static void removeDomListener(final nsIWebBrowserChrome chrome){
         nsIDOMEventTarget eventTarget = XPCOMUtils.qi(
                 chrome.getWebBrowser().getContentDOMWindow(), nsIDOMWindow2.class)
                 .getWindowRoot();

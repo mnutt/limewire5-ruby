@@ -51,10 +51,9 @@ public class GenericsUtils {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <K, V> Map<K, V> scanForMap(Object o, Class<K> k, Class<V> v, ScanMode mode, Class<? extends Map> createFromThis) {
+    public static <K, V> Map<K, V> scanForMap(Object o, Class<K> k, Class<V> v, ScanMode mode, Class<? extends Map<K, V>> createFromThis) {
         if(o instanceof Map) {
             Map map = (Map)o;
-            Map copy = null;
             for(Iterator i = map.entrySet().iterator(); i.hasNext(); ) {
                 Map.Entry entry = (Map.Entry)i.next();
                 Object key = entry.getKey();
@@ -80,19 +79,12 @@ public class GenericsUtils {
                         i.remove();
                         break;
                     case NEW_COPY_REMOVED:
-                        if(copy == null) {
-                            copy = newInstance(createFromThis);
-                            copy.putAll(map);
-                        }
-                        copy.remove(key);
-                        break;
+                        return copyAndFilterMap(newMap(createFromThis), map, k, v);
                     }
                 }
             }
-            if(copy != null)
-                return copy;
-            else
-                return map;
+            
+            return map;
         } else {
             throw new ClassCastException();
         }
@@ -123,38 +115,28 @@ public class GenericsUtils {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <V> Collection<V> scanForCollection(Object o, Class<V> v, ScanMode mode, Class<? extends Collection> createFromThis) {
+    public static <V> Collection<V> scanForCollection(Object o, Class<V> v, ScanMode mode, Class<? extends Collection<V>> createFromThis) {
         if(o instanceof Collection) {
             Collection c = (Collection)o;
-            Collection copy = null;
             for(Iterator i = c.iterator(); i.hasNext(); ) {
                 Object value = i.next();
                 if(value == null || !v.isAssignableFrom(value.getClass())) {
                     switch(mode) {
                     case EXCEPTION:
-                        throw new ClassCastException("wanted an instanceof: " + v + ", but was: " + (value == null ? "null" : value.getClass()));
+                        throw new ClassCastException("wanted an instanceof: " + v + ", but was: [" + value + "] of type: " + (value == null ? "null" : value.getClass().getName()));
                     case REMOVE:
                         i.remove();
                         break;
                     case NEW_COPY_REMOVED:
-                        if(copy == null) {
-                            copy = newInstance(createFromThis);
-                            copy.addAll(c);
-                        }
-                        copy.remove(value);
-                        break;
+                        return copyAndFilterCollection(newCollection(createFromThis), c, v);
                     }
                 }
             }
             
-            if(copy != null)
-                return copy;
-            else
-                return c;
+            return c;
         } else {
             throw new ClassCastException();
-        }
-        
+        }        
     }
     
     /**
@@ -181,7 +163,7 @@ public class GenericsUtils {
      * @param remove
      * @return
      */
-    public static <V> Set<V> scanForSet(Object o, Class<V> v, ScanMode mode, Class<? extends Set> createFromThis) {
+    public static <V> Set<V> scanForSet(Object o, Class<V> v, ScanMode mode, Class<? extends Set<V>> createFromThis) {
         if(o instanceof Set) {
             return (Set<V>)scanForCollection(o, v, mode, createFromThis);
         } else {
@@ -213,7 +195,7 @@ public class GenericsUtils {
      * @param remove
      * @return
      */
-    public static <V> List<V> scanForList(Object o, Class<V> v, ScanMode mode, Class<? extends List> createFromThis) {
+    public static <V> List<V> scanForList(Object o, Class<V> v, ScanMode mode, Class<? extends List<V>> createFromThis) {
         if(o instanceof List) {
             return (List<V>)scanForCollection(o, v, mode, createFromThis);
         } else {
@@ -221,9 +203,46 @@ public class GenericsUtils {
         }
     }
     
+    /** Returns a copy of the original, with all unassignable items removed. */
+    @SuppressWarnings("unchecked")
+    private static <K, V> Map<K, V> copyAndFilterMap(Map<K, V> copy, Map original, Class<K> k, Class<V> v) {
+        for(Iterator i = original.entrySet().iterator(); i.hasNext(); ) {
+            Map.Entry entry = (Map.Entry)i.next();
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            if(key != null && value != null && k.isAssignableFrom(key.getClass()) && v.isAssignableFrom(value.getClass())) {
+                copy.put((K)key, (V)value);
+            }
+        }
+                
+        return copy;
+    }
+    
+    /** Returns a copy of the original, with all unassignable items removed. */
+    @SuppressWarnings("unchecked")
+    private static <V> Collection<V> copyAndFilterCollection(Collection<V> copy, Collection original, Class<V> v) {
+        for(Iterator i = original.iterator(); i.hasNext(); ) {
+            Object value = i.next();
+            if(value != null && v.isAssignableFrom(value.getClass())) {
+                copy.add((V)value);
+            }
+        }
+        return copy;
+    }
     
     /** Constructs a new class from this. */
-    private static <T> T newInstance(Class<? extends T> creator) {
+    private static <V, T extends Collection<V>> T newCollection(Class<? extends T> creator) {
+        try {
+            return creator.newInstance();
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /** Constructs a new class from this. */
+    private static <K, V, T extends Map<K, V>> T newMap(Class<? extends T> creator) {
         try {
             return creator.newInstance();
         } catch (InstantiationException e) {

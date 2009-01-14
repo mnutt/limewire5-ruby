@@ -23,9 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.jdesktop.application.Application;
 import org.limewire.core.impl.mozilla.LimeMozillaOverrides;
 import org.limewire.core.settings.ConnectionSettings;
-import org.limewire.core.settings.StartupSettings;
 import org.limewire.io.IOUtils;
 import org.limewire.service.ErrorService;
+import org.limewire.service.MessageService;
 import org.limewire.ui.support.BugManager;
 import org.limewire.ui.support.DeadlockSupport;
 import org.limewire.ui.support.ErrorHandler;
@@ -33,7 +33,9 @@ import org.limewire.ui.support.FatalBugManager;
 import org.limewire.ui.swing.browser.LimeMozillaInitializer;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.components.SplashWindow;
+import org.limewire.ui.swing.event.ExceptionPublishingSwingEventService;
 import org.limewire.ui.swing.mainframe.AppFrame;
+import org.limewire.ui.swing.settings.StartupSettings;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LocaleUtils;
 import org.limewire.ui.swing.util.MacOSXUtils;
@@ -150,12 +152,8 @@ public final class Initializer {
         
         enablePreferences();
         
-        // Initialize late tasks, like Icon initialization & install listeners.
-        loadLateTasksForUI();
-
-        //TODO: What should we do about these warnings?
-//      SettingsWarningManager.checkTemporaryDirectoryUsage();
-//      SettingsWarningManager.checkSettingsLoadSaveFailure();        
+        SettingsWarningManager.checkTemporaryDirectoryUsage();
+        SettingsWarningManager.checkSettingsLoadSaveFailure();        
         
         // Start the core & run any queued control requests, and load DAAP.
         startCore(limeWireCore);
@@ -219,7 +217,7 @@ public final class Initializer {
                         awtSplash.setVisible(false);
                     }
                     
-                    boolean confirmed = new IntentDialog().confirmLegal();
+                    boolean confirmed = new IntentDialog(LimeWireUtils.getLimeWireVersion()).confirmLegal();
                     if (!confirmed) {
                         System.exit(0);
                     }
@@ -292,13 +290,16 @@ public final class Initializer {
         stopwatch.resetAndLog("ErrorHandler install");
         
         // Set the messaging handler so we can receive core messages
-// TODO: We really need to update this.
-//        org.limewire.service.MessageService.setCallback(new MessageHandler());
-//        stopwatch.resetAndLog("MessageHandler install");
+        MessageService.setCallback(new MessageHandler());
+        stopwatch.resetAndLog("MessageHandler install");
         
         // Set the default event error handler so we can receive uncaught
         // AWT errors.
         DefaultErrorCatcher.install();
+        stopwatch.resetAndLog("DefaultErrorCatcher install");
+
+        //Enable the EDT event service (used by the EventBus library) that publishes to LW error handling
+        ExceptionPublishingSwingEventService.install();
         stopwatch.resetAndLog("DefaultErrorCatcher install");
         
         if (OSUtils.isMacOSX()) {
@@ -479,7 +480,7 @@ public final class Initializer {
         splashRef.get().setStatusText(I18n.tr("Loading browser..."));
         // Not pretty but Mozilla initialization errors should not crash the
         // program
-        if (OSUtils.isWindows() || OSUtils.isMacOSX() || OSUtils.isLinux()) {
+        if (LimeMozillaInitializer.shouldInitialize()) {
             try {
                 LimeMozillaInitializer.initialize();
                 mozillaOverrides.overrideMozillaDefaults();
@@ -507,10 +508,13 @@ public final class Initializer {
         DefaultErrorCatcher.storeCaughtBugs();
         String[] launchParams = isStartup ? new String[] { AppFrame.STARTUP } : new String[0];
         Application.launch(AppFrame.class, launchParams);
+        // Initialize late tasks, like Icon initialization & install listeners.
+        loadLateTasksForUI();
         
         SwingUtils.invokeAndWait(new Runnable() {
             public void run() {
                 splashRef.get().dispose();
+                splashRef.set(null);
                 List<Throwable> caughtBugs = DefaultErrorCatcher.getAndResetStoredBugs();
                 if(!AppFrame.isStarted()) {
                     // Report the last bug that caused us to fail.

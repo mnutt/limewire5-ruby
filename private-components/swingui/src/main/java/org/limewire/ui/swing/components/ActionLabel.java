@@ -1,6 +1,5 @@
 package org.limewire.ui.swing.components;
 
-import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -11,18 +10,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 
 import org.jdesktop.swingx.JXLabel;
 import org.limewire.ui.swing.action.ActionKeys;
 import org.limewire.ui.swing.listener.ActionHandListener;
 import org.limewire.ui.swing.listener.MouseActionListener;
-import org.limewire.ui.swing.util.FontUtils;
 
 
 /**
- * A label that has a clickable text. The text is rendered as an HTML link and
- * the mouse cursor is changed when the mouse hovers over the label.
+ * A label that has a clickable text.
  */
 public class ActionLabel extends JXLabel  {
     
@@ -31,12 +27,6 @@ public class ActionLabel extends JXLabel  {
     private PropertyChangeListener listener = null;
 
     private Action currentAction;
-          
-    private String text;
-    
-    private final boolean renderAsLink;
-    
-    private Color linkColor = UIManager.getColor("Label.foreground");
     
     private final List<ActionListener> actionListeners = new CopyOnWriteArrayList<ActionListener>();
    
@@ -47,8 +37,7 @@ public class ActionLabel extends JXLabel  {
      * @param action
      * @param color
      */
-    public ActionLabel(Action action, boolean renderAsLink, boolean showHand) {
-        this.renderAsLink = renderAsLink;
+    public ActionLabel(Action action, boolean showHand) {
         setAction(action, showHand);
         setHorizontalTextPosition(SwingConstants.RIGHT);
         setHorizontalAlignment(SwingConstants.LEFT);
@@ -61,24 +50,6 @@ public class ActionLabel extends JXLabel  {
     public void removeActionListener(ActionListener listener) {
         actionListeners.remove(listener);
     }
-    
-    @Override
-    public void setText(String text) {
-        this.text = text;
-        if(renderAsLink) {
-            super.setText(text);
-            FontUtils.underline(this);
-            if(linkColor != null) {
-                setForeground(linkColor);
-            } else {
-                setForeground(Color.BLUE);
-            }
-        } else {
-            super.setText(text);
-            FontUtils.removeUnderline(this);
-        }
-    }
-   
     
     public void setAction(Action action, boolean showHand) {
         // remove old listener
@@ -110,12 +81,6 @@ public class ActionLabel extends JXLabel  {
             }));
         }
         updateLabel(currentAction, null);
-    }
-    
-    
-    public void setColor(Color fg) {
-        linkColor = fg;
-        setText(text);
     }
     
     public Action getAction(){

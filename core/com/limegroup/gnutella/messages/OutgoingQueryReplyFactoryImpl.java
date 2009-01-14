@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.limewire.core.settings.ChatSettings;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.io.IpPort;
 import org.limewire.io.NetworkUtils;
@@ -193,7 +192,7 @@ public class OutgoingQueryReplyFactoryImpl implements OutgoingQueryReplyFactory 
                     queryReply = queryReplyFactory.createQueryReply(guid, ttl,
                             port, ip, speed, currResps, clientGUID,
                             xmlCompressed, notIncoming, isBusy, hasUploaded, measuredSpeed,
-                            ChatSettings.CHAT_ENABLED.getValue(), isMulticast, isFWTransfer, proxies, securityToken);
+                            false /* chat */, isMulticast, isFWTransfer, proxies, securityToken);
                     queryReplies.add(queryReply);
                 }
             }
@@ -211,7 +210,7 @@ public class OutgoingQueryReplyFactoryImpl implements OutgoingQueryReplyFactory 
             // create the new queryReply
             queryReply = queryReplyFactory.createQueryReply(guid, ttl, port,
                     ip, speed, responses, clientGUID, xmlCompressed, notIncoming,
-                    isBusy, hasUploaded, measuredSpeed, ChatSettings.CHAT_ENABLED.getValue(), isMulticast, isFWTransfer,
+                    isBusy, hasUploaded, measuredSpeed, false /* chat */, isMulticast, isFWTransfer,
                     proxies, securityToken);
             queryReplies.add(queryReply);
         }

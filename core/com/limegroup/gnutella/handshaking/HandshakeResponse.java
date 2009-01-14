@@ -233,7 +233,8 @@ public class HandshakeResponse {
      * 
      * @param headers the headers to use in the response. 
      */
-    protected HandshakeResponse(Properties headers) {
+    // public for testing
+    public HandshakeResponse(Properties headers) {
         this(OK, OK_MESSAGE, headers);
     }    
 

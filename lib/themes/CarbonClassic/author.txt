@@ -1,6 +1,0 @@
-billingname=Jim Barnes
-email=jim.barnes16@verizon.net
-skinname=Carbon for Classic
-problem=MacOSX look for System 9.2 and lower or just for fun.
-
-

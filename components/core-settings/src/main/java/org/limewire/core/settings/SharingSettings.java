@@ -164,8 +164,8 @@ public class SharingSettings extends LimeProps {
         FileUtils.setWriteable(saveDir);
         FileUtils.setWriteable(incDir);
 
-		if(!saveDir.canRead() || !saveDir.canWrite() ||
-		   !incDir.canRead()  || !incDir.canWrite()) {
+		if(!saveDir.canRead() || !FileUtils.canWrite(saveDir) ||
+		   !incDir.canRead()  || !FileUtils.canWrite(incDir)) {
 			throw new IOException("could not write to selected directory");
 		}
 		
@@ -244,7 +244,7 @@ public class SharingSettings extends LimeProps {
         
         FileUtils.setWriteable(storeDir);
 
-        if(!storeDir.canRead() || !storeDir.canWrite()) {
+        if(!storeDir.canRead() || !FileUtils.canWrite(storeDir)) {
             throw new IOException("could not write to selected directory");
         }
         

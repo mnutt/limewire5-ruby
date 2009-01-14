@@ -17,8 +17,8 @@ public class SearchHeadingDocumentBuilderImpl implements SearchHeadingDocumentBu
         "<html>" +
             "<head>" +
                 "<style>" +
+                    "body '{' font-family: {0};'}'" +
                     ".title '{' " +
-                        "font-family: {0};" +
                         "color: {1};" +
                         "font-size: {2};'}'" +
                     "a '{' color: {3};'}'" +

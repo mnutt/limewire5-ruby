@@ -12,6 +12,7 @@ import org.limewire.nio.NIODispatcher;
 import org.limewire.rudp.messages.RUDPMessageFactory;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import org.limewire.util.AssertComparisons;
+import org.limewire.listener.EventListenerList;
 
 public class UDPTester {
 
@@ -53,7 +54,7 @@ public class UDPTester {
         RUDPMessageFactory factory = new DefaultMessageFactory();
         udpSelectorProvider = new UDPSelectorProvider(new DefaultRUDPContext(
                 factory, NIODispatcher.instance().getTransportListener(),
-                service, new DefaultRUDPSettings()));
+                service, new DefaultRUDPSettings()), new EventListenerList<UDPSocketChannelConnectionEvent>());
         UDPMultiplexor udpMultiplexor = udpSelectorProvider.openSelector();
         dispatcher.setUDPMultiplexor(udpMultiplexor);
         NIODispatcher.instance().registerSelector(udpMultiplexor, udpSelectorProvider.getUDPSocketChannelClass());

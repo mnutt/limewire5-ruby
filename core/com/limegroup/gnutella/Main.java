@@ -19,7 +19,6 @@ import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.chat.InstantMessenger;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -229,14 +228,6 @@ public class Main {
         
         public void handleSharedFileUpdate(File file) {}
     
-        public void acceptChat(InstantMessenger chat) {}
-    
-        public void receiveMessage(InstantMessenger chat, String message) {}
-        
-        public void chatUnavailable(InstantMessenger chatter) {}
-    
-        public void chatErrorMessage(InstantMessenger chatter, String st) {}
-            
         public void downloadsComplete() {}    
         
         public void uploadsComplete() {}
@@ -271,8 +262,7 @@ public class Main {
             System.out.println("Loading component: " + component);
         }
         
-        public boolean handleMagnets(final MagnetOptions[] magnets) {
-            return false;
+        public void handleMagnets(final MagnetOptions[] magnets) {
         }
     
     	public void handleTorrent(File torrentFile){}
@@ -285,7 +275,7 @@ public class Main {
         public void installationCorrupted() {
             
         }
-        public boolean handleDAAPConnectionError(Throwable t) { return false; }
+        public void handleDAAPConnectionError(Throwable t) {  }
         public String translate(String s) { return s;}
 
         @Override

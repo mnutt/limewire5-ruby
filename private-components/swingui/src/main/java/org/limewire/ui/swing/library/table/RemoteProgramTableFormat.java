@@ -1,7 +1,7 @@
 package org.limewire.ui.swing.library.table;
 
 import org.limewire.core.api.FilePropertyKey;
-import org.limewire.core.api.library.FileItem;
+import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.FileUtils;
@@ -9,13 +9,17 @@ import org.limewire.util.FileUtils;
 /**
  * Table format for Programs Table for LW buddies and Browse hosts
  */
-public class RemoteProgramTableFormat<T extends FileItem> extends AbstractRemoteLibraryFormat<T> {
+public class RemoteProgramTableFormat<T extends RemoteFileItem> extends AbstractRemoteLibraryFormat<T> {
     static final int NAME_INDEX = 0;
     static final int SIZE_INDEX = 1;
     static final int EXTENSION_INDEX = 2;
     static final int PLATFORM_INDEX = 3;
     static final int COMPANY_INDEX = 4;
     static final int DESCRIPTION_INDEX = 5;
+    
+    public RemoteProgramTableFormat(ColumnStateInfo[] columnInfo) {
+        super(columnInfo);
+    }
     
     public RemoteProgramTableFormat() {
         super(new ColumnStateInfo[] {
@@ -29,14 +33,14 @@ public class RemoteProgramTableFormat<T extends FileItem> extends AbstractRemote
     }
 
     @Override
-    public Object getColumnValue(FileItem baseObject, int column) {
+    public Object getColumnValue(T baseObject, int column) {
         switch(column) {
             case NAME_INDEX: return baseObject;
             case PLATFORM_INDEX: return baseObject.getProperty(FilePropertyKey.PLATFORM);
             case COMPANY_INDEX: return baseObject.getProperty(FilePropertyKey.COMPANY);
             case SIZE_INDEX: return baseObject.getSize();
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
-            case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.COMMENTS);
+            case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

@@ -16,11 +16,14 @@ import org.limewire.ui.swing.util.FileChooser;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
+import com.google.inject.Inject;
+
 public class AddFileAction extends AbstractAction {
     private final LibraryManager libraryManager;
 
-    public AddFileAction(String name, LibraryManager libraryManager) {
-        super(name);
+    @Inject
+    public AddFileAction(LibraryManager libraryManager) {
+        super(I18n.tr("Add F&ile to Library..."));
         this.libraryManager = libraryManager;
     }
 

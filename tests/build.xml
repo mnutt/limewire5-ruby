@@ -14,7 +14,6 @@
         	      location="${limewire.components.tests.home}"/>
         
         <property name="limewire.core.src" location="${limewire.home}/core"/>
-        <property name="limewire.gui.src"  location="${limewire.home}/gui"/>
         
         <path id="build.limewire.code.classpath">
             <fileset dir="${limewire.lib.jars}" includes="**/*.jar" excludes="tests/**"/>
@@ -54,7 +53,6 @@
         <do.compile-src component="tests" excludes="macosx/**, windows/**, examples/**">
             <more-src-paths>
             	<pathelement location="${limewire.core.src}"/>
-                <pathelement location="${limewire.gui.src}"/>
             </more-src-paths>
        </do.compile-src>
     </target>
@@ -112,7 +110,6 @@
          <do.clover-setup component="tests">
  	        <locations>
  	            <fileset dir="${limewire.core.src}"/>
- 	            <fileset dir="${limewire.gui.src}"/>
  			</locations>
  	    </do.clover-setup>
 	</target>

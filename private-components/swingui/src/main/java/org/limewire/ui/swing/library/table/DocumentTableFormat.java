@@ -18,7 +18,10 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
     static final int SIZE_INDEX = 3;
     static final int AUTHOR_INDEX = 4;
     static final int DESCRIPTION_INDEX = 5;
-    static final int ACTION_INDEX = 6;
+    static final int HIT_INDEX = 6;
+    static final int UPLOADS_INDEX = 7;
+    static final int UPLOAD_ATTEMPTS_INDEX = 8;
+    static final int ACTION_INDEX = 9;
 
 	/** Icon manager used to find native file type information. */
 	private IconManager iconManager;
@@ -31,6 +34,9 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
                 new ColumnStateInfo(SIZE_INDEX, "LIBRARY_DOCUMENT_SIZE", I18n.tr("Size"), 60, false, true),
                 new ColumnStateInfo(AUTHOR_INDEX, "LIBRARY_DOCUMENT_AUTHOR", I18n.tr("Author"), 60, false, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "LIBRARY_DOCUMENT_DESCRIPTION", I18n.tr("Description"), 100, false, true), 
+                new ColumnStateInfo(HIT_INDEX, "LIBRARY_DOCUMENT_HITS", I18n.tr("Hits"), 100, false, true), 
+                new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_DOCUMENT_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
+                new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_DOCUMENT_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true),
                 new ColumnStateInfo(ACTION_INDEX, "LIBRARY_DOCUMENT_ACTION", I18n.tr("Sharing"), 50, true, false)
         });
 	    
@@ -42,7 +48,6 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
         switch(column) {
          case AUTHOR_INDEX: return baseObject.getProperty(FilePropertyKey.AUTHOR);
          case CREATED_INDEX:
-             // Return creation time if valid.
              long creationTime = baseObject.getCreationTime();
              return (creationTime >= 0) ? new Date(creationTime) : null;
          case DESCRIPTION_INDEX: return "";
@@ -54,6 +59,9 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
              return (iconManager != null) ?
                  iconManager.getMIMEDescription(baseObject) : 
                  baseObject.getProperty(FilePropertyKey.TOPIC);
+         case HIT_INDEX: return baseObject.getNumHits();
+         case UPLOAD_ATTEMPTS_INDEX: return baseObject.getNumUploadAttempts();
+         case UPLOADS_INDEX: return baseObject.getNumUploads();
          }
          throw new IllegalArgumentException("Unknown column:" + column);
     }

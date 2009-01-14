@@ -1,13 +1,19 @@
 package org.limewire.core.impl.mojito;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.limewire.core.api.mojito.MojitoManager;
+import org.limewire.listener.SwingSafePropertyChangeSupport;
+import org.limewire.mojito.Context;
 import org.limewire.mojito.MojitoDHT;
 
 import com.google.inject.Inject;
+import com.limegroup.gnutella.dht.DHTEvent;
+import com.limegroup.gnutella.dht.DHTEventListener;
 import com.limegroup.gnutella.dht.DHTManager;
 
 /**
@@ -17,6 +23,9 @@ public class MojitoManagerImpl implements MojitoManager {
 
     /** DHT manager object. */
     private final DHTManager manager;
+    
+    /** Property change support object. */
+    private final PropertyChangeSupport changeSupport = new SwingSafePropertyChangeSupport(this);
 
     /**
      * Constructs the live implementation of MojitoManager using the specified
@@ -25,6 +34,51 @@ public class MojitoManagerImpl implements MojitoManager {
     @Inject
     public MojitoManagerImpl(DHTManager manager) {
         this.manager = manager;
+        
+        // Add listener to fire property change on DHT event.
+        manager.addEventListener(new DHTEventListener() {
+            @Override
+            public void handleDHTEvent(DHTEvent evt) {
+                changeSupport.firePropertyChange(DHT_STARTED, false, 
+                    (evt.getType() != DHTEvent.Type.STOPPED));
+            }
+        });
+    }
+
+    /**
+     * Adds the specified listener to the list that is notified when a 
+     * property value changes.  Listeners added from the Swing UI thread will 
+     * always receive notification events on the Swing UI thread. 
+     */
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(listener);
+    }
+    
+    /**
+     * Removes the specified listener from the list that is notified when a 
+     * property value changes.
+     */
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(listener);
+    }
+    
+    /**
+     * Returns the name of the DHT.
+     */
+    @Override
+    public String getName() {
+        MojitoDHT dht = manager.getMojitoDHT();
+        return (dht != null) ? ((Context) dht).getName() : null;
+    }
+    
+    /**
+     * Returns true if the Mojito DHT is running.
+     */
+    @Override
+    public boolean isRunning() {
+        return manager.isRunning();
     }
     
     /**

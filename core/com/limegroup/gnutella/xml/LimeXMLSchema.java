@@ -7,8 +7,8 @@
 package com.limegroup.gnutella.xml;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,6 +52,8 @@ public class LimeXMLSchema {
      * IE: 'things', for the 'thing' schema.
      */
     private final String _rootXMLName;
+
+    private List<String> canonicalFieldNames;
     
 
     /** 
@@ -76,6 +78,7 @@ public class LimeXMLSchema {
         Document document = getDocument(inputSource);
         IOUtils.close(inputSource.getByteStream()); // make sure we closed the input source.
         _canonicalizedFields = Collections.unmodifiableList(new LimeXMLSchemaFieldExtractor().getFields(document));
+        canonicalFieldNames = createCanonicalFieldNames(_canonicalizedFields);
         _schemaURI = retrieveSchemaURI(document);
         _rootXMLName = getRootXMLName(document);
         _description = getDisplayString(_schemaURI);
@@ -228,6 +231,14 @@ public class LimeXMLSchema {
     }
     
     
+    private static List<String> createCanonicalFieldNames(List<SchemaFieldInfo> fields) {
+        List<String> fieldNames = new ArrayList<String>(fields.size());
+        for (SchemaFieldInfo field : fields) {
+            fieldNames.add(field.getCanonicalizedFieldName());
+        }
+        return Collections.unmodifiableList(fieldNames);
+    }
+    
     /**
      * Returns all the fields(placeholders) names in this schema.
      * The field names are canonicalized as mentioned below:
@@ -248,19 +259,8 @@ public class LimeXMLSchema {
      *
      * @return list (Strings) of all the field names in this schema.
      */
-    public String[] getCanonicalizedFieldNames()
-    {
-        //get the fields
-        List<SchemaFieldInfo> canonicalizedFields = this.getCanonicalizedFields();
-        
-        //extract field names out of those
-        String[] fieldNames = new String[canonicalizedFields.size()];
-        Iterator<SchemaFieldInfo> iterator = canonicalizedFields.iterator();
-        for(int i=0; i < fieldNames.length; i++)
-            fieldNames[i] = iterator.next().getCanonicalizedFieldName();
-        
-        //return the field names
-        return fieldNames;
+    public List<String> getCanonicalizedFieldNames() {
+        return canonicalFieldNames;
     }
     
     private static final class Resolver implements EntityResolver

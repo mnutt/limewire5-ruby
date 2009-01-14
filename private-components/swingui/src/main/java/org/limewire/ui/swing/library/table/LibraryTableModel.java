@@ -10,7 +10,7 @@ public class LibraryTableModel<T extends FileItem>  extends EventTableModel<T> {
     private final EventList<T> libraryItems;
 
     public LibraryTableModel(EventList<T> libraryItems, LibraryTableFormat<T> format) {
-        super(libraryItems, format);
+        super(libraryItems, format, false);
         this.libraryItems = libraryItems;
     }
     

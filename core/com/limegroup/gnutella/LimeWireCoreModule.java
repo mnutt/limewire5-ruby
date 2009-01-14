@@ -25,11 +25,13 @@ import org.limewire.inspection.Inspector;
 import org.limewire.inspection.InspectorImpl;
 import org.limewire.io.LimeWireIOModule;
 import org.limewire.io.LocalSocketAddressProvider;
+import org.limewire.listener.AsynchronousMulticaster;
+import org.limewire.listener.BroadcastPolicy;
 import org.limewire.listener.CachingEventMulticaster;
+import org.limewire.listener.CachingEventMulticasterImpl;
 import org.limewire.listener.EventBean;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.ListenerSupport;
-import org.limewire.listener.BroadcastPolicy;
 import org.limewire.mojito.LimeWireMojitoModule;
 import org.limewire.mojito.io.MessageDispatcherFactory;
 import org.limewire.net.ConnectionDispatcher;
@@ -89,8 +91,6 @@ import com.limegroup.gnutella.auth.LimeWireContentAuthModule;
 import com.limegroup.gnutella.bootstrap.UDPHostCacheFactory;
 import com.limegroup.gnutella.bootstrap.UDPHostCacheFactoryImpl;
 import com.limegroup.gnutella.browser.LocalAcceptor;
-import com.limegroup.gnutella.chat.InstantMessengerFactory;
-import com.limegroup.gnutella.chat.InstantMessengerFactoryImpl;
 import com.limegroup.gnutella.connection.ConnectionBandwidthStatistics;
 import com.limegroup.gnutella.connection.ConnectionBandwidthStatisticsImpl;
 import com.limegroup.gnutella.connection.ConnectionCapabilities;
@@ -325,7 +325,6 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(LicenseFactory.class).to(LicenseFactoryImpl.class);
         bind(LimeXMLDocumentFactory.class).to(LimeXMLDocumentFactoryImpl.class);
         bind(MetaDataFactory.class).to(MetaDataFactoryImpl.class);
-        bind(InstantMessengerFactory.class).to(InstantMessengerFactoryImpl.class);
         bind(SaveLocationManager.class).to(DownloadManager.class);
         bind(BTUploaderFactory.class).to(BTUploaderFactoryImpl.class);
         bind(PingRequestFactory.class).to(PingRequestFactoryImpl.class);
@@ -382,12 +381,17 @@ public class LimeWireCoreModule extends AbstractModule {
         bindAll(Names.named("messageExecutor"), ListeningExecutorService.class, MessageExecutorProvider.class, Executor.class, ExecutorService.class);
         bindAll(Names.named("nioExecutor"), ScheduledExecutorService.class, NIOScheduledExecutorServiceProvider.class, ExecutorService.class, Executor.class);
         
-        CachingEventMulticaster<FirewallTransferStatusEvent> fwtStatusMulticaster = new CachingEventMulticaster<FirewallTransferStatusEvent>(BroadcastPolicy.IF_NOT_EQUALS);
+        
+        Executor fwtEventExecutor = ExecutorsHelper.newProcessingQueue("FirewallEventThread");
+        
+        CachingEventMulticaster<FirewallTransferStatusEvent> fwtStatusMulticaster =
+            new CachingEventMulticasterImpl<FirewallTransferStatusEvent>(BroadcastPolicy.IF_NOT_EQUALS, new AsynchronousMulticaster<FirewallTransferStatusEvent>(fwtEventExecutor));
         bind(new TypeLiteral<EventBean<FirewallTransferStatusEvent>>(){}).toInstance(fwtStatusMulticaster);
         bind(new TypeLiteral<EventBroadcaster<FirewallTransferStatusEvent>>(){}).toInstance(fwtStatusMulticaster);
         bind(new TypeLiteral<ListenerSupport<FirewallTransferStatusEvent>>(){}).toInstance(fwtStatusMulticaster);
         
-        CachingEventMulticaster<FirewallStatusEvent> firewalledStatusMulticaster = new CachingEventMulticaster<FirewallStatusEvent>(BroadcastPolicy.IF_NOT_EQUALS);
+        CachingEventMulticaster<FirewallStatusEvent> firewalledStatusMulticaster =
+            new CachingEventMulticasterImpl<FirewallStatusEvent>(BroadcastPolicy.IF_NOT_EQUALS, new AsynchronousMulticaster<FirewallStatusEvent>(fwtEventExecutor));
         bind(new TypeLiteral<EventBean<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);
         bind(new TypeLiteral<EventBroadcaster<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);
         bind(new TypeLiteral<ListenerSupport<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);

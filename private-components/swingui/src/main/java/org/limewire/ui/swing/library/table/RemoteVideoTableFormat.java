@@ -20,7 +20,12 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int RATING_INDEX = 7;
     static final int DIMENSION_INDEX = 8;
     static final int DESCRIPTION_INDEX = 9;
+    static final int GENRE_INDEX = 10;
 
+    public RemoteVideoTableFormat(ColumnStateInfo[] columnState) {
+        super(columnState);
+    }
+    
     public RemoteVideoTableFormat() {
         super(new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_VIDEO_NAME", I18n.tr("Name"), 260, true, true),     
@@ -32,7 +37,8 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
                 new ColumnStateInfo(YEAR_INDEX, "REMOTE_LIBRARY_VIDEO_YEAR", I18n.tr("Year"), 60, false, true), 
                 new ColumnStateInfo(RATING_INDEX, "REMOTE_LIBRARY_VIDEO_RATING", I18n.tr("Rating"), 60, false, true),
                 new ColumnStateInfo(DIMENSION_INDEX, "REMOTE_LIBRARY_VIDEO_DIMENSION", I18n.tr("Resolution"), 80, false, true), 
-                new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_VIDEO_DESCRIPTION", I18n.tr("Description"), 100, false, true) 
+                new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_VIDEO_DESCRIPTION", I18n.tr("Description"), 100, false, true),
+                new ColumnStateInfo(GENRE_INDEX, "REMOTE_LIBRARY_VIDEO_GENRE", I18n.tr("Genre"), 80, false, true) 
         });
     }
 
@@ -42,17 +48,19 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
             case NAME_INDEX: return baseObject.getName();
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
             case LENGTH_INDEX: return baseObject.getProperty(FilePropertyKey.LENGTH);
-            case MISC_INDEX: return baseObject.getProperty(FilePropertyKey.COMMENTS);
+            case MISC_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
             case QUALITY_INDEX: return "";
             case YEAR_INDEX: return baseObject.getProperty(FilePropertyKey.YEAR);
             case RATING_INDEX: return baseObject.getProperty(FilePropertyKey.RATING);
             case SIZE_INDEX: return baseObject.getSize();
-            case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.COMMENTS);
+            case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
             case DIMENSION_INDEX:
                 if(baseObject.getProperty(FilePropertyKey.WIDTH) == null || baseObject.getProperty(FilePropertyKey.HEIGHT) == null)
                     return null;
                 else
                     return baseObject.getProperty(FilePropertyKey.WIDTH) + " X " + baseObject.getProperty(FilePropertyKey.HEIGHT);
+            case GENRE_INDEX:
+                return baseObject.getProperty(FilePropertyKey.GENRE);
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

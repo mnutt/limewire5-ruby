@@ -7,8 +7,6 @@ import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.AbstractColumnStateFormat;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 
-import ca.odell.glazedlists.GlazedLists;
-
 /**
  * Abstract table format for remote library columns
  */
@@ -39,7 +37,7 @@ public abstract class AbstractRemoteLibraryFormat<T extends FileItem> extends Ab
     
     @Override
     public Comparator getColumnComparator(int column) {
-        return GlazedLists.comparableComparator();
+        return getLimeComparator();
     }
     
     public class ActionComparator implements Comparator<RemoteFileItem> {

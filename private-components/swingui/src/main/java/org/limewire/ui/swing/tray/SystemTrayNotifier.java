@@ -15,7 +15,7 @@ import javax.swing.ImageIcon;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Resource;
-import org.limewire.core.settings.ApplicationSettings;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
@@ -108,7 +108,7 @@ class SystemTrayNotifier implements TrayNotifier {
 
     @Override
     public boolean isExitEvent(EventObject event) {
-        if (!ApplicationSettings.MINIMIZE_TO_TRAY.getValue()) {
+        if (!SwingUiSettings.MINIMIZE_TO_TRAY.getValue()) {
             return true;
         }
 
@@ -127,7 +127,6 @@ class SystemTrayNotifier implements TrayNotifier {
     }
 
     public boolean showTrayIcon() {
-
         if (tray == null || trayIconResource == null) {
             return false;
         }

@@ -25,7 +25,8 @@ class GrowlNotifier implements TrayNotifier {
     }
 
     public void showMessage(Notification notification) {
-        wrapper.notify(NOTIFY_USER, I18n.tr("Alert!"), notification.getMessage());
+        String title = notification.getTitle() != null ? notification.getTitle() : I18n.tr("LimeWire 5"); 
+        wrapper.notify(NOTIFY_USER, title, notification.getMessage());
     }
     
     public void hideMessage(Notification notification) {

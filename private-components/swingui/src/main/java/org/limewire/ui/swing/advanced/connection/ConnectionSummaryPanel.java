@@ -3,12 +3,15 @@ package org.limewire.ui.swing.advanced.connection;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JToolTip;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -23,6 +26,7 @@ import org.limewire.core.api.connection.FirewallTransferStatus;
 import org.limewire.core.api.connection.FirewallTransferStatusEvent;
 import org.limewire.core.api.connection.GnutellaConnectionManager;
 import org.limewire.listener.EventBean;
+import org.limewire.ui.swing.advanced.connection.PopupManager.PopupProvider;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.util.I18n;
 
@@ -62,9 +66,12 @@ public class ConnectionSummaryPanel extends JPanel {
     /** List of connections. */
     private TransformedList<ConnectionItem, ConnectionItem> connectionList;
 
+    /** Popup manager for transfer status reason. */
+    private final PopupManager reasonPopupManager;
+
     private JLabel nodeLabel = new JLabel();
     private JLabel firewallLabel = new MultiLineLabel();
-    private JLabel reasonLabel = new JLabel();
+    private ReasonLabel reasonLabel = new ReasonLabel();
     private JLabel summaryLabel = new JLabel();
     private JTable summaryTable = new JTable();
     private SummaryTableModel summaryTableModel = new SummaryTableModel();
@@ -80,6 +87,7 @@ public class ConnectionSummaryPanel extends JPanel {
         this.gnutellaConnectionManager = gnutellaConnectionManager;
         this.firewallStatusBean = firewallStatusBean;
         this.firewallTransferBean = firewallTransferBean;
+        this.reasonPopupManager = new PopupManager(reasonLabel);
         
         setBorder(BorderFactory.createTitledBorder(""));
         setLayout(new MigLayout("insets 0 0 0 0,fill",
@@ -91,6 +99,11 @@ public class ConnectionSummaryPanel extends JPanel {
         reasonLabel.setForeground(Color.BLUE);
         reasonLabel.setMinimumSize(new Dimension(30, 14));
         reasonLabel.setPreferredSize(new Dimension(30, 14));
+        reasonLabel.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                reasonPopupManager.showTimedPopup(reasonLabel, e.getX(), e.getY());
+            }
+        });
 
         summaryLabel.setText(CONNECTED_TO);
 
@@ -143,8 +156,10 @@ public class ConnectionSummaryPanel extends JPanel {
      * Clears the data models in the container.
      */
     public void clearData() {
-        connectionList.dispose();
-        connectionList = null;
+        if (connectionList != null) {
+            connectionList.dispose();
+            connectionList = null;
+        }
     }
 
     /**
@@ -172,18 +187,18 @@ public class ConnectionSummaryPanel extends JPanel {
             if (transferStatus == FirewallTransferStatus.DOES_NOT_SUPPORT_FWT) {
                 firewallLabel.setText(IS_FIREWALLED_NO_TRANSFERS);
                 reasonLabel.setText("<html>(<u>" + WHY + "</u>)</html>");
-                reasonLabel.setToolTipText(getReasonText(transferReason));
+                reasonLabel.setReasonText(getReasonText(transferReason));
             } else {
                 firewallLabel.setText(IS_FIREWALLED_TRANSFERS);
                 reasonLabel.setText("");
-                reasonLabel.setToolTipText(null);
+                reasonLabel.setReasonText(null);
             }
             
         } else {
             // Not firewalled so clear transfer status and reason.
             firewallLabel.setText(IS_NOT_FIREWALLED);
             reasonLabel.setText("");
-            reasonLabel.setToolTipText(null);
+            reasonLabel.setReasonText(null);
         }
     }
 
@@ -208,11 +223,35 @@ public class ConnectionSummaryPanel extends JPanel {
     }
 
     /**
+     * Label to display firewall transfer status reason.
+     */
+    private class ReasonLabel extends JLabel implements PopupProvider {
+        private String reasonText;
+
+        @Override
+        public Component getPopupContent() {
+            if ((reasonText != null) && (reasonText.length() > 0)) {
+                // Return tooltip component for popup.
+                JToolTip toolTip = createToolTip();
+                toolTip.setTipText(reasonText);
+                return toolTip;
+            } else {
+                return null;
+            }
+        }
+        
+        public void setReasonText(String reasonText) {
+            this.reasonText = reasonText;
+        }
+    }
+    
+    /**
      * Table cell renderer for connection count values in the summary table.
      * Values are right-aligned with a right margin.
      */
     private class SummaryCellRenderer extends DefaultTableCellRenderer {
 
+        @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 

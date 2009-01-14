@@ -70,7 +70,7 @@ public class SharedAudioTableFormat<T extends LocalFileItem> extends AbstractMyL
         case TRACK_INDEX: return baseObject.getProperty(FilePropertyKey.TRACK_NUMBER);
         case YEAR_INDEX: return baseObject.getProperty(FilePropertyKey.YEAR);
         case QUALITY_INDEX: return "";
-        case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.COMMENTS);
+        case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
         case ACTION_INDEX: return baseObject;
         }
         throw new IllegalArgumentException("Unknown column:" + column);
@@ -90,36 +90,17 @@ public class SharedAudioTableFormat<T extends LocalFileItem> extends AbstractMyL
     public Comparator getColumnComparator(int column) {
         switch(column) {
             case PLAY_INDEX: return new NameComparator();
-            case ACTION_INDEX: return new CheckBoxComparator();
+            case ACTION_INDEX: return new CheckBoxComparator(localFileList);
         }
         return super.getColumnComparator(column);
     }
-    
-    /**
-     * Creates a Comparator for sorting checkboxs.
-     */
-    private class CheckBoxComparator implements Comparator<FileItem> {
-        @Override
-        public int compare(FileItem o1, FileItem o2) {
-            boolean isShared1 = localFileList.contains(o1.getUrn());
-            boolean isShared2 = localFileList.contains(o2.getUrn());
-
-            if(isShared1 && isShared2) {
-                return 0;
-            } else if(isShared1 && !isShared2) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-    }
-    
+        
     /**
      * Compares the title field in the NAME_COLUMN
      */
-    private class NameComparator implements Comparator<FileItem> {
+    private class NameComparator implements Comparator<LocalFileItem> {
         @Override
-        public int compare(FileItem o1, FileItem o2) {
+        public int compare(LocalFileItem o1, LocalFileItem o2) {
             String title1 = PropertyUtils.getTitle(o1);
             String title2 = PropertyUtils.getTitle(o2);
             

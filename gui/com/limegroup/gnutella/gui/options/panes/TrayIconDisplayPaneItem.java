@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.swing.JCheckBox;
 
-import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.i18n.I18nMarker;
 
 import com.limegroup.gnutella.gui.GUIMediator;
@@ -54,7 +53,7 @@ public class TrayIconDisplayPaneItem extends AbstractPaneItem {
      */
     @Override
     public void initOptions() {
-        CHECK_BOX.setSelected(ApplicationSettings.DISPLAY_TRAY_ICON.getValue());
+//        CHECK_BOX.setSelected(ApplicationSettings.DISPLAY_TRAY_ICON.getValue());
     }
 
     /**
@@ -71,7 +70,7 @@ public class TrayIconDisplayPaneItem extends AbstractPaneItem {
             return false;
         
         boolean sel = CHECK_BOX.isSelected();
-        ApplicationSettings.DISPLAY_TRAY_ICON.setValue(sel);
+//        ApplicationSettings.DISPLAY_TRAY_ICON.setValue(sel);
         if (sel)
             GUIMediator.showTrayIcon();
         else
@@ -81,6 +80,7 @@ public class TrayIconDisplayPaneItem extends AbstractPaneItem {
     }
     
     public boolean isDirty() {
-        return ApplicationSettings.DISPLAY_TRAY_ICON.getValue() != CHECK_BOX.isSelected();
+        return false;
+//        return ApplicationSettings.DISPLAY_TRAY_ICON.getValue() != CHECK_BOX.isSelected();
     }
 }

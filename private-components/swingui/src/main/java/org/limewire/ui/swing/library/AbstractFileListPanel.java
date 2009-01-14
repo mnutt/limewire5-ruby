@@ -65,7 +65,7 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
     
     private ButtonItem currentItem = null;
 
-    protected final LibrarySelectionPanel selectionPanel = new LibrarySelectionPanel();
+    private final LibrarySelectionPanel selectionPanel = new LibrarySelectionPanel();
 
     private final LimeHeaderBar headerPanel;    
     
@@ -89,11 +89,19 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         addDisposable(selectionPanel);
     }
     
+    protected void enableFilterBox(boolean value) {
+        filterField.setEnabled(value);
+    }
+    
     protected abstract LimeHeaderBar createHeaderBar(LimeHeaderBarFactory headerBarFactory);
     protected abstract LimePromptTextField createFilterField(String prompt);
     
     protected LimeHeaderBar getHeaderPanel() {
         return headerPanel;
+    }
+    
+    protected LibrarySelectionPanel getSelectionPanel() {
+        return selectionPanel;
     }
     
     protected void addMainPanels() {
@@ -103,16 +111,14 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         add(cardPanel, "grow");
     }
     
-    protected void addButtonToHeader(Action action, ButtonDecorator buttonDecorator) {
-        
+    protected void addButtonToHeader(Action action, ButtonDecorator buttonDecorator) {        
         JXButton shareButton = new JXButton(action);
         buttonDecorator.decorateDarkFullButton(shareButton);
         headerPanel.add(shareButton, "cell 0 0, push");
     }
     
     protected void addButtonToHeader(Action action, ButtonDecorator buttonDecorator, 
-            AccentType accentType) {
-        
+            AccentType accentType) {        
         JXButton shareButton = new JXButton(action);
         buttonDecorator.decorateDarkFullButton(shareButton, accentType);
         headerPanel.add(shareButton, "cell 0 0, push");
@@ -137,8 +143,8 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         selectionPanel.showCard(id);
     }
     
-    protected void selectFirst() {
-        select(categoryOrder.get(0));
+    protected void selectFirstVisible() {
+        select(getNext(0));
     }
     
     protected JTextComponent getFilterTextField() {
@@ -175,7 +181,7 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         categoryOrder.add(category);
         
         Action action = new SelectionAction(icon, category, item, callback);
-        JComponent button = createCategoryButton(action, category);
+        JComponent button = createCategoryButton(action, category, filteredAllFileList);
         
         ((ButtonItemImpl) item).setAction(action);
         
@@ -204,7 +210,7 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
     
     
     /** Creates the category button & adds navigation listeners to it. */
-    protected JComponent createCategoryButton(Action action, Category category) {
+    protected <T extends FileItem> JComponent createCategoryButton(Action action, Category category, FilterList<T> filteredAllFileList) {
         SelectionPanel component = new SelectionPanel(action, this);
         addNavigation(component.getButton());
         return component;
@@ -439,7 +445,7 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
                         //select first category if this category is hidden
                         if(value == false && button.getAction().getValue(Action.SELECTED_KEY) != null && 
                                 button.getAction().getValue(Action.SELECTED_KEY).equals(Boolean.TRUE)) {
-                            libraryPanel.selectFirst();
+                            libraryPanel.selectFirstVisible();
                         }
                     }
                 }

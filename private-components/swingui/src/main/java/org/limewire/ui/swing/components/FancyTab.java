@@ -2,6 +2,7 @@ package org.limewire.ui.swing.components;
 
 import java.awt.AWTEvent;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -17,6 +18,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -24,6 +26,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.JToggleButton.ToggleButtonModel;
@@ -31,12 +34,11 @@ import javax.swing.JToggleButton.ToggleButtonModel;
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
+import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.icon.EmptyIcon;
-import org.limewire.ui.swing.search.resultpanel.SearchTabPopup;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.ui.swing.util.ResizeUtils;
 
 /**
  * A fancy 'tab' for use in a {@link FancyTabList}.
@@ -48,7 +50,6 @@ public class FancyTab extends JXPanel {
     private final AbstractButton removeButton;
     private final JLabel busyLabel;
     private final JLabel additionalText;
-    private final Line underline;
     private final FancyTabProperties props;
     
     private static enum TabState {
@@ -57,6 +58,7 @@ public class FancyTab extends JXPanel {
     
     private TabState currentState;
     
+    private boolean mouseInside;
     private Icon removeEmptyIcon;
     @Resource private Icon removeActiveIcon;
     @Resource private Icon removeActiveRolloverIcon;
@@ -64,7 +66,6 @@ public class FancyTab extends JXPanel {
     @Resource private Icon removeInactiveIcon;
     @Resource private Icon removeInactiveRolloverIcon;
     @Resource private Icon removeInactivePressedIcon;
-    @Resource private Icon spinnerIcon; 
     
     public FancyTab(TabActionMap actionMap,
             ButtonGroup group,
@@ -80,7 +81,6 @@ public class FancyTab extends JXPanel {
         this.additionalText = createAdditionalText();
         this.removeButton = createRemoveButton();
         this.busyLabel = createBusyLabel();
-        this.underline = Line.createHorizontalLine(props.getUnderlineColor());
 
         if (group != null) {
             group.add(mainButton);
@@ -100,25 +100,25 @@ public class FancyTab extends JXPanel {
         HighlightListener highlightListener = new HighlightListener();
         if (props.isRemovable()) {
             removeButton.addMouseListener(highlightListener);
-            removeButton.setVisible(true);
         }
         
         addMouseListener(highlightListener);
         mainButton.addMouseListener(highlightListener);
 
+        updateButtons(false);
         changeState(isSelected() ? TabState.SELECTED : TabState.BACKGROUND);
+        
         //For some reason, setting the border on the main button resolves a layout
         //problem only visible on OSX. The problem is that the additionalText
         //label displays far to the right and well below the mainButton.
         mainButton.setBorder(BorderFactory.createEmptyBorder());
-        setLayout(new MigLayout("insets 0, filly, gapy 0, hidemode 1"));        
-        add(busyLabel, "gapbefore 4, alignx left, aligny bottom, hidemode 0");
-        add(mainButton, "aligny bottom, width min(pref,50):pref:max, split 1");
-        add(additionalText, "aligny bottom, gapbottom 0");
-        add(removeButton, "gapafter 4, aligny bottom, alignx right, wrap");
-        // TODO: not worrying about underlining extras for now
-        add(underline, "skip 1, span 1, growx, aligny top");
+        setLayout(new MigLayout("insets 0 0 10 0, fill, gap 0"));        
+        add(mainButton,     "gapbefore 6, aligny bottom, width min(pref,50):pref:max, cell 1 0");
+        add(additionalText, "gapbefore 2, gapafter 4, aligny bottom, cell 2 0, hidemode 3");
+        add(busyLabel,      "gapbefore 4, gapafter 6, gapbottom 1, aligny bottom, alignx right, cell 3 0, hidemode 3");
+        add(removeButton,   "gapbefore 4, gapafter 6, gapbottom 1, aligny bottom, alignx right, cell 3 0, hidemode 3");
     }
+    
     
     @Override
     public String toString() {
@@ -133,17 +133,17 @@ public class FancyTab extends JXPanel {
         return props.getInsets();
     }
     
-    SpinLabel createBusyLabel() {
-        final SpinLabel busy = new SpinLabel();
-        busy.setIcon(spinnerIcon);
+    private boolean isBusy() {
+        return Boolean.TRUE.equals(tabActions.getMainAction().getValue(TabActionMap.BUSY_KEY));
+    }
+    
+    JLabel createBusyLabel() {
+        final JXBusyLabel busy = new ColoredBusyLabel(new Dimension(12, 12), Color.decode("#acacac"),  Color.decode("#545454"));
         
-        ResizeUtils.forceSize(busy, new Dimension(0,0));
         busy.setVisible(false);
         
-        if (tabActions.getMainAction().getValue(TabActionMap.BUSY_KEY) ==
-            Boolean.TRUE) {
+        if (isBusy()) {
             busy.setBusy(true);
-            ResizeUtils.forceSize(busy, new Dimension(16,16));    
             busy.setVisible(true);
         } 
         
@@ -151,10 +151,10 @@ public class FancyTab extends JXPanel {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals(TabActionMap.BUSY_KEY)) {
-                    boolean on = evt.getNewValue() == Boolean.TRUE;
+                    boolean on = Boolean.TRUE.equals(evt.getNewValue());
                     busy.setBusy(on);
-                    ResizeUtils.forceSize(busy, new Dimension(16,16));
-                    busy.setVisible(on);                    
+                    busy.setVisible(on);  
+                    updateButtons(mouseInside);
                 }
             }
         });
@@ -206,6 +206,7 @@ public class FancyTab extends JXPanel {
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setRolloverEnabled(true);
+        button.setBorder(BorderFactory.createEmptyBorder());
         button.setMargin(new Insets(0, 0, 0, 0));
         button.setAction(tabActions.getRemoveAction());
         button.setActionCommand(TabActionMap.REMOVE_COMMAND);
@@ -305,7 +306,12 @@ public class FancyTab extends JXPanel {
     }
     
     void setUnderlineEnabled(boolean enabled) {
-        underline.setVisible(enabled);
+        if (enabled) {
+            FontUtils.underline(mainButton); 
+        }
+        else {
+            FontUtils.removeUnderline(mainButton);
+        }
     }
 
     /** Returns true if the tab is currently highlighted (in a rollover). */
@@ -327,18 +333,29 @@ public class FancyTab extends JXPanel {
             additionalText.setFont(font);
         }
     }
-
-//  public void underline() {
-//      FontUtils.underline(mainButton);
-//      FontUtils.underline(additionalText);
-//  }
+    
+    private void updateButtons(boolean mouseInside) {
+        this.mouseInside = mouseInside;
+        
+        if(mouseInside || !isBusy()) {
+            if(props.isRemovable()) {
+                removeButton.setVisible(true);
+            } else {
+                removeButton.setVisible(false);
+            }
+            busyLabel.setVisible(false);
+        } else { // isBusy == true
+            busyLabel.setVisible(true);
+            removeButton.setVisible(false);
+        }
+    }
     
     private void changeState(TabState tabState) {
         if (currentState != tabState) {
             this.currentState = tabState;
             switch(tabState) {
             case SELECTED:
-                underline.setVisible(false);
+                setUnderlineEnabled(false);
                 mainButton.setForeground(props.getSelectionColor());
                 additionalText.setForeground(props.getSelectionColor());
                 this.setBackgroundPainter(props.getSelectedPainter());
@@ -347,16 +364,14 @@ public class FancyTab extends JXPanel {
                 removeButton.setPressedIcon(removeActivePressedIcon);
                 break;
             case BACKGROUND:
-                underline.setVisible(props.isUnderlineEnabled());
-                underline.setColor(props.getUnderlineColor());
+                setUnderlineEnabled(props.isUnderlineEnabled());
                 mainButton.setForeground(props.getNormalColor());
                 additionalText.setForeground(props.getNormalColor());
                 this.setBackgroundPainter(props.getNormalPainter());
                 removeButton.setIcon(removeEmptyIcon);
                 break;
             case ROLLOVER:
-                underline.setVisible(props.isUnderlineEnabled());
-                underline.setColor(props.getUnderlineHoverColor());
+                setUnderlineEnabled(props.isUnderlineEnabled());
                 setBackgroundPainter(props.getHighlightPainter());
                 removeButton.setIcon(removeInactiveIcon);
                 removeButton.setRolloverIcon(removeInactiveRolloverIcon);
@@ -371,15 +386,33 @@ public class FancyTab extends JXPanel {
     }
     
     private void showPopup(MouseEvent e) {
-        // A new popup menu needs to be created each time
-        // because its contents can change.
-        SearchTabPopup menu = new SearchTabPopup(this);
-        menu.show(e);
+        JPopupMenu menu = new JPopupMenu();
+        for (Action action : getTabActionMap().getRightClickActions()) {
+            menu.add(action);
+        }
+        
+        if (getComponentCount() != 0 && props.isRemovable()) {
+            menu.addSeparator();
+        }
+        
+        if (props.isRemovable()) {
+            menu.add(getTabActionMap().getRemoveOthers());
+            menu.add(getTabActionMap().getRemoveAll());
+            menu.addSeparator();
+            menu.add(new AbstractAction(props.getCloseOneText()) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    remove();
+                }
+            });
+        }
+        menu.show((Component)e.getSource(), e.getX() + 3, e.getY() + 3);
     }
     
     private class HighlightListener extends MouseAdapter {
         @Override
         public void mouseEntered(MouseEvent e) {
+            updateButtons(true);
             if (!isSelected() && mainButton.isEnabled()) {
                 getTopLevelAncestor().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 changeState(TabState.ROLLOVER);
@@ -388,6 +421,7 @@ public class FancyTab extends JXPanel {
 
         @Override
         public void mouseExited(MouseEvent e) {
+            updateButtons(false);
             getTopLevelAncestor().setCursor(Cursor.getDefaultCursor());            
             if (!isSelected()) {
                 changeState(TabState.BACKGROUND);

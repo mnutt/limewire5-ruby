@@ -2,7 +2,7 @@ package org.limewire.ui.swing.tray;
 
 import java.util.EventObject;
 
-import org.limewire.core.settings.UISettings;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
@@ -56,7 +56,7 @@ class TrayNotifierProxy implements TrayNotifier {
     }
 
     public void showMessage(Notification notification) {
-        if (!UISettings.SHOW_NOTIFICATIONS.getValue()) {
+        if (!SwingUiSettings.SHOW_NOTIFICATIONS.getValue()) {
             return;
         }
         

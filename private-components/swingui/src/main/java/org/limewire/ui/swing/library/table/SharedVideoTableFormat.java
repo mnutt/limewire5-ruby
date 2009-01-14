@@ -3,7 +3,6 @@ package org.limewire.ui.swing.library.table;
 import java.util.Comparator;
 
 import org.limewire.core.api.FilePropertyKey;
-import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.ui.swing.table.ColumnStateInfo;
@@ -22,6 +21,7 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
     static final int RATING_INDEX = 6;
     static final int DIMENSION_INDEX = 7;
     static final int DESCRIPTION_INDEX = 8;
+    static final int GENRE_INDEX = 9;
     
     private final LocalFileList localFileList;
     
@@ -35,7 +35,8 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
                 new ColumnStateInfo(SIZE_INDEX, "SHARED_LIBRARY_VIDEO_SIZE", I18n.tr("Size"), 60, false, true),
                 new ColumnStateInfo(RATING_INDEX, "SHARED_LIBRARY_VIDEO_RATING", I18n.tr("Rating"), 60, false, true), 
                 new ColumnStateInfo(DIMENSION_INDEX, "SHARED_LIBRARY_VIDEO_RESOLUTION", I18n.tr("Resolution"), 80, false, true), 
-                new ColumnStateInfo(DESCRIPTION_INDEX, "SHARED_LIBRARY_VIDEO_DESCRIPTION", I18n.tr("Description"), 100, false, true) 
+                new ColumnStateInfo(DESCRIPTION_INDEX, "SHARED_LIBRARY_VIDEO_DESCRIPTION", I18n.tr("Description"), 100, false, true),
+                new ColumnStateInfo(GENRE_INDEX, "SHARED_LIBRARY_VIDEO_GENRE", I18n.tr("Genre"), 80, false, true) 
         });
         this.localFileList = localFileList;
     }
@@ -54,8 +55,9 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
                 return null;
             else
                 return baseObject.getProperty(FilePropertyKey.WIDTH) + " X " + baseObject.getProperty(FilePropertyKey.HEIGHT); 
-        case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.COMMENTS);
+        case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
         case ACTION_INDEX: return baseObject;
+        case GENRE_INDEX: return baseObject.getProperty(FilePropertyKey.GENRE);
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }
@@ -63,27 +65,8 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
     @Override
     public Comparator getColumnComparator(int column) {
         switch(column) {
-            case ACTION_INDEX: return new CheckBoxComparator();
+            case ACTION_INDEX: return new CheckBoxComparator(localFileList);
         }
         return super.getColumnComparator(column);
-    }
-    
-    /**
-     * Creates a Comparator for sorting checkboxs.
-     */
-    private class CheckBoxComparator implements Comparator<FileItem> {
-        @Override
-        public int compare(FileItem o1, FileItem o2) {
-            boolean isShared1 = localFileList.contains(o1.getUrn());
-            boolean isShared2 = localFileList.contains(o2.getUrn());
-
-            if(isShared1 && isShared2) {
-                return 0;
-            } else if(isShared1 && !isShared2) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
     }
 }

@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.limewire.logging.Log;
@@ -39,6 +41,10 @@ import org.limewire.util.SystemUtils.SpecialLocations;
 public class FileUtils {
     
     private static final Log LOG = LogFactory.getLog(FileUtils.class);
+    
+
+    /** A cache of files that may or may not be writable.  Required for workarounds on Windows. */
+    private static final Map<File, Boolean> CAN_WRITE_CACHE = new ConcurrentHashMap<File, Boolean>();
     
     private static final CopyOnWriteArrayList<FileLocker> fileLockers =
         new CopyOnWriteArrayList<FileLocker>();
@@ -261,7 +267,7 @@ public class FileUtils {
         // for canWrite when the argument is a directory --
         // writing is based on the 'x' attribute, not the 'w'
         // attribute for directories.
-        if(f.canWrite()) {
+        if(FileUtils.canWrite(f)) {
             if(OSUtils.isWindows())
                 return true;
             else if(!f.isDirectory())
@@ -276,11 +282,12 @@ public class FileUtils {
         }
             
         String cmds[] = null;
-        if( OSUtils.isWindows() || OSUtils.isMacOSX() )
+        if( OSUtils.isWindows() || OSUtils.isMacOSX() ) {
             SystemUtils.setWriteable(fName);
-        else if ( OSUtils.isOS2() )
+            CAN_WRITE_CACHE.remove(f);
+        } else if ( OSUtils.isOS2() ) {
             ;//cmds = null; // Find the right command for OS/2 and fill in
-        else {
+        } else {
             if(f.isDirectory())
                 cmds = new String[] { "chmod", "u+w+x", fName };
             else
@@ -297,7 +304,7 @@ public class FileUtils {
             catch(InterruptedException ignored) { }
         }
         
-		return f.canWrite();
+		return FileUtils.canWrite(f);
     }
     
     /**
@@ -1007,5 +1014,35 @@ public class FileUtils {
             locker.releaseLock(file);
         }
     }
-    
+
+    /**
+     * A replacement for {@link File#canWrite()}. Required because Windows
+     * returns the wrong permissions for files that have special icons or other
+     * things set.
+     */
+    public static boolean canWrite(File file) {
+        if(!OSUtils.isWindows() || !file.isDirectory()) {
+            return file.canWrite();
+        } else {
+            if(file.canWrite()) {
+                return true;
+            }
+            // If the file cannot be written, we're kind of stuck
+            // (between a rock & a hard place...)
+            Boolean cached = CAN_WRITE_CACHE.get(file);
+            if(cached != null) {
+                return cached;
+            } else {
+                try {
+                    File f = createTempFile("lw-", "can-write-test", file);
+                    f.delete();
+                    CAN_WRITE_CACHE.put(file, true);
+                    return true;
+                } catch(IOException iox) {
+                    CAN_WRITE_CACHE.put(file, false);
+                    return false;
+                }
+            }
+        }
+    }
 }

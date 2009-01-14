@@ -11,9 +11,6 @@ import org.limewire.io.IpPort;
 
 import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.chat.InstantMessenger;
-import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
-import com.limegroup.gnutella.connection.ConnectionLifecycleListener;
 import com.limegroup.gnutella.messages.QueryReply;
 
 /**
@@ -30,15 +27,9 @@ import com.limegroup.gnutella.messages.QueryReply;
  *  <li>Error messages</li>
  *  </ul>
  */
-public interface ActivityCallback extends DownloadCallback, ConnectionLifecycleListener
+public interface ActivityCallback extends DownloadCallback
 {
     
-    /**
-     * The address of the program has changed or we've
-     * just accepted our first incoming connection.
-     */
-    public void handleAddressStateChanged();
-
     /**
      * Notifies the UI that a new query result has come in to the backend.
      * 
@@ -59,40 +50,6 @@ public interface ActivityCallback extends DownloadCallback, ConnectionLifecycleL
     /** Remove an uploader from the upload window. */
     public void removeUpload(Uploader u);    
 
-	/**
-     * Add a new incoming chat connection. This is invoked when the handshake
-     * for a connection has been completed and the connection is ready for
-     * sending and receiving of messages.
-     */
-	public void acceptChat(InstantMessenger ctr);
-
-    /** A new message is available from the given chatter. */
-	public void receiveMessage(InstantMessenger chr, String messsage);
-
-	/** The given chatter is no longer available */
-	public void chatUnavailable(InstantMessenger chatter);
-
-	/** display an error message */
-	public void chatErrorMessage(InstantMessenger chatter, String str);
-    
-    /**
-     * Notifies that the user is attempting to share a sensitive
-     * directory.  Returns true if the sensitive directory should be shared. 
-     */
-    public boolean warnAboutSharingSensitiveDirectory(File dir);
-    
-    /** 
-     * Notifies about connection life cycle related events.
-     * This event is triggered by the ConnectionManager
-     * 
-     */
-    public void handleConnectionLifecycleEvent(ConnectionLifecycleEvent evt);
-    
-    /**
-     * Notifies that the given shared file has new information.
-     *
-     * @param file The File that needs updating
-     */    
     public void handleSharedFileUpdate(File file);
     
     /** 
@@ -121,20 +78,11 @@ public interface ActivityCallback extends DownloadCallback, ConnectionLifecycleL
 	 * If this is the case the callback should return <code>true</code>, otherwise
 	 * the core starts the downloads itself.
 	 * @param magnets Array of magnet information to handle
-	 * @return true if the callback handles the magnet links
 	 */
-	public boolean handleMagnets(MagnetOptions[] magnets);
+	public void handleMagnets(MagnetOptions[] magnets);
 
     /** Try to download the torrent file */
 	public void handleTorrent(File torrentFile);
-
-    /**
-     * Display an error if initial DAAP setup fails
-     * @param t The exception that occurred while attempting to create a daap connection
-     * @return true if this Throwable was a relevant connection error and was able to be handled in a
-     * special way
-     */
-    public boolean handleDAAPConnectionError(Throwable t);
 
     /**
      * Translate a String taking into account Locale.

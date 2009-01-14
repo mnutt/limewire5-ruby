@@ -4,24 +4,24 @@ import java.awt.event.ActionEvent;
 import java.util.Map;
 
 import javax.swing.Action;
-import javax.swing.JMenu;
 
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.player.api.AudioPlayer;
 import org.limewire.player.api.AudioPlayerEvent;
 import org.limewire.player.api.AudioPlayerListener;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.action.MnemonicMenu;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
 
-public class PlayerMenu extends JMenu {
+public class PlayerMenu extends MnemonicMenu {
     @Inject
     public PlayerMenu(AudioPlayer audioPlayer,
             LibraryNavigator libraryNavigator,
             LibraryManager libraryManager) {
-        super(I18n.tr("Player"));
+        super(I18n.tr("&Player"));
 
         add(getPlayPauseAction(audioPlayer));
 //

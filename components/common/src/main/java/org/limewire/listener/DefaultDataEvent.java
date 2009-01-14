@@ -18,6 +18,24 @@ public class DefaultDataEvent<S, E, D> extends DefaultEvent<S, E> {
     }
     
     @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 31 * hash + (data != null ? data.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!super.equals(obj)) {
+            return false;
+        }
+        if(!obj.getClass().equals(getClass())) {
+            return false;
+        }
+        return data.equals(((DefaultDataEvent)obj).getData());
+    }
+    
+    @Override
     public String toString() {
         return super.toString() + ", data: " + data;
     }

@@ -142,7 +142,7 @@ public final class SaveDirectoryHandler {
             } catch (IOException ignored) {}
         }
         
-        return saveDir.canWrite();
+        return FileUtils.canWrite(saveDir);
     }
     
     private static boolean isGoodVistaDirectory(File f) {

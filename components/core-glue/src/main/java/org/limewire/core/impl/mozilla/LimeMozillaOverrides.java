@@ -8,6 +8,7 @@ import org.mozilla.interfaces.nsIPrefService;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.limegroup.gnutella.util.LimeWireUtils;
 
 @Singleton
 public class LimeMozillaOverrides {
@@ -33,7 +34,7 @@ public class LimeMozillaOverrides {
         prefService.getBranch("browser.download.").setCharPref("dir", downloadDir);
         prefService.getBranch("browser.download.manager.").setBoolPref("showWhenStarting", 0);
         prefService.getBranch("browser.download.manager.").setBoolPref("showAlertOnComplete", 0);
-        prefService.getBranch("general.useragent.extra.").setCharPref("firefox", "LimeWire");
+        prefService.getBranch("general.useragent.extra.").setCharPref("firefox", LimeWireUtils.getHttpServer());
         
         //prevents mozilla from beiing in offline mode inside of limewire.
         prefService.getBranch("browser.").setBoolPref("offline", 0);

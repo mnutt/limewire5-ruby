@@ -24,17 +24,12 @@ public class HorizontalDownloadTableModel implements TableModel {
         downloadItems.addListEventListener(new ListEventListener<DownloadItem>() {
             @Override
             public void listChanged(ListEvent<DownloadItem> listChanges) {
-                HorizontalDownloadTableModel.this.downloadItems.getReadWriteLock().readLock().lock();
-                try {
-                    while(listChanges.nextBlock()) {
-                        if(listChanges.getType() == ListEvent.INSERT || listChanges.getType() == ListEvent.DELETE){
-                            fireTableModelEvent(new TableModelEvent(HorizontalDownloadTableModel.this,TableModelEvent.HEADER_ROW));
-                        } else if(listChanges.getType() == ListEvent.UPDATE){
-                            fireTableModelEvent(new TableModelEvent(HorizontalDownloadTableModel.this, TableModelEvent.UPDATE));
-                          }
+                while(listChanges.nextBlock()) {
+                    if(listChanges.getType() == ListEvent.INSERT || listChanges.getType() == ListEvent.DELETE){
+                        fireTableModelEvent(new TableModelEvent(HorizontalDownloadTableModel.this,TableModelEvent.HEADER_ROW));
+                    } else if(listChanges.getType() == ListEvent.UPDATE){
+                        fireTableModelEvent(new TableModelEvent(HorizontalDownloadTableModel.this, TableModelEvent.UPDATE));
                     }
-                } finally {
-                    HorizontalDownloadTableModel.this.downloadItems.getReadWriteLock().readLock().unlock();
                 }
             }
         });
@@ -42,17 +37,18 @@ public class HorizontalDownloadTableModel implements TableModel {
     }
     
     public DownloadItem getDownloadItem(int index){
-        return downloadItems.get(downloadItems.size() - 1 - index);
+        //in accessible tables, can be 0 even if no items exist        
+        if(index == 0 && downloadItems.isEmpty()) {
+            return null;
+        } else {
+            return downloadItems.get(downloadItems.size() - 1 - index);
+        }
     }
-
-    public int indexOf(DownloadItem item) {
-        return downloadItems.size() - 1 - downloadItems.indexOf(item);
-    }
-
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex >= downloadItems.size()){
+        // in accessible tables, can be 0 even if no items exist
+        if (columnIndex != 0 && columnIndex >= downloadItems.size()){
             throw new IllegalArgumentException("Unknown column:" + columnIndex);
         }
         return DownloadItem.class;
@@ -65,7 +61,8 @@ public class HorizontalDownloadTableModel implements TableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        if (columnIndex >= downloadItems.size()){
+        // in accessible tables, can be 0 even if no items exist
+        if (columnIndex != 0 && columnIndex >= downloadItems.size()){
             throw new IllegalArgumentException("Unknown column:" + columnIndex);
         }
         return Integer.toString(columnIndex);
@@ -78,7 +75,8 @@ public class HorizontalDownloadTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if (columnIndex >= downloadItems.size()){
+        // in accessible tables, can be 0 even if no items exist
+        if (columnIndex != 0 && columnIndex >= downloadItems.size()){
             throw new IllegalArgumentException("Unknown column:" + columnIndex);
         }
         if (rowIndex > 0){
@@ -89,7 +87,8 @@ public class HorizontalDownloadTableModel implements TableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (columnIndex >= downloadItems.size()){
+        // in accessible tables, can be 0 even if no items exist
+        if (columnIndex != 0 && columnIndex >= downloadItems.size()){
             throw new IllegalArgumentException("Unknown column:" + columnIndex);
         }
         if (rowIndex > 0){

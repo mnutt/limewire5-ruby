@@ -17,12 +17,10 @@ import com.google.inject.Singleton;
 @Singleton
 public class PopupButtonBackgroundPainter extends AbstractPainter<JXButton> {
     
-    @Resource
-    private int arcWidth;
-    @Resource
-    private Color backgroundPressed;
-    @Resource
-    private Color backgroundRollover;
+    @Resource private int arcWidth;
+    @Resource private int arcHeight;
+    @Resource private Color backgroundPressed;
+    @Resource private Color backgroundRollover;
     
     public PopupButtonBackgroundPainter() {
         GuiUtils.assignResources(this);
@@ -34,11 +32,11 @@ public class PopupButtonBackgroundPainter extends AbstractPainter<JXButton> {
     protected void doPaint(Graphics2D g, JXButton button, int width, int height) {
         if (button.getModel().isPressed()) {
             g.setColor(this.backgroundPressed);
-            g.fillRoundRect(0, 0, width-1, height-1, arcWidth, height-1);
+            g.fillRoundRect(1, 0, width-2, height-1, arcWidth, arcHeight);
         }
-        else if (button.getModel().isRollover()) {
+        else if (button.getModel().isRollover() || button.hasFocus()) {
             g.setColor(this.backgroundRollover);
-            g.fillRoundRect(0, 0, width-1, height-1, arcWidth, height-1);
+            g.fillRoundRect(1, 0, width-2, height-1, arcWidth, arcHeight);
         }
     }
 }

@@ -3,8 +3,6 @@ package com.limegroup.gnutella.http;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.limewire.core.settings.ChatSettings;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.NetworkManager;
@@ -25,8 +23,8 @@ public class FeaturesWriter {
     public Set<HTTPHeaderValue> getFeaturesValue() {
         Set<HTTPHeaderValue> features = new HashSet<HTTPHeaderValue>(4);
         features.add(ConstantHTTPHeaderValue.BROWSE_FEATURE);
-        if (ChatSettings.CHAT_ENABLED.getValue())
-            features.add(ConstantHTTPHeaderValue.CHAT_FEATURE);
+//        if (ChatSettings.CHAT_ENABLED.getValue())
+//            features.add(ConstantHTTPHeaderValue.CHAT_FEATURE);
         
        	features.add(ConstantHTTPHeaderValue.PUSH_LOCS_FEATURE);
        	

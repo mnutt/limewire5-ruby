@@ -990,7 +990,7 @@ public class CheckBoxList<E> extends BoxPanel {
     public interface ExtrasProvider<E> {
         boolean isSeparated(E obj);
         String getComment(E obj);
-        int getCommentFeildSize(); 
+        int getCommentFieldSize(); 
     }
     
     /**
@@ -1091,8 +1091,8 @@ public class CheckBoxList<E> extends BoxPanel {
                 
                 Rectangle2D textSize = FontUtils.getLongestTextArea(this.originalFont, text);
                 
-                if (extrasProvider.getCommentFeildSize() > textSize.getWidth()+26) {
-                    label.setPreferredSize(new Dimension(extrasProvider.getCommentFeildSize(), 18));
+                if (extrasProvider.getCommentFieldSize() > textSize.getWidth()+26) {
+                    label.setPreferredSize(new Dimension(extrasProvider.getCommentFieldSize(), 18));
                     label.setSize(label.getPreferredSize());
                     label.setMinimumSize(label.getPreferredSize());
                     label.setMaximumSize(label.getPreferredSize());

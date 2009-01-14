@@ -30,7 +30,7 @@ import com.limegroup.gnutella.NetworkManager;
 @Singleton
 public class SameNATAddressResolver implements AddressResolver, RegisteringEventListener<AddressEvent> {
 
-    private final static Log LOG = LogFactory.getLog(SameNATAddressResolver.class);
+    private final static Log LOG = LogFactory.getLog(SameNATAddressResolver.class, LOGGING_CATEGORY);
     
     private final NetworkManager networkManager;
 

@@ -3,6 +3,7 @@ package org.limewire.ui.swing.library.image;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ import ca.odell.glazedlists.matchers.Matcher;
 
 
 public class LibraryImagePanel extends JPanel
-    implements ListEventListener<List<LocalFileItem>>, Disposable, Scrollable, LibraryOperable {
+    implements ListEventListener<List<LocalFileItem>>, Disposable, Scrollable, LibraryOperable<LocalFileItem> {
     
     private LibraryImageSubPanelFactory factory;
     private ShareWidget<File> shareWidget;
@@ -270,6 +271,25 @@ public class LibraryImagePanel extends JPanel
     @Override
     public File getPreviousItem(File file) {
         throw new IllegalStateException("Image library traversal not available");
+    }
+
+    @Override
+    public List<LocalFileItem> getSelectedItems() {
+        List<LocalFileItem> selectionList = new ArrayList<LocalFileItem>();
+        for (LibraryImageSubPanel subPanel : panelMap.values()) {
+            selectionList.addAll(subPanel.getSelectedItems());
+        }
+        return selectionList;
+    }
+
+    @Override
+    public void selectAll() {
+        for (LibraryImageSubPanel subPanel : panelMap.values()) {
+            ImageList imageList = subPanel.getImageList();
+            if (imageList.getElementCount() > 0) {
+                imageList.setSelectionInterval(0, imageList.getElementCount() - 1);
+            }
+        }
     }
 
 }

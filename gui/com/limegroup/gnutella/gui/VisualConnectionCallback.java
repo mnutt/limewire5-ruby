@@ -26,12 +26,10 @@ import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.chat.InstantMessenger;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.gui.actions.LaunchAction;
 import com.limegroup.gnutella.gui.actions.ShowInLibraryAction;
-import com.limegroup.gnutella.gui.chat.ChatUIManager;
 import com.limegroup.gnutella.gui.download.DownloaderUtils;
 import com.limegroup.gnutella.gui.logging.LogEvent;
 import com.limegroup.gnutella.gui.notify.Notification;
@@ -344,72 +342,7 @@ public final class VisualConnectionCallback implements ActivityCallback {
             mf().getUploadMediator().remove(mgr);
 	    }
     }
-	
 
-	///////////////////////////////////////////////////////////////////////////
-	//  Chat-related callbacks
-	///////////////////////////////////////////////////////////////////////////
-	
-	/** 
-	 * Adds a new chat session, encapsulated in the specified 
-	 * <tt>Chatter</tt> instance.
-	 *
-	 * @param chatter the <tt>Chatter</tt> instance that provides all
-	 *  data access regarding the chat session
-	 */
-	public void acceptChat(final InstantMessenger chatter) {
-	    SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
-	            ChatUIManager.instance().acceptChat(chatter);
-			}
-	    });
-	}
-	
-	/**
-	 * Receives a new chat message for a specific <tt>Chatter</tt>
-	 * instance.
-	 * 
-	 * @param chatter the <tt>Chatter</tt> instance that is receiving
-	 *  a new message
-	 */
-	public void receiveMessage(final InstantMessenger chatter, final String message) {
-	    SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
-	            ChatUIManager.instance().receiveMessage(chatter, message);
-			}
-	    });
-	}
-
-	/** 
-	 * Specifies that the given chat host is no longer available, thereby
-	 * ending the chat session.
-	 *
-	 * @param chatter the <tt>Chatter</tt> instance for the chat session
-	 *  that is terminating 
-	 */
-	public void chatUnavailable(final InstantMessenger chatter) {
-	    SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
-	            ChatUIManager.instance().chatUnavailable(chatter);
-			}
-	    });
-	}
-
-	/** 
-	 * Display an error message for the specified chat session.
-	 *
-	 * @param chatter the <tt>Chatter</tt> instance to show an error for
-	 * @param str the error to display
-	 */
-	public void chatErrorMessage(final InstantMessenger chatter, final String str) {
-	    SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
-		        ChatUIManager.instance().chatErrorMessage(chatter, str);
-			}
-	    });
-	}
-
-	
 	///////////////////////////////////////////////////////////////////////////
 	//  Other stuff
 	///////////////////////////////////////////////////////////////////////////
@@ -534,7 +467,7 @@ public final class VisualConnectionCallback implements ActivityCallback {
 	/**
 	 * Returns true since we want to kick off the magnet downloads ourselves.
 	 */
-	public boolean handleMagnets(final MagnetOptions[] magnets) {
+	public void handleMagnets(final MagnetOptions[] magnets) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				boolean oneSearchStarted = false;
@@ -561,7 +494,6 @@ public final class VisualConnectionCallback implements ActivityCallback {
 				}
 			}
 		});
-		return true;
 	}
 	
 	public void handleTorrent(final File torrentFile) {
@@ -580,14 +512,16 @@ public final class VisualConnectionCallback implements ActivityCallback {
         });
     }
     
-    public boolean handleDAAPConnectionError(Throwable t) {
+    public void handleDAAPConnectionError(Throwable t) {
         if (t == null)
-            return false;
+            return;
 
         String msg = t.getMessage();
         if (msg == null
-                || msg.indexOf("Unable to establish loopback connection") == -1)
-            return handleDAAPConnectionError(t.getCause());
+                || msg.indexOf("Unable to establish loopback connection") == -1) {
+            handleDAAPConnectionError(t.getCause());
+            return;
+        }
 
         // Problem with XP SP2. -- Loopback connections are disallowed.
         // Why? Who knows. This patch fixes it:
@@ -612,8 +546,7 @@ public final class VisualConnectionCallback implements ActivityCallback {
             if (answer == DialogOption.NO)
                 DaapSettings.DAAP_ENABLED.setValue(false);
         }
-
-        return true;
+        
     }
 
     public String translate(String s) {

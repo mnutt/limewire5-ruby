@@ -8,10 +8,10 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.limewire.core.settings.QuestionsHandler;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
+import org.limewire.ui.swing.settings.QuestionsHandler;
 import org.limewire.ui.swing.util.I18n;
 
 /**

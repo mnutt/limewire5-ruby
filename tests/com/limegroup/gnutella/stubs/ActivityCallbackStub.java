@@ -15,7 +15,6 @@ import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.chat.InstantMessenger;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -47,10 +46,6 @@ public class ActivityCallbackStub implements ActivityCallback {
     public void downloadCompleted(Downloader d) { }    
     public void addUpload(Uploader u) { }
     public void removeUpload(Uploader u) { }    	
-	public void acceptChat(InstantMessenger ctr) { }
-	public void receiveMessage(InstantMessenger chr, String message) { }	
-	public void chatUnavailable(InstantMessenger chatter) { }	
-	public void chatErrorMessage(InstantMessenger chatter, String str) { }
     public void addSharedDirectory(final File directory, final File parent) { }
     public void addSharedFile(final FileDesc file, final File parent) { }
     public boolean warnAboutSharingSensitiveDirectory(final File dir) { return false; }
@@ -75,13 +70,12 @@ public class ActivityCallbackStub implements ActivityCallback {
         return false;
     }
     public void handleAddressStateChanged() {}
-	public boolean handleMagnets(final MagnetOptions[] magnets) {
-		return false;
+	public void handleMagnets(final MagnetOptions[] magnets) {
 	}
 
     public void handleTorrent(File torrentFile) {
 	}
-    public boolean handleDAAPConnectionError(Throwable t) { return false; }
+    public void handleDAAPConnectionError(Throwable t) {  }
     public String translate(String s) { return s;}
 
     @Override

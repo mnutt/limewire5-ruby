@@ -2,11 +2,7 @@ package org.limewire.ui.swing.library;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Area;
-import java.awt.geom.RoundRectangle2D;
 
 import javax.swing.Action;
 import javax.swing.JPanel;
@@ -15,7 +11,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.painter.AbstractPainter;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.ui.swing.action.AbstractAction;
@@ -23,6 +18,7 @@ import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.Line;
 import org.limewire.ui.swing.dnd.LocalFileListTransferHandler;
+import org.limewire.ui.swing.painter.BackgroundMessagePainter;
 import org.limewire.ui.swing.painter.GenericBarPainter;
 import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -47,12 +43,6 @@ public class EmptyLibraryPanel extends LibraryPanel {
     private Color mainPanelTopGradient;
     @Resource
     private Color mainPanelBottomGradient;
-    @Resource
-    private Color messageBorder;
-    @Resource
-    private Color messageShadowColor;
-    @Resource
-    private Color messageBackgroundColor;
     
     private final Friend friend;
     private final FriendLibraryMediator mediator;
@@ -70,11 +60,15 @@ public class EmptyLibraryPanel extends LibraryPanel {
         
         this.friend = friend;
         this.mediator = mediator;
-        addButtonToHeader(new ViewSharedLibraryAction(), buttonDecorator);
+        if(!friend.isAnonymous()) {
+            addButtonToHeader(new ViewSharedLibraryAction(), buttonDecorator);
+        }
         addDisposable((Disposable)messageComponent);
         createEmptyPanel(messageComponent);
         getHeaderPanel().setText(I18n.tr("Download from {0}", getFullPanelName()));
         setTransferHandler(new LocalFileListTransferHandler(friendFileList));
+        
+        enableFilterBox(false);
     }
     
     protected String getFullPanelName() {
@@ -122,40 +116,6 @@ public class EmptyLibraryPanel extends LibraryPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             mediator.showSharingCard();
-        }
-    }
-    
-    /**
-     * Paints the hover over panel that displays the message
-     */
-    private class BackgroundMessagePainter<X> extends AbstractPainter<JXPanel> {
-
-        private int BORDER_INSETS = 5;
-        private int arc = 10;
-        
-        public BackgroundMessagePainter() {
-        }
-        
-        @Override
-        protected void doPaint(Graphics2D g, JXPanel object, int width, int height) {
-            Area shadowArea = new Area(new RoundRectangle2D.Float(0, 0, width, height, arc, arc));
-            RoundRectangle2D.Float panelShape = new RoundRectangle2D.Float(BORDER_INSETS, BORDER_INSETS,width - 2 * BORDER_INSETS,height - 2 * BORDER_INSETS, arc, arc);
-            Area panelArea = new Area(panelShape);
-            shadowArea.subtract(panelArea);
-            
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-
-            g2.setColor(messageShadowColor);
-            g2.fill(shadowArea);
-            
-            g2.setColor(messageBackgroundColor);
-            g2.fill(panelArea);        
-
-            g2.setColor(messageBorder);
-            g2.draw(panelShape);
-            g2.dispose();         
         }
     }
 }

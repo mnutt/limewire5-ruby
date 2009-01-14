@@ -1,9 +1,11 @@
 package org.limewire.ui.swing.wizard;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.limewire.core.api.library.LibraryData;
 import org.limewire.util.OSUtils;
 import org.limewire.util.SystemUtils;
 import org.limewire.util.SystemUtils.SpecialLocations;
@@ -18,48 +20,46 @@ public class AutoDirectoryManageConfig {
    /**
     * Helper method to add a file to a set from a file string if it is not null or empty
     */
-    private static void addIfSupported(String path, Set<File> directories) {
+    private static void addIfSupported(LibraryData data, String path, Set<File> folders) {
         if (path != null && !path.isEmpty()) {
-            directories.add(new File(path));
+            addIfAllowed(data, new File(path), folders);
+        }
+    }
+    
+    private static void addIfAllowed(LibraryData data, File folder, Collection<File> folders) {
+        if(data.isDirectoryAllowed(folder)) {
+            folders.add(folder);
         }
     }
     
     /**
      * Determines the OS specific list of directories to manage by default.
-     *  Note, this list is not for certain as no checks are performed so  any results
-     *  should be considered as best guesses.  
-     *  
      */
-    public static Set<File> getManagedDirectories() {
+    public static Set<File> getDefaultManagedDirectories(LibraryData data) {
         Set<File> dirs = new HashSet<File>();
 
         if (OSUtils.isWindows() && !OSUtils.isWindowsVista()) {
-            addIfSupported(SystemUtils.getSpecialPath(SpecialLocations.DOCUMENTS), dirs);
-            addIfSupported(SystemUtils.getSpecialPath(SpecialLocations.DESKTOP), dirs);
+            addIfSupported(data, SystemUtils.getSpecialPath(SpecialLocations.DOCUMENTS), dirs);
+            addIfSupported(data, SystemUtils.getSpecialPath(SpecialLocations.DESKTOP), dirs);
         } else {
-        
-            addIfSupported(SystemUtils.getSpecialPath(SpecialLocations.DOCUMENTS), dirs);
-            addIfSupported(SystemUtils.getSpecialPath(SpecialLocations.DESKTOP), dirs);
+            addIfSupported(data, SystemUtils.getSpecialPath(SpecialLocations.DOCUMENTS), dirs);
+            addIfSupported(data, SystemUtils.getSpecialPath(SpecialLocations.DESKTOP), dirs);
             
-            String homePath = SystemUtils.getSpecialPath(SpecialLocations.HOME);
-            
+            String homePath = SystemUtils.getSpecialPath(SpecialLocations.HOME);            
             if (homePath != null && !homePath.isEmpty()) {
-                dirs.add(new File(homePath, "Downloads"));
-                dirs.add(new File(homePath, "Movies"));
-                dirs.add(new File(homePath, "Music"));
-                dirs.add(new File(homePath, "Pictures"));
-                dirs.add(new File(homePath, "Public"));
+                addIfAllowed(data, new File(homePath, "Downloads"), dirs);
+                addIfAllowed(data, new File(homePath, "Music"), dirs);
+                addIfAllowed(data, new File(homePath, "Pictures"), dirs);
+                
+                if (OSUtils.isWindowsVista()) { 
+                    addIfAllowed(data, new File(homePath, "Videos"), dirs);
+                } 
+                else {
+                    addIfAllowed(data, new File(homePath, "Public"), dirs);
+                    addIfAllowed(data, new File(homePath, "Movies"), dirs);
+                }
             }
         }
-                
-        return dirs;
-    }
-    
-    /**
-     * Determines the OS specific list of directories to exclude
-     */
-    public static  Set<File> getExcludedDirectories() {
-        Set<File> dirs = new HashSet<File>();
                 
         return dirs;
     }

@@ -1,5 +1,6 @@
 package org.limewire.xmpp.client.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -16,7 +17,7 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.ChatStateManager;
-import org.limewire.concurrent.ThreadExecutor;
+
 import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListenerList;
@@ -28,7 +29,6 @@ import org.limewire.logging.LogFactory;
 import org.limewire.net.ConnectBackRequestedEvent;
 import org.limewire.net.address.AddressEvent;
 import org.limewire.net.address.AddressFactory;
-import org.limewire.util.DebugRunnable;
 import org.limewire.xmpp.api.client.FileOfferEvent;
 import org.limewire.xmpp.api.client.FriendRequestEvent;
 import org.limewire.xmpp.api.client.LibraryChangedEvent;
@@ -53,6 +53,11 @@ import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQ;
 import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQListener;
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQ;
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQListener;
+
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.SRVRecord;
+import org.xbill.DNS.Type;
 
 public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConnection {
 
@@ -111,6 +116,11 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         
         smackConnectionListener = new SmackConnectionListener();
     }
+    
+    @Override
+    public String toString() {
+        return org.limewire.util.StringUtils.toString(this, configuration, connection);
+    }
 
     public void setMode(Presence.Mode mode) {
         connection.sendPacket(getPresenceForMode(mode));
@@ -134,10 +144,11 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
             try {
                 org.jivesoftware.smack.XMPPConnection.addConnectionCreationListener(smackConnectionListener);
                 org.jivesoftware.smack.XMPPConnection.DEBUG_ENABLED = configuration.isDebugEnabled();
-                connection = new org.jivesoftware.smack.XMPPConnection(getConnectionConfig(configuration));
+                ConnectionConfiguration connectionConfig = getConnectionConfig();
+                connection = new org.jivesoftware.smack.XMPPConnection(connectionConfig);
                 connection.addRosterListener(new RosterListenerImpl(connection));
                 if (LOG.isInfoEnabled())
-                    LOG.info("connecting to " + connection.getServiceName() + " at " + connection.getHost() + ":" + connection.getPort() + "...");
+                    LOG.info("connecting to " + connectionConfig.getServiceName() + " at " + connectionConfig.getHost() + ":" + connectionConfig.getPort() + "...");
                 connection.connect();
                 SubscriptionListener sub = new SubscriptionListener(connection,
                                                     friendRequestBroadcaster);
@@ -187,12 +198,44 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
 
     /**
      * Converts a LimeWire XMPPConnectionConfiguration into a Smack
-     * ConnectionConfiguration, trying to obtain the hostname and port from
-     * DNS SRV as per RFC 3920 and falling back to the service name and default
-     * port if the SRV lookup fails. This method blocks during the DNS lookup.
+     * ConnectionConfiguration, trying to obtain the hostname from DNS SRV
+     * as per RFC 3920 and falling back to the service name and default port
+     * if the SRV lookup fails. This method blocks during the DNS lookup.
      */
-    private ConnectionConfiguration getConnectionConfig(XMPPConnectionConfiguration config) {
-        return new ConnectionConfiguration(config.getServiceName());
+    private ConnectionConfiguration getConnectionConfig() {
+        String host = configuration.getServiceName(); // Fallback
+        int port = 5222; // Default XMPP client port
+        String serviceName = configuration.getServiceName();
+        try {
+            String domain = "_xmpp-client._tcp." + serviceName;
+            Lookup lookup = new Lookup(domain, Type.SRV);
+            Record[] answers = lookup.run();
+            int result = lookup.getResult();
+            if(result == Lookup.SUCCESSFUL && answers != null) {
+                // RFC 2782: use the server with the lowest-numbered priority,
+                // break ties by preferring servers with higher weights
+                int lowestPriority = Integer.MAX_VALUE;
+                int highestWeight = Integer.MIN_VALUE;
+                for(Record rec : answers) {
+                    if(rec instanceof SRVRecord) {
+                        SRVRecord srvRec = (SRVRecord)rec;
+                        int priority = srvRec.getPriority();
+                        int weight = srvRec.getWeight();
+                        if(priority < lowestPriority
+                                && weight > highestWeight) {
+                            port = srvRec.getPort();
+                            host = srvRec.getTarget().toString();
+                            lowestPriority = priority;
+                            highestWeight = weight;
+                        }
+                    }
+                }
+            }
+        } catch (IOException iox) {
+            // Failure looking up the SRV record - use the service name
+            LOG.debug("Failed to look up SRV record", iox);
+        }
+        return new ConnectionConfiguration(host, port, serviceName);
     }
 
     private class RosterListenerImpl implements org.jivesoftware.smack.RosterListener {
@@ -243,12 +286,13 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         public void entriesDeleted(Collection<String> removedIds) {
             synchronized (users) {
                 for(String id : removedIds) {
-                    User user;
-                    user = users.remove(id);
-                    if(LOG.isDebugEnabled()) {
-                        LOG.debug("user " + user + " removed");
+                    User user = users.remove(id);
+                    if(user != null) {
+                        if(LOG.isDebugEnabled()) {
+                            LOG.debug("user " + user + " removed");
+                        }
+                        rosterListeners.broadcast(new RosterEvent(user, User.EventType.USER_DELETED));
                     }
-                    rosterListeners.broadcast(new RosterEvent(user, User.EventType.USER_DELETED));
                 }
                 users.notifyAll();
             }
@@ -256,30 +300,25 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
 
         public void presenceChanged(final org.jivesoftware.smack.packet.Presence presence) {
             if(!presence.getFrom().equals(connection.getUser())) {
-                Thread t = ThreadExecutor.newManagedThread(new DebugRunnable(new Runnable() {
-                    public void run() {
-                        UserImpl user = getUser(presence);
-                        if(LOG.isDebugEnabled()) {
-                            LOG.debug("presence.from " + presence.getFrom() + " changed to " + presence.getType());
+                UserImpl user = getUser(presence);
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("presence.from " + presence.getFrom() + " changed to " + presence.getType());
+                }
+                synchronized (user) {
+                    if (presence.getType().equals(org.jivesoftware.smack.packet.Presence.Type.available)) {
+                        if(!user.getFriendPresences().containsKey(presence.getFrom())) {
+                            addNewPresence(user, presence);
+                        } else {
+                            updatePresence(user, presence);
                         }
-                        synchronized (user) {
-                            if (presence.getType().equals(org.jivesoftware.smack.packet.Presence.Type.available)) {
-                                if(!user.getFriendPresences().containsKey(presence.getFrom())) {
-                                    addNewPresence(user, presence);
-                                } else {
-                                    updatePresence(user, presence);
-                                }
-                            } else if (presence.getType().equals(org.jivesoftware.smack.packet.Presence.Type.unavailable)) {
-                                PresenceImpl p = (PresenceImpl)user.getPresence(presence.getFrom());
-                                if(p != null) {
-                                    p.update(presence);
-                                    user.removePresense(p);
-                                }
-                            }
+                    } else if (presence.getType().equals(org.jivesoftware.smack.packet.Presence.Type.unavailable)) {
+                        PresenceImpl p = (PresenceImpl)user.getPresence(presence.getFrom());
+                        if(p != null) {
+                            p.update(presence);
+                            user.removePresense(p);
                         }
                     }
-                }), "presence-thread-" + presence.getFrom());
-                t.start();
+                }
             }
         }
 

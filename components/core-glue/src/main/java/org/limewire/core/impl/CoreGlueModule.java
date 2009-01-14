@@ -20,6 +20,7 @@ import org.limewire.core.impl.monitor.IncomingSearchListenerList;
 import org.limewire.core.impl.mozilla.CoreGlueMozillaModule;
 import org.limewire.core.impl.network.CoreGlueNetworkModule;
 import org.limewire.core.impl.player.CoreGluePlayerModule;
+import org.limewire.core.impl.properties.CoreGluePropertiesModule;
 import org.limewire.core.impl.search.CoreGlueSearchModule;
 import org.limewire.core.impl.search.QueryReplyListenerList;
 import org.limewire.core.impl.spam.CoreGlueSpamModule;
@@ -59,6 +60,7 @@ public class CoreGlueModule extends AbstractModule {
         install(new CoreGlueBrowseModule());
         install(new CoreGlueXMPPModule());
         install(new CoreGluePlayerModule());
+        install(new CoreGluePropertiesModule());
         install(new CoreGlueMozillaModule());
         install(new CoreGlueSupportModule());
         install(new CoreGlueUploadModule());

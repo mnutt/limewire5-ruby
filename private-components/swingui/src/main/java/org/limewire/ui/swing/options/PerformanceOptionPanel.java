@@ -82,7 +82,7 @@ public class PerformanceOptionPanel extends OptionPanel {
         networkManager.setIncomingTLSEnabled(!disableTLS.isSelected());
         networkManager.setOutgoingTLSEnabled(!disableTLS.isSelected());
         
-        SearchSettings.OOB_ENABLED.setValue(disableOutOfBandSearchCheckBox.isSelected());
+        SearchSettings.OOB_ENABLED.setValue(!disableOutOfBandSearchCheckBox.isSelected());
         
         if((tlsServerChanged || (upChanged && disableUltraPeerCheckBox.isSelected()) && isSupernode)) {
             connectionManager.restart();
@@ -95,7 +95,7 @@ public class PerformanceOptionPanel extends OptionPanel {
         return UltrapeerSettings.DISABLE_ULTRAPEER_MODE.getValue() != disableUltraPeerCheckBox.isSelected() 
         || DHTSettings.DISABLE_DHT_USER.getValue() != disableMojitoCheckBox.isSelected()
         || (!networkManager.isIncomingTLSEnabled() && !networkManager.isOutgoingTLSEnabled()) != disableTLS.isSelected()
-        || SearchSettings.OOB_ENABLED.getValue() != disableOutOfBandSearchCheckBox.isSelected();
+        || SearchSettings.OOB_ENABLED.getValue() == disableOutOfBandSearchCheckBox.isSelected();
     }
 
     @Override
@@ -103,7 +103,7 @@ public class PerformanceOptionPanel extends OptionPanel {
         disableUltraPeerCheckBox.setSelected(UltrapeerSettings.DISABLE_ULTRAPEER_MODE.getValue());
         disableMojitoCheckBox.setSelected(DHTSettings.DISABLE_DHT_USER.getValue());
         disableTLS.setSelected(!networkManager.isIncomingTLSEnabled() || !networkManager.isOutgoingTLSEnabled());
-        disableOutOfBandSearchCheckBox.setSelected(SearchSettings.OOB_ENABLED.getValue());
+        disableOutOfBandSearchCheckBox.setSelected(!SearchSettings.OOB_ENABLED.getValue());
     }
 
 }

@@ -143,6 +143,7 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
                 LOG.debugf("browse result: {0}, {1}", searchResult.getUrn(), searchResult.getSize());
                 RemoteFileDescAdapter remoteFileDescAdapter = (RemoteFileDescAdapter)searchResult;
                 if(!friendPresence.getFriend().isAnonymous()) {
+                    // TODO: This should be removed & the address passed here should be corrected.
                     // copy construct to add injectables and change address to xmpp address                    
                     remoteFileDescAdapter = new RemoteFileDescAdapter(remoteFileDescDeserializer.createClone(remoteFileDescAdapter.getRfd(), address), new IpPortSet(remoteFileDescAdapter.getAlts()), friendPresence);
                 }
@@ -220,7 +221,10 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
      * @param startRevision the revision under which the address resolution attempt
      * was started
      */
-    private void handleFailedResolution(PresenceLibrary presenceLibrary, int startRevision) {
+    private void handleFailedResolution(PresenceLibrary presenceLibrary, int startRevision) { 
+        LOG.debugf("failed resolution for:{0} revision:{1}", presenceLibrary.getPresence().getPresenceId(), startRevision);
+        presenceLibrary.setState(LibraryState.FAILED_TO_LOAD);
+        
         boolean retry;
         synchronized (librariesToBrowse) {
             retry = latestConnectivityEventRevision > startRevision;

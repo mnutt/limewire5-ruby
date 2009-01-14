@@ -95,7 +95,7 @@ public abstract class ButtonBackgroundPainter extends AbstractPainter<JXButton> 
         if(model.isPressed() || model.isSelected()) {
             this.clickedPainter.paint(g, object, width, height);
         } 
-        else if (model.isRollover()) {
+        else if (model.isRollover() || object.hasFocus()) {
             this.hoveredPainter.paint(g, object, width, height);
         } 
         else {

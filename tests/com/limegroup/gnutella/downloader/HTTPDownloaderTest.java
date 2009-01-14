@@ -364,12 +364,12 @@ public class HTTPDownloaderTest extends com.limegroup.gnutella.util.LimeTestCase
 
         assertEquals(Range.createRange(1, 9), parseContentRange(dl, "Content-range:bytes 1-9/*"));
 
-        // should this work? the server says the size is 10, we think it's
-        // 1000. throw IllegalArgumentException or ProblemReadingHeader?
-        // Putting aside the "should it work" question, this is the faulty
-        // header from LimeWire 0.5, in which we subtract 1 from the
-        // sizes (they send exclusive instead of inclusive values).
-        assertEquals(Range.createRange(0, 9), parseContentRange(dl, "Content-range:bytes 1-10/10"));
+        // expect exception for invalid header requests
+        try {
+            assertEquals(Range.createRange(0, 9), parseContentRange(dl, "Content-range:bytes 1-10/10"));
+        } catch (IOException ie) {
+            assertInstanceof(ProblemReadingHeaderException.class, ie);
+        }
 
         assertEquals(Range.createRange(0, 0), parseContentRange(dl, "Content-range:bytes 0-0/1"));
         
@@ -501,7 +501,7 @@ public class HTTPDownloaderTest extends com.limegroup.gnutella.util.LimeTestCase
     private static Range parseContentRange(HTTPDownloader dl, String s) throws Throwable {
         try {
             return (Range) PrivilegedAccessor.invokeMethod(dl, "parseContentRange",
-                    new Object[] { s });
+                    s);
         } catch (Exception e) {
             if (e.getCause() != null)
                 throw e.getCause();

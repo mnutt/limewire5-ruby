@@ -22,7 +22,7 @@
     <dependency>
     	<groupId>net.java.dev.glazedlists</groupId>
     	<artifactId>glazedlists_java15</artifactId>
-    	<version>1.7.0</version>
+    	<version>1.7.0-lw-20090109</version>
     </dependency>    
     <dependency>
       <groupId>org.limewire</groupId>

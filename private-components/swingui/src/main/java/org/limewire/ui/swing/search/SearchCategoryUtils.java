@@ -22,6 +22,21 @@ public class SearchCategoryUtils {
         }
     }
     
+    public static String getWhatsNewMenuName(SearchCategory category) {
+        switch(category) {
+        case ALL:      return I18n.tr("&All");
+        case AUDIO:    return I18n.tr("A&udio"); 
+        case DOCUMENT: return I18n.tr("&Documents"); 
+        case IMAGE:    return I18n.tr("&Images"); 
+        case PROGRAM:  return I18n.tr("&Programs"); 
+        case VIDEO:    return I18n.tr("&Videos"); 
+        case OTHER: 
+        default:
+            return I18n.tr("&Other");
+             
+        }
+    }
+    
     public static String getOptionsName(SearchCategory category) {
         switch(category) {
         case ALL:      return I18n.tr("All files");

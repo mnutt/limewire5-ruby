@@ -23,7 +23,7 @@ public class ListViewRowHeightRuleImpl implements ListViewRowHeightRule {
     private final PropertyKeyComparator AUDIO_COMPARATOR = 
         new PropertyKeyComparator(FilePropertyKey.GENRE, FilePropertyKey.BITRATE, FilePropertyKey.TRACK_NUMBER);
     private final PropertyKeyComparator VIDEO_COMPARATOR = 
-        new PropertyKeyComparator(FilePropertyKey.YEAR, FilePropertyKey.RATING, FilePropertyKey.COMMENTS, FilePropertyKey.HEIGHT, 
+        new PropertyKeyComparator(FilePropertyKey.YEAR, FilePropertyKey.RATING, FilePropertyKey.DESCRIPTION, FilePropertyKey.HEIGHT, 
                                   FilePropertyKey.WIDTH, FilePropertyKey.BITRATE);
     private final PropertyKeyComparator DOCUMENTS_COMPARATOR = 
         new PropertyKeyComparator(FilePropertyKey.DATE_CREATED, FilePropertyKey.AUTHOR);

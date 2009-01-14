@@ -137,7 +137,7 @@ public class ContentManager implements Service {
         ContentResponseData response = CACHE.getResponse(urn);
         if(response != null || !ContentSettings.isManagementActive()) {
             if(LOG.isDebugEnabled())
-                LOG.debug("Immediate response for URN: " + urn);
+                LOG.debug("Immediate response for URN: " + urn + ", response: " + response);
             observer.handleResponse(urn, response);
         } else {
             if(LOG.isDebugEnabled())

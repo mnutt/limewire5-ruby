@@ -15,4 +15,10 @@ public interface NavigationListener {
     /** Notification that an item was added. */
     public void itemAdded(NavCategory category, NavItem navItem, JComponent panel);
     
+    /** Notification that a new category was added. */
+    public void categoryAdded(NavCategory category);
+    
+    /** Notification that the last item in a category was removed. */
+    public void categoryRemoved(NavCategory category);
+    
 }

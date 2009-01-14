@@ -15,6 +15,7 @@ import org.limewire.core.api.upload.UploadState;
 import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.util.I18n;
 
+
 public class UploadPopupHandler implements TablePopupHandler {
     private int popupRow = -1;
 
@@ -24,7 +25,7 @@ public class UploadPopupHandler implements TablePopupHandler {
     private JMenuItem playMenuItem;
     private JMenuItem removeMenuItem;
     private JMenuItem showInLibraryMenuItem;
-    private JMenuItem locateMenuItem;
+    private JMenuItem locateOnDiskMenuItem;
     private JMenuItem cancelMenuItem;
     private JMenuItem propertiesMenuItem;
 
@@ -46,7 +47,7 @@ public class UploadPopupHandler implements TablePopupHandler {
         
         menuListener = new MenuListener();
 
-        showInLibraryMenuItem = new JMenuItem(I18n.tr("Jump to File in Library"));
+        showInLibraryMenuItem = new JMenuItem(I18n.tr("Locate in Library"));
         showInLibraryMenuItem.setActionCommand(UploadActionHandler.LIBRARY_COMMAND);
         showInLibraryMenuItem.addActionListener(menuListener);        
         
@@ -66,11 +67,11 @@ public class UploadPopupHandler implements TablePopupHandler {
         removeMenuItem.setActionCommand(UploadActionHandler.REMOVE_COMMAND);
         removeMenuItem.addActionListener(menuListener);
         
-        locateMenuItem = new JMenuItem(I18n.tr("Locate file"));
-        locateMenuItem.setActionCommand(UploadActionHandler.LOCATE_COMMAND);
-        locateMenuItem.addActionListener(menuListener);
+        locateOnDiskMenuItem = new JMenuItem(I18n.tr("Locate on disk"));
+        locateOnDiskMenuItem.setActionCommand(UploadActionHandler.LOCATE_ON_DISK_COMMAND);
+        locateOnDiskMenuItem.addActionListener(menuListener);
         
-        propertiesMenuItem = new JMenuItem(I18n.tr("View File Info"));
+        propertiesMenuItem = new JMenuItem(I18n.tr("View File Info..."));
         propertiesMenuItem.setActionCommand(UploadActionHandler.PROPERTIES_COMMAND);
         propertiesMenuItem.addActionListener(menuListener);
     }
@@ -88,25 +89,27 @@ public class UploadPopupHandler implements TablePopupHandler {
         popupMenu.removeAll();
         UploadState state = menuItem.getState();
         
-        if(state == UploadState.DONE || state == UploadState.UNABLE_TO_UPLOAD){
+        if(state == UploadState.BROWSE_HOST || state == UploadState.BROWSE_HOST_DONE || state == UploadState.DONE || state == UploadState.UNABLE_TO_UPLOAD){
             popupMenu.add(removeMenuItem);
         } else {
             popupMenu.add(cancelMenuItem);
         }
         
-        popupMenu.addSeparator();
-        
-        if (menuItem.getCategory() == Category.VIDEO || menuItem.getCategory() == Category.AUDIO) {
-            popupMenu.add(playMenuItem);
-        } else if (menuItem.getCategory() != Category.PROGRAM) {
-            popupMenu.add(launchMenuItem);
-        }
-        popupMenu.add(locateMenuItem);
-        popupMenu.add(showInLibraryMenuItem);
+        if (state != UploadState.BROWSE_HOST && state != UploadState.BROWSE_HOST_DONE) {
+            popupMenu.addSeparator();
 
-        popupMenu.addSeparator();
-        
-        popupMenu.add(propertiesMenuItem);
+            if (menuItem.getCategory() == Category.VIDEO || menuItem.getCategory() == Category.AUDIO) {
+                popupMenu.add(playMenuItem);
+            } else if (menuItem.getCategory() != Category.PROGRAM && menuItem.getCategory() != Category.OTHER) {
+                popupMenu.add(launchMenuItem);
+            }
+            popupMenu.add(locateOnDiskMenuItem);
+            popupMenu.add(showInLibraryMenuItem);
+
+            popupMenu.addSeparator();
+
+            popupMenu.add(propertiesMenuItem);
+        }
         
         popupMenu.show(component, x, y);
     }

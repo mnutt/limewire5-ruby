@@ -147,7 +147,7 @@ public class BrowseDirectoryAction extends AbstractAction {
             }
         }
 
-        if(saveDir.canWrite())
+        if(FileUtils.canWrite(saveDir))
             return FolderErrors.SUCCESS;
         else
             return FolderErrors.CANNOT_WRITE;

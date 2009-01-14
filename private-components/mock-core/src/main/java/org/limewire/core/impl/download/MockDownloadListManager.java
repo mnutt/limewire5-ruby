@@ -162,5 +162,10 @@ public class MockDownloadListManager implements DownloadListManager {
     @Override
     public void updateDownloadsCompleted() {
     }
+
+    @Override
+    public DownloadItem getDownloadItem(URN urn) {
+        return null;
+    }
     
 }

@@ -12,6 +12,8 @@ import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.dnd.GhostDragGlassPane;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
 import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.CategoryIconManager;
@@ -37,20 +39,22 @@ public class AllFriendsLibraryPanel extends AbstractFriendLibraryPanel {
                     LibraryManager libraryManager,
                     LimeHeaderBarFactory headerBarFactory,
                     ButtonDecorator buttonDecorator,
-                    ShareListManager shareListManager) {
+                    ShareListManager shareListManager,
+                    GhostDragGlassPane ghostPane,
+                    LibraryNavigator libraryNavigator) {
         
         super(null, null, remoteLibraryManager.getAllFriendsFileList().getSwingModel(), 
                 categoryIconManager, tableFactory, downloadListManager,
-                libraryManager, headerBarFactory);
+                libraryManager, headerBarFactory, ghostPane, libraryNavigator);
         
         GuiUtils.assignResources(this);
         
         if (selectionPanelBackgroundOverride != null) { 
-            selectionPanel.setBackground(selectionPanelBackgroundOverride);
+            getSelectionPanel().setBackground(selectionPanelBackgroundOverride);
         }
         
         createMyCategories(remoteLibraryManager.getAllFriendsFileList().getSwingModel());
-        selectFirst();
+        selectFirstVisible();
         getHeaderPanel().setText(I18n.tr("Download from all friends"));
     }
     

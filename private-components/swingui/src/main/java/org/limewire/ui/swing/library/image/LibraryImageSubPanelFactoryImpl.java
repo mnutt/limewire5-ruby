@@ -1,9 +1,11 @@
 package org.limewire.ui.swing.library.image;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -59,7 +61,8 @@ public class LibraryImageSubPanelFactoryImpl implements LibraryImageSubPanelFact
             EventList<LocalFileItem> eventList, LocalFileList fileList,
             ImageLibraryPopupParams params, ShareWidget<File> shareWidget) {
 
-        LibraryImageSubPanel panel = new LibraryImageSubPanel(parentFolder, eventList, fileList, params, shareWidgetFactory.createMultiFileShareWidget());
+        LibraryImageSubPanel panel = new LibraryImageSubPanel(parentFolder, eventList, fileList, params);
+        panel.addShareFolderButtonAction(new MyLibraryShareFolderAction(panel.getImageList(), shareWidgetFactory.createMultiFileShareWidget()));
         ImageList list = panel.getImageList();
         list.setImageCellRenderer(enableMyLibraryRenderer(list));
         panel.setImageEditor(enableMyLibraryEditor(shareWidget, panel));
@@ -73,7 +76,8 @@ public class LibraryImageSubPanelFactoryImpl implements LibraryImageSubPanelFact
     public LibraryImageSubPanel createSharingLibraryImageSubPanel(File parentFolder,
             EventList<LocalFileItem> eventList, LocalFileList fileList,
             ImageLibraryPopupParams params, LocalFileList currentFriendFileList) {
-        LibraryImageSubPanel panel = new LibraryImageSubPanel(parentFolder, eventList, fileList, params, shareWidgetFactory.createMultiFileShareWidget());
+        LibraryImageSubPanel panel = new LibraryImageSubPanel(parentFolder, eventList, fileList, params);
+        panel.addShareFolderButtonAction(new SharingLibraryShareFolderAction(currentFriendFileList, eventList, panel));
         ImageList list = panel.getImageList();
         list.setImageCellRenderer(enableSharingRenderer(list, currentFriendFileList));
         panel.setImageEditor(enableSharingEditor(currentFriendFileList));
@@ -136,7 +140,7 @@ public class LibraryImageSubPanelFactoryImpl implements LibraryImageSubPanelFact
         return shareEditor;
     }
     
-    private class ShareAction extends AbstractAction {
+    private static class ShareAction extends AbstractAction {
         private ShareTableRendererEditor shareEditor;
         private ShareWidget<File> shareWidget;
         private LibraryImageSubPanel parent;
@@ -167,6 +171,57 @@ public class LibraryImageSubPanelFactoryImpl implements LibraryImageSubPanelFact
             if(index > -1)
                 parent.getImageList().setSelectedIndex(index);
         }
+    }
+    
+    private final class MyLibraryShareFolderAction extends AbstractAction {
+
+        private ImageList imageList;
+
+        private ShareWidget<LocalFileItem[]> shareWidget;
+
+        public MyLibraryShareFolderAction(ImageList imageList,
+                ShareWidget<LocalFileItem[]> shareWidget) {
+            this.imageList = imageList;
+            this.shareWidget = shareWidget;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            imageList.setSelectionInterval(0, imageList.getModel().getSize() - 1);
+            // TODO: deselect all other imageLists.
+            List<LocalFileItem> itemList = imageList.getSelectedItems();
+            LocalFileItem[] items = itemList.toArray(new LocalFileItem[itemList.size()]);
+            shareWidget.setShareable(items);
+            shareWidget.show(null);
+        }
+
+    }
+
+    private final class SharingLibraryShareFolderAction extends AbstractAction {
+
+        private LocalFileList currentFriendFileList;
+
+        private EventList<LocalFileItem> allFiles;
+
+        private Component repaintComponent;
+
+        public SharingLibraryShareFolderAction(LocalFileList currentFriendFileList,
+                EventList<LocalFileItem> allFiles, Component repaintComponent) {
+            this.currentFriendFileList = currentFriendFileList;
+            this.allFiles = allFiles;
+            this.repaintComponent = repaintComponent;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            for (LocalFileItem fileItem : allFiles) {
+                if (!currentFriendFileList.contains(fileItem.getFile())) {
+                    currentFriendFileList.addFile(fileItem.getFile());
+                }
+            }
+            repaintComponent.repaint();
+        }
+
     }
 
 }

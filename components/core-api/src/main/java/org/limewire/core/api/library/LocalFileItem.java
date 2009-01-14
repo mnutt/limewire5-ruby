@@ -39,5 +39,8 @@ public interface LocalFileItem extends FileItem {
     int getNumHits();
 
     /** Returns the number of uploads this has completed. */
-    int getNumUploads();    
+    int getNumUploads();   
+    
+    /** Returns the number of uploads this has completed. */
+    int getNumUploadAttempts();    
 }

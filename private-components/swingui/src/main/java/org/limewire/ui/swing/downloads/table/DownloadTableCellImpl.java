@@ -26,9 +26,11 @@ import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeProgressBar;
 import org.limewire.ui.swing.components.LimeProgressBarFactory;
 import org.limewire.ui.swing.util.CategoryIconManager;
+import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.CommonUtils;
@@ -60,7 +62,8 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
     private JLabel fullTimeLabel;
     
     private JLabel removeLinkSpacer;
-    private JXHyperlink removeLink;
+    private HyperlinkButton cancelLink;
+    private HyperlinkButton launchButton;
    
     @Resource private Icon warningIcon;
     @Resource private int progressBarWidth;
@@ -93,7 +96,8 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         this.minButtonPanel.setActionListener(editorListener);
         this.fullButtonPanel.setActionListener(editorListener);
         this.minLinkButton.addActionListener(editorListener);
-        this.removeLink.addActionListener(editorListener);
+        this.cancelLink.addActionListener(editorListener);
+        this.launchButton.addActionListener(editorListener);
     }
     
     public void update(DownloadItem item) {
@@ -135,9 +139,9 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         minButtonPanel.setOpaque(false);
 
         minLinkButton = new JXHyperlink();
-        minLinkButton.setActionCommand(DownloadActionHandler.TRY_AGAIN_COMMAND);
         minLinkButton.addActionListener(editorListener);
         minLinkButton.setForeground(linkColour);
+        minLinkButton.setClickedColor(linkColour);
         minLinkButton.setFont(statusFontPlainMin);
                                 
         fullIconLabel = new JLabel();
@@ -161,11 +165,19 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         fullButtonPanel = new DownloadButtonPanel(editorListener);
         fullButtonPanel.setOpaque(false);        
 
-        removeLink = new JXHyperlink();
-        removeLink.setText("<html><u>" + I18n.tr("Remove") + "</u></html>");
-        removeLink.setForeground(linkColour);
-        removeLink.setFont(statusFontPlainMin);
-        removeLink.setActionCommand(DownloadActionHandler.REMOVE_COMMAND);
+        cancelLink = new HyperlinkButton();
+        cancelLink.setText(I18n.tr("Remove"));
+        cancelLink.setFont(statusFontPlainMin);
+        cancelLink.setActionCommand(DownloadActionHandler.CANCEL_COMMAND);
+        FontUtils.bold(cancelLink);
+        FontUtils.underline(cancelLink); 
+        
+        launchButton = new HyperlinkButton();
+        launchButton.setText(I18n.tr("Launch"));
+        launchButton.setFont(statusFontPlainMin);
+        launchButton.setActionCommand(DownloadActionHandler.LAUNCH_COMMAND);
+        FontUtils.bold(launchButton);
+        FontUtils.underline(launchButton); 
         
         removeLinkSpacer = new JLabel(I18n.tr(" - "));
         
@@ -178,7 +190,8 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         JPanel removePanel = new JPanel();
         removePanel.setOpaque(false);
         removePanel.add(removeLinkSpacer);
-        removePanel.add(removeLink);
+        removePanel.add(cancelLink);
+        removePanel.add(launchButton);
         
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -392,24 +405,36 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         
             case ERROR :
                 editor.minLinkButton.setVisible(true);
-                editor.minLinkButton.setText("<html><u>" + I18n.tr(item.getErrorState().getMessage()) + "</u></html>");
-                
+                editor.minLinkButton.setActionCommand(DownloadActionHandler.LINK_COMMAND);
+                //underline hidden  & color changed till link is active
+                editor.minLinkButton.setText(I18n.tr(item.getErrorState().getMessage()));
+               //  editor.minLinkButton.setText("<html><u>" + I18n.tr(item.getErrorState().getMessage()) + "</u></html>");
+                // TODO remove color and rollover settings once error link is active
+                editor.minLinkButton.setRolloverEnabled(false);
+                editor.minLinkButton.setForeground(Color.decode("#313131"));
+                editor.minLinkButton.setClickedColor(Color.decode("#313131"));
                 break;
                 
             case STALLED :
 
                 editor.minLinkButton.setVisible(true);
+                editor.minLinkButton.setActionCommand(DownloadActionHandler.TRY_AGAIN_COMMAND);
                 editor.minLinkButton.setText("<html><u>Try Again</u></html>");
+                // TODO remove color and rollover settings once error link is active
+                editor.minLinkButton.setForeground(linkColour);
+                editor.minLinkButton.setClickedColor(linkColour);
+                editor.minLinkButton.setRolloverEnabled(true);
 
                 break;
                 
             default:
                 editor.minLinkButton.setVisible(false);
         }
-        
 
-        removeLink.setVisible(item.getState() == DownloadState.ERROR);
-        removeLinkSpacer.setVisible(removeLink.isVisible());
+        launchButton.setVisible(item.isLaunchable() && item.getState() == DownloadState.DONE);
+
+        cancelLink.setVisible(item.getState() == DownloadState.ERROR);
+        removeLinkSpacer.setVisible(cancelLink.isVisible());
     }
     
     private void updateButtonsFull(DownloadTableCellImpl editor, DownloadItem item) {
@@ -419,6 +444,10 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
     }
 
     private void updateComponent(DownloadTableCellImpl editor, DownloadItem item){
+        if(item == null) { // can be null because of accessibility calls.
+            return;
+        }
+        
         switch(item.getState()) {
             case DOWNLOADING:
             case PAUSED:
@@ -437,7 +466,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
             @Override
             protected void doPaint(Graphics2D g, JXPanel object, int width, int height) {
                 g.setPaint(borderPaint);
-                g.drawLine(0, height-3, width-0, height-3);
+                g.drawLine(0, height-1, width-0, height-1);
             }
         } ;
         
@@ -455,7 +484,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         case FINISHING:
             return I18n.tr("Finishing download...");
         case DONE:
-            return I18n.tr("Done");
+            return I18n.tr("Done - ");
         case CONNECTING:
             return I18n.tr("Connecting...");
         case DOWNLOADING:
@@ -469,7 +498,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         case STALLED:
             return I18n.tr("Stalled - ");
         case ERROR:         
-            return I18n.tr("Unable to download: ");
+            return I18n.tr("Unable to download - ");
         case PAUSED:
             return I18n.tr("Paused - {0} of {1} ({2}%)", 
                     GuiUtils.toUnitbytes(item.getCurrentSize()), GuiUtils.toUnitbytes(item.getTotalSize()),

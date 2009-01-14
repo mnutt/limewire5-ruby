@@ -16,14 +16,17 @@ import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.util.StringUtils;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.CompositeList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
+import ca.odell.glazedlists.ObservableElementList.Connector;
 import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.UniqueList;
-import ca.odell.glazedlists.ObservableElementList.Connector;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventAssembler;
 import ca.odell.glazedlists.event.ListEventListener;
@@ -31,9 +34,6 @@ import ca.odell.glazedlists.event.ListEventPublisher;
 import ca.odell.glazedlists.impl.ReadOnlyList;
 import ca.odell.glazedlists.util.concurrent.LockFactory;
 import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 @Singleton
 public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
@@ -43,6 +43,8 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     private final EventList<FriendLibrary> readOnlyFriendLibraries;
     private volatile EventList<FriendLibrary> swingFriendLibraries;
     private final ReadWriteLock lock;
+    
+    private static final RemoteFileComparator COMPARATOR = new RemoteFileComparator();
 
     @Inject
     public RemoteLibraryManagerImpl() {
@@ -104,7 +106,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             FriendLibraryImpl friendLibrary = getFriendLibrary(presence.getFriend());
             if (friendLibrary != null) {
                 friendLibrary.removePresenceLibrary(presence); 
-                if (friendLibrary.size() == 0) {
+                if (friendLibrary.getPresenceLibraryList().size() == 0) {
                     removeFriendLibrary(friendLibrary);
                 }
             }
@@ -225,19 +227,13 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             compositeList = new CompositeList<RemoteFileItem>(allFriendsList.getPublisher(), lock);
             readOnlyList = GlazedListsFactory.readOnlyList(compositeList);
             threadSafeUniqueList = GlazedListsFactory.uniqueList(GlazedListsFactory.threadSafeList(readOnlyList),
-                    new Comparator<RemoteFileItem>() {
-                @Override
-                public int compare(RemoteFileItem o1, RemoteFileItem o2) {
-                    return o1.getUrn().compareTo(o2.getUrn());
-                }
-            });
+                    COMPARATOR);
             
             changeSupport = new PropertyChangeSupport(this);
             
             Connector<PresenceLibrary> connector = GlazedLists.beanConnector(PresenceLibrary.class);            
             allPresenceLibraries = GlazedListsFactory.observableElementList(GlazedListsFactory.threadSafeList(new BasicEventList<PresenceLibrary>(lock)), connector);
             readOnlyPresenceLibraries = GlazedListsFactory.readOnlyList(allPresenceLibraries);
-            
             allPresenceLibraries.addListEventListener(new ListEventListener<PresenceLibrary>() {
                 @Override
                 public void listChanged(ListEvent<PresenceLibrary> listChanges) {
@@ -425,6 +421,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         }
 
         void dispose() {
+            //eventList.clear();
             if(swingEventList != null) {
                 swingEventList.dispose();
             }
@@ -469,6 +466,13 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         
         public void removePropertyChangeListener(PropertyChangeListener listener) {
             changeSupport.removePropertyChangeListener(listener);
+        }
+    }
+    
+    private static class RemoteFileComparator implements Comparator<RemoteFileItem> {
+        @Override
+            public int compare(RemoteFileItem o1, RemoteFileItem o2) {
+            return o1.getUrn().compareTo(o2.getUrn());
         }
     }
 }

@@ -123,7 +123,10 @@ public class LimePromptTextField extends JTextField implements FocusListener {
     @Override
     public void focusGained(FocusEvent e) {
         // Select all text if focus gained from another component.
-        if (e.getOppositeComponent() != null) {
+        // But don't do it if it's temporary -- this is a hack to allow
+        // focus to gain on the search field when clicking a search tab,
+        // without selecting it all.
+        if (e.getOppositeComponent() != null && !e.isTemporary()) {
             selectAll();
         }
         repaint();

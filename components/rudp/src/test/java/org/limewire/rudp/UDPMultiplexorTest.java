@@ -17,6 +17,7 @@ import org.limewire.rudp.messages.SynMessage;
 import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import org.limewire.util.BaseTestCase;
+import org.limewire.listener.EventListenerList;
 
 public class UDPMultiplexorTest extends BaseTestCase {
 
@@ -36,7 +37,7 @@ public class UDPMultiplexorTest extends BaseTestCase {
     
     private static StubListener listener = new StubListener();
     private static RUDPContext context = new DefaultRUDPContext(listener);
-    private static UDPSelectorProvider provider = new UDPSelectorProvider(context);
+    private static UDPSelectorProvider provider = new UDPSelectorProvider(context, new EventListenerList<UDPSocketChannelConnectionEvent>());
     
     
     public void testRegister() throws Exception {
@@ -183,7 +184,7 @@ public class UDPMultiplexorTest extends BaseTestCase {
         private StubProcessor stubProcessor = new StubProcessor(this);
         InetSocketAddress addr;
         StubUDPSocketChannel() {
-            super((SelectorProvider)null, context, Role.UNDEFINED);
+            super((SelectorProvider)null, context, Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>());
         }
         
         @Override
@@ -213,7 +214,7 @@ public class UDPMultiplexorTest extends BaseTestCase {
 
         RUDPMessage msg;
         StubProcessor(UDPSocketChannel channel) {
-            super(channel, context, Role.UNDEFINED);
+            super(channel, context, Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>());
         }
         
         @Override

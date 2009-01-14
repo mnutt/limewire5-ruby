@@ -8,6 +8,9 @@ import javax.swing.SwingConstants;
 import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
 import org.limewire.util.CommonUtils;
 
+/**
+ * Display the length of an audio/video file in hours:minutes:seconds
+ */
 public class TimeRenderer extends DefaultLibraryRenderer {
     
     public TimeRenderer(){
@@ -21,6 +24,8 @@ public class TimeRenderer extends DefaultLibraryRenderer {
         
         if (value != null && value instanceof Long) {
             setText(CommonUtils.seconds2time((Long)value)); 
+        } else {
+            setText("");
         }
         return this;
     }

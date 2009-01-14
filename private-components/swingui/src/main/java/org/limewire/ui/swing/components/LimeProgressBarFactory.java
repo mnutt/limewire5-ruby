@@ -56,7 +56,7 @@ public class LimeProgressBarFactory {
                 new ProgressBarForegroundPainter<JProgressBar>(
                         new GradientPaint(0,0,new Color(0xcf,0xf8,0x8f),0,1,new Color(0xaa,0xcb,0x75)),
                         Color.GRAY),
-                new RectanglePainter<JComponent>(Color.WHITE, new Color(0x53,0x7e,0x10)));
+                new RectanglePainter<JComponent>(Color.WHITE, new Color(0x27,0x27,0x27)));
     }
     
     

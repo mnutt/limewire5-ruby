@@ -11,15 +11,22 @@ import javax.swing.event.HyperlinkListener;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.Application;
 import org.limewire.ui.swing.browser.Browser;
+import org.limewire.ui.swing.browser.BrowserUtils;
+import org.limewire.ui.swing.browser.TargetedUrlAction;
 import org.limewire.ui.swing.components.HTMLPane;
+import org.limewire.ui.swing.nav.NavCategory;
+import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
+import org.limewire.ui.swing.util.SwingUtils;
 import org.mozilla.browser.MozillaAutomation;
 import org.mozilla.browser.MozillaInitialization;
 import org.mozilla.browser.MozillaPanel.VisibilityMode;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /** The main home page.*/
+@Singleton
 public class HomePanel extends JXPanel {
 
     public static final String NAME = "Home";
@@ -31,7 +38,7 @@ public class HomePanel extends JXPanel {
     private final HTMLPane fallbackBrowser;
 
     @Inject
-    public HomePanel(Application application) {
+    public HomePanel(Application application, final Navigator navigator) {
         this.application = application;
         
         setPreferredSize(new Dimension(500, 500));
@@ -43,6 +50,18 @@ public class HomePanel extends JXPanel {
         gbc.weighty = 1;
         
         if(MozillaInitialization.isInitialized()) {
+            BrowserUtils.addTargetedUrlAction("_lwHome", new TargetedUrlAction() {
+                @Override
+                public void targettedUrlClicked(final TargetedUrl targetedUrl) {
+                    SwingUtils.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            navigator.getNavItem(NavCategory.LIMEWIRE, NAME).select();
+                            load(targetedUrl.getUrl());
+                        }
+                    });
+                }
+            });
             browser = new Browser(VisibilityMode.FORCED_HIDDEN, VisibilityMode.FORCED_HIDDEN, VisibilityMode.DEFAULT);
             fallbackBrowser = null;
             add(browser, gbc);
@@ -68,7 +87,7 @@ public class HomePanel extends JXPanel {
     }
     
     public void loadDefaultUrl() {
-        load("http://client-data.limewire.com/client_startup/alpha/");
+        load("http://client-data.limewire.com/client_startup/home/");
     }
 
     public void load(String url) {

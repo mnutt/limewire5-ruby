@@ -16,7 +16,7 @@ import java.awt.event.WindowStateListener;
 
 import javax.swing.JFrame;
 
-import org.limewire.core.settings.ApplicationSettings;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 
 class FramePositioner {
 
@@ -46,8 +46,8 @@ class FramePositioner {
         GraphicsConfiguration gc = gd.getDefaultConfiguration();
         Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
         
-        int appWidth  = Math.min(screenSize.width-insets.left-insets.right, ApplicationSettings.APP_WIDTH.getValue());
-        int appHeight = Math.min(screenSize.height-insets.top-insets.bottom, ApplicationSettings.APP_HEIGHT.getValue());
+        int appWidth  = Math.min(screenSize.width-insets.left-insets.right, SwingUiSettings.APP_WIDTH.getValue());
+        int appHeight = Math.min(screenSize.height-insets.top-insets.bottom, SwingUiSettings.APP_HEIGHT.getValue());
 
         // TODO: Get a real minimum size? 
         frame.setMinimumSize(new Dimension(500, 500));
@@ -56,10 +56,10 @@ class FramePositioner {
         // Set the location of our window based on whether or not
         // the user has run the program before, and therefore may have 
         // modified the location of the main window.
-        if(ApplicationSettings.POSITIONS_SET.getValue()) {
+        if(SwingUiSettings.POSITIONS_SET.getValue()) {
             
-            int locX = Math.max(insets.left, ApplicationSettings.WINDOW_X.getValue());
-            int locY = Math.max(insets.top, ApplicationSettings.WINDOW_Y.getValue());
+            int locX = Math.max(insets.left, SwingUiSettings.WINDOW_X.getValue());
+            int locY = Math.max(insets.top, SwingUiSettings.WINDOW_Y.getValue());
         
             // Make sure the Window is visible and not for example 
             // somewhere in the very bottom right corner.
@@ -78,7 +78,7 @@ class FramePositioner {
         }
         
         //re-maximize if we shutdown while maximized.
-        if(ApplicationSettings.MAXIMIZE_WINDOW.getValue() 
+        if(SwingUiSettings.MAXIMIZE_WINDOW.getValue() 
                 && Toolkit.getDefaultToolkit().isFrameStateSupported(Frame.MAXIMIZED_BOTH)) {
             frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         }
@@ -123,19 +123,19 @@ class FramePositioner {
             Dimension dim = frame.getSize();
             if((dim.height > 100) && (dim.width > 100)) {
                 Point loc = frame.getLocation();
-                ApplicationSettings.APP_WIDTH.setValue(dim.width);
-                ApplicationSettings.APP_HEIGHT.setValue(dim.height);
-                ApplicationSettings.WINDOW_X.setValue(loc.x);
-                ApplicationSettings.WINDOW_Y.setValue(loc.y);
-                ApplicationSettings.MAXIMIZE_WINDOW.setValue(false);
-                ApplicationSettings.POSITIONS_SET.setValue(true);
+                SwingUiSettings.APP_WIDTH.setValue(dim.width);
+                SwingUiSettings.APP_HEIGHT.setValue(dim.height);
+                SwingUiSettings.WINDOW_X.setValue(loc.x);
+                SwingUiSettings.WINDOW_Y.setValue(loc.y);
+                SwingUiSettings.MAXIMIZE_WINDOW.setValue(false);
+                SwingUiSettings.POSITIONS_SET.setValue(true);
             }
         } else if( (state & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
-            ApplicationSettings.MAXIMIZE_WINDOW.setValue(true);
+            SwingUiSettings.MAXIMIZE_WINDOW.setValue(true);
             if(lastState != null && lastState.time == System.currentTimeMillis()) {
-                ApplicationSettings.POSITIONS_SET.setValue(true);
-                ApplicationSettings.WINDOW_X.setValue(lastState.x);
-                ApplicationSettings.WINDOW_Y.setValue(lastState.y);
+                SwingUiSettings.POSITIONS_SET.setValue(true);
+                SwingUiSettings.WINDOW_X.setValue(lastState.x);
+                SwingUiSettings.WINDOW_Y.setValue(lastState.y);
                 lastState = null;
             }
         }
@@ -147,8 +147,8 @@ class FramePositioner {
         private final int y;
         private final long time;
         WindowState() {
-            x = ApplicationSettings.WINDOW_X.getValue();
-            y = ApplicationSettings.WINDOW_Y.getValue();
+            x = SwingUiSettings.WINDOW_X.getValue();
+            y = SwingUiSettings.WINDOW_Y.getValue();
             time = System.currentTimeMillis();
         }
     }

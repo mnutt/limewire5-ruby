@@ -241,7 +241,7 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
         outDir.mkdirs();
         FileUtils.setWriteable(outDir);
 
-        if (!outDir.isDirectory() || !outDir.canRead() || !outDir.canWrite())
+        if (!outDir.isDirectory() || !outDir.canRead() || !FileUtils.canWrite(outDir))
             return directory;
 
         return outDir;

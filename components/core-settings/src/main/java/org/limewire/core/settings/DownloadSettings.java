@@ -111,12 +111,6 @@ public class DownloadSettings extends LimeProps {
                 "DownloadSettings.reportDiskProblems", 0f, 1f);
     
     /**
-     * Auto rename new downloads with filenames matching old downloads.
-     */
-    public static final BooleanSetting AUTO_RENAME_DUPLICATE_FILES =
-        FACTORY.createBooleanSetting("AUTO_RENAME_DUPLICATE_FILES", true);
-    
-    /**
      * Whether or not to remember recently completed downloads.
      */
     public static final BooleanSetting REMEMBER_RECENT_DOWNLOADS =

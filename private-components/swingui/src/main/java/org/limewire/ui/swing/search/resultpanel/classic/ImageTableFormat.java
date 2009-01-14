@@ -1,5 +1,6 @@
 package org.limewire.ui.swing.search.resultpanel.classic;
 
+import java.awt.Component;
 import java.util.Calendar;
 
 import org.limewire.core.api.FilePropertyKey;
@@ -36,6 +37,7 @@ public class ImageTableFormat extends ResultsTableFormat<VisualSearchResult> {
     @Override
     public Class getColumnClass(int index) {
         switch(index) {
+        case NAME_INDEX: return Component.class;
         case DATE_INDEX: return Calendar.class;
         case FROM_INDEX: return VisualSearchResult.class;
         }
@@ -45,7 +47,7 @@ public class ImageTableFormat extends ResultsTableFormat<VisualSearchResult> {
     @Override
     public Object getColumnValue(VisualSearchResult vsr, int index) {
         switch(index) {
-            case NAME_INDEX: return vsr.getProperty(FilePropertyKey.NAME);
+            case NAME_INDEX: return vsr;
             case EXTENSION_INDEX: return vsr.getFileExtension();
             case DATE_INDEX: return vsr.getProperty(FilePropertyKey.DATE_CREATED);
             case FROM_INDEX: return vsr;

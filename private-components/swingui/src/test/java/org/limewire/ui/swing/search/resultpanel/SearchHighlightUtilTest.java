@@ -64,4 +64,23 @@ public class SearchHighlightUtilTest extends TestCase {
         String actualReturn = highlight(search, content);
         assertEquals("highlight with asterisk", expectedReturn, actualReturn);
     }
+    
+    /** Tests highlighting with period character. */
+    public void testHighlightWithPeriod() {
+        // Define test strings.
+        String search = "f.";
+        String content = "f.bar[x]";
+
+        // Verify highlighting.
+        String expectedReturn = "<b>f.</b>bar[x]";
+        String actualReturn = highlight(search, content);
+        assertEquals("highlight with period", expectedReturn, actualReturn);
+
+        // Verify non-match.
+        String moreContent = "fubar[x]";
+        
+        expectedReturn = "fubar[x]";
+        actualReturn = highlight(search, moreContent);
+        assertEquals("highlight with period", expectedReturn, actualReturn);
+    }
 }

@@ -67,4 +67,9 @@ public enum SearchCategory {
     public int getId() {
         return id;
     }
+    
+    /** Returns the {@link Category} most closely associated with this {@link SearchCategory}. */
+    public Category getCategory() {
+        return category;
+    }
 }

@@ -1,12 +1,26 @@
 package org.limewire.listener;
 
+import org.limewire.logging.Log;
+
 /**
  * An implementation of an event multicaster.
  * This forwards all received events to all listeners.
  */
 public class EventMulticasterImpl<E> implements EventMulticaster<E> {
-
-    private final EventListenerList<E> listeners = new EventListenerList<E>();
+    
+    private final EventListenerList<E> listeners;
+    
+    public EventMulticasterImpl() {
+        this.listeners = new EventListenerList<E>();
+    }
+    
+    public EventMulticasterImpl(Class loggerKey) {
+        this.listeners = new EventListenerList<E>(loggerKey);
+    }
+    
+    public EventMulticasterImpl(Log log) {
+        this.listeners = new EventListenerList<E>(log);
+    }
     
     @Override
     public void handleEvent(E event) {

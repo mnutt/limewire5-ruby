@@ -296,9 +296,9 @@ public final class UploadMediator extends AbstractTableMediator<UploadModel, Upl
 		for (int i =0; i<sel.length; i++) {
             Uploader uploader = DATA_MODEL.get(sel[i]).getInitializeObject();
 			if (uploader.isChatEnabled() ) {
-			    String host = uploader.getHost();
-				int port = uploader.getGnutellaPort();
-				GUIMediator.createChat(host, port);
+//			    String host = uploader.getHost();
+//				int port = uploader.getGnutellaPort();
+//				GUIMediator.createChat(host, port);
 			}
 		}
 	}

@@ -3,13 +3,13 @@ package org.limewire.ui.swing.search;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.spam.SpamManager;
-import org.limewire.core.settings.SearchSettings;
 import org.limewire.ui.swing.search.model.BasicSearchResultsModel;
 import org.limewire.ui.swing.search.model.GroupingListEventListener;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
 import org.limewire.ui.swing.search.model.SimilarResultsDetector;
 import org.limewire.ui.swing.search.model.SimilarResultsDetectorFactory;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.PropertiableHeadings;
 
 import ca.odell.glazedlists.EventList;
@@ -56,7 +56,7 @@ public class SearchResultsModelFactory {
                 libraryManager, downloadListManager);
         visualSearchResults.addListEventListener(alreadyDownloadedListEventListener);
 
-        if (SearchSettings.GROUP_SIMILAR_RESULTS_ENABLED.getValue()) {
+        if (SwingUiSettings.GROUP_SIMILAR_RESULTS_ENABLED.getValue()) {
             GroupingListEventListener groupingListEventListener = new GroupingListEventListener(
                     similarResultsDetector);
             visualSearchResults.addListEventListener(groupingListEventListener);

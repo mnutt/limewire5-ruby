@@ -49,5 +49,16 @@ public class LimeXMLDocumentTest extends LimeTestCase {
     	assertEquals(doc1, doc2);
     	assertEquals(doc1.hashCode(), doc2.hashCode());
     }
-    
+
+    public void testGetXMLString() throws Exception {
+        String xml = "<?xml version=\"1.0\"?><images xsi:noNamespaceSchemaLocation=\"http://www.limewire.com/schemas/image.xsd\"><image title=\"hello world\"/></images>";
+        LimeXMLDocument document = limeXMLDocumentFactory.createLimeXMLDocument(xml);
+        assertEquals(LimeXMLNames.IMAGE_SCHEMA, document.getSchemaURI());
+        assertEquals(xml, document.getXMLString());
+        
+        xml = "<?xml version=\"1.0\"?><audios xsi:noNamespaceSchemaLocation=\"http://www.limewire.com/schemas/audio.xsd\"><audio title=\"Hello World\" artist=\"Me and you\" album=\"Testing the waters\" genre=\"Rock\" track=\"5/11\" year=\"1999\" seconds=\"956\" bitrate=\"128\" comments=\"woah!\" license=\"me and you\"/></audios>";
+        document = limeXMLDocumentFactory.createLimeXMLDocument(xml);
+        assertEquals(LimeXMLNames.AUDIO_SCHEMA, document.getSchemaURI());
+        assertEquals(xml, document.getXMLString());
+    }
 }	

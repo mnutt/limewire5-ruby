@@ -1,11 +1,18 @@
 package com.limegroup.gnutella.library;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.limewire.concurrent.ThreadExecutor;
+import org.limewire.core.api.Category;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.util.FileUtils;
 import org.limewire.util.MediaType;
 import org.limewire.util.Objects;
+import org.limewire.util.StringUtils;
+
+import com.limegroup.gnutella.CategoryConverter;
 
 
 /**
@@ -15,9 +22,9 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
     
     private final String id;
     
-    private boolean addNewImagesAlways = false;
-    private boolean addNewAudioAlways = false;
-    private boolean addNewVideoAlways = false;
+    private volatile boolean addNewImagesAlways = false;
+    private volatile boolean addNewAudioAlways = false;
+    private volatile boolean addNewVideoAlways = false;
     
     protected final LibraryFileData data;
 
@@ -33,6 +40,11 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
     }
     
     @Override
+    public String toString() {
+        return StringUtils.toString(this);
+    }
+    
+    @Override
     public boolean add(FileDesc fileDesc) {
         return super.add(fileDesc);
     }
@@ -44,8 +56,11 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
      * needed, not upon startup.
      */
     void initialize() {
-
         // add files from the MASTER list which are for the current friend
+        // normally we would not want to lock the master list while adding
+        // items internally... but it's OK here because we're guaranteed
+        // that nothing is listening to this list, since this will happen
+        // in the constructor only.
         managedList.getReadLock().lock();
         try {
             for (FileDesc fd : managedList) {
@@ -108,6 +123,64 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
             }
             fireCollectionEvent(FileListChangedEvent.Type.IMAGE_COLLECTION, value);
             addNewImagesAlways = value;
+            if(addNewImagesAlways) {
+                ThreadExecutor.newManagedThread(new AddCategory(Category.IMAGE)).start();
+            }
+        }
+    }
+    
+    @Override
+    public void clearCategory(Category category) {
+        List<FileDesc> fdList = new ArrayList<FileDesc>(size());
+        getReadLock().lock();
+        try {
+            for(FileDesc fd : this) {
+                if(CategoryConverter.categoryForFile(fd.getFile()) == category) {
+                    fdList.add(fd);
+                }
+            }
+        } finally {
+            getReadLock().unlock();
+        }
+        
+        for(FileDesc fd : fdList) {
+            remove(fd);
+        }
+    }
+    
+    private class AddCategory implements Runnable {
+        private final Category category;
+        
+        public AddCategory(Category category) {
+            this.category = category;
+        }
+        
+        @Override
+        public void run() {
+            for (FileDesc fd : managedList.pausableIterable()) {
+                // exit early if off.
+                switch(category) {
+                case AUDIO:
+                    if (!addNewAudioAlways) {
+                        return;
+                    }
+                    break;
+                case IMAGE:
+                    if (!addNewImagesAlways) {
+                        return;
+                    }
+                    break;
+                case VIDEO:
+                    if (!addNewVideoAlways) {
+                        return;
+                    }
+                    break;
+                }
+                
+                if (CategoryConverter.categoryForFile(fd.getFile()) == category) {
+                    add(fd);
+                }
+            }
         }
     }
     
@@ -135,6 +208,9 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
             }
             fireCollectionEvent(FileListChangedEvent.Type.AUDIO_COLLECTION, value);
             addNewAudioAlways = value;
+            if(addNewAudioAlways) {
+                ThreadExecutor.newManagedThread(new AddCategory(Category.AUDIO)).start();
+            }
         }
     }
     
@@ -162,6 +238,9 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
             }
             fireCollectionEvent(FileListChangedEvent.Type.VIDEO_COLLECTION, value);
             addNewVideoAlways = value;
+            if(addNewVideoAlways) {
+                ThreadExecutor.newManagedThread(new AddCategory(Category.VIDEO)).start();
+            }
         }
     }
     
@@ -180,7 +259,6 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
     
     @Override
     protected void saveChange(File file, boolean added) {
-        // Just synchronize the data.
         data.setSharedWithFriend(file, id, added);      
     }
     

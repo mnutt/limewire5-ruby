@@ -6,11 +6,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
-import org.limewire.core.settings.QuestionsHandler;
+
 import org.limewire.ui.swing.options.actions.CancelDialogAction;
 import org.limewire.ui.swing.search.resultpanel.LicenseWarningDownloadPreprocessor;
+import org.limewire.ui.swing.settings.QuestionsHandler;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.util.VersionUtils;
 
 public class WarningMessagesOptionPanel extends OptionPanel {
 
@@ -20,7 +20,6 @@ public class WarningMessagesOptionPanel extends OptionPanel {
 
     private JCheckBox licensedMaterialCheckBox;
     private JCheckBox cancelTorrentCheckBox;
-    private JCheckBox oldJavaCheckBox;
     private JButton okButton;
     private JButton cancelButton;
     
@@ -35,8 +34,6 @@ public class WarningMessagesOptionPanel extends OptionPanel {
         cancelTorrentCheckBox = new JCheckBox(I18n.tr("Warn me when I cancel uploading a torrent that has not completely seeded"));
         cancelTorrentCheckBox.setContentAreaFilled(false);
         
-        oldJavaCheckBox = new JCheckBox(I18n.tr("Warn me when using an older version of Java"));
-        oldJavaCheckBox.setContentAreaFilled(false);
         
         okButton = new JButton(okAction);
         cancelButton = new JButton(cancelAction);
@@ -45,7 +42,6 @@ public class WarningMessagesOptionPanel extends OptionPanel {
         
         add(licensedMaterialCheckBox, "gapleft 25, gapright 40, split, wrap");
         add(cancelTorrentCheckBox, "gapleft 25, gapright 40, split, wrap");
-        add(oldJavaCheckBox, "gapleft 25, gapbottom 25, gapright 40, split, wrap");
         
         add(okButton, "split 2, span 2, alignx right");
         add(cancelButton);
@@ -56,7 +52,6 @@ public class WarningMessagesOptionPanel extends OptionPanel {
         int skipWarningSettingValue = getLicenseSettingValueFromCheckboxValue(licensedMaterialCheckBox.isSelected());
         QuestionsHandler.SKIP_FIRST_DOWNLOAD_WARNING.setValue(skipWarningSettingValue);
         QuestionsHandler.WARN_TORRENT_SEED_MORE.setValue(cancelTorrentCheckBox.isSelected());
-        QuestionsHandler.LAST_CHECKED_JAVA_VERSION.setValue(getJavaVersion(oldJavaCheckBox.isSelected()));
         return false;
     }
 
@@ -64,16 +59,11 @@ public class WarningMessagesOptionPanel extends OptionPanel {
     boolean hasChanged() {
         return QuestionsHandler.SKIP_FIRST_DOWNLOAD_WARNING.getValue() ==
                 getLicenseSettingValueFromCheckboxValue(licensedMaterialCheckBox.isSelected()) ||
-                QuestionsHandler.WARN_TORRENT_SEED_MORE.getValue() == cancelTorrentCheckBox.isSelected() ||
-                QuestionsHandler.LAST_CHECKED_JAVA_VERSION.getValue().equals(getJavaVersion(oldJavaCheckBox.isSelected()));
+                QuestionsHandler.WARN_TORRENT_SEED_MORE.getValue() == cancelTorrentCheckBox.isSelected();
     }
 
     private int getLicenseSettingValueFromCheckboxValue(boolean isSelected) {
         return isSelected ? SHOW_WARNING_VALUE : SKIP_WARNING_VALUE;
-    }
-    
-    private String getJavaVersion(boolean isSelected) {
-        return isSelected ? "" : VersionUtils.getJavaVersion();
     }
 
     @Override
@@ -83,8 +73,5 @@ public class WarningMessagesOptionPanel extends OptionPanel {
    
         boolean warnCancelTorrentUpload = QuestionsHandler.WARN_TORRENT_SEED_MORE.getValue();
         cancelTorrentCheckBox.setSelected(warnCancelTorrentUpload);
-        
-        boolean warnOldJava = QuestionsHandler.LAST_CHECKED_JAVA_VERSION.getValue().equals("");
-        oldJavaCheckBox.setSelected(warnOldJava);
     }
 }

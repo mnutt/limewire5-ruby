@@ -1,8 +1,10 @@
 package org.limewire.ui.swing.library.nav;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -13,6 +15,9 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.border.Border;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXBusyLabel;
@@ -23,11 +28,17 @@ import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FriendLibrary;
 import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.RemoteLibraryManager;
+import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.ActionLabel;
 import org.limewire.ui.swing.library.FriendLibraryMediator;
 import org.limewire.ui.swing.listener.ActionHandListener;
+import org.limewire.ui.swing.listener.MousePopupListener;
+import org.limewire.ui.swing.menu.actions.ChatAction;
 import org.limewire.ui.swing.util.GuiUtils;
+import org.limewire.ui.swing.util.I18n;
+import org.limewire.util.StringUtils;
 
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -61,30 +72,40 @@ public class NavPanel extends JXPanel {
     private MouseListener removeListener;     
     
     private boolean failed;
+    
+    private final Provider<ChatAction> chatActionProvider;
 
     @AssistedInject
     NavPanel(@Assisted Action action,
              @Assisted Friend friend,
              @Assisted FriendLibraryMediator libraryPanel,
-            RemoteLibraryManager remoteLibraryManager) {
+            RemoteLibraryManager remoteLibraryManager,
+            Provider<ChatAction> chatActionProvider) {
         super(new MigLayout("insets 0, gap 0, fill"));
         
         GuiUtils.assignResources(this);
         
         setOpaque(false);
         
+        this.chatActionProvider = chatActionProvider;
         this.action = action;
         this.friend = friend;           
         this.libraryPanel = libraryPanel;
         this.remoteLibraryManager = remoteLibraryManager;        
         
-        categoryLabel = new ActionLabel(action, false, false);
+        categoryLabel = new ActionLabel(action, false);
         categoryLabel.setFont(textFont);
         categoryLabel.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
         categoryLabel.setMinimumSize(new Dimension(0, 20));
         categoryLabel.setMaximumSize(new Dimension(Short.MAX_VALUE, 20));
         if(friend != null) {
             categoryLabel.setText(friend.getRenderName());
+            String toolTipText = getToolTipText(friend);
+            categoryLabel.setToolTipText(toolTipText);
+            
+            if(!friend.isAnonymous()) {
+                categoryLabel.addMouseListener(new ContextMenuListener());
+            }
         }
         statusIcon = new JXBusyLabel(new Dimension(12, 12));
         statusIcon.setOpaque(false);
@@ -103,15 +124,44 @@ public class NavPanel extends JXPanel {
                         categoryLabel.setForeground(selectedTextColor);
                         categoryLabel.setFont(selectedTextFont);
                         setOpaque(true);
+                        repaint();
                     } else {
                         setBackground(null);
                         categoryLabel.setForeground(textColor);
                         categoryLabel.setFont(textFont);
                         setOpaque(false);
+                        repaint();
                     }
                 }
             }
         });
+    }
+
+    private String getToolTipText(Friend friend) {
+        StringBuffer toolTipText = new StringBuffer();
+        String name = friend.getName();
+        String id = friend.getId();
+        
+        if(!StringUtils.isEmpty(name) && !StringUtils.isEmpty(id) && !name.equals(id)) {
+            toolTipText.append("<html>").append(name).append("<br>").append(id).append("</html>");
+        } else if(!StringUtils.isEmpty(name)) {
+            toolTipText.append(name);
+        } else if(!StringUtils.isEmpty(id)) {
+            toolTipText.append(id);
+        }
+        return toolTipText.toString();
+    }
+    
+    void setTopGap(int topgap) {
+        Border border = categoryLabel.getBorder();
+        Insets insets = border.getBorderInsets(categoryLabel);
+        categoryLabel.setBorder(BorderFactory.createEmptyBorder(topgap, insets.left, insets.bottom, insets.right));
+    }
+    
+    void setBottomGap(int bottomgap) {
+        Border border = categoryLabel.getBorder();
+        Insets insets = border.getBorderInsets(categoryLabel);
+        categoryLabel.setBorder(BorderFactory.createEmptyBorder(insets.top, insets.left, bottomgap, insets.right));
     }
     
     void setTitle(String text) {
@@ -253,10 +303,10 @@ public class NavPanel extends JXPanel {
     public void updateLibrary(FriendLibrary friendLibrary) {
         this.friendLibrary = friendLibrary;
         updateLibraryState(friendLibrary.getState());
-        libraryPanel.showLibraryPanel(friendLibrary.getSwingModel(), friendLibrary.getState());
+        libraryPanel.updateLibraryPanel(friendLibrary.getSwingModel(), friendLibrary.getState());
     }
     
-    public boolean hasSelection() {
+    public boolean isSelected() {
         return Boolean.TRUE.equals(action.getValue(Action.SELECTED_KEY));
     }
     
@@ -275,7 +325,6 @@ public class NavPanel extends JXPanel {
     public void removeBrowse() {
         if(libraryPanel != null) {
             unbusy(false);
-            libraryPanel.showLibraryCard();
         }
     }
     
@@ -285,5 +334,25 @@ public class NavPanel extends JXPanel {
 
     public FriendLibrary getFriendLibrary() {
         return friendLibrary;
+    }
+    
+    private class ContextMenuListener extends MousePopupListener {
+        @Override
+        public void handlePopupMouseEvent(MouseEvent e) {
+            JPopupMenu menu = new JPopupMenu();
+            menu.add(new JMenuItem(new AbstractAction(I18n.tr("Share")) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    select();
+                    showSharingCard();
+                }                
+            }));
+            
+            
+            ChatAction chatAction = chatActionProvider.get();
+            chatAction.setFriend(friend);
+            menu.add(new JMenuItem(chatAction));
+            menu.show((Component) e.getSource(), e.getX() + 3, e.getY() + 3);
+        }
     }
 }

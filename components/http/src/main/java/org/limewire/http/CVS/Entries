@@ -4,12 +4,12 @@ D/handler////
 D/httpclient////
 D/protocol////
 D/reactor////
-/BasicHeaderProcessor.java/1.2/Wed Dec 17 01:21:17 2008//
-/BasicHttpAcceptor.java/1.13/Wed Dec 17 01:21:17 2008//
-/HeaderInterceptor.java/1.2/Wed Dec 17 01:21:17 2008//
-/HttpAcceptorListener.java/1.3/Wed Dec 17 01:21:17 2008//
-/HttpCoreUtils.java/1.3/Wed Dec 17 01:21:17 2008//
-/LimeWireHttpModule.java/1.8/Wed Dec 17 01:21:17 2008//
-/MalformedHeaderException.java/1.2/Wed Dec 17 01:21:17 2008//
-/RangeHeaderInterceptor.java/1.2/Wed Dec 17 01:21:17 2008//
-/package.html/1.2/Wed Dec 17 01:21:17 2008//
+/BasicHeaderProcessor.java/1.2/Thu May 31 18:27:17 2007//
+/BasicHttpAcceptor.java/1.13/Mon Oct 27 18:51:25 2008//
+/HeaderInterceptor.java/1.2/Thu May 31 18:27:17 2007//
+/HttpAcceptorListener.java/1.3/Mon Mar  3 22:04:46 2008//
+/HttpCoreUtils.java/1.3/Mon Jul  9 18:44:16 2007//
+/LimeWireHttpModule.java/1.8/Sat Oct 25 23:15:22 2008//
+/MalformedHeaderException.java/1.2/Tue Sep  2 22:36:18 2008//
+/RangeHeaderInterceptor.java/1.2/Mon Jun 11 20:13:01 2007//
+/package.html/1.2/Thu May 31 18:27:17 2007//

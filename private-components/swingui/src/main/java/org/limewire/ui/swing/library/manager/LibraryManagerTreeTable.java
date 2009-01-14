@@ -4,26 +4,36 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
-import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
-import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.limewire.core.api.library.LibraryData;
-import org.limewire.ui.swing.table.TableCellHeaderRenderer;
+import org.limewire.ui.swing.table.MouseableTreeTable;
+import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.FileUtils;
 
-public class LibraryManagerTreeTable extends JXTreeTable {
+public class LibraryManagerTreeTable extends MouseableTreeTable {
     
     private final LibraryData libraryData;
 
-    public LibraryManagerTreeTable(LibraryData libraryData) {
-        setTableHeaderRenderer();
-        
+    public LibraryManagerTreeTable(IconManager iconManager, LibraryData libraryData) {
+        setTableHeader(null); // No table header for this table.
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setSelectionBackground(getBackground());
         setEditable(true);
+        setHorizontalScrollEnabled(true);
+        setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        setCellSelectionEnabled(false);
+        setRowSelectionAllowed(false);
+        setColumnSelectionAllowed(false);
+        setTreeCellRenderer(new FolderRenderer(iconManager));
+        setLeafIcon(null);
+        setClosedIcon(null);
+        setOpenIcon(null);
+        
         this.libraryData = libraryData;
     }
     
@@ -34,23 +44,14 @@ public class LibraryManagerTreeTable extends JXTreeTable {
     @Override
     public void setTreeTableModel(TreeTableModel model) {
         super.setTreeTableModel(model);
-
-        // all the nodes are always folders, set the leaf node to the folder icon
-        setLeafIcon(UIManager.getIcon("Tree.closedIcon"));
-  
-        getColumn(LibraryManagerModel.SCAN_INDEX).setCellRenderer(new ScanButtonRenderer());
-        getColumn(LibraryManagerModel.SCAN_INDEX).setCellEditor(new ScanButtonEditor(this));
-        getColumn(LibraryManagerModel.DONT_SCAN_INDEX).setCellEditor(new DontScanButtonEditor(this));
-        getColumn(LibraryManagerModel.DONT_SCAN_INDEX).setCellRenderer(new DontScanButtonRenderer());        
         
-        getColumn(LibraryManagerModel.SCAN_INDEX).setMinWidth(80);
-        getColumn(LibraryManagerModel.SCAN_INDEX).setMaxWidth(80);
-        getColumn(LibraryManagerModel.DONT_SCAN_INDEX).setMinWidth(80);
-        getColumn(LibraryManagerModel.DONT_SCAN_INDEX).setMaxWidth(80);
-        
-        //position the columns
-        moveColumn(LibraryManagerModel.SCAN_INDEX, LibraryManagerModel.FOLDER);
-        moveColumn(LibraryManagerModel.DONT_SCAN_INDEX, LibraryManagerModel.SCAN_INDEX);
+        RemoveButtonRenderer renderer = new RemoveButtonRenderer();
+        RemoveButtonEditor editor = new RemoveButtonEditor(this);
+        TableColumn removeColumn = getColumn(LibraryManagerModel.REMOVE_INDEX);        
+        removeColumn.setCellEditor(editor);
+        removeColumn.setCellRenderer(renderer);
+        removeColumn.setMaxWidth(renderer.getPreferredSize().width);
+        removeColumn.setMinWidth(renderer.getPreferredSize().width);
     }
 
     
@@ -67,13 +68,22 @@ public class LibraryManagerTreeTable extends JXTreeTable {
     public void addDirectory(File directory) {
         directory = FileUtils.canonicalize(directory);
         
+        boolean expand = false;
         LibraryManagerItem root = getLibraryModel().getRoot();
-        LibraryManagerItem item = findItem(root, directory);
-        if(item != null) {
-            item.setScanned(true);
-        } else {
-            item = new LibraryManagerItemImpl(root, libraryData, directory, true, true);
-            getLibraryModel().addChildToRoot(item);
+        LibraryManagerItem parent = findParent(root, directory);
+        LibraryManagerItem item = null;        
+        
+        // If no parent, it's going to be added to root.
+        if(parent == null) {
+            parent = root;
+        }
+        
+        item = parent.getChildFor(directory);
+        
+        if(item == null) {
+            item = new LibraryManagerItemImpl(parent, libraryData, directory, true);
+            getLibraryModel().addChild(item, parent);
+            
             // Make sure that we're not the ancestor of any existing item in the list
             // If we are, we remove that item.
             List<LibraryManagerItem> toRemove = new ArrayList<LibraryManagerItem>();
@@ -82,33 +92,44 @@ public class LibraryManagerTreeTable extends JXTreeTable {
                     toRemove.add(child);
                 }
             }
+            
             for(LibraryManagerItem child : toRemove) {
-                getLibraryModel().removeChildFromRoot(child);
+                getLibraryModel().removeChild(child);
+            }
+        } else {
+            // If the item already exists, go through all its excluded children and explicitly add them.
+            // work off a copy because we'll be modifying the list as we iterate through it.
+            for(File excludedChild : new ArrayList<File>(item.getExcludedChildren())) {
+                expand = true;
+                getLibraryModel().addChild(new LibraryManagerItemImpl(item, libraryData, excludedChild, true), item);
             }
         }
         
         TreePath path = new TreePath(getLibraryModel().getPathToRoot(item));
         scrollPathToVisible(path);
+        if(expand) {
+            expandPath(path);
+        }
         int row = getRowForPath(path);
         getSelectionModel().setSelectionInterval(row, row);
     }
     
-    private LibraryManagerItem findItem(LibraryManagerItem start, File directory) {
-        if(start.getFile() != null && start.getFile().equals(directory)) {
+    private LibraryManagerItem findParent(LibraryManagerItem start, File directory) {
+        if(start.getFile() != null && start.getFile().equals(directory.getParentFile())) {
             return start;
         }
         
         for(LibraryManagerItem child : start.getChildren()) {
             if(FileUtils.isAncestor(child.getFile(), directory)) {
-                return findItem(child, directory);
+                LibraryManagerItem found = findParent(child, directory);
+                // Don't return immediately -- it's possible there could
+                // be two ancestors listed if a parent directory is excluded
+                // and this is explicitly added on its own.
+                if(found != null) {
+                    return found;
+                }
             }
         }
         return null;
-    }
-    
-    protected void setTableHeaderRenderer() { 
-        JTableHeader th = getTableHeader(); 
-        th.setDefaultRenderer(new TableCellHeaderRenderer()); 
-    }
-    
+    }    
 }

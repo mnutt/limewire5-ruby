@@ -1,23 +1,24 @@
 package org.limewire.ui.swing.options;
 
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
-import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import org.jdesktop.swingx.JXTable;
+import net.miginfocom.swing.MigLayout;
+
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.table.AbstractTableFormat;
-import org.limewire.ui.swing.util.FontUtils;
+import org.limewire.ui.swing.table.MouseableTable;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -38,7 +39,7 @@ public abstract class AbstractFilterOptionPanel extends OptionPanel {
         eventList = GlazedLists.threadSafeList(new BasicEventList<String>());
     }
     
-    protected class FilterTable extends JXTable {
+    protected class FilterTable extends MouseableTable {
         
         public FilterTable(EventTableModel<String> model) {
             super(model);
@@ -47,23 +48,6 @@ public abstract class AbstractFilterOptionPanel extends OptionPanel {
             setSelectionMode(0);
             getColumn(1).setCellRenderer(new RemoveButtonRenderer(this));
             getColumn(1).setCellEditor(new RemoveButtonRenderer(this));
-        }
-        
-        //Don't set the cell value when editing is cancelled
-        @Override
-        public void editingStopped(ChangeEvent e) {
-            TableCellEditor editor = getCellEditor();
-            if (editor != null) {          
-                removeEditor();
-            }
-        }
-        
-        @Override
-        public boolean isCellEditable(int row, int col) {
-            if (row >= getRowCount() || col >= getColumnCount() || row < 0 || col < 0) {
-                return false;
-            }
-            return getColumnModel().getColumn(col).getCellEditor() != null;
         }
     }
     
@@ -87,26 +71,25 @@ public abstract class AbstractFilterOptionPanel extends OptionPanel {
         }
     }
     
-    private class RemoveButtonRenderer extends JButton implements TableCellRenderer, TableCellEditor {
+    private class RemoveButtonRenderer extends JPanel implements TableCellRenderer, TableCellEditor {
         private final List<CellEditorListener> listeners = new ArrayList<CellEditorListener>();
         
+        private final HyperlinkButton button;
+        
         public RemoveButtonRenderer(final FilterTable table) {
-            super(I18n.tr("remove"));
             
-            setBorder(null);
-            setContentAreaFilled(false);
-            setFocusPainted(false);
-            FontUtils.underline(this);
-            setOpaque(true);
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-            addActionListener(new ActionListener(){
+            button = new HyperlinkButton(I18n.tr("remove"));
+            button.addActionListener(new ActionListener(){
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    eventList.remove(table.getSelectedRow());
+                    int index = table.rowAtPoint(table.getMousePosition());
+                    eventList.remove(index);
                     cancelCellEditing();
                 }
             });
+            
+            setLayout(new MigLayout("insets 2 5 2 5, hidemode 0, align 50%"));
+            add(button);
         }
 
         @Override
@@ -114,10 +97,8 @@ public abstract class AbstractFilterOptionPanel extends OptionPanel {
                 boolean isSelected, boolean hasFocus, int row, int column) {
             if(isSelected) {
                 setBackground(table.getSelectionBackground());
-                setForeground(table.getSelectionForeground());
             } else {
                 setBackground(table.getBackground());
-                setForeground(table.getForeground());
             }
             return this;
         }
@@ -126,7 +107,6 @@ public abstract class AbstractFilterOptionPanel extends OptionPanel {
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
             setBackground(table.getSelectionBackground());
-            setForeground(table.getSelectionForeground());
             return this;
         }
 

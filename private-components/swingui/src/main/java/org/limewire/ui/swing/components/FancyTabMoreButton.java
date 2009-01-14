@@ -8,32 +8,36 @@ import java.util.List;
 
 import javax.swing.AbstractButton;
 import javax.swing.GroupLayout;
-import javax.swing.JButton;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.GroupLayout.Group;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.jdesktop.application.Resource;
+import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.icon.EmptyIcon;
+import org.limewire.ui.swing.util.GuiUtils;
 
-public class FancyTabMoreButton extends LimeComboBox {
+class FancyTabMoreButton extends LimeComboBox {
     
-    private final FancyTabProperties props;
+    @Resource private Icon selectedIcon;
+    private Icon unselectedIcon;
+    
     private JPopupMenu menu = new JPopupMenu();
     
-    public FancyTabMoreButton(List<FancyTab> tabs,
-            FancyTabProperties props) {
-
-        super(null);
-        
-        this.props = props;
-        this.overrideMenu(menu);
-
+    public FancyTabMoreButton(List<FancyTab> tabs) {
+        super(null);        
+        GuiUtils.assignResources(this);
+        unselectedIcon = new EmptyIcon(selectedIcon.getIconWidth(), selectedIcon.getIconHeight());
+        overrideMenu(menu);
         MoreListener listener = new MoreListener(tabs);
         menu.addPopupMenuListener(listener);
     }
@@ -43,9 +47,10 @@ public class FancyTabMoreButton extends LimeComboBox {
 
         JXPanel jp = new JXPanel();
         jp.setOpaque(false);
-        jp.setBackgroundPainter(props.getNormalPainter());
+        jp.setBackground(UIManager.getColor("MenuItem.selectionBackground"));
         
         final AbstractButton selectButton = tab.createMainButton();
+        selectButton.setOpaque(false);
         selectButton.setHorizontalAlignment(SwingConstants.LEADING);
         selectButton.addActionListener(new ActionListener() {
             @Override
@@ -54,18 +59,10 @@ public class FancyTabMoreButton extends LimeComboBox {
             }
         });
         
-        JButton removeButton = tab.createRemoveButton();
-        if(props.isRemovable()) {
-            removeButton.setVisible(true);
-            removeButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    menu.setVisible(false);
-                }
-            });
-        }
-        
+        JLabel selectionLabel = new JXLabel(tab.isSelected() ? selectedIcon : unselectedIcon);
+        selectionLabel.setOpaque(false);
         JLabel busyLabel = tab.createBusyLabel();
+        busyLabel.setOpaque(false);
         
         GroupLayout layout = new GroupLayout(jp);
         jp.setLayout(layout);
@@ -79,21 +76,19 @@ public class FancyTabMoreButton extends LimeComboBox {
         layout.setAutoCreateGaps(true);
         
         horGroup.addGap(5)
+                .addComponent(selectionLabel)
                 .addComponent(busyLabel)
-                .addComponent(selectButton, 0, 120, 120)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(removeButton, 20, 20, 20);
+                .addComponent(selectButton, 0, 120, 120);
         
-        verGroup.addComponent(busyLabel)
-                .addComponent(selectButton)
-                .addComponent(removeButton, 20, 20, 20);
+        verGroup.addComponent(selectionLabel)
+                .addComponent(busyLabel)
+                .addComponent(selectButton);
         
         layout.setHonorsVisibility(busyLabel, false);
         
-        Highlighter highlighter = new Highlighter(jp, selectButton, removeButton);
+        Highlighter highlighter = new Highlighter(jp, selectButton);
         jp.addMouseListener(highlighter);
         selectButton.addMouseListener(highlighter);
-        removeButton.addMouseListener(highlighter);
         
         return jp;
     }
@@ -101,24 +96,22 @@ public class FancyTabMoreButton extends LimeComboBox {
     private class Highlighter extends MouseAdapter {
         private final JXPanel panel;
         private final AbstractButton selectButton;
-        private final AbstractButton removeButton;
         
-        public Highlighter(JXPanel panel, AbstractButton selectButton, AbstractButton removeButton) {
+        public Highlighter(JXPanel panel, AbstractButton selectButton) {
             this.panel = panel;
             this.selectButton = selectButton;
-            this.removeButton = removeButton;
         }
         
         @Override
         public void mouseEntered(MouseEvent e) {
-            panel.setBackgroundPainter(null);
-            removeButton.setIcon(removeButton.getPressedIcon());
+            panel.setOpaque(true);
+            panel.repaint();
         }
         
         @Override
         public void mouseExited(MouseEvent e) {
-            panel.setBackgroundPainter(props.getNormalPainter());
-            removeButton.setIcon(null);
+            panel.setOpaque(false);
+            panel.repaint();
         }
         
         @Override

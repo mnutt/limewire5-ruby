@@ -17,6 +17,10 @@ public class RemoteImageTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int TITLE_INDEX = 4;
     static final int DESCRIPTION_INDEX = 5;
     
+    public RemoteImageTableFormat(ColumnStateInfo[] columnInfo) {
+        super(columnInfo);
+    }
+    
     public RemoteImageTableFormat() {
         super(new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_IMAGE_NAME", I18n.tr("Name"), 300, true, true),     
@@ -36,7 +40,7 @@ public class RemoteImageTableFormat<T extends RemoteFileItem> extends AbstractRe
             case CREATED_INDEX: return baseObject.getCreationTime();
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
             case TITLE_INDEX: return baseObject.getProperty(FilePropertyKey.TITLE);
-            case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.COMMENTS);
+            case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

@@ -1,13 +1,13 @@
 D/messages////
-/AddressEventTestBroadcaster.java/1.1/Wed Dec 17 01:21:20 2008//
-/EmptyJabberSettings.java/1.1/Wed Dec 17 01:21:20 2008//
-/FileOfferHandlerMock.java/1.1/Wed Dec 17 01:21:20 2008//
-/IncomingChatListenerMock.java/1.1/Wed Dec 17 01:21:20 2008//
-/LimeWireXMPPTestModule.java/1.1/Wed Dec 17 01:21:20 2008//
-/MessageReaderMock.java/1.1/Wed Dec 17 01:21:20 2008//
-/PasswordTest.java/1.2/Wed Dec 17 01:21:20 2008//
-/RosterListenerMock.java/1.2/Wed Dec 17 01:21:20 2008//
-/XMPPAddressSerializerTest.java/1.1/Wed Dec 17 01:21:20 2008//
-/XMPPConnectionConfigurationMock.java/1.5/Wed Dec 17 01:21:20 2008//
-/XMPPConnectionListenerMock.java/1.1/Wed Dec 17 01:21:20 2008//
-/XMPPServiceTest.java/1.10/Wed Dec 17 01:21:20 2008//
+/AddressEventTestBroadcaster.java/1.1/Thu Nov 20 20:16:15 2008//
+/EmptyJabberSettings.java/1.1/Thu Dec  4 00:23:51 2008//
+/FileOfferHandlerMock.java/1.1/Thu Nov 20 20:16:15 2008//
+/IncomingChatListenerMock.java/1.1/Thu Nov 20 20:16:15 2008//
+/LimeWireXMPPTestModule.java/1.1/Thu Dec  4 00:23:51 2008//
+/MessageReaderMock.java/1.1/Thu Nov 20 20:16:15 2008//
+/PasswordTest.java/1.2/Thu Nov 20 23:28:32 2008//
+/RosterListenerMock.java/1.2/Wed Dec 10 18:43:40 2008//
+/XMPPAddressSerializerTest.java/1.1/Mon Dec  8 20:48:06 2008//
+/XMPPConnectionConfigurationMock.java/1.5/Mon Dec  8 23:14:59 2008//
+/XMPPConnectionListenerMock.java/1.1/Thu Nov 20 20:16:15 2008//
+/XMPPServiceTest.java/1.10/Wed Dec 10 18:43:40 2008//

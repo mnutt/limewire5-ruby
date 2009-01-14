@@ -8,6 +8,8 @@ import java.util.Random;
 
 import junit.framework.Test;
 
+import org.limewire.listener.EventListenerList;
+import org.limewire.nio.observer.TransportListener;
 import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.util.BaseTestCase;
 
@@ -462,7 +464,7 @@ public class UDPSocketChannelTest extends BaseTestCase {
         }
         
         StubProcessor() {
-            super(null, new DefaultRUDPContext(), Role.UNDEFINED);
+            super(new StubUDPSocketChannel(), new DefaultRUDPContext(), Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>());
         }
 
         @Override
@@ -567,6 +569,22 @@ public class UDPSocketChannelTest extends BaseTestCase {
             this.connecting = connecting;
         }
     
+    }
+    
+    private static StubListener listener = new StubListener();
+    private static RUDPContext context = new DefaultRUDPContext(listener);
+    private static UDPSelectorProvider provider = new UDPSelectorProvider(context, new EventListenerList<UDPSocketChannelConnectionEvent>());
+    
+    private static class StubUDPSocketChannel extends UDPSocketChannel {
+        StubUDPSocketChannel() {
+            super(provider, context, Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>());
+        }
+    }
+    
+    private static class StubListener implements TransportListener {
+
+		public void eventPending() {
+		}
     }
 
 }

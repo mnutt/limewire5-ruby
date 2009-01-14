@@ -1,9 +1,11 @@
 package org.limewire.ui.swing.friends.chat;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -15,6 +17,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
+import org.jdesktop.application.Resource;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.action.CopyAction;
@@ -23,6 +26,7 @@ import org.limewire.ui.swing.action.DeleteAction;
 import org.limewire.ui.swing.action.PasteAction;
 import org.limewire.ui.swing.action.PopupUtil;
 import org.limewire.ui.swing.action.SelectAllAction;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.xmpp.api.client.ChatState;
 import org.limewire.xmpp.api.client.MessageWriter;
 import org.limewire.xmpp.api.client.XMPPException;
@@ -32,12 +36,17 @@ class ResizingInputPanel extends JPanel implements Displayable {
     private final JTextArea text;
     private final MessageWriter writer;
     private ChatState currentInputChatState = ChatState.active;
+    @Resource(key="ChatInputPanel.textFont") private Font inputTextFont;
 
     public ResizingInputPanel(MessageWriter writer) {
         super(new BorderLayout());
 
         this.writer = writer;
+        
+        GuiUtils.assignResources(this);
+        
         text = new JTextArea();
+        text.setFont(inputTextFont);
         text.setRows(2);
         text.setWrapStyleWord(true);
         text.setLineWrap(true);
@@ -60,6 +69,7 @@ class ResizingInputPanel extends JPanel implements Displayable {
                 }
             }
         });
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 6));
         add(scrollPane);
     }
     

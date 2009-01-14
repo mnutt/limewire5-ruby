@@ -8,6 +8,8 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
@@ -17,6 +19,8 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadListManager;
 import org.limewire.core.api.upload.UploadState;
+import org.limewire.ui.swing.action.BackAction;
+import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.LimeProgressBarFactory;
@@ -53,7 +57,8 @@ public class UploadPanel extends JXPanel{
     @Inject
     public UploadPanel(UploadListManager listManager, LimeHeaderBarFactory headerBarFactory,
             ButtonDecorator buttonDecorator, CategoryIconManager categoryIconManager, LimeProgressBarFactory progressBarFactory, 
-            PropertiesFactory<UploadItem> propertiesFactory, LibraryNavigator libraryNavigator){
+            PropertiesFactory<UploadItem> propertiesFactory, LibraryNavigator libraryNavigator,
+            BackAction backAction){
         super(new BorderLayout());
         
         this.buttonDecorator = buttonDecorator;
@@ -62,7 +67,7 @@ public class UploadPanel extends JXPanel{
 
         UploadTable table = new UploadTable(uploadItems, categoryIconManager, progressBarFactory, propertiesFactory, libraryNavigator);
         table.setTableHeader(null);
-        initHeader();
+        initHeader(backAction);
         
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -76,7 +81,7 @@ public class UploadPanel extends JXPanel{
         uploadItems.getReadWriteLock().writeLock().lock();
         try {
             for(UploadItem item : uploadItems){
-                if(item.getState() == UploadState.DONE || item.getState() == UploadState.UNABLE_TO_UPLOAD){
+                if(item.getState() == UploadState.DONE || item.getState() == UploadState.UNABLE_TO_UPLOAD || item.getState() == UploadState.BROWSE_HOST){
                     finishedItems.add(item);
                 }
             }
@@ -90,8 +95,13 @@ public class UploadPanel extends JXPanel{
         
     }
 
-    private void initHeader() {
-        header = headerBarFactory.createBasic(I18n.tr("Uploads"));
+    private void initHeader(Action backAction) {
+        JPanel headerTitlePanel = new JPanel(new MigLayout("insets 0, gap 0, fill, aligny center"));
+        headerTitlePanel.setOpaque(false);        
+        JLabel titleTextLabel = new JLabel(I18n.tr("Uploads"));        
+        headerTitlePanel.add(new IconButton(backAction), "gapafter 6");
+        headerTitlePanel.add(titleTextLabel, "gapbottom 2");        
+        header = headerBarFactory.createBasic(headerTitlePanel, titleTextLabel);
         
         clearAllButton = new JXButton(clearAction);  
         buttonDecorator.decorateDarkFullButton(clearAllButton);     

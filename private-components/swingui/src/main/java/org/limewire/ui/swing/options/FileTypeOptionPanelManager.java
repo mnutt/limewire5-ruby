@@ -346,7 +346,7 @@ public final class FileTypeOptionPanelManager {
         }
 
         @Override
-        public int getCommentFeildSize() {
+        public int getCommentFieldSize() {
             return 0;
         }
     }    
@@ -368,7 +368,7 @@ public final class FileTypeOptionPanelManager {
         }
 
         @Override
-        public int getCommentFeildSize() {
+        public int getCommentFieldSize() {
             return 70;
         }
     }    

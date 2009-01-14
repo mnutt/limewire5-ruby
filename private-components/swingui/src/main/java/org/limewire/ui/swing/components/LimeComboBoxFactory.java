@@ -47,11 +47,11 @@ public class LimeComboBoxFactory {
     
     private final ButtonDecorator buttonDecorator;
     
-    @Resource private Icon  miniRegIcon;
-    @Resource private Icon  miniHoverIcon;
-    @Resource private Icon  miniDownIcon;
-    @Resource private Icon  lightFullIcon;
-    @Resource private Icon  darkFullIcon;
+    @Resource private Icon miniRegIcon;
+    @Resource private Icon miniHoverIcon;
+    @Resource private Icon miniDownIcon;
+    @Resource private Icon lightFullIcon;
+    @Resource private Icon darkFullIcon;
     
     @Inject
     LimeComboBoxFactory(ButtonDecorator buttonDecorator) {
@@ -97,6 +97,13 @@ public class LimeComboBoxFactory {
         LimeComboBox box = new LimeComboBox(items);
         this.decorateMiniComboBox(box, promptText);
         return box;
+    }
+    
+    public void decorateDarkMiniComboBox(LimeComboBox box, String promptText) {
+        buttonDecorator.decorateDarkFullButton(box);
+        box.setIcon(this.darkFullIcon);
+        box.setBorder(BorderFactory.createEmptyBorder(2,10,2,20));
+        box.setText(promptText);
     }
     
     public void decorateMiniComboBox(LimeComboBox box, String promptText) {

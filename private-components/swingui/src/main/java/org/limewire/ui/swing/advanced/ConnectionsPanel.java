@@ -80,8 +80,16 @@ public class ConnectionsPanel extends TabPanel implements ActionListener {
     }
     
     /**
-     * Performs startup tasks for the tab content.  This method is called
-     * when the tab is selected. 
+     * Returns true if the tab content is enabled.  Always true.
+     */
+    @Override
+    public boolean isTabEnabled() {
+        return true;
+    }
+    
+    /**
+     * Performs startup tasks for the tab.  This method is called when the 
+     * parent window is opened. 
      */
     @Override
     public void start() {

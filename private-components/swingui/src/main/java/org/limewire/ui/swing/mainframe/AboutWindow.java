@@ -23,7 +23,7 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import org.limewire.core.api.Application;
-import org.limewire.ui.swing.components.HyperLinkButton;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.ScrollingTextPane;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -76,7 +76,7 @@ class AboutWindow {
         java.setHorizontalAlignment(SwingConstants.CENTER);
         
         //  set up limewire.com label
-        HyperLinkButton url = new HyperLinkButton("http://www.limewire.com");
+        HyperlinkButton url = new HyperlinkButton("http://www.limewire.com");
         url.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

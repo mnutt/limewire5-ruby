@@ -14,9 +14,10 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.VerticalLayout;
+import org.limewire.core.api.Application;
 import org.limewire.core.api.search.sponsored.SponsoredResult;
-import org.limewire.core.api.search.sponsored.SponsoredResultTarget;
 import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.home.HomePanel;
 import org.limewire.ui.swing.listener.ActionHandListener;
 import org.limewire.ui.swing.mainframe.StorePanel;
 import org.limewire.ui.swing.nav.NavCategory;
@@ -24,12 +25,15 @@ import org.limewire.ui.swing.nav.NavItem;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
+import org.mozilla.browser.MozillaInitialization;
 
 import com.google.inject.Inject;
 
 public class SponsoredResultsPanel extends JXPanel {
   
+    private final Application application;
     private final Navigator navigator;
+    private final HomePanel homePanel;
     private final StorePanel storePanel;
 
     @Resource private int textWidth;
@@ -42,10 +46,12 @@ public class SponsoredResultsPanel extends JXPanel {
     @Resource private Font urlFont;
     
     @Inject
-    public SponsoredResultsPanel(Navigator navigator, StorePanel storePanel) {
+    public SponsoredResultsPanel(Navigator navigator, StorePanel storePanel, HomePanel homePanel, Application application) {
         GuiUtils.assignResources(this);
+        this.application = application;
         this.navigator = navigator;
         this.storePanel = storePanel;
+        this.homePanel = homePanel;
         setLayout(new VerticalLayout(10));
         setMaximumSize(new Dimension(areaWidth, Short.MAX_VALUE));
         setMinimumSize(new Dimension(areaWidth, Short.MAX_VALUE));
@@ -108,13 +114,24 @@ public class SponsoredResultsPanel extends JXPanel {
         
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (result.getTarget() == SponsoredResultTarget.EXTERNAL) {
-                NativeLaunchUtils.openURL(result.getUrl());
-            } else {
-                storePanel.load(result.getUrl());
-                NavItem item = navigator.getNavItem(NavCategory.LIMEWIRE, StorePanel.NAME);
-                if(item != null) {
-                    item.select();
+            if(!MozillaInitialization.isInitialized()) {
+                NativeLaunchUtils.openURL(application.getUniqueUrl(result.getUrl()));
+            } else {            
+                switch(result.getTarget()) {
+                case HOME:
+                    homePanel.load(result.getUrl());
+                    navigator.getNavItem(NavCategory.LIMEWIRE, HomePanel.NAME).select();
+                    break;
+                case STORE:
+                    storePanel.load(result.getUrl());
+                    NavItem item = navigator.getNavItem(NavCategory.LIMEWIRE, StorePanel.NAME);
+                    if(item != null) {
+                        item.select();
+                    }
+                    break;
+                case EXTERNAL:
+                default:
+                    NativeLaunchUtils.openURL(application.getUniqueUrl(result.getUrl()));
                 }
             }
         }

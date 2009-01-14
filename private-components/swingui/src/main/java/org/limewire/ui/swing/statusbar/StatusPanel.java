@@ -1,10 +1,12 @@
 package org.limewire.ui.swing.statusbar;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -40,7 +42,7 @@ public class StatusPanel extends JXPanel {
         
         this.sharedFileCountPanel = sharedFileCountPanel;
         
-        setLayout(new MigLayout("insets 0, gap 0, hidemode 3, fill, nogrid"));
+        setLayout(new BorderLayout());
         ResizeUtils.forceHeight(this, height);
         
         setBackgroundPainter(barPainterFactory.createStatusBarPainter());
@@ -57,11 +59,23 @@ public class StatusPanel extends JXPanel {
         friendPanel.setVisible(false);
         ResizeUtils.forceHeight(friendPanel, height);
         
-        add(connectionStatus, "growy, gapbefore 2, gaptop 2");
-        add(sharedFileCountPanel, "growy, gaptop 2");
-        add(minDownloadPanel, "growy, gapafter 4, hidemode 2, push");
-        add(miniPlayerPanel, "gapafter 4");
-        add(friendPanel, "gapbefore push, hidemode 2, dock east");
+        JPanel leftPanel = new JPanel(new MigLayout("insets 0, gap 0, fill, nogrid"));
+        JPanel centerPanel = new JPanel(new MigLayout("insets 0, gap 0, filly, nogrid, center"));
+        JPanel rightPanel = new JPanel(new MigLayout("insets 0, gap 0, fill, nogrid"));
+        
+        leftPanel.setOpaque(false);
+        centerPanel.setOpaque(false);
+        rightPanel.setOpaque(false);
+        
+        leftPanel.add(connectionStatus, "growy, gapbefore 2, gaptop 2");
+        leftPanel.add(sharedFileCountPanel, "growy, gaptop 2");
+        centerPanel.add(minDownloadPanel, "growy, gaptop 2");
+        rightPanel.add(miniPlayerPanel, "gapafter 4");
+        rightPanel.add(friendPanel, "growy");
+        
+        add(leftPanel, BorderLayout.WEST);
+        add(centerPanel, BorderLayout.CENTER);
+        add(rightPanel, BorderLayout.EAST);
         
         connectionManager.addPropertyChangeListener(new PropertyChangeListener() {
             @Override

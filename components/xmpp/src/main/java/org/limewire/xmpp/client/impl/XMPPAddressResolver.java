@@ -37,7 +37,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class XMPPAddressResolver implements AddressResolver {
 
-    private final static Log LOG = LogFactory.getLog(XMPPAddressResolver.class);
+    private final static Log LOG = LogFactory.getLog(XMPPAddressResolver.class, LOGGING_CATEGORY);
     
     private final XMPPService xmppService;
 

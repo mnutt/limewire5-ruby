@@ -17,7 +17,11 @@ public class VideoTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
     static final int RATING_INDEX = 5;
     static final int DIMENSION_INDEX = 6;
     static final int DESCRIPTION_INDEX = 7;
-    static final int ACTION_INDEX = 8;
+    static final int GENRE_INDEX = 8;
+    static final int HIT_INDEX = 9;
+    static final int UPLOADS_INDEX = 10;
+    static final int UPLOAD_ATTEMPTS_INDEX = 11;
+    static final int ACTION_INDEX = 12;
     
     public VideoTableFormat() {
         super(ACTION_INDEX, new ColumnStateInfo[] {
@@ -29,6 +33,10 @@ public class VideoTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
                 new ColumnStateInfo(RATING_INDEX, "LIBRARY_VIDEO_RATING", I18n.tr("Rating"), 60, false, true), 
                 new ColumnStateInfo(DIMENSION_INDEX, "LIBRARY_VIDEO_RESOLUTION", I18n.tr("Resolution"), 80, false, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "LIBRARY_VIDEO_DESCRIPTION", I18n.tr("Description"), 100, false, true), 
+                new ColumnStateInfo(GENRE_INDEX, "LIBRARY_VIDEO_GENRE", I18n.tr("Genre"), 80, false, true),
+                new ColumnStateInfo(HIT_INDEX, "LIBRARY_VIDEO_HITS", I18n.tr("Hits"), 100, false, true), 
+                new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_VIDEO_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
+                new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_VIDEO_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true),
                 new ColumnStateInfo(ACTION_INDEX, "LIBRARY_VIDEO_ACTION", I18n.tr("Sharing"), 60, true, false)
         });
     }
@@ -47,7 +55,11 @@ public class VideoTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
                 return null;
             else
                 return baseObject.getProperty(FilePropertyKey.WIDTH) + " X " + baseObject.getProperty(FilePropertyKey.HEIGHT); 
-        case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.COMMENTS);
+        case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
+        case GENRE_INDEX: return baseObject.getProperty(FilePropertyKey.GENRE);
+        case HIT_INDEX: return baseObject.getNumHits();
+        case UPLOAD_ATTEMPTS_INDEX: return baseObject.getNumUploadAttempts();
+        case UPLOADS_INDEX: return baseObject.getNumUploads();
         case ACTION_INDEX: return baseObject;
         }
         throw new IllegalArgumentException("Unknown column:" + column);

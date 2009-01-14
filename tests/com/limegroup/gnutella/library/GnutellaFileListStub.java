@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.limewire.core.api.Category;
+
 import com.limegroup.gnutella.URN;
 
 
@@ -34,6 +36,11 @@ public class GnutellaFileListStub extends AbstractFileListStub implements Gnutel
             bytes += fd.getFileSize();
         }
         return bytes;
+    }
+    
+    @Override
+    public void clearCategory(Category category) {
+        
     }
     
     @Override

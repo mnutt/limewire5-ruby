@@ -68,7 +68,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     private final Set<File> directoriesToManageRecursively = new HashSet<File>();
     private final Set<File> directoriesNotToManage = new HashSet<File>();
     private final Set<File> excludedFiles = new HashSet<File>();
-    private final Map<File, FileProperties> libraryShareData = new HashMap<File, FileProperties>();
+    private final Map<File, FileProperties> libraryManageData = new HashMap<File, FileProperties>();
     private volatile boolean dirty = false;
     
     private final File saveFile = new File(CommonUtils.getUserSettingsDir(), "library5.dat"); 
@@ -104,7 +104,7 @@ class LibraryFileData extends AbstractSettingsGroup {
             directoriesToManageRecursively.clear();
             directoriesNotToManage.clear();
             excludedFiles.clear();
-            libraryShareData.clear();
+            libraryManageData.clear();
         } finally {
             lock.writeLock().unlock();
         }
@@ -124,7 +124,7 @@ class LibraryFileData extends AbstractSettingsGroup {
             save.put("MANAGED_DIRECTORIES", directoriesToManageRecursively);
             save.put("DO_NOT_MANAGE", directoriesNotToManage);
             save.put("EXCLUDE_FILES", excludedFiles);
-            save.put("SHARE_DATA", libraryShareData);
+            save.put("SHARE_DATA", libraryManageData);
             
             try {
                 out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(backupFile)));
@@ -184,7 +184,7 @@ class LibraryFileData extends AbstractSettingsGroup {
                     this.directoriesToManageRecursively.addAll(directoriesToManageRecursively);
                     this.directoriesNotToManage.addAll(directoriesNotToManage);
                     this.excludedFiles.addAll(excludedFiles);
-                    this.libraryShareData.putAll(libraryShareData);
+                    this.libraryManageData.putAll(libraryShareData);
                 } finally {
                     lock.writeLock().unlock();
                 }
@@ -215,8 +215,8 @@ class LibraryFileData extends AbstractSettingsGroup {
         lock.writeLock().lock();
         try {
             boolean changed = excludedFiles.remove(file);
-            if(explicit && !libraryShareData.containsKey(file)) {
-                libraryShareData.put(file, new FileProperties());
+            if(explicit && !libraryManageData.containsKey(file)) {
+                libraryManageData.put(file, new FileProperties());
                 changed = true;
             } 
             dirty |= changed;
@@ -236,7 +236,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     void removeManagedFile(File file, boolean explicit) {
         lock.writeLock().lock();
         try {
-            boolean changed = libraryShareData.remove(file) != null;
+            boolean changed = libraryManageData.remove(file) != null;
             if(explicit) {
                 changed |= excludedFiles.add(file);
             }
@@ -251,7 +251,7 @@ class LibraryFileData extends AbstractSettingsGroup {
         List<File> indivFiles = new ArrayList<File>();
         lock.readLock().lock();
         try {
-            indivFiles.addAll(libraryShareData.keySet());
+            indivFiles.addAll(libraryManageData.keySet());
         } finally {
             lock.readLock().unlock();
         }
@@ -339,6 +339,19 @@ class LibraryFileData extends AbstractSettingsGroup {
             lock.readLock().unlock();
         }
     }
+
+    public Collection<File> getDirectoriesWithImportedFiles() {
+        Set<File> directories = new HashSet<File>();
+        lock.readLock().lock();
+        try {
+            for(File file : libraryManageData.keySet()) {
+                directories.add(file.getParentFile());
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+        return directories;
+    }    
     
     /** Returns all categories that should be managed. */
     public Collection<Category> getManagedCategories() {
@@ -455,13 +468,13 @@ class LibraryFileData extends AbstractSettingsGroup {
     void setSharedWithGnutella(File file, boolean shared) {
         lock.writeLock().lock();
         try {
-            FileProperties props = libraryShareData.get(file);
+            FileProperties props = libraryManageData.get(file);
             if(props == null) {
                 if(!shared) {
                     return; // Nothing to do.
                 }
                 props = new FileProperties();
-                libraryShareData.put(file, props);
+                libraryManageData.put(file, props);
             }
             boolean changed = props.gnutella != shared;
             props.gnutella = shared;
@@ -475,7 +488,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     boolean isSharedWithGnutella(File file) {
         lock.readLock().lock();
         try {
-            FileProperties props = libraryShareData.get(file);
+            FileProperties props = libraryManageData.get(file);
             if(props != null) {
                 return props.gnutella;
             } else {
@@ -490,13 +503,13 @@ class LibraryFileData extends AbstractSettingsGroup {
     void setSharedWithFriend(File file, String friendId, boolean shared) {
         lock.writeLock().lock();
         try {
-            FileProperties props = libraryShareData.get(file);
+            FileProperties props = libraryManageData.get(file);
             if(props == null) {
                 if(!shared) {
                     return; // Nothing to do.
                 }
                 props = new FileProperties();
-                libraryShareData.put(file, props);
+                libraryManageData.put(file, props);
             }
             if(props.friends == null) {
                 if(!shared) {
@@ -523,7 +536,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     boolean isSharedWithFriend(File file, String friendId) {
         lock.readLock().lock();
         try {
-            FileProperties props = libraryShareData.get(file);
+            FileProperties props = libraryManageData.get(file);
             if(props != null && props.friends != null) {
                 return props.friends.contains(friendId);
             } else {

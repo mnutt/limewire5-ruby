@@ -1,5 +1,7 @@
 package com.limegroup.gnutella.library;
 
+import org.limewire.core.api.Category;
+
 public interface FriendFileList extends SharedFileList {
 
     /** Adds the FileDesc to this list. */
@@ -43,5 +45,8 @@ public interface FriendFileList extends SharedFileList {
      * Returns true if videos are being smartly shared with this friend, false otherwise.
      */
     boolean isAddNewVideoAlways();
+
+    /** Clears all files in the given category from this list. */
+    void clearCategory(Category category);
 
 }

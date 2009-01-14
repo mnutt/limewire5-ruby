@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Collections;
 import java.util.EventObject;
 import java.util.regex.Pattern;
 
@@ -49,7 +50,6 @@ import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.properties.PropertiesFactory;
-import org.limewire.ui.swing.search.RemoteHostActions;
 import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ActionButtonPanel;
@@ -153,7 +153,6 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             SearchResultFromWidgetFactory fromWidgetFactory,
         @Assisted ActionColumnTableCellEditor actionEditor, 
         @Assisted String searchText, 
-        final @Assisted RemoteHostActions remoteHostActions, 
         @Assisted Navigator navigator, 
         final @Assisted Color rowSelectionColor,
         final @Assisted DownloadHandler downloadHandler,
@@ -245,7 +244,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             }
         });
         
-        fromWidget = fromWidgetFactory.create(remoteHostActions, false);
+        fromWidget = fromWidgetFactory.create(false);
        
         makePanel(navigator, libraryNavigator, properties);
         
@@ -272,7 +271,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         itemIconLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e)) {
+                if(SwingUtilities.isLeftMouseButton(e) && isDownloadEligible(vsr)) {
                     actionButtonPanel.startDownload();
                     table.editingStopped(new ChangeEvent(table));
                 } else {
@@ -292,7 +291,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
 
             private void handlePopupMouseEvent(MouseEvent e) {
                 if(e.isPopupTrigger()) {
-                    SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, vsr, properties);
+                    SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), properties);
                     searchResultMenu.show(itemIconLabel, e.getX(), e.getY());
                 }
             }
@@ -303,7 +302,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             @Override
             public void mousePressed(MouseEvent e) {
                 final VisualSearchResult result = vsr; 
-                SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, vsr, properties);
+                SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), properties);
                 searchResultMenu.addPopupMenuListener(new PopupMenuListener() {
                     @Override
                     public void popupMenuCanceled(PopupMenuEvent e) {
@@ -337,7 +336,8 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     
     @Override
     public boolean isCellEditable(EventObject e) {
-        if (e instanceof MouseEvent) {
+        //TODO this is probably unnecessary since MouseableTable handles background color
+        if (table != null && e instanceof MouseEvent) {
             MouseEvent event = (MouseEvent) e;
             if (event.getID() == MouseEvent.MOUSE_PRESSED) {
                 //Cache the cell that's just been clicked on so that the editor component
@@ -349,9 +349,9 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         return super.isCellEditable(e);
     }
 
+    @Override
     public Component getTableCellEditorComponent(
         final JTable table, Object value, boolean isSelected, int row, final int col) {
-        
         vsr = (VisualSearchResult) value;
         this.table = table;
         LOG.debugf("getTableCellEditorComponent: row = {0} column = {1}", row, col);
@@ -436,8 +436,6 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
 
     private Component makeLeftPanel(final Navigator navigator, final LibraryNavigator libraryNavigator) {
         itemIconLabel = new JLabel();
-        itemIconLabel.setCursor(
-            Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         itemIconLabel.setOpaque(false);
         
         heading.setContentType("text/html");
@@ -504,6 +502,15 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         });
 
         return panel;
+    }
+
+    private Cursor getIconCursor(VisualSearchResult vsr) {
+        boolean useDefaultCursor = !isDownloadEligible(vsr);
+        return Cursor.getPredefinedCursor(useDefaultCursor ? Cursor.DEFAULT_CURSOR : Cursor.HAND_CURSOR);
+    }
+
+    private boolean isDownloadEligible(VisualSearchResult vsr) {
+        return !vsr.isSpam() && vsr.getDownloadState() == BasicDownloadState.NOT_STARTED;
     }
 
     private void makePanel(Navigator navigator, LibraryNavigator libraryNavigator, PropertiesFactory<VisualSearchResult> properties) {
@@ -620,6 +627,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             }
             
             itemIconLabel.setIcon(getIcon(vsr));
+            itemIconLabel.setCursor(getIconCursor(vsr));
 
             RowDisplayResult result = rowHeightRule.getDisplayResult(vsr, searchText);
             

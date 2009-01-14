@@ -17,18 +17,20 @@ import com.google.inject.assistedinject.AssistedInject;
 public class DownloadActionHandler {
     
     public final static String PAUSE_COMMAND = "pause";
+    /**Cancels download, deletes file, and removes download from list*/
     public final static String CANCEL_COMMAND = "cancel";
     public final static String RESUME_COMMAND = "resume";
     public final static String TRY_AGAIN_COMMAND = "try again";
     public final static String LAUNCH_COMMAND = "launch";
     public final static String PREVIEW_COMMAND = "preview";
+    /**Removes download from list.  Has no other effects.*/
     public final static String REMOVE_COMMAND = "remove";
     public final static String LOCATE_COMMAND = "locate";
     public final static String PROPERTIES_COMMAND = "properties";
     public final static String LINK_COMMAND = "link";
     public final static String SHARE_COMMAND = "share";
     
-    private static final String ERROR_URL = "http://wiki.limewire.org/index.php?title=User_Guide_Download";
+   // private static final String ERROR_URL = "http://wiki.limewire.org/index.php?title=User_Guide_Download";
     
     private EventList<DownloadItem> downloadItems;
     private PropertiesFactory<DownloadItem> propertiesFactory;
@@ -52,7 +54,8 @@ public class DownloadActionHandler {
         } else if (actionCommmand == TRY_AGAIN_COMMAND) {
             item.resume();
         } else if (actionCommmand == LINK_COMMAND){
-            NativeLaunchUtils.openURL(ERROR_URL);
+            //Do nothing for now
+           // NativeLaunchUtils.openURL(ERROR_URL);
         } else if (actionCommmand == PREVIEW_COMMAND || actionCommmand == LAUNCH_COMMAND){
             DownloadItemUtils.launch(item);
         } else if (actionCommmand == LOCATE_COMMAND){

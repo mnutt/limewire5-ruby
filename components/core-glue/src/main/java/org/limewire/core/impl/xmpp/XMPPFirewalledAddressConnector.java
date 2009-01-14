@@ -42,7 +42,7 @@ import com.limegroup.gnutella.downloader.PushedSocketHandlerRegistry;
 @Singleton
 class XMPPFirewalledAddressConnector implements AddressConnector, PushedSocketHandler {
 
-    private static final Log LOG = LogFactory.getLog(XMPPFirewalledAddressConnector.class);
+    private static final Log LOG = LogFactory.getLog(XMPPFirewalledAddressConnector.class, LOGGING_CATEGORY);
     
     private final PushDownloadManager pushDownloadManager;
     private final NetworkManager networkManager;

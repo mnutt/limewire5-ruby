@@ -17,19 +17,24 @@ class LibraryMediator extends JPanel implements Disposable {
     // Otherwise, the act of removing them may require bits of the
     // disposed code, and cause exceptions.
 
-    private static final String LIBRRY_CARD = "LIBRARY_CARD";
+    private static final String LIBRARY_CARD = "LIBRARY_CARD";
     private static final String SHARING_CARD = "SHARING_CARD";
+    private static final String EMPTY_CARD = "EMPTY_CARD";
+    private String currentCard = EMPTY_CARD;
     
     private CardLayout cardLayout;
 
     private JComponent libraryComponent = null;
     private JComponent sharingComponent = null;
+    private JComponent emptyComponent = null;
+    
     protected boolean disposed;
 
     public LibraryMediator() {
         cardLayout = new CardLayout();
         
         setLayout(cardLayout);
+        
     }
     
     protected void setLibraryCard(JComponent panel) {
@@ -40,8 +45,11 @@ class LibraryMediator extends JPanel implements Disposable {
             libraryComponent = null;
         }
         libraryComponent = panel;
-        add(panel, LIBRRY_CARD);
-        revalidate();
+        add(panel, LIBRARY_CARD);
+        if(isLibraryCardShown()) {
+            //needed because removing the card can change what card is shown
+            showLibraryCard();
+        }
     }
     
     protected boolean isSharingCardSet() {
@@ -60,16 +68,50 @@ class LibraryMediator extends JPanel implements Disposable {
         add(panel, SHARING_CARD);
     }
     
+    protected void setEmptyCard(JComponent panel) {
+        if(emptyComponent != null) {
+            // Important: rm before dispose -- see note at top of class
+            remove(emptyComponent);
+            ((Disposable)emptyComponent).dispose();
+            emptyComponent = null;
+        }
+        emptyComponent = panel;
+        panel.validate();
+        add(panel, EMPTY_CARD);
+    }
+    
     public void showLibraryCard() {
-        cardLayout.show(this, LIBRRY_CARD);
+        currentCard = LIBRARY_CARD;
+        cardLayout.show(this, LIBRARY_CARD);
         validate();
         repaint();
     }
     
     protected void showSharingCard() {
+        currentCard = SHARING_CARD;
         cardLayout.show(this, SHARING_CARD);
+        validate();
+        repaint();
     }
 
+    protected void showEmptyCard() {
+        currentCard = EMPTY_CARD;
+        cardLayout.show(this, EMPTY_CARD);
+        validate();
+        repaint();
+    }
+    
+    public boolean isLibraryCardShown() {
+        return LIBRARY_CARD.equals(currentCard);
+    }
+    
+    public boolean isSharingCardShown() {
+        return SHARING_CARD.equals(currentCard);
+    }
+    
+    public boolean isEmptyCardShown() {
+        return EMPTY_CARD.equals(currentCard);
+    }
 
     @Override
     protected void addImpl(Component comp, Object constraints, int index) {

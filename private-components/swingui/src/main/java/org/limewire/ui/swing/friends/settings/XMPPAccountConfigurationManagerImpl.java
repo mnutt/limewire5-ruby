@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.limewire.core.api.xmpp.XMPPResourceFactory;
-import org.limewire.core.settings.XMPPSettings;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.xmpp.api.client.PasswordManager;
 
 import com.google.inject.Inject;
@@ -30,16 +30,12 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
         this.passwordManager = passwordManager;
         configs = new HashMap<String,XMPPAccountConfiguration>();
         resource = xmppResourceFactory.getResource();
-        for(String server : XMPPSettings.XMPP_SERVERS.getValue()) {
-            try {
-                XMPPAccountConfiguration config =
-                    new XMPPAccountConfigurationImpl(server, resource);
-                configs.put(config.getLabel(), config);
-            } catch(IllegalArgumentException ignored) {
-                // Malformed string - no soup for you!
-            }
-        }
-        String custom = XMPPSettings.XMPP_SERVER.getValue();
+        loadWellKnownServers();
+        loadCustomServer();
+    }
+
+    private void loadCustomServer() {
+        String custom = SwingUiSettings.USER_DEFINED_XMPP_SERVER.getValue();
         XMPPAccountConfiguration customConfig;
         try {
             customConfig = new XMPPAccountConfigurationImpl(custom, resource);
@@ -49,7 +45,7 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
         }
         customConfig.setLabel("Jabber");
         configs.put("Jabber", customConfig);
-        String autoLogin = XMPPSettings.XMPP_AUTO_LOGIN.getValue();
+        String autoLogin = SwingUiSettings.XMPP_AUTO_LOGIN.getValue();
         if(!autoLogin.equals("")) {
             int comma = autoLogin.indexOf(',');
             try {
@@ -71,7 +67,19 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
             }
         }
     }
-    
+
+    private void loadWellKnownServers() {
+        for(String server : SwingUiSettings.XMPP_SERVERS.getValue()) {
+            try {
+                XMPPAccountConfiguration config =
+                    new XMPPAccountConfigurationImpl(server, resource);
+                configs.put(config.getLabel(), config);
+            } catch(IllegalArgumentException ignored) {
+                // Malformed string - no soup for you!
+            }
+        }
+    }
+
     @Override
     public XMPPAccountConfiguration getConfig(String label) {
         return configs.get(label);
@@ -85,7 +93,7 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
             public int compare(XMPPAccountConfiguration o1, XMPPAccountConfiguration o2) {
                 return o1.getLabel().compareToIgnoreCase(o2.getLabel());
             }
-        });;
+        });
         return configurations;
     }    
     
@@ -108,8 +116,8 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
         // Remove the old configuration, if there is one
         if(autoLoginConfig != null) {
             passwordManager.removePassword(autoLoginConfig.getUserInputLocalID());
-            XMPPSettings.XMPP_AUTO_LOGIN.setValue("");
-            XMPPSettings.XMPP_SERVER.setValue("");
+            SwingUiSettings.XMPP_AUTO_LOGIN.setValue("");
+            SwingUiSettings.USER_DEFINED_XMPP_SERVER.setValue("");
             autoLoginConfig = null;
         }
         // Store the new configuration, if there is one
@@ -117,10 +125,10 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
             try {
                 passwordManager.storePassword(config.getUserInputLocalID(),
                         config.getPassword());
-                XMPPSettings.XMPP_AUTO_LOGIN.setValue(config.getLabel() + "," +
+                SwingUiSettings.XMPP_AUTO_LOGIN.setValue(config.getLabel() + "," +
                         config.getUserInputLocalID());
                 if(config.getLabel().equals("Jabber"))
-                    XMPPSettings.XMPP_SERVER.setValue(config.toString());
+                    SwingUiSettings.USER_DEFINED_XMPP_SERVER.setValue(config.toString());
                 autoLoginConfig = config;
             } catch (IllegalArgumentException ignored) {
                 // Empty username or password - no soup for you!

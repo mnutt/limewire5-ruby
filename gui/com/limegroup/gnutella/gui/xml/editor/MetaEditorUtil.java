@@ -2,7 +2,6 @@ package com.limegroup.gnutella.gui.xml.editor;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -197,7 +196,7 @@ public final class MetaEditorUtil {
                 // from the schema. Otherwise it's like an empty document
                 // and considered invalid!
                 boolean atLeastOneKnownFieldName = false;
-                Set<String> fieldNames = new HashSet<String>(Arrays.asList(schema.getCanonicalizedFieldNames()));
+                Set<String> fieldNames = new HashSet<String>(schema.getCanonicalizedFieldNames());
                 for(Map.Entry<String, String> etr : intersection) {
                     if (fieldNames.contains(etr.getKey())  && etr.getValue() != null) {
                         atLeastOneKnownFieldName = true;

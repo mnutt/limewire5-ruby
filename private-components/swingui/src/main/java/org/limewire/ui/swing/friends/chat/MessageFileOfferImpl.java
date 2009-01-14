@@ -85,7 +85,7 @@ public class MessageFileOfferImpl extends AbstractMessageImpl implements Message
                 case STALLED:
                 case ERROR:
                     fileOfferFormatted = fileOfferReceived +
-                        formatButtonText(tr("Retry Download {0}", fileMetadata.getName()), true) +
+                        formatButtonText(tr("Download {0}", fileMetadata.getName()), true) +
                                 DOWNLOAD_FROM_LIBRARY;
                     break;
                 case DONE:

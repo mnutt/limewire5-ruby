@@ -15,6 +15,7 @@ import javax.swing.SpinnerNumberModel;
 import net.miginfocom.swing.MigLayout;
 
 import org.limewire.core.settings.BittorrentSettings;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
@@ -108,7 +109,7 @@ public class BitTorrentOptionPanel extends OptionPanel {
     
     @Override
     boolean applyOptions() {
-        BittorrentSettings.AUTOMATIC_SETTINGS.setValue(limewireControl.isSelected());
+        SwingUiSettings.AUTOMATIC_SETTINGS.setValue(limewireControl.isSelected());
         BittorrentSettings.TORRENT_MAX_UPLOADS.setValue((Integer)maxUploadSpinner.getModel().getValue());
         BittorrentSettings.TORRENT_MIN_UPLOADS.setValue((Integer)minUploadSpinner.getModel().getValue());
         BittorrentSettings.TORRENT_FLUSH_VERIRY.setValue(safeChunkCheckBox.isSelected());
@@ -118,7 +119,7 @@ public class BitTorrentOptionPanel extends OptionPanel {
     
     @Override
     boolean hasChanged() {
-        return BittorrentSettings.AUTOMATIC_SETTINGS.getValue() != limewireControl.isSelected() 
+        return SwingUiSettings.AUTOMATIC_SETTINGS.getValue() != limewireControl.isSelected() 
                 || (Integer)maxUploadSpinner.getModel().getValue() != BittorrentSettings.TORRENT_MAX_UPLOADS.getValue()
                 || (Integer)minUploadSpinner.getModel().getValue()!= BittorrentSettings.TORRENT_MIN_UPLOADS.getValue()
                 || BittorrentSettings.TORRENT_FLUSH_VERIRY.getValue() != safeChunkCheckBox.isSelected()
@@ -127,7 +128,7 @@ public class BitTorrentOptionPanel extends OptionPanel {
     
     @Override
     public void initOptions() {
-        boolean auto = BittorrentSettings.AUTOMATIC_SETTINGS.getValue();
+        boolean auto = SwingUiSettings.AUTOMATIC_SETTINGS.getValue();
         if(auto)
             limewireControl.setSelected(true);
         else

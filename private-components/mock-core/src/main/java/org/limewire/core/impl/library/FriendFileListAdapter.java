@@ -1,48 +1,29 @@
 package org.limewire.core.impl.library;
 
+import org.limewire.core.api.Category;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.GnutellaFileList;
 
 public class FriendFileListAdapter extends FileListAdapter implements FriendFileList, GnutellaFileList {
 
+   
     @Override
-    public boolean isAddNewAudioAlways() {
-        // TODO Auto-generated method stub
+    public boolean isCategoryAutomaticallyAdded(Category category) {
         return false;
     }
-
+    
     @Override
-    public boolean isAddNewImageAlways() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean isAddNewVideoAlways() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void setAddNewAudioAlways(boolean value) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void setAddNewImageAlways(boolean value) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void setAddNewVideoAlways(boolean value) {
-        // TODO Auto-generated method stub
-        
+    public void setCategoryAutomaticallyAdded(Category category, boolean added) {
     }
 
     @Override
     public void removeDocuments() {
+        
+    }
+    
+    @Override
+    public void clearCategory(Category category) {
+        // TODO Auto-generated method stub
         
     }
 

@@ -1,5 +1,7 @@
 package org.limewire.ui.swing.search;
 
+import org.limewire.collection.AutoCompleteDictionary;
+import org.limewire.collection.StringTrieSet;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.search.model.SimilarResultsDetectorFactory;
 import org.limewire.ui.swing.search.model.SimilarResultsDetectorFactoryImpl;
@@ -39,6 +41,7 @@ public class LimeWireUiSearchModule extends AbstractModule {
     
     @Override
     protected void configure() {
+        bind(AutoCompleteDictionary.class).annotatedWith(Names.named("searchHistory")).toInstance(new StringTrieSet(true));
         bind(SearchHandler.class).to(SearchHandlerImpl.class);
         bind(SearchHandler.class).annotatedWith(Names.named("p2p://")).to(P2PLinkSearchHandler.class);
         bind(SearchHandler.class).annotatedWith(Names.named("text")).to(TextSearchHandlerImpl.class);

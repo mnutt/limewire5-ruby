@@ -12,6 +12,7 @@ import org.limewire.core.settings.LibrarySettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.action.MnemonicMenu;
 import org.limewire.ui.swing.advanced.AdvancedToolsPanel;
 import org.limewire.ui.swing.downloads.MainDownloadPanel;
 import org.limewire.ui.swing.event.OptionsDisplayEvent;
@@ -30,16 +31,16 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 @Singleton
-public class ToolsMenu extends JMenu {
+public class ToolsMenu extends MnemonicMenu {
 
     @Inject
     public ToolsMenu(final Provider<AdvancedToolsPanel> advancedProvider,
             final Navigator navigator,
             SearchHandler searchHandler, final LibraryManager libraryManager, final UploadPanel uploadPanel) {
 
-        super(I18n.tr("Tools"));
+        super(I18n.tr("&Tools"));
 
-        add(new AbstractAction(I18n.tr("Downloads")) {
+        add(new AbstractAction(I18n.tr("&Downloads")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NavItem navItem = navigator
@@ -48,7 +49,7 @@ public class ToolsMenu extends JMenu {
             }
         });
         navigator.createNavItem(NavCategory.UPLOAD, UploadPanel.NAME, uploadPanel);
-        add(new AbstractAction(I18n.tr("Uploads")) {
+        add(new AbstractAction(I18n.tr("&Uploads")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NavItem navItem = navigator.getNavItem(NavCategory.UPLOAD, UploadPanel.NAME);
@@ -65,16 +66,16 @@ public class ToolsMenu extends JMenu {
 //        });
         add(createWhatsNewSubmenu(searchHandler));
         addSeparator();
-        add(new AbstractAction(I18n.tr("Advanced Tools...")) {
+        add(new AbstractAction(I18n.tr("&Advanced Tools...")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 AdvancedToolsPanel advancedTools = advancedProvider.get();
-                advancedTools.display(AdvancedToolsPanel.TabId.CONNECTIONS);
+                advancedTools.display();
             }
         });
         if (!OSUtils.isMacOSX()) {
             addSeparator();
-            add(new AbstractAction(I18n.tr("Options...")) {
+            add(new AbstractAction(I18n.tr("&Options...")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     new OptionsDisplayEvent().publish();
@@ -84,13 +85,13 @@ public class ToolsMenu extends JMenu {
     }
 
     private JMenu createWhatsNewSubmenu(final SearchHandler searchHandler) {
-        JMenu menu = new JMenu(I18n.tr("What's New Search"));
+        JMenu menu = new MnemonicMenu(I18n.tr("&What's New Search")){};
         for (final SearchCategory category : SearchCategory.values()) {
             if (category == SearchCategory.OTHER) {
                 continue;
             }
 
-            Action action = new AbstractAction(SearchCategoryUtils.getName(category)) {
+            Action action = new AbstractAction(SearchCategoryUtils.getWhatsNewMenuName(category)) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     searchHandler.doSearch(DefaultSearchInfo.createWhatsNewSearch(category));

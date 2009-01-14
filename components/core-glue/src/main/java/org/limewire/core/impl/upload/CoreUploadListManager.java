@@ -118,8 +118,9 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
 
     @Override
     public void uploadRemoved(Uploader uploader) {
+        UploadItem item = new CoreUploadItem(uploader);
         // This is called when uploads complete.  Remove if auto-clear is enabled.
-        if (new CoreUploadItem(uploader).getState() == UploadState.DONE && SharingSettings.CLEAR_UPLOAD.getValue()) {
+        if ((item.getState() == UploadState.DONE || item.getState() == UploadState.BROWSE_HOST_DONE) && SharingSettings.CLEAR_UPLOAD.getValue()) {
             uploadItems.remove(new CoreUploadItem(uploader));
         }
     }
@@ -135,7 +136,7 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
         try {
             // TODO use TransactionList for these for performance (requires using GlazedLists from head)
             for (UploadItem item : uploadItems) {
-                if (item.getState() != UploadState.DONE && item instanceof CoreUploadItem)
+                if (item.getState() != UploadState.DONE && item.getState() != UploadState.BROWSE_HOST_DONE && item instanceof CoreUploadItem)
                     ((CoreUploadItem) item).fireDataChanged();
             }
         } finally {
