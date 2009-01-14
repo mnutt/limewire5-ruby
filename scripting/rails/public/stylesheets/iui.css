@@ -392,6 +392,22 @@ fieldset > .row:last-child {
   position: absolute;
   top: 0.6em;
   right: 0.6em;
+  z-index: 6;
+}
+
+#results .result .progress {
+  position: absolute;
+  height: 100%;
+  width: 0%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  background-color: #8CE;
+}
+
+#results .result .filename {
+  z-index: 5;
+  position: relative;
 }
 
 #results .downloading {

@@ -421,8 +421,9 @@ SC.Playlist.prototype = {
 	  var old = track;
 	  var new_track = {};
 	  new_track.magnet = track.magnet_url;
+	  new_track.sha1 = track.sha1;
 	  new_track.user = {};
-	  new_track.user.username = ""
+	  new_track.user.username = "";
 	  new_track.title = track.properties.TITLE;
 	  new_track.description = track.filename;
 	  new_track.bpm = 0;
@@ -464,7 +465,7 @@ SC.Playlist.prototype = {
           self.currentPos = $(this).parents("tbody").find("tr").index(this);
           $(this).addClass("selected");
 	  if(self.properties.playlist.search) {
-	    $.post("/downloads", { magnet: track.magnet });
+	    $.post("/downloads", { urn: track.sha1, guid: self.properties.playlist.search_options.key });
 	  } else {
               self.loadTrack(self.currentPos);
 	  }

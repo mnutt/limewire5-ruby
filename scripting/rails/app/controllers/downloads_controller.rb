@@ -2,12 +2,7 @@ class DownloadsController < ApplicationController
   self.allow_forgery_protection = false
 
   def create
-    start = params.delete(:magnet)
-    params.delete(:controller)
-    params.delete(:action)
-    urn = start + "?&" + params.map{|k,v| "#{k}=#{v}"}.join("&")
-
-    download = Limewire::Download.create(urn)
+    download = Limewire::Download.create(params[:urn], params[:guid])
     render :json => "ok"
   end
 
