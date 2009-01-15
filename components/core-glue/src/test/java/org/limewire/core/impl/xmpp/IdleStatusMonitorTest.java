@@ -4,21 +4,28 @@ package org.limewire.core.impl.xmpp;
 import junit.framework.TestCase;
 
 import org.limewire.lifecycle.Service;
+import org.limewire.listener.BroadcastPolicy;
+import org.limewire.listener.CachingEventMulticasterImpl;
+import org.limewire.listener.EventListener;
 import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 
 public class IdleStatusMonitorTest extends TestCase {
     private MockIdleTime idleTime;
     private Runnable monitorRunnable;
-    private MockActivityEventBroadcaster activityBroadcaster;
-    private MockListenerSupport connectionSupport;
+    private CachingEventMulticasterImpl<XMPPConnectionEvent> connectionSupport;
+    private TestXmppActivityListener listener;
 
     @Override
     protected void setUp() throws Exception {
+        // TODO don't mock out env, especially the
+        // TODO broadcasters
         MockScheduledExecutorService backgroundExecutor = new MockScheduledExecutorService();
         idleTime = new MockIdleTime();
-        activityBroadcaster = new MockActivityEventBroadcaster();
-        connectionSupport = new MockListenerSupport();
+        CachingEventMulticasterImpl<XmppActivityEvent> activityBroadcaster = new CachingEventMulticasterImpl<XmppActivityEvent>(BroadcastPolicy.IF_NOT_EQUALS); 
+        listener = new TestXmppActivityListener();
+        activityBroadcaster.addListener(listener);
+        connectionSupport = new CachingEventMulticasterImpl<XMPPConnectionEvent>(BroadcastPolicy.IF_NOT_EQUALS);
         IdleStatusMonitor monitor = new IdleStatusMonitor(backgroundExecutor, idleTime, activityBroadcaster);
         MockServiceRegistry registry = new MockServiceRegistry();
         
@@ -30,38 +37,66 @@ public class IdleStatusMonitorTest extends TestCase {
         monitorRunnable = backgroundExecutor.scheduleAtFixedRateCommand;
     }
 
-    public void testIdleTimeNotSupported() {
+    public void testIdleTimeNotSupported() {        
         idleTime.supportsIdleTimeReturn = false;
         monitorRunnable.run();
-        assertNull("No event ever fired if system does not support idle time", activityBroadcaster.event);
+        assertNull(listener.event);
     }
 
     public void testXMPPNotConnected() {
         idleTime.supportsIdleTimeReturn = true;
         monitorRunnable.run();
-        assertNull("No event ever fired if system does not support idle time", activityBroadcaster.event);
+        assertNull("XmppActivityEvent fired, but there is no xmpp connection", listener.event);
         sendConnectionEvent(XMPPConnectionEvent.Type.DISCONNECTED);
-        assertNull("No event ever fired if system does not support idle time", activityBroadcaster.event);
+        assertNull("XmppActivityEvent fired, but there is no xmpp connection", listener.event);
     }
 
     private void sendConnectionEvent(org.limewire.xmpp.api.client.XMPPConnectionEvent.Type connectionState) {
-        connectionSupport.listener.handleEvent(new XMPPConnectionEvent(new MockXMPPConnection2(), connectionState));
+        connectionSupport.handleEvent(new XMPPConnectionEvent(new MockXMPPConnection2(), connectionState));
     }
     
-    public void testIdleStateIfInactiveAfter20Min() {
+    public void testIdleState() {
         idleTime.supportsIdleTimeReturn = true;
         sendConnectionEvent(XMPPConnectionEvent.Type.CONNECTED);
         
         idleTime.getIdleTimeReturn.add(0l);
         monitorRunnable.run();
-        assertNull("No event broadcast if hasn't been idle before", activityBroadcaster.event);
+        assertEquals(XmppActivityEvent.ActivityState.Active, listener.event.getSource());
+        listener.clear();
+        
+        idleTime.getIdleTimeReturn.add(5l);
+        monitorRunnable.run();
+        assertNull(listener.event);
+        
+        idleTime.getIdleTimeReturn.add(Long.MAX_VALUE - 1);
+        monitorRunnable.run();
+        assertEquals(XmppActivityEvent.ActivityState.Idle, listener.event.getSource());
+        listener.clear();
         
         idleTime.getIdleTimeReturn.add(Long.MAX_VALUE);
         monitorRunnable.run();
-        assertEquals(XmppActivityEvent.ActivityState.Idle, activityBroadcaster.event.getSource());
+        assertNull(listener.event);
         
         idleTime.getIdleTimeReturn.add(0l);
         monitorRunnable.run();
-        assertEquals(XmppActivityEvent.ActivityState.Active, activityBroadcaster.event.getSource());
+        assertEquals(XmppActivityEvent.ActivityState.Active, listener.event.getSource());
+        listener.clear();
+        
+        idleTime.getIdleTimeReturn.add(5l);
+        monitorRunnable.run();
+        assertNull(listener.event);
     }
+    
+   private static class TestXmppActivityListener implements EventListener<XmppActivityEvent> {
+       private volatile XmppActivityEvent event;
+
+       @Override
+       public void handleEvent(XmppActivityEvent event) {
+           this.event = event;
+       }
+       
+       void clear() {
+           event = null;
+       }
+   }
 }

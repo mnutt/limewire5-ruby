@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
@@ -15,6 +17,7 @@ import org.jdesktop.swingx.JXList;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.ui.swing.table.TablePopupHandler;
+import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.components.Disposable;
@@ -46,6 +49,7 @@ public class ImageList extends JXList implements Disposable{
     private int insetRight;
     
     private ImageCellRenderer renderer;
+    private EventList<LocalFileItem> listSelection;
     
     public ImageList(EventList<LocalFileItem> eventList, LocalFileList fileList) {
         super(new ImageListModel(eventList, fileList));
@@ -65,9 +69,15 @@ public class ImageList extends JXList implements Disposable{
         
         //enable double click launching of image files.
         addMouseListener(new ImageDoubleClickMouseListener());
-        EventSelectionModel<LocalFileItem> selectionModel = new EventSelectionModel<LocalFileItem>(eventList);
+        EventSelectionModel<LocalFileItem> selectionModel = GlazedListsSwingFactory.eventSelectionModel(eventList);
+        this.listSelection = selectionModel.getSelected();
         setSelectionModel(selectionModel);
         selectionModel.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
+    }
+    
+    /** Returns a copy of all selected items. */
+    public List<LocalFileItem> getSelectedItems() {
+        return new ArrayList<LocalFileItem>(listSelection);
     }
 
     @Override

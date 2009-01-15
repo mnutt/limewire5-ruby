@@ -1,7 +1,7 @@
 package org.limewire.listener;
 
 /**
- * @see org.limewire.listener.CachingEventMulticaster
+ * @see org.limewire.listener.CachingEventMulticasterImpl
  */
 public enum BroadcastPolicy {
     /**

@@ -25,8 +25,9 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.components.HyperLinkButton;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
+import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.ResizeUtils;
@@ -93,7 +94,7 @@ public class Wizard extends JPanel {
         continueButton = new JXButton(continueAction);
         decorator.decorateGreenButton(continueButton);
         
-        backButton = new HyperLinkButton((String)backAction.getValue(Action.NAME), backAction);
+        backButton = new HyperlinkButton((String)backAction.getValue(Action.NAME), backAction);
         decorator.decorateBackButton(backButton);
         
         finishButton = new JXButton(finishAction);
@@ -113,7 +114,7 @@ public class Wizard extends JPanel {
         headerLine1 = new JLabel();
         decorator.decorateHeadingText(headerLine1);
         
-        headerLine2 = new JLabel();
+        headerLine2 = new MultiLineLabel();
         decorator.decorateNormalText(headerLine2);
         
         footer = new JLabel();
@@ -187,8 +188,17 @@ public class Wizard extends JPanel {
             titleBarLabel.setText(I18n.tr("Setup"));
         }
         
-        headerLine1.setText(page.getLine1());
-        headerLine2.setText(page.getLine2());
+        String line2 = page.getLine2();
+        if (line2 != null) {
+            headerLine1.setText(page.getLine1());
+            headerLine2.setText(line2);
+            headerLine1.setVisible(true);
+        }
+        else {
+            headerLine1.setVisible(false);
+            headerLine2.setText(page.getLine1());
+        }
+        
         footer.setText(page.getFooter());
     }
     

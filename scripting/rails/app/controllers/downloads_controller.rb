@@ -13,6 +13,7 @@ class DownloadsController < ApplicationController
 
   def show
     @download = Limewire::Download.find(params[:id])
+    render :status => 404, :text => "Not found" if @download.nil?
     render :json => @download.attributes
   end
 end

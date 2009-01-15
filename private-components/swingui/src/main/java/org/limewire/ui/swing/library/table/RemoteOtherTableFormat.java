@@ -1,6 +1,6 @@
 package org.limewire.ui.swing.library.table;
 
-import org.limewire.core.api.library.FileItem;
+import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.FileUtils;
@@ -8,11 +8,15 @@ import org.limewire.util.FileUtils;
 /**
  * Table format for Other Table for LW buddies and Browse hosts
  */
-public class RemoteOtherTableFormat<T extends FileItem> extends AbstractRemoteLibraryFormat<T> {
+public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRemoteLibraryFormat<T> {
     static final int NAME_INDEX = 0;
     static final int TYPE_INDEX = 1;
     static final int EXTENSION_INDEX = 2;
     static final int SIZE_INDEX = 3;
+    
+    public RemoteOtherTableFormat(ColumnStateInfo[] columnInfo) {
+        super(columnInfo);
+    }
     
     public RemoteOtherTableFormat() {
         super(new ColumnStateInfo[] {

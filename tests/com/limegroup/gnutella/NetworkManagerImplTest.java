@@ -3,17 +3,16 @@ package com.limegroup.gnutella;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
-import org.limewire.listener.EventListener;
+import org.limewire.listener.BlockingEventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.net.address.AddressEvent;
 import org.limewire.net.address.FirewalledAddress;
@@ -59,145 +58,150 @@ public class NetworkManagerImplTest extends LimeTestCase {
     }
     
     public void testDirectConnectionAddressEvent() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
         acceptor.setExternalAddress(InetAddress.getByName(RemoteFileDesc.BOGUS_IP));
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setExternalAddress(InetAddress.getByName("199.199.199.199"));
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setListeningPort(5000);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setIncoming(true);
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), event.getSource());
     }
     
     public void testNewDirectConnectionAddressEventAcceptedIncomingTrigger() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
         acceptor.setExternalAddress(InetAddress.getByName("199.199.199.199"));
         acceptor.setListeningPort(5000);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setIncoming(true);
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), event.getSource());
     }
     
     public void testNewDirectConnectionAddressEventExternalAddressTrigger() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);        
         acceptor.setIncoming(true);
         acceptor.setListeningPort(5000);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setExternalAddress(InetAddress.getByName("199.199.199.199"));
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), event.getSource());
     }
     
     public void testNewDirectConnectionAddressEventPortTrigger() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);        
         acceptor.setIncoming(true);
         acceptor.setExternalAddress(InetAddress.getByName("199.199.199.199"));
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setListeningPort(5000);        
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), event.getSource());
     }    
     
     public void testDirectConnectionAddressEventNoDups() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
         acceptor.setExternalAddress(InetAddress.getByName("199.199.199.199"));
         acceptor.setListeningPort(5000);
         acceptor.setIncoming(true);
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), event.getSource());
         acceptor.setExternalAddress(InetAddress.getByName("199.199.199.199"));
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setListeningPort(5000);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setIncoming(true);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
     }
     
     public void testDirectConnectionAddressEventTriggeredAfterAllInfoIsThere() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
         
         acceptor.setExternalAddress(InetAddress.getByAddress(new byte[] { (byte)129, 0, 0, 1 }));
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setListeningPort(5000);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         acceptor.setIncoming(true);
-        assertEquals(1, addressChangedListener.events.size());
-        
-        assertEquals(new ConnectableImpl("129.0.0.1", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("129.0.0.1", 5000, true), event.getSource());
     }
     
     public void testDirectConnectionAddressChangedExternalAddressTrigger() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
         acceptor.setExternalAddress(InetAddress.getByName("199.199.199.199"));
         acceptor.setListeningPort(5000);
         acceptor.setIncoming(true);
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), event.getSource());
         acceptor.setExternalAddress(InetAddress.getByName("200.200.200.200"));
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("200.200.200.200", 5000, true), addressChangedListener.events.get(0).getSource());        
+        event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("200.200.200.200", 5000, true), event.getSource());        
     }
     
     public void testDirectConnectionAddressChangedEventPortTrigger() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
         acceptor.setExternalAddress(InetAddress.getByName("199.199.199.199"));
         acceptor.setListeningPort(5000);
         acceptor.setIncoming(true);
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("199.199.199.199", 5000, true), event.getSource());
         acceptor.setListeningPort(5001);
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(new ConnectableImpl("199.199.199.199", 5001, true), addressChangedListener.events.get(0).getSource());        
+        event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("199.199.199.199", 5001, true), event.getSource());        
     }
     
     public void testDirectConnectionAddressSupressesPushProxyAddressEvent() throws IOException {
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
         
         acceptor.setExternalAddress(InetAddress.getByAddress(new byte[] { (byte)129, 0, 0, 1 }));
         acceptor.setListeningPort(5000);
         acceptor.setIncoming(true);
-        assertEquals(1, addressChangedListener.events.size());
-        
-        assertEquals(new ConnectableImpl("129.0.0.1", 5000, true), addressChangedListener.events.get(0).getSource());
-        addressChangedListener.events.clear();        
-        
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(new ConnectableImpl("129.0.0.1", 5000, true), event.getSource());
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         Set<Connectable> proxies = new StrictIpPortSet<Connectable>();
         proxies.add(new ConnectableImpl("199.199.199.199", 5000, true));
         networkManager.newPushProxies(proxies);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
     }
     
     public void testPushProxyAddressEvent() throws IOException {
         ApplicationServices applicationServices = injector.getInstance(ApplicationServices.class);
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
-        assertEquals(0, addressChangedListener.events.size());
+        AcceptorImpl acceptor = (AcceptorImpl) injector.getInstance(Acceptor.class);
+        assertNull(addressChangedListener.getEvent());
+        
+        acceptor.setListeningPort(5000);
+        acceptor.setExternalAddress(InetAddress.getByName("129.0.0.1"));
+        
         Set<Connectable> proxies = new StrictIpPortSet<Connectable>();
         proxies.add(new ConnectableImpl("199.199.199.199", 5000, true));
         networkManager.newPushProxies(proxies);
-        assertEquals(1, addressChangedListener.events.size());
-        FirewalledAddress firewalledAddress = (FirewalledAddress)addressChangedListener.events.get(0).getSource();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        FirewalledAddress firewalledAddress = (FirewalledAddress)event.getSource();
         assertEquals(proxies, firewalledAddress.getPushProxies());
         assertEquals(applicationServices.getMyGUID(), firewalledAddress.getClientGuid().bytes());
     }
@@ -205,23 +209,30 @@ public class NetworkManagerImplTest extends LimeTestCase {
     public void testPushProxyAddressChangedEvent() throws IOException {
         ApplicationServices applicationServices = injector.getInstance(ApplicationServices.class);
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
-        assertEquals(0, addressChangedListener.events.size());
+        AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
+        // regular setup which usually takes place before first push proxies come in
+        acceptor.setListeningPort(5000);
+        acceptor.setExternalAddress(InetAddress.getByName("129.0.0.1"));
+        assertNull(addressChangedListener.getEvent());
+        
         Set<Connectable> proxies = new StrictIpPortSet<Connectable>();
         networkManager.newPushProxies(proxies);
-        assertEquals(1, addressChangedListener.events.size());
-        FirewalledAddress firewalledAddress = (FirewalledAddress)addressChangedListener.events.get(0).getSource();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        FirewalledAddress firewalledAddress = (FirewalledAddress)event.getSource();
         assertEquals(proxies, firewalledAddress.getPushProxies());
         assertEquals(applicationServices.getMyGUID(), firewalledAddress.getClientGuid().bytes());
-        addressChangedListener.events.clear();
         
-        proxies = new HashSet<Connectable>();
+        proxies = new StrictIpPortSet<Connectable>();
         Connectable proxyAddress = new ConnectableImpl("199.199.199.199", 5000, true);
         Connectable proxyAddress2 = new ConnectableImpl("200.200.200.200", 5001, false);
         proxies.add(proxyAddress);
         proxies.add(proxyAddress2);
         networkManager.newPushProxies(proxies);
-        assertEquals(1, addressChangedListener.events.size());
-        firewalledAddress = (FirewalledAddress)addressChangedListener.events.get(0).getSource();
+
+        event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        firewalledAddress = (FirewalledAddress)event.getSource();
         assertEquals(proxies, firewalledAddress.getPushProxies());
         assertEquals(applicationServices.getMyGUID(), firewalledAddress.getClientGuid().bytes());
     }
@@ -229,33 +240,42 @@ public class NetworkManagerImplTest extends LimeTestCase {
     public void testPushProxyAddressEventNoDups() throws IOException {
         ApplicationServices applicationServices = injector.getInstance(ApplicationServices.class);
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
-        assertEquals(0, addressChangedListener.events.size());
+        AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
+        // regular setup which usually takes place before first push proxies come in
+        acceptor.setListeningPort(5000);
+        acceptor.setExternalAddress(InetAddress.getByName("129.0.0.1"));
+        assertNull(addressChangedListener.getEvent());
+        
         Set<Connectable> proxies = new StrictIpPortSet<Connectable>();
         proxies.add(new ConnectableImpl("199.199.199.199", 5000, true));
         networkManager.newPushProxies(proxies);
-        assertEquals(1, addressChangedListener.events.size());
-        FirewalledAddress firewalledAddress = (FirewalledAddress)addressChangedListener.events.get(0).getSource();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        FirewalledAddress firewalledAddress = (FirewalledAddress)event.getSource();
         assertEquals(proxies, firewalledAddress.getPushProxies());
         assertEquals(applicationServices.getMyGUID(), firewalledAddress.getClientGuid().bytes());
-        
-        addressChangedListener.events.clear();
-        
+                
         proxies = new StrictIpPortSet<Connectable>();
         proxies.add(new ConnectableImpl("199.199.199.199", 5000, true));
         networkManager.newPushProxies(proxies);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
     }
     
     public void testNewPushProxyHolePunchAddressEventFWTStatusTrigger() throws IOException {
         ApplicationServices applicationServices = injector.getInstance(ApplicationServices.class);
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
-        assertEquals(0, addressChangedListener.events.size());
+        // regular setup which usually takes place before first push proxies come in
+        acceptor.setListeningPort(5000);
+        acceptor.setExternalAddress(InetAddress.getByName("129.0.0.1"));
+        assertNull(addressChangedListener.getEvent());
+        
         Set<Connectable> proxies = new StrictIpPortSet<Connectable>();
         proxies.add(new ConnectableImpl("199.199.199.199", 5000, true));
         networkManager.newPushProxies(proxies);
-        assertEquals(1, addressChangedListener.events.size());
-        FirewalledAddress firewalledAddress = (FirewalledAddress)addressChangedListener.events.get(0).getSource();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        FirewalledAddress firewalledAddress = (FirewalledAddress)event.getSource();
         assertEquals(proxies, firewalledAddress.getPushProxies());
         assertEquals(applicationServices.getMyGUID(), firewalledAddress.getClientGuid().bytes());
         assertEquals(0, firewalledAddress.getFwtVersion());
@@ -263,23 +283,22 @@ public class NetworkManagerImplTest extends LimeTestCase {
         acceptor.setExternalAddress(InetAddress.getByName("200.200.200.200"));
         acceptor.setListeningPort(5001);
         
-        addressChangedListener.events.clear();
-        
         // signal fwt capability
         UDPService udpService = injector.getInstance(UDPService.class);
         udpService.setReceiveSolicited(true);
         ConnectionSettings.CANNOT_DO_FWT.setValue(false);
         
         networkManager.incomingStatusChanged();
-        assertEquals(1, addressChangedListener.events.size());
-        addressChangedListener.events.clear();
+        event = addressChangedListener.getEvent();
+        assertNotNull(event);
         
         acceptor.setExternalAddress(InetAddress.getByName("100.100.100.100"));
         acceptor.setListeningPort(5001);        
         networkManager.incomingStatusChanged();
-        assertEquals(1, addressChangedListener.events.size());
+        event = addressChangedListener.getEvent();
+        assertNotNull(event);
         
-        firewalledAddress = (FirewalledAddress)addressChangedListener.events.get(0).getSource();
+        firewalledAddress = (FirewalledAddress)event.getSource();
         assertEquals(proxies, firewalledAddress.getPushProxies());
         assertEquals(applicationServices.getMyGUID(), firewalledAddress.getClientGuid().bytes());
         assertEquals(RUDPUtils.VERSION, firewalledAddress.getFwtVersion());
@@ -290,13 +309,13 @@ public class NetworkManagerImplTest extends LimeTestCase {
         ApplicationServices applicationServices = injector.getInstance(ApplicationServices.class);
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         
         UDPService udpService = injector.getInstance(UDPService.class);
         udpService.setReceiveSolicited(true);
         ConnectionSettings.CANNOT_DO_FWT.setValue(false);
         networkManager.incomingStatusChanged();
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         
         acceptor.setExternalAddress(InetAddress.getByName("200.200.200.200"));
         InetAddress privateAddress = InetAddress.getByName("192.168.0.1");
@@ -307,17 +326,18 @@ public class NetworkManagerImplTest extends LimeTestCase {
         proxies.add(new ConnectableImpl("199.199.199.199", 5000, true));
         networkManager.newPushProxies(proxies);
         
-        assertEquals(1, addressChangedListener.events.size());
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
         FirewalledAddress expectedAddress = new FirewalledAddress(new ConnectableImpl("200.200.200.200", 5001, true),
                 new ConnectableImpl(new InetSocketAddress(privateAddress, 5001), networkManager.isIncomingTLSEnabled()), new GUID(applicationServices.getMyGUID()), proxies, networkManager.supportsFWTVersion());
-        assertEquals(expectedAddress, addressChangedListener.events.get(0).getSource()); 
+        assertEquals(expectedAddress, event.getSource()); 
     }
     
     public void testPushProxyHolePunchAddressChangedEventPushProxyTrigger() throws IOException {
         ApplicationServices applicationServices = injector.getInstance(ApplicationServices.class);
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         
         UDPService udpService = injector.getInstance(UDPService.class);
         udpService.setReceiveSolicited(true);
@@ -336,10 +356,10 @@ public class NetworkManagerImplTest extends LimeTestCase {
                 new ConnectableImpl(new InetSocketAddress(privateAddress, networkManager.getNonForcedPort()), networkManager.isIncomingTLSEnabled()),
                 new GUID(applicationServices.getMyGUID()), proxies, networkManager.supportsFWTVersion());
         
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(expectedAddress, addressChangedListener.events.get(0).getSource()); 
-        addressChangedListener.events.clear();
-        
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(expectedAddress, event.getSource()); 
+                
         proxies = new StrictIpPortSet<Connectable>();
         proxies.add(new ConnectableImpl("199.199.199.199", 5000, true));
         proxies.add(new ConnectableImpl("201.201.201.201", 5002, false));
@@ -349,15 +369,16 @@ public class NetworkManagerImplTest extends LimeTestCase {
                 new ConnectableImpl(new InetSocketAddress(privateAddress, networkManager.getNonForcedPort()), networkManager.isIncomingTLSEnabled()),
                 new GUID(applicationServices.getMyGUID()), proxies, networkManager.supportsFWTVersion());
         
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(expectedAddress, addressChangedListener.events.get(0).getSource()); 
+        event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(expectedAddress, event.getSource()); 
     }
     
     public void testPushProxyHolePunchAddressChangedEventFWTStatusTrigger() throws IOException {
         ApplicationServices applicationServices = injector.getInstance(ApplicationServices.class);
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         
         UDPService udpService = injector.getInstance(UDPService.class);
         udpService.setReceiveSolicited(true);
@@ -376,9 +397,9 @@ public class NetworkManagerImplTest extends LimeTestCase {
                 new ConnectableImpl(new InetSocketAddress(privateAddress, networkManager.getNonForcedPort()), networkManager.isIncomingTLSEnabled()),
                 new GUID(applicationServices.getMyGUID()), proxies, networkManager.supportsFWTVersion());
         
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(expectedAddress, addressChangedListener.events.get(0).getSource()); 
-        addressChangedListener.events.clear();
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(expectedAddress, event.getSource()); 
         
         udpService.setReceiveSolicited(false);
         ConnectionSettings.CANNOT_DO_FWT.setValue(false);
@@ -388,15 +409,16 @@ public class NetworkManagerImplTest extends LimeTestCase {
                 new ConnectableImpl(new InetSocketAddress(privateAddress, networkManager.getNonForcedPort()), networkManager.isIncomingTLSEnabled()),
                 new GUID(applicationServices.getMyGUID()), proxies, networkManager.supportsFWTVersion());
         
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(expectedAddress, addressChangedListener.events.get(0).getSource()); 
+        event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(expectedAddress, event.getSource()); 
     }
     
     public void testPushProxyHolePunchAddressEventNoDups() throws IOException {
         ApplicationServices applicationServices = injector.getInstance(ApplicationServices.class);
         NetworkManager networkManager = injector.getInstance(NetworkManager.class);
         AcceptorImpl acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         
         UDPService udpService = injector.getInstance(UDPService.class);
         udpService.setReceiveSolicited(true);
@@ -414,32 +436,49 @@ public class NetworkManagerImplTest extends LimeTestCase {
         FirewalledAddress expectedAddress = new FirewalledAddress(new ConnectableImpl("200.200.200.200", 5001, true),
                 new ConnectableImpl(new InetSocketAddress(privateAddress, networkManager.getNonForcedPort()), networkManager.isIncomingTLSEnabled()),
                 new GUID(applicationServices.getMyGUID()), proxies, networkManager.supportsFWTVersion());
-        
-        
-        assertEquals(1, addressChangedListener.events.size());
-        assertEquals(expectedAddress, addressChangedListener.events.get(0).getSource()); 
-        addressChangedListener.events.clear();
-        
+                
+        AddressEvent event = addressChangedListener.getEvent();
+        assertNotNull(event);
+        assertEquals(expectedAddress, event.getSource()); 
+                
         networkManager.incomingStatusChanged();
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
         
         proxies = new StrictIpPortSet<Connectable>();
         proxies.add(new ConnectableImpl("199.199.199.199", 5000, true));
         networkManager.newPushProxies(proxies);
-        assertEquals(0, addressChangedListener.events.size());
+        assertNull(addressChangedListener.getEvent());
+    }
+    
+    public void testNewPushProxiesDoesNotTriggerEventIfExternalAddressNotKnownYet() throws Exception {
+        NetworkManager networkManager = injector.getInstance(NetworkManager.class);
+        Acceptor acceptor = injector.getInstance(Acceptor.class);
+        
+        acceptor.setListeningPort(5000);
+        // no events, since no valid address yet
+        assertNull(addressChangedListener.getEvent());
+                
+        networkManager.newPushProxies(new StrictIpPortSet<Connectable>(new ConnectableImpl("129.0.0.1", 4545, true)));
+        // no events, since no valid address yet
+        assertNull(addressChangedListener.getEvent());
+        
+        // now set external address and test for events again
+        acceptor.setExternalAddress(InetAddress.getByName("199.0.0.1"));
+        AddressEvent event = addressChangedListener.getEvent();
+        FirewalledAddress address = (FirewalledAddress) event.getSource();
+        assertEquals(new ConnectableImpl("199.0.0.1", 5000, true), address.getPublicAddress());
+        assertEquals(new StrictIpPortSet<Connectable>(new ConnectableImpl("129.0.0.1", 4545, true)), address.getPushProxies());
     }
 
     @Singleton
-    public static class AddressChangedListener implements EventListener<AddressEvent> {
-        List<AddressEvent> events = new ArrayList<AddressEvent>();
-        
+    public static class AddressChangedListener extends BlockingEventListener<AddressEvent> {
         @Inject
         void register(ListenerSupport<AddressEvent> broadcaster) {
             broadcaster.addListener(this);
         }
-        
-        public void handleEvent(AddressEvent event) {
-            events.add(event);
+    
+        AddressEvent getEvent() {
+            return getEvent(25, TimeUnit.MILLISECONDS);
         }
     }
 }

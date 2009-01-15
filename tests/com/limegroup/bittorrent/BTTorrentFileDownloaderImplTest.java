@@ -35,8 +35,6 @@ import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.Downloader.DownloadStatus;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.chat.InstantMessenger;
-import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.downloader.CantResumeException;
 import com.limegroup.gnutella.downloader.CoreDownloader;
 import com.limegroup.gnutella.downloader.DownloadStatusEvent;
@@ -441,43 +439,12 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
         },new BTMetaInfoFactoryImpl(), new ActivityCallback() {
 
             @Override
-            public void acceptChat(InstantMessenger ctr) {
-                
-            }
-
-            @Override
             public void addUpload(Uploader u) {
                 
             }
 
             @Override
-            public void chatErrorMessage(InstantMessenger chatter, String str) {
-                
-            }
-
-            @Override
-            public void chatUnavailable(InstantMessenger chatter) {
-                
-            }
-
-            @Override
-            public void handleAddressStateChanged() {
-                
-            }
-
-            @Override
-            public void handleConnectionLifecycleEvent(ConnectionLifecycleEvent evt) {
-                
-            }
-
-            @Override
-            public boolean handleDAAPConnectionError(Throwable t) {
-                return false;
-            }
-
-            @Override
-            public boolean handleMagnets(MagnetOptions[] magnets) {
-                return false;
+            public void handleMagnets(MagnetOptions[] magnets) {
             }
 
             @Override
@@ -491,7 +458,6 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
                 
             }
 
-            @Override
             public void handleSharedFileUpdate(File file) {
                 
             }
@@ -512,10 +478,6 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             }
 
             @Override
-            public void receiveMessage(InstantMessenger chr, String messsage) {
-            }
-
-            @Override
             public void removeUpload(Uploader u) {
             }
 
@@ -530,11 +492,6 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
 
             @Override
             public void uploadsComplete() {
-            }
-
-            @Override
-            public boolean warnAboutSharingSensitiveDirectory(File dir) {
-                return false;
             }
 
             @Override

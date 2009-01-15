@@ -1,7 +1,6 @@
 package org.limewire.listener;
 
 import org.limewire.util.Objects;
-import org.limewire.util.StringUtils;
 
 /**
  * A default, simple implementation of Event.
@@ -39,6 +38,6 @@ public class DefaultEvent<S, E> extends AbstractSourcedEvent<S> implements Event
 
     @Override
     public String toString() {
-        return StringUtils.toString(this, event, getSource());
+        return super.toString() + ", event: " + event;
     }
 }

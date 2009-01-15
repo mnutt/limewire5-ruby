@@ -93,7 +93,13 @@ class CoreDownloadItem implements DownloadItem {
 
     @Override
     public Category getCategory() {
-        return CategoryConverter.categoryForFile(downloader.getFile());
+        File file = downloader.getFile();
+        if(file != null) {
+            return CategoryConverter.categoryForFile(file);
+        } else {
+            // TODO: See if it's OK to always use save file.
+            return CategoryConverter.categoryForFile(downloader.getSaveFile());
+        }
     }
 
     @Override

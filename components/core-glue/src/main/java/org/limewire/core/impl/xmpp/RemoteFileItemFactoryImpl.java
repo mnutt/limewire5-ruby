@@ -11,7 +11,6 @@ import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.xmpp.RemoteFileItemFactory;
 import org.limewire.core.impl.library.CoreRemoteFileItem;
 import org.limewire.core.impl.search.RemoteFileDescAdapter;
-import org.limewire.io.Address;
 import org.limewire.io.InvalidDataException;
 import org.limewire.io.IpPort;
 import org.limewire.xmpp.api.client.FileMetaData;
@@ -36,16 +35,16 @@ public class RemoteFileItemFactoryImpl implements RemoteFileItemFactory {
     }
 
     public RemoteFileItem create(FriendPresence presence, FileMetaData fileMetaData) throws InvalidDataException, SaveLocationException {
-        RemoteFileDesc remoteFileDesc = createRfdFromChatResult(presence,
-               fileMetaData);
+        XMPPAddress presenceAddress = getAddressFromPresence(presence);
+
+        RemoteFileDesc remoteFileDesc = createRfdFromChatResult(presenceAddress, fileMetaData);
         RemoteFileDescAdapter remoteFileDescAdapter = new RemoteFileDescAdapter(remoteFileDescDeserializer.createClone(remoteFileDesc,
-                (XMPPAddress)((AddressFeature)presence.getFeature(AddressFeature.ID)).getFeature()), IpPort.EMPTY_SET, presence);
+                presenceAddress), IpPort.EMPTY_SET, presence);
         return new CoreRemoteFileItem(remoteFileDescAdapter);
     }
     
-    private RemoteFileDesc createRfdFromChatResult(FriendPresence presence, FileMetaData fileMeta)
+    private RemoteFileDesc createRfdFromChatResult(XMPPAddress address, FileMetaData fileMeta)
             throws SaveLocationException, InvalidDataException {
-        Address address = ((AddressFeature)presence.getFeature(AddressFeature.ID)).getFeature();
         byte[] clientGuid = DataUtils.EMPTY_GUID;
         
         Set<String> urnsAsString = fileMeta.getURNsAsString();
@@ -62,6 +61,18 @@ public class RemoteFileItemFactoryImpl implements RemoteFileItemFactory {
                 fileMeta.getIndex(), fileMeta.getName(), fileMeta.getSize(), clientGuid,
                 0, false, 0, true, null, urns, false,
                 null, fileMeta.getCreateTime().getTime());
+    }
+
+
+    /**
+     * Get the address if the presence has an address feature at the present moment.
+     * Else construct an XMPPAddress with the friendPresence id.
+     */
+    private XMPPAddress getAddressFromPresence(FriendPresence presence) {
+        if (presence.hasFeatures(AddressFeature.ID)) {
+            return (XMPPAddress)((AddressFeature)presence.getFeature(AddressFeature.ID)).getFeature();
+        }
+        return new XMPPAddress(presence.getPresenceId());
     }
     
 }

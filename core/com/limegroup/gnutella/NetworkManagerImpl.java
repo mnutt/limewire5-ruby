@@ -22,11 +22,11 @@ import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.io.NetworkUtils;
-import org.limewire.listener.CachingEventMulticaster;
+import org.limewire.listener.BroadcastPolicy;
+import org.limewire.listener.CachingEventMulticasterImpl;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.ListenerSupport;
-import org.limewire.listener.BroadcastPolicy;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.net.address.AddressEvent;
@@ -58,7 +58,6 @@ public class NetworkManagerImpl implements NetworkManager {
     private final Provider<Acceptor> acceptor;
     private final Provider<DHTManager> dhtManager;
     private final Provider<ConnectionManager> connectionManager;
-    private final Provider<ActivityCallback> activityCallback;
     private final OutOfBandStatistics outOfBandStatistics;
     private final NetworkInstanceUtils networkInstanceUtils;
     private final Provider<CapabilitiesVMFactory> capabilitiesVMFactory;
@@ -79,16 +78,20 @@ public class NetworkManagerImpl implements NetworkManager {
     private volatile String tlsDisabledReason;
     
     private final EventMulticaster<AddressEvent> listeners =
-        new CachingEventMulticaster<AddressEvent>(BroadcastPolicy.IF_NOT_EQUALS);
+        new CachingEventMulticasterImpl<AddressEvent>(BroadcastPolicy.IF_NOT_EQUALS);
     private final ApplicationServices applicationServices;
     private volatile boolean started;
+    
+    /**
+     * Set of cached proxies, if proxies are known before the external address is.
+     */
+    private volatile Set<Connectable> cachedProxies;
 
     @Inject
     public NetworkManagerImpl(Provider<UDPService> udpService,
             Provider<Acceptor> acceptor,
             Provider<DHTManager> dhtManager,
             Provider<ConnectionManager> connectionManager,
-            Provider<ActivityCallback> activityCallback,
             OutOfBandStatistics outOfBandStatistics,
             NetworkInstanceUtils networkInstanceUtils,
             Provider<CapabilitiesVMFactory> capabilitiesVMFactory,
@@ -98,7 +101,6 @@ public class NetworkManagerImpl implements NetworkManager {
         this.acceptor = acceptor;
         this.dhtManager = dhtManager;
         this.connectionManager = connectionManager;
-        this.activityCallback = activityCallback;
         this.outOfBandStatistics = outOfBandStatistics;
         this.networkInstanceUtils = networkInstanceUtils;
         this.capabilitiesVMFactory = capabilitiesVMFactory;
@@ -233,7 +235,6 @@ public class NetworkManagerImpl implements NetworkManager {
      */
     public boolean incomingStatusChanged() {
         updateCapabilities();
-        activityCallback.get().handleAddressStateChanged();
         // Only continue if the current address/port is valid & not private.
         byte addr[] = getAddress();
         int port = getPort();
@@ -260,7 +261,6 @@ public class NetworkManagerImpl implements NetworkManager {
     }
 
     public boolean addressChanged() {
-        activityCallback.get().handleAddressStateChanged();        
         
         // Only continue if the current address/port is valid & not private.
         byte addr[] = getAddress();
@@ -307,6 +307,7 @@ public class NetworkManagerImpl implements NetworkManager {
     private void maybeFireNewDirectConnectionAddress() {
         Connectable newDirectAddress = null;
         boolean fireEvent = false;
+        Set<Connectable> proxies = null;
         synchronized (addressLock) {
             if(isDirectConnectionCapable()) {
                 newDirectAddress = getPublicAddress(false);
@@ -317,10 +318,14 @@ public class NetworkManagerImpl implements NetworkManager {
                 }
             } else {
                 directAddress = null;
+                proxies = cachedProxies;
+                cachedProxies = null;
             }
         }
         if (fireEvent) {
             fireAddressChange(newDirectAddress);
+        } else if (proxies != null) {
+            newPushProxies(proxies);
         }
     }
 
@@ -334,7 +339,12 @@ public class NetworkManagerImpl implements NetworkManager {
     }
 
     public void newPushProxies(Set<Connectable> pushProxies) {
-        FirewalledAddress newAddress = new FirewalledAddress(getPublicAddress(canDoFWT()), getPrivateAddress(), new GUID(applicationServices.getMyGUID()), pushProxies, supportsFWTVersion());
+        Connectable publicAddress = getPublicAddress(canDoFWT());
+        if (!NetworkUtils.isValidIpPort(publicAddress)) {
+            cachedProxies = pushProxies;
+            return;
+        }
+        FirewalledAddress newAddress = new FirewalledAddress(publicAddress, getPrivateAddress(), new GUID(applicationServices.getMyGUID()), pushProxies, supportsFWTVersion());
         boolean changed = false;
         synchronized (addressLock) {
             if (!newAddress.equals(firewalledAddress) && directAddress == null) {

@@ -2,6 +2,8 @@ package com.limegroup.gnutella.auth;
 
 import java.io.Serializable;
 
+import org.limewire.util.StringUtils;
+
 import com.limegroup.gnutella.messages.vendor.ContentResponse;
 
 /** A response for content. */
@@ -30,5 +32,10 @@ public class ContentResponseData implements Serializable {
     /** Returns the time this ContentResponseData was created. */
     public long getCreationTime() {
         return created;
+    }
+    
+    @Override
+    public String toString() {
+        return StringUtils.toStringBlacklist(this, serialVersionUID);
     }
 }

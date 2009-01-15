@@ -15,7 +15,7 @@ public class UploadActionHandler {
     public final static String LIBRARY_COMMAND = "library";
     public final static String LAUNCH_COMMAND = "launch";
     public final static String REMOVE_COMMAND = "remove";
-    public final static String LOCATE_COMMAND = "locate";
+    public final static String LOCATE_ON_DISK_COMMAND = "locate";
     public final static String PROPERTIES_COMMAND = "properties";
     
     
@@ -32,7 +32,7 @@ public class UploadActionHandler {
     public void performAction(final String actionCommmand, final UploadItem item){
         if (actionCommmand == CANCEL_COMMAND) {
             item.cancel();
-        } else if (actionCommmand == LOCATE_COMMAND){
+        } else if (actionCommmand == LOCATE_ON_DISK_COMMAND){
             NativeLaunchUtils.launchExplorer(item.getFile());
         } else if (actionCommmand == PROPERTIES_COMMAND){
             propertiesFactory.newProperties().showProperties(item);

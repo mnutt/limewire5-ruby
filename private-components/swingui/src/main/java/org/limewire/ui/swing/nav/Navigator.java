@@ -46,6 +46,11 @@ public interface Navigator {
      * Removes the listener from the list of listeners.
      */
     public void removeNavigationListener(NavigationListener itemListener);
+    
+    /**
+     * Selects the prior item in the history.
+     */
+    public boolean goBack();
 
 
 }

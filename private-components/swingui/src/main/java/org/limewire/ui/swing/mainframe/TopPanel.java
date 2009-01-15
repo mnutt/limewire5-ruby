@@ -30,17 +30,20 @@ import org.limewire.ui.swing.components.FancyTabList;
 import org.limewire.ui.swing.components.FancyTabListFactory;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.NoOpAction;
-import org.limewire.ui.swing.components.SearchBar;
 import org.limewire.ui.swing.components.TabActionMap;
 import org.limewire.ui.swing.home.HomePanel;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.NavItem;
 import org.limewire.ui.swing.nav.NavItemListener;
 import org.limewire.ui.swing.nav.NavSelectable;
+import org.limewire.ui.swing.nav.NavigationListener;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.nav.NavigatorUtils;
 import org.limewire.ui.swing.painter.BarPainterFactory;
 import org.limewire.ui.swing.painter.SearchTabPainterFactory;
+import org.limewire.ui.swing.search.DefaultSearchInfo;
+import org.limewire.ui.swing.search.SearchBar;
 import org.limewire.ui.swing.search.SearchHandler;
 import org.limewire.ui.swing.search.SearchNavItem;
 import org.limewire.ui.swing.search.SearchNavigator;
@@ -75,13 +78,13 @@ class TopPanel extends JXPanel implements SearchNavigator {
                     SearchBar searchBar,
                     FancyTabListFactory fancyTabListFactory,
                     BarPainterFactory barPainterFactory,
-                    SearchTabPainterFactory tabPainterFactory) {        
+                    SearchTabPainterFactory tabPainterFactory,
+                    final LibraryNavigator libraryNavigator) {        
         GuiUtils.assignResources(this);
         
         this.searchBar = searchBar;        
-        this.searchBar.setSearchHandler(searchHandler);
-        
         this.navigator = navigator;
+        this.searchBar.addSearchActionListener(new Searcher(searchHandler));        
         
         setName("WireframeTop");
         
@@ -146,9 +149,9 @@ class TopPanel extends JXPanel implements SearchNavigator {
         searchList.setName("WireframeTop.SearchList");
         searchList.setMaxVisibleTabs(3);
         searchList.setMaxTotalTabs(10);
-        searchList.setCloseAllText(I18n.tr("Close all searches"));
-        searchList.setCloseOneText(I18n.tr("Close search"));
-        searchList.setCloseOtherText(I18n.tr("Close other searches"));
+        searchList.setCloseAllText(I18n.tr("Close All Searches"));
+        searchList.setCloseOneText(I18n.tr("Close Search"));
+        searchList.setCloseOtherText(I18n.tr("Close Other searches"));
         searchList.setRemovable(true);
         searchList.setSelectionPainter(tabPainterFactory.createSelectionPainter());
         searchList.setHighlightPainter(tabPainterFactory.createHighlightPainter());
@@ -165,6 +168,20 @@ class TopPanel extends JXPanel implements SearchNavigator {
         if(!MozillaInitialization.isInitialized()) {
             storeButton.setVisible(false);
         }
+        
+        navigator.addNavigationListener(new NavigationListener() {
+            @Override
+            public void categoryRemoved(NavCategory category) {
+                if(category == NavCategory.SEARCH) {
+                    libraryNavigator.selectLibrary();
+                }
+            }
+            
+            @Override public void categoryAdded(NavCategory category) {}
+            @Override public void itemAdded(NavCategory category, NavItem navItem, JComponent panel) {}
+            @Override public void itemRemoved(NavCategory category, NavItem navItem, JComponent panel) {}
+            @Override public void itemSelected(NavCategory category, NavItem navItem, NavSelectable selectable, JComponent panel) {}
+      ;  });
     };
 
     @Override
@@ -258,6 +275,26 @@ class TopPanel extends JXPanel implements SearchNavigator {
         homeNav.select();
     }
     
+    private class Searcher implements ActionListener {
+        private final SearchHandler searchHandler;
+        
+        Searcher(SearchHandler searchHandler) {
+            this.searchHandler = searchHandler;
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Get search text, and do search if non-empty.
+            String searchText = searchBar.getSearchText();
+            if (!searchText.isEmpty()) {
+                searchHandler.doSearch(
+                        DefaultSearchInfo.createKeywordSearch(searchText,  
+                                searchBar.getCategory()));
+                searchBar.selectAllSearchText();
+            }
+        }
+    }
+    
     private class SearchAction extends AbstractAction implements SearchListener {
         private final NavItem item;
         private Timer busyTimer;
@@ -284,6 +321,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals(TabActionMap.SELECT_COMMAND)) {
                 item.select();
+                searchBar.requestSearchFocus();
             } else if (e.getActionCommand().equals(TabActionMap.REMOVE_COMMAND)) {
                 item.remove();
             }
@@ -342,7 +380,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
         private final Search search;
 
         RepeatSearchAction(Search search) {
-            super(I18n.tr("Repeat search"));
+            super(I18n.tr("Find More Results"));
             this.search = search;
             setEnabled(false);
         }

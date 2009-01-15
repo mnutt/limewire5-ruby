@@ -5,38 +5,52 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXButton;
+import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LibraryData;
-import org.limewire.core.settings.InstallSettings;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.HorizonalCheckBoxListPanel;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.library.manager.LibraryManagerItemImpl;
 import org.limewire.ui.swing.library.manager.LibraryManagerModel;
 import org.limewire.ui.swing.library.manager.LibraryManagerTreeTable;
 import org.limewire.ui.swing.library.manager.RootLibraryManagerItem;
+import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.util.FileChooser;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.IconManager;
 
 public class SetupPage2 extends WizardPage {
 
-    private final String line1 = I18n.tr("LimeWire is ready to fill your Library");
-    private final String line2 = I18n.tr("My Library is where you view, share and unshare your files.");
-    private final String autoText = I18n.tr("Automatically add files to My Library");
+    /**
+     * A switch to control whether this page overrides or updates any existing lw settings.
+     * 
+     * (When doing an update this will be true and the new directories will be appended to the list.)
+     */
+    private final boolean isUpgrade;
+    
+    private final String titleLine = I18n.tr("My Library is where you view, share and unshare your files.");
+    private final String titleLineUpgrade = I18n.tr("My Library is where you view, share and unshare your files.  Don't worry, we will still share files from the older version.");
+    private final String autoText = I18n.tr("Automatically add files to My Library, but don't share any files");
+    private final String autoTextUpgrade = I18n.tr("Automatically add files to My Library, but don't share any new files");
     private final String autoExplanation = I18n.tr("Have LimeWire automatically add files from My Documents and the Desktop to My Library.");
-    private final String manualText = I18n.tr("Manually add files to My Library");
+    private final String manualText = I18n.tr("Manually add files to My Library, but don't share any files");
+    private final String manualTextUpgrade = I18n.tr("Manually add files to My Library, but don't share any new files");
     private final String manualExplanation = I18n.tr("Select the folders and categories LimeWire automatically adds to My Library.");
-    private final String bottomText1 = I18n.tr("Adding these folders will not automatically share your files.");
-    private final String bottomText2 = I18n.tr("You can change this option later from Tools > Options");
+    private final String manualExplanationOpen = I18n.tr("Add the following categories from the folders below to My Library:");
+    private final String bottomText = I18n.tr("You can change this later from Tools > Options");
     
     private final LibraryData libraryData;
     
@@ -49,9 +63,18 @@ public class SetupPage2 extends WizardPage {
     private final LibraryManagerTreeTable treeTable;
     private final JScrollPane treeTableScrollPane;
     private final JXButton addFolderButton;
+    
+    private final HorizonalCheckBoxListPanel<Category> checkBoxes;
         
-    public SetupPage2(SetupComponentDecorator decorator, LibraryData libraryData) {
+    public SetupPage2(SetupComponentDecorator decorator, IconManager iconManager, LibraryData libraryData) {
+        this(decorator, iconManager, libraryData, false);
+    }
+    
+    public SetupPage2(SetupComponentDecorator decorator, IconManager iconManager, LibraryData libraryData,
+            boolean isUpgrade) {
+        
         this.libraryData = libraryData;
+        this.isUpgrade = isUpgrade;
         
         setOpaque(false);
         setLayout(new MigLayout("insets 0, gap 0, nogrid"));
@@ -63,8 +86,8 @@ public class SetupPage2 extends WizardPage {
         autoButton.setSelected(true);
         autoButton.addActionListener(buttonSelectionListener);
         
-        manualLabel = new MultiLineLabel(manualText);
-        decorator.decorateHeadingText(manualLabel);
+        manualLabel = new MultiLineLabel(manualExplanation);
+        decorator.decorateNormalText(manualLabel);
         
         manualButton = new JRadioButton();
         decorator.decorateLargeRadioButton(manualButton);
@@ -73,11 +96,15 @@ public class SetupPage2 extends WizardPage {
         addFolderButton = new JXButton(new AddDirectoryAction(SetupPage2.this));
         decorator.decoratePlainButton(addFolderButton);
         
-        treeTable = new LibraryManagerTreeTable(libraryData);
+        treeTable = new LibraryManagerTreeTable(iconManager, libraryData);
         initManualPanel();
         treeTableScrollPane = new JScrollPane(treeTable);
-        
         setTreeTableVisiable(false);
+                
+        Collection<Category> selectedCategories = getDefaultManagedCategories();
+        checkBoxes = new HorizonalCheckBoxListPanel<Category>(Category.getCategoriesInOrder(), selectedCategories);
+        checkBoxes.getCheckBox(Category.PROGRAM).setEnabled(false);
+        checkBoxes.setVisible(false);
         
         buttonGroup = new ButtonGroup();
         buttonGroup.add(autoButton);
@@ -86,93 +113,106 @@ public class SetupPage2 extends WizardPage {
         JLabel label;
 
         add(autoButton, "gaptop 10, gapleft 40");
-        label = new JLabel(autoText);
+        if (isUpgrade) {
+            label = new JLabel(autoTextUpgrade);
+        } 
+        else { 
+            label = new JLabel(autoText);
+        }
         label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(autoButton));
         decorator.decorateHeadingText(label);
-        add(label, "gaptop 10, gapleft 10, wrap");
+        add(label, "gaptop 15, gapleft 10, wrap");
         
         label = new MultiLineLabel(autoExplanation, 500);
         decorator.decorateNormalText(label);
         add(label, "gapleft 76, wrap");
         
+        manualButton.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (manualButton.isSelected()) {
+                    manualLabel.setText(manualExplanationOpen);
+                }
+                else {
+                    manualLabel.setText(manualExplanation);
+                }
+            }
+        });
         add(manualButton, "gaptop 10, gapleft 40");
-        manualLabel.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(manualButton));
-        add(manualLabel, "gaptop 10, gapleft 10, wrap");
-
-        label = new MultiLineLabel(manualExplanation, 500);
-        decorator.decorateNormalText(label);
-        add(label, "gapleft 76, wrap");
         
-        add(treeTableScrollPane, "gaptop 10, gapleft 40, growx");
-        add(addFolderButton, "gaptop 10, gapright 30, wrap");
+        if (isUpgrade) {
+            label = new JLabel(manualTextUpgrade);
+        } 
+        else { 
+            label = new JLabel(manualText);
+        }
 
-        label = new MultiLineLabel(bottomText1,630);
         decorator.decorateHeadingText(label);
-        add(label, "gaptop 10, gapleft 14, pushy, aligny bottom, wrap");
+        label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(manualButton));
+        add(label, "gaptop 15, gapleft 10, wrap");
+
+        add(manualLabel, "gapleft 76, wrap");
+        add(checkBoxes, "gaptop 5, gapleft 76, growx, wrap");
         
-        label = new JLabel(bottomText2);
-        decorator.decorateNormalText(label);
-        add(label, "gapleft 14, aligny bottom");        
+        add(treeTableScrollPane, "gaptop 5, gapleft 76, growx");
+        add(addFolderButton, "gaptop 5, gapright 30, wrap");
+
+
     }
 
     private void initManualPanel() {
-        RootLibraryManagerItem root = new RootLibraryManagerItem();
-        for(File file : libraryData.getDirectoriesToManageRecursively()) {
-            root.addChild(new LibraryManagerItemImpl(root, libraryData, file, true, true));
+        RootLibraryManagerItem root = new RootLibraryManagerItem(AutoDirectoryManageConfig.getDefaultManagedDirectories(libraryData));
+       
+        for ( File file : AutoDirectoryManageConfig.getDefaultManagedDirectories(libraryData) ) {
+            root.addChild(new LibraryManagerItemImpl(root, libraryData, file, false));
         }
-
+        
         treeTable.setTreeTableModel(new LibraryManagerModel(root));
     }
 
     @Override
     public String getLine1() {
-        return line1;
+        if (isUpgrade) {
+            return titleLineUpgrade;
+        }
+        else {
+            return titleLine;
+        }
     }
     
     @Override
     public String getLine2() {
-        return line2;
+        return null;
     }
 
     @Override
     public String getFooter() {
-        return "";
+        return bottomText;
     }
     
     @Override
     public void applySettings() {
         InstallSettings.SCAN_FILES.setValue(true);
         
-        Collection<File> manage;
-        Collection<File> exclude;
+        Collection<File> manage = new HashSet<File>();
+        Collection<File> exclude = new HashSet<File>();
+        Collection<Category> managedCategories = new HashSet<Category>();
         
         if (manualButton.isSelected()) {
             LibraryManagerModel model = treeTable.getLibraryModel();
-            manage = model.getManagedDirectories();
-            exclude = model.getExcludedDirectories();
-        } 
-        else {
-            manage = AutoDirectoryManageConfig.getManagedDirectories();
-            exclude = AutoDirectoryManageConfig.getExcludedDirectories();
-
-            // Remove any bad directories to be safe
-            
-            for( Iterator<File> iter = manage.iterator() ; iter.hasNext() ; ) {
-                File i = iter.next();
-                if(!libraryData.isDirectoryAllowed(i)) {
-                    iter.remove();
-                }
-            }
-            
-            for( Iterator<File> iter = exclude.iterator() ; iter.hasNext() ; ) {
-                File i = iter.next();
-                if(!libraryData.isDirectoryAllowed(i)) {
-                    iter.remove();
-                }
-            }
+            manage.addAll(model.getRootChildrenAsFiles());
+            exclude.addAll(model.getAllExcludedSubfolders());
+            managedCategories.addAll(checkBoxes.getSelected());
+        } else {
+            manage.addAll(AutoDirectoryManageConfig.getDefaultManagedDirectories(libraryData));
+            managedCategories.addAll(getDefaultManagedCategories());            
         }
+
+        // Always add existing settings
+        manage.addAll(libraryData.getDirectoriesToManageRecursively());
+        exclude.addAll(libraryData.getDirectoriesToExcludeFromManaging());
         
-        libraryData.setManagedOptions(manage, exclude, libraryData.getManagedCategories());
+        libraryData.setManagedOptions(manage, exclude, managedCategories);
     }
     
     private void setTreeTableVisiable(boolean visible){
@@ -183,7 +223,9 @@ public class SetupPage2 extends WizardPage {
     private class ButtonSelectionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            setTreeTableVisiable(buttonGroup.getSelection() == manualButton.getModel());
+            boolean visible = buttonGroup.getSelection() == manualButton.getModel();
+            setTreeTableVisiable(visible);
+            checkBoxes.setVisible(visible);
         }        
     }
     
@@ -194,8 +236,8 @@ public class SetupPage2 extends WizardPage {
         public AddDirectoryAction(Container parent) {
             this.parent = parent;
             
-            putValue(Action.NAME, I18n.tr("Add New Folder"));
-            putValue(Action.SHORT_DESCRIPTION, I18n.tr("Choose a folder to automatically scan for changes"));
+            putValue(Action.NAME, I18n.tr("Add Folder"));
+            putValue(Action.SHORT_DESCRIPTION, I18n.tr("Choose a folder to automatically add to My Library"));
         }
         
         @Override
@@ -211,5 +253,13 @@ public class SetupPage2 extends WizardPage {
                 }
             }
         }
+    }
+    
+    private Collection<Category> getDefaultManagedCategories() {
+        Collection<Category> categories = new HashSet<Category>();
+        categories.addAll(Category.getCategoriesInOrder());
+        categories.remove(Category.OTHER);
+        categories.remove(Category.PROGRAM);
+        return categories;
     }
 }

@@ -342,6 +342,6 @@ public class OSUtils {
     }
     
     public static boolean supportsTLS() {
-        return !isMacOSX();
+        return true;
     }
 }

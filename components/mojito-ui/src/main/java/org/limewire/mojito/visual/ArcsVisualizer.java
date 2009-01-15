@@ -5,11 +5,14 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
+import java.lang.reflect.InvocationTargetException;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import org.limewire.mojito.Context;
 import org.limewire.mojito.KUID;
@@ -34,14 +38,17 @@ import org.limewire.mojito.messages.DHTMessage.OpCode;
  */
 public class ArcsVisualizer extends JPanel implements MessageDispatcherListener {
 
-    private static final long SLEEP = 100L;
+    private static final int SLEEP = 100;
     
     private static final float FONT_SIZE = 24f;
     
-    private volatile boolean running = true;
+    private final Context context;
+
+    private Timer timer;
     
     public static ArcsVisualizer show(final Context context) {
-        final ArcsVisualizer arcs = new ArcsVisualizer(context.getLocalNodeID());
+        final ArcsVisualizer arcs = new ArcsVisualizer(context, context.getLocalNodeID());
+        
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 JFrame frame = new JFrame(context.getName());
@@ -50,16 +57,25 @@ public class ArcsVisualizer extends JPanel implements MessageDispatcherListener 
                 frame.addWindowListener(new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
-                        arcs.running = false;
-                        context.getMessageDispatcher().removeMessageDispatcherListener(arcs);
+                        arcs.stopArcs();
                     }
                 });
                 frame.setVisible(true);
             }
         });
         
-        context.getMessageDispatcher().addMessageDispatcherListener(arcs);
+        arcs.startArcs();
         return arcs;
+    }
+    
+    public void startArcs() {
+        timer.start();
+        context.getMessageDispatcher().addMessageDispatcherListener(this);
+    }
+    
+    public void stopArcs() {
+        timer.stop();
+        context.getMessageDispatcher().removeMessageDispatcherListener(this);
     }
     
     private final Object lock = new Object();
@@ -70,58 +86,71 @@ public class ArcsVisualizer extends JPanel implements MessageDispatcherListener 
     
     private final List<Painter> painters = new ArrayList<Painter>();
     
-    public ArcsVisualizer(final KUID nodeId) {
-        
+    public ArcsVisualizer(Context context, KUID nodeId) {
+        this.context = context;
         addPainter(new SnowMan(nodeId));
         addPainter(new PlasmaLamp(nodeId));
         addPainter(new DartBoard(nodeId));
         
         painter = painters.get(painterIndex);
         
-        Runnable repaint = new Runnable() {
+        Runnable runner = new Runnable() {
+            @Override
             public void run() {
-                while(running) {
-                    repaint();
+                timer = new Timer(SLEEP, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        repaint();
+                    }
+                });
+                
+                // Make sure the JPanel is focusable or it won't fire 
+                // FocusEvent and Component's hasFocus() method returns 
+                // always false
+                setFocusable(true);
+                
+                addMouseListener(new MouseAdapter() {
                     
-                    try { 
-                        Thread.sleep(SLEEP); 
-                    } catch (InterruptedException ignore) {}
-                }
+                    private volatile boolean hadFocus = false;
+                    
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        hadFocus = e.getComponent().isFocusOwner();
+                        // Request focus if not focused.  This can occur if the 
+                        // window is newly activated.
+                        if (!hadFocus) {
+                            ArcsVisualizer.this.requestFocusInWindow();
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (!hadFocus) {
+                            return;
+                        }
+                        
+                        synchronized (lock) {
+                            painter.clear();
+                            
+                            painterIndex = (painterIndex + 1) % painters.size();
+                            painter = painters.get(painterIndex);
+                        }
+                    }
+                });
             }
         };
         
-        Thread thread = new Thread(repaint);
-        thread.setDaemon(true);
-        thread.start();
-        
-        // Make sure the JPanel is focusable or it won't fire 
-        // FocusEvent and Component's hasFocus() method returns 
-        // always false
-        setFocusable(true);
-        
-        addMouseListener(new MouseAdapter() {
-            
-            private volatile boolean hadFocus = false;
-            
-            @Override
-            public void mousePressed(MouseEvent e) {
-                hadFocus = e.getComponent().hasFocus();
+        if(SwingUtilities.isEventDispatchThread()) {
+            runner.run();
+        } else {
+            try {
+                SwingUtilities.invokeAndWait(runner);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
             }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (!hadFocus) {
-                    return;
-                }
-                
-                synchronized (lock) {
-                    painter.clear();
-                    
-                    painterIndex = (painterIndex + 1) % painters.size();
-                    painter = painters.get(painterIndex);
-                }
-            }
-        });
+        }
     }
     
     public void addPainter(Painter painter) {
@@ -195,7 +224,7 @@ public class ArcsVisualizer extends JPanel implements MessageDispatcherListener 
     
     @SuppressWarnings({"InfiniteLoopStatement"})
     public static void main(String[] args) throws Exception {
-        ArcsVisualizer arcs = new ArcsVisualizer(KUID.createRandomID());
+        ArcsVisualizer arcs = new ArcsVisualizer(null, KUID.createRandomID());
         
         JFrame frame = new JFrame();
         frame.getContentPane().add(arcs);

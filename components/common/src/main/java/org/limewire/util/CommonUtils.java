@@ -527,7 +527,7 @@ public class CommonUtils {
                 throw new IOException("could not create preferences directory: " + dir);
         }
 
-        if(!dir.canWrite())
+        if(!FileUtils.canWrite(dir))
             throw new IOException("settings dir not writable: " + dir);
 
         if(!dir.canRead())

@@ -34,6 +34,13 @@ public interface PingReplyFactory {
      * GUID, TTL & return address.
      */
     public PingReply create(byte[] guid, byte ttl, IpPort addr);
+    
+    /**
+     * Creates a new PingReply for this host with the specified
+     * GUID, TTL, return address, local port and local ip.
+     */
+    public PingReply create(byte[] guid, byte ttl, int localPort,
+            byte[] localIp, IpPort addr);
 
     /**
      * Creates a new PingReply for this host with the specified
@@ -43,6 +50,17 @@ public interface PingReplyFactory {
     public PingReply create(byte[] guid, byte ttl, IpPort returnAddr,
             Collection<? extends IpPort> gnutHosts,
             Collection<? extends IpPort> dhtHosts);
+    
+   /**
+     * Creates a new PingReply for this host with the specified
+     * GUID, TTL, local port, local ip return address & packed hosts. Either collection 
+     * of hosts can be null!
+     */
+    public PingReply create(byte[] guid, byte ttl, int localPort,
+            byte [] localIP, IpPort returnAddr,
+            Collection<? extends IpPort> gnutHosts,
+            Collection<? extends IpPort> dhtHosts);
+    
 
     /**
      * Creates a new <tt>PingReply</tt> for this host with the specified

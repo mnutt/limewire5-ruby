@@ -1,20 +1,27 @@
 package org.limewire.ui.swing.friends.chat;
 
+import static org.limewire.ui.swing.util.I18n.tr;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.border.Border;
+import javax.swing.ActionMap;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.bushe.swing.event.annotation.EventSubscriber;
+import org.jdesktop.application.Application;
+import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.painter.AbstractPainter;
 import org.limewire.concurrent.ThreadExecutor;
-import org.limewire.core.settings.UISettings;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
@@ -25,11 +32,14 @@ import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.event.PanelDisplayedEvent;
 import org.limewire.ui.swing.event.RuntimeTopicPatternEventSubscriber;
 import org.limewire.ui.swing.mainframe.UnseenMessageListener;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.sound.WavSoundPlayer;
 import org.limewire.ui.swing.tray.Notification;
 import org.limewire.ui.swing.tray.TrayNotifier;
+import org.limewire.ui.swing.util.EnabledListener;
+import org.limewire.ui.swing.util.EnabledListenerList;
 import org.limewire.ui.swing.util.GuiUtils;
-import static org.limewire.ui.swing.util.I18n.tr;
+import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.VisibilityListener;
 import org.limewire.ui.swing.util.VisibilityListenerList;
 import org.limewire.ui.swing.util.VisibleComponent;
@@ -49,26 +59,34 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     private static final Log LOG = LogFactory.getLog(ChatFramePanel.class);
     private static final String MESSAGE_SOUND_PATH = "/org/limewire/ui/swing/mainframe/resources/sounds/friends/message.wav";
     private final ChatPanel chatPanel;
+    private final ChatFriendListPane chatFriendListPane;
     private final TrayNotifier notifier;
+    
     //Heavy-weight component so that it can appear above other heavy-weight components
     private final java.awt.Panel mainPanel;
     
     private final VisibilityListenerList visibilityListenerList = new VisibilityListenerList();
+    private final EnabledListenerList enabledListenerList = new EnabledListenerList();
+    private boolean actionEnabled = false;
     
     private UnseenMessageListener unseenMessageListener;
+    private String lastSelectedConversationFriendId;
+    private JXPanel borderPanel;
     
     @Inject
-    public ChatFramePanel(ChatPanel chatPanel, TrayNotifier notifier) {
+    public ChatFramePanel(ChatPanel chatPanel, ChatFriendListPane chatFriendListPane, TrayNotifier notifier) {
         super(new BorderLayout());
         this.chatPanel = chatPanel;
+        this.chatFriendListPane = chatFriendListPane;
         this.notifier = notifier;
-        this.mainPanel = new java.awt.Panel();
+        this.mainPanel = new java.awt.Panel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         
-        mainPanel.setVisible(false);
-        mainPanel.setBackground(getBackground());
-
-        Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
-        chatPanel.setBorder(lineBorder);
+        borderPanel = new JXPanel(new MigLayout("insets 1 1 0 1"));
+        borderPanel.setBackgroundPainter(new ChatPanelPainter());
+        
+        borderPanel.add(chatPanel);
+        
+        mainPanel.setVisible(false);        
         add(mainPanel);
         setVisible(false);
         
@@ -99,6 +117,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         });
     }
     
+    
     public void setUnseenMessageListener(UnseenMessageListener unseenMessageListener) {
         this.unseenMessageListener = unseenMessageListener;
     }
@@ -118,10 +137,14 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         setVisible(shouldDisplay);
         if (shouldDisplay) {
             unseenMessageListener.clearUnseenMessages();
-            ((Displayable)mainPanel.getComponent(0)).handleDisplay();
+            getDisplayable().handleDisplay();
             new PanelDisplayedEvent(this).publish();
         }
         visibilityListenerList.visibilityChanged(shouldDisplay);
+    }
+    
+    private Displayable getDisplayable() {
+        return chatPanel;
     }
     
     /**
@@ -137,43 +160,82 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     
     @RuntimeTopicPatternEventSubscriber(methodName="getMessagingTopicPatternName")
     public void handleMessageReceived(String topic, MessageReceivedEvent event) {
-        unseenMessageListener.messageReceivedFrom(event.getMessage().getFriendID(), isVisible());
-        
         if (event.getMessage().getType() != Message.Type.Sent && !GuiUtils.getMainFrame().isActive()) {
+            notifyUnseenMessageListener(event);
             LOG.debug("Sending a message to the tray notifier");
             notifier.showMessage(getNoticeForMessage(event));
             
             URL soundURL = ChatFramePanel.class.getResource(MESSAGE_SOUND_PATH);
-            if (soundURL != null && UISettings.PLAY_NOTIFICATION_SOUND.getValue()) {
+            if (soundURL != null && SwingUiSettings.PLAY_NOTIFICATION_SOUND.getValue()) {
                 ThreadExecutor.startThread(new WavSoundPlayer(soundURL.getFile()), "newmessage-sound");
             }
         } 
     }
     
+    private void notifyUnseenMessageListener(MessageReceivedEvent event) {
+        String messageFriendID = event.getMessage().getFriendID();
+        if (!messageFriendID.equals(lastSelectedConversationFriendId)) {
+            unseenMessageListener.messageReceivedFrom(messageFriendID, isVisible());
+        }
+    }
+    
     @EventSubscriber
     public void handleConversationSelected(ConversationSelectedEvent event) {
         if (event.isLocallyInitiated()) {
-            unseenMessageListener.conversationSelected(event.getFriend().getID());
+            lastSelectedConversationFriendId = event.getFriend().getID();
+            unseenMessageListener.conversationSelected(lastSelectedConversationFriendId);
+            borderPanel.invalidate();
+            borderPanel.repaint();
         }
+    }
+    
+    @EventSubscriber
+    public void handleChatClosed(CloseChatEvent event) {
+        if (event.getFriend().getID().equals(lastSelectedConversationFriendId)) {
+            lastSelectedConversationFriendId = null;
+        }
+        borderPanel.invalidate();
+        borderPanel.repaint();
     }
 
     private Notification getNoticeForMessage(MessageReceivedEvent event) {
-        Message message = event.getMessage();
+        final Message message = event.getMessage();
         String title = tr("Chat from {0}", message.getSenderName());
         String messageString = message.toString();
-        return new Notification(title, messageString);
+        Notification notification = new Notification(title, messageString, new AbstractAction(I18n.tr("Reply")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ActionMap map = Application.getInstance().getContext().getActionManager()
+                .getActionMap();
+                map.get("restoreView").actionPerformed(e);
+                setChatPanelVisible(true);
+                chatFriendListPane.fireConversationStarted(message.getFriendID());
+            }
+        });
+        return notification;
     }
     
     private void handleConnectionEstablished(XMPPConnectionEvent event) {
-        mainPanel.add(chatPanel);
+        addChatPanel();
         chatPanel.setLoggedInID(event.getSource().getConfiguration().getCanonicalizedLocalID());
         resetBounds();
+        setActionEnabled(true);
+    }
+
+    private void addChatPanel() {
+        mainPanel.add(borderPanel);
     }
     
     private void handleLogoffEvent() {
-        mainPanel.remove(chatPanel);
+        removeChatPanel();
         resetBounds();
         setChatPanelVisible(false);
+        setActionEnabled(false);
+        lastSelectedConversationFriendId = null;
+    }
+
+    private void removeChatPanel() {
+        mainPanel.remove(borderPanel);
     }
     
     public String getMessagingTopicPatternName() {
@@ -190,9 +252,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
 
     @Override
     public void resize() {
-        if (isVisible()) {
-            resetBounds();
-        }
+        resetBounds();
     }
 
     @Override
@@ -209,5 +269,59 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     public void setVisibility(boolean visible) {
         setChatPanelVisible(visible);
         visibilityListenerList.visibilityChanged(visible);
+    }
+
+    @Override
+    public void addEnabledListener(EnabledListener listener) {
+        enabledListenerList.addEnabledListener(listener);
+    }
+
+    @Override
+    public void removeEnabledListener(EnabledListener listener) {
+        enabledListenerList.removeEnabledListener(listener);
+    }
+
+    /**
+     * Returns true if the component is enabled for use. 
+     */
+    @Override
+    public boolean isActionEnabled() {
+        return actionEnabled;
+    }
+
+    /**
+     * Sets an indicator to determine whether the component is enabled for use,
+     * and notifies all registered EnabledListener instances. 
+     */
+    private void setActionEnabled(boolean enabled) {
+        // Get old value, and save new value.
+        boolean oldValue = actionEnabled;
+        actionEnabled = enabled;
+        
+        // Notify listeners if value changed.
+        if (enabled != oldValue) {
+            enabledListenerList.fireEnabledChanged(enabled);
+        }
+    }
+    
+    
+    private static class ChatPanelPainter extends AbstractPainter {
+        
+        @Resource private Color border;
+        
+        public ChatPanelPainter() {
+            GuiUtils.assignResources(this);
+            
+            this.setCacheable(true);
+            this.setAntialiasing(true);
+        }
+        
+        @Override
+        protected void doPaint(Graphics2D g, Object object, int width, int height) {
+            g.setPaint(border);
+            g.drawLine(0, 0, 0, height-1);
+            g.drawLine(0, 0, width-1, 0);
+            g.drawLine(width-1, 0, width-1, height-1);
+        }
     }
 }

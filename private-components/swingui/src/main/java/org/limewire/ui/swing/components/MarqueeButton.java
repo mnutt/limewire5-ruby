@@ -61,6 +61,7 @@ public class MarqueeButton extends JButton {
         fullLabel.setFont(getFont());
         
         maxPosition = marqueeLabel.getPreferredSize().width - fullLabel.getPreferredSize().width;
+        position = 0;
         
         timer = new Timer(initialDelay, new MarqueeAction());
         timer.start();

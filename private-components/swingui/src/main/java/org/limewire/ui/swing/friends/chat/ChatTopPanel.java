@@ -7,6 +7,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -22,10 +23,15 @@ import org.bushe.swing.event.annotation.EventSubscriber;
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.border.DropShadowBorder;
 import org.jdesktop.swingx.painter.RectanglePainter;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.xmpp.api.client.Presence.Mode;
+import org.limewire.xmpp.api.client.XMPPConnectionEvent;
+import org.limewire.listener.ListenerSupport;
+import org.limewire.listener.EventListener;
+import org.limewire.listener.SwingEDTEvent;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -53,11 +59,14 @@ public class ChatTopPanel extends JXPanel {
         GuiUtils.assignResources(this);
         
         RectanglePainter painter = new RectanglePainter();
-        painter.setFillPaint(new GradientPaint(50.0f, -1.0f, gradientTop, 50.0f, 20.0f, gradientBottom));
-        painter.setBorderPaint(borderBottom);
-        painter.setBorderWidth(1f);
+        painter.setFillPaint(new GradientPaint(50.0f, 0.0f, gradientTop, 50.0f, 9.5f, gradientBottom));
+        painter.setBorderPaint(null);
+        painter.setInsets(new Insets(0, 0, 0, 0));
+        painter.setBorderWidth(0.0f);
         
         setBackgroundPainter(painter);
+        
+        setBorder(new DropShadowBorder(borderBottom, 1, 1.0f, 0, false, false, true, false));
         
         setLayout(new MigLayout("insets 3 2 0 5, fill", "[]2[][]:push[]5", "[19px, top]"));
         Dimension size = new Dimension(400, 19);
@@ -77,7 +86,7 @@ public class ChatTopPanel extends JXPanel {
         friendStatusLabel.setFont(textFont);
         add(friendStatusLabel, "wmin 0, shrinkprio 0");
         
-        JXHyperlink minimizeChat = new JXHyperlink(new AbstractAction(tr("<html><u>Hide Chat</u></html>")) {
+        JXHyperlink minimizeChat = new JXHyperlink(new AbstractAction(tr("<html><u>Hide</u></html>")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 minimizeAction.actionPerformed(e);
@@ -101,6 +110,20 @@ public class ChatTopPanel extends JXPanel {
         ToolTipManager.sharedInstance().registerComponent(this);
         
         EventAnnotationProcessor.subscribe(this);
+    }
+
+    @Inject
+    void register(ListenerSupport<XMPPConnectionEvent> connectionSupport) {
+        connectionSupport.addListener(new EventListener<XMPPConnectionEvent>() {
+            @Override
+            @SwingEDTEvent
+            public void handleEvent(XMPPConnectionEvent event) {
+                if (event.getType() == XMPPConnectionEvent.Type.DISCONNECTED) {
+                    // when signed off, erase info about who LW was chatting with
+                    clearFriendInfo();
+                }
+            }
+        });
     }
     
     void setMinimizeAction(Action minimizeAction) {

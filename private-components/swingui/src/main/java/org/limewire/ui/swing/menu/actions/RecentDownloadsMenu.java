@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.Action;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.limewire.core.api.Category;
@@ -20,6 +19,7 @@ import org.limewire.core.settings.DownloadSettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.action.MnemonicMenu;
 import org.limewire.ui.swing.player.PlayerUtils;
 import org.limewire.ui.swing.util.CategoryUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -28,13 +28,16 @@ import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.MediaType;
 
-public class RecentDownloadsMenu extends JMenu {
+import com.google.inject.Inject;
+
+public class RecentDownloadsMenu extends MnemonicMenu {
     private final JMenuItem emptyItem;
 
     private final Action clearMenu;
 
-    public RecentDownloadsMenu(String name, final LibraryManager libraryManager) {
-        super(name);
+    @Inject
+    public RecentDownloadsMenu(final LibraryManager libraryManager) {
+        super(I18n.tr("&Recent Downloads"));
         emptyItem = new JMenuItem(I18n.tr("(empty)"));
         emptyItem.setEnabled(false);
 

@@ -13,16 +13,18 @@ import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.impl.download.DownloadListener;
 import org.limewire.core.impl.download.DownloadListenerList;
+import org.limewire.core.impl.magnet.MagnetLinkImpl;
 import org.limewire.core.impl.monitor.IncomingSearchListener;
 import org.limewire.core.impl.monitor.IncomingSearchListenerList;
 import org.limewire.core.impl.search.QueryReplyListener;
 import org.limewire.core.impl.search.QueryReplyListenerList;
 import org.limewire.core.impl.upload.UploadListener;
 import org.limewire.core.impl.upload.UploadListenerList;
-import org.limewire.core.settings.QuestionsHandler;
+import org.limewire.i18n.I18nMarker;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.service.ErrorService;
+import org.limewire.service.MessageService;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -35,8 +37,6 @@ import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.chat.InstantMessenger;
-import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.messages.QueryReply;
 
 /**
@@ -108,43 +108,12 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
     }
 
     @Override
-    public void acceptChat(InstantMessenger ctr) {
-        // TODO Auto-generated method stub
-
-    }
-
-
-    @Override
-    public void chatErrorMessage(InstantMessenger chatter, String str) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void chatUnavailable(InstantMessenger chatter) {
-        // TODO Auto-generated method stub
-    }
-
-    public void handleAddressStateChanged() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void handleConnectionLifecycleEvent(ConnectionLifecycleEvent evt) {
-        // Does nothing.
-    }
-
-    @Override
-    public boolean handleDAAPConnectionError(Throwable t) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean handleMagnets(MagnetOptions[] magnets) {
-        // TODO Auto-generated method stub
-        return false;
+    public void handleMagnets(MagnetOptions[] magnets) {
+        if(guiCallback != null) {
+            for(MagnetOptions magnetOption : magnets) {
+                guiCallback.handleMagnet(new MagnetLinkImpl(magnetOption));
+            }
+        }
     }
 
     @Override
@@ -165,10 +134,9 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
         }
     }
 
-    @Override
     public void handleSharedFileUpdate(File file) {
-        // TODO Auto-generated method stub
-
+        //TODO PJV this looks like it is supposed to update the gui with the meta data changes about how many hits this file received in searches and how many times it has been uploaded.
+        //Can we get rid of this now and use a property listener when we need this data again? could fireProperty events when incrementHitcount etc. are called
     }
 
     @Override
@@ -187,19 +155,12 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
 
     @Override
     public void installationCorrupted() {
-        // TODO Auto-generated method stub
-
+        MessageService.showError(I18nMarker.marktr("<html><b>Your LimeWire may have been corrupted by a virus or trojan!</b><br><br>Please visit <a href=\"http://www.limewire.com/corrupted\">www.limewire.com</a> and download the newest official version of LimeWire.</html>"));
     }
 
     @Override
     public boolean isQueryAlive(GUID guid) {
         return queryReplyListeners.containsKey(guid.bytes());
-    }
-
-    @Override
-    public void receiveMessage(InstantMessenger chr, String messsage) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -218,13 +179,18 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
 
     @Override
     public void restoreApplication() {
-        // TODO Auto-generated method stub
-
+        if(guiCallback != null) {
+            guiCallback.restoreApplication();
+        }
     }
 
     @Override
     public String translate(String s) {
-        return s; // TODO: Plug this to the UI somehow.
+        if(guiCallback != null) {
+            return guiCallback.translate(s);
+        }
+        
+        return s;
     }
 
     @Override
@@ -232,12 +198,6 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
         for (UploadListener listener : uploadListeners) {
             listener.uploadsCompleted();
         }
-    }
-
-    @Override
-    public boolean warnAboutSharingSensitiveDirectory(File dir) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Override
@@ -270,7 +230,9 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
     
     @Override
     public void showDownloads() {
-        // TODO Auto-generated method stub
+        if(guiCallback != null) {
+            guiCallback.showDownloads();
+        }
     }
     
     public void setGuiCallback(GuiCallback guiCallback) {
@@ -316,9 +278,9 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
             }
             
             if(!torrent.isComplete()) {
-                approve = guiCallback.promptTorrentDownloading();
-            } else if (QuestionsHandler.WARN_TORRENT_SEED_MORE.getValue() && torrent.getRatio() < 1.0f) {
-                approve = guiCallback.promptTorrentSeedRatioLow();
+                approve = guiCallback.promptUserQuestion(I18nMarker.marktr("If you stop this upload, the torrent download will stop. Are you sure you want to do this?"));
+            } else if (torrent.getRatio() < 1.0f) {
+                approve = guiCallback.promptUserQuestion(I18nMarker.marktr("This upload is a torrent and it hasn\'t seeded enough. You should let it upload some more. Are you sure you want to stop it?"));
             }
         } 
         if(approve && torrent.isActive()) {
@@ -326,5 +288,5 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
                     .dispatchEvent(new TorrentEvent(this, TorrentEvent.Type.STOP_APPROVED, torrent));
         }
     }
-    
+
 }

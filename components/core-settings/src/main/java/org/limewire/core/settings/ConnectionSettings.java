@@ -14,7 +14,7 @@ import org.limewire.setting.StringSetting;
  * Settings for Gnutella TCP connections.
  */
 public final class ConnectionSettings extends LimeProps {
-    
+
     private ConnectionSettings() {}
         
 	/**
@@ -39,6 +39,13 @@ public final class ConnectionSettings extends LimeProps {
 	 */
 	public static final BooleanSetting CANNOT_DO_FWT =
 		FACTORY.createExpirableBooleanSetting("LAST_FWT_STATE", false);
+
+    /**
+     * Whether we are behind a stable port (i.e., our NAT is not
+     * changing it per-host or per-request).
+     */
+    public static final BooleanSetting HAS_STABLE_PORT = 
+        FACTORY.createBooleanSetting("HAS_STABLE_PORT", true);
 
 	/**
 	 * Settings for whether or not to automatically connect to the network

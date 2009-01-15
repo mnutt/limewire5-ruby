@@ -1,11 +1,14 @@
-/ChatDocumentBuilderTest.java/1.1/Wed Dec 17 01:21:27 2008//
-/ChatPanelHarness.java/1.2/Tue Dec 23 20:13:43 2008//
-/ConversationPaneHarness.java/1.1/Wed Dec 17 01:21:27 2008//
-/FriendAvailabilityComparatorTest.java/1.1/Wed Dec 17 01:21:27 2008//
-/FriendsPaneHarness.java/1.1/Wed Dec 17 01:21:27 2008//
-/MockChatFriend.java/1.5/Tue Dec 23 20:13:43 2008//
-/MockMessage.java/1.1/Wed Dec 17 01:21:27 2008//
-/MockMessageFileOffer.java/1.1/Wed Dec 17 01:21:27 2008//
-/MockPresence.java/1.1/Wed Dec 17 01:21:27 2008//
-/MockUser.java/1.5/Tue Dec 23 20:13:43 2008//
+/ChatDocumentBuilderTest.java/1.1/Mon Nov 24 23:14:25 2008//
+/ChatPanelHarness.java/1.6/Mon Jan 12 23:41:51 2009//
+/ConversationPaneHarness.java/1.2/Mon Jan 12 23:41:51 2009//
+/FriendAvailabilityComparatorTest.java/1.1/Mon Nov 24 23:14:25 2008//
+/FriendsPaneHarness.java/1.2/Mon Jan 12 23:41:51 2009//
+/MockChatFriend.java/1.5/Thu Dec  4 23:00:19 2008//
+/MockMessage.java/1.1/Mon Nov 24 23:14:25 2008//
+/MockMessageFileOffer.java/1.1/Mon Nov 24 23:14:25 2008//
+/MockPresence.java/1.1/Mon Nov 24 23:14:25 2008//
+/MockTrayNotifier.java/1.1/Tue Jan  6 23:11:13 2009//
+/MockUnseenMessageListener.java/1.1/Tue Jan  6 23:11:13 2009//
+/MockUser.java/1.5/Mon Dec  8 20:55:10 2008//
+/MockXMPPConnectionConfiguration.java/1.1/Tue Jan  6 23:11:12 2009//
 D

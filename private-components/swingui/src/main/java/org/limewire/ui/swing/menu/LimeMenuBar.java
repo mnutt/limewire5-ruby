@@ -14,7 +14,7 @@ public class LimeMenuBar extends JMenuBar {
         add(fileMenu);
         add(viewMenu);
         add(friendMenu);
-        add(playerMenu);
+//        add(playerMenu);
         add(toolsMenu);
         add(helpMenu);
     }

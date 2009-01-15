@@ -3,6 +3,7 @@ package org.limewire.ui.swing.search.resultpanel;
 import static org.limewire.ui.swing.util.I18n.tr;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
@@ -18,38 +19,58 @@ import org.limewire.ui.swing.search.model.VisualSearchResult;
 public class SearchResultMenu extends JPopupMenu {
 
     public SearchResultMenu(final DownloadHandler downloadHandler,
-        final VisualSearchResult vsr,
+        final List<VisualSearchResult> selectedItems,
         final PropertiesFactory<VisualSearchResult> propertiesFactory) {
 
+        final VisualSearchResult firstItem = selectedItems.get(0);
+        
+        
+        boolean downloadEnabled = false;
+        for(VisualSearchResult visualSearchResult : selectedItems) {
+            if(visualSearchResult.getDownloadState() == BasicDownloadState.NOT_STARTED) {
+                downloadEnabled = true;
+                break;
+            }
+        }
+        
+        boolean markAsSpamEnabled = selectedItems.size() == 1;
+        boolean showHideSimilarFileVisible = selectedItems.size() == 1 && firstItem.getSimilarResults().size() > 0;
+        boolean showHideSimilarFileEnabled = selectedItems.size() == 1 && firstItem.getDownloadState() == BasicDownloadState.NOT_STARTED;
+        boolean viewFileInfoEnabled = selectedItems.size() == 1;
+        
         add(new AbstractAction(tr("Download")) {
             public void actionPerformed(ActionEvent e) {
-                downloadHandler.download(vsr);
+                for(VisualSearchResult visualSearchResult : selectedItems) {
+                    if(visualSearchResult.getDownloadState() == BasicDownloadState.NOT_STARTED) {
+                        downloadHandler.download(visualSearchResult);
+                    }
+                }
             }
-        }).setEnabled(vsr.getDownloadState() == BasicDownloadState.NOT_STARTED);
+        }).setEnabled(downloadEnabled);
 
-        add(new AbstractAction(vsr.isSpam() ? tr("Unmark as spam") : tr("Mark as spam")) {
+        add(new AbstractAction(markAsSpamEnabled && firstItem.isSpam() ? tr("Unmark as spam") : tr("Mark as spam")) {
             public void actionPerformed(ActionEvent e) {
-                vsr.setSpam(!vsr.isSpam());
+                firstItem.setSpam(!firstItem.isSpam());
             }
-        }).setEnabled(vsr.getDownloadState() == BasicDownloadState.NOT_STARTED);;
+        }).setEnabled(markAsSpamEnabled);
 
         addSeparator();
 
-        if (vsr.getSimilarResults().size() > 0) {
-            add(new AbstractAction(tr(vsr.isChildrenVisible() ? "Hide Similar Files" : "Show Similar Files")) {
+        if (showHideSimilarFileVisible) {
+            add(new AbstractAction(tr(firstItem.isChildrenVisible() ? "Hide Similar Files" : "Show Similar Files")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    vsr.toggleChildrenVisibility();
+                    firstItem.toggleChildrenVisibility();
                 }
-            }).setEnabled(vsr.getDownloadState() == BasicDownloadState.NOT_STARTED);
+            }).setEnabled(showHideSimilarFileEnabled);
             
             addSeparator();
         }
 
         add(new AbstractAction(tr("View File Info...")) {
             public void actionPerformed(ActionEvent e) {
-                propertiesFactory.newProperties().showProperties(vsr);
+                propertiesFactory.newProperties().showProperties(firstItem);
             }
-        });
+        }).setEnabled(viewFileInfoEnabled);
     }
 }

@@ -27,7 +27,7 @@ public class MyLibraryTransferHandler extends TransferHandler {
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
-        return DNDUtils.containsFileFlavors(info);
+        return !info.isDataFlavorSupported(LocalFileTransferable.LOCAL_FILE_DATA_FLAVOR) && DNDUtils.containsFileFlavors(info);
     }
 
     @Override
@@ -61,11 +61,15 @@ public class MyLibraryTransferHandler extends TransferHandler {
 
     @Override
     public Transferable createTransferable(JComponent comp) {
-        EventList<LocalFileItem> fileList = selectionModel.getSelected();
-        File[] files = new File[fileList.size()];
-        for (int i = 0; i < files.length; i++) {
-            files[i] = fileList.get(i).getFile();
+        if(selectionModel != null) {
+            EventList<LocalFileItem> fileList = selectionModel.getSelected();
+            File[] files = new File[fileList.size()];
+            for (int i = 0; i < files.length; i++) {
+                files[i] = fileList.get(i).getFile();
+            }
+            return new LocalFileTransferable(files);
         }
-        return new LocalFileTransferable(files);
+        
+        return null;
     }
 }

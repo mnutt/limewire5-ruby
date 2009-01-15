@@ -7,8 +7,6 @@ import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.ui.swing.table.AbstractColumnStateFormat;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 
-import ca.odell.glazedlists.GlazedLists;
-
 /**
  * Abstract table format for columns for local file items
  */
@@ -48,7 +46,7 @@ public abstract class AbstractMyLibraryFormat<T extends FileItem> extends Abstra
         if(column == actionIndex) 
             return new ActionComparator();
         else
-            return GlazedLists.comparableComparator();
+            return getLimeComparator();
     }
     
     public class ActionComparator implements Comparator<FileItem> {

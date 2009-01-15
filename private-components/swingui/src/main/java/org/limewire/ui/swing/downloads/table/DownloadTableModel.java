@@ -17,7 +17,7 @@ public class DownloadTableModel extends EventTableModel<DownloadItem> {
 	private EventList<DownloadItem> downloadItems;
 
 	public DownloadTableModel(EventList<DownloadItem> downloadItems) {
-		super(downloadItems, new LimeSingleColumnTableFormat<DownloadItem>());
+		super(downloadItems, new LimeSingleColumnTableFormat<DownloadItem>(DownloadItem.class), false);
 		this.downloadItems = downloadItems;
 	}
 

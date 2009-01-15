@@ -24,7 +24,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.Painter;
-import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.assistedinject.Assisted;
@@ -46,19 +45,17 @@ public class FancyTabList extends JXPanel {
     private final Action closeAllAction;
         
     private FancyTabProperties props;
-    private int maxTotalTabs = 10;
+    private int maxTotalTabs;
     private int maxVisibleTabs;
         
     @AssistedInject
     FancyTabList(@Assisted Iterable<? extends TabActionMap> actionMaps, LimeComboBoxFactory comboBoxFactory) {
-        
-        GuiUtils.assignResources(this);
-        
         this.comboBoxFactory = comboBoxFactory;
         
         setOpaque(false);
         setLayout(new MigLayout("insets 0, gap 0, filly, hidemode 2"));  
                 
+        maxTotalTabs = Integer.MAX_VALUE;
         maxVisibleTabs = Integer.MAX_VALUE;
         
         props = new FancyTabProperties();
@@ -75,9 +72,8 @@ public class FancyTabList extends JXPanel {
 
     /** Adds a new tab based on the given action at the specified index. */
     public void addTabActionMapAt(TabActionMap actionMap, int i) {
-        int size = tabs.size();
-        if (size == maxTotalTabs) {
-            tabs.remove(size - 1); // remove the last tab
+        if (tabs.size() == maxTotalTabs) {
+            tabs.get(tabs.size() - 1).remove();
         }
 
         FancyTab tab = createAndPrepareTab(actionMap);
@@ -214,8 +210,12 @@ public class FancyTabList extends JXPanel {
         }
         layoutTabs();
     }
+    
     public void setMaxTotalTabs(int max) {
         this.maxTotalTabs = max;
+        while(tabs.size() > maxTotalTabs) {
+            tabs.get(tabs.size() - 1).remove();
+        }
     }
     
     /** Sets the maximum number of tabs to render at once. */
@@ -272,8 +272,8 @@ public class FancyTabList extends JXPanel {
         }        
         if (tabs.size() > maxVisibleTabs) {
             
-            FancyTabMoreButton more = new FancyTabMoreButton(tabs, props);
-            this.comboBoxFactory.decorateMiniComboBox(more, I18n.tr("more"));
+            FancyTabMoreButton more = new FancyTabMoreButton(tabs);
+            comboBoxFactory.decorateMiniComboBox(more, I18n.tr("more"));
             more.setFont(props.getTextFont());
             
             add(more);
@@ -295,15 +295,7 @@ public class FancyTabList extends JXPanel {
         props.setCloseOtherText(closeOtherText);
         closeOtherAction.putValue(Action.NAME, closeOtherText);
     }
-    
-    public void setUnderlineColor(Color underlineColor) {
-        props.setUnderlineColor(underlineColor);
-    }
-    
-    public void setUnderlineHoverColor(Color underlineHoverColor) {
-        props.setUnderlineHoverColor(underlineHoverColor);
-    }
-    
+
     public void setUnderlineEnabled(boolean enabled) {
         for (FancyTab tab : tabs) {
             tab.setUnderlineEnabled(enabled);
@@ -348,7 +340,7 @@ public class FancyTabList extends JXPanel {
     public void setTabInsets(Insets insets) {
         props.setInsets(insets);
         
-        this.revalidate();
+        revalidate();
     }
     
     /** Sets the color used to render the tab's text when it is selected. */

@@ -1,18 +1,20 @@
 package org.limewire.ui.swing.table;
 
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.search.RowPresevationListener;
+import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.EventTableModel;
@@ -25,26 +27,25 @@ public class ConfigurableTable<E> extends MouseableTable implements RowPresevati
     private EventList<E> eventList;
     private EventTableModel<E> tableModel;
     private VisibleTableFormat<E> tableFormat;
-    private E selectedRow;
+    private List<E> selectedRows = new ArrayList<E>();
     
     private ColumnStateHandler handler;
     
     public ConfigurableTable(EventList<E> eventList, VisibleTableFormat<E> tableFormat, boolean showHeaders) {
         this.eventList = eventList;
         this.tableFormat = tableFormat;
-        tableModel = new EventTableModel<E>(eventList, tableFormat);
+        tableModel = GlazedListsSwingFactory.eventTableModel(eventList, tableFormat);
         setModel(tableModel);
         
         if (showHeaders) {
-            // Set up table headers to have a context menu
-            // that configures which columns are visible.
-            final JTableHeader header = getTableHeader();
-            header.addMouseListener(new MouseAdapter() {
+            // Set up table headers to have a context menu that configures 
+            // which columns are visible.  We use MousePopupListener to detect
+            // the popup trigger, which differs on Windows, Mac, and Linux.
+            JTableHeader header = getTableHeader();
+            header.addMouseListener(new MousePopupListener() {
                 @Override
-                public void mouseClicked(MouseEvent e) {
-                    if(SwingUtilities.isRightMouseButton(e)){
-                        showHeaderPopupMenu(e.getPoint());
-                    }
+                public void handlePopupMouseEvent(MouseEvent e) {
+                    showHeaderPopupMenu(e.getPoint());
                 }
             });
             
@@ -117,25 +118,29 @@ public class ConfigurableTable<E> extends MouseableTable implements RowPresevati
 
     @Override
     public void preserveRowSelection() {
-        selectedRow = null;
         if (isVisible()) {
-            int preservedSelectedRow = getSelectedRow();
-            if (preservedSelectedRow > -1) {
-                selectedRow = eventList.get(preservedSelectedRow);
-            } else {
-                selectedRow = null;
+            int[] preservedSelectedRows = getSelectedRows();
+            selectedRows.clear();
+            for(int rowIndex = 0; rowIndex <  preservedSelectedRows.length; rowIndex++) {
+                int row = preservedSelectedRows[rowIndex];
+                if (row > -1) {
+                    E element = getEventTableModel().getElementAt(row);
+                    selectedRows.add(element);
+                } 
             }
         }
     }
 
     @Override
     public void restoreRowSelection() {
-        if (isVisible() && selectedRow != null) {
-            int rowSelection = eventList.indexOf(selectedRow);
-            if (rowSelection > -1) {
-                setRowSelectionInterval(rowSelection, rowSelection);
+        if (isVisible() && selectedRows.size() > 0) {
+            clearSelection();
+            for(E selectedRow : selectedRows) {
+                int rowSelection = eventList.indexOf(selectedRow);
+                if (rowSelection > -1) {
+                    addRowSelectionInterval(rowSelection, rowSelection);
+                }    
             }
         }
-        selectedRow = null;
     }
 }

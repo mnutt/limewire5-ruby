@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -58,11 +59,11 @@ import org.limewire.concurrent.ManagedThread;
 import org.limewire.core.api.mojito.MojitoManager;
 import org.limewire.core.api.support.LocalClientInfo;
 import org.limewire.core.api.support.LocalClientInfoFactory;
-import org.limewire.core.settings.ConsoleSettings;
 import org.limewire.i18n.I18nMarker;
 import org.limewire.service.ErrorService;
 import org.limewire.ui.swing.components.NumericTextField;
 import org.limewire.ui.swing.components.TextFieldClipboardControl;
+import org.limewire.ui.swing.settings.ConsoleSettings;
 import org.limewire.ui.swing.util.FileChooser;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -147,6 +148,7 @@ public class Console extends JPanel {
         output.setEditable(false);
 
         scrollPane = new JScrollPane(output);
+        scrollPane.setBorder(BorderFactory.createMatteBorder(0,0,1,0, Color.black));
         scrollPane.getVerticalScrollBar().addAdjustmentListener(
                 new AdjustmentListener() {
                     public void adjustmentValueChanged(AdjustmentEvent e) {

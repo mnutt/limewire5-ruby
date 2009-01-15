@@ -99,8 +99,11 @@ public class PlayRendererEditor extends TableRendererEditor implements AudioPlay
     @Override
     public Component doTableCellRendererComponent(JTable table, Object value, boolean isSelected,
             boolean hasFocus, int row, int column) {
-        if(value != null) {
-            update(value);
+        // Get file item associated with table row.  The value argument may not
+        // be a LocalFileItem, as reported in JIRA item LWC-2208.
+        Object fileItem = this.table.getLibraryTableModel().getFileItem(row);
+        if (fileItem != null) {
+            update(fileItem);
         }
         return this;
     }
@@ -108,8 +111,11 @@ public class PlayRendererEditor extends TableRendererEditor implements AudioPlay
     @Override
     public Component doTableCellEditorComponent(JTable table, Object value, boolean isSelected,
             int row, int column) {
-        if(value != null) {
-            file = update(value);
+        // Get file item associated with table row.  The value argument may not
+        // be a LocalFileItem, as reported in JIRA item LWC-2208.
+        Object fileItem = this.table.getLibraryTableModel().getFileItem(row);
+        if (fileItem != null) {
+            file = update(fileItem);
         }
         return this;
     }

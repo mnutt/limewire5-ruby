@@ -106,6 +106,8 @@ public class SignatureVerifier {
     
     /**
      * Reads a public key from base32-encoded string.
+     * 
+     * @return null if there was an error reading the key
      */
     public static PublicKey readKey(String base32Key, String alg) {
         try {

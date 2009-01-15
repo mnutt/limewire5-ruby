@@ -24,7 +24,7 @@ public class LimeWireFriendXmppModule extends AbstractModule {
     protected void configure() {
         bind(FriendListListeners.class);
         
-        EventMulticaster<FriendEvent> knownMulticaster = new EventMulticasterImpl<FriendEvent>();
+        EventMulticaster<FriendEvent> knownMulticaster = new EventMulticasterImpl<FriendEvent>(FriendEvent.class);
         EventMulticaster<FriendEvent> availMulticaster = new EventMulticasterImpl<FriendEvent>();
         EventMulticaster<FriendPresenceEvent> presenceMulticaster = new EventMulticasterImpl<FriendPresenceEvent>();
         EventMulticaster<FeatureEvent> featureMulticaster = new EventMulticasterImpl<FeatureEvent>();

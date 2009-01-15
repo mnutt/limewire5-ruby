@@ -18,6 +18,15 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
 public class ManagedFileListStub extends AbstractFileListStub implements ManagedFileList {
 
     @Override
+    public Collection<File> getDirectoriesWithImportedFiles() {
+        return Collections.emptySet();
+    }
+    
+    @Override
+    public void removeFolder(File folder) {
+    }
+    
+    @Override
     public Collection<Category> getManagedCategories() {
         return EnumSet.allOf(Category.class);
     }

@@ -1,6 +1,6 @@
 package org.limewire.ui.swing.table;
 
-import org.limewire.core.settings.TablesHandler;
+import org.limewire.ui.swing.settings.TablesHandler;
 
 /**
  * Keeps state about a given column. Contains the model index, unique id, default and saved values regarding

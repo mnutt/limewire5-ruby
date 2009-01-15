@@ -11,8 +11,6 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -24,6 +22,8 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.limewire.concurrent.ExecutorsHelper;
+import org.limewire.concurrent.ListeningExecutorService;
+import org.limewire.concurrent.ListeningFuture;
 import org.limewire.ui.swing.util.SwingUtils;
 
 /**
@@ -34,13 +34,13 @@ import org.limewire.ui.swing.util.SwingUtils;
  */
 public class HTMLPane extends JEditorPane {
     
-    private static final ExecutorService QUEUE = ExecutorsHelper.newProcessingQueue("HTMLPane Queue");
+    private static final ListeningExecutorService QUEUE = ExecutorsHelper.newProcessingQueue("HTMLPane Queue");
 
     private final SynchronousEditorKit kit = new SynchronousEditorKit();    
     private HashMap<Object, Object> pageProperties;
     
     private volatile boolean pageLoaded;
-    private Future<?> currentLoad;
+    private ListeningFuture<Void> currentLoad;
     
     public HTMLPane() {
         setEditorKit(kit);
@@ -52,7 +52,7 @@ public class HTMLPane extends JEditorPane {
     }
     
     /** Loads the given URL, loading the backup page if it fails to load. */
-    public void setPageAsynchronous(final String url, final String backupPage) {        
+    public ListeningFuture<Void> setPageAsynchronous(final String url, final String backupPage) {        
         assert SwingUtilities.isEventDispatchThread();        
         if(currentLoad != null) {
             currentLoad.cancel(true);
@@ -74,6 +74,7 @@ public class HTMLPane extends JEditorPane {
                 return null;
             }
         });
+        return currentLoad;
     }
     
     public boolean isLastRequestSuccessful() {

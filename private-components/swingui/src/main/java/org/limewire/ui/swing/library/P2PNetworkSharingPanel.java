@@ -1,10 +1,16 @@
 package org.limewire.ui.swing.library;
 
+import java.util.Map;
+
 import net.miginfocom.swing.MigLayout;
 
+import org.limewire.core.api.friend.Friend;
+import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.Network;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.dnd.GhostDragGlassPane;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
 import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.CategoryIconManager;
@@ -23,10 +29,11 @@ public class P2PNetworkSharingPanel extends SharingPanel {
             CategoryIconManager categoryIconManager,
             LibraryTableFactory tableFactory,
             LimeHeaderBarFactory headerBarFactory,
-            ButtonDecorator buttonDecorator) {
+            ButtonDecorator buttonDecorator,
+            GhostDragGlassPane ghostPane) {
         super(libraryManager.getLibraryManagedList().getSwingModel(), 
                 shareListManager.getGnutellaShareList(), categoryIconManager, 
-                tableFactory, headerBarFactory);
+                tableFactory, headerBarFactory, ghostPane, new P2PFriend());
 
         setInnerNavLayout(new MigLayout("insets 0, gap 0, fill, wrap, hidemode 3", "[138!]", ""));
         
@@ -34,7 +41,7 @@ public class P2PNetworkSharingPanel extends SharingPanel {
 
         createMyCategories(libraryManager.getLibraryManagedList().getSwingModel(),
                            shareListManager.getGnutellaShareList());
-        selectFirst();
+        selectFirstVisible();
     }
     
     protected String getFullPanelName() {
@@ -44,4 +51,29 @@ public class P2PNetworkSharingPanel extends SharingPanel {
     protected String getShortPanelName() {
         return I18n.tr("the P2P Network");
     } 
+    
+    private static class P2PFriend implements Friend {
+
+        @Override
+        public String getName() {
+            return I18n.tr("the P2P Network");
+        }
+        @Override
+        public String getId() {
+            return "_@_GNUTELLA_@_";
+        }
+        
+        @Override
+        public String getFirstName() {return null;}
+        @Override
+        public Map<String, FriendPresence> getFriendPresences() {return null;}
+        @Override
+        public Network getNetwork() {return null;}
+        @Override
+        public String getRenderName() {return null;}
+        @Override
+        public boolean isAnonymous() {return false;}
+        @Override
+        public void setName(String name) {}
+    }
 }

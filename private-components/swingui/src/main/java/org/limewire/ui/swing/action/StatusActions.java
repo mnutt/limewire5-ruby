@@ -3,7 +3,7 @@ package org.limewire.ui.swing.action;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
@@ -15,6 +15,7 @@ import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.friends.chat.IconLibrary;
 import org.limewire.ui.swing.friends.login.FriendActions;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
@@ -32,11 +33,14 @@ public class StatusActions {
     private final JCheckBoxMenuItem available;
 
     private final JCheckBoxMenuItem dnd;
+    
+    private final XMPPService xmppService;
 
     @Inject
     public StatusActions(final XMPPService xmppService, final IconLibrary iconLibrary) {
-        available = new JCheckBoxMenuItem(I18n.tr("Available"), iconLibrary.getAvailable());
-
+        this.xmppService = xmppService;
+        
+        available = new MnemonicCheckBoxMenuItem( I18n.tr("&Available"), iconLibrary.getAvailable());
         available.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -45,7 +49,7 @@ public class StatusActions {
             }
         });
         available.setEnabled(false);
-        dnd = new JCheckBoxMenuItem(I18n.tr("Do Not Disturb"), iconLibrary.getDoNotDisturb());
+        dnd = new MnemonicCheckBoxMenuItem(I18n.tr("&Do Not Disturb"), iconLibrary.getDoNotDisturb());
         dnd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -55,12 +59,8 @@ public class StatusActions {
         });
         dnd.setEnabled(false);
         
-        ButtonGroup group = new ButtonGroup();
-        group.add(available);
-        group.add(dnd);
-
         updateSelection();
-
+        
         XMPPSettings.XMPP_DO_NOT_DISTURB.addSettingListener(new SettingListener() {
             @Override
             public void settingChanged(SettingEvent evt) {
@@ -75,8 +75,15 @@ public class StatusActions {
     }
 
     private void updateSelection() {
-        available.setSelected(!XMPPSettings.XMPP_DO_NOT_DISTURB.getValue());
-        dnd.setSelected(XMPPSettings.XMPP_DO_NOT_DISTURB.getValue());
+        if(xmppService.isLoggedIn()) {
+            boolean dndBool = XMPPSettings.XMPP_DO_NOT_DISTURB.getValue();
+            available.setSelected(!dndBool);
+            dnd.setSelected(dndBool);
+        } else {
+            //do not show selections when logged out
+            available.setSelected(false);
+            dnd.setSelected(false);
+        }
     }
 
     @Inject
@@ -90,11 +97,13 @@ public class StatusActions {
                 case CONNECTING:
                     available.setEnabled(true);
                     dnd.setEnabled(true);
+                    updateSelection();
                     break;
                 case CONNECT_FAILED:
                 case DISCONNECTED:
                     available.setEnabled(false);
                     dnd.setEnabled(false);
+                    updateSelection();
                     break;
                 }
             }
@@ -107,5 +116,18 @@ public class StatusActions {
 
     public JMenuItem getDnDAction() {
         return dnd;
+    }
+    
+    private class MnemonicCheckBoxMenuItem extends JCheckBoxMenuItem {
+        public MnemonicCheckBoxMenuItem(String name, Icon icon) {
+            super();
+            int mnemonicKeyCode = GuiUtils.getMnemonicKeyCode(name);
+            name = GuiUtils.stripAmpersand(name);
+            if (mnemonicKeyCode != -1) { 
+                setMnemonic(mnemonicKeyCode);
+            }
+            setText(name);
+            setIcon(icon);
+        }
     }
 }

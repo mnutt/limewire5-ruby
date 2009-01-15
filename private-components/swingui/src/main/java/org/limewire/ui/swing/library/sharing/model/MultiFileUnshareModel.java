@@ -82,38 +82,12 @@ public class MultiFileUnshareModel implements LibraryShareModel {
             }
 
             // check for share all settings and individual share list
-            if (isCategoryShared(item.getCategory(), friend)
-                    || shareListManager.getOrCreateFriendShareList(friend.getFriend()).contains(item.getFile())){
+            if (shareListManager.getOrCreateFriendShareList(friend.getFriend()).contains(item.getFile())){
                 return true;
             }
         }
 
         return false;
-    }
-    
-    protected boolean isCategoryShared(Category category, SharingTarget friend){
-        switch (category) {
-        case AUDIO:
-            if (shareListManager.getOrCreateFriendShareList(friend.getFriend())
-                    .isAddNewAudioAlways()) {
-                return true;
-            }
-            break;
-        case VIDEO:
-            if (shareListManager.getOrCreateFriendShareList(friend.getFriend())
-                    .isAddNewVideoAlways()) {
-                return true;
-            }
-            break;
-        case IMAGE:
-            if (shareListManager.getOrCreateFriendShareList(friend.getFriend())
-                    .isAddNewImageAlways()) {
-                return true;
-            }
-            break;
-        }
-
-        return false;   
     }
 
     @Override

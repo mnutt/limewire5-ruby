@@ -5,6 +5,7 @@ import java.awt.Font;
 
 import org.jdesktop.application.Resource;
 import org.limewire.core.api.library.MagnetLinkFactory;
+import org.limewire.core.api.properties.PropertyDictionary;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -20,6 +21,7 @@ public class DialogParam {
     @Inject private MagnetLinkFactory magnetLinkFactory;
     @Inject private CategoryIconManager categoryIconManager;
     @Inject private FilterList filterList;
+    @Inject private PropertyDictionary propertyDictionary;
     @Resource private Color linkColor;
     @Resource private Color backgroundColor;
     @Resource private Font smallFont;
@@ -72,5 +74,9 @@ public class DialogParam {
 
     public FilterList getFilterList() {
         return filterList;
+    }
+    
+    public PropertyDictionary getPropertyDictionary() {
+        return propertyDictionary;
     }
 }

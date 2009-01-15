@@ -1,5 +1,7 @@
 package org.limewire.ui.swing.util;
 
+import java.util.Locale;
+
 import org.limewire.util.BaseTestCase;
 
 import junit.framework.Test;
@@ -49,5 +51,8 @@ public class I18nTest extends BaseTestCase {
         assertEquals("plural 'his!' yuck", result); 
     }
 
-
+    public void testTrcFallsBackToText() {
+        I18n.setLocale(Locale.GERMAN);
+        assertEquals("baobab", I18n.trc("baobab (the tree)", "baobab"));
+    }
 }

@@ -2,11 +2,12 @@ package org.limewire.ui.swing.search.resultpanel;
 
 import java.util.Comparator;
 
+import org.limewire.core.api.Category;
+import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.table.AbstractColumnStateFormat;
 import org.limewire.ui.swing.table.ColumnStateInfo;
-
-import ca.odell.glazedlists.GlazedLists;
+import org.limewire.util.StringUtils;
 
 
 /**
@@ -62,12 +63,18 @@ public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T>
     public Comparator getColumnComparator(int index) {
         if(index == fromColumn) 
             return getFromComparator();
+        else if(index == nameColumn) 
+            return getNameComparator();
         else
-            return GlazedLists.comparableComparator();
+            return getLimeComparator();
     }
     
     public FromComparator getFromComparator() {
         return new FromComparator();
+    }
+    
+    public NameComparator getNameComparator() {
+        return new NameComparator();
     }
     
     /**
@@ -87,5 +94,29 @@ public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T>
                 return -1;
         }
     }
+    
+    /**
+     * Compares the name column. This is essentially a string compare but
+     * VSR are returned in this column to also display an icon so we need
+     * a custom comparator.
+     */
+    public static class NameComparator implements Comparator<VisualSearchResult> {
+        @Override
+        public int compare(VisualSearchResult o1, VisualSearchResult o2) {
+            String name1 = getName(o1);
+            String name2 = getName(o2);
+            
+            return name1.compareToIgnoreCase(name2);
+        }
+        
+        private String getName(VisualSearchResult result) {
+            String name = result.getPropertyString(FilePropertyKey.NAME);
 
+            if(result.getCategory().equals(Category.AUDIO) && 
+                    !StringUtils.isEmpty(result.getPropertyString(FilePropertyKey.TITLE))) {
+                name =  result.getPropertyString(FilePropertyKey.TITLE);
+            }
+            return name;
+        }
+    }
 }

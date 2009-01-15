@@ -12,7 +12,6 @@ public class LimeWireUiFriendsModule extends AbstractModule {
     protected void configure() {
         install(new LimeWireUiFriendsLoginModule());
         install(new LimeWireUiFriendsChatModule());
-        bind(FriendRequestHandlerImpl.class);
     }
 
 }

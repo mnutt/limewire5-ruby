@@ -8,13 +8,15 @@
 	</description>
 	
     <import file="../build-macros.xml"/>
+    <import file="../../components/mojito-ui/build.xml"/>
     <import file="../../components/core-glue/build.xml"/>
     <import file="../swingui/build.xml"/>
     
-    <target name="initialize" depends="lw-core-glue.initialize, lw-swingui.initialize" unless="initialized.integrated-ui">
+    <target name="initialize" depends="lw-core-glue.initialize, lw-swingui.initialize, mojito-ui.initialize" unless="initialized.integrated-ui">
         <do.setup-private-properties component="integrated-ui">
 			<add-src-classpath>
 				<pathelement location="${limewire.lib.jars}/commons-logging.jar"/>
+				<path refid="build.limewire.components.mojito-ui.buildpath"/>
 			    <path refid="build.limewire.components.core-glue.buildpath"/>
 			    <path refid="build.limewire.components.swingui.buildpath"/>
 			</add-src-classpath>
@@ -25,13 +27,13 @@
 	    <do.clean component="integrated-ui"/>
 	</target>
     
-    <target name="compile" depends="initialize, lw-core-glue.compile, lw-swingui.compile">
+    <target name="compile" depends="initialize, lw-core-glue.compile, lw-swingui.compile, mojito-ui.compile">
     	<!--<do.compile component="integrated-ui"/>-->
     	<do.compile-src component="integrated-ui"/>
     	<mkdir dir="${build.limewire.components.integrated-ui.tests}"/>
     </target>
 	
-	<target name="compile-src" depends="initialize, lw-core-glue.compile-src, lw-swingui.compile-src">
+	<target name="compile-src" depends="initialize, lw-core-glue.compile-src, lw-swingui.compile-src, mojito-ui.compile-src">
 	    <do.compile-src component="integrated-ui"/>
 	</target>
     

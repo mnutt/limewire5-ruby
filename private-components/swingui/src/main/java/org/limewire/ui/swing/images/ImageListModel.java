@@ -13,7 +13,7 @@ public class ImageListModel extends EventListModel<LocalFileItem>{
     private final LocalFileList fileList;
     
     public ImageListModel(EventList<LocalFileItem> fileItems, LocalFileList fileList) {
-        super(fileItems);
+        super(fileItems, false);
         this.fileItems = fileItems;
         this.fileList = fileList;
     }

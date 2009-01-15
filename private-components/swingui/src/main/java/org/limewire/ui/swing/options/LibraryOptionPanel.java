@@ -1,10 +1,11 @@
 package org.limewire.ui.swing.options;
 
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Collection;
-import java.util.EnumSet;
+import java.util.HashSet;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -12,49 +13,66 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.limewire.core.api.Category;
+import org.limewire.core.api.friend.Friend;
+import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.LibraryData;
 import org.limewire.core.api.library.LibraryManager;
+import org.limewire.core.api.library.ShareListManager;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.FocusJOptionPane;
+import org.limewire.ui.swing.components.HorizonalCheckBoxListPanel;
+import org.limewire.ui.swing.components.Line;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.library.manager.LibraryManagerItemImpl;
 import org.limewire.ui.swing.library.manager.LibraryManagerModel;
 import org.limewire.ui.swing.library.manager.LibraryManagerTreeTable;
+import org.limewire.ui.swing.library.manager.NoChildrenLibraryManagerItem;
 import org.limewire.ui.swing.library.manager.RootLibraryManagerItem;
 import org.limewire.ui.swing.util.FileChooser;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.IconManager;
+import org.limewire.ui.swing.wizard.AutoDirectoryManageConfig;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
-/**
- * Library Option View
- */
+/** Library Option View */
 public class LibraryOptionPanel extends OptionPanel {
 
-    private LibraryManagerOptionPanel libraryManagerPanel;
-    
+    private final IconManager iconManager;    
+    private final LibraryManager libraryManager;
+    private final Provider<ShareListManager> shareListManager;
+    private final Collection<Friend> knownFriends;
+
+    private ManualImportPanel manualImportPanel;
+    private LibraryManagerOptionPanel libraryManagerPanel;    
     private ShareCategoryPanel shareCategoryPanel;
     
-    private LibraryManager libraryManager;
     
     @Inject
-    public LibraryOptionPanel(LibraryManager libraryManager) {
+    public LibraryOptionPanel(LibraryManager libraryManager, 
+            Provider<ShareListManager> shareListManager,
+            IconManager iconManager,
+            @Named("known") Collection<Friend> knownFriends) {
+        this.iconManager = iconManager;
         this.libraryManager = libraryManager;
+        this.shareListManager = shareListManager;
+        this.knownFriends = knownFriends;
         
-        setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
+        setLayout(new MigLayout("insets 15, fillx, wrap", "", ""));
         
         add(getLibraryManagerPanel(), "pushx, growx");
+        add(getManualImportPanel(), "pushx, growx, hidemode 2");
         add(getShareCategoryPanel(), "pushx, growx");
     }
     
@@ -71,27 +89,38 @@ public class LibraryOptionPanel extends OptionPanel {
         }
         return shareCategoryPanel;
     }
+    
+    private ManualImportPanel getManualImportPanel() {
+        if(manualImportPanel == null) {
+            manualImportPanel = new ManualImportPanel(libraryManager.getLibraryData());
+        }
+        return manualImportPanel;
+    }
 
     @Override
     boolean applyOptions() {
-        return getLibraryManagerPanel().applyOptions();
+        return getLibraryManagerPanel().applyOptions() ||
+               getShareCategoryPanel().applyOptions() ||
+               getManualImportPanel().applyOptions();
     }
 
     @Override
     boolean hasChanged() {
-        return getLibraryManagerPanel().hasChanged();
+        return getLibraryManagerPanel().hasChanged() ||
+               getShareCategoryPanel().hasChanged() ||
+               getManualImportPanel().hasChanged();
     }
 
     @Override
     public void initOptions() {
         getLibraryManagerPanel().initOptions();
         getShareCategoryPanel().initOptions();
+        getManualImportPanel().initOptions();
     }
     
     
     /**
      * Share Category Panel
-     * 
      */
     private class ShareCategoryPanel extends OptionPanel {
 
@@ -121,17 +150,42 @@ public class LibraryOptionPanel extends OptionPanel {
         
         @Override
         boolean applyOptions() {
+            LibrarySettings.SNAPSHOT_SHARING_ENABLED.setValue(shareSnapshot.isSelected());
+            // revert to defaults for collection sharing if true
+            if(shareSnapshot.isSelected()) {
+                ShareListManager shareManager = shareListManager.get();
+                // Set friends & gnutella explicitly, so events fire properly.
+                shareManager.getGnutellaShareList().setCategoryAutomaticallyAdded(Category.AUDIO, false);
+                shareManager.getGnutellaShareList().setCategoryAutomaticallyAdded(Category.VIDEO, false);
+                shareManager.getGnutellaShareList().setCategoryAutomaticallyAdded(Category.IMAGE, false);
+                for(Friend friend : knownFriends) {
+                    FriendFileList fileList = shareManager.getFriendShareList(friend);
+                    if(fileList != null) {                    
+                        fileList.setCategoryAutomaticallyAdded(Category.AUDIO, false);
+                        fileList.setCategoryAutomaticallyAdded(Category.VIDEO, false);
+                        fileList.setCategoryAutomaticallyAdded(Category.IMAGE, false);
+                    }
+                }
+                // clear everyone else, so if you're not signed on,
+                // when you sign on it doesn't continue auto-sharing.
+                LibrarySettings.SHARE_NEW_IMAGES_ALWAYS.revertToDefault();
+                LibrarySettings.SHARE_NEW_AUDIO_ALWAYS.revertToDefault();
+                LibrarySettings.SHARE_NEW_VIDEO_ALWAYS.revertToDefault();
+            }
             return false;
         }
 
         @Override
         boolean hasChanged() {
-            return false;
+            return shareSnapshot.isSelected() != LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue();
         }
 
         @Override
         public void initOptions() {
-            shareSnapshot.setSelected(true);    //need to hit props file I'm guessing?
+            if(LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue())
+                shareSnapshot.setSelected(true);
+            else
+                shareCollection.setSelected(true);
         }
     }
     
@@ -143,58 +197,35 @@ public class LibraryOptionPanel extends OptionPanel {
         private final LibraryData libraryData;
         
         private JButton addFolderButton;
-        private JCheckBox audioCheckBox;
-        private JCheckBox videoCheckBox;
-        private JCheckBox imageCheckBox;
-        private JCheckBox docCheckBox;
+        private HorizonalCheckBoxListPanel<Category> checkBoxes;
         private JCheckBox programCheckBox;
-        private JCheckBox otherCheckBox;
         
         private LibraryManagerTreeTable treeTable;
         
         public LibraryManagerOptionPanel(LibraryData libraryData) {
             this.libraryData = libraryData;
             
-            setLayout(new MigLayout("", "[300!][grow]", ""));
+            setLayout(new MigLayout("insets 0, gap 0, fill"));
             
             setOpaque(false);
             
             createComponents();
             
-            add(new JLabel(I18n.tr("LimeWire will automatically scan the folders below")), "span 2, gapbottom 10, wrap");
+            add(new JLabel(I18n.tr("LimeWire will watch the following folders...")), "gapbottom 5, wrap");
         
-            add(new JScrollPane(treeTable), "span 2, growx, wrap");
-            add(addFolderButton, "skip 1, alignx right, wrap");
-            
-            add(new JLabel(I18n.tr("and add the following types of files to My Library:")), "span 2, wrap");
-            add(getCheckBoxPanel(), "gapbottom 20, span 2, wrap");
-            
-            add(new MultiLineLabel(I18n.tr("Scanning these folders into your Library will not automatically share your files unless you explicitly choose to share a collection.")), "span 2, growx");
+            add(new JScrollPane(treeTable), "growy, growx, gapbottom 5, wrap");            
+            add(new JLabel(I18n.tr("and add the following categories to My Library:")), "split, alignx left");
+            add(addFolderButton, "gapbefore push, alignx right, wrap");
+            add(checkBoxes, "gapbefore 10, wrap");            
+            add(new MultiLineLabel(I18n.tr("Scanning these folders into your Library will not automatically share your files unless you explicitly choose to share a collection.")), "growx");
         }
         
         private void createComponents() {
-            treeTable = new LibraryManagerTreeTable(libraryData);
+            treeTable = new LibraryManagerTreeTable(iconManager, libraryData);
             addFolderButton = new JButton(new AddDirectoryAction(this));
-            
-            audioCheckBox = new JCheckBox(I18n.tr(Category.AUDIO.toString()));
-            audioCheckBox.setOpaque(false);
-            audioCheckBox.setHorizontalTextPosition(SwingConstants.RIGHT);
-            
-            videoCheckBox = new JCheckBox(I18n.tr(Category.VIDEO.toString()));
-            videoCheckBox.setOpaque(false);
-            videoCheckBox.setHorizontalTextPosition(SwingConstants.RIGHT);
-            
-            imageCheckBox = new JCheckBox(I18n.tr(Category.IMAGE.toString()));
-            imageCheckBox.setOpaque(false);
-            imageCheckBox.setHorizontalTextPosition(SwingConstants.RIGHT);
-            
-            docCheckBox = new JCheckBox(I18n.tr(Category.DOCUMENT.toString()));
-            docCheckBox.setOpaque(false);
-            docCheckBox.setHorizontalTextPosition(SwingConstants.RIGHT);
-            
-            programCheckBox = new JCheckBox(I18n.tr(Category.PROGRAM.toString()));
-            programCheckBox.setOpaque(false);
-            programCheckBox.setHorizontalTextPosition(SwingConstants.RIGHT);
+
+            checkBoxes = new HorizonalCheckBoxListPanel<Category>(Category.getCategoriesInOrder());
+            programCheckBox = checkBoxes.getCheckBox(Category.PROGRAM);
             
             LibrarySettings.ALLOW_PROGRAMS.addSettingListener( new SettingListener() {
                 @Override
@@ -202,10 +233,6 @@ public class LibraryOptionPanel extends OptionPanel {
                     enablePrograms(LibrarySettings.ALLOW_PROGRAMS.getValue());
                 }
              });
-            
-            otherCheckBox = new JCheckBox(I18n.tr(Category.OTHER.toString()));
-            otherCheckBox.setOpaque(false);
-            otherCheckBox.setHorizontalTextPosition(SwingConstants.RIGHT);
         }
         
         
@@ -217,58 +244,25 @@ public class LibraryOptionPanel extends OptionPanel {
                 programCheckBox.setEnabled(false);
             }
         }
-        private JPanel getCheckBoxPanel() {
-            JPanel p = new JPanel();
-            p.setOpaque(false);
-            p.setLayout(new MigLayout("gapx 18"));
-            
-            p.add(audioCheckBox, "gapleft 25");        
-            p.add(videoCheckBox);        
-            p.add(imageCheckBox);        
-            p.add(docCheckBox);
-            p.add(programCheckBox);
-            p.add(otherCheckBox);
-            
-            return p;
-        }
-
+      
         @Override
         public boolean applyOptions() {
             LibraryManagerModel model = treeTable.getLibraryModel();
-            Collection<File> manage = model.getManagedDirectories();
-            Collection<File> exclude = model.getExcludedDirectories();
+            Collection<File> manage = model.getRootChildrenAsFiles();
+            Collection<File> exclude = model.getAllExcludedSubfolders();
             libraryData.setManagedOptions(manage, exclude, getManagedCategories());
             return false;
         }
 
         private Collection<Category> getManagedCategories() {
-            Collection<Category> categories = EnumSet.noneOf(Category.class);
-            if(audioCheckBox.isSelected()) {
-                categories.add(Category.AUDIO);
-            }
-            if(videoCheckBox.isSelected()) {
-                categories.add(Category.VIDEO);
-            }
-            if(imageCheckBox.isSelected()) {
-                categories.add(Category.IMAGE);
-            }
-            if(docCheckBox.isSelected()) {
-                categories.add(Category.DOCUMENT);
-            }
-            if(programCheckBox.isSelected()) {
-                categories.add(Category.PROGRAM);
-            }
-            if(otherCheckBox.isSelected()) {
-                categories.add(Category.OTHER);
-            }
-            return categories;
+            return checkBoxes.getSelected();
         }
 
         @Override
         boolean hasChanged() {
             LibraryManagerModel model = treeTable.getLibraryModel();
-            Collection<File> manage = model.getManagedDirectories();
-            Collection<File> exclude = model.getExcludedDirectories();
+            Collection<File> manage = model.getRootChildrenAsFiles();
+            Collection<File> exclude = model.getAllExcludedSubfolders();
             Collection<Category> categories = getManagedCategories();
             return !manage.equals(libraryData.getDirectoriesToManageRecursively())
                 || !exclude.equals(libraryData.getDirectoriesToExcludeFromManaging())
@@ -277,21 +271,18 @@ public class LibraryOptionPanel extends OptionPanel {
 
         @Override
         public void initOptions() {
-            RootLibraryManagerItem root = new RootLibraryManagerItem();
+            RootLibraryManagerItem root = new RootLibraryManagerItem(AutoDirectoryManageConfig.getDefaultManagedDirectories(libraryData));
             for(File file : libraryData.getDirectoriesToManageRecursively()) {
-                root.addChild(new LibraryManagerItemImpl(root, libraryData, file, true, true));
+                root.addChild(new LibraryManagerItemImpl(root, libraryData, file, false));
             }
 
             treeTable.setTreeTableModel(new LibraryManagerModel(root));
             
             Collection<Category> categories = libraryData.getManagedCategories();
-            audioCheckBox.setSelected(categories.contains(Category.AUDIO));
-            videoCheckBox.setSelected(categories.contains(Category.VIDEO));
-            docCheckBox.setSelected(categories.contains(Category.DOCUMENT));
-            imageCheckBox.setSelected(categories.contains(Category.IMAGE));
-            programCheckBox.setSelected(categories.contains(Category.PROGRAM));
+            checkBoxes.setSelected(categories);
+            
             programCheckBox.setEnabled(libraryData.isProgramManagingAllowed());
-            otherCheckBox.setSelected(categories.contains(Category.OTHER));
+            
         }
         
         private class AddDirectoryAction extends AbstractAction {
@@ -315,16 +306,79 @@ public class LibraryOptionPanel extends OptionPanel {
                         treeTable.addDirectory(folder);
                     } else {
                     FocusJOptionPane.showMessageDialog(LibraryManagerOptionPanel.this,
-                            I18n.tr("You selected: {0}\n\nLimeWire cannot share " +
+                            I18n.tr("You selected: {0}\n\nLimeWire cannot manage " +
                                     "this folder because it is either not a folder " +
                                     "or cannot be read.\n\nPlease select another " +
-                                    "folder to share.", folder),
+                                    "folder to manage.", folder),
                             I18n.tr("Library Manager Error"),
                             JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
         }    
+    }
+    
+    /**
+     * The manual import panel
+     */
+    public class ManualImportPanel extends OptionPanel {
+
+        private final Collection<File> initialList;
+        private final LibraryData libraryData;       
+        private LibraryManagerTreeTable treeTable;
+        
+        public ManualImportPanel(LibraryData libraryData) {
+            this.libraryData = libraryData;
+            this.initialList = new HashSet<File>();
+            
+            treeTable = new LibraryManagerTreeTable(iconManager, libraryData);
+            treeTable.setShowsRootHandles(false);
+            treeTable.putClientProperty("JTree.lineStyle", "None");
+            
+            setLayout(new MigLayout("insets 0, gap 0, fill"));
+            
+            setOpaque(false);
+            
+            add(Line.createHorizontalLine(), "growx, gapbottom 4, wrap");
+            add(new JLabel(I18n.tr("At some point, you manually imported files from some folders into My Library.")), "gapbottom 5, split");
+            add(new JButton(new AbstractAction(I18n.tr("View Folders...")) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JScrollPane scroller = new JScrollPane(treeTable);
+                    scroller.setPreferredSize(new Dimension(500, 300));
+                    FocusJOptionPane.showMessageDialog(ManualImportPanel.this,
+                            scroller, I18n.tr("Manage Folders"), JOptionPane.PLAIN_MESSAGE);
+                }
+            }), "alignx left, gapafter push");
+            
+            
+        }
+
+        @Override
+        public boolean applyOptions() {
+            Collection<File> current = new HashSet<File>(initialList);
+            current.removeAll(treeTable.getLibraryModel().getRootChildrenAsFiles());
+            libraryData.removeFolders(current);
+            return false;
+        }
+
+        @Override
+        boolean hasChanged() {
+            return !initialList.equals(treeTable.getLibraryModel().getRootChildrenAsFiles());
+        }
+
+        @Override
+        public void initOptions() {
+            initialList.clear();
+            RootLibraryManagerItem root = new RootLibraryManagerItem(AutoDirectoryManageConfig.getDefaultManagedDirectories(libraryData));
+            for(File file : libraryData.getDirectoriesWithImportedFiles()) {
+                initialList.add(file);
+                root.addChild(new NoChildrenLibraryManagerItem(root, file));
+            }
+
+            treeTable.setTreeTableModel(new LibraryManagerModel(root));
+            setVisible(!initialList.isEmpty());
+        }
     }
 
 }

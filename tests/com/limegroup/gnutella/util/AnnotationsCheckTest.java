@@ -12,7 +12,8 @@ import org.limewire.util.BaseTestCase;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.limegroup.gnutella.gui.LimeWireModule;
+import com.limegroup.gnutella.ActivityCallbackAdapter;
+import com.limegroup.gnutella.LimeWireCoreModule;
 
 public class AnnotationsCheckTest extends BaseTestCase {
 
@@ -30,7 +31,7 @@ public class AnnotationsCheckTest extends BaseTestCase {
         
         StringTokenizer st = new StringTokenizer(classPath, System.getProperty("path.separator"));
 
-        Injector injector = Guice.createInjector(new LimeWireModule()); 
+        Injector injector = Guice.createInjector(new LimeWireCoreModule(ActivityCallbackAdapter.class)); 
         Map<String, String> results = new HashMap<String, String>();
         while (st.hasMoreTokens()) {
             String next = st.nextToken();

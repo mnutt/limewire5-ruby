@@ -7,8 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.GradientPaint;
 import java.awt.Insets;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -39,14 +38,20 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.html.FormSubmitEvent;
 import javax.swing.text.html.HTMLEditorKit;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.JXHyperlink;
+import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.painter.RectanglePainter;
 import org.limewire.concurrent.FutureEvent;
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.download.DownloadAction;
@@ -100,6 +105,7 @@ import com.google.inject.name.Named;
  *
  */
 public class ConversationPane extends JPanel implements Displayable {
+    private static final int PADDING = 5;
     private static final Log LOG = LogFactory.getLog(ConversationPane.class);
     private static final Color DEFAULT_BACKGROUND = new Color(224, 224, 224);
     private static final Color BACKGROUND_COLOR = Color.WHITE;
@@ -117,24 +123,27 @@ public class ConversationPane extends JPanel implements Displayable {
     private final ShareListManager shareListManager;
     private final IconManager iconManager;
     private final LibraryNavigator libraryNavigator;
-    private JXButton downloadButton;
+    private JXHyperlink downloadlink;
+    private JXHyperlink sharelink;
     private ResizingInputPanel inputPanel;
     private ChatState currentChatState;
     private final ResultDownloader downloader;
     private final RemoteFileItemFactory remoteFileItemFactory;
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
-    @Resource(key="ChatConversation.buttonBarColor") private Color buttonBarColor;
-    @Resource(key="ChatConversation.buttonFont") private Font buttonFont;
-    private JButton shareButton;
+    @Resource(key="ChatConversation.toolbarTopColor") private Color toolbarTopColor;
+    @Resource(key="ChatConversation.toolbarBottomColor") private Color toolbarBottomColor;
+    @Resource(key="ChatConversation.toolbarBorderColor") private Color toolbarBorderColor;
+    @Resource(key="ChatConversation.linkFont") private Font linkFont;
+    @Resource(key="ChatConversation.linkColor") private Color linkColor;
     private JScrollPane conversationScroll;
     
     @AssistedInject
-    public ConversationPane(@Assisted MessageWriter writer, @Assisted ChatFriend chatFriend, @Assisted String loggedInID,
+    public ConversationPane(@Assisted MessageWriter writer, final @Assisted ChatFriend chatFriend, @Assisted String loggedInID,
                             ShareListManager libraryManager, IconManager iconManager, LibraryNavigator libraryNavigator,
                             ResultDownloader downloader, RemoteFileItemFactory remoteFileItemFactory,
                             @Named("available") ListenerSupport<FriendEvent> friendSupport,
                             SaveLocationExceptionHandler saveLocationExceptionHandler,
-                            ListenerSupport<FeatureEvent> featureSupport) {
+                            ListenerSupport<FeatureEvent> featureSupport, IconLibrary iconLibrary) {
         this.writer = writer;
         this.chatFriend = chatFriend;
         this.remoteFileItemFactory = remoteFileItemFactory;
@@ -161,16 +170,25 @@ public class ConversationPane extends JPanel implements Displayable {
         conversationScroll = new JScrollPane(editor, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         conversationScroll.setOpaque(false);
         conversationScroll.setBorder(BorderFactory.createEmptyBorder());
+        JButton closeConversation = new JButton(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new CloseChatEvent(chatFriend).publish();
+            }
+        });
+        closeConversation.setIcon(iconLibrary.getEndChat());
+        closeConversation.setBorderPainted(false);
+        closeConversation.setContentAreaFilled(false);
+        closeConversation.setFocusPainted(false);
+        JPanel closeConversationButtonPanel = new JPanel(new BorderLayout());
+        closeConversationButtonPanel.setOpaque(false);
+        closeConversationButtonPanel.add(closeConversation, BorderLayout.EAST);
+        conversationScroll.setColumnHeaderView(closeConversationButtonPanel);
+        editor.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
         
-        //Needed to add margin to the left side of the scrolling chat pane
-        JPanel chatWrapper = new JPanel(new GridBagLayout());
+        JPanel chatWrapper = new JPanel(new BorderLayout());
         chatWrapper.setBackground(BACKGROUND_COLOR);
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(0, 8, 0, 0);
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        constraints.fill = GridBagConstraints.BOTH;
-        chatWrapper.add(conversationScroll,constraints);
+        chatWrapper.add(conversationScroll);
 
         add(chatWrapper, BorderLayout.CENTER);
 
@@ -253,9 +271,9 @@ public class ConversationPane extends JPanel implements Displayable {
 
         if (feature.getID().equals(LimewireFeature.ID)) {
             if (featureEventType == FeatureEvent.Type.ADDED) {
-                downloadButton.setEnabled(true);
+                downloadlink.setEnabled(true);
             } else if (featureEventType == FeatureEvent.Type.REMOVED) {
-                downloadButton.setEnabled(false);
+                downloadlink.setEnabled(false);
             }
         }
     }
@@ -298,7 +316,7 @@ public class ConversationPane extends JPanel implements Displayable {
         //queue because the actual repainting/resizing of the scrollbar happens later in a 
         //task added to the EDT by the plaf listener of the editor's document.
         //A better fix for this behavior may be possible
-        if (verticalScrollBar.getMaximum() > (verticalScrollBar.getValue() + verticalScrollBar.getVisibleAmount())) {
+        if (verticalScrollBar.getMaximum() > (scrollValue + verticalScrollBar.getVisibleAmount() + PADDING)) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
@@ -345,16 +363,28 @@ public class ConversationPane extends JPanel implements Displayable {
     private JPanel footerPanel(MessageWriter writer, ChatFriend chatFriend) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BACKGROUND_COLOR);
-        downloadButton = new JXButton(new DownloadFromFriendLibraryAction());
-        downloadButton.setFont(buttonFont);
-        JPanel buttonBar = new JPanel(new BorderLayout());
-        buttonBar.setBackground(buttonBarColor);
-        buttonBar.add(downloadButton, BorderLayout.WEST);
-        shareButton = new JXButton(new ShareAction());
-        shareButton.setFont(buttonFont);
-        buttonBar.add(shareButton, BorderLayout.EAST);
+        downloadlink = new JXHyperlink(new DownloadFromFriendLibraryAction());
+        downloadlink.setFont(linkFont);
+        downloadlink.setForeground(linkColor);
+        JXPanel toolbar = new JXPanel(new MigLayout("insets 0", "push[]10[]5", "0[22px]0"));
+        Border insideBorder = BorderFactory.createEmptyBorder(0, -1, 0, -1);
+        Border outsideBorder = BorderFactory.createLineBorder(toolbarBorderColor, 1);
+        toolbar.setBorder(new CompoundBorder(insideBorder, outsideBorder));
+        RectanglePainter painter = new RectanglePainter();
+        painter.setBorderPaint(toolbarBorderColor);
+        painter.setBorderWidth(0.0f);
+        painter.setInsets(new Insets(0, 0, 0, 0));
+        painter.setFillPaint(new GradientPaint(50.0f, 0.0f, toolbarTopColor, 50.0f, 11.0f, toolbarBottomColor));
+        toolbar.setBackgroundPainter(painter);
+        toolbar.setPaintBorderInsets(true);
+        toolbar.add(downloadlink);
+        sharelink = new JXHyperlink(new ShareAction());
+        sharelink.setFont(linkFont);
+        sharelink.setForeground(linkColor);
+        toolbar.add(sharelink);
         inputPanel = new ResizingInputPanel(writer);
-        panel.add(buttonBar, BorderLayout.NORTH);
+        inputPanel.setBorder(BorderFactory.createEmptyBorder());
+        panel.add(toolbar, BorderLayout.NORTH);
         panel.add(inputPanel, BorderLayout.CENTER);
 
         JTextComponent inputComponent = inputPanel.getInputComponent();
@@ -373,7 +403,7 @@ public class ConversationPane extends JPanel implements Displayable {
 
     private class DownloadFromFriendLibraryAction extends AbstractAction {
         public DownloadFromFriendLibraryAction() {
-            super(tr("View Files"));
+            super(tr("<html><u>{0}</u></html>", "View Files"));
         }
 
         @Override
@@ -384,7 +414,7 @@ public class ConversationPane extends JPanel implements Displayable {
 
     private class ShareAction extends AbstractAction {
         public ShareAction() {
-            super(tr("Share"));
+            super(tr("<html><u>{0}</u></html>", "Share"));
         }
         
         @Override
@@ -444,7 +474,7 @@ public class ConversationPane extends JPanel implements Displayable {
             } else if (EventType.ACTIVATED == e.getEventType()) {
                 if (ChatDocumentBuilder.LIBRARY_LINK.equals(e.getDescription())) {
                     LOG.debugf("Opening a view to {0}'s library", chatFriend.getName());
-                    //TODO: Open the view for this friends' library
+                    libraryNavigator.selectFriendLibrary(chatFriend.getFriend());
 
                 } else {
                     String linkDescription = e.getDescription();

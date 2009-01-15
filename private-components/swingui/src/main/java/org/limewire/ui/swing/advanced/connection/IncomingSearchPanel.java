@@ -15,9 +15,9 @@ import javax.swing.ListModel;
 
 import org.limewire.core.api.monitor.IncomingSearchManager;
 import org.limewire.core.api.search.SearchCategory;
-import org.limewire.core.settings.SearchSettings;
 import org.limewire.ui.swing.search.DefaultSearchInfo;
 import org.limewire.ui.swing.search.SearchHandler;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
@@ -121,7 +121,7 @@ public class IncomingSearchPanel extends JPanel {
     private void doSearch(String text) {
         // Get default search category.
         SearchCategory defaultCategory = SearchCategory.forId(
-                SearchSettings.DEFAULT_SEARCH_CATEGORY_ID.getValue());
+                SwingUiSettings.DEFAULT_SEARCH_CATEGORY_ID.getValue());
         
         // Perform search using input text.
         searchHandler.doSearch(DefaultSearchInfo.createKeywordSearch(text, defaultCategory));

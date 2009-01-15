@@ -1,11 +1,17 @@
 package org.limewire.net.address;
 
 import org.limewire.io.Address;
+import org.limewire.io.AddressConnectingLoggingCategory;
 
 /**
  * Defines the requirements for an entity that can resolve addresses to other addresses.
  */
 public interface AddressResolver {
+
+    /**
+     * Logging category name for AddressResolver's to use
+     */
+    public static final String LOGGING_CATEGORY = AddressConnectingLoggingCategory.CATEGORY;
 
     /**
      * Returns true if it can resolve the given address. This means it should

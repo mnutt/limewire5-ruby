@@ -1,9 +1,14 @@
 package org.limewire.ui.swing.options;
 
+import static org.limewire.ui.swing.util.I18n.tr;
+
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Locale;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -12,18 +17,18 @@ import javax.swing.JList;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.limewire.core.settings.UISettings;
-import org.limewire.core.settings.XMPPSettings;
+import net.miginfocom.swing.MigLayout;
+
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.friends.settings.XMPPAccountConfiguration;
 import org.limewire.ui.swing.friends.settings.XMPPAccountConfigurationManager;
-import static org.limewire.ui.swing.util.I18n.tr;
+import org.limewire.ui.swing.settings.SwingUiSettings;
+import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.LanguageUtils;
 import org.limewire.ui.swing.util.SwingUtils;
 
 import com.google.inject.Inject;
-
-import net.miginfocom.swing.MigLayout;
 
 /**
  * Misc Option View
@@ -34,6 +39,12 @@ public class MiscOptionPanel extends OptionPanel {
 
     private NotificationsPanel notificationsPanel;
     private FriendsChatPanel friendsChatPanel;
+    
+    //Language components, does not exist in its own subcomponent
+    private Font font = new Font("Arial", Font.PLAIN, 12);
+    private Locale currentLanguage;
+    private JLabel comboLabel;
+    private JComboBox languageDropDown;
 
     @Inject
     public MiscOptionPanel(XMPPAccountConfigurationManager accountManager) {
@@ -41,6 +52,13 @@ public class MiscOptionPanel extends OptionPanel {
 
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
 
+        comboLabel = new JLabel(I18n.tr("Language:"));
+        languageDropDown = new JComboBox();
+        createLanguageComboBox();
+        
+        add(comboLabel, "split, gapbottom 5");
+        add(languageDropDown, "gapbottom 5, wrap");
+        
         add(getNotificationsPanel(), "pushx, growx");
         add(getFriendChatPanel(), "pushx, growx");
     }
@@ -58,23 +76,46 @@ public class MiscOptionPanel extends OptionPanel {
         }
         return friendsChatPanel;
     }
+    
+    private void createLanguageComboBox() {
+        languageDropDown.setRenderer(new LocaleRenderer());
+        languageDropDown.setFont(font);
+        
+        Locale[] locales = LanguageUtils.getLocales(font);
+        languageDropDown.setModel(new DefaultComboBoxModel(locales));
+    }
 
     @Override
     boolean applyOptions() {
+        Locale selectedLocale = (Locale) languageDropDown.getSelectedItem();
+        
         boolean restart = getNotificationsPanel().applyOptions();
         restart |= getFriendChatPanel().applyOptions();
+        
+        // if the language changed, always notify about a required restart
+        if(!selectedLocale.equals(currentLanguage)) {
+            currentLanguage = selectedLocale;
+            LanguageUtils.setLocale(selectedLocale);
+            restart = true;
+        }
         return restart;
     }
 
     @Override
     boolean hasChanged() {
-        return getNotificationsPanel().hasChanged() || getFriendChatPanel().hasChanged();
+        Locale selectedLocale = (Locale) languageDropDown.getSelectedItem();
+        
+        return getNotificationsPanel().hasChanged() || getFriendChatPanel().hasChanged() ||
+                selectedLocale != currentLanguage;
     }
 
     @Override
     public void initOptions() {
         getNotificationsPanel().initOptions();
         getFriendChatPanel().initOptions();
+        
+        currentLanguage = LanguageUtils.getCurrentLocale();
+        languageDropDown.setSelectedItem(currentLanguage);
     }
 
     private class NotificationsPanel extends OptionPanel {
@@ -96,21 +137,21 @@ public class MiscOptionPanel extends OptionPanel {
 
         @Override
         boolean applyOptions() {
-            UISettings.SHOW_NOTIFICATIONS.setValue(showNotificationsCheckBox.isSelected());
-            UISettings.PLAY_NOTIFICATION_SOUND.setValue(playNotificationsCheckBox.isSelected());
+            SwingUiSettings.SHOW_NOTIFICATIONS.setValue(showNotificationsCheckBox.isSelected());
+            SwingUiSettings.PLAY_NOTIFICATION_SOUND.setValue(playNotificationsCheckBox.isSelected());
             return false;
         }
 
         @Override
         boolean hasChanged() {
-            return showNotificationsCheckBox.isSelected() != UISettings.SHOW_NOTIFICATIONS.getValue() ||
-            playNotificationsCheckBox.isSelected() != UISettings.PLAY_NOTIFICATION_SOUND.getValue(); 
+            return showNotificationsCheckBox.isSelected() != SwingUiSettings.SHOW_NOTIFICATIONS.getValue() ||
+            playNotificationsCheckBox.isSelected() != SwingUiSettings.PLAY_NOTIFICATION_SOUND.getValue(); 
         }
 
         @Override
         public void initOptions() {
-            playNotificationsCheckBox.setSelected(UISettings.PLAY_NOTIFICATION_SOUND.getValue());
-            showNotificationsCheckBox.setSelected(UISettings.SHOW_NOTIFICATIONS.getValue());
+            playNotificationsCheckBox.setSelected(SwingUiSettings.PLAY_NOTIFICATION_SOUND.getValue());
+            showNotificationsCheckBox.setSelected(SwingUiSettings.SHOW_NOTIFICATIONS.getValue());
         }
     }
 
@@ -126,7 +167,7 @@ public class MiscOptionPanel extends OptionPanel {
         public FriendsChatPanel() {
             super(tr("Friends and Chat"));
             
-            XMPPSettings.XMPP_AUTO_LOGIN.addSettingListener(this);
+            SwingUiSettings.XMPP_AUTO_LOGIN.addSettingListener(this);
 
             autoLoginCheckBox = new JCheckBox(tr("Sign into Friends when LimeWire starts"));            
             autoLoginCheckBox.setContentAreaFilled(false);
@@ -290,6 +331,21 @@ public class MiscOptionPanel extends OptionPanel {
             } else {
                 setIcon(null);
             }
+            return this;
+        }
+    }
+    
+    private static class LocaleRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean hasFocus) {
+            super.getListCellRendererComponent(list, value, index, isSelected, hasFocus);
+            
+            if (value instanceof Locale) {
+                Locale locale = (Locale) value;
+                setText(locale.getDisplayName(locale));
+            } else {
+                setIcon(null);
+            }
+            
             return this;
         }
     }

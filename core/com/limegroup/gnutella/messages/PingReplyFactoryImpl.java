@@ -94,7 +94,21 @@ public class PingReplyFactoryImpl implements PingReplyFactory {
         return create(guid, ttl, addr, IpPort.EMPTY_LIST, IpPort.EMPTY_LIST);
     }
 
-    public PingReply create(byte[] guid, byte ttl, IpPort returnAddr,
+    @Override
+    public PingReply create(byte[] guid, byte ttl, int localPort, byte[] localIp, IpPort addr) {
+        return create(guid, ttl, localPort, localIp, addr, IpPort.EMPTY_LIST, IpPort.EMPTY_LIST);
+    }
+
+    @Override
+    public PingReply create(byte[] guid, byte ttl,
+                            IpPort returnAddr,
+                            Collection<? extends IpPort> gnutHosts,
+                            Collection<? extends IpPort> dhtHosts) {
+        return create(guid, ttl, networkManager.getPort(), networkManager.getAddress(), returnAddr, gnutHosts, dhtHosts);
+    }
+
+    public PingReply create(byte[] guid, byte ttl, int localPort, byte[] localIP,
+            IpPort returnAddr,
             Collection<? extends IpPort> gnutHosts,
             Collection<? extends IpPort> dhtHosts) {
         GGEP ggep = newGGEP(statistics.get().calculateDailyUptime(),
@@ -111,8 +125,7 @@ public class PingReplyFactoryImpl implements PingReplyFactory {
 
         addPackedHosts(ggep, gnutHosts, dhtHosts);
 
-        return create(guid, ttl, networkManager.getPort(), networkManager
-                .getAddress(), localPongInfo.getNumSharedFiles(), localPongInfo
+        return create(guid, ttl, localPort, localIP, localPongInfo.getNumSharedFiles(), localPongInfo
                 .getSharedFileSize() / 1024, localPongInfo.isSupernode(), ggep);
     }
 

@@ -29,6 +29,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTable;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.ui.swing.table.AbstractTableFormat;
+import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -74,7 +75,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
         buttonGroup.add(meChooseRadioButton);
         
         eventList = GlazedLists.threadSafeList(new BasicEventList<NetworkItem>());
-        table = new NetworkTable(new EventTableModel<NetworkItem>(eventList, new NetworkTableFormat()));
+        table = new NetworkTable(GlazedListsSwingFactory.eventTableModel(eventList, new NetworkTableFormat()));
         scrollPane = new JScrollPane(table);
         scrollPane.setVisible(false);
         

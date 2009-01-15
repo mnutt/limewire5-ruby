@@ -11,7 +11,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TooManyListenersException;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -28,13 +30,20 @@ import org.jdesktop.application.Resource;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.URN;
+import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LibraryFileList;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.core.settings.LibrarySettings;
+import org.limewire.listener.EventListener;
+import org.limewire.listener.ListenerSupport;
+import org.limewire.listener.SwingEDTEvent;
 import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.components.HyperLinkButton;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
-import org.limewire.ui.swing.dnd.LocalFileListTransferHandler;
+import org.limewire.ui.swing.dnd.GhostDragGlassPane;
+import org.limewire.ui.swing.dnd.GhostDropTargetListener;
+import org.limewire.ui.swing.dnd.MyLibraryTransferHandler;
 import org.limewire.ui.swing.library.image.LibraryImagePanel;
 import org.limewire.ui.swing.library.sharing.ShareWidget;
 import org.limewire.ui.swing.library.sharing.ShareWidgetFactory;
@@ -46,11 +55,11 @@ import org.limewire.ui.swing.player.PlayerPanel;
 import org.limewire.ui.swing.player.PlayerUtils;
 import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.util.CategoryIconManager;
-import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
+import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
@@ -67,10 +76,11 @@ public class MyLibraryPanel extends LibraryPanel {
     private final CategoryIconManager categoryIconManager;
     private final PlayerPanel playerPanel;
     private final LibraryManager libraryManager;
-    private final Map<Category, LibraryOperable> selectableMap;
-    private ShareWidgetFactory shareFactory;
-    
+    private final Map<Category, LibraryOperable<LocalFileItem>> selectableMap;
+    private final ShareWidgetFactory shareFactory;    
+   
     private ShareWidget<Category> categoryShareWidget = null;
+    private ShareWidget<LocalFileItem[]> multiShareWidget = null;
     
     @Inject
     public MyLibraryPanel(LibraryManager libraryManager,
@@ -79,7 +89,9 @@ public class MyLibraryPanel extends LibraryPanel {
                           CategoryIconManager categoryIconManager,
                           ShareWidgetFactory shareFactory,
                           LimeHeaderBarFactory headerBarFactory,
-                          PlayerPanel player) {
+                          PlayerPanel player, 
+                          GhostDragGlassPane ghostPane,
+                          ListenerSupport<XMPPConnectionEvent> connectionListeners) {
         
         super(headerBarFactory);
         
@@ -90,23 +102,48 @@ public class MyLibraryPanel extends LibraryPanel {
         this.categoryIconManager = categoryIconManager;    
         this.shareFactory = shareFactory;
         this.playerPanel = player;
-        this.selectableMap = new EnumMap<Category, LibraryOperable>(Category.class);
+        this.selectableMap = new EnumMap<Category, LibraryOperable<LocalFileItem>>(Category.class);
 
         if (selectionPanelBackgroundOverride != null) { 
-            selectionPanel.setBackground(selectionPanelBackgroundOverride);
+            getSelectionPanel().setBackground(selectionPanelBackgroundOverride);
         }
 
         getHeaderPanel().setText(I18n.tr("My Library"));
         
         categoryShareWidget = shareFactory.createCategoryShareWidget();
+        multiShareWidget = shareFactory.createMultiFileShareWidget();
         createMyCategories(libraryManager.getLibraryManagedList());
-        selectFirst();
+        selectFirstVisible();
         
         addHeaderComponent(playerPanel, "cell 0 0, grow");
         playerPanel.setMaximumSize(new Dimension(999,999));
         playerPanel.setPreferredSize(new Dimension(999,999));
-        setTransferHandler(new LocalFileListTransferHandler(libraryManager.getLibraryManagedList()));
+
         
+        setTransferHandler(new MyLibraryTransferHandler(null, libraryManager.getLibraryManagedList()));
+        try {
+            getDropTarget().addDropTargetListener(new GhostDropTargetListener(this,ghostPane));
+        } catch (TooManyListenersException ignoreException) {            
+        }      
+        
+        connectionListeners.addListener(new EventListener<XMPPConnectionEvent>() {
+            @Override
+            @SwingEDTEvent
+            public void handleEvent(XMPPConnectionEvent event) {
+                switch(event.getType()) {
+                case CONNECT_FAILED: break;
+                case DISCONNECTED:
+                    if(isVisible())
+                        repaint();
+                    break;
+                case CONNECTING: break;
+                case CONNECTED:
+                    if(isVisible())
+                        repaint();
+                    break;
+                }
+            }
+        });
     }
     
     private void createMyCategories(LibraryFileList libraryFileList) {
@@ -157,8 +194,8 @@ public class MyLibraryPanel extends LibraryPanel {
     }
     
     @Override
-    protected JComponent createCategoryButton(Action action, Category category) {
-        MySelectionPanel component = new MySelectionPanel(action, new ShareAllAction(category), category, this);
+    protected <T extends FileItem> JComponent createCategoryButton(Action action, Category category, FilterList<T> filteredAllFileList) {
+        MySelectionPanel component = new MySelectionPanel(action, new ShareCategoryAction(category), category, this);
         addNavigation(component.getButton());
         return component;
     }
@@ -173,6 +210,7 @@ public class MyLibraryPanel extends LibraryPanel {
         super.dispose();
         
         categoryShareWidget.dispose();
+        multiShareWidget.dispose();
     }
     
     private static class MyLibraryDoubleClickHandler implements TableDoubleClickHandler{
@@ -205,11 +243,11 @@ public class MyLibraryPanel extends LibraryPanel {
     /**
      * Display the Share Collection widget when pressed
      */
-    private class ShareAllAction extends AbstractAction {
+    private class ShareCategoryAction extends AbstractAction {
 
         private Category category;
         
-        public ShareAllAction(Category category) {
+        public ShareCategoryAction(Category category) {
             this.category = category;
             
             putValue(Action.NAME, I18n.tr("share"));
@@ -218,8 +256,19 @@ public class MyLibraryPanel extends LibraryPanel {
         
         @Override
         public void actionPerformed(ActionEvent e) {
-          categoryShareWidget.setShareable(category);
-          categoryShareWidget.show((JComponent)e.getSource());
+            if(LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue()) {
+                SelectAllable<LocalFileItem> selectAllable = selectableMap.get(category);
+                selectAllable.selectAll();
+                List<LocalFileItem> selectedItems = selectAllable.getSelectedItems();
+                //TODO this is a temporary fix for LWC-2490.  A real fix depends on LWC-2494.
+                if (selectedItems.size() > 0) {
+                    multiShareWidget.setShareable(selectedItems.toArray(new LocalFileItem[selectedItems.size()]));
+                    multiShareWidget.show(null);
+                }
+            } else {
+                categoryShareWidget.setShareable(category);
+                categoryShareWidget.show((JComponent)e.getSource());
+            }
         }
     }
     
@@ -233,7 +282,7 @@ public class MyLibraryPanel extends LibraryPanel {
         @Resource Color shareMouseOverColor;
         
         private JButton button;
-        private HyperLinkButton shareButton;
+        private HyperlinkButton shareButton;
         private LibraryPanel libraryPanel;
         
         public MySelectionPanel(Action action, Action shareAction, Category category, LibraryPanel panel) {
@@ -276,7 +325,7 @@ public class MyLibraryPanel extends LibraryPanel {
                         //select first category if this category is hidden
                         if(value == false && button.getAction().getValue(Action.SELECTED_KEY) != null && 
                                 button.getAction().getValue(Action.SELECTED_KEY).equals(Boolean.TRUE)) {
-                            libraryPanel.selectFirst();
+                            libraryPanel.selectFirstVisible();
                         }
                     }
                 }
@@ -287,17 +336,12 @@ public class MyLibraryPanel extends LibraryPanel {
             
             // only add a share category button if its an audio/video/image category
             if(category == Category.AUDIO || category == Category.VIDEO || category == Category.IMAGE) {
-                shareButton = new HyperLinkButton(null, shareAction);
-                shareButton.setContentAreaFilled(false);
-                shareButton.setBorderPainted(false);
-                shareButton.setFocusPainted(false);
+                shareButton = new HyperlinkButton(shareAction);
                 shareButton.setBorder(BorderFactory.createEmptyBorder(2,0,2,4));
-                shareButton.setOpaque(false);
                 shareButton.setVisible(false);
-                FontUtils.underline(shareButton);
                 shareButton.setFont(shareButtonFont);
                 shareButton.setForeground(shareForegroundColor);
-                shareButton.setMouseOverColor(shareMouseOverColor);
+                shareButton.setRolloverForeground(shareMouseOverColor);
                 add(shareButton, "wrap");
             }
         }

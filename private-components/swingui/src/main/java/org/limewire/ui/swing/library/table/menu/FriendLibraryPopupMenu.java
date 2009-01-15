@@ -107,13 +107,12 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
         public void actionPerformed(ActionEvent e) {
             //TODO - Is this correct? Only to show props for first one?
             RemoteFileItem propertiable = fileItems.get(0);
-            for(DownloadItem item : downloadListManager.getDownloads()) {
-                if (item.getUrn().equals(propertiable.getUrn())) {
-                    downloadItemPropertiesFactory.newProperties().showProperties(item);
-                    return;
-                }
+            DownloadItem item = downloadListManager.getDownloadItem(propertiable.getUrn());
+            if(item != null) {
+                downloadItemPropertiesFactory.newProperties().showProperties(item);
+            } else {
+                remoteItemPropertiesFactory.newProperties().showProperties(propertiable);
             }
-            remoteItemPropertiesFactory.newProperties().showProperties(propertiable);
         }
     };
     

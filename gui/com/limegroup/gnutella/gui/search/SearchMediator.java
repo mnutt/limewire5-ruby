@@ -438,7 +438,7 @@ public final class SearchMediator {
 
 
     private static final boolean isPromotionalResultsDisabled() {
-        return LimeWireUtils.isPro() && SearchSettings.DISABLE_PROMOTIONAL_RESULTS.getValue();
+        return LimeWireUtils.isPro(); // && SearchSettings.DISABLE_PROMOTIONAL_RESULTS.getValue();
     }
 
     

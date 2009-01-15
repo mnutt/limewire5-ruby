@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import org.limewire.collection.MultiIterable;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.download.SaveLocationException.LocationCode;
 import org.limewire.core.settings.DownloadSettings;
+import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.UpdateSettings;
 import org.limewire.i18n.I18nMarker;
 import org.limewire.io.Address;
@@ -268,12 +270,30 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             }
         }
         
+        loadResumeDownloaders();
+        
         downloadsReadFromDisk = true;
         
-        if(failedAll)
-            MessageService.showError(I18nMarker.marktr("Sorry, LimeWire couldn't read your old downloads.  You can restart them by going to your Library, viewing your 'Incomplete Files', and clicking to 'Resume' your downloads."));
-        else if(failedSome)
-            MessageService.showError(I18nMarker.marktr("Sorry, LimeWire couldn't read some of your old downloads.  You can restart them by going to your Library, viewing your 'Incomplete Files', and clicking to 'Resume' your downloads."));
+        if(failedAll) {
+            MessageService.showError(I18nMarker.marktr("Sorry, LimeWire couldn't read your old downloads.  You can restart them by clicking 'Try Again' on the downloads.  When LimeWire finds a source for the file, the download will pick up where it left off."));
+        } else if(failedSome) {
+            MessageService.showError(I18nMarker.marktr("Sorry, LimeWire couldn't read some of your old downloads.  You can restart them by clicking 'Try Again' on the downloads.  When LimeWire finds a source for the file, the download will pick up where it left off."));
+        }
+    }
+    
+    private void loadResumeDownloaders() {
+        Collection<File> incompleteFiles = 
+            incompleteFileManager.getUnregisteredIncompleteFilesInDirectory(
+                    SharingSettings.INCOMPLETE_DIRECTORY.getValue());
+        for(File file : incompleteFiles) {
+            try {
+                download(file);
+            } catch (SaveLocationException e) {
+                LOG.error("SLE loading incomplete file", e);
+            } catch (CantResumeException e) {
+                LOG.error("CRE loading incomplete file", e);
+            }
+        }
     }
     
     public CoreDownloader prepareMemento(DownloadMemento memento) {
@@ -584,6 +604,8 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
 
         String fName = getFileName(files, fileName);
         if (conflicts(files, new File(saveDir,fName))) {
+            addRemoteFileDescsToDownloader(files);
+            
             throw new SaveLocationException
             (LocationCode.FILE_ALREADY_DOWNLOADING,
                     new File(fName != null ? fName : ""));
@@ -609,6 +631,29 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
         downloader.addDownload(alts,false);
         
         return downloader;
+    }
+
+    /**
+     * Adds the provided file descs to the first downloader in the list that
+     * matches up with it.
+     */
+    private void addRemoteFileDescsToDownloader(RemoteFileDesc[] files) {
+        List<CoreDownloader> downloaders = new ArrayList<CoreDownloader>(active.size() + waiting.size());
+        synchronized (this) { 
+            // add to all downloaders, even if they are waiting....
+            downloaders.addAll(active);
+            downloaders.addAll(waiting);
+        }
+        
+        for(CoreDownloader downloader : downloaders) {
+            if(downloader instanceof ManagedDownloader) {
+                ManagedDownloader managedDownloader = (ManagedDownloader) downloader;
+                if(managedDownloader.addDownload(Arrays.asList(files), true)) {
+                    //only add fileDescs to 1 downloader
+                    break;
+                }
+            }
+        }
     }
     
     /* (non-Javadoc)
@@ -730,9 +775,9 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
                                               name,
                                               size);
         } catch (IllegalArgumentException e) {
-            throw new CantResumeException(incompleteFile.getName());
+            throw new CantResumeException(e, incompleteFile.getName());
         } catch (IOException ioe) {
-            throw new CantResumeException(incompleteFile.getName());
+            throw new CantResumeException(ioe, incompleteFile.getName());
         }
         
         initializeDownload(downloader, true);

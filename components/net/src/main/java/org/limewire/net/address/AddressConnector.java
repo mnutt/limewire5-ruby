@@ -1,6 +1,7 @@
 package org.limewire.net.address;
 
 import org.limewire.io.Address;
+import org.limewire.io.AddressConnectingLoggingCategory;
 import org.limewire.nio.observer.ConnectObserver;
 
 /**
@@ -12,6 +13,11 @@ import org.limewire.nio.observer.ConnectObserver;
  * which they can have injected.
  */
 public interface AddressConnector {
+    
+    /**
+     * Logging category name for AddressConnector's to use
+     */
+    public static final String LOGGING_CATEGORY = AddressConnectingLoggingCategory.CATEGORY;
 
     /**
      * Returns true if it can connect to the given type of address. This must

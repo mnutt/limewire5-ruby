@@ -7,7 +7,12 @@ import javax.swing.JPanel;
 
 import org.limewire.core.api.Application;
 import org.limewire.ui.swing.browser.Browser;
+import org.limewire.ui.swing.browser.BrowserUtils;
+import org.limewire.ui.swing.browser.TargetedUrlAction;
+import org.limewire.ui.swing.nav.NavCategory;
+import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
+import org.limewire.ui.swing.util.SwingUtils;
 import org.mozilla.browser.MozillaAutomation;
 import org.mozilla.browser.MozillaInitialization;
 import org.mozilla.browser.MozillaPanel.VisibilityMode;
@@ -23,7 +28,7 @@ public class StorePanel extends JPanel {
     private final Application application;
 
     @Inject
-    public StorePanel(Application application) {
+    public StorePanel(Application application, final Navigator navigator) {
         this.application = application;
         browser = new Browser(VisibilityMode.FORCED_HIDDEN, VisibilityMode.FORCED_HIDDEN, VisibilityMode.DEFAULT);
 
@@ -34,6 +39,19 @@ public class StorePanel extends JPanel {
         gbc.weightx = 1;
         gbc.weighty = 1;
         add(browser, gbc);
+        
+        BrowserUtils.addTargetedUrlAction("_lwStore", new TargetedUrlAction() {
+            @Override
+            public void targettedUrlClicked(final TargetedUrl targetedUrl) {
+                SwingUtils.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        navigator.getNavItem(NavCategory.LIMEWIRE, NAME).select();
+                        load(targetedUrl.getUrl());
+                    }
+                });
+            }
+        });        
     }
     
     public void loadDefaultUrl() {

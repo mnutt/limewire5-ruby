@@ -25,6 +25,7 @@ import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
 import com.limegroup.gnutella.library.LibraryUtils;
 import com.limegroup.gnutella.library.ManagedFileList;
+import com.limegroup.gnutella.library.FileListChangedEvent.Type;
 
 @Singleton
 class LibraryManagerImpl implements LibraryManager {
@@ -72,6 +73,13 @@ class LibraryManagerImpl implements LibraryManager {
         }
         
         @Override
+        public void removeFolders(Collection<File> folders) {
+            for(File folder : folders) {
+                fileList.removeFolder(folder);
+            }
+        }
+        
+        @Override
         public Collection<Category> getManagedCategories() {
             return fileList.getManagedCategories();
         }
@@ -89,6 +97,11 @@ class LibraryManagerImpl implements LibraryManager {
         @Override
         public boolean isDirectoryExcluded(File folder) {
             return fileList.isDirectoryExcluded(folder);
+        }
+        
+        @Override
+        public Collection<File> getDirectoriesWithImportedFiles() {
+            return fileList.getDirectoriesWithImportedFiles();
         }
 
         @Override
@@ -174,6 +187,10 @@ class LibraryManagerImpl implements LibraryManager {
         @Override
         public void removePropertyChangeListener(PropertyChangeListener listener) {
             changeSupport.removePropertyChangeListener(listener);
+        }
+        
+        @Override
+        protected void collectionUpdate(Type type, boolean shared) {
         }
     }
     

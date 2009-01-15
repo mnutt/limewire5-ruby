@@ -27,6 +27,8 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 import org.limewire.util.FileUtils;
 
+import com.google.inject.Inject;
+
 public class OpenFileAction extends AbstractAction {
 
     private final Navigator navigator;
@@ -35,10 +37,11 @@ public class OpenFileAction extends AbstractAction {
 
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
 
-    public OpenFileAction(Navigator navigator, String name,
+    @Inject
+    public OpenFileAction(Navigator navigator,
             DownloadListManager downloadListManager,
             SaveLocationExceptionHandler saveLocationExceptionHandler) {
-        super(name);
+        super( I18n.tr("&Open Torrent..."));
         this.navigator = navigator;
         this.downloadListManager = downloadListManager;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
@@ -47,7 +50,7 @@ public class OpenFileAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        List<File> files = FileChooser.getInput(GuiUtils.getMainFrame(), I18n.tr("Open File"), I18n
+        List<File> files = FileChooser.getInput(GuiUtils.getMainFrame(), I18n.tr("Open Torrent"), I18n
                 .tr("Open"), FileChooser.getLastInputDirectory(), JFileChooser.FILES_ONLY,
                 JFileChooser.APPROVE_OPTION, true, new FileFilter() {
                     @Override

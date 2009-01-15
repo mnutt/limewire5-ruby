@@ -9,7 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.io.Expand;
 import org.limewire.io.IOUtils;
-import org.limewire.service.ErrorService;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.OSUtils;
@@ -26,8 +25,16 @@ public class LimeMozillaInitializer {
 
     private LimeMozillaInitializer() {
     }
+    
+    public static boolean shouldInitialize() {
+        return OSUtils.isWindows() || OSUtils.isLinux();
+    }
 
     public static void initialize() {
+        if(!shouldInitialize()) {
+            return;
+        }
+        
         File xulInstallPath = new File(CommonUtils.getUserSettingsDir(), "/browser");
         // Check to see if the correct version of XUL exists.
         File xulFile = new File(xulInstallPath, "xul-v2.0b2.2-do-not-remove");
@@ -41,7 +48,10 @@ public class LimeMozillaInitializer {
                 Expand.expandFile(in, xulInstallPath, true, null);
                 xulFile.createNewFile();
             } catch (IOException e) {
-                ErrorService.error(e);
+                // This causes errors if the zip file can't be expanded for whatever reason.
+                // It sucks, but no need to report it to us... we fallback to using
+                // JEditorPane where we can.
+//                ErrorService.error(e);
             } finally {
                 IOUtils.close(in);
             }
@@ -120,8 +130,6 @@ public class LimeMozillaInitializer {
     private static String getResourceName() {
         if (OSUtils.isWindows()) {
             return "xulrunner-win32.zip";
-        } else if (OSUtils.isMacOSX()) {
-            return "xulrunner-macosx-i386.zip";
         } else if (OSUtils.isLinux()) {
             return "xulrunner-linux.zip";
         } else {

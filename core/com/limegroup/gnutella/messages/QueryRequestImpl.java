@@ -138,8 +138,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
     /**
      * Cache the max length for query string message field
      */
-    private static final int OLD_LW_MAX_QUERY_FIELD_LEN =
-        SearchSettings.OLD_LW_MAX_QUERY_FIELD_LEN.getValue();
+    private static final int OLD_LW_MAX_QUERY_FIELD_LEN = 30;
  
     
     /** Constructs a query. */

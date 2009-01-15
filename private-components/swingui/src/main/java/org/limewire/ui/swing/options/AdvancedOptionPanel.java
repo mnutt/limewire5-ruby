@@ -36,12 +36,12 @@ public class AdvancedOptionPanel extends OptionPanel {
         list[0] = filesOptionPanel.get();
         list[0].initOptions();
         
-        setLayout(new MigLayout("insets 15 15 15 15, fillx", "", ""));
+        setLayout(new MigLayout("insets 12 12 8 12, fillx", "", ""));
         
         final JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setBackground(Color.WHITE);
         tabbedPane.addTab(I18n.tr("Files"), list[0]);
-        tabbedPane.addTab(I18n.tr("Connections"), new JPanel());
+        tabbedPane.addTab(I18n.tr("Transfers"), new JPanel());
         tabbedPane.addTab(I18n.tr("System"), new JPanel());
         tabbedPane.addTab(I18n.tr("Super Really Advanced"), new JPanel());
         

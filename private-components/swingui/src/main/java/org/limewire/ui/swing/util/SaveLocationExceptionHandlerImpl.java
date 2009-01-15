@@ -17,12 +17,12 @@ import net.miginfocom.swing.MigLayout;
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.download.SaveLocationManager;
-import org.limewire.core.settings.DownloadSettings;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.util.FileUtils;
 
 import com.google.inject.Inject;
@@ -95,7 +95,7 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
 
         //select a save file name
         File saveFile = null;
-        if (supportNewSaveDir && DownloadSettings.AUTO_RENAME_DUPLICATE_FILES.getValue()) {
+        if (supportNewSaveDir && SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.getValue()) {
             saveFile = getAutoSaveFile(sle);
         } else {
             if (supportNewSaveDir) {

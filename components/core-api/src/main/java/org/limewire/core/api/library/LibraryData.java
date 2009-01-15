@@ -19,6 +19,12 @@ public interface LibraryData {
     
     /** Returns a list of all excluded directories. */
     List<File> getDirectoriesToExcludeFromManaging();
+    
+    /**
+     * Returns a list of all directories that are not recursively managed, but
+     * do have files that were imported into LW.
+     */
+    Collection<File> getDirectoriesWithImportedFiles();
 
     /**
      * Returns a Map of Category->Collection<String> that defines
@@ -59,6 +65,12 @@ public interface LibraryData {
     void setManagedOptions(Collection<File> recursiveFoldersToManage, 
             Collection<File> foldersToExclude,
             Collection<Category> managedCategories);
+    
+    /**
+     * Removes a bunch of folders from being managed, as well as removing any
+     * files within them from being managed.
+     */
+    void removeFolders(Collection<File> folders);
 
     /** Returns true if this file is potentially manageable. */
     boolean isFileManageable(File f);

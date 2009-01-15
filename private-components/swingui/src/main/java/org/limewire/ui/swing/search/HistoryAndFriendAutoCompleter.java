@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -38,6 +37,7 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
     private AutoCompleterCallback callback;
     private String currentText;
     
+    private boolean showSuggestions = true;
     private AutoCompleteDictionary historyDictionary;
     private AutoCompleteDictionary suggestionDictionary;
     
@@ -60,6 +60,10 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
         entryScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         entryScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         entryPanel.add(entryScrollPane, "grow");
+    }
+
+    public void setSuggestionsShown(boolean value) {
+        this.showSuggestions = value;
     }
 
     public void setSuggestionDictionary(AutoCompleteDictionary dictionary) {
@@ -114,20 +118,22 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
         currentText = input;
         
         Collection<String> histories = historyDictionary.getPrefixedBy(currentText);
-        Collection<String> suggestions = suggestionDictionary.getPrefixedBy(currentText);
-
-        List<Entry> items = new ArrayList<Entry>(histories.size() + suggestions.size());
+        ArrayList<Entry> items = new ArrayList<Entry>(histories.size());
         for(String string : histories) {
             items.add(new Entry(string, Entry.Reason.HISTORY));
         }
         
-        boolean needFirstSuggestion = true;
-        for(String string : suggestions) {
-            if(needFirstSuggestion) {
-                items.add(new Entry(string, Entry.Reason.FIRST_SUGGESTION));
-                needFirstSuggestion = false;
-            } else {
-                items.add(new Entry(string, Entry.Reason.SUGGESTION));
+        if(showSuggestions) {
+            Collection<String> suggestions = suggestionDictionary.getPrefixedBy(currentText);
+            items.ensureCapacity(items.size() + suggestions.size());
+            boolean needFirstSuggestion = true;
+            for(String string : suggestions) {
+                if(needFirstSuggestion) {
+                    items.add(new Entry(string, Entry.Reason.FIRST_SUGGESTION));
+                    needFirstSuggestion = false;
+                } else {
+                    items.add(new Entry(string, Entry.Reason.SUGGESTION));
+                }
             }
         }
         

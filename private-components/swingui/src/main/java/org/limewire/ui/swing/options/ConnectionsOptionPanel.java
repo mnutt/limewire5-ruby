@@ -40,9 +40,9 @@ public class ConnectionsOptionPanel extends OptionPanel {
         
         setOpaque(false);
         
-        add(getConnectionSpeedPanel(), "pushx, growx");
         add(getDownloadsPanel(), "pushx, growx");
         add(getUploadPanel(), "pushx, growx");
+        add(getConnectionSpeedPanel(), "pushx, growx");
     }
     
     private OptionPanel getConnectionSpeedPanel() {

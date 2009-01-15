@@ -11,7 +11,6 @@ import org.limewire.io.IpPort;
 import com.google.inject.Singleton;
 import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.chat.InstantMessenger;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.version.UpdateInformation;
@@ -24,23 +23,11 @@ import com.limegroup.gnutella.version.UpdateInformation;
 @Singleton
 public class ActivityCallbackAdapter implements ActivityCallback {
 
-    public void acceptChat(InstantMessenger ctr) {
-        
-    }
-
     public void addUpload(Uploader u) {
         
     }
 
     public void browseHostFailed(GUID guid) {
-        
-    }
-
-    public void chatErrorMessage(InstantMessenger chatter, String str) {
-        
-    }
-
-    public void chatUnavailable(InstantMessenger chatter) {
         
     }
 
@@ -56,8 +43,8 @@ public class ActivityCallbackAdapter implements ActivityCallback {
         
     }
 
-    public boolean handleMagnets(MagnetOptions[] magnets) {
-        return false;
+    public void handleMagnets(MagnetOptions[] magnets) {
+
     }
 
     public void handleQueryResult(RemoteFileDesc rfd, QueryReply queryReply,
@@ -83,10 +70,6 @@ public class ActivityCallbackAdapter implements ActivityCallback {
 
     public boolean isQueryAlive(GUID guid) {
         return false;
-    }
-
-    public void receiveMessage(InstantMessenger chr, String messsage) {
-        
     }
 
     public void removeUpload(Uploader u) {
@@ -133,7 +116,7 @@ public class ActivityCallbackAdapter implements ActivityCallback {
         
     }
     
-    public boolean handleDAAPConnectionError(Throwable t) { return false; }
+    public void handleDAAPConnectionError(Throwable t) {  }
     public String translate(String s) { return s;}
 
     @Override

@@ -149,8 +149,14 @@ public class CoreSearch implements Search {
             final PromotionSearchResultsCallback callback = new PromotionSearchResultsCallback() {
                 @Override
                 public void process(PromotionMessageContainer result) {
-                    SponsoredResultTarget target = result.getOptions().isOpenInStoreTab() ?
-                        SponsoredResultTarget.STORE  : SponsoredResultTarget.EXTERNAL;
+                    SponsoredResultTarget target;
+                    if(result.getOptions().isOpenInStoreTab()) {
+                        target = SponsoredResultTarget.STORE;
+                    } else if(result.getOptions().isOpenInHomeTab()) {
+                        target = SponsoredResultTarget.HOME;
+                    } else {
+                        target = SponsoredResultTarget.EXTERNAL;
+                    }
                     String title = result.getTitle();
                     String displayUrl = result.getDisplayUrl();
                     if(displayUrl.isEmpty()) {

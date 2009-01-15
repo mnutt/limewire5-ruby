@@ -1,10 +1,10 @@
 package org.limewire.ui.swing.tray;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,30 +13,23 @@ import java.awt.event.MouseEvent;
 import java.util.StringTokenizer;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.JWindow;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.painter.CompoundPainter;
-import org.jdesktop.swingx.painter.RectanglePainter;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventListenerList;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.ui.swing.animate.AnimatorEvent;
 import org.limewire.ui.swing.animate.FadeInOutAnimator;
 import org.limewire.ui.swing.animate.MoveAnimator;
-import org.limewire.ui.swing.painter.BorderPainter;
-import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.util.StringUtils;
 import org.limewire.util.SystemUtils;
@@ -48,7 +41,7 @@ import org.limewire.util.SystemUtils;
 class NotificationWindow extends JWindow implements ListenerSupport<WindowDisposedEvent> {
     private final Notification notification;
 
-    private final EventListenerList<WindowDisposedEvent> eventListenerList = new EventListenerList<WindowDisposedEvent>();
+    private final EventListenerList<WindowDisposedEvent> eventListenerList;
 
     @Resource
     private Icon trayNotifyClose;
@@ -60,13 +53,36 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
     private Font titleFont;
 
     @Resource
-    private Font messageFont;
+    private Color titleFontColor;
+
+    @Resource
+    private Font bodyFont;
+
+    @Resource
+    private Color bodyFontColor;
+
+    @Resource
+    private Font linkFont;
+
+    @Resource
+    private Color linkFontColor;
+
+    @Resource
+    private Color backgroundColor;
+
+    @Resource
+    private Color borderColour;
 
     private MoveAnimator currentMoveAnimator;
 
     public NotificationWindow(Icon icon, final Notification notification) {
+        eventListenerList = new EventListenerList<WindowDisposedEvent>();
         GuiUtils.assignResources(this);
         this.notification = notification;
+
+        setAlwaysOnTop(true);
+
+        SystemUtils.setWindowTopMost(this);
 
         FadeInOutAnimator fadeInOutAnimator = new FadeInOutAnimator(this, 500, 2500, 500);
         fadeInOutAnimator.addListener(new EventListener<AnimatorEvent<JWindow>>() {
@@ -78,16 +94,16 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
             }
         });
 
-        JXPanel panel = new JXPanel(new MigLayout("fillx"));
+        JXPanel panel = new JXPanel(new MigLayout("fill, gap 0px 0px, insets 5 5 5 5"));
         add(panel);
 
-        panel.setBackgroundPainter(createPainter(panel));
+        panel.setBackground(backgroundColor);
+        panel.setBorder(BorderFactory.createLineBorder(borderColour, 2));
 
-        JCheckBox iconCheckBox = new JCheckBox(icon);
-       
+        PerformNotificationActionsMouseListener performNotificationActionsMouseListener = new PerformNotificationActionsMouseListener();
+        panel.addMouseListener(performNotificationActionsMouseListener);
 
-        final JCheckBox closeButton = new JCheckBox(trayNotifyClose);
-        closeButton.setVisible(false);
+        final JRadioButton closeButton = new JRadioButton(trayNotifyClose);
         closeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -98,58 +114,93 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
         closeButton.addMouseListener(new HoverButtonMouseListener(closeButton, trayNotifyClose,
                 trayNotifyCloseRollover));
 
-        panel.addMouseListener(new HoverPanelMouseListener(closeButton));
-        closeButton.addMouseListener(new HoverPanelMouseListener(closeButton));
-        iconCheckBox.addMouseListener(new HoverPanelMouseListener(closeButton));
+        String titleLine1 = " ";// keeping at least a space so icon in JLabel
+                                // renders properly
+        String titleLine2 = "";
 
-        
-
-        String title = notification.getTitle();
-        String message = notification.getMessage();
-
-        
-
-        JEditorPane editor = new JEditorPane();
-        editor.addMouseListener(new HoverPanelMouseListener(closeButton));
-        HTMLEditorKit htmlEditorKit = new HTMLEditorKit();
-        StyleSheet styleSheet = new StyleSheet();
-        styleSheet.setBaseFontSize(messageFont.getSize());
-        htmlEditorKit.setStyleSheet(styleSheet);
-        editor.setMaximumSize(new Dimension(200, 50));
-        editor.setEditorKit(htmlEditorKit);
-        editor.setFont(messageFont);
-
-        message = getLines(message, htmlEditorKit, messageFont, 180);
-        String html = "<html><body><a href=\"action\"> " + message + "</a></body></html>";
-        editor.setContentType("text/html");
-        editor.setText(html);
-        editor.setEditable(false);
-        editor.addHyperlinkListener(new HyperlinkListener() {
-            @Override
-            public void hyperlinkUpdate(HyperlinkEvent e) {
-                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    if (notification.getActions() != null) {
-                        for (Action action : notification.getActions()) {
-                            action.actionPerformed(new ActionEvent(NotificationWindow.this,
-                                    ActionEvent.ACTION_PERFORMED, "Message Clicked"));
-                        }
-                    }
-                }
-            }
-        });
-        
-        panel.add(iconCheckBox, "");
-        panel.add(closeButton, "alignx right, wrap");
-        if (!StringUtils.isEmpty(title)) {
-            JLabel titleLabel = new JLabel(getTruncatedMessage(title, htmlEditorKit, titleFont, 180));
-            titleLabel.setFont(titleFont);
-            panel.add(titleLabel, "spanx 2, wrap");
+        if (notification.getTitle() != null) {
+            StringTokenizer title = new StringTokenizer(notification.getTitle(), " \t\n\r");
+            StringBuffer titleBuffer1 = new StringBuffer();
+            StringBuffer remainingMessage = buildLine(titleBuffer1, title, titleFont, 120);
+            titleLine1 = titleBuffer1.toString().trim();
+            titleLine2 = getTruncatedMessage(remainingMessage.toString().trim(), titleFont, 180);
         }
-        panel.add(editor, "spanx 2");
-        setPreferredSize(new Dimension(200, 110));
+
+        JLabel titleLabel1 = new JLabel(titleLine1);
+        titleLabel1.setIcon(icon);
+        titleLabel1.setIconTextGap(3);
+        titleLabel1.setFont(titleFont);
+        titleLabel1.setForeground(titleFontColor);
+
+        JLabel titleLabel2 = new JLabel(titleLine2);
+        titleLabel1.setFont(titleFont);
+        titleLabel1.setForeground(titleFontColor);
+
+        titleLabel1.addMouseListener(performNotificationActionsMouseListener);
+        titleLabel2.addMouseMotionListener(performNotificationActionsMouseListener);
+
+        StringTokenizer message = new StringTokenizer(notification.getMessage(), " \t\n\r");
+        StringBuffer messageBuffer1 = new StringBuffer();
+        StringBuffer remainingMessage = buildLine(messageBuffer1, message, bodyFont, 180);
+
+        String messageLine1 = messageBuffer1.toString().trim();
+        String messageLine2 = getTruncatedMessage(remainingMessage.toString().trim(), bodyFont, 180);
+
+        JLabel messageLabel1 = new JLabel(messageLine1);
+        messageLabel1.setFont(bodyFont);
+        messageLabel1.setForeground(bodyFontColor);
+        JLabel messageLabel2 = new JLabel(messageLine2);
+        messageLabel2.setFont(bodyFont);
+        messageLabel2.setForeground(bodyFontColor);
+
+        messageLabel1.addMouseListener(performNotificationActionsMouseListener);
+        messageLabel2.addMouseListener(performNotificationActionsMouseListener);
+
+        // adding components to panel
+        panel.add(titleLabel1, "aligny top");
+
+        panel.add(closeButton, "alignx right, aligny top, gapright 0, wrap");
+
+        if (!StringUtils.isEmpty(titleLine2)) {
+            panel.add(titleLabel2, "spanx 2, wrap");
+        }
+
+        panel.add(messageLabel1, "spanx 2, wrap, gap 0 0 6 0");
+
+        if (!StringUtils.isEmpty(messageLine2)) {
+            panel.add(messageLabel2, "spanx 2, wrap");
+        }
+
+        // if actions are available add a launchable link
+        if (notification.getActions() != null && notification.getActions().length > 0) {
+            String launchLinkHtml = "<html><u>" + notification.getActionName() + "</u></html>";
+            JLabel launchLink = new JLabel(launchLinkHtml);
+            launchLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            launchLink.setFont(linkFont);
+            launchLink.setForeground(linkFontColor);
+            launchLink.addMouseListener(performNotificationActionsMouseListener);
+            panel.add(launchLink, "spanx 2, alignx right, aligny bottom, gap 0 0 6 0");
+        }
+        setPreferredSize(new Dimension(204, 97));
         pack();
 
         fadeInOutAnimator.start();
+    }
+
+    private class PerformNotificationActionsMouseListener extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            performActions();
+        }
+    }
+
+    private void performActions() {
+        if (notification.getActions() != null) {
+            for (Action action : notification.getActions()) {
+                action.actionPerformed(new ActionEvent(NotificationWindow.this,
+                        ActionEvent.ACTION_PERFORMED, "Message Clicked"));
+            }
+        }
     }
 
     /**
@@ -176,81 +227,48 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
     }
 
     /**
-     * Creates a painter to render the rounded corners of this component.
+     * Adds a line of text to line StringBuffer passed in the argument. All
+     * remaining text is returned in a new StringBuffer.
      */
-    private CompoundPainter<JXPanel> createPainter(JXPanel panel) {
-        CompoundPainter<JXPanel> compoundPainter = new CompoundPainter<JXPanel>();
-        RectanglePainter<JXPanel> painter = new RectanglePainter<JXPanel>();
-
-        int arcWidth = 5;
-        int arcHeight = 5;
-        Color borderColour = Color.BLACK;
-        Color bevelLeft = Color.GRAY;
-        Color bevelTop1 = Color.GRAY;
-        Color bevelTop2 = Color.GRAY;
-        Color bevelRight = Color.GRAY;
-        Color bevelBottom = Color.GRAY;
-
-        painter.setRounded(true);
-        painter.setFillPaint(Color.WHITE);
-        painter.setRoundWidth(arcWidth);
-        painter.setRoundHeight(arcHeight);
-        painter.setInsets(new Insets(1, 1, 1, 1));
-        painter.setBorderPaint(null);
-        painter.setFillVertical(true);
-        painter.setFillHorizontal(true);
-        painter.setAntialiasing(true);
-        painter.setCacheable(true);
-        painter.setBorderWidth(1);
-
-        compoundPainter.setPainters(painter, new BorderPainter<JXPanel>(arcWidth, arcHeight,
-                borderColour, bevelLeft, bevelTop1, bevelTop2, bevelRight, bevelBottom,
-                AccentType.SHADOW));
-        compoundPainter.setCacheable(true);
-        return compoundPainter;
-    }
-
-    /**
-     * Calculates two lines for the notification window. The first line is found
-     * by finding where the last word will wrap on that line. The second line is
-     * the rest of the text, truncated to a maxWidth in pixels with '...'
-     * appended
-     */
-    private String getLines(String message, HTMLEditorKit editorKit, Font font, int pixelWidth) {
-        StringTokenizer stringTokenizer = new StringTokenizer(message, " \n\t\r");
-        String line1 = "";
-        String line2 = "";
+    private StringBuffer buildLine(StringBuffer line, StringTokenizer message, Font font,
+            int pixelWidth) {
+        StringBuffer remaining = new StringBuffer();
 
         // find the first line.
-        while (stringTokenizer.hasMoreTokens()) {
-            String token = stringTokenizer.nextToken();
-            int pixels = getPixelWidth(line1 + token + " ", editorKit, font);
+        while (message.hasMoreTokens()) {
+            String currentToken = message.nextToken();
+            int pixels = getPixelWidth(line + currentToken, font);
             if (pixels < (pixelWidth)) {
-                line1 += token + " ";
+                line.append(currentToken);
+                if (message.hasMoreTokens()) {
+                    line.append(" ");
+                }
             } else {
-                line2 = token + " ";
+                remaining.append(currentToken);
+                if (message.hasMoreTokens()) {
+                    remaining.append(" ");
+                }
                 break;
             }
         }
-        // build the second line.
-        while (stringTokenizer.hasMoreTokens()) {
-            String token = stringTokenizer.nextToken();
-            line2 += token + " ";
+
+        while (message.hasMoreTokens()) {
+            String currentToken = message.nextToken();
+            remaining.append(currentToken);
+            if (message.hasMoreTokens()) {
+                remaining.append(" ");
+            }
         }
 
-        // truncate the second line.
-        line2 = getTruncatedMessage(line2, editorKit, font, pixelWidth);
-
-        return (line1.trim() + " " + line2.trim()).trim();
+        return remaining;
     }
 
     /**
      * Truncates the given message to a maxWidth in pixels.
      */
-    private String getTruncatedMessage(String message, HTMLEditorKit editorKit, Font font,
-            int maxWidth) {
+    private String getTruncatedMessage(String message, Font font, int maxWidth) {
         String ELIPSES = "...";
-        while (getPixelWidth(message, editorKit, font) > (maxWidth)) {
+        while (getPixelWidth(message, font) > (maxWidth)) {
             message = message.substring(0, message.length() - (ELIPSES.length() + 1)) + ELIPSES;
         }
         return message;
@@ -259,44 +277,23 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
     /**
      * Returns the width of the message in the given font and editor kit.
      */
-    private int getPixelWidth(String text, HTMLEditorKit editorKit, Font font) {
-        StyleSheet css = editorKit.getStyleSheet();
+    private int getPixelWidth(String text, Font font) {
+        StyleSheet css = new StyleSheet();
         FontMetrics fontMetrics = css.getFontMetrics(font);
         return fontMetrics.stringWidth(text);
-    }
-
-    /**
-     * Sets the closeButton visible whenever this component is hovered over.
-     */
-    private final class HoverPanelMouseListener extends MouseAdapter {
-        private final JCheckBox closeButton;
-
-        private HoverPanelMouseListener(JCheckBox closeButton) {
-            this.closeButton = closeButton;
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            closeButton.setVisible(true);
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-            closeButton.setVisible(false);
-        }
     }
 
     /**
      * Sets the rollover image for the close button when moused over.
      */
     private final class HoverButtonMouseListener extends MouseAdapter {
-        private final JCheckBox closeButton;
+        private final JRadioButton closeButton;
 
         private final Icon trayNotifyClose;
 
         private final Icon trayNotifyCloseRollover;
 
-        private HoverButtonMouseListener(JCheckBox closeButton, Icon trayNotifyClose,
+        private HoverButtonMouseListener(JRadioButton closeButton, Icon trayNotifyClose,
                 Icon trayNotifyCloseRollover) {
             this.closeButton = closeButton;
             this.trayNotifyClose = trayNotifyClose;
@@ -315,10 +312,10 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
     }
 
     /**
-     * Moves the window from its current location to the new one. 
+     * Moves the window from its current location to the new one.
      */
     public synchronized void moveTo(Point newLocation) {
-        if(this.currentMoveAnimator != null) {
+        if (this.currentMoveAnimator != null) {
             currentMoveAnimator.stop();
         }
         MoveAnimator moveAnimator = new MoveAnimator(this, 250, newLocation);

@@ -22,6 +22,7 @@ import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.library.FileDesc;
+import com.limegroup.gnutella.uploader.UploadType;
 
 class CoreUploadItem implements UploadItem {
 
@@ -57,16 +58,21 @@ class CoreUploadItem implements UploadItem {
 
     @Override
     public UploadState getState() {
+        
+       
+        
         switch (uploader.getState()) {
         case CANCELLED:
             return UploadState.CANCELED;
         case COMPLETE:
+            if(uploader.getUploadType() == UploadType.BROWSE_HOST){
+                return UploadState.BROWSE_HOST_DONE;
+            }
             return UploadState.DONE;
 
         case CONNECTING:
         case UPLOADING:
         case THEX_REQUEST:
-        case BROWSE_HOST:
         case PUSH_PROXY:
         case UPDATE_FILE:
             return UploadState.UPLOADING;
@@ -86,6 +92,9 @@ class CoreUploadItem implements UploadItem {
         case BANNED_GREEDY:
         case FREELOADER:
             return UploadState.UNABLE_TO_UPLOAD;
+            
+        case BROWSE_HOST:
+            return UploadState.BROWSE_HOST;
 
         }
 
@@ -144,6 +153,11 @@ class CoreUploadItem implements UploadItem {
 
     @Override
     public String getHost() {
+        System.out.println(uploader);
+        //TODO: this is less than ideal
+        if ((getState() == UploadState.BROWSE_HOST || getState() == UploadState.BROWSE_HOST_DONE) && getFileName() != null){
+            return getFileName();
+        }
         return uploader.getHost();
     }
     

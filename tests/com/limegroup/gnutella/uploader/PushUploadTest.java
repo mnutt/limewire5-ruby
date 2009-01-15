@@ -550,7 +550,7 @@ public class PushUploadTest extends LimeTestCase {
                 Provider<ActivityCallback> activityCallback, OutOfBandStatistics outOfBandStatistics, 
                 NetworkInstanceUtils networkInstanceUtils, Provider<CapabilitiesVMFactory> capabilitiesVMFactory,
                 Provider<ByteBufferCache> bbCache, ApplicationServices applicationServices) {
-            super(udpService, acceptor, dhtManager, connectionManager, activityCallback,
+            super(udpService, acceptor, dhtManager, connectionManager,
                     outOfBandStatistics, networkInstanceUtils, capabilitiesVMFactory, bbCache, applicationServices);
         }
 

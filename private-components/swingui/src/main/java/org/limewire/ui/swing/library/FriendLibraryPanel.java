@@ -6,8 +6,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.JComponent;
 
-import org.limewire.core.api.Category;
 import org.jdesktop.application.Resource;
+import org.limewire.core.api.Category;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FriendFileList;
@@ -15,6 +15,8 @@ import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.dnd.GhostDragGlassPane;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
 import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.CategoryIconManager;
@@ -43,15 +45,17 @@ public class FriendLibraryPanel extends AbstractFriendLibraryPanel {
                     DownloadListManager downloadListManager,
                     LibraryManager libraryManager,
                     LimeHeaderBarFactory headerBarFactory,
-                    ButtonDecorator buttonDecorator) {
-        super(friend, friendFileList, eventList, categoryIconManager, tableFactory, downloadListManager, libraryManager, headerBarFactory);
+                    ButtonDecorator buttonDecorator,
+                    GhostDragGlassPane ghostPane,
+                    LibraryNavigator libraryNavigator) {
+        super(friend, friendFileList, eventList, categoryIconManager, tableFactory, downloadListManager, libraryManager, headerBarFactory, ghostPane, libraryNavigator);
 
         GuiUtils.assignResources(this);
         
         this.friend = friend;
 
         if (selectionPanelBackgroundOverride != null) { 
-            selectionPanel.setBackground(selectionPanelBackgroundOverride);
+            getSelectionPanel().setBackground(selectionPanelBackgroundOverride);
         }
         
         //don't show share button for browse hosts
@@ -60,7 +64,7 @@ public class FriendLibraryPanel extends AbstractFriendLibraryPanel {
         }
         
         createMyCategories(eventList);
-        selectFirst();
+        selectFirstVisible();
         getHeaderPanel().setText(I18n.tr("Download from {0}", getFullPanelName()));
     }
     
@@ -75,7 +79,7 @@ public class FriendLibraryPanel extends AbstractFriendLibraryPanel {
     
     protected String getShortPanelName() {
         return friend.getFirstName();
-    }
+    } 
     
     private class ViewSharedLibraryAction extends AbstractAction {
         private final FriendLibraryMediator friendLibraryMediator;

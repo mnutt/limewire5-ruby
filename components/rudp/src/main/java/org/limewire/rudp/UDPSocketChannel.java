@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.limewire.listener.EventBroadcaster;
 import org.limewire.nio.AbstractNBSocket;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.nio.channel.InterestReadableByteChannel;
@@ -68,11 +69,14 @@ class UDPSocketChannel extends AbstractNBSocketChannel implements InterestReadab
 
     private final Role role;
     
-    UDPSocketChannel(SelectorProvider provider, RUDPContext context, Role role) {
+    UDPSocketChannel(SelectorProvider provider,
+                     RUDPContext context,
+                     Role role,
+                     EventBroadcaster<UDPSocketChannelConnectionEvent> connectionStateEventBroadcaster) {
         super(provider);
         this.context = context;
         this.role = role;
-        this.processor = new UDPConnectionProcessor(this, context, role);
+        this.processor = new UDPConnectionProcessor(this, context, role, connectionStateEventBroadcaster);
         this.readData = processor.getReadWindow();
         this.chunks = new ArrayList<ByteBuffer>(5);
         this.socket = new UDPConnection(context, this);

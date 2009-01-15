@@ -12,7 +12,6 @@ import javax.swing.JPanel;
 
 import com.limegroup.gnutella.gui.GUIMediator;
 import com.limegroup.gnutella.gui.I18n;
-import com.limegroup.gnutella.gui.SettingsWarningManager;
 import com.limegroup.gnutella.gui.options.panes.SharedDirPaneItem;
 import com.limegroup.gnutella.gui.options.panes.StoreSaveDirPaneItem;
 
@@ -128,7 +127,7 @@ public final class OptionsPaneManager {
             GUIMediator.showMessage(I18n.tr("One or more options will take effect the next time LimeWire is restarted."));
         
         
-        SettingsWarningManager.checkSettingsLoadSaveFailure();
+//        SettingsWarningManager.checkSettingsLoadSaveFailure();
 	}
 	
 	/**

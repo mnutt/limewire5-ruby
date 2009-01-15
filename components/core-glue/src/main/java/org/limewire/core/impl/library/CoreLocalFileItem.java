@@ -107,6 +107,11 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
     public int getNumUploads() {
         return fileDesc.getCompletedUploads();
     }
+    
+    @Override
+    public int getNumUploadAttempts() {
+        return getFileDesc().getAttemptedUploads();
+    }  
 
     @Override
     public Category getCategory() {
@@ -318,5 +323,6 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
                     getCreationTime(), reloadedMap, doc);
             propertiesMap = reloadedMap;
         }
-    }    
+    }
+    
 }

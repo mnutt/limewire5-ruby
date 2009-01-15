@@ -10,7 +10,7 @@ public enum FilePropertyKey {
     TITLE,//for audio this is the track name
     AUTHOR,//for audio files this represents the artists name
     BITRATE, // ex. 128, 160, 192, 224, 320
-    COMMENTS,
+    DESCRIPTION,
     COMPANY,//for video files this is the studio, for applications the publisher
     DATE_CREATED,
     FILE_SIZE, // in bytes
@@ -36,7 +36,7 @@ public enum FilePropertyKey {
         indexableKeys.add(ALBUM);
         indexableKeys.add(TITLE);
         indexableKeys.add(AUTHOR);
-        indexableKeys.add(COMMENTS);
+        indexableKeys.add(DESCRIPTION);
         indexableKeys.add(COMPANY);
         indexableKeys.add(GENRE);
         indexableKeys.add(NAME);
@@ -46,7 +46,7 @@ public enum FilePropertyKey {
     static {
         editableKeys.add(ALBUM);
         editableKeys.add(AUTHOR);
-        editableKeys.add(COMMENTS);
+        editableKeys.add(DESCRIPTION);
         editableKeys.add(COMPANY);
         editableKeys.add(GENRE);
         editableKeys.add(PLATFORM);

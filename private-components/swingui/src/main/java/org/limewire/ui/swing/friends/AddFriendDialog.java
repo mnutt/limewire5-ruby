@@ -5,6 +5,7 @@ import static org.limewire.ui.swing.util.I18n.tr;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -15,6 +16,7 @@ import javax.swing.event.DocumentListener;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.util.BackgroundExecutorService;
 import org.limewire.util.Objects;
@@ -36,15 +38,18 @@ public class AddFriendDialog extends LimeJDialog {
         setLayout(new MigLayout());
         setResizable(false);
 
-        final JLabel usernameLabel = new JLabel(tr("Username:"));
-        final JLabel nicknameLabel = new JLabel(tr("Nickname:"));
+        JLabel usernameLabel = new JLabel(tr("Username:"));
+        JLabel nicknameLabel = new JLabel(tr("Nickname:"));
         final JTextField usernameField = new JTextField(18);
         final JTextField nicknameField = new JTextField(18);
-
-        final JButton ok = new JButton(tr("Add friend"));
-        ok.addActionListener(new ActionListener() {
+        
+        final Action okAction = new AbstractAction(tr("Add friend")) {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(!isEnabled()) {
+                    return;
+                }
+                
                 // If the user didn't enter a domain, use the service name
                 String user = usernameField.getText().trim();
                 if(user.indexOf('@') == -1)
@@ -66,8 +71,12 @@ public class AddFriendDialog extends LimeJDialog {
                     }
                 });
             }
-        });
-        ok.setEnabled(false); // Disable until a username is entered
+        };
+
+        JButton ok = new JButton(okAction);
+        okAction.setEnabled(false); // Disable until a username is entered
+        usernameField.addActionListener(okAction);
+        nicknameField.addActionListener(okAction);
 
         final JButton cancel = new JButton(tr("Cancel"));
         cancel.addActionListener(new ActionListener(){
@@ -82,21 +91,21 @@ public class AddFriendDialog extends LimeJDialog {
         usernameField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void changedUpdate(DocumentEvent e) {
-                checkWhetherEmpty();
+                checkIfEmpty();
             }
             
             @Override
             public void insertUpdate(DocumentEvent e) {
-                checkWhetherEmpty();
+                checkIfEmpty();
             }
             
             @Override
             public void removeUpdate(DocumentEvent e) {
-                checkWhetherEmpty();
+                checkIfEmpty();
             }
             
-            private void checkWhetherEmpty() {
-                ok.setEnabled(!usernameField.getText().trim().equals(""));
+            private void checkIfEmpty() {
+                okAction.setEnabled(!usernameField.getText().trim().equals(""));
             }
         });
 
@@ -106,6 +115,8 @@ public class AddFriendDialog extends LimeJDialog {
         add(nicknameField, "span, wrap");
         add(ok, "cell 1 2");
         add(cancel, "cell 2 2");
+        
+        
 
         pack();
         setVisible(true);

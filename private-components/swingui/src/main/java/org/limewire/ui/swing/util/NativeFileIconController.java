@@ -17,14 +17,16 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.filechooser.FileView;
 import javax.swing.plaf.FileChooserUI;
 
+import org.limewire.collection.FixedsizeForgetfulHashMap;
 import org.limewire.collection.FixedsizeForgetfulHashSet;
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.core.settings.SharingSettings;
-import org.limewire.core.settings.UISettings;
-import org.limewire.collection.FixedsizeForgetfulHashMap;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.util.FileUtils;
 import org.limewire.util.MediaType;
 import org.limewire.util.OSUtils;
+import org.limewire.util.SystemUtils;
+import org.limewire.util.SystemUtils.SpecialLocations;
 
 
 /** A FileIconController that attempts to return native icons. */
@@ -53,7 +55,7 @@ public class NativeFileIconController implements FileIconController {
             VIEW = null;
         } else {
             VIEW = new DelegateFileView(view);
-            if(UISettings.PRELOAD_NATIVE_ICONS.getValue())
+            if(SwingUiSettings.PRELOAD_NATIVE_ICONS.getValue())
                 preload();
         }
     }
@@ -143,7 +145,12 @@ public class NativeFileIconController implements FileIconController {
         final AtomicReference<SmartFileView> ref = new AtomicReference<SmartFileView>();
         SwingUtils.invokeAndWait(new Runnable() {
             public void run() {
-                ref.set(new FSVFileView());
+                try {
+                    ref.set(new FSVFileView());
+                } catch(Throwable err) {
+                    // If an error constructing FSF view, ignore.
+                    ref.set(null);
+                }
             }
         });
         return ref.get();
@@ -359,7 +366,31 @@ public class NativeFileIconController implements FileIconController {
      */
     private static class FSVFileView extends SmartFileView {
         private final FileSystemView VIEW = FileSystemView.getFileSystemView();        
-        private final Map<File, Icon> CACHE = new FixedsizeForgetfulHashMap<File, Icon>(50000);        
+        private final Map<File, Icon> CACHE = new FixedsizeForgetfulHashMap<File, Icon>(50000);
+        
+        FSVFileView() {
+            // Explicitly put the icon for roots as gotten from their roots description.
+            // For some reason, getting the icon for the desktop requires that you pass
+            // the File as retrieved from getRoots instead of a file at the desktop's
+            // location on FS.
+            File[] roots = VIEW.getRoots();
+            for(int i = 0; i < roots.length; i++) {
+                CACHE.put(new File(roots[i].getPath()), VIEW.getSystemIcon(roots[i]));
+            }
+            
+            // Similarly, with the My Documents folder, the icon is only valid if it's
+            // retrieved as the child from the root.
+            if(OSUtils.isWindows() && roots.length == 1) {
+                String path = SystemUtils.getSpecialPath(SpecialLocations.DOCUMENTS);
+                if(path != null) {
+                    File documents = new File(path);
+                    File child = VIEW.getChild(roots[0], documents.getName());
+                    if(child != null) {
+                        CACHE.put(documents, VIEW.getSystemIcon(child));
+                    }
+                }
+            }
+        }
         
         @Override
         public String getDescription(File f) {

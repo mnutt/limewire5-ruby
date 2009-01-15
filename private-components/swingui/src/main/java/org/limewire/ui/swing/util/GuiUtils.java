@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -394,13 +395,32 @@ public class GuiUtils {
                WindowsUtils.isLoginStatusAvailable();
     }
     
+    /**
+     * Returns a string representing the quality score just like toQualityString not including the trailing word 'Quality'
+     */
+    public static String toQualityStringShort(long qualityScore) {
+        if (qualityScore <= 1) {
+            return I18n.trc("Poor (media quality)", "Poor");
+        } else if (qualityScore == 2) {
+            return I18n.trc("Good (media quality)", "Good");
+        } else {
+           return I18n.trc("Excellent (media quality)", "Excellent");
+        }
+    }
+    
+    /**
+     * Returns a quality string for the given quality score.
+     * <= 1  Poor Quality
+     * == 2  Good Quality
+     * >  2  Excellent Quality
+     */
     public static String toQualityString(long qualityScore) {
         if (qualityScore <= 1) {
-            return I18n.tr("Poor");
+            return I18n.tr("Poor Quality");
         } else if (qualityScore == 2) {
-            return I18n.tr("Good");
+            return I18n.tr("Good Quality");
         } else {
-           return I18n.tr("Excellent");
+           return I18n.tr("Excellent Quality");
         }
     }
     
@@ -483,5 +503,18 @@ public class GuiUtils {
         // as the screen size includes the taskbar
         int appHeight = Math.min(screenSize.height - 40, dimension.height);
         return new Point((screenSize.width - appWidth) / 2, (screenSize.height - appHeight) / 2);
+    }
+
+    /**
+     * Determines if a font can display up to a point in the string.
+     *
+     * Returns -1 if it can display the whole string.
+     */
+    public static boolean canDisplay(Font f, String s) {
+        int upTo = f.canDisplayUpTo(s);
+        if(upTo >= s.length() || upTo == -1)
+            return true;
+        else
+            return false;
     }
 }

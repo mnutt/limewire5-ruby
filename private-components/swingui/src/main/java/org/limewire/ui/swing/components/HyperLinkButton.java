@@ -12,41 +12,44 @@ import java.util.Map;
 
 import javax.swing.Action;
 
+import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
-
 import org.limewire.ui.swing.util.FontUtils;
+import org.limewire.ui.swing.util.GuiUtils;
 
 /**
  * Creates a button that is undecorated and its text behaves like a hyperlink.
  * On mouse over the text changes colors and the cursor changes to a hand as
  * is expected for a hyperlink.
  */
-public class HyperLinkButton extends JXButton implements MouseListener {
-    protected Color mouseOverColor = getForeground();
-    protected Color foregroundColor = getForeground();
-    protected Color disabledColor = getForeground();
+public class HyperlinkButton extends JXButton implements MouseListener {
     
-    protected String text;
+    private final HyperlinkButtonResources r = new HyperlinkButtonResources();
     
-    protected Cursor oldCursor;
+    private Cursor oldCursor;
     
-    public HyperLinkButton() {
-        this(null);
+    public HyperlinkButton() {
+        initialize();
+    }
+    
+    public HyperlinkButton(Action action) {
+        super(action);
+        initialize();
     }
 
-    public HyperLinkButton(String text) {
-        initialize(text);
+    public HyperlinkButton(String text) {
+        initialize();
+        setText(text);
     }
     
-    public HyperLinkButton(String text, Action action) {
+    public HyperlinkButton(String text, Action action) {
         super(action);
-        initialize(text);
+        setHideActionText(true);
+        setText(text);
+        initialize();
     }
     
-    private void initialize(String text) {
-        if(text != null)
-            setText(text);
-        
+    private void initialize() {
         setBorderPainted(false);
         setMargin(new Insets(0, 0, 0, 0));
         setFocusPainted(false);
@@ -66,54 +69,48 @@ public class HyperLinkButton extends JXButton implements MouseListener {
         }
     }
     
-    public void removeUnderLine() {
+    public void removeUnderline() {
         Font font = getFont();
-        if (font == null) return;
-        Map<TextAttribute, ?> map = font.getAttributes();
-        Map<TextAttribute, Object> newMap = new HashMap<TextAttribute, Object>(map);
-        newMap.put(TextAttribute.UNDERLINE, Integer.valueOf(-1));
-
-        super.setFont(font.deriveFont(newMap));
+        if (font != null) {
+            Map<TextAttribute, ?> map = font.getAttributes();
+            Map<TextAttribute, Object> newMap = new HashMap<TextAttribute, Object>(map);
+            newMap.put(TextAttribute.UNDERLINE, Integer.valueOf(-1));    
+            super.setFont(font.deriveFont(newMap));
+        }
     }
     
-    public void setMouseOverColor(Color color) {
-        this.mouseOverColor = color;
+    public void setRolloverForeground(Color color) {
+        r.rolloverForeground = color;
     }
     
     public void setForeground(Color color) {
         super.setForeground(color);
-        this.foregroundColor = color;
-    }        
-    
-    public void setText(String text) {
-        this.text = text;
-        super.setText(text);
+        // r may be null because this is set by the constructor
+        if(r != null) {
+            r.foreground = color;
+        }
     }
     
-    @Override
-    public void setAction(Action a) {
-        super.setAction(a);
-        setText(text); // FIXME: ?
-    }
-    
-    public void setDisabledColor(Color color) {
-        this.disabledColor = color;
+    public void setDisabledForeground(Color color) {
+        r.disabledForeground = color;
     }
     
     @Override
     public void setEnabled(boolean value) {
         super.setEnabled(value);
-        if(value) {
-            super.setForeground(foregroundColor);
-        } else {
-            super.setForeground(disabledColor);
+        if(r != null) {
+            if(value) {
+                super.setForeground(r.foreground);
+            } else {
+                super.setForeground(r.disabledForeground);
+            }
         }
     }
     
     @Override
     public void mouseEntered(MouseEvent e) {
         if(isEnabled()) {
-            super.setForeground(mouseOverColor);
+            super.setForeground(r.rolloverForeground);
             oldCursor = getCursor();
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
@@ -122,7 +119,7 @@ public class HyperLinkButton extends JXButton implements MouseListener {
     @Override
     public void mouseExited(MouseEvent e) {
         if(isEnabled()) {
-            super.setForeground(foregroundColor);
+            super.setForeground(r.foreground);
             setCursor(oldCursor);
         }
     }
@@ -133,4 +130,15 @@ public class HyperLinkButton extends JXButton implements MouseListener {
     public void mouseReleased(MouseEvent e) {}
     @Override
     public void mouseClicked(MouseEvent e) {}
+    
+    private class HyperlinkButtonResources {
+        @Resource Color rolloverForeground;
+        @Resource Color foreground;
+        @Resource Color disabledForeground;
+        
+        public HyperlinkButtonResources() {
+            GuiUtils.assignResources(this);
+            HyperlinkButton.super.setForeground(foreground);
+        }
+    }
 }

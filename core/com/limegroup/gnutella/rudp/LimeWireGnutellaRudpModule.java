@@ -4,18 +4,25 @@ import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 
 import org.limewire.concurrent.AbstractLazySingletonProvider;
+import org.limewire.concurrent.ExecutorsHelper;
+import org.limewire.concurrent.ListeningExecutorService;
+import org.limewire.listener.AsynchronousMulticaster;
+import org.limewire.listener.EventBroadcaster;
+import org.limewire.listener.ListenerSupport;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.rudp.RUDPContext;
 import org.limewire.rudp.RUDPSettings;
 import org.limewire.rudp.UDPMultiplexor;
 import org.limewire.rudp.UDPSelectorProvider;
 import org.limewire.rudp.UDPService;
+import org.limewire.rudp.UDPSocketChannelConnectionEvent;
 import org.limewire.rudp.messages.RUDPMessageFactory;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.limegroup.gnutella.rudp.messages.LimeWireGnutellaRudpMessageModule;
 
@@ -25,7 +32,11 @@ public class LimeWireGnutellaRudpModule extends AbstractModule {
     @Override
     protected void configure() {
         binder().install(new LimeWireGnutellaRudpMessageModule());
-        
+
+        ListeningExecutorService executorService = ExecutorsHelper.newProcessingQueue(UDPSocketChannelConnectionEvent.class.getSimpleName());
+        AsynchronousMulticaster<UDPSocketChannelConnectionEvent> connectionEventMulticaster = new AsynchronousMulticaster<UDPSocketChannelConnectionEvent>(executorService); 
+        bind(new TypeLiteral<EventBroadcaster<UDPSocketChannelConnectionEvent>>(){}).toInstance(connectionEventMulticaster);
+        bind(new TypeLiteral<ListenerSupport<UDPSocketChannelConnectionEvent>>(){}).toInstance(connectionEventMulticaster);
         bind(RUDPContext.class).to(LimeRUDPContext.class);
         bind(UDPMultiplexor.class).toProvider(UDPMultiplexorProvider.class);
         bind(UDPService.class).to(LimeUDPService.class);

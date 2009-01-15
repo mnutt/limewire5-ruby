@@ -36,7 +36,10 @@ public class I18n {
     }
 
     public static String trc(String comment, String text) {
-        return i18n.trc(comment, text);
+        String translated = i18n.trc(comment, text);
+        // if comment has not been translated, return text as fallback
+        // TODO needs to be fixed in gettext-commons
+        return translated == comment ? text : translated;
     }
 
     /**

@@ -14,6 +14,7 @@ import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.dnd.GhostDragGlassPane;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -43,9 +44,10 @@ public class FriendSharingPanel extends SharingPanel {
             IconManager iconManager,
             CategoryIconManager categoryIconManager,
             LibraryTableFactory tableFactory,
-            LimeHeaderBarFactory headerBarFactory) {
+            LimeHeaderBarFactory headerBarFactory,
+            GhostDragGlassPane ghostPane) {
 
-        super(wholeLibraryList, friendFileList, categoryIconManager, tableFactory, headerBarFactory);
+        super(wholeLibraryList, friendFileList, categoryIconManager, tableFactory, headerBarFactory, ghostPane, friend);
         
         setInnerNavLayout(new MigLayout("insets 0, gap 0, fill, wrap, hidemode 3", "[138!]", ""));
         
@@ -57,7 +59,9 @@ public class FriendSharingPanel extends SharingPanel {
         
         IconButton backButton = new IconButton(new BackToLibraryAction(returnToLibraryPanel));
         
-        // TODO: See above todo
+        // TODO: See above todo -- This isn't working because name assignement only works
+        //                         if the component exists on app startup.  Since these
+        //                         components are created on the fly, only @Resource works.
         //backButton.setName("FriendSharingPanel.backButton");
         backButton.setIcon(icon);
         backButton.setPressedIcon(pressedIcon);
@@ -67,7 +71,7 @@ public class FriendSharingPanel extends SharingPanel {
         addBackButton(backButton);
                 
         createMyCategories(wholeLibraryList, friendFileList);
-        selectFirst();
+        selectFirstVisible();
     }
     
     protected String getFullPanelName() {

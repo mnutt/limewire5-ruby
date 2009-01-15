@@ -1,10 +1,14 @@
 package org.limewire.xmpp.client;
 
 import org.limewire.friend.impl.LimeWireFriendXmppModule;
+import org.limewire.listener.BroadcastPolicy;
+import org.limewire.listener.CachingEventMulticasterImpl;
+import org.limewire.listener.EventBean;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.EventMulticasterImpl;
 import org.limewire.listener.ListenerSupport;
+import org.limewire.logging.LogFactory;
 import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.api.client.ConnectBackRequestSender;
 import org.limewire.xmpp.api.client.FileOfferEvent;
@@ -14,11 +18,11 @@ import org.limewire.xmpp.api.client.LibraryChangedEvent;
 import org.limewire.xmpp.api.client.RosterEvent;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.XMPPService;
+import org.limewire.xmpp.client.impl.XMPPAddressRegistry;
 import org.limewire.xmpp.client.impl.XMPPAddressResolver;
 import org.limewire.xmpp.client.impl.XMPPAddressSerializer;
 import org.limewire.xmpp.client.impl.XMPPAuthenticator;
 import org.limewire.xmpp.client.impl.XMPPServiceImpl;
-import org.limewire.xmpp.client.impl.XMPPAddressRegistry;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
@@ -52,12 +56,14 @@ public class LimeWireXMPPModule extends AbstractModule {
         bind(new TypeLiteral<EventBroadcaster<LibraryChangedEvent>>(){}).toInstance(libraryChangedMulticaster);
         bind(new TypeLiteral<ListenerSupport<LibraryChangedEvent>>(){}).toInstance(libraryChangedMulticaster);
 
-        EventMulticaster<XMPPConnectionEvent> connectionMulticaster = new EventMulticasterImpl<XMPPConnectionEvent>();
+        CachingEventMulticasterImpl<XMPPConnectionEvent> connectionMulticaster =
+            new CachingEventMulticasterImpl<XMPPConnectionEvent>(BroadcastPolicy.IF_NOT_EQUALS, LogFactory.getLog(XMPPConnectionEvent.class));
+        bind(new TypeLiteral<EventBean<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
         bind(new TypeLiteral<EventMulticaster<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
         bind(new TypeLiteral<EventBroadcaster<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
         bind(new TypeLiteral<ListenerSupport<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
         
-        EventMulticaster<XmppActivityEvent> activityMulticaster = new EventMulticasterImpl<XmppActivityEvent>(); 
+        EventMulticaster<XmppActivityEvent> activityMulticaster = new CachingEventMulticasterImpl<XmppActivityEvent>(BroadcastPolicy.IF_NOT_EQUALS); 
         bind(new TypeLiteral<EventBroadcaster<XmppActivityEvent>>(){}).toInstance(activityMulticaster);
         bind(new TypeLiteral<ListenerSupport<XmppActivityEvent>>(){}).toInstance(activityMulticaster);
         

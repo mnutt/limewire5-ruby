@@ -77,7 +77,7 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
                 if (insertHyphen) {
                     subheading += " - ";
                 }
-                subheading += I18n.tr("{0} Quality", GuiUtils.toQualityString(qualityScore));
+                subheading += GuiUtils.toQualityString(qualityScore);
                 insertHyphen = true;
             }
 
@@ -96,7 +96,7 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
 
             boolean insertHyphen = false;
             if (qualityScore != null) {
-                subheading += I18n.tr("{0} Quality", GuiUtils.toQualityString(qualityScore));
+                subheading += GuiUtils.toQualityString(qualityScore);
                 insertHyphen = true;
             }
 
@@ -151,7 +151,7 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
     @Override
     public String getQualityScore(PropertiableFile propertiableFile) {
         Long qualityScore = getQualityScoreLong(propertiableFile);
-        return qualityScore != null ? I18n.tr("{0} Quality", GuiUtils.toQualityString(qualityScore)) : null;
+        return qualityScore != null ? GuiUtils.toQualityString(qualityScore) : null;
     }
 
     private String addFileSize(String subheading, Long fileSize, boolean insertHyphen) {

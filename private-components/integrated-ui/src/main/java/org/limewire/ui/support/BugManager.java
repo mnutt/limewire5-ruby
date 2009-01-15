@@ -1,6 +1,5 @@
 package org.limewire.ui.support;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -29,27 +30,26 @@ import java.util.concurrent.ThreadFactory;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.AbstractAction;
+import javax.swing.JCheckBox;
 
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.core.api.support.LocalClientInfo;
 import org.limewire.core.api.support.LocalClientInfoFactory;
-import org.limewire.core.settings.ApplicationSettings;
-import org.limewire.core.settings.BugSettings;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.io.IOUtils;
-import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.components.HyperlinkButton;
+import org.limewire.ui.swing.settings.BugSettings;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.FileUtils;
@@ -152,7 +152,7 @@ public final class BugManager {
     private static final Inspectable INSPECTABLE = new Inspectable() {
         public Object inspect() {
             
-            if (!ApplicationSettings.USAGE_STATS.getValue() && !LimeWireUtils.isAlphaRelease())
+            if (!SwingUiSettings.USAGE_STATS.getValue() && !LimeWireUtils.isAlphaRelease())
                 return "Denied";
             
             Exception e = new Exception();
@@ -364,17 +364,7 @@ public final class BugManager {
         
         return myVersion.compareTo(lastVersion) >= 0;
     }
-    
-    private static String warning() {
-        String msg = "Ui" + "jt!j" + "t!Mjn" + "fXjs" + "f/!U" + "if!pg"+
-                     "gjdjbm!xfc" + "tjuf!j" + "t!xx" + "x/mj" + "nfxjs" + "f/d" + "pn/";
-        StringBuilder ret = new StringBuilder(msg.length());
-        for(int i = 0; i < msg.length(); i++) {
-            ret.append((char)(msg.charAt(i) - 1));
-        }
-        return ret.toString();
-    }
-    
+
     /**
      * Displays a message to the user informing them an internal error
      * has occurred.  The user is asked to click 'send' to send the bug
@@ -384,40 +374,45 @@ public final class BugManager {
     private void reviewBug(final LocalClientInfo info, boolean notImplemented) {
         _dialogsShowing++;
         
-        String title = notImplemented ? I18n.tr("Oops!") : I18n.tr("Internal Error");
+        String title = notImplemented ? I18n.tr("Oops!") : I18n.tr("A problem occurred...");
 		final JDialog DIALOG = new LimeJDialog(GuiUtils.getMainFrame(), title, ModalityType.APPLICATION_MODAL);
 		final Dimension DIALOG_DIMENSION = new Dimension(DIALOG_BOX_WIDTH, DIALOG_BOX_HEIGHT);
 		DIALOG.setSize(DIALOG_DIMENSION);
+
+        // make sure number of current dialogs gets decremented when user closes it 
+        DIALOG.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                _dialogsShowing--;
+            }
+        });
 		
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         mainPanel.setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-		
+
 		boolean sendable = isSendableVersion();
 
         String msg;
         if(notImplemented) {
             if(sendable) {
-                msg = I18n.tr("Oops!  You did something we haven't written yet.  Sorry about that.  LimeWire's still going to run just fine, but please click \'Send\' to remind us to write this.  If you want, you can click \'Review\' to look at the information that will be sent. Thanks!");
+                msg = I18n.tr("Oops!  You did something we haven't written yet.  Sorry about that.  LimeWire's still going to run just fine, but please click \'Send Bug\' to remind us to write this.  If you want, you can click \'Show Bug\' to look at the information that will be sent. Thanks!");
             } else {
-                msg = I18n.tr("Oops!  You did something we haven't written yet.  Sorry about that.  LimeWire's still going to run just fine, so don't worry.  If you want, you can click \'Review\' to look at the information about the error.");                
+                msg = I18n.tr("Oops!  You did something we haven't written yet.  Sorry about that.  LimeWire's still going to run just fine, so don't worry.  If you want, you can click \'Show Bug\' to look at the information about the error.");
             }
         } else {
             if(sendable) {
-                msg = I18n.tr("LimeWire has encountered an internal error. It is possible for LimeWire to recover and continue running normally. To aid with debugging, please click \'Send\' to notify LimeWire about the problem. If desired, you can click \'Review\' to look at the information that will be sent. Thank you.");
+                msg = I18n.tr("Sorry, LimeWire ran into a problem.  LimeWire's still going to run just fine, but you should send us the bug so we can fix it.");
             } else {
-                msg = I18n.tr("LimeWire has encountered an internal error. It is possible for LimeWire to recover and continue running normally. To continue using LimeWire, click \'Discard\'. If desired, you can click \'Review\' to look at the information about the error.");
+                msg = I18n.tr("LimeWire has encountered an internal error. It is possible for LimeWire to recover and continue running normally. To continue using LimeWire, close this window. If desired, you can click \'Show Bug\' to look at the information about the error.");
             }
         }
-        
-        msg = warning() + "\n\n" + msg;
-       
-        MultiLineLabel label = new MultiLineLabel(msg, 400);        
+
+        MultiLineLabel label = new MultiLineLabel(msg, 500);
         JPanel labelPanel = new JPanel();
         labelPanel.setLayout(new GridBagLayout());
-        constraints = new GridBagConstraints();
+        GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -426,33 +421,85 @@ public final class BugManager {
         constraints.weighty = 1.0;        
         labelPanel.add(label, constraints); 
 
-        final String defaultDesc = I18n.tr("Please add any comments you may have (e.g what caused the error). \nThank you and please use English.");
-        
-        String textAreaDescription;
-        textAreaDescription = defaultDesc;
-        
-        final JTextArea userCommentsTextArea = new JTextArea(textAreaDescription);        
+        final JPanel bugSpecificsPanel = new JPanel();
+        bugSpecificsPanel.setLayout(new GridBagLayout());
+        bugSpecificsPanel.setVisible(false);
+
+        // the component with the bug stacktrace
+        JTextArea showBug = new JTextArea(info.toBugReport());
+        showBug.setColumns(50);
+        showBug.setEditable(false);
+        showBug.setCaretPosition(0);
+        showBug.setLineWrap(true);
+        showBug.setWrapStyleWord(true);
+        JScrollPane showBugScroller = new JScrollPane(showBug);
+        showBugScroller.setBorder(BorderFactory.createEtchedBorder());
+        showBugScroller.setPreferredSize( new Dimension(500, 200) );
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        bugSpecificsPanel.add(showBugScroller, constraints);
+
+        final String defaultDesc = I18n.tr("Tell us what you were doing before LimeWire ran into this problem.");
+        final JTextArea userCommentsTextArea = new JTextArea(defaultDesc);
         userCommentsTextArea.setLineWrap(true);
-        userCommentsTextArea.setWrapStyleWord(true);                        
-        
+        userCommentsTextArea.setWrapStyleWord(true);
+
         // When the user clicks anywhere in the text field, it highlights the whole text
         // so that user could just type over it without having to delete it manually
         userCommentsTextArea.addFocusListener(new FocusAdapter() {
              @Override
             public void focusGained(FocusEvent e) {
-                 if(userCommentsTextArea.getText().equals(defaultDesc))
-                 userCommentsTextArea.selectAll();              
+                 if(userCommentsTextArea.getText().equals(defaultDesc)) {
+                    userCommentsTextArea.selectAll();
+                 }
              }
         });
         JScrollPane userCommentsScrollPane = new JScrollPane(userCommentsTextArea);
         userCommentsScrollPane.setBorder(BorderFactory.createEtchedBorder());
-        userCommentsScrollPane.setPreferredSize( new Dimension(400, 80) );        
-        
-        JPanel buttonPanel = new JPanel();
-        JButton sendButton = new JButton(I18n.tr("Send"));
+        userCommentsScrollPane.setPreferredSize( new Dimension(500, 60) );
+
+        if (sendable) {
+            constraints = new GridBagConstraints();
+            constraints.gridx = 0;
+            constraints.gridy = 1;
+            constraints.insets = new Insets(10, 0, 0, 0);
+            bugSpecificsPanel.add(userCommentsScrollPane, constraints);
+        }
+
+        final HyperlinkButton showHideBugLink = new HyperlinkButton(I18n.tr("Show Bug"));
+        showHideBugLink.addActionListener(new AbstractAction() {
+            boolean panelVisible = false;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (panelVisible) {
+                    bugSpecificsPanel.setVisible(false);
+                    showHideBugLink.setText("Show Bug");
+                    DIALOG.pack();
+                } else {
+                    bugSpecificsPanel.setVisible(true);
+                    showHideBugLink.setText("Hide Bug");
+                }
+                DIALOG.pack();
+                panelVisible = !panelVisible;
+            }
+        });
+
+
+        // the "always use this answer" checkbox
+        final JCheckBox alwaysuseThisAnswer = new JCheckBox(I18n.tr("Send bugs without asking me in the future"));
+        alwaysuseThisAnswer.setSelected(false);
+
+        JButton sendButton = new JButton(I18n.tr("Send Bug"));
         sendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			    String userComments = userCommentsTextArea.getText(); 
+                // if "always use this answer" is checked, then set SHOW_BUGS to false
+                if (alwaysuseThisAnswer.isSelected()) {
+                    BugSettings.SHOW_BUGS.setValue(false);
+                }
+                String userComments = userCommentsTextArea.getText();
 			    if(!userComments.equals(defaultDesc))
 			        info.addUserComments(userComments);
 			    sendToServlet(info);
@@ -460,104 +507,46 @@ public final class BugManager {
 				_dialogsShowing--;
 			}
 		});
-        JButton reviewButton = new JButton(I18n.tr("Review"));
-        reviewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {			    
-			    String userComments = userCommentsTextArea.getText(); 
-                if(!userComments.equals(defaultDesc))
-                    info.addUserComments(userComments);
-		        JTextArea textArea = new JTextArea(info.toBugReport());
-                textArea.setColumns(50);
-                textArea.setEditable(false);
-                textArea.setCaretPosition(0);
-                JScrollPane scroller = new JScrollPane(textArea);
-                scroller.setBorder(BorderFactory.createEtchedBorder());
-                scroller.setPreferredSize( new Dimension(500, 200) );
-                FocusJOptionPane.showMessageDialog(DIALOG, scroller, I18n.tr("Message"),
-                        JOptionPane.INFORMATION_MESSAGE);
-			}
-		});
-		JButton discardButton = new JButton(I18n.tr("Discard"));
-		discardButton.addActionListener(new ActionListener() {
-		    public void actionPerformed(ActionEvent e) {
-		        DIALOG.dispose();
-		        _dialogsShowing--;
-		    }
-		});
-		if(sendable)
-            buttonPanel.add(sendButton);
-        buttonPanel.add(reviewButton);
-        buttonPanel.add(discardButton);
-        
-        JPanel optionsPanel = new JPanel();
-        JPanel innerPanel = new JPanel();
-        ButtonGroup bg = new ButtonGroup();
-        innerPanel.setLayout( new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
-        optionsPanel.setLayout(new BorderLayout());
-        final JRadioButton alwaysSend = new JRadioButton(I18n.tr("Always Send Immediately"));
-        final JRadioButton alwaysReview = new JRadioButton(I18n.tr("Always Ask For Review"));
-        final JRadioButton alwaysDiscard = new JRadioButton(I18n.tr("Always Discard All Errors"));
-		innerPanel.add(Box.createVerticalStrut(6));        
-        if(!LimeWireUtils.isTestingVersion()) {
-    		if(sendable)
-                innerPanel.add(alwaysSend);
-            innerPanel.add(alwaysReview);
-            innerPanel.add(alwaysDiscard);
-        }
-		innerPanel.add(Box.createVerticalStrut(6));        
-        optionsPanel.add( innerPanel, BorderLayout.WEST );
-        bg.add(alwaysSend);
-        bg.add(alwaysReview);
-        bg.add(alwaysDiscard);
-        bg.setSelected(alwaysReview.getModel(), true);
-        ActionListener alwaysListener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if( e.getSource() == alwaysSend ) {
-                    BugSettings.REPORT_BUGS.setValue(true);
-                    BugSettings.SHOW_BUGS.setValue(false);
-                } else if (e.getSource() == alwaysReview ) {
-                    BugSettings.REPORT_BUGS.setValue(true);
-                    BugSettings.SHOW_BUGS.setValue(true);
-                } else if( e.getSource() == alwaysDiscard ) {                    
-                    BugSettings.REPORT_BUGS.setValue(false);
-                }
-            }
-        };
-        alwaysSend.addActionListener(alwaysListener);
-        alwaysReview.addActionListener(alwaysListener);
-        alwaysDiscard.addActionListener(alwaysListener);
-        
+
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
-        mainPanel.add(labelPanel, constraints);              
-        
-        if(sendable)
-        {
-            constraints = new GridBagConstraints();
-            constraints.gridx = 0;
-            constraints.gridy = 1;
-            constraints.fill = GridBagConstraints.BOTH;
-            constraints.weightx = 1.0;            
-            constraints.weighty = 1.0;
-            constraints.insets = new Insets(20, 0, 6, 0);
-            mainPanel.add(userCommentsScrollPane, constraints);
-        }
-            
+        mainPanel.add(labelPanel, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.insets = new Insets(10, 0, 0, 0);
+        constraints.anchor = GridBagConstraints.LINE_START;
+        mainPanel.add(showHideBugLink, constraints);
+
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 2;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.insets = new Insets(30, 0, 6, 0);
+        mainPanel.add(bugSpecificsPanel, constraints);
 
-        mainPanel.add(optionsPanel, constraints);
+        if (sendable) {
+            constraints = new GridBagConstraints();
+            constraints.gridx = 0;
+            constraints.gridy = 3;
+            constraints.anchor = GridBagConstraints.LINE_START;
+            constraints.insets = new Insets(10, 0, 0, 0);
+            mainPanel.add(alwaysuseThisAnswer, constraints);
+
+            constraints = new GridBagConstraints();
+            constraints.gridx = 0;
+            constraints.gridy = 4;
+            mainPanel.add(sendButton, constraints);
+        }
         
-        constraints = new GridBagConstraints();
-        constraints.gridx = 0;
-        constraints.gridy = 3;
-        
-        mainPanel.add(buttonPanel, constraints);   
-        
+        mainPanel.validate();
         DIALOG.getContentPane().add(mainPanel);
 		DIALOG.pack();
+		sendButton.requestFocusInWindow();
 		DIALOG.setLocationRelativeTo(GuiUtils.getMainFrame());
 
 		try {

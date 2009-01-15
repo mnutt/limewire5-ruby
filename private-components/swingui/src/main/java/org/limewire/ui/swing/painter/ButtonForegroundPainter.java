@@ -65,7 +65,7 @@ public class ButtonForegroundPainter extends AbstractPainter<JXButton> {
             icon = object.getPressedIcon();
             foreground = pressedForeground; 
         }
-        else if (object.getModel().isRollover()) {
+        else if (object.getModel().isRollover() || object.hasFocus()) {
             icon = object.getRolloverIcon();
             foreground = hoverForeground;
         }

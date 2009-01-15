@@ -5,13 +5,15 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,13 +25,17 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.jdesktop.swingx.JXButton;
-import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.util.FontUtils;
+import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.VerticalLayout;
+import org.jdesktop.swingx.icon.EmptyIcon;
 import org.limewire.util.Objects;
 
 /** A combobox rendered in the LimeWire 5.0 style. */
@@ -66,8 +72,13 @@ public class LimeComboBox extends JXButton {
     /** True if clicking will always force visibility. */
     private boolean clickForcesVisible = false;
     
-    /** Constructs a new combobox with the given actions. */
-    LimeComboBox(List<Action> newActions) {        
+    /** Constructs an empty unskinned combo box. */
+    public LimeComboBox() {
+        this(null);
+    }
+    
+    /** Constructs an empty unskinned combo box. */
+    public LimeComboBox(List<Action> newActions) {        
         setText(null);
         actions = new ArrayList<Action>();
         addActions(newActions);
@@ -334,7 +345,7 @@ public class LimeComboBox extends JXButton {
                     if(!clickForcesVisible && (menuVisible || System.currentTimeMillis() - menuInvizTime <= 10f)) {
                         menu.setVisible(false);
                     } else {
-                        menu.show((Component) e.getSource(), 0, getHeight()-1);
+                        menu.show((Component) e.getSource(), 1, getHeight()-1);
                     }
                 }
             }
@@ -342,69 +353,154 @@ public class LimeComboBox extends JXButton {
     }
 
     private void createPopupMenu() {
-        menu = new JPopupMenu();
+        menu = new JPopupMenu();        
         initMenu();
     }
     
+    /**
+     * Updates the size of the button to match either the explicit text of the
+     * button, or the largest item in the menu.
+     */
     private void updateSize() {        
         if (getText() == null && (actions == null || actions.isEmpty())) {
             return;
         }
         
-        Rectangle2D labelRect = null;                
-        if (getText() != null && !getText().isEmpty()) {
-            labelRect = FontUtils.getLongestTextArea(getFont(), getText());
+        Font font = getFont();
+        FontMetrics fm = getFontMetrics(font);
+        Rectangle largest = new Rectangle();
+        Rectangle iconR = new Rectangle();
+        Rectangle textR = new Rectangle();
+        Rectangle viewR = new Rectangle(Short.MAX_VALUE, Short.MAX_VALUE);
+        
+        // If text is explicitly set, layout that text.
+        if(getText() != null && !getText().isEmpty()) {
+            SwingUtilities.layoutCompoundLabel(
+                    this, fm, getText(), null,
+                    SwingConstants.CENTER, SwingConstants.CENTER,
+                    SwingConstants.CENTER, SwingConstants.TRAILING,
+                    viewR, iconR, textR, (getText() == null ? 0 : 4)
+            );
+            Rectangle r = iconR.union(textR);
+            largest = r;
         } else {
-            labelRect = FontUtils.getLongestTextArea(getFont(), actions.toArray());
-        }
-
-        int ix1 = 0;
-        int ix2 = 0;
-        int iy1 = 0;
-        int iy2 = 0;
-
-        if (getBorder() != null) {
-            Insets insets = getBorder().getBorderInsets(this);
-            ix1 = insets.left;
-            ix2 = insets.right;
-            iy1 = insets.top;
-            iy2 = insets.bottom;
-        }
-
-        int height = (int) labelRect.getHeight() + iy1 + iy2;
-        int width = (int) labelRect.getWidth() + ix1 + ix2;
-        
-        if (height < getMinimumSize().getHeight()) { 
-            height = (int)getMinimumSize().getHeight();
-        }
-        
-        setMinimumSize(new Dimension(width, height));
-        setMaximumSize(new Dimension(200, 100));
-        setPreferredSize(new Dimension(width, height));
-        setSize(new Dimension(width, height));
+            // Otherwise, find the largest layout area of all the menu items.
+            for(Action action : actions) {
+                Icon icon = (Icon)action.getValue(Action.SMALL_ICON);
+                String text = (String)action.getValue(Action.NAME);            
                 
+                iconR.height = iconR.width = iconR.x = iconR.y = 0;
+                textR.height = textR.width = textR.x = textR.y = 0;
+                viewR.x = viewR.y = 0;
+                viewR.height = viewR.width = Short.MAX_VALUE;
+                
+                SwingUtilities.layoutCompoundLabel(
+                        this, fm, text, icon,
+                        SwingConstants.CENTER, SwingConstants.CENTER,
+                        SwingConstants.CENTER, SwingConstants.TRAILING,
+                        viewR, iconR, textR, (text == null ? 0 : 4)
+                );
+                Rectangle r = iconR.union(textR);                
+                largest.height = Math.max(r.height, largest.height);
+                largest.width = Math.max(r.width, largest.width);
+            }
+        }
+        
+        Insets insets = getInsets();
+        largest.width += insets.left + insets.right;
+        largest.height += insets.top + insets.bottom;
+        largest.height = Math.max(getMinimumSize().height, largest.height);
+        
+        setMaximumSize(new Dimension(200, 100));
+        setMinimumSize(largest.getSize());
+        setPreferredSize(largest.getSize());
+        setSize(largest.getSize());
+        
         revalidate();
         repaint();
     }
     
     private void updateMenu() {
-        if (!customMenu && menuDirty) {
-            menuDirty = false;        
-            menu.removeAll();        
-            for ( Action action : actions ) {        
-                Action compoundAction = action;            
-                // Wrap the action if this combo box has room for selection
-                if (getText() == null) {
-                    compoundAction = new SelectionActionWrapper(compoundAction);
-                }                
-                JMenuItem menuItem = createMenuItem(compoundAction);
-                menu.add(menuItem);
+        // If custom or not dirty, do nothing.
+        if(customMenu || !menuDirty) {
+            return;
+        }
+        
+        // otherwise, reset up the menu.
+        menuDirty = false;
+        menu.removeAll();
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ActionLabel label = (ActionLabel)e.getSource();
+                Action action = label.getAction();
+                selectedAction = action;
+                // Fire the parent listeners
+                for (SelectionListener listener : selectionListeners) {
+                    listener.selectionChanged(action);
+                }
+                repaint();
+                menu.setVisible(false);
             }
+        };
+        
+        // This is a workaround for not using JMenuItem -- it mimicks the feel
+        // without requiring odd spacing.
+        MouseListener mouseListener = new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                ActionLabel label = (ActionLabel)e.getSource();
+                ((JComponent)label.getParent()).setOpaque(true);
+                label.setForeground(UIManager.getColor("MenuItem.selectionForeground"));
+                label.getParent().repaint();
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                paintNormal(e.getSource());
+            }
+            
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                paintNormal(e.getSource());
+            }
+            
+            private void paintNormal(Object source) {
+                ActionLabel label = (ActionLabel)source;
+                ((JComponent)label.getParent()).setOpaque(false);
+                label.setForeground(UIManager.getColor("MenuItem.foreground"));
+                label.getParent().repaint();
+            }
+        };
+        
+        Icon emptyIcon = null; 
+        for(Action action : actions) {
+            if(action.getValue(Action.SMALL_ICON) != null) {
+                emptyIcon = new EmptyIcon(16, 16);
+                break;
+            }
+        }
+        
+        for (Action action : actions) {
+            // We create the label ourselves (instead of using JMenuItem),
+            // because JMenuItem adds lots of bulky insets.
+            JXPanel panel = new JXPanel(new VerticalLayout());
+            panel.setOpaque(false);
+            panel.setBackground(UIManager.getColor("MenuItem.selectionBackground"));                
+            ActionLabel menuItem = new ActionLabel(action, false);
+            if(menuItem.getIcon() == null) {
+                menuItem.setIcon(emptyIcon);
+            }
+            menuItem.addMouseListener(mouseListener);
+            decorateMenuComponent(menuItem);
+            menuItem.setBorder(BorderFactory.createEmptyBorder(0, 6, 2, 6));
+            menuItem.addActionListener(actionListener);
+            panel.add(menuItem);
+            menu.add(panel);
         }
     }
     
-    private void initMenu() {
-        
+    private void initMenu() {        
         decorateMenuComponent(menu);
         menu.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
@@ -426,7 +522,7 @@ public class LimeComboBox extends JXButton {
                 menuVisible = true;
                 updateMenu();
                 if (getText() == null) {
-                    menu.setPreferredSize(new Dimension(getWidth(), 
+                    menu.setPreferredSize(new Dimension(getWidth()-2, 
                             (int) menu.getPreferredSize().getHeight()));
                 }                
             }
@@ -438,43 +534,5 @@ public class LimeComboBox extends JXButton {
     public interface SelectionListener {
         /** Notification that the given action is now selected. */
         public void selectionChanged(Action item);
-    }
-    
-    // Wraps an action to provide selection listening for the combo box    
-    private class SelectionActionWrapper extends AbstractAction {
-        private final Action delegate;
-        
-        public SelectionActionWrapper(Action delegate) {
-            this.delegate = delegate;
-        }
-        
-        @Override
-        public boolean isEnabled() {
-            return delegate.isEnabled();
-        }
-        
-        @Override
-        public void setEnabled(boolean newValue) {
-            delegate.setEnabled(newValue);
-        }
-        
-        @Override 
-        public Object getValue(String s) {
-            return delegate.getValue(s);
-        }
-        
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Change selection in parent combo box
-            selectedAction = delegate;
-            // Fire the parent listeners
-            for ( SelectionListener listener : selectionListeners ) {
-                listener.selectionChanged(delegate);
-            }            
-            // Call original action
-            delegate.actionPerformed(e);
-            repaint();
-        }
-        
     }
 }

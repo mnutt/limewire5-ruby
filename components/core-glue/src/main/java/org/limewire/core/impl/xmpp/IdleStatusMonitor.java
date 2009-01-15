@@ -5,9 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
+import org.limewire.listener.EventBean;
 import org.limewire.listener.EventBroadcaster;
-import org.limewire.listener.EventListener;
-import org.limewire.listener.ListenerSupport;
 import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.activity.XmppActivityEvent.ActivityState;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
@@ -22,7 +21,7 @@ class IdleStatusMonitor {
     private final IdleTime idleTime;
     private final ScheduledExecutorService backgroundExecutor;
     private final EventBroadcaster<XmppActivityEvent> activityBroadcaster;
-    private volatile boolean isXMPPConnected;
+    private EventBean<XMPPConnectionEvent> connectionEvent;
 
     @Inject
     public IdleStatusMonitor(@Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor, 
@@ -46,16 +45,14 @@ class IdleStatusMonitor {
             @Override
             public void start() {
                 backgroundExecutor.scheduleAtFixedRate(new Runnable() {
-                    private boolean hasBecomeInactive;
                     @Override
                     public void run() {
-                        if (idleTime.supportsIdleTime() && isXMPPConnected) {
+                        XMPPConnectionEvent lastEvent = connectionEvent.getLastEvent();
+                        if (idleTime.supportsIdleTime() && lastEvent != null && lastEvent.getType().equals(XMPPConnectionEvent.Type.CONNECTED)) {
                             if (idleTime.getIdleTime() > TWENTY_MINUTES_IN_MILLIS) {
                                 activityBroadcaster.broadcast(new XmppActivityEvent(ActivityState.Idle));
-                                hasBecomeInactive = true;
-                            } else if (hasBecomeInactive) {
+                            } else {
                                 activityBroadcaster.broadcast(new XmppActivityEvent(ActivityState.Active));
-                                hasBecomeInactive = false;
                             }
                         }
                     }
@@ -67,19 +64,7 @@ class IdleStatusMonitor {
         });
     }
     
-    @Inject void register(ListenerSupport<XMPPConnectionEvent> connectionSupport) {
-        connectionSupport.addListener(new EventListener<XMPPConnectionEvent>() {
-            @Override
-            public void handleEvent(XMPPConnectionEvent event) {
-                switch(event.getType()) {
-                case CONNECTED:
-                    isXMPPConnected = true;
-                    break;
-                case DISCONNECTED:
-                    isXMPPConnected = false;
-                    break;
-                }
-            }
-        });
+    @Inject void register(EventBean<XMPPConnectionEvent> connectionSupport) {
+        this.connectionEvent = connectionSupport;
     }
 }

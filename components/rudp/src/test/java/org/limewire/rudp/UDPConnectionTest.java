@@ -23,6 +23,7 @@ import org.limewire.rudp.messages.RUDPMessageFactory;
 import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import org.limewire.util.BaseTestCase;
+import org.limewire.listener.EventListenerList;
 
 /**
  * Put full UDPConnection system through various tests.
@@ -65,7 +66,7 @@ public final class UDPConnectionTest extends BaseTestCase {
         context = new DefaultRUDPContext(
                 factory, NIODispatcher.instance().getTransportListener(),
                 stubService, new DefaultRUDPSettings());
-        udpSelectorProvider = new UDPSelectorProvider(context);
+        udpSelectorProvider = new UDPSelectorProvider(context, new EventListenerList<UDPSocketChannelConnectionEvent>());
         udpMultiplexor = udpSelectorProvider.openSelector();
         stubService.setUDPMultiplexor(udpMultiplexor);
         NIODispatcher.instance().registerSelector(udpMultiplexor,
@@ -668,7 +669,7 @@ public final class UDPConnectionTest extends BaseTestCase {
             }
         });
         
-        NBSocket requestorSocket = new UDPSocketChannel(udpSelectorProvider, context, Role.UNDEFINED).socket();
+        NBSocket requestorSocket = new UDPSocketChannel(udpSelectorProvider, context, Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>()).socket();
         requestorSocket.connect(new InetSocketAddress("127.0.0.1", 6346), 2000, new ConnectObserver() {
             @Override
             public void handleConnect(Socket socket) throws IOException {
@@ -715,7 +716,7 @@ public final class UDPConnectionTest extends BaseTestCase {
             }
         });
         
-        NBSocket requestorSocket = new UDPSocketChannel(udpSelectorProvider, context, Role.UNDEFINED).socket();
+        NBSocket requestorSocket = new UDPSocketChannel(udpSelectorProvider, context, Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>()).socket();
         requestorSocket.connect(new InetSocketAddress("127.0.0.1", 6346), 2000, new ConnectObserver() {
             @Override
             public void handleConnect(Socket socket) throws IOException {

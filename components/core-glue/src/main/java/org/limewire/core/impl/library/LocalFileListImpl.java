@@ -137,6 +137,9 @@ abstract class LocalFileListImpl implements LocalFileList {
     protected void clearFileDescs() {
         threadSafeList.clear();
     }
+    
+    /** Notification that a collection share has changed. */
+    protected abstract void collectionUpdate(FileListChangedEvent.Type type, boolean shared);
    
     /** Constructs a new EventListener for list change events. */
     protected EventListener<FileListChangedEvent> newEventListener() {
@@ -157,28 +160,14 @@ abstract class LocalFileListImpl implements LocalFileList {
                     clearFileDescs();
                     break;     
                 case AUDIO_COLLECTION:
-                    if(event.getType() == FileListChangedEvent.Type.AUDIO_COLLECTION) {
-                        audioCollectionUpdate(event.isShared());
-                    }
-                    break;
                 case VIDEO_COLLECTION:
-                    if(event.getType() == FileListChangedEvent.Type.VIDEO_COLLECTION) {
-                        videoCollectionUpdate(event.isShared());
-                    }
-                    break;
                 case IMAGE_COLLECTION:
-                    if(event.getType() == FileListChangedEvent.Type.IMAGE_COLLECTION) {
-                        imageCollectionUpdate(event.isShared());
-                    }
+                    collectionUpdate(event.getType(), event.isShared());
                     break;
                 }
             }
         };
     }
-
-    protected void imageCollectionUpdate(boolean value) {}
-    protected void audioCollectionUpdate(boolean value) {}
-    protected void videoCollectionUpdate(boolean value) {}
     
     private class ListWrapper extends ListeningFutureDelegator<List<ListeningFuture<FileDesc>>, List<ListeningFuture<LocalFileItem>>> {
         public ListWrapper(ListeningFuture<List<ListeningFuture<FileDesc>>> delegate) {

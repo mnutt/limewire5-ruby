@@ -1,7 +1,6 @@
 package org.limewire.ui.swing.table;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;
@@ -26,11 +25,9 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
-import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.PropertyUtils;
 
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
@@ -125,7 +122,7 @@ public class MouseableTable extends StripedJXTable {
 
 	
 	protected void initialize() {	
-		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);        
+		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);        
 		setCellSelectionEnabled(false);
 		setRowSelectionAllowed(true);
 	    setTableHeaderRenderer();
@@ -238,6 +235,27 @@ public class MouseableTable extends StripedJXTable {
             removeEditor();
         }
     }
+	
+	public void setStripeHighlighterEnabled(boolean striped){
+	    if (striped) {
+            // HighlightPredicate.EVEN and HighlightPredicate.ODD are zero based
+            setHighlighters(
+                    colors.getEvenHighLighter(),
+                    colors.getOddHighLighter());
+
+        } else {
+            setHighlighters(
+                    new ColorHighlighter(HighlightPredicate.EVEN, colors.evenColor,
+                            colors.evenForeground, colors.evenColor,
+                            colors.evenForeground),
+                    new ColorHighlighter(HighlightPredicate.ODD, colors.evenColor,
+                            colors.evenForeground, colors.evenForeground,
+                            colors.evenForeground),
+                    new ColorHighlighter(new MenuHighlightPredicate(this), colors.menuRowColor,
+                            colors.menuRowForeground, colors.menuRowColor, colors.menuRowForeground));
+
+        }
+	}
 
     // gets rid of default editor color so that editors are colored by highlighters and selection color is shown
     @Override
@@ -309,7 +327,7 @@ public class MouseableTable extends StripedJXTable {
 	/**
 	 * Does this row have a popup menu showing?
 	 */
-	public static class MenuHighlightPredicate implements HighlightPredicate {
+	private static class MenuHighlightPredicate implements HighlightPredicate {
 
 		private MouseableTable table;
 
@@ -326,60 +344,7 @@ public class MouseableTable extends StripedJXTable {
 		}
 	}
 	
-	public static class TableColors {
-	    /**
-	     * these consider the first element even (zero based)
-	     */
-	    @Resource
-	    public Color evenColor;
-	    @Resource
-	    public Color evenForeground;
-	    @Resource
-	    public Color oddColor;
-	    @Resource
-	    public Color oddForeground;
-	    @Resource
-	    public Color menuRowColor;
-	    @Resource
-	    public Color menuRowForeground;    
-	    @Resource
-	    public Color selectionColor;
-	    @Resource
-	    public Color selectionForeground;
-	    @Resource
-	    private Color disabledForegroundColor;
-	    @Resource
-	    private Color gridColor;
-	    
-	    private ColorHighlighter evenHighLighter;
-	    
-	    private ColorHighlighter oddHighlighter;
-	    
-	    public TableColors() {
-	        GuiUtils.assignResources(TableColors.this);
-	        
-	        evenHighLighter = new ColorHighlighter(HighlightPredicate.EVEN, evenColor, evenForeground, selectionColor, selectionForeground);
-	        oddHighlighter = new ColorHighlighter(HighlightPredicate.ODD, oddColor, oddForeground, selectionColor, selectionForeground);
-	    }
-	    
-	    public ColorHighlighter getEvenHighLighter() {
-	        return evenHighLighter;
-	    }
-	    
-	    public ColorHighlighter getOddHighLighter() {
-	        return oddHighlighter;
-	    }
-	    
-	    public Color getDisabledForegroundColor() {
-	        return disabledForegroundColor;
-	    }
-	    
-	    public Color getGridColor() {
-	        return gridColor;
-	    }
-	}
-	
-    @Override
+	@Override
     public void setDefaultEditor(Class clazz, TableCellEditor editor) {
         boolean usesEventTableModel = getModel() instanceof EventTableModel;
         boolean usesAdvancedTableFormat = false;

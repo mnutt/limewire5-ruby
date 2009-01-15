@@ -691,7 +691,7 @@ public class LimeXMLReplyCollection {
                   LimeXMLDocument newAudioXmlDoc = metaDataReader.readDocument(fd.getFile());
                   LimeXMLDocument oldAudioXmlDoc = getAudioDoc(currentXmlDocs);
                   
-                  if(!oldAudioXmlDoc.equals(newAudioXmlDoc)) {
+                  if(oldAudioXmlDoc == null || !oldAudioXmlDoc.equals(newAudioXmlDoc)) {
                       currentXmlDocs = mergeAudioDocs(currentXmlDocs, oldAudioXmlDoc, newAudioXmlDoc);
                   }
               } catch (IOException e) {

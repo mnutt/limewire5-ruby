@@ -10,15 +10,11 @@ import org.limewire.listener.EventListenerList;
 
 /**
  * Abstract Animator class that will handle starting and stepping through an
- * animation, then finally stopping. The animation tries to trigger at least 30
- * frames a second, to Keep the animation smooth.
- * 
- * By trigger, we mean a step event is broadcast to all listeners which actually
- * do the work of animating the component.
+ * animation, then finally stopping. The animation tries to trigger at least 66
+ * frames a second, to Keep the animation smooth. In other words the animation
+ * will take a step every 15ms.
  */
 abstract class AbstractAnimator<T> implements Animator<T> {
-
-    private int TARGET_STEPS_PER_SECOND = 30;
 
     private final Timer timer;
 
@@ -30,10 +26,12 @@ abstract class AbstractAnimator<T> implements Animator<T> {
 
     private final T component;
 
+    private static final int STEP_TIME = 15;// A step time of 15ms is about
+                                            // 66fps
+
     public AbstractAnimator(final T component, int totalTime) {
         this.component = component;
-        totalNumberOfSteps = (int) Math.ceil((((double) totalTime) / 1000)
-                * TARGET_STEPS_PER_SECOND);// trying to get 30 frames a second
+        totalNumberOfSteps = (int) Math.ceil(totalTime / (double) STEP_TIME);
         this.eventListenerList = new EventListenerList<AnimatorEvent<T>>();
         this.timer = new Timer(0, new ActionListener() {
             @Override
@@ -47,8 +45,7 @@ abstract class AbstractAnimator<T> implements Animator<T> {
             }
         });
 
-        timer.setDelay(totalTime / totalNumberOfSteps);// trying to get 30
-        // frames a second
+        timer.setDelay(STEP_TIME);
     }
 
     @Override

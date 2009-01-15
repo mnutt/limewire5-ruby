@@ -27,13 +27,13 @@ public class SearchHeadingDocumentBuilderImplTest extends TestCase {
 
     public void testNonMouseOverHeadingDocument() {
         String expected = 
-             bldr.documentStartHTML + "<span class=\"title\"><a href=\"#download\" color=\"#2152a6\">Night life</a></span>" + DOCUMENT_END;
+             bldr.documentStartHTML + "<span class=\"title\"><a href=\"#download\">Night life</a></span>" + DOCUMENT_END;
         assertEquals(expected, bldr.getHeadingDocument(heading, BasicDownloadState.NOT_STARTED, false));
     }
     
     public void testMouseOverHeadingDocument() {
         String expected = 
-            bldr.documentStartHTML + "<span class=\"title\"><a href=\"#download\" color=\"#2152a6\">Night life</a></span>" + DOCUMENT_END;
+            bldr.documentStartHTML + "<span class=\"title\"><a href=\"#download\">Night life</a></span>" + DOCUMENT_END;
         assertEquals(expected, bldr.getHeadingDocument(heading, BasicDownloadState.NOT_STARTED, false));
     }
     

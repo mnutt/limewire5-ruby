@@ -1,8 +1,6 @@
 package org.limewire.core.settings;
 
-import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.setting.BooleanSetting;
-import org.limewire.setting.ByteSetting;
 import org.limewire.setting.CharArraySetting;
 import org.limewire.setting.FloatSetting;
 import org.limewire.setting.IntSetting;
@@ -261,12 +259,6 @@ public final class SearchSettings extends LimeProps {
                 0f, "SearchSettings.DisableOOBV2",0f,1f);
 
     /**
-     * The TTL for probe queries.
-     */
-    public static final ByteSetting PROBE_TTL =
-        FACTORY.createByteSetting("PROBE_TTL", (byte)2);
-
-    /**
      * Setting for the characters that are not allowed in search strings
      */
     public static final CharArraySetting ILLEGAL_CHARS =
@@ -276,18 +268,7 @@ public final class SearchSettings extends LimeProps {
      * Setting for the maximum number of characters to allow in queries.
      */
     public static final IntSetting MAX_QUERY_LENGTH =
-        FACTORY.createIntSetting("MAX_QUERY_LENGTH", 256);
-
-    /**
-     * Setting for maximum allowable length of query string
-     * (Search Criteria field) in Query message.
-     *
-     * Backward compatibility setting
-     * 
-     */
-    public static final IntSetting OLD_LW_MAX_QUERY_FIELD_LEN =
-        FACTORY.createIntSetting("OLD_LW_MAX_QUERY_FIELD_LEN", 30);
-
+        FACTORY.createIntSetting("MAX_QUERY_LENGTH_2", 256);
     /**
      * Setting for the maximum number of bytes to allow in XML queries.
      */
@@ -306,32 +287,12 @@ public final class SearchSettings extends LimeProps {
 	 */
     public static final IntSetting MINIMUM_SEARCH_SPEED =
         FACTORY.createIntSetting("MINIMUM_SEARCH_SPEED_2", 0);
-    
-    /**
-	 * The maximum number of simultaneous searches to allow.
-	 */    
-    public static final IntSetting PARALLEL_SEARCH =
-        FACTORY.createIntSetting("PARALLEL_SEARCH_2", 5);
 	
 	/**
 	 * Whether or not to enable the spam filter.
 	 */    
     public static final BooleanSetting ENABLE_SPAM_FILTER =
-        FACTORY.createBooleanSetting("ENABLE_SPAM_FILTER", true);
-
-    /**
-     * The display mode for junk search results
-     */    
-    public static final IntSetting DISPLAY_JUNK_MODE =
-        FACTORY.createIntSetting("DISPLAY_JUNK_MODE", MOVE_JUNK_TO_BOTTOM);
-    
-    public static boolean moveJunkToBottom() {
-        return ENABLE_SPAM_FILTER.getValue() && DISPLAY_JUNK_MODE.getValue() == MOVE_JUNK_TO_BOTTOM;
-    }
-    
-    public static boolean hideJunk() {
-        return ENABLE_SPAM_FILTER.getValue() && DISPLAY_JUNK_MODE.getValue() == HIDE_JUNK;
-    }
+        FACTORY.createBooleanSetting("ENABLE_SPAM_FILTER_2", true);
     
     /**
 	 * Set how sensitive the spamfilter should be
@@ -369,14 +330,6 @@ public final class SearchSettings extends LimeProps {
         FACTORY.createRemoteStringArraySetting("LIME_QRP_ENTRIES", 
                 new String[]{"limewire", "pro", "limewirepro"}, "SearchSettings.limeQRPEntries");
     
-    public static final StringArraySetting SEARCH_WARNING = 
-        FACTORY.createRemoteStringArraySetting("SEARCH_BANNER",
-                new String[]{
-                "Only search results with a {0} are official LimeWire communications.",
-                "http://results.limewire.com/officialresults",
-                "1.0f"},
-        "ResultPanel.SearchBanner");
-    
     /**
      * Whether the user wishes to receive results for partial files.
      */
@@ -393,13 +346,6 @@ public final class SearchSettings extends LimeProps {
     public static boolean desiresPartialResults() {
         return DESIRES_PARTIAL_RESULTS.getValue() && DESIRES_PARTIAL_RESULTS_REMOTE.getValue();
     }
-    
-    /**
-     * Whether or not the user wants to see promotional results.
-     */
-    @InspectablePrimitive("disable promotional results")
-    public static final BooleanSetting DISABLE_PROMOTIONAL_RESULTS = 
-        FACTORY.createBooleanSetting("DISABLE_PROMOTIONAL_RESULTS_2", false);
 
     /**
      * Whether or not to include metadata in plaintext searches
@@ -407,50 +353,4 @@ public final class SearchSettings extends LimeProps {
     public static final BooleanSetting INCLUDE_METADATA_IN_PLAINTEXT_SEARCH =
         FACTORY.createRemoteBooleanSetting("INCLUDE_METADATA_IN_PLAINTEXT_SEARCH",
                 true, "SearchSettings.includeMetadataInPlaintextSearch");
-    
-    /**
-     * Setting for whether or not to group similar results
-     */
-    public static final BooleanSetting GROUP_SIMILAR_RESULTS_ENABLED =
-        FACTORY.createBooleanSetting("GROUP_SIMILAR_RESULTS_ENABLED", true);
-    
-    /**
-     * Setting for whether to display search tips based on file in 
-     * friends libraries. If true, tips should be displayed, if false
-     * they should not. 
-     */
-    public static final BooleanSetting POPULATE_SEARCH_BAR_FRIEND_FILES =
-        FACTORY.createBooleanSetting("POPULATE_SEARCH_BAR_FRIEND_FILES", true);
-    
-    /**
-     * Setting for whether to display old searches as search tips. If true,
-     * old search will be displayed as tips, if false they won't be displayed
-     */
-    public static final BooleanSetting REMEMBER_OLD_SEARCHES_SEARCH_BAR =
-        FACTORY.createBooleanSetting("REMEMBER_OLD_SEARCHES_SEARCH_BAR", true);
-    
-    /**
-     * Setting for how many old search tips to display.
-     */
-    public static final IntSetting POPULATE_SEARCH_BAR_NUMBER_OLD_SEARCH =
-        FACTORY.createIntSetting("POPULATE_SEARCH_BAR_NUMBER_OLD_SEARCH", 3);
-    
-    /**
-     * Setting for whether to automatically search your friends libraries
-     * when you spawn a gnutella search.
-     */
-    public static final BooleanSetting SEARCH_FRIENDS_LIBRARIES =
-        FACTORY.createBooleanSetting("SEARCH_FRIENDS_LIBRARIES", true);
-    
-    /**
-     * The default search category for the search bar.
-     */
-    public static final IntSetting DEFAULT_SEARCH_CATEGORY_ID =
-        FACTORY.createIntSetting("DEFAULT_SEARCH_CATEGORY_ID", -1);
-    
-    /**
-     * The default search view, list versus classic.
-     */
-    public static final IntSetting SEARCH_VIEW_TYPE_ID =
-        FACTORY.createIntSetting("SEARCH_VIEW_TYPE_ID", -1);
 }

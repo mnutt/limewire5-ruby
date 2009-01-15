@@ -16,12 +16,11 @@
 
   <dependencies>
     <!-- LimeWire Components -->
-    <dependency>
+     <dependency>
       <groupId>org.limewire</groupId>
-      <artifactId>lw-gui</artifactId>
+      <artifactId>lw-core</artifactId>
       <version>${limewire.version}</version>
-      <scope>test</scope>
-    </dependency>
+    </dependency>    
     <dependency>
       <groupId>org.limewire</groupId>
       <artifactId>lw-test-util</artifactId>

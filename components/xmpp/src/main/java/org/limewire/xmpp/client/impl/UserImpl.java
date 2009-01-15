@@ -105,12 +105,23 @@ public class UserImpl implements User {
 
     @Override
     public String getName() {
-        return rosterEntry.get().getName();
+        String name = rosterEntry.get().getName();
+        if(name != null) {
+            String service = network.getNetworkName();
+            int idx = name.lastIndexOf("@" + service);
+            if(idx == -1) {
+                return name;
+            } else {
+                return name.substring(0, idx);
+            }
+        } else {
+            return null;
+        }
     }
 
     @Override
     public String getRenderName() {
-        String visualName = rosterEntry.get().getName();
+        String visualName = getName();
         if(visualName == null) {
             return idNoService;
         } else {
@@ -120,7 +131,7 @@ public class UserImpl implements User {
     
     @Override
     public String getFirstName() {
-        String visualName = rosterEntry.get().getName();
+        String visualName = getName();
         if(visualName == null) {
             return idNoService;
         } else {
@@ -202,7 +213,7 @@ public class UserImpl implements User {
     }
 
     public String toString() {
-        return StringUtils.toString(this, id, rosterEntry.get().getName());
+        return StringUtils.toString(this, id, getName());
     }
 
     void updatePresence(Presence updatedPresence) {

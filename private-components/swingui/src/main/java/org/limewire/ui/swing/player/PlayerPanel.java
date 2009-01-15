@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.io.File;
 import java.util.Map;
@@ -15,11 +17,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.plaf.basic.BasicSliderUI;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -46,8 +49,17 @@ import org.limewire.ui.swing.util.ResizeUtils;
 
 import com.google.inject.Inject;
 
+/**
+ * NOTE: This class should be treated as a singleton and the only proper media player (except the mini player)
+ *        in the application otherwise there will be contention regarding play control and volume.
+ * 
+ */
 public class PlayerPanel extends JXPanel {
 
+    // TODO: Move somewhere better
+    public static final String AUDIO_LENGTH_BYTES = "audio.length.bytes";
+    public static final String AUDIO_TYPE = "audio.type";
+    
     @Resource private int arcWidth;
     @Resource private int arcHeight;
     @Resource private Color innerBorder;
@@ -96,21 +108,19 @@ public class PlayerPanel extends JXPanel {
     
     private final AudioPlayer player;
     private final LibraryNavigator libraryNavigator;
-    
-    /**
-     * length of the current audio in seconds
-     */
-    private int durationSecs;
 
     /**
-     * length of the current audio in bytes
-     */
-    private int byteLength;
-
-    /**
-     * Pointer to the current songs file
+     * Pointer to the last opened song's file
      */
     private File file = null;
+    
+    /**
+     * Map of properties of the last opened song
+     */
+    private Map audioProperties = null;
+    
+    private static final String MP3 = "mp3";
+    private static final String WAVE = "wave";
     
     private static final String BACK = "BACK";
     private static final String PLAY = "PLAY";
@@ -163,12 +173,7 @@ public class PlayerPanel extends JXPanel {
         initVolumeControl();
         
         progressSlider = sliderBarFactory.create();
-        progressSlider.addChangeListener(new AudioProgressListener());
-        progressSlider.setMaximum(0);
-        progressSlider.setMaximumSize(new Dimension(206, 6));
-        progressSlider.setMinimumSize(new Dimension(206, 6));
-        progressSlider.setPreferredSize(new Dimension(206, 6));
-        progressSlider.setSize(new Dimension(206, 4));
+        initProgressControl();
         
         statusPanel = new JPanel(new MigLayout());
         
@@ -206,7 +211,7 @@ public class PlayerPanel extends JXPanel {
 
         VolumeController volumeController = new VolumeController();
         volumeSlider.addChangeListener(volumeController);
-        player.addAudioPlayerListener(new PlayerListener(volumeController));      
+        player.addAudioPlayerListener(new PlayerListener());      
         
         volumeControlPopup.addPopupMenuListener(new PopupMenuListener() {
             @Override
@@ -221,7 +226,40 @@ public class PlayerPanel extends JXPanel {
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
             }
         });
+    }
     
+    private void initProgressControl() {
+        progressSlider.addChangeListener(new AudioProgressListener());
+        progressSlider.setMaximum(Integer.MAX_VALUE);
+        progressSlider.setMaximumSize(new Dimension(206, 6));
+        progressSlider.setMinimumSize(new Dimension(206, 6));
+        progressSlider.setPreferredSize(new Dimension(206, 6));
+        progressSlider.setSize(new Dimension(206, 4));
+        progressSlider.addMouseListener(new MouseAdapter() {
+            /**
+             * Reposition the thumb on the jslider to the location of the mouse
+             * click
+             */
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (!progressSlider.isEnabled())
+                    return;
+
+                mouseSkip(e.getX());
+            }
+            
+            /**
+             * Overrides the mouse press increment when a mouse click occurs in the 
+             * jslider. Repositions the jslider directly to the location the mouse
+             * click avoiding the standard step increment with each click
+             * @param x - location of mouse click
+             */
+            protected void mouseSkip(int x) {
+                if (progressSlider.getUI() instanceof BasicSliderUI) {
+                    progressSlider.setValue(((BasicSliderUI)progressSlider.getUI()).valueForXPosition(x));
+                }
+            }
+        });
     }
     
     private void initVolumeControl() {
@@ -237,8 +275,6 @@ public class PlayerPanel extends JXPanel {
         volumeControlPopup.setSize(new Dimension(20, 80));
         
         volumeControlPopup.add(volumeSlider);
-        
-
     }
 
     private void previousSong() {
@@ -280,7 +316,7 @@ public class PlayerPanel extends JXPanel {
             } else if (e.getActionCommand() == FORWARD) {
                 nextSong();
             } else if (e.getActionCommand() == BACK) {
-                if (progressSlider.getValue() < 3) {
+                if ((double)progressSlider.getValue() / (double)progressSlider.getMaximum() < .1) {
                     previousSong();
                 }
                 else {
@@ -305,72 +341,93 @@ public class PlayerPanel extends JXPanel {
     private class AudioProgressListener implements ChangeListener {
         
         private boolean waiting = false; 
-        private boolean wasPlaying = false; 
-        
+       
         @Override
         public void stateChanged(ChangeEvent e) {
             
             if (progressSlider.getMaximum() != 0 && progressSlider.getValueIsAdjusting()) {
                 if (!waiting) {
                     waiting = true;
-//                    System.out.println("waiting to seek");
-                    wasPlaying = player.getStatus() == PlayerState.PLAYING;
-                    if (wasPlaying) {
-//                        System.out.println("pausing");
-                        player.pause();
-                    }
                 }
             } 
             else if (waiting) {
-//                System.out.println("seeking");                
-                int position = byteLength * progressSlider.getValue() / progressSlider.getMaximum();
-//                System.out.println("seeking to " + position);
-                player.seekLocation(position);                
-                if (wasPlaying) {                
-//                    System.out.println("unpausing");
-                    player.unpause();
-                }                
                 waiting = false;
+                double percent = (double)progressSlider.getValue() / (double)progressSlider.getMaximum();
+                skip(percent);
+                progressSlider.setValue((int)(percent * progressSlider.getMaximum()));
+            }
+        }
+        
+        /**
+         * Skips the current song to a new position in the song. If the song's
+         * length is unknown (streaming audio), then ignore the skip
+         * 
+         * @param percent of the song frames to skip from begining of file
+         */
+        public void skip(double percent) {
+            
+            // need to know something about the audio type to be able to skip
+            if (audioProperties != null && audioProperties.containsKey(AUDIO_TYPE)) {
+                String songType = (String) audioProperties.get(AUDIO_TYPE);
+                
+                // currently, only mp3 and wav files can be seeked upon
+                if ( isSeekable(songType)
+                        && audioProperties.containsKey(AUDIO_LENGTH_BYTES)) {
+                    final long skipBytes = Math.round((Integer) audioProperties
+                            .get(AUDIO_LENGTH_BYTES)
+                            * percent);
+
+                    player.seekLocation(skipBytes);
+                }
             }
         }
     }
 
-    
     private class VolumeController implements ChangeListener {
-        
-        private int lastVolume = -1;  
         
         @Override
         public void stateChanged(ChangeEvent e) {
-            lastVolume = volumeSlider.getValue();
-            player.setVolume((double)lastVolume / 100);
-        }
-        
-        public void resetVolume() {
-            if (lastVolume != -1) {
-                player.setVolume((double)lastVolume / 100);
-            }
+            setVolumeValue();
         }
     }
     
+    private void setVolumeValue() {
+        player.setVolume(((float) volumeSlider.getValue()) / volumeSlider.getMaximum());
+    }
     
     private class PlayerListener implements AudioPlayerListener {
        
-        private final VolumeController volumeController;
-        
-        public PlayerListener(VolumeController volumeController) {
-            this.volumeController = volumeController;
-        }
-        
         @Override
         public void progressChange(int bytesread) {
-            if (byteLength != 0 && !progressSlider.getValueIsAdjusting()) {
-                progressSlider.setValue(durationSecs * bytesread / byteLength);
+            // if we know the length of the song, update the progress bar
+            if (audioProperties.containsKey(AUDIO_LENGTH_BYTES)) {
+                int byteslength = ((Integer) audioProperties.get(AUDIO_LENGTH_BYTES))
+                        .intValue();
+
+                float progressUpdate = bytesread * 1.0f / byteslength * 1.0f;
+
+                if (!(progressSlider.getValueIsAdjusting() || player.getStatus() == PlayerState.SEEKING))
+                    setProgressValue((int) (progressSlider.getMaximum() * progressUpdate));
             }
         }
 
+        /**
+         * Updates the current progress of the progress bar, on the Swing thread.
+         */
+        private void setProgressValue(final int update) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    progressSlider.setValue(update);
+                }
+            });
+        }
+        
         @Override
         public void songOpened(Map<String, Object> properties) {
+           
+           audioProperties = properties; 
+           
+           setVolumeValue();
            
            if (player.getCurrentSong() != null) {
                file = player.getCurrentSong().getFile();
@@ -378,35 +435,29 @@ public class PlayerPanel extends JXPanel {
             
            String songText = null;
            
+           if (isSeekable((String) properties.get(AUDIO_TYPE))) {
+               progressSlider.setEnabled(true);
+           } 
+           else {
+               progressSlider.setEnabled(false);
+           }
+           
            if (properties.get("author") == null || properties.get("title") == null) {
-               songText = I18n.tr("Unknown");
+               if (file == null) {
+                   songText = I18n.tr("Unknown");
+               }
+               else {
+                   songText = file.getName();
+               }
            } 
            else {
                songText = properties.get("author") + " - " + properties.get("title");
            }
-            
-           volumeController.resetVolume();
+
            titleLabel.setText(songText);
            titleLabel.setToolTipText(songText);
            titleLabel.start();
         
-           Object duration = properties.get("duration");
-           if (duration != null) {
-               durationSecs = (int)(((Long)duration).longValue()/1000/1000);
-           } 
-           else {
-               durationSecs = 0;
-           }
-               
-           progressSlider.setMaximum(durationSecs);
-           
-           if (properties.get("audio.length.bytes") != null) {
-               byteLength = (Integer)properties.get("audio.length.bytes");
-           } 
-           else {
-               byteLength = 0;
-           }
-                      
            innerPanel.setVisible(true);
         }
 
@@ -415,6 +466,9 @@ public class PlayerPanel extends JXPanel {
             if (event.getState() == PlayerState.EOM) {
                 nextSong();
             } 
+            else if (event.getState() == PlayerState.OPENED || event.getState() == PlayerState.SEEKED) {
+                setVolumeValue();
+            }
             
             if (player.getStatus() == PlayerState.PLAYING || player.getStatus() == PlayerState.SEEKING_PLAY){
                 playButton.setVisible(false);
@@ -427,12 +481,17 @@ public class PlayerPanel extends JXPanel {
         
     }
     
+    private boolean isSeekable(String songType) {
+        if( songType == null )
+            return false;
+        return songType.equalsIgnoreCase(MP3) || songType.equalsIgnoreCase(WAVE);
+    }
     
-    private Painter<JTextField> createStatusBackgroundPainter() {
+    private Painter<JXPanel> createStatusBackgroundPainter() {
         
-        CompoundPainter<JTextField> compoundPainter = new CompoundPainter<JTextField>();
+        CompoundPainter<JXPanel> compoundPainter = new CompoundPainter<JXPanel>();
         
-        RectanglePainter<JTextField> painter = new RectanglePainter<JTextField>();
+        RectanglePainter<JXPanel> painter = new RectanglePainter<JXPanel>();
         
         painter.setRounded(true);
         painter.setFillPaint(innerBackground);
@@ -445,7 +504,7 @@ public class PlayerPanel extends JXPanel {
         painter.setAntialiasing(true);
         painter.setCacheable(true);
         
-        compoundPainter.setPainters(painter, new BorderPainter<JTextField>(this.arcWidth, this.arcHeight,
+        compoundPainter.setPainters(painter, new BorderPainter<JXPanel>(this.arcWidth, this.arcHeight,
                 this.innerBorder, this.bevelLeft, this.bevelTop1, this.bevelTop2, 
                 this.bevelRight,  this.bevelBottom, AccentType.SHADOW));
         compoundPainter.setCacheable(true);

@@ -75,6 +75,9 @@ public class MainPanel extends JPanel {
                     }
                 }
             }
+            
+            @Override public void categoryAdded(NavCategory category) {}
+            @Override public void categoryRemoved(NavCategory category) {}
         });
     }
     

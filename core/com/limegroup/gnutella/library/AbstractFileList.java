@@ -465,7 +465,7 @@ abstract class AbstractFileList implements SharedFileList {
         } else {
             throw new ExecutionException(new FileListChangeFailedException(
                     new FileListChangedEvent(AbstractFileList.this, FileListChangedEvent.Type.ADD_FAILED, fd.getFile()),
-                    "File can't be added to this list"));
+                    FileListChangeFailedException.Reason.CANT_ADD_TO_LIST));
         }
     }
     

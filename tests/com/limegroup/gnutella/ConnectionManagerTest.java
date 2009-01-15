@@ -731,7 +731,7 @@ public class ConnectionManagerTest extends LimeTestCase {
                 Provider<ConnectionManager> connectionManager,
                 Provider<UDPService> udpService, Provider<DHTManager> dhtManager,
                 Provider<QueryUnicaster> queryUnicaster,
-                @Named("hostileFilter") Provider<IPFilter> ipFilter,
+                Provider<IPFilter> ipFilter,
                 Provider<MulticastService> multicastService,
                 UniqueHostPinger uniqueHostPinger,
                 UDPHostCacheFactory udpHostCacheFactory,

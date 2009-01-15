@@ -5,9 +5,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 
-import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.setting.BooleanSetting;
 import org.limewire.ui.swing.components.YesNoCheckBoxDialog;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 
 /**
@@ -27,38 +27,38 @@ public class ShellAssociationManager {
     public void validateFileAssociations(final JFrame frame) {
         final LimeAssociationOption torrentAssociationOption = LimeAssociations
                 .getTorrentAssociation();
-        applyAvailableAssociation(torrentAssociationOption, ApplicationSettings.HANDLE_TORRENTS);
+        applyAvailableAssociation(torrentAssociationOption, SwingUiSettings.HANDLE_TORRENTS);
 
         final LimeAssociationOption magnetAssociationOption = LimeAssociations
                 .getMagnetAssociation();
-        applyAvailableAssociation(magnetAssociationOption, ApplicationSettings.HANDLE_MAGNETS);
+        applyAvailableAssociation(magnetAssociationOption, SwingUiSettings.HANDLE_MAGNETS);
 
         boolean torrentsStolen = isSettingStolen(torrentAssociationOption,
-                ApplicationSettings.HANDLE_TORRENTS);
+                SwingUiSettings.HANDLE_TORRENTS);
         boolean magnetsStolen = isSettingStolen(magnetAssociationOption,
-                ApplicationSettings.HANDLE_MAGNETS);
+                SwingUiSettings.HANDLE_MAGNETS);
 
-        if (ApplicationSettings.WARN_FILE_ASSOCIATION_CHANGES.getValue()
+        if (SwingUiSettings.WARN_FILE_ASSOCIATION_CHANGES.getValue()
                 && (torrentsStolen || magnetsStolen)) {
 
             String message = getMessage(torrentsStolen, magnetsStolen);
 
             final YesNoCheckBoxDialog yesNoCheckBoxDialog = new YesNoCheckBoxDialog(message, I18n
                     .tr("Warn me when other programs take LimeWire associations"),
-                    ApplicationSettings.WARN_FILE_ASSOCIATION_CHANGES.getValue());
+                    SwingUiSettings.WARN_FILE_ASSOCIATION_CHANGES.getValue());
             yesNoCheckBoxDialog.setLocationRelativeTo(frame);
             yesNoCheckBoxDialog.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
 
-                    ApplicationSettings.WARN_FILE_ASSOCIATION_CHANGES.setValue(yesNoCheckBoxDialog
+                    SwingUiSettings.WARN_FILE_ASSOCIATION_CHANGES.setValue(yesNoCheckBoxDialog
                             .isCheckBoxSelected());
                     boolean shouldReAssociate = YesNoCheckBoxDialog.YES_COMMAND.equals(e
                             .getActionCommand());
                     if (shouldReAssociate) {
                         fixAssociation(torrentAssociationOption,
-                                ApplicationSettings.HANDLE_TORRENTS);
-                        fixAssociation(magnetAssociationOption, ApplicationSettings.HANDLE_MAGNETS);
+                                SwingUiSettings.HANDLE_TORRENTS);
+                        fixAssociation(magnetAssociationOption, SwingUiSettings.HANDLE_MAGNETS);
                     } else {
                         updateSettings(torrentAssociationOption, magnetAssociationOption);
                     }
@@ -91,8 +91,8 @@ public class ShellAssociationManager {
      */
     private void updateSettings(final LimeAssociationOption torrentAssociationOption,
             final LimeAssociationOption magnetAssociationOption) {
-        updateSetting(torrentAssociationOption, ApplicationSettings.HANDLE_TORRENTS);
-        updateSetting(magnetAssociationOption, ApplicationSettings.HANDLE_MAGNETS);
+        updateSetting(torrentAssociationOption, SwingUiSettings.HANDLE_TORRENTS);
+        updateSetting(magnetAssociationOption, SwingUiSettings.HANDLE_MAGNETS);
     }
 
     /**

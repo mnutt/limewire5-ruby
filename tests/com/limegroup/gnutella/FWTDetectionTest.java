@@ -104,10 +104,10 @@ public class FWTDetectionTest extends LimeTestCase {
         ConnectionSettings.CONNECT_ON_STARTUP.setValue(false);
         
         udpService = injector.getInstance(UDPService.class);
-        PrivilegedAccessor.setValue(udpService,"_lastReportedPort",new Integer(0));
-        PrivilegedAccessor.setValue(udpService,"_numReceivedIPPongs",new Integer(0));
-        PrivilegedAccessor.setValue(udpService,"_acceptedSolicitedIncoming",new Boolean(true));
-        PrivilegedAccessor.setValue(udpService,"_portStable",new Boolean(true));
+        PrivilegedAccessor.setValue(udpService,"_lastReportedPort", 0);
+        PrivilegedAccessor.setValue(udpService,"_numReceivedIPPongs", 0);
+        PrivilegedAccessor.setValue(udpService,"_acceptedSolicitedIncoming", true);
+        ConnectionSettings.HAS_STABLE_PORT.setValue(true);
         
         networkManager = (NetworkManagerStub)injector.getInstance(NetworkManager.class);
         networkManager.setPort(7788);
@@ -116,8 +116,8 @@ public class FWTDetectionTest extends LimeTestCase {
         networkManager.setSolicitedGUID(udpService.getSolicitedGUID());
         MessageFactory messageFactory = injector.getInstance(MessageFactory.class);
         PingReplyFactory pingReplyFactory = injector.getInstance(PingReplyFactory.class);
-        ponger1 = new UDPPonger(REMOTE_PORT1, messageFactory, pingReplyFactory);
-        ponger2 = new UDPPonger(REMOTE_PORT2, messageFactory, pingReplyFactory);
+        ponger1 = new UDPPonger(REMOTE_PORT1, messageFactory, pingReplyFactory, new byte []{1,2,3,4});
+        ponger2 = new UDPPonger(REMOTE_PORT2, messageFactory, pingReplyFactory, new byte []{2,3,4,5});
         
         injector.getInstance(LifecycleManager.class).start();
     }
@@ -263,7 +263,7 @@ public class FWTDetectionTest extends LimeTestCase {
         
         // reset the value of num received pongs and send another pong, 
         // carrying our forced address
-        PrivilegedAccessor.setValue(udpService,"_numReceivedIPPongs", new Integer(0));
+        PrivilegedAccessor.setValue(udpService,"_numReceivedIPPongs", 0);
         ponger1.reply(new IpPortImpl(networkManager.getExternalAddress(),1000));
         
         assertTrue(udpService.canDoFWT());
@@ -412,6 +412,44 @@ public class FWTDetectionTest extends LimeTestCase {
         assertTrue(udpService.canDoFWT());
     }
     
+    public void testGoodPongsReenableFWTAfterBadOnesDisable() throws Exception {
+        ConnectionSettings.EVER_ACCEPTED_INCOMING.setValue(false);
+        writeToGnet("127.0.0.1:"+REMOTE_PORT1+"\n"+"127.0.0.1:"+REMOTE_PORT2+"\n");
+        HostCatcher hostCatcher = injector.getInstance(HostCatcher.class);        
+        hostCatcher.expire();
+        hostCatcher.sendUDPPings();
+        
+        assertTrue(ponger1.listen().requestsIP());
+        assertTrue(ponger2.listen().requestsIP());
+        
+        IpPort badPort1 = new IpPortImpl(networkManager.getExternalAddress(), 12345);
+        IpPort badPort2 = new IpPortImpl(networkManager.getExternalAddress(),12346);
+        ponger1.reply(badPort1);
+        ponger2.reply(badPort2);
+        Thread.sleep(500);
+        connectionManager.setConnected(true);
+        assertFalse(udpService.canDoFWT());
+        assertTrue(ConnectionSettings.CANNOT_DO_FWT.getValue());
+        connectionManager.setConnected(false);
+        
+        // now send good ports
+        hostCatcher.expire();
+        hostCatcher.sendUDPPings();
+        
+        assertTrue(ponger1.listen().requestsIP());
+        assertTrue(ponger2.listen().requestsIP());
+        
+        IpPort goodPort1 = new IpPortImpl(networkManager.getExternalAddress(), networkManager.getPort());
+        IpPort goodPort2 = new IpPortImpl(networkManager.getExternalAddress(), networkManager.getPort());
+        ponger1.reply(goodPort1);
+        ponger2.reply(goodPort2);
+        Thread.sleep(500);
+        connectionManager.setConnected(true);
+        assertTrue(udpService.canDoFWT());
+        assertFalse(ConnectionSettings.CANNOT_DO_FWT.getValue());
+        connectionManager.setConnected(false);
+    }
+    
     public void testServerResponse() throws Exception {
         connectionManager.setConnected(true);
         DatagramSocket sock = new DatagramSocket(20000);
@@ -472,7 +510,7 @@ public class FWTDetectionTest extends LimeTestCase {
         fos.write(hosts.getBytes());fos.flush();fos.close();
     }
     
-    private static class UDPPonger {
+    private class UDPPonger {
         private MessageFactory messageFactory;
         private PingReplyFactory pingReplyFactory;
         private final DatagramSocket _sock;
@@ -482,12 +520,14 @@ public class FWTDetectionTest extends LimeTestCase {
         public boolean shouldAsk;
         
         private byte [] lastReceived;
+        private byte [] respondersIP;
         
-        public UDPPonger(int port, MessageFactory messageFactory, PingReplyFactory pingReplyFactory) throws IOException {
+        public UDPPonger(int port, MessageFactory messageFactory, PingReplyFactory pingReplyFactory, byte [] respondersIP) throws IOException {
             _sock = new DatagramSocket(port);
             _sock.setSoTimeout(5000);
             this.pingReplyFactory = pingReplyFactory;
             this.messageFactory = messageFactory;
+            this.respondersIP = respondersIP;
         }
         
         public PingRequest listen() throws Exception {
@@ -511,9 +551,9 @@ public class FWTDetectionTest extends LimeTestCase {
             PingReply toSend;
                 
             if (reply==null)
-                toSend = pingReplyFactory.create(lastReceived,(byte)1);
+                toSend = pingReplyFactory.create(lastReceived,(byte)1, _sock.getLocalPort(), respondersIP);
             else
-                toSend = pingReplyFactory.create(lastReceived,(byte)1,reply);
+                toSend = pingReplyFactory.create(lastReceived,(byte)1, _sock.getLocalPort(), respondersIP, reply);
          
             replyPong(toSend);
             

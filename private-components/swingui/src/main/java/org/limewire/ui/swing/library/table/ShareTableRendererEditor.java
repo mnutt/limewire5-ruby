@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Font;
 
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -16,7 +15,7 @@ import org.jdesktop.application.Resource;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.settings.LibrarySettings;
-import org.limewire.ui.swing.components.HyperLinkButton;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.table.TableRendererEditor;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -34,10 +33,8 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
     private Color shareMouseOverColor;
     @Resource
     private Color disabledColor;
-    @Resource
-    private Icon downIcon;
 
-    private HyperLinkButton shareButton;
+    private HyperlinkButton shareButton;
     private LocalFileItem fileItem;
     
     private final XMPPService xmppService;
@@ -47,15 +44,15 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
         GuiUtils.assignResources(this);
         this.xmppService = xmppService;
         
-        shareButton = new HyperLinkButton(I18n.tr("share"));
+        shareButton = new HyperlinkButton(I18n.tr("share"));
         shareButton.setFont(shareButtonFont);
         shareButton.setFocusPainted(false);
         shareButton.setBorder(null);
         shareButton.setHorizontalTextPosition(SwingConstants.LEFT);
         shareButton.setContentAreaFilled(false);
         shareButton.setForeground(shareForegroundColor);
-        shareButton.setMouseOverColor(shareMouseOverColor);
-        shareButton.setDisabledColor(disabledColor);
+        shareButton.setRolloverForeground(shareMouseOverColor);
+        shareButton.setDisabledForeground(disabledColor);
         
         shareButton.addActionListener(shareAction);
         
@@ -82,27 +79,23 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
         fileItem = item;
 
         int friendCount = item.getFriendShareCount();
-        if(item.isSharedWithGnutella()){
-            friendCount++;
-        }
 
-
-        shareButton.setEnabled(item.isShareable() && !item.isIncomplete());
-        
-        if(item.getCategory() == Category.DOCUMENT && (!LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.getValue() && !xmppService.isLoggedIn())) {
+        if(!item.isShareable() || item.isIncomplete()) {
+            shareButton.setEnabled(item.isShareable() && !item.isIncomplete());
+            shareButton.setToolTipText(I18n.tr("This file cannot be shared."));
+        } else if(item.getCategory() == Category.DOCUMENT && (!LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.getValue() && !xmppService.isLoggedIn())) {
             //if the share documents with gnutella option is unchecked, the user must be logged in for the share button to be enabled.
             shareButton.setEnabled(false);
             shareButton.setToolTipText(I18n.tr("Sign in to share Documents with your friends"));
         } else if(item.getCategory() == Category.PROGRAM && !LibrarySettings.ALLOW_PROGRAMS.getValue()) {
             shareButton.setEnabled(false);
         } else {
+            shareButton.setEnabled(true);
             shareButton.setToolTipText(I18n.tr("Share this file with a friend"));
         }
         
         if(friendCount > 0) {   
-            shareButton.setText(I18n.tr("{0} friends",GuiUtils.toLocalizedInteger(item.getFriendShareCount())));
-            shareButton.setIcon(downIcon);
-            shareButton.removeUnderLine();
+            shareButton.setText(I18n.tr("share ({0})",GuiUtils.toLocalizedInteger(item.getFriendShareCount())));
         } else {
             shareButton.setText(I18n.tr("share"));
             shareButton.setIcon(null);

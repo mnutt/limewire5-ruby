@@ -8,25 +8,26 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JComponent;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.RangeList;
-import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.event.ListEvent;
-import ca.odell.glazedlists.event.ListEventListener;
-import ca.odell.glazedlists.swing.EventTableModel;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.decorator.ColorHighlighter;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
@@ -34,11 +35,12 @@ import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.search.Search;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
+import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
 import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.search.DownloadItemPropertyListener;
-import org.limewire.ui.swing.search.RemoteHostActions;
 import org.limewire.ui.swing.search.RowSelectionPreserver;
 import org.limewire.ui.swing.search.SearchInfo;
 import org.limewire.ui.swing.search.SearchViewType;
@@ -46,20 +48,31 @@ import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.classic.ClassicDoubleClickHandler;
 import org.limewire.ui.swing.search.resultpanel.classic.FromTableCellRenderer;
-import org.limewire.ui.swing.search.resultpanel.classic.OpaqueCalendarRenderer;
-import org.limewire.ui.swing.search.resultpanel.classic.OpaqueStringRenderer;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewDisplayedRowsLimit;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule;
-import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule.RowDisplayResult;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewTableEditorRenderer;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewTableEditorRendererFactory;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewTableFormat;
+import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule.RowDisplayResult;
+import org.limewire.ui.swing.table.CalendarRenderer;
 import org.limewire.ui.swing.table.ConfigurableTable;
 import org.limewire.ui.swing.table.IconLabelRenderer;
+import org.limewire.ui.swing.table.TableColors;
 import org.limewire.ui.swing.table.VisibleTableFormat;
+import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.EventListJXTableSorting;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
+
+import ca.odell.glazedlists.CollectionList;
+import ca.odell.glazedlists.CompositeList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.RangeList;
+import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.event.ListEvent;
+import ca.odell.glazedlists.event.ListEventListener;
+import ca.odell.glazedlists.matchers.Matcher;
+import ca.odell.glazedlists.swing.EventTableModel;
 
 public abstract class BaseResultPanel extends JXPanel implements DownloadHandler {
     
@@ -84,9 +97,11 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
     private Scrollable visibileComponent;
     
     private final SearchResultFromWidgetFactory factory;
-    private final RemoteHostActions remoteHostActions;
     private IconManager iconManager;
+    private CategoryIconManager categoryIconManager;
     private List<DownloadPreprocessor> downloadPreprocessors = new ArrayList<DownloadPreprocessor>();
+    
+    private LibraryNavigator libraryNavigator;
 
     BaseResultPanel(ListViewTableEditorRendererFactory listViewTableEditorRendererFactory,
             EventList<VisualSearchResult> eventList,
@@ -95,25 +110,27 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
             Search search,
             SearchInfo searchInfo, 
             RowSelectionPreserver preserver,
-            Navigator navigator, RemoteHostActions remoteHostActions, PropertiesFactory<VisualSearchResult> properties, 
+            Navigator navigator, PropertiesFactory<VisualSearchResult> properties, 
             ListViewRowHeightRule rowHeightRule,
             SaveLocationExceptionHandler saveLocationExceptionHandler,
-            SearchResultFromWidgetFactory fromWidgetFactory, IconManager iconManager) {
+            SearchResultFromWidgetFactory fromWidgetFactory, IconManager iconManager, CategoryIconManager categoryIconManager,
+            LibraryNavigator libraryNavigator) {
         
         this.listViewTableEditorRendererFactory = listViewTableEditorRendererFactory;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         this.baseEventList = eventList;
         this.downloadListManager = downloadListManager;
         this.search = search;
-        this.remoteHostActions = remoteHostActions;
         this.factory = fromWidgetFactory;
         this.iconManager = iconManager;
+        this.categoryIconManager = categoryIconManager;
         this.downloadPreprocessors.add(new LicenseWarningDownloadPreprocessor());
+        this.libraryNavigator = libraryNavigator;
         
         setLayout(layout);
                 
-        configureList(eventList, preserver, navigator, searchInfo, remoteHostActions, properties, rowHeightRule);
-        configureTable(eventList, tableFormat, navigator, remoteHostActions, properties);
+        configureList(eventList, preserver, navigator, searchInfo, properties, rowHeightRule);
+        configureTable(eventList, tableFormat, navigator, properties);
  
         add(resultsList, SearchViewType.LIST.name());
         add(resultsTable, SearchViewType.TABLE.name());
@@ -121,11 +138,11 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
     }
     
     private void configureList(final EventList<VisualSearchResult> eventList, RowSelectionPreserver preserver, final Navigator navigator, 
-            final SearchInfo searchInfo, final RemoteHostActions remoteHostActions, final PropertiesFactory<VisualSearchResult> properties, 
+            final SearchInfo searchInfo, final PropertiesFactory<VisualSearchResult> properties, 
             final ListViewRowHeightRule rowHeightRule) {
         
         ListViewTableFormat tableFormat = new ListViewTableFormat();        
-        final RangeList<VisualSearchResult> maxSizedList = new RangeList<VisualSearchResult>(eventList);
+        final RangeList<VisualSearchResult> maxSizedList = new RangeList<VisualSearchResult>(newVisibleFilterList(eventList));
         maxSizedList.setHeadRange(0, MAX_DISPLAYED_RESULT_SIZE + 1);
         
         resultsList = new ListViewTable(maxSizedList, tableFormat);
@@ -160,7 +177,7 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         // can share the same ActionColumnTableCellEditor though.
         ListViewTableEditorRenderer renderer = listViewTableEditorRendererFactory.create(
            new ActionColumnTableCellEditor(this), searchInfo.getQuery(), 
-                    remoteHostActions, navigator, resultsList.getTableColors().selectionColor, this, 
+                    navigator, resultsList.getTableColors().selectionColor, this, 
                     displayLimit);
         
         TableColumnModel tcm = resultsList.getColumnModel();
@@ -172,7 +189,7 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
 
         ListViewTableEditorRenderer editor = listViewTableEditorRendererFactory.create(
                 new ActionColumnTableCellEditor(this), searchInfo.getQuery(), 
-                    remoteHostActions, navigator, resultsList.getTableColors().selectionColor, this,
+                    navigator, resultsList.getTableColors().selectionColor, this,
                     displayLimit);
         
         resultsList.setDefaultEditor(VisualSearchResult.class, editor);
@@ -242,42 +259,67 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
 
                 // Display a SearchResultMenu for the VisualSearchResult.
                 JComponent component = (JComponent) e.getSource();
-                SearchResultMenu searchResultMenu = new SearchResultMenu(BaseResultPanel.this, vsr, properties);
+                SearchResultMenu searchResultMenu = new SearchResultMenu(BaseResultPanel.this, Collections.singletonList(vsr), properties);
                 searchResultMenu.show(component, e.getX(), e.getY());
+            }
+        });
+    }
+    
+    private EventList<VisualSearchResult> newVisibleFilterList(
+            EventList<VisualSearchResult> eventList) {
+        return GlazedListsFactory.filterList(eventList, new Matcher<VisualSearchResult>() {
+            @Override
+            public boolean matches(VisualSearchResult item) {
+                boolean visible = item.isVisible();
+                LOG.debugf("filter... VSR urn {0} visibility {1}", item.getCoreSearchResults().get(0).getUrn(), visible);
+                return visible;
             }
         });
     }
 
     private void configureTable(EventList<VisualSearchResult> eventList,
-        final ResultsTableFormat<VisualSearchResult> tableFormat, Navigator navigator, RemoteHostActions remoteHostActions,
+        final ResultsTableFormat<VisualSearchResult> tableFormat, Navigator navigator,
         PropertiesFactory<VisualSearchResult> properties) {
-
-        SortedList<VisualSearchResult> sortedList = new SortedList<VisualSearchResult>(eventList);
-        resultsTable = new ConfigurableTable<VisualSearchResult>(sortedList, tableFormat, true);
         
+        CollectionList<VisualSearchResult, VisualSearchResult> explodedParentResults = 
+            new CollectionList<VisualSearchResult, VisualSearchResult>(eventList, 
+                    new CollectionList.Model<VisualSearchResult, VisualSearchResult>() {
+                @Override
+                public List<VisualSearchResult> getChildren(VisualSearchResult parent) {
+                    return parent.getSimilarResults();
+                }
+            });
+        
+        //Group together all search results (parent & similar) into one big list so that
+        //everything displays by default in the table view.
+        CompositeList<VisualSearchResult> allTogetherList = new CompositeList<VisualSearchResult>(eventList.getPublisher(),
+                eventList.getReadWriteLock());
+        allTogetherList.addMemberList(eventList);
+        allTogetherList.addMemberList(explodedParentResults);
+
+        SortedList<VisualSearchResult> sortedList = new SortedList<VisualSearchResult>(allTogetherList);
+        resultsTable = new ConfigurableTable<VisualSearchResult>(sortedList, tableFormat, true);
+
         //link the jxtable column headers to the sorted list
         EventListJXTableSorting.install(resultsTable, sortedList);
             
         setupCellRenderers(tableFormat);
-
-        resultsTable.setDefaultEditor(VisualSearchResult.class, new FromTableCellRenderer(factory.create(remoteHostActions, true)));
-        
+  
         resultsTable.setPopupHandler(new SearchPopupHandler(resultsTable, this, properties));
-        resultsTable.setDoubleClickHandler(new ClassicDoubleClickHandler(resultsTable, this));
+        resultsTable.setDoubleClickHandler(new ClassicDoubleClickHandler(resultsTable, this, navigator, libraryNavigator));
 
         resultsTable.setRowHeight(TABLE_ROW_HEIGHT);
         
         resultsTable.setupColumnHandler();
+
+        TableColors tableColors = new TableColors();
+        resultsTable.addHighlighter(new ColorHighlighter(new DownloadedHighlightPredicate(sortedList), null, tableColors.getDisabledForegroundColor(), null, tableColors.getDisabledForegroundColor()));
     }
 
     protected void setupCellRenderers(final ResultsTableFormat<VisualSearchResult> tableFormat) {
-        OpaqueCalendarRenderer calendarRenderer =
-            new OpaqueCalendarRenderer();
-        IconLabelRenderer iconLabelRenderer =
-            new IconLabelRenderer(iconManager);
-        OpaqueStringRenderer stringRenderer =
-            new OpaqueStringRenderer();
-
+        CalendarRenderer calendarRenderer = new CalendarRenderer();
+        IconLabelRenderer iconLabelRenderer = new IconLabelRenderer(iconManager, categoryIconManager);
+        TableCellRenderer defaultRenderer = new DefaultLibraryRenderer();
         
         int columnCount = tableFormat.getColumnCount();
         for (int i = 0; i < columnCount; i++) {
@@ -285,13 +327,14 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
             if (clazz == String.class
                 || clazz == Integer.class
                 || clazz == Long.class) {
-                setCellRenderer(i, stringRenderer);
+                setCellRenderer(i, defaultRenderer);
             } else if (clazz == Calendar.class) {
                 setCellRenderer(i, calendarRenderer);
             } else if (i == tableFormat.getNameColumn()) {
                 setCellRenderer(i, iconLabelRenderer);
             } else if (VisualSearchResult.class.isAssignableFrom(clazz)) {
-                setCellRenderer(i, new FromTableCellRenderer(factory.create(remoteHostActions, true)));
+                setCellRenderer(i, new FromTableCellRenderer(factory.create(true)));
+                setCellEditor(i, new FromTableCellRenderer(factory.create(true)));
             }
         }
     }
@@ -300,6 +343,12 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         TableColumnModel tcm = resultsTable.getColumnModel();
         TableColumn tc = tcm.getColumn(column);
         tc.setCellRenderer(cellRenderer);
+    }
+    
+    protected void setCellEditor(int column, TableCellEditor editor) {
+        TableColumnModel tcm = resultsTable.getColumnModel();
+        TableColumn tc = tcm.getColumn(column);
+        tc.setCellEditor(editor);
     }
 
     public void download(final VisualSearchResult vsr) {
@@ -320,15 +369,10 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
             vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
         } catch (final SaveLocationException sle) {
             if(sle.getErrorCode()  == SaveLocationException.LocationCode.FILE_ALREADY_DOWNLOADING) {
-                List<DownloadItem> downloads = downloadListManager.getSwingThreadSafeDownloads();
-                // TODO instead of iterating through loop, it would be
-                // nice to lookup download by urn potentially.
-                for (DownloadItem downloadItem : downloads) {
-                    if (vsr.getUrn().equals(downloadItem.getUrn())) {
-                        downloadItem.addPropertyChangeListener(new DownloadItemPropertyListener(vsr));
-                        vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
-                        break;
-                    }
+                DownloadItem downloadItem = downloadListManager.getDownloadItem(vsr.getUrn());
+                if(downloadItem != null) {
+                    downloadItem.addPropertyChangeListener(new DownloadItemPropertyListener(vsr));
+                    vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
                 }
             } else {
                 saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
@@ -342,6 +386,24 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
                 }, sle, true);
             }
         }
+    }
+    
+    /**
+	 * Paints the foreground of a table row. 
+	 */
+    private static class DownloadedHighlightPredicate implements HighlightPredicate {
+        private SortedList<VisualSearchResult> sortedList;
+        public DownloadedHighlightPredicate (SortedList<VisualSearchResult> sortedList) {
+            this.sortedList = sortedList;
+        }
+        @Override
+        public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+            VisualSearchResult result = sortedList.get(adapter.row);
+            return (result.getDownloadState() == BasicDownloadState.LIBRARY || 
+                    result.getDownloadState() == BasicDownloadState.DOWNLOADING ||
+                    result.getDownloadState() == BasicDownloadState.DOWNLOADED ||
+                    result.isSpam());
+        }       
     }
     
     public EventList<VisualSearchResult> getResultsEventList() {

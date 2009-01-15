@@ -61,33 +61,13 @@ public class FileShareModel implements LibraryShareModel {
     }
  
     @Override
-    public boolean isShared(SharingTarget friend){
+    public boolean isShared(SharingTarget friend) {
         //Handle gnutella 
         if(friend.isGnutellaNetwork()){
             return gnutellaList.contains(file);
+        } else {
+            return shareListManager.getOrCreateFriendShareList(friend.getFriend()).contains(file);
         }
-        
-        //check for share all settings
-        switch (CategoryUtils.getCategory(file)) {
-        case AUDIO:
-            if (shareListManager.getOrCreateFriendShareList(friend.getFriend()).isAddNewAudioAlways()){
-                return true;
-                }
-            break;            
-        case VIDEO:
-            if (shareListManager.getOrCreateFriendShareList(friend.getFriend()).isAddNewVideoAlways()){
-                return true;
-                }
-            break; 
-        case IMAGE:
-            if (shareListManager.getOrCreateFriendShareList(friend.getFriend()).isAddNewImageAlways()){
-                return true;
-                }
-            break; 
-        }
-        
-        //check individual file share settings
-        return shareListManager.getOrCreateFriendShareList(friend.getFriend()).contains(file);
     }
 
     @Override

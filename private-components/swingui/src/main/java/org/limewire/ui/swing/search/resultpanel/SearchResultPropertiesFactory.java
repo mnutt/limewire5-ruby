@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
@@ -53,19 +52,11 @@ public class SearchResultPropertiesFactory implements PropertiesFactory<VisualSe
             this.categoryIconManager = dialogParam.getCategoryIconManager();
             this.filterList = dialogParam.getFilterList();
             GuiUtils.assignResources(this);
-            
-            disableEdit(album, author, artist, company, year, title, track);
-            disableComponent(description, genre, rating, platform);
-            
+            disableEditForAllCommonFields();
+
             location.setLayout(new MigLayout("nocache", "[50%!]", "[]"));
             readOnlyInfoModel.setColumnIdentifiers(new Object[] { tr("Address"), tr("Filename") });
             location.add(new JScrollPane(readOnlyInfo));
-        }
-        
-        protected void disableComponent(JComponent... comps) {
-            for(JComponent comp : comps) {
-                comp.setEnabled(false);
-            }
         }
 
         @Override
@@ -82,7 +73,7 @@ public class SearchResultPropertiesFactory implements PropertiesFactory<VisualSe
             album.setText(vsr.getPropertyString(FilePropertyKey.ALBUM));
             title.setText(vsr.getPropertyString(FilePropertyKey.TITLE));
             year.setText(vsr.getPropertyString(FilePropertyKey.YEAR));
-            description.setText(vsr.getPropertyString(FilePropertyKey.COMMENTS));
+            description.setText(vsr.getPropertyString(FilePropertyKey.DESCRIPTION));
 
             // Clear the table
             readOnlyInfoModel.setRowCount(0);

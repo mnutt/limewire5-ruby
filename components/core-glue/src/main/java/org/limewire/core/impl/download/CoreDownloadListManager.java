@@ -265,7 +265,7 @@ public class CoreDownloadListManager implements DownloadListManager {
     @Override
     public void updateDownloadsCompleted() {
         if (downloadManager.downloadsInProgress() == 0) {
-            changeSupport.firePropertyChange("downloadsCompleted", false, true);
+            changeSupport.firePropertyChange(DOWNLOADS_COMPLETED, false, true);
         }
     }
 
@@ -392,8 +392,6 @@ public class CoreDownloadListManager implements DownloadListManager {
     @Override
     public DownloadItem addTorrentDownload(File file, File saveFile, boolean overwrite)
             throws SaveLocationException {
-        //TODO figure out what type of download this is based on the file name and delegate to the correct downloader.
-        //right now defaulting to bit torrent
         Downloader downloader = downloadManager.downloadTorrent(file, overwrite);
 		return (DownloadItem)downloader.getAttribute(DOWNLOAD_ITEM);
     }
@@ -401,6 +399,11 @@ public class CoreDownloadListManager implements DownloadListManager {
     @Override
     public boolean contains(org.limewire.core.api.URN urn) {
         return urnMap.containsKey(urn);
+    }
+    
+    @Override
+    public DownloadItem getDownloadItem(org.limewire.core.api.URN urn) {
+        return urnMap.get(urn);
     }
 
 }

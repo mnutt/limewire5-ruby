@@ -96,7 +96,7 @@ public class GnutellaFileListImplTest extends LimeTestCase {
         cm.request(u1, new StubContentResponseObserver(), 1000);
         cm.handleContentResponse(new ContentResponse(u1, false));
 
-        assertAddFails("Couldn't create FD", fileList, f1);
+        assertAddFails("CANT_CREATE_FD", fileList, f1);
         assertAdds(fileList, f2, f3, f4);
 
         assertEquals("unexpected # of files", 3, fileList.size());
@@ -125,7 +125,7 @@ public class GnutellaFileListImplTest extends LimeTestCase {
 
         // Make sure adding a new file to be shared doesn't work if it
         // returned bad before.
-        assertAddFails("Couldn't create FD", fileList, f2);
+        assertAddFails("CANT_CREATE_FD", fileList, f2);
         assertFalse("shouldn't be shared", fileList.contains(f2));
     }
     
@@ -237,10 +237,10 @@ public class GnutellaFileListImplTest extends LimeTestCase {
         assertNotSame(fd, fileList.getFileDesc(fileList.getFileDesc(f1).getSHA1Urn()));
         
         f1.delete();
-        assertFileChangedFails("File isn't physically manageable", managedList, f1);
+        assertFileChangedFails("NOT_MANAGEABLE", managedList, f1);
         assertEquals(0, fileList.size());
         
-        assertFileChangedFails("Old file wasn't managed", managedList, f2);
+        assertFileChangedFails("OLD_WASNT_MANAGED", managedList, f2);
         assertEquals(0, fileList.size());
     }
     
@@ -320,12 +320,12 @@ public class GnutellaFileListImplTest extends LimeTestCase {
         f1 = createNewTestStoreFile(_storeDir);
         
         assertFalse(managedList.contains(f1));
-        assertAddFails("File can't be added to this list", fileList, f1);
+        assertAddFails("CANT_ADD_TO_LIST", fileList, f1);
         assertTrue(managedList.contains(f1));
         
         f2 = createNewTestStoreFile(_scratchDir);
         assertFalse(managedList.contains(f2));
-        assertAddFails("File can't be added to this list", fileList, f2);
+        assertAddFails("CANT_ADD_TO_LIST", fileList, f2);
         assertTrue(managedList.contains(f2));
     } 
     

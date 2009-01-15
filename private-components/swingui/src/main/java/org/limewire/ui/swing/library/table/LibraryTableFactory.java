@@ -34,7 +34,7 @@ public interface LibraryTableFactory {
     /**
      * Creates a table for sharing files with a specified Friend
      */
-    <T extends LocalFileItem> LibraryTable<T> createSharingTable(Category category, EventList<T> eventList, LocalFileList friendFileList);
+    <T extends LocalFileItem> LibraryTable<T> createSharingTable(Category category, EventList<T> eventList, LocalFileList friendFileList, Friend friend);
 
     /**
      * Creates an image list for sharing files with a specified Friend

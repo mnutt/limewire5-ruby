@@ -25,6 +25,9 @@ public interface LibraryNavigator {
     /** Selects a specific item in your library. */
     void selectInLibrary(File file, Category category);
     
+    /** Selects the library without any specific file being selected. */
+    void selectLibrary();
+    
     /** Returns the file item before the one passed in your library. */
     File getPreviousInLibrary(File file, Category category);
     

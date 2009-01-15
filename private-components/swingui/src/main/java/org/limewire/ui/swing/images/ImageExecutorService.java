@@ -11,7 +11,7 @@ public class ImageExecutorService {
      * Queue for items to be run in the background.
      */
     private static final ExecutorService QUEUE = 
-        ExecutorsHelper.newFixedSizeThreadPool(Runtime.getRuntime().availableProcessors(), "ImageLoader");
+        ExecutorsHelper.newProcessingQueue("ImageLoader");
     
     private ImageExecutorService() {
     }

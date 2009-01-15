@@ -31,7 +31,6 @@ import com.limegroup.gnutella.xml.SchemaReplyCollectionMapper;
 class CoreRandomGlue {
 
     private final FileManager fileManager;
-    private final ActivityCallback activityCallback;
     private final ConnectionManager connectionManager;
     private final DHTManager dhtManager;
     private final PushProxiesPublisher pushProxiesPublisher;
@@ -45,7 +44,7 @@ class CoreRandomGlue {
     private final AltLocManager altLocManager;
     
     @Inject
-    CoreRandomGlue(FileManager fileManager, ActivityCallback activityCallback,
+    CoreRandomGlue(FileManager fileManager,
             ConnectionManager connectionManager, DHTManager dhtManager,
             PushProxiesPublisher pushProxiesPublisher,
             ConnectionServices connectionServices,
@@ -58,7 +57,6 @@ class CoreRandomGlue {
             SchemaReplyCollectionMapper schemaMapper,
             AltLocManager altLocManager) {
         this.fileManager = fileManager;
-        this.activityCallback = activityCallback;
         this.connectionManager = connectionManager;
         this.dhtManager = dhtManager;
         this.pushProxiesPublisher = pushProxiesPublisher;
@@ -79,7 +77,6 @@ class CoreRandomGlue {
                 //TODO: find a better way to do this
                 fileManager.getManagedFileList().addFileListListener(altLocManager);
                 
-                connectionManager.addEventListener(activityCallback);
                 connectionManager.addEventListener(dhtManager);
                 dhtManager.addEventListener(pushProxiesPublisher);
                 downloadManager.addListener(downloaderGuidAlternateLocationFinder);

@@ -3,7 +3,6 @@ package org.limewire.ui.swing.library.table;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -27,17 +25,22 @@ import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.library.FileItem;
+import org.limewire.core.api.library.LibraryFileList;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.library.LibraryOperable;
 import org.limewire.ui.swing.library.Sharable;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.sharing.ShareWidget;
+import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.table.ColumnStateHandler;
 import org.limewire.ui.swing.table.MouseableTable;
+import org.limewire.ui.swing.table.TableColors;
 import org.limewire.ui.swing.table.TableColumnSelector;
 import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.table.TableRendererEditor;
+import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
@@ -51,7 +54,7 @@ import ca.odell.glazedlists.swing.EventTableModel;
  * be files in your own library or remote files in someone else's library. 
  */
 public class LibraryTable<T extends FileItem> extends MouseableTable
-    implements Sharable<File>, Disposable, LibraryOperable {
+    implements Sharable<File>, Disposable, LibraryOperable<T> {
     
     private final LibraryTableFormat<T> format;
     private final TableColors tableColors;
@@ -77,7 +80,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         setShowHorizontalLines(false);
         setShowGrid(false, true);
         
-        EventSelectionModel<T> model = new EventSelectionModel<T>(libraryItems);
+        EventSelectionModel<T> model = GlazedListsSwingFactory.eventSelectionModel(libraryItems);
         setSelectionModel(model);
         model.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
         this.listSelection = model.getSelected();
@@ -88,13 +91,14 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         setDragEnabled(true);
         setRowHeight(rowHeight);
         
-        final JTableHeader header = getTableHeader();
-        header.addMouseListener(new MouseAdapter() {
+        // Add mouse listener to display popup menu on column header.  We use 
+        // MousePopupListener to detect the popup trigger, which differs on 
+        // Windows, Mac, and Linux.
+        JTableHeader header = getTableHeader();
+        header.addMouseListener(new MousePopupListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                if(SwingUtilities.isRightMouseButton(e)){
-                    showHeaderPopupMenu(e.getPoint());
-                }
+            public void handlePopupMouseEvent(MouseEvent e) {
+                showHeaderPopupMenu(e.getPoint());
             }
         });       
         
@@ -149,8 +153,8 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         setSavedColumnSettings();
     }
     
-    public void enableDownloading(DownloadListManager downloadListManager){
-        LibraryDownloadAction downloadAction = new LibraryDownloadAction(I18n.tr("download"), downloadListManager, this);
+    public void enableDownloading(DownloadListManager downloadListManager, LibraryNavigator libraryNavigator, LibraryFileList libraryList){
+        LibraryDownloadAction downloadAction = new LibraryDownloadAction(I18n.tr("download"), downloadListManager, this, libraryNavigator, libraryList);
         
         setDoubleClickHandler(new LibraryDownloadDoubleClickHandler(downloadAction));
         
@@ -229,13 +233,17 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
     }
 
     private class LibraryDownloadAction extends AbstractAction {
+        private LibraryFileList libraryFileList;
         private DownloadListManager downloadListManager;
+        private LibraryNavigator libraryNavigator;
         private LibraryTable table;
         
-        public LibraryDownloadAction(String text, DownloadListManager downloadListManager, LibraryTable table){
+        public LibraryDownloadAction(String text, DownloadListManager downloadListManager, LibraryTable table, LibraryNavigator navigator, LibraryFileList libraryList){
             super(text);
             this.downloadListManager = downloadListManager;
             this.table = table;
+            this.libraryFileList = libraryList;
+            this.libraryNavigator = navigator;
         }
 
         @Override
@@ -245,20 +253,24 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         
         public void download(int row) {
             final RemoteFileItem file = (RemoteFileItem) ((LibraryTableModel) table.getModel()).getElementAt(row);
-            try {
-                downloadListManager.addDownload(file);
-                TableCellEditor editor = table.getCellEditor();
-                if (editor != null) {          
-                   editor.cancelCellEditing();
-                }
-            } catch (SaveLocationException e) {
-                saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
-                    @Override
-                    public void download(File saveFile, boolean overwrite)
-                            throws SaveLocationException {
-                        downloadListManager.addDownload(file, saveFile, overwrite);
+            if(libraryFileList.contains(file.getUrn())) {
+                libraryNavigator.selectInLibrary(file.getUrn(), file.getCategory());            
+            } else {
+                try {
+                    downloadListManager.addDownload(file);
+                    TableCellEditor editor = table.getCellEditor();
+                    if (editor != null) {          
+                       editor.cancelCellEditing();
                     }
-                }, e, true);
+                } catch (SaveLocationException e) {
+                    saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+                        @Override
+                        public void download(File saveFile, boolean overwrite)
+                                throws SaveLocationException {
+                            downloadListManager.addDownload(file, saveFile, overwrite);
+                        }
+                    }, e, true);
+                }
             }
         }
     }
@@ -371,4 +383,11 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         }
         return null;
     }
+    
+    public void selectAll() {
+        if (getRowCount() > 0) {
+            getSelectionModel().setSelectionInterval(0, getRowCount() - 1);
+        }
+    }
+
 }

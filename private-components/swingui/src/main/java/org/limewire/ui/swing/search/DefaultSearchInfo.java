@@ -15,7 +15,18 @@ public class DefaultSearchInfo implements SearchInfo {
     }
     
     public static DefaultSearchInfo createWhatsNewSearch(SearchCategory searchCategory) {
-        return new DefaultSearchInfo(I18n.tr("What's New"), searchCategory, SearchType.WHATS_NEW);
+        String title;
+        switch(searchCategory) {
+        case AUDIO: title = I18n.tr("New audio"); break;
+        case DOCUMENT: title = I18n.tr("New documents"); break;
+        case IMAGE: title = I18n.tr("New images"); break;
+        case PROGRAM: title = I18n.tr("New programs"); break;
+        case VIDEO: title = I18n.tr("New videos"); break;            
+        case OTHER:
+        case ALL:
+        default: title = I18n.tr("New files"); break;
+        }
+        return new DefaultSearchInfo(title, searchCategory, SearchType.WHATS_NEW);
     }
 
     private DefaultSearchInfo(String query, SearchCategory searchCategory, SearchType searchType) {

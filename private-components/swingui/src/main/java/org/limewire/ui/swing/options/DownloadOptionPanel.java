@@ -11,12 +11,12 @@ import javax.swing.JOptionPane;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.limewire.core.settings.DownloadSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.iTunesSettings;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.LabelTextField;
 import org.limewire.ui.swing.options.actions.BrowseDirectoryAction;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.SaveDirectoryHandler;
@@ -119,7 +119,7 @@ public class DownloadOptionPanel extends OptionPanel {
         
         @Override
         boolean applyOptions() {
-            DownloadSettings.AUTO_RENAME_DUPLICATE_FILES.setValue(autoRenameDuplicateFilesCheckBox.isSelected());
+            SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.setValue(autoRenameDuplicateFilesCheckBox.isSelected());
             final String save = downloadSaveTextField.getText();
             if(!save.equals(currentSaveDirectory)) {
                 try {
@@ -150,14 +150,14 @@ public class DownloadOptionPanel extends OptionPanel {
         @Override
         boolean hasChanged() { 
             return  !currentSaveDirectory.equals(downloadSaveTextField.getText()) 
-                    || DownloadSettings.AUTO_RENAME_DUPLICATE_FILES.getValue() != autoRenameDuplicateFilesCheckBox.isSelected()
+                    || SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.getValue() != autoRenameDuplicateFilesCheckBox.isSelected()
                     || SharingSettings.SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES.getValue() != shareCompletedDownloadsCheckBox.isSelected()
                     || (OSUtils.isAnyMac() || OSUtils.isWindows()) ? iTunesSettings.ITUNES_SUPPORT_ENABLED.getValue() != addToITunesCheckBox.isSelected() : false;
         }
 
         @Override
         public void initOptions() { 
-            autoRenameDuplicateFilesCheckBox.setSelected(DownloadSettings.AUTO_RENAME_DUPLICATE_FILES.getValue());
+            autoRenameDuplicateFilesCheckBox.setSelected(SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.getValue());
             
             try {
                 File file = SharingSettings.getSaveDirectory();

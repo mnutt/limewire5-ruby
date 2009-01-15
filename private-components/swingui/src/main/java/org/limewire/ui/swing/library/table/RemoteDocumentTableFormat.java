@@ -18,6 +18,10 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
     static final int AUTHOR_INDEX = 5;
     static final int DESCRIPTION_INDEX = 6;
     
+    public RemoteDocumentTableFormat(ColumnStateInfo[] columnInfo) {
+        super(columnInfo);
+    }
+    
     public RemoteDocumentTableFormat() {
         super(new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_DOCUMENT_NAME", I18n.tr("Name"), 250, true, true), 

@@ -30,8 +30,7 @@ import org.limewire.ui.swing.util.GuiUtils;
  */
 final class BasicNotifier implements TrayNotifier {
 
-    private @Resource
-    Icon limeIcon;
+    private @Resource Icon limeIcon;
 
     private WindowManager windowManager = new WindowManager();
 
@@ -44,7 +43,7 @@ final class BasicNotifier implements TrayNotifier {
     }
 
     public boolean showTrayIcon() {
-        return true;
+        return false;
     }
 
     public void hideTrayIcon() {

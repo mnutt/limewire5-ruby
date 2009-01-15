@@ -10,6 +10,8 @@ import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.List;
 
+import javax.swing.Icon;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
@@ -29,6 +31,8 @@ import org.jdesktop.swingx.painter.AbstractPainter;
 import org.limewire.core.api.Application;
 import org.limewire.core.impl.MockModule;
 import org.limewire.inject.Modules;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.LimeWireSwingUiModule;
 import org.limewire.ui.swing.browser.LimeMozillaInitializer;
 import org.limewire.ui.swing.components.LimeJFrame;
@@ -39,6 +43,7 @@ import org.limewire.ui.swing.event.OptionsDisplayEvent;
 import org.limewire.ui.swing.event.RestoreViewEvent;
 import org.limewire.ui.swing.menu.LimeMenuBar;
 import org.limewire.ui.swing.options.OptionsDialog;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.shell.ShellAssociationManager;
 import org.limewire.ui.swing.tray.TrayExitListener;
 import org.limewire.ui.swing.tray.TrayNotifier;
@@ -54,6 +59,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.Provider;
 import com.google.inject.Stage;
 
 /**
@@ -62,7 +68,7 @@ import com.google.inject.Stage;
  * uses the mock-core.
  */
 public class AppFrame extends SingleFrameApplication {
-    
+    private static final Log LOG = LogFactory.getLog(AppFrame.class);    
     public static final String STARTUP = "startup";
     private boolean isStartup = false;
 
@@ -74,14 +80,27 @@ public class AppFrame extends SingleFrameApplication {
     @Resource private Color bgColor;
     @Resource private Color glassPaneColor;
     
+    // Icons for JFileChooser bug workaround on Vista. 
+    @Resource private Icon upFolderVistaFixIcon;
+    @Resource private Icon detailsViewVistaFixIcon;
+    @Resource private Icon listViewVistaFixIcon;
+    @Resource private Icon newFolderVistaFixIcon;
+    
     @Inject private Application application;
     @Inject private LimeWireSwingUI ui;
     @Inject private SetupWizard setupWizard;
-    @Inject private OptionsDialog options;
+    @Inject private Provider<OptionsDialog> options;
     @Inject private FramePositioner framePositioner;
     @Inject private TrayNotifier trayNotifier;
     @Inject private LimeMenuBar limeMenuBar;
     @Inject private DelayedShutdownHandler delayedShutdownHandler;
+    
+    private OptionsDialog lastOptionsDialog;
+    
+    /** Starts with the mock core. */
+    public static void main(String[] args) {
+        launch(AppFrame.class, args);
+    }
 
     /** Returns true if the UI has initialized & successfully been shown. */
     public static boolean isStarted() {
@@ -106,7 +125,7 @@ public class AppFrame extends SingleFrameApplication {
     protected void initialize(String[] args) {
         changeSessionStorage(getContext(), new NullSessionStorage(getContext()));
         
-        GuiUtils.assignResources(this);        
+        GuiUtils.assignResources(this);
 
         initUIDefaults();
         
@@ -132,7 +151,11 @@ public class AppFrame extends SingleFrameApplication {
         createUiInjector();
         assert ui != null;
 
-        trayNotifier.showTrayIcon();
+        if(isStartup || SwingUiSettings.MINIMIZE_TO_TRAY.getValue()) {
+            trayNotifier.showTrayIcon();            
+        } else {
+            trayNotifier.hideTrayIcon();
+        }
         getMainFrame().setJMenuBar(limeMenuBar);
 
         // Install handler for shutdown after transfers.
@@ -164,7 +187,6 @@ public class AppFrame extends SingleFrameApplication {
         ui.focusOnSearch();
 
         started = true;
-
     }
     
     @Override
@@ -181,22 +203,26 @@ public class AppFrame extends SingleFrameApplication {
             });
             getMainFrame().setGlassPane(glassPane);
 
+            ui.hideMainPanel();
             glassPane.setVisible(true);
             setupWizard.showDialogIfNeeded(getMainFrame());
             glassPane.setVisible(false);
+            ui.showMainPanel();
         }
         
         validateSaveDirectory();
-        
+
         EventAnnotationProcessor.subscribe(this);
-        
+
         // Now that the UI is ready to use, update it's priority a bit.
         Thread eventThread = Thread.currentThread();
         eventThread.setPriority(eventThread.getPriority() + 1);
-        
-       new ShellAssociationManager().validateFileAssociations(getMainFrame());
+
+        new ShellAssociationManager().validateFileAssociations(getMainFrame());
+
+        ui.loadProNag();
     }
-    
+
     @EventSubscriber
     public void handleShowAboutWindow(AboutDisplayEvent event) {
         new AboutWindow(getMainFrame(), application).showDialog();
@@ -204,10 +230,14 @@ public class AppFrame extends SingleFrameApplication {
     
     @EventSubscriber
     public void handleShowOptionsDialog(OptionsDisplayEvent event) {
-        if (!options.isVisible()) {
-            options.initOptions();
-            options.setLocationRelativeTo(GuiUtils.getMainFrame());
-            options.setVisible(true);
+        if(lastOptionsDialog == null) {
+            lastOptionsDialog = options.get();
+        }
+        
+        if (!lastOptionsDialog.isVisible()) {
+            lastOptionsDialog.initOptions();
+            lastOptionsDialog.setLocationRelativeTo(GuiUtils.getMainFrame());
+            lastOptionsDialog.setVisible(true);
         }
     }
     
@@ -218,6 +248,9 @@ public class AppFrame extends SingleFrameApplication {
     
     @EventSubscriber
     public void handleRestoreView(RestoreViewEvent event) {
+        if(!SwingUiSettings.MINIMIZE_TO_TRAY.getValue()) {
+            trayNotifier.hideTrayIcon();
+        }
         getMainFrame().setVisible(true);
         getMainFrame().setState(Frame.NORMAL);
         getMainFrame().toFront();
@@ -266,30 +299,29 @@ public class AppFrame extends SingleFrameApplication {
             return Guice.createInjector(Stage.PRODUCTION, modules);
         }
     }
-
-    public static void main(String[] args) {
-        launch(AppFrame.class, args);
-    }
     
     /**
-     * Sets the custom default UI colour and behaviour properties
+     * Sets the custom default UI color and behavior properties
      */
-    private void initUIDefaults() {
-       
+    private void initUIDefaults() {       
         if (OSUtils.isAnyMac()) {
             initMacUIDefaults();
         }
         
+        if (OSUtils.isWindows()) {
+            verifyWindowsLAF();
+        }
+        
         initBackgrounds();
         
-        // Set the menu item highlight colours
+        // Set the menu item highlight colors
         Paint highlightBackground = new Color(0xdaf2b5);
         UIManager.put("Menu.selectionBackground", highlightBackground);
         UIManager.put("MenuItem.selectionBackground", highlightBackground);
         UIManager.put("CheckBoxMenuItem.selectionBackground", highlightBackground);
         UIManager.put("RadioButtonMenuItem.selectionBackground", highlightBackground);
         
-        // Set the menu item highlight colours to avoid contrast issues with
+        // Set the menu item highlight colors to avoid contrast issues with
         //  new highlight background in default XP theme
         Color highlightForeground = Color.BLACK;
         UIManager.put("Menu.selectionForeground", highlightForeground);
@@ -299,6 +331,16 @@ public class AppFrame extends SingleFrameApplication {
         
         // Necessary to allow popups to behave normally.
         UIManager.put("PopupMenu.consumeEventOnClose", false);
+        
+        // FIX FOR SUN BUG 6449933: On Windows sometimes, JFileChooser cannot 
+        // display because some icons throw an AIOOBE when they are retrieved.
+        // To workaround this, we install our own version of those icons.
+        if (OSUtils.isWindows()) {
+            replaceIconIfFailing("FileChooser.upFolderIcon", upFolderVistaFixIcon);
+            replaceIconIfFailing("FileChooser.detailsViewIcon", detailsViewVistaFixIcon);
+            replaceIconIfFailing("FileChooser.listViewIcon", listViewVistaFixIcon);
+            replaceIconIfFailing("FileChooser.newFolderIcon", newFolderVistaFixIcon);
+        }
     }
     
     /**
@@ -330,11 +372,62 @@ public class AppFrame extends SingleFrameApplication {
 
         uiDefaults.put("Table.background", bgColorResource);
     }
+    
+    /**
+     * Replaces an icon resource in UIManager with the specified replacement
+     * icon if the original resource cannot be retrieved correctly.
+     */
+    private void replaceIconIfFailing(String resource, Icon replacementIcon) {
+        try {
+            UIManager.getIcon(resource);
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            UIManager.put(resource, replacementIcon);
+        }
+    }
         
     /** Ensures the save directory is valid. */
     private void validateSaveDirectory() {        
         // Make sure the save directory is valid.
         SaveDirectoryHandler.validateSaveDirectoryAndPromptForNewOne();
+    }
+    
+    /**
+     * Verify that the Windows LAF will load properly.  If not, then this 
+     * method installs the cross-platform LAF.  This is a workaround for Sun
+     * Bug IDs 6629522, 6588271, 6622760, 6637885, which can cause an NPE when 
+     * retrieving the checkbox icon width. 
+     */
+    private void verifyWindowsLAF() {
+        // Skip if installed LAF is not Windows LAF.
+        String lafName = UIManager.getLookAndFeel().getClass().getName();
+        if (!UIManager.getSystemLookAndFeelClassName().equals(lafName)) {
+            return;
+        }
+        
+        boolean lafValid = true;
+
+        try {
+            // Create checkbox with sample text, and get its preferred size.  
+            // This should force a call to get the width of the checkbox icon 
+            // in the Windows LAF.  The icon class is 
+            // WindowsIconFactory$CheckBoxIcon.  The icon can also be retrieved
+            // by a call to WindowsCheckBoxUI.getDefaultIcon(). (JIRA LWC-2302)
+            JCheckBox checkBox = new JCheckBox("Verify");
+            checkBox.getPreferredSize();
+            
+        } catch (NullPointerException npe) {
+            LOG.error("Windows XP LAF error", npe);
+            lafValid = false;
+        }
+        
+        // Install cross-platform LAF if Windows LAF is not valid.
+        if (!lafValid) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            } catch (Exception ex) {
+                LOG.error("Unable to install LAF", ex);
+            }
+        }
     }
     
     private static class ShutdownListener implements ExitListener {
@@ -378,6 +471,17 @@ public class AppFrame extends SingleFrameApplication {
                 shownOnce = true;
             } else {
                 super.setVisible(visible);
+            }
+        }
+        
+        @SuppressWarnings("deprecation")
+        @Override
+        public void hide() {
+            try {
+                super.hide();
+            } catch(Throwable t) {
+                // Ignored... Internal JDK bugs causing this to error
+                // out, which ends up stopping us from closing LW.
             }
         }
 

@@ -1,8 +1,11 @@
 package com.limegroup.gnutella.downloader;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -616,6 +619,46 @@ public class IncompleteFileManager  {
 
     public synchronized String dumpHashes () {
         return hashes.toString();
+    }
+
+    public Collection<File> getUnregisteredIncompleteFilesInDirectory(File value) {
+        if(value == null) {
+            return Collections.emptyList();
+        }
+        
+        File[] files = value.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File incompleteFile) {
+                if(!incompleteFile.isFile()) {
+                    return false;
+                }
+                
+                String name = incompleteFile.getName();
+                int i = name.indexOf(SEPARATOR);
+                if (i < 0 || i == name.length() - 1) {
+                    return false;
+                }
+                int j = name.indexOf(SEPARATOR, i + 1);
+                if (j < 0 || j == name.length() - 1) {
+                    return false;
+                }                
+                try {
+                    Long.parseLong(name.substring(i + 1, j));
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                
+                synchronized(IncompleteFileManager.this) {
+                    return !blocks.containsKey(FileUtils.canonicalize(incompleteFile));
+                }
+            }
+        });
+        
+        if(files == null) {
+            return Collections.emptyList(); 
+        } else {
+            return Arrays.asList(files);
+        }
     }
     
 }

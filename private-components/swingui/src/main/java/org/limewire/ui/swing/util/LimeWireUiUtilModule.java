@@ -10,5 +10,6 @@ public class LimeWireUiUtilModule extends AbstractModule {
         bind(NonBlockFileIconController.class).to(BasicFileIconController.class);
         bind(PropertiableHeadings.class).to(PropertiableHeadingsImpl.class);
         bind(SaveLocationExceptionHandler.class).to(SaveLocationExceptionHandlerImpl.class);
+        bind(MagnetHandler.class);
     }
 }

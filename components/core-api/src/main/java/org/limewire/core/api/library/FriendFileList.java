@@ -2,21 +2,21 @@ package org.limewire.core.api.library;
 
 import java.beans.PropertyChangeListener;
 
-public interface FriendFileList extends LocalFileList {
+import org.limewire.core.api.Category;
 
-    public boolean isAddNewAudioAlways();
+/** An extension to {@link LocalFileList} that contains methods specific for friends. */
+public interface FriendFileList extends LocalFileList {
     
-    public void setAddNewAudioAlways(boolean value);
+    /** Clears the FileList of all items in the category. */
+    void clearCategory(Category category);
     
-    public boolean isAddNewVideoAlways();
+    /** Returns true if files in this category will automatically be added to this list. */
+    boolean isCategoryAutomaticallyAdded(Category category);
     
-    public void setAddNewVideoAlways(boolean value);
+    /** Sets whether or not files in this category should automatically be added to this list. */
+    void setCategoryAutomaticallyAdded(Category category, boolean added);
     
-    public boolean isAddNewImageAlways();
+    void addPropertyChangeListener(PropertyChangeListener listener);
     
-    public void setAddNewImageAlways(boolean value);
-    
-    public void addPropertyChangeListener(PropertyChangeListener listener);
-    
-    public void removePropertyChangeListener(PropertyChangeListener listener);
+    void removePropertyChangeListener(PropertyChangeListener listener);
 }

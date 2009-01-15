@@ -1,7 +1,9 @@
 package org.limewire.ui.swing.advanced;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
 import org.limewire.ui.swing.util.LogUtils;
@@ -31,9 +33,11 @@ public class ConsolePanel extends TabPanel {
      * Initializes the components in the container.
      */
     private void initComponents() {
+        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         setLayout(panelLayout);
         
         if (LogUtils.isLog4JAvailable()) {
+            console.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
             add(console, BorderLayout.CENTER);
             
         } else {
@@ -42,6 +46,22 @@ public class ConsolePanel extends TabPanel {
             naLabel.setVerticalAlignment(JLabel.CENTER);
             add(naLabel, BorderLayout.CENTER);
         }
+    }
+    
+    /**
+     * Sets the background color for the panel.
+     */
+    @Override
+    public void setBackground(Color bgColor) {
+        super.setBackground(bgColor);
+        if (console != null) {
+            console.setBackground(bgColor);
+        }
+    }
+    
+    @Override
+    public boolean isTabEnabled() {
+        return true;
     }
 
     @Override

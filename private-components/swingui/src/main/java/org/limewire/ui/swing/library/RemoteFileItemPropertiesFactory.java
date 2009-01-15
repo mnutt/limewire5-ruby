@@ -31,12 +31,7 @@ public class RemoteFileItemPropertiesFactory implements PropertiesFactory<Remote
             super(dialogParam);
             this.categoryIconManager = dialogParam.getCategoryIconManager();
             GuiUtils.assignResources(this);
-            
-            title.setEditable(false);
-            genre.setEditable(false);
-            rating.setEditable(false);
-            year.setEditable(false);
-            description.setEditable(false);
+            disableEditForAllCommonFields();
         }
         
         @Override

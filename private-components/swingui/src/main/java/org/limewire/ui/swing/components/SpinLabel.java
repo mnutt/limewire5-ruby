@@ -14,7 +14,7 @@ import org.jdesktop.swingx.painter.AbstractPainter;
  */
 public class SpinLabel extends JXLabel {
 
-    private static int FPS = 10;
+    private static int FPS = 20;
     private static double FULL_ROTATION = 2*Math.PI;
     private static double TICK = FULL_ROTATION / 16;
     

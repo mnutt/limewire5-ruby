@@ -45,6 +45,22 @@ public class LimeHeaderBarFactory {
         this.painterFactory = painterFactory;
     }
     
+    
+    /**
+     *  Since the title component is compound the factory method
+     *  accepts two parameters for setting the title component and automatically linking
+     *  the header bar to the textual inner component. It is important to do it all at once
+     *  to simplify the decorating process and make sure the header text has the proper
+     *  size and coloring.
+     */
+    public LimeHeaderBar createBasic(Component component, JLabel titleComponent) {
+        LimeHeaderBar bar = new LimeHeaderBar(component);
+        bar.setDefaultComponentHeight(defaultComponentHeight);
+        bar.linkTextComponent(titleComponent);
+        decorateBasic(bar);
+        return bar;
+    }
+    
     public LimeHeaderBar createBasic(Component comp) {
         LimeHeaderBar bar = new LimeHeaderBar(comp);
         bar.setDefaultComponentHeight(defaultComponentHeight);
@@ -75,7 +91,7 @@ public class LimeHeaderBarFactory {
      *  accepts two parameters for setting the title component and automatically linking
      *  the header bar to the textual inner component. It is important to do it all at once
      *  to simplify the decorating process and make sure the header text has the proper
-     *  size and colouring.
+     *  size and coloring.
      */
     public LimeHeaderBar createSpecial(Component titleComponent, JLabel titleTextComponent) {
         LimeHeaderBar bar = new LimeHeaderBar(titleComponent);

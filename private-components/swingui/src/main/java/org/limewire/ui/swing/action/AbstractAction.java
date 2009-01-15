@@ -13,6 +13,9 @@ import org.limewire.ui.swing.util.SwingUtils;
  * will set the name of the action to "Hello World" and its menomonic to 'W'.
  */
 public abstract class AbstractAction extends javax.swing.AbstractAction {
+    
+    public static String PRESSED_ICON = "limewire.pressedIcon";
+    public static String ROLLOVER_ICON = "limewire.rolloverIcon";
 
     public AbstractAction(String name, Icon icon) {
         super(name, icon);

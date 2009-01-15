@@ -13,7 +13,7 @@ import javax.swing.table.TableColumn;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.TableColumnExt;
-import org.limewire.core.settings.TablesHandler;
+import org.limewire.ui.swing.settings.TablesHandler;
 
 /**
  * Saves the state of columns in a given table. 

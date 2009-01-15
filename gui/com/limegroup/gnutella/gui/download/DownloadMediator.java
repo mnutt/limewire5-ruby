@@ -663,7 +663,7 @@ public final class DownloadMediator extends AbstractTableMediator<DownloadModel,
             Downloader downloader= dd.getInitializeObject();
             Endpoint end = downloader.getChatEnabledHost();
             if (end != null) {
-                GUIMediator.createChat(end.getAddress(), end.getPort());
+//                GUIMediator.createChat(end.getAddress(), end.getPort());
             }
         }
     }

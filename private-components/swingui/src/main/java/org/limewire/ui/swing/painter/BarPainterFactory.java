@@ -27,6 +27,7 @@ public class BarPainterFactory {
     @Resource private Color topBarGradientBottom = PainterUtils.TRASPARENT;
     @Resource private Color topBarBorderTop1 = PainterUtils.TRASPARENT;
     @Resource private Color topBarBorderBottom1 = PainterUtils.TRASPARENT;
+    @Resource private Color topBarBorderBottom2 = PainterUtils.TRASPARENT;
     
     @Resource private Color statusBarTopGradient = PainterUtils.TRASPARENT;
     @Resource private Color statusBarBottomGradient = PainterUtils.TRASPARENT;
@@ -69,7 +70,7 @@ public class BarPainterFactory {
         return new GenericBarPainter<JXPanel>(
             new GradientPaint(0,0,this.topBarGradientTop,0,1,this.topBarGradientBottom), 
             this.topBarBorderTop1, PainterUtils.TRASPARENT, 
-            this.topBarBorderBottom1, PainterUtils.TRASPARENT);
+            this.topBarBorderBottom1, topBarBorderBottom2);
     }
     
     public GenericBarPainter<JXPanel> createStatusBarPainter() {

@@ -1,28 +1,32 @@
 package org.limewire.ui.swing.statusbar;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
 import org.limewire.ui.swing.friends.chat.ChatFramePanel;
-import org.limewire.ui.swing.friends.login.FriendActions;
+import org.limewire.ui.swing.friends.chat.IconLibrary;
 import org.limewire.ui.swing.mainframe.UnseenMessageListener;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 
 import com.google.inject.Inject;
@@ -31,34 +35,47 @@ import com.google.inject.Singleton;
 @Singleton
 class FriendStatusPanel {
 
-    private final JXButton friendsButton;
+    private final JXButton chatButton;
+    private final ChatFramePanel friendsPanel;
     
     private Component mainComponent;
 
-    @Inject FriendStatusPanel(final FriendActions friendActions, final ChatFramePanel friendsPanel) {
-        Color whiteBackground = Color.WHITE;
-        JPanel chatPanel = new JPanel(new BorderLayout());
-        chatPanel.setBorder(BorderFactory.createLineBorder(new Color(159, 159, 159)));
-        chatPanel.setOpaque(true);
-        chatPanel.setBackground(whiteBackground);
+    @Inject FriendStatusPanel(final ChatFramePanel friendsPanel, IconLibrary iconLibrary) {
+        GuiUtils.assignResources(this);
         
-        friendsButton = new JXButton(new AbstractAction(I18n.tr("Chat")) {
+        this.friendsPanel = friendsPanel;
+        
+        chatButton = new JXButton(new AbstractAction(I18n.tr("Chat")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!friendActions.isSignedIn()) {
-                    friendActions.signIn();
-                } else {
-                    friendsPanel.toggleVisibility();
-                }
+                friendsPanel.toggleVisibility();
+                
+                mainComponent.invalidate();
+                mainComponent.repaint();
             }
         });
-        friendsButton.setBackgroundPainter(new RectanglePainter<JXButton>(whiteBackground, whiteBackground));
         
-        chatPanel.add(friendsButton, BorderLayout.EAST);
+        chatButton.setName("ChatButton");
         
-        friendsPanel.setUnseenMessageListener(new UnseenMessageFlasher(friendsButton));       
         
-        mainComponent = chatPanel;
+        chatButton.setBackgroundPainter(new ChatButtonPainter());
+        
+        chatButton.setIcon(iconLibrary.getChatting());
+        chatButton.setHorizontalAlignment(AbstractButton.LEFT);
+        
+        chatButton.setFocusPainted(false);
+        chatButton.setRolloverEnabled(false);
+        chatButton.setOpaque(false);        
+        chatButton.setBorder(null);
+        chatButton.setContentAreaFilled(false);
+        chatButton.setFocusable(false);
+        
+        chatButton.setBorder(BorderFactory.createEmptyBorder(2, 10, 0, 10));
+        chatButton.setPaintBorderInsets(true);
+                
+        friendsPanel.setUnseenMessageListener(new UnseenMessageFlasher(chatButton, iconLibrary));       
+                
+        mainComponent = chatButton;
     }
     
     Component getComponent() {
@@ -86,13 +103,15 @@ class FriendStatusPanel {
         private static Painter<JXButton> BLACK_BACKGROUND_PAINTER = new RectanglePainter<JXButton>(Color.BLACK, Color.BLACK);
         private boolean hasFlashed;
         private final JXButton flashingButton;
+        private final IconLibrary iconLibrary;
         private final Color originalForeground;
         private final Painter<JXButton> originalBackgroundPainter;
         private final Set<String> unseenSenderIds = new HashSet<String>();
         private final String originalButtonText;
         
-        public UnseenMessageFlasher(JXButton flashingButton) {
+        public UnseenMessageFlasher(JXButton flashingButton, IconLibrary iconLibrary) {
             this.flashingButton = flashingButton;
+            this.iconLibrary = iconLibrary;
             this.originalForeground = flashingButton.getForeground();
             this.originalBackgroundPainter = flashingButton.getBackgroundPainter();
             this.originalButtonText = flashingButton.getText();
@@ -115,7 +134,9 @@ class FriendStatusPanel {
 
         private void updateButtonText() {
             int unseenMessageSenderCount = unseenSenderIds.size();
-            flashingButton.setText(originalButtonText + (unseenMessageSenderCount > 0 ? " (" + unseenMessageSenderCount + ")" : ""));
+            boolean hasUnseenMessages = unseenMessageSenderCount > 0;
+            flashingButton.setText(originalButtonText + (hasUnseenMessages ? " (" + unseenMessageSenderCount + ")" : ""));
+            flashingButton.setIcon(hasUnseenMessages ? iconLibrary.getUnviewedMessages() : iconLibrary.getChatting());
         }
             
         @Override
@@ -156,6 +177,38 @@ class FriendStatusPanel {
             flashingButton.setForeground(originalForeground);
             flashingButton.setBackgroundPainter(originalBackgroundPainter);
             hasFlashed = false;
+        }
+    }
+    
+    private class ChatButtonPainter extends AbstractPainter<JXButton> {
+
+        @Resource private Color activeBackground = PainterUtils.TRASPARENT;
+        @Resource private Color activeBorder = PainterUtils.TRASPARENT;
+        @Resource private Color chatWindowBorder = PainterUtils.TRASPARENT;
+        
+        public ChatButtonPainter() {
+            
+            GuiUtils.assignResources(this);
+            
+            setCacheable(false);
+            setAntialiasing(true);
+        }
+        
+        @Override
+        protected void doPaint(Graphics2D g, JXButton object, int width, int height) {
+            
+            if (friendsPanel.isVisible()) {
+                g.setPaint(activeBackground);
+                g.fillRect(0, 0, width, height);
+                g.setPaint(activeBorder);
+                g.drawLine(0, 0, 0, height-1);
+                g.drawLine(0, height-1, width-1, height-1);
+                g.drawLine(width-1, 0, width-1, height-1);
+                
+                // TODO: if (chatting) :
+                g.setPaint(chatWindowBorder);
+                // TODO: paint upper lip
+            }
         }
     }
 }

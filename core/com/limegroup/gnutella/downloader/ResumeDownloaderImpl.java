@@ -89,14 +89,13 @@ class ResumeDownloaderImpl extends ManagedDownloaderImpl implements ResumeDownlo
     @Override
     public void initialize() {
         super.initialize();
-        // Auto-activate the requeryManager if this was created
-        // from clicking 'Resume' in the library (as opposed to
-        // from being deserialized from disk).
-        requeryManager.activate();
-    }
-
-    @Override
-    protected boolean shouldInitAltLocs() {
-        return true;
+        
+        // NOTE: We do not auto-activate anymore because
+        //       we automatically create downloaders for
+        //       incomplete files.
+//        // Auto-activate the requeryManager if this was created
+//        // from clicking 'Resume' in the library (as opposed to
+//        // from being deserialized from disk).
+//        requeryManager.activate();
     }
 }

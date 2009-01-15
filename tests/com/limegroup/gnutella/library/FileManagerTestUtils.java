@@ -3,7 +3,6 @@ package com.limegroup.gnutella.library;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
-import static org.limewire.util.AssertComparisons.assertEmpty;
 import static org.limewire.util.AssertComparisons.assertInstanceof;
 import static org.limewire.util.AssertComparisons.assertNotNull;
 
@@ -54,7 +53,7 @@ public class FileManagerTestUtils {
                 FileListChangeFailedException cause = (FileListChangeFailedException) expected.getCause();
                 assertEquals(FileListChangedEvent.Type.ADD_FAILED, cause.getEvent().getType());
                 assertEquals(file, cause.getEvent().getFile());
-                assertEquals(reason, cause.getReason());
+                assertEquals(reason, cause.getReason().toString());
             }
         }
     }
@@ -89,7 +88,7 @@ public class FileManagerTestUtils {
             assertEquals(old, cause.getEvent().getOldFile());
             assertEquals(newFile, cause.getEvent().getFile());
             assertEquals(oldFd, cause.getEvent().getOldValue());
-            assertEquals(reason, cause.getReason());
+            assertEquals(reason, cause.getReason().toString());
         }
     }
     
@@ -111,7 +110,7 @@ public class FileManagerTestUtils {
             assertEquals(file, cause.getEvent().getOldFile());
             assertEquals(file, cause.getEvent().getFile());
             assertEquals(oldFd, cause.getEvent().getOldValue());
-            assertEquals(reason, cause.getReason());
+            assertEquals(reason, cause.getReason().toString());
         }
     }
     
@@ -134,7 +133,7 @@ public class FileManagerTestUtils {
             assertTrue("did not contain file[" + i + "]: " + file, files.remove(file));
             i++;
         }
-        assertEmpty(files);
+        assertTrue("contained unexpected files: " + files, files.size() == 0);
     }
     
     public static List<FileDesc> assertAddsFolder(FileList fileList, File folder) throws Exception {
@@ -224,6 +223,9 @@ public class FileManagerTestUtils {
      */
     public static File createNewNamedTestFile(int size, String name,
                                               String extension, File directory) throws Exception {
+        if(name.length() < 3) {
+            name = name + "___";
+        }
         File file = File.createTempFile(name, "." + extension, directory);
         file.deleteOnExit();
         OutputStream out = new FileOutputStream(file);

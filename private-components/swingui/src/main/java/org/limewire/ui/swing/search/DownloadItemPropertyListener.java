@@ -22,9 +22,6 @@ public class DownloadItemPropertyListener implements PropertyChangeListener {
             DownloadState state = (DownloadState) evt.getNewValue();
             switch (state) {
             case CANCELLED:
-                // TODO, this listener is not properly getting the cancel state
-                // change.
-                // find out why.
                 vsr.setDownloadState(BasicDownloadState.NOT_STARTED);
                 break;
             case DONE:

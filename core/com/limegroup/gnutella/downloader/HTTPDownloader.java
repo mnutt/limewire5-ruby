@@ -30,7 +30,6 @@ import org.limewire.collection.BitNumbers;
 import org.limewire.collection.Function;
 import org.limewire.collection.IntervalSet;
 import org.limewire.collection.Range;
-import org.limewire.core.settings.ChatSettings;
 import org.limewire.core.settings.DownloadSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.io.Connectable;
@@ -548,12 +547,12 @@ public class HTTPDownloader implements BandwidthTracker {
             String host = NetworkUtils.ip2string(networkManager.getAddress());
             headers.add(HTTPHeaderName.NODE.create(host + ":" + port));
             features.add(ConstantHTTPHeaderValue.BROWSE_FEATURE);
-            // Legacy chat header. Replaced by X-Features header / X-Node
-            // header
-            if (ChatSettings.CHAT_ENABLED.getValue()) {
-                headers.add(HTTPHeaderName.CHAT.create(host + ":" + port));
-                features.add(ConstantHTTPHeaderValue.CHAT_FEATURE);
-            }
+//            // Legacy chat header. Replaced by X-Features header / X-Node
+//            // header
+//            if (ChatSettings.CHAT_ENABLED.getValue()) {
+//                headers.add(HTTPHeaderName.CHAT.create(host + ":" + port));
+//                features.add(ConstantHTTPHeaderValue.CHAT_FEATURE);
+//            }
         }	
 		
 		// if this node is firewalled, send its push proxy info and guid so
@@ -1190,17 +1189,10 @@ public class HTTPDownloader implements BandwidthTracker {
         } catch (NumberFormatException e) {
             throw new ProblemReadingHeaderException(str);
         }
-        // In order to be backwards compatible with
-        // LimeWire 0.5, which sent broken headers like:
-        // Content-range: bytes=1-67818707/67818707
-        //
-        // If the number preceding the '/' is equal 
-        // to the number after the '/', then we want
-        // to decrement the first number and the number
-        // before the '/'.
-        if (numBeforeSlash == numAfterSlash) {
-            numBeforeDash--;
-            numBeforeSlash--;
+
+        // ignore invalid ranges
+        if (numBeforeSlash >= numAfterSlash) {
+            throw new ProblemReadingHeaderException(str);
         }
         
         if(LOG.isDebugEnabled())

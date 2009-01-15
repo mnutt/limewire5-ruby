@@ -31,7 +31,6 @@ import com.limegroup.gnutella.downloader.serial.GnutellaDownloadMemento;
 import com.limegroup.gnutella.downloader.serial.MagnetDownloadMemento;
 import com.limegroup.gnutella.downloader.serial.OldDownloadConverter;
 import com.limegroup.gnutella.downloader.serial.RemoteHostMemento;
-import com.limegroup.gnutella.gui.search.SearchInformation;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.util.LimeTestCase;
 
@@ -200,13 +199,13 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(1, mem.getSavedBlocks().size());
             assertEquals(Range.createRange(3276800, 3316399), mem.getSavedBlocks().get(0));
             
-            Map<String, Object> attributes = mem.getAttributes();
-            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
-            assertEquals("*", so.getMediaType().getSchema());
-            assertEquals("limewire", so.getQuery());
-            assertEquals(null, so.getXML());
-            assertTrue(so.isKeywordSearch());
-            assertEquals("limewire", so.getTitle());
+//            Map<String, Object> attributes = mem.getAttributes();
+//            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
+//            assertEquals("*", so.getMediaType().getSchema());
+//            assertEquals("limewire", so.getQuery());
+//            assertEquals(null, so.getXML());
+//            assertTrue(so.isKeywordSearch());
+//            assertEquals("limewire", so.getTitle());
             assertEquals(4495072L, mem.getContentLength());
             assertEquals("LimeWireWin4.16.0.exe", mem.getDefaultFileName());
             assertEquals(URN.createSHA1Urn("urn:sha1:A6DGMXEOJDBQOIJUQTAQWSWC2IQKFD5J"), mem.getSha1Urn());
@@ -269,13 +268,13 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(Range.createRange(786432, 823029), mem.getSavedBlocks().get(1));
             assertEquals(Range.createRange(3801088, 3932159), mem.getSavedBlocks().get(2));
             
-            Map<String, Object> attributes = mem.getAttributes();
-            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
-            assertEquals("*", so.getMediaType().getSchema());
-            assertEquals("limewire", so.getQuery());
-            assertEquals(null, so.getXML());
-            assertTrue(so.isKeywordSearch());
-            assertEquals("limewire", so.getTitle());
+//            Map<String, Object> attributes = mem.getAttributes();
+//            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
+//            assertEquals("*", so.getMediaType().getSchema());
+//            assertEquals("limewire", so.getQuery());
+//            assertEquals(null, so.getXML());
+//            assertTrue(so.isKeywordSearch());
+//            assertEquals("limewire", so.getTitle());
             assertEquals(4400168L, mem.getContentLength());
             assertEquals("LimeWireWin4.15.5.exe", mem.getDefaultFileName());
             assertEquals(URN.createSHA1Urn("urn:sha1:ZKPIRLABHCFSNTMOFO7AK7FFVVIHBRQO"), mem.getSha1Urn());            
@@ -295,13 +294,13 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(Range.createRange(2621440, 2661103), mem.getSavedBlocks().get(4));
             assertEquals(Range.createRange(3145728, 3381279), mem.getSavedBlocks().get(5));
             
-            Map<String, Object> attributes = mem.getAttributes();
-            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
-            assertEquals("*", so.getMediaType().getSchema());
-            assertEquals("limewire", so.getQuery());
-            assertEquals(null, so.getXML());
-            assertTrue(so.isKeywordSearch());
-            assertEquals("limewire", so.getTitle());
+//            Map<String, Object> attributes = mem.getAttributes();
+//            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
+//            assertEquals("*", so.getMediaType().getSchema());
+//            assertEquals("limewire", so.getQuery());
+//            assertEquals(null, so.getXML());
+//            assertTrue(so.isKeywordSearch());
+//            assertEquals("limewire", so.getTitle());
             assertEquals(3381280L, mem.getContentLength());
             assertEquals("LimeWireWin4.14.12.exe", mem.getDefaultFileName());
             assertEquals(URN.createSHA1Urn("urn:sha1:SROVXQRNE6ZA6N26OKL6BMERSAIO4HVE"), mem.getSha1Urn());            
@@ -319,13 +318,13 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(Range.createRange(1572864, 1654783), mem.getSavedBlocks().get(2));
             assertEquals(Range.createRange(1835008, 2097151), mem.getSavedBlocks().get(3));
             
-            Map<String, Object> attributes = mem.getAttributes();
-            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
-            assertEquals("*", so.getMediaType().getSchema());
-            assertEquals("limewire", so.getQuery());
-            assertEquals(null, so.getXML());
-            assertTrue(so.isKeywordSearch());
-            assertEquals("limewire", so.getTitle());
+//            Map<String, Object> attributes = mem.getAttributes();
+//            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
+//            assertEquals("*", so.getMediaType().getSchema());
+//            assertEquals("limewire", so.getQuery());
+//            assertEquals(null, so.getXML());
+//            assertTrue(so.isKeywordSearch());
+//            assertEquals("limewire", so.getTitle());
             assertEquals(2305127L, mem.getContentLength());
             assertEquals("LimeWirePackedJars4.12.6.7z", mem.getDefaultFileName());
             assertEquals(URN.createSHA1Urn("urn:sha1:XOOJZHTKRTKTIFHOHXYOEXVAJPYVAGDE"), mem.getSha1Urn());            
@@ -344,13 +343,13 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(Range.createRange(1310720, 2621439), mem.getSavedBlocks().get(3));
             assertEquals(Range.createRange(3145728, 3238639), mem.getSavedBlocks().get(4));
             
-            Map<?, ?> attributes = mem.getAttributes();
-            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
-            assertEquals("*", so.getMediaType().getSchema());
-            assertEquals("limewire", so.getQuery());
-            assertEquals(null, so.getXML());
-            assertTrue(so.isKeywordSearch());
-            assertEquals("limewire", so.getTitle());
+//            Map<?, ?> attributes = mem.getAttributes();
+//            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
+//            assertEquals("*", so.getMediaType().getSchema());
+//            assertEquals("limewire", so.getQuery());
+//            assertEquals(null, so.getXML());
+//            assertTrue(so.isKeywordSearch());
+//            assertEquals("limewire", so.getTitle());
             assertEquals(3380048L, mem.getContentLength());
             assertEquals("LimeWireWin4.14.10.exe", mem.getDefaultFileName());
             assertEquals(URN.createSHA1Urn("urn:sha1:DSGYQ4XCX6VIIAHACM3JNY2UXREK7OGK"), mem.getSha1Urn());           
@@ -367,13 +366,13 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(Range.createRange(1572864, 1886959), mem.getSavedBlocks().get(1));
             assertEquals(Range.createRange(2097152, 2191925), mem.getSavedBlocks().get(2));
             
-            Map<String, Object> attributes = mem.getAttributes();
-            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
-            assertEquals("*", so.getMediaType().getSchema());
-            assertEquals("limewire", so.getQuery());
-            assertEquals(null, so.getXML());
-            assertTrue(so.isKeywordSearch());
-            assertEquals("limewire", so.getTitle());
+//            Map<String, Object> attributes = mem.getAttributes();
+//            SearchInformation so = SearchInformation.createFromMap((Map)attributes.get("searchInformationMap"));
+//            assertEquals("*", so.getMediaType().getSchema());
+//            assertEquals("limewire", so.getQuery());
+//            assertEquals(null, so.getXML());
+//            assertTrue(so.isKeywordSearch());
+//            assertEquals("limewire", so.getTitle());
             assertEquals(3064200L, mem.getContentLength());
             assertEquals("LimeWireWin4.12.6.exe", mem.getDefaultFileName());
             assertEquals(URN.createSHA1Urn("urn:sha1:B3KUDG6BOAMIXEIFL6YCW27LH3A4ODL6"), mem.getSha1Urn());            

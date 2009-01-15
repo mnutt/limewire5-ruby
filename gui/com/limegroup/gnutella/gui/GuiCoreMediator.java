@@ -34,7 +34,6 @@ import com.limegroup.gnutella.altlocs.AltLocManager;
 import com.limegroup.gnutella.browser.ExternalControl;
 import com.limegroup.gnutella.browser.LocalAcceptor;
 import com.limegroup.gnutella.browser.LocalHTTPAcceptor;
-import com.limegroup.gnutella.chat.ChatManager;
 import com.limegroup.gnutella.connection.ConnectionCheckerManager;
 import com.limegroup.gnutella.daap.DaapManager;
 import com.limegroup.gnutella.dht.DHTManager;
@@ -105,7 +104,6 @@ public class GuiCoreMediator {
     public static ConnectionCheckerManager getConnectionCheckerManager() { return core.getConnectionCheckerManager(); }
     public static ExternalControl getExternalControl() { return core.getExternalControl(); }
     public static ActivityCallback getActivityCallback() { return core.getActivityCallback(); }
-    public static ChatManager getChatManager() { return core.getChatManager(); }
     public static LimeXMLDocumentFactory getLimeXMLDocumentFactory() { return core.getLimeXMLDocumentFactory(); }
     public static MetaDataFactory getMetaDataFactory() { return core.getMetaDataFactory(); }
     public static LicenseVerifier getLicenseVerifier() { return core.getLicenseVerifier(); }

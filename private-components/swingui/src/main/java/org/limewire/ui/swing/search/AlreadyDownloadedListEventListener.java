@@ -1,7 +1,5 @@
 package org.limewire.ui.swing.search;
 
-import java.util.List;
-
 import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
@@ -42,16 +40,11 @@ public class AlreadyDownloadedListEventListener implements ListEventListener<Vis
                     visualSearchResult.setDownloadState(BasicDownloadState.LIBRARY);
                 } else {
                     //next checking download list
-                    List<DownloadItem> downloads = downloadListManager.getSwingThreadSafeDownloads();
-                    // TODO instead of iterating through loop, it would be
-                    // nice to lookup download by urn potentially.
-                    for (DownloadItem downloadItem : downloads) {
-                        if (urn.equals(downloadItem.getUrn())) {
-                            downloadItem.addPropertyChangeListener(new DownloadItemPropertyListener(visualSearchResult));
-                            visualSearchResult.setPreExistingDownload(true);
-                            visualSearchResult.setDownloadState(BasicDownloadState.DOWNLOADING);
-                            break;
-                        }
+                    DownloadItem downloadItem = downloadListManager.getDownloadItem(urn);
+                    if(downloadItem != null) {
+                        downloadItem.addPropertyChangeListener(new DownloadItemPropertyListener(visualSearchResult));
+                        visualSearchResult.setPreExistingDownload(true);
+                        visualSearchResult.setDownloadState(BasicDownloadState.DOWNLOADING);
                     }
                 }
             }

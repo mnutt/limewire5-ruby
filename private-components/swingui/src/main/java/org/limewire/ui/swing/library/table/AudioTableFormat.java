@@ -26,7 +26,10 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
     static final int YEAR_INDEX = 10;
     static final int QUALITY_INDEX = 11;
     static final int DESCRIPTION_INDEX = 12;
-    static final int ACTION_INDEX = 13;
+    static final int HIT_INDEX = 13;
+    static final int UPLOADS_INDEX = 14;
+    static final int UPLOAD_ATTEMPTS_INDEX = 15;
+    static final int ACTION_INDEX = 16;
     
     public AudioTableFormat() {
         super(ACTION_INDEX, new ColumnStateInfo[] {
@@ -43,6 +46,9 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
                 new ColumnStateInfo(YEAR_INDEX, "LIBRARY_AUDIO_YEAR", I18n.tr("Year"), 50, false, true), 
                 new ColumnStateInfo(QUALITY_INDEX, "LIBRARY_AUDIO_QUALITY", I18n.tr("Quality"), 60, false, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "LIBRARY_AUDIO_DESCRIPTION", I18n.tr("Description"), 100, false, true), 
+                new ColumnStateInfo(HIT_INDEX, "LIBRARY_AUDIO_HITS", I18n.tr("Hits"), 100, false, true), 
+                new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_AUDIO_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
+                new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_AUDIO_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true), 
                 new ColumnStateInfo(ACTION_INDEX, "LIBRARY_AUDIO_ACTION", I18n.tr("Sharing"), 50, true, false)
         });
     }
@@ -66,8 +72,11 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
         case TRACK_INDEX: return baseObject.getProperty(FilePropertyKey.TRACK_NUMBER);
         case YEAR_INDEX: return baseObject.getProperty(FilePropertyKey.YEAR);
         case QUALITY_INDEX: return "";
-        case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.COMMENTS);
+        case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
         case ACTION_INDEX: return baseObject;
+        case HIT_INDEX: return baseObject.getNumHits();
+        case UPLOAD_ATTEMPTS_INDEX: return baseObject.getNumUploadAttempts();
+        case UPLOADS_INDEX: return baseObject.getNumUploads();
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

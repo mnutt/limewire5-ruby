@@ -15,7 +15,6 @@ import javax.swing.plaf.basic.BasicHTML;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.StartupSettings;
 import org.limewire.i18n.I18nMarker;
@@ -467,12 +466,12 @@ public final class Initializer {
                     NotifyUserProxy.instance();
                     stopwatch.resetAndLog("NotifYUserProxy instance");
                     
-                    if (!ApplicationSettings.DISPLAY_TRAY_ICON.getValue())
-                        NotifyUserProxy.instance().hideTrayIcon();
-                    
-                    SettingsWarningManager.checkTemporaryDirectoryUsage();
-                    SettingsWarningManager.checkSettingsLoadSaveFailure();
-                    
+//                    if (!ApplicationSettings.DISPLAY_TRAY_ICON.getValue())
+//                        NotifyUserProxy.instance().hideTrayIcon();
+//                    
+//                    SettingsWarningManager.checkTemporaryDirectoryUsage();
+//                    SettingsWarningManager.checkSettingsLoadSaveFailure();
+//                    
                     stopwatch.resetAndLog("end notify runner");
                 }
         });

@@ -64,7 +64,7 @@ public final class UrnCache {
      * The ProcessingQueue that Files are hashed in.
      */
     private final ListeningExecutorService QUEUE =
-        ExecutorsHelper.newFixedSizeThreadPool(Runtime.getRuntime().availableProcessors(), "Hasher");
+        ExecutorsHelper.newProcessingQueue("Hasher");
     
     /**
      * Whether or not data is dirty since the last time we saved.

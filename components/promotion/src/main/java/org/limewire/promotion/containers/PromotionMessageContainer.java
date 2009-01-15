@@ -148,11 +148,11 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
                 mask[0] = (byte) (mask[0] | 1);
             if (options.isOpenInNewTab())
                 mask[0] = (byte) (mask[0] | 2);
-            if (options.isOpenInClientTab())
+            if (options.isOpenInHomeTab())
                 mask[0] = (byte) (mask[0] | 4);
             if (options.isOpenInStoreTab())
                 mask[0] = (byte) (mask[0] | 8);
-            if (options.isOpenInSpotTab())
+            if (options.isOpenInUnknownTab())
                 mask[0] = (byte) (mask[0] | 16);
         }
 
@@ -168,9 +168,9 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
             byte mask = header[10];
             options.setMatchAllWords((mask & 1) > 0);
             options.setOpenInNewTab((mask & 2) > 0);
-            options.setOpenInClientTab((mask & 4) > 0);
+            options.setOpenInHomeTab((mask & 4) > 0);
             options.setOpenInStoreTab((mask & 8) > 0);
-            options.setOpenInSpotTab((mask & 16) > 0);
+            options.setOpenInUnknownTab((mask & 16) > 0);
         }
         return options;
     }
@@ -686,11 +686,11 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
 
         private boolean openInNewTab = false;
 
-        private boolean openInClientTab = false;
+        private boolean openInHomeTab = false;
 
         private boolean openInStoreTab = false;
 
-        private boolean openInSpotTab = false;
+        private boolean openInUnknownTab = false;
 
         /**
          * @return if true, query should match all words, otherwise any words.
@@ -711,7 +711,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
          *         window.
          */
         public boolean isOpenInNewWindow() {
-            return !(openInStoreTab || openInNewTab || openInClientTab || openInSpotTab);
+            return !(openInStoreTab || openInNewTab || openInHomeTab || openInUnknownTab);
         }
 
         /**
@@ -742,24 +742,24 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
          * @return if true and LW supports a "Spot" tab, open this into that
          *         tab, creating it if it's not already open.
          */
-        public boolean isOpenInSpotTab() {
-            return openInSpotTab;
+        public boolean isOpenInUnknownTab() {
+            return openInUnknownTab;
         }
 
-        public void setOpenInSpotTab(boolean openInSpotTab) {
-            this.openInSpotTab = openInSpotTab;
+        public void setOpenInUnknownTab(boolean openInUnknownTab) {
+            this.openInUnknownTab = openInUnknownTab;
         }
 
         /**
          * @return if true and LW supports a "Client" (browser) tab, open this
          *         into that tab, creating it if it's not already open.
          */
-        public boolean isOpenInClientTab() {
-            return openInClientTab;
+        public boolean isOpenInHomeTab() {
+            return openInHomeTab;
         }
 
-        public void setOpenInClientTab(boolean openInClientTab) {
-            this.openInClientTab = openInClientTab;
+        public void setOpenInHomeTab(boolean openInHomeTab) {
+            this.openInHomeTab = openInHomeTab;
         }
     }
 

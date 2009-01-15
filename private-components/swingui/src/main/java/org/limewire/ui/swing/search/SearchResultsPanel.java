@@ -21,43 +21,39 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
-import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.sponsored.SponsoredResult;
-import org.limewire.core.settings.SearchSettings;
-import org.limewire.logging.Log;
-import org.limewire.logging.LogFactory;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.FancyTab;
 import org.limewire.ui.swing.components.FancyTabList;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
-import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.BaseResultPanel.ListViewTable;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.table.TableCellHeaderRenderer;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
+import ca.odell.glazedlists.EventList;
+
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
-
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.matchers.Matcher;
-import net.miginfocom.swing.MigLayout;
 
 /**
  * This class displays search results in a panel.
  */
 public class SearchResultsPanel extends JXPanel implements Disposable {
-    private final Log LOG = LogFactory.getLog(getClass());
-       
     private final LimeHeaderBarFactory headerBarFactory;
     
     /**
@@ -130,18 +126,15 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         configureEnclosingScrollPane();
 
         final EventList<VisualSearchResult> filteredList =
-            sortAndFilterPanel.getFilteredAndSortedList(newVisibleFilterList(eventList), preserver);
+            sortAndFilterPanel.getFilteredAndSortedList(eventList, preserver);
         
-        // The ResultsContainerFactory create method takes two parameters
-        // which it passes to the ResultsContainer constructor
-        // for the parameters annotated with @Assisted.
         this.resultsContainer = containerFactory.create(filteredList, search, searchInfo, preserver);
         
         viewTypeListener = new SettingListener() {
-           int oldSearchViewTypeId = SearchSettings.SEARCH_VIEW_TYPE_ID.getValue();
+           int oldSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
            @Override
             public void settingChanged(SettingEvent evt) {
-               int newSearchViewTypeId = SearchSettings.SEARCH_VIEW_TYPE_ID.getValue();
+               int newSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
                if(newSearchViewTypeId != oldSearchViewTypeId) {
                    SearchViewType newSearchViewType = SearchViewType.forId(newSearchViewTypeId);
                    resultsContainer.setViewType(newSearchViewType);
@@ -150,7 +143,7 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
                }
             } 
         };
-        SearchSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);
+        SwingUiSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);
 
         SearchTabItems.SearchTabListener listener =
             new SearchTabItems.SearchTabListener() {
@@ -180,7 +173,7 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
 
     @Override
     public void dispose() {
-        SearchSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
+        SwingUiSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
         sortAndFilterPanel.dispose();
     }
 
@@ -196,18 +189,6 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         JPanel cornerComponent = new JPanel(new BorderLayout());
         cornerComponent.add(renderer, BorderLayout.CENTER);
         scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, cornerComponent);
-    }
-    
-    private EventList<VisualSearchResult> newVisibleFilterList(
-            EventList<VisualSearchResult> eventList) {
-        return GlazedListsFactory.filterList(eventList, new Matcher<VisualSearchResult>() {
-            @Override
-            public boolean matches(VisualSearchResult item) {
-                boolean visible = item.isVisible();
-                LOG.debugf("filter... VSR urn {0} visibility {1}", item.getCoreSearchResults().get(0).getUrn(), visible);
-                return visible;
-            }
-        });
     }
     
     public void addSponsoredResults(List<SponsoredResult> sponsoredResults){
@@ -240,9 +221,11 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
             TableColumn column = new TableColumn();
             model.addColumn(column);
             JTableHeader header = new JTableHeader(model);
+            header.setDefaultRenderer(new TableCellHeaderRenderer());
             header.setReorderingAllowed(false);
             header.setResizingAllowed(false);
-            header.setTable(new JTable());
+            header.setTable(new JXTable(0, 1));
+            
             int width = sponsoredResultsPanel.getPreferredSize().width;
             int height = resultHeader.getPreferredSize().height;
             column.setWidth(width);
@@ -381,10 +364,10 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
     
     private void updateMessages() {
         if(!lifeCycleComplete) {
-            messageLabel.setText(I18n.tr("LimeWire is currently starting. Your search will start when it completes."));
+            messageLabel.setText(I18n.tr("LimeWire will start your search right after it finishes loading."));
             messagePanel.setVisible(true);
         } else if(!fullyConnected) {
-            messageLabel.setText(I18n.tr("LimeWire is not fully connected. You may not receive many search results until it finishes connecting."));
+            messageLabel.setText(I18n.tr("You might not receive many results until LimeWire finishes loading..."));
             messagePanel.setVisible(true);
         } else {
             messagePanel.setVisible(false);

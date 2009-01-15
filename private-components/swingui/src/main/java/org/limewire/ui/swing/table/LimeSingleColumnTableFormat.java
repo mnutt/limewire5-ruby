@@ -2,9 +2,6 @@ package org.limewire.ui.swing.table;
 
 import java.util.Comparator;
 
-import org.limewire.core.api.upload.UploadItem;
-import org.limewire.ui.swing.util.I18n;
-
 import ca.odell.glazedlists.gui.WritableTableFormat;
 
 /**
@@ -12,8 +9,11 @@ import ca.odell.glazedlists.gui.WritableTableFormat;
  */
 public class LimeSingleColumnTableFormat<T> extends AbstractAdvancedTableFormat<T> implements WritableTableFormat<T> {
 
-    public LimeSingleColumnTableFormat() {
-        super(I18n.tr("Upload Item"));
+    private Class clazz;
+
+    public LimeSingleColumnTableFormat(Class clazz) {
+        super("");
+        this.clazz = clazz;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class LimeSingleColumnTableFormat<T> extends AbstractAdvancedTableFormat<
 
     @Override
     public Class getColumnClass(int column) {
-        return UploadItem.class;
+        return clazz;
     }
 
     @Override

@@ -2,16 +2,14 @@ package org.limewire.ui.swing.downloads;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -19,15 +17,20 @@ import org.jdesktop.swingx.JXButton;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.core.settings.SharingSettings;
 import org.limewire.player.api.AudioPlayer;
-import org.limewire.ui.swing.components.LimeCheckBox;
+import org.limewire.setting.evt.SettingEvent;
+import org.limewire.setting.evt.SettingListener;
+import org.limewire.ui.swing.action.BackAction;
+import org.limewire.ui.swing.components.IconButton;
+import org.limewire.ui.swing.components.LimeComboBox;
+import org.limewire.ui.swing.components.LimeComboBoxFactory;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.dock.DockIcon;
 import org.limewire.ui.swing.dock.DockIconFactory;
 import org.limewire.ui.swing.downloads.table.DownloadStateMatcher;
 import org.limewire.ui.swing.util.ButtonDecorator;
-import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.EventList;
@@ -42,6 +45,7 @@ import com.google.inject.Singleton;
 public class MainDownloadPanel extends JPanel {
 	
     private final ButtonDecorator buttonDecorator;
+    private final LimeComboBoxFactory comboBoxFactory;
     
     public static final String NAME = "MainDownloadPanel";
 	private final CardLayout cardLayout;
@@ -52,11 +56,13 @@ public class MainDownloadPanel extends JPanel {
 	private final DownloadMediator downloadMediator;
 	
 	private final LimeHeaderBar settingsPanel;
-    private JButton pauseAllButton;
-    private JButton resumeAllButton;
-    private JXButton clearFinishedButton;
-    private JCheckBox categoriseCheckBox;
+    
+	private LimeComboBox moreButton;
+    private JXButton clearFinishedNowButton;
     private final DockIcon dock;
+    
+    private JCheckBoxMenuItem categoriseCheckBox;
+    private JCheckBoxMenuItem clearFinishedCheckBox;
 	
     private final AbstractDownloadsAction pauseAction = new AbstractDownloadsAction(I18n.tr("Pause All")) {
         @Override
@@ -71,15 +77,22 @@ public class MainDownloadPanel extends JPanel {
         }
     };
 
-    private final AbstractDownloadsAction clearAction = new AbstractDownloadsAction(I18n.tr("Clear Finished")) {
+    private final AbstractDownloadsAction clearFinishedNowAction = new AbstractDownloadsAction(I18n.tr("Clear Finished")) {
         @Override
         public void actionPerformed(ActionEvent e) {
             downloadMediator.clearFinished();
             dock.draw(0);
         }
     };
+   
+    private final AbstractDownloadsAction clearFinishedAction = new AbstractDownloadsAction(I18n.tr("Clear When Finished")) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            SharingSettings.CLEAR_DOWNLOAD.setValue(clearFinishedCheckBox.isSelected());
+        }
+    };
     
-    private final Action categorizeAction = new AbstractAction(I18n.tr("Categorize downloads")) {
+    private final Action categorizeAction = new AbstractAction(I18n.tr("Categorize Downloads")) {
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -112,19 +125,22 @@ public class MainDownloadPanel extends JPanel {
 	public MainDownloadPanel(AllDownloadPanelFactory allDownloadPanelFactory, 
 	        CategoryDownloadPanelFactory categoryDownloadPanelFactory,
 	        DownloadMediator downloadMediator, AudioPlayer player,
-	        LimeHeaderBarFactory headerBarFactory,
-	        ButtonDecorator buttonDecorator, DockIconFactory dockIconFactory) {
+	        LimeHeaderBarFactory headerBarFactory, LimeComboBoxFactory comboBoxFactory,
+	        ButtonDecorator buttonDecorator, DockIconFactory dockIconFactory,
+	        BackAction backAction) {
 	    
 	    
 		this.downloadMediator = downloadMediator;
 		this.buttonDecorator = buttonDecorator;
+		this.comboBoxFactory = comboBoxFactory;
+		
 		dock = dockIconFactory.createDockIcon();
 		
 		setLayout(new BorderLayout());
 		
         resumeAction.setEnabled(false);
         pauseAction.setEnabled(false);
-        clearAction.setEnabled(false);
+        clearFinishedNowAction.setEnabled(false);
 
 		cardPanel = new JPanel();
 		cardLayout = new CardLayout();
@@ -140,7 +156,12 @@ public class MainDownloadPanel extends JPanel {
 		categoryPanel.setName(CATEGORY);
 		cardPanel.add(categoryPanel, categoryPanel.getName());
 		
-		settingsPanel = headerBarFactory.createBasic(I18n.tr("Downloads"));
+		JPanel headerTitlePanel = new JPanel(new MigLayout("insets 0, gap 0, fill, aligny center"));
+        headerTitlePanel.setOpaque(false);        
+        JLabel titleTextLabel = new JLabel(I18n.tr("Downloads"));        
+        headerTitlePanel.add(new IconButton(backAction), "gapafter 6");
+        headerTitlePanel.add(titleTextLabel, "gapbottom 2");        
+        settingsPanel = headerBarFactory.createBasic(headerTitlePanel, titleTextLabel);
         this.initHeader();
 		add(settingsPanel, BorderLayout.NORTH);
 		
@@ -170,7 +191,7 @@ public class MainDownloadPanel extends JPanel {
         doneList.addListEventListener(new ListEventListener<DownloadItem>() {
             @Override
             public void listChanged(ListEvent<DownloadItem> listChanges) {
-                clearAction.setEnablementFromDownloadSize(listChanges.getSourceList().size());
+                clearFinishedNowAction.setEnablementFromDownloadSize(listChanges.getSourceList().size());
             }
         });
     }
@@ -180,27 +201,35 @@ public class MainDownloadPanel extends JPanel {
 	}
 	
 	private void initHeader() {
-	    pauseAllButton = new JButton(pauseAction);	
-	    resumeAllButton = new JButton(resumeAction);
-	    clearFinishedButton = new JXButton(clearAction);
-	    categoriseCheckBox = new LimeCheckBox(categorizeAction);
-
-	    buttonDecorator.decorateDarkFullButton(clearFinishedButton);
+	    moreButton = new LimeComboBox();
+	    clearFinishedNowButton = new JXButton(clearFinishedNowAction);
 	    
-	    categoriseCheckBox.setOpaque(false);
-	    categoriseCheckBox.setForeground(Color.WHITE);
-	    FontUtils.changeStyle(categoriseCheckBox, Font.PLAIN);
+	    buttonDecorator.decorateDarkFullButton(clearFinishedNowButton);
+	    comboBoxFactory.decorateDarkMiniComboBox(moreButton, I18n.tr("more"));
 
-	    categorizeAction.setEnabled(true);
+	    categoriseCheckBox = new JCheckBoxMenuItem(categorizeAction);
+	    clearFinishedCheckBox = new JCheckBoxMenuItem(clearFinishedAction);
 
-	    JPanel buttonPanel = new JPanel(new FlowLayout());
-	    buttonPanel.setOpaque(false);
-	    buttonPanel.add(pauseAllButton);
-	    buttonPanel.add(resumeAllButton);
-
+	    clearFinishedCheckBox.setSelected(SharingSettings.CLEAR_DOWNLOAD.getValue());
+	    SharingSettings.CLEAR_DOWNLOAD.addSettingListener(new SettingListener() {
+            @Override
+            public void settingChanged(SettingEvent evt) {
+                clearFinishedCheckBox.setSelected(SharingSettings.CLEAR_DOWNLOAD.getValue());
+            }
+	    });
+	    
+	    JPopupMenu menu = new JPopupMenu();
+	    menu.add(moreButton.createMenuItem(pauseAction));
+	    menu.add(moreButton.createMenuItem(resumeAction));
+	    menu.addSeparator();
+	    menu.add(moreButton.decorateMenuComponent(categoriseCheckBox));
+	    menu.add(moreButton.decorateMenuComponent(clearFinishedCheckBox));
+	    
+	    moreButton.overrideMenu(menu);
+	    
 	    this.settingsPanel.setLayout(new MigLayout("insets 0, fillx, filly","push[][]"));
-	    this.settingsPanel.add(categoriseCheckBox);
-	    this.settingsPanel.add(clearFinishedButton, "gapafter 10");
+	    this.settingsPanel.add(clearFinishedNowButton, "gapafter 5");
+	    this.settingsPanel.add(moreButton, "gapafter 5");
 	}
 	
 	

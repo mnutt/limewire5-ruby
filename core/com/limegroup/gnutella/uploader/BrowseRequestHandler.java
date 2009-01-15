@@ -101,7 +101,7 @@ public class BrowseRequestHandler extends SimpleNHttpRequestHandler {
             if(uri.equals("/")) {
                 friendID = null;
                 uploader = sessionManager.getOrCreateUploader(request,
-                        context, UploadType.BROWSE_HOST, I18nMarker.marktr("Browse"));
+                        context, UploadType.BROWSE_HOST, friendID);
             } else {
                 friendID = getFriend(request);
                 tracker.browsed(friendID);

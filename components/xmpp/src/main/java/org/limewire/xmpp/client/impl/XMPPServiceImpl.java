@@ -41,7 +41,6 @@ import org.limewire.xmpp.api.client.Presence.Mode;
 import org.limewire.xmpp.client.impl.messages.connectrequest.ConnectBackRequestIQ;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 
@@ -51,12 +50,12 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
     private static final Log LOG = LogFactory.getLog(XMPPServiceImpl.class);
     private static final int MAX_RECONNECTION_ATTEMPTS = 10;
 
-    private final Provider<EventBroadcaster<RosterEvent>> rosterBroadcaster;
-    private final Provider<EventBroadcaster<FileOfferEvent>> fileOfferBroadcaster;
-    private final Provider<EventBroadcaster<FriendRequestEvent>> friendRequestBroadcaster;
-    private final Provider<EventBroadcaster<LibraryChangedEvent>> libraryChangedBroadcaster;
+    private final EventBroadcaster<RosterEvent> rosterBroadcaster;
+    private final EventBroadcaster<FileOfferEvent> fileOfferBroadcaster;
+    private final EventBroadcaster<FriendRequestEvent> friendRequestBroadcaster;
+    private final EventBroadcaster<LibraryChangedEvent> libraryChangedBroadcaster;
     private final AddressFactory addressFactory;
-    private final Provider<EventMulticaster<XMPPConnectionEvent>> connectionBroadcaster;
+    private final EventMulticaster<XMPPConnectionEvent> connectionBroadcaster;
     private final XMPPAuthenticator authenticator;
     private final EventMulticaster<FeatureEvent> featureSupport;
     private final EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster;
@@ -69,11 +68,11 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
     private boolean multipleConnectionsAllowed;   
 
     @Inject
-    public XMPPServiceImpl(Provider<EventBroadcaster<RosterEvent>> rosterBroadcaster,
-            Provider<EventBroadcaster<FileOfferEvent>> fileOfferBroadcaster,
-            Provider<EventBroadcaster<FriendRequestEvent>> friendRequestBroadcaster,
-            Provider<EventBroadcaster<LibraryChangedEvent>> libraryChangedBroadcaster,
-            Provider<EventMulticaster<XMPPConnectionEvent>> connectionBroadcaster,
+    public XMPPServiceImpl(EventBroadcaster<RosterEvent> rosterBroadcaster,
+            EventBroadcaster<FileOfferEvent> fileOfferBroadcaster,
+            EventBroadcaster<FriendRequestEvent> friendRequestBroadcaster,
+            EventBroadcaster<LibraryChangedEvent> libraryChangedBroadcaster,
+            EventMulticaster<XMPPConnectionEvent> connectionBroadcaster,
             AddressFactory addressFactory, XMPPAuthenticator authenticator,
             EventMulticaster<FeatureEvent> featureSupport,
             EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster,
@@ -95,7 +94,7 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
 
         connections = new CopyOnWriteArrayList<XMPPConnectionImpl>();
         multipleConnectionsAllowed = false;
-        connectionBroadcaster.get().addListener(new ReconnectionManager());
+        connectionBroadcaster.addListener(new ReconnectionManager());
         // We'll install our own subscription listeners
         Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
     }
@@ -171,11 +170,11 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
             }
             
             XMPPConnectionImpl connection = new XMPPConnectionImpl(
-                    configuration, rosterBroadcaster.get(),
-                    fileOfferBroadcaster.get(),
-                    friendRequestBroadcaster.get(),
-                    libraryChangedBroadcaster.get(),
-                    connectionBroadcaster.get(),
+                    configuration, rosterBroadcaster,
+                    fileOfferBroadcaster,
+                    friendRequestBroadcaster,
+                    libraryChangedBroadcaster,
+                    connectionBroadcaster,
                     addressFactory, authenticator, featureSupport,
                     connectRequestEventBroadcaster, 
                     xmppAddressRegistry,

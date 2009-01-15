@@ -17,11 +17,11 @@ public interface LocalFileList extends FileList<LocalFileItem> {
      * Returns a {@link ListeningFuture} that will notify
      * when a LocalFileItem has been created out of this file.
      */
-    public ListeningFuture<LocalFileItem> addFile(File file);
+    ListeningFuture<LocalFileItem> addFile(File file);
 
     /** Removes the given file from the list. */
-    public void removeFile(File file);
-
+    void removeFile(File file);
+    
     /**
      * Adds all files in the folder to the list.
      * 
@@ -29,13 +29,13 @@ public interface LocalFileList extends FileList<LocalFileItem> {
      * when a List of potential {@link LocalFileItem LocalFileItems}
      * have been created from this folder.
      */
-    public ListeningFuture<List<ListeningFuture<LocalFileItem>>> addFolder(File folder);
+    ListeningFuture<List<ListeningFuture<LocalFileItem>>> addFolder(File folder);
     
     /** Returns true if the list contains this file. */
-    public boolean contains(File file);
+    boolean contains(File file);
 
     /** Returns true if the list contains a file with this URN. */
-    public boolean contains(URN urn);
+    boolean contains(URN urn);
     
     /** Finds a file by URN */
     public List<FileDesc> getFileDescsByURN(URN urn);

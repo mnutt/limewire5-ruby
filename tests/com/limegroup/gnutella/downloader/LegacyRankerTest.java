@@ -20,7 +20,7 @@ import com.limegroup.gnutella.util.LimeTestCase;
  * Tests that the legacy ranker is properly selecting which 
  * RFDs it should return.
  */
-@SuppressWarnings( { "unchecked", "cast" } )
+@SuppressWarnings( { "unchecked" } )
 public class LegacyRankerTest extends LimeTestCase {
 
     private ConcurrentMap<RemoteFileDesc, RemoteFileDescContext> contexts = new ConcurrentHashMap<RemoteFileDesc, RemoteFileDescContext>(); 

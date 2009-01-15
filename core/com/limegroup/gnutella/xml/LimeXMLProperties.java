@@ -23,18 +23,8 @@ public class LimeXMLProperties {
     /** schema resource directory. */
     private static final String SCHEMA_RESOURCE_PATH = "org/limewire/xml/schema/";
     
-    /** image resource directory. */
-    private static final String IMAGE_RESOURCE_PATH = "org/limewire/xml/image/";
-    
     /** place where serialized XML data is stored. */
     private static final String XML_DOCS_DIR = "xml/data";
-
-    /**
-     * Returns the name of the resource path in which XML Images are located.
-     */
-    public String getXMLImagesResourcePath() {
-        return IMAGE_RESOURCE_PATH;
-    }
 
     /**
      * Returns the name of the directory where the XML Documents are located

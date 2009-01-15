@@ -1,7 +1,6 @@
 package org.limewire.listener;
 
 import org.limewire.util.Objects;
-import org.limewire.util.StringUtils;
 
 public class AbstractSourcedEvent<S> {
     
@@ -32,6 +31,6 @@ public class AbstractSourcedEvent<S> {
 
     @Override
     public String toString() {
-        return StringUtils.toString(this, source);
+        return getClass().getSimpleName() + " - source: " + source;
     }
 }

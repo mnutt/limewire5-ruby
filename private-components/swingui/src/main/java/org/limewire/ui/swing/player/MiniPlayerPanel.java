@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Map;
 
 import javax.swing.Icon;
@@ -156,7 +157,17 @@ public class MiniPlayerPanel extends JPanel {
                 statusButton.setText(title + " - " + artist);
             } 
             else {
-                statusButton.setText(I18n.tr("Unknown"));
+                String text = null;
+                if (player.getCurrentSong() != null) {
+                    File file = player.getCurrentSong().getFile();
+                    if (file !=null) {
+                        text = file.getName();
+                    }
+                }
+                if (text == null) {
+                    text = I18n.tr("Unknown");
+                }
+                statusButton.setText(text);
             }
             
             statusButton.start();

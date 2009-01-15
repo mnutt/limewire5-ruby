@@ -8,8 +8,10 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -17,6 +19,7 @@ import javax.swing.JScrollPane;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.connection.ConnectionItem;
 import org.limewire.core.api.connection.GnutellaConnectionManager;
+import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.util.I18n;
@@ -33,6 +36,12 @@ public class ConnectionDetailPanel extends JPanel {
 
     /** Manager instance for connection data. */
     private GnutellaConnectionManager gnutellaConnectionManager;
+    
+    /** Action to remove connection. */
+    private Action removeConnectionAction = new RemoveConnectionAction(I18n.tr("Remove"));
+    
+    /** Action to view files on host. */
+    private Action viewLibraryAction = new ViewLibraryAction(I18n.tr("View Files"));
 
     private JScrollPane scrollPane = new JScrollPane();
     private ConnectionTable connectionTable = new ConnectionTable();
@@ -76,6 +85,12 @@ public class ConnectionDetailPanel extends JPanel {
                     connectionTable.setRowSelectionInterval(row, row);
                 }
                 
+                // Enable View Library action only if host is connected.
+                ConnectionItem[] items = connectionTable.getSelectedConnections();
+                if (items.length > 0) {
+                    viewLibraryAction.setEnabled(items[0].isConnected());
+                }
+                
                 // Show popup menu.
                 popupMenu.show(component, x, y);
             }
@@ -93,14 +108,12 @@ public class ConnectionDetailPanel extends JPanel {
         });
 
         // Add View Library action.
-        JMenuItem menuItem = new JMenuItem(I18n.tr("View Files"));
-        menuItem.addActionListener(new ViewLibraryAction());
+        JMenuItem menuItem = new JMenuItem(viewLibraryAction);
         popupMenu.add(menuItem);
         popupMenu.addSeparator();
 
         // Add Remove action.
-        menuItem = new JMenuItem(I18n.tr("Remove"));
-        menuItem.addActionListener(new RemoveConnectionAction());
+        menuItem = new JMenuItem(removeConnectionAction);
         popupMenu.add(menuItem);
         
         add(scrollPane, BorderLayout.CENTER);
@@ -147,7 +160,13 @@ public class ConnectionDetailPanel extends JPanel {
         // Browse hosts and display all selected connections.
         ConnectionItem[] items = connectionTable.getSelectedConnections();
         for (ConnectionItem item : items) {
-            gnutellaConnectionManager.browseHost(item);
+            if (item.isConnected()) {
+                gnutellaConnectionManager.browseHost(item);
+            } else {
+                FocusJOptionPane.showMessageDialog(this, 
+                    I18n.tr("Unable to view files - not yet connected to host"), 
+                    I18n.tr("Connections"), JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }
     
@@ -155,6 +174,10 @@ public class ConnectionDetailPanel extends JPanel {
      * Action to remove the selected connections. 
      */
     private class RemoveConnectionAction extends AbstractAction {
+        
+        public RemoveConnectionAction(String name) {
+            super(name);
+        }
         
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -172,6 +195,10 @@ public class ConnectionDetailPanel extends JPanel {
      * Action to display the library for the selected connections.
      */
     private class ViewLibraryAction extends AbstractAction {
+        
+        public ViewLibraryAction(String name) {
+            super(name);
+        }
         
         @Override
         public void actionPerformed(ActionEvent e) {

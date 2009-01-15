@@ -33,8 +33,8 @@ public class MyLibraryNavTransferHandler extends TransferHandler {
     }
 
     public boolean canImport(TransferHandler.TransferSupport info) {
-        return info.isDataFlavorSupported(RemoteFileTransferable.REMOTE_FILE_DATA_FLAVOR)
-                || DNDUtils.containsFileFlavors(info);
+        return !info.isDataFlavorSupported(LocalFileTransferable.LOCAL_FILE_DATA_FLAVOR) && (info.isDataFlavorSupported(RemoteFileTransferable.REMOTE_FILE_DATA_FLAVOR)
+                || DNDUtils.containsFileFlavors(info));
     }
 
     @Override

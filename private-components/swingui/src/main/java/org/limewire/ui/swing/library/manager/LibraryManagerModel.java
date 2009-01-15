@@ -9,16 +9,21 @@ import java.util.List;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
-import org.limewire.ui.swing.util.I18n;
 
 public class LibraryManagerModel extends AbstractTreeTableModel {
 
-    public static final int FOLDER = 0;
-    public static final int DONT_SCAN_INDEX = 1;
-    public static final int SCAN_INDEX = 2;
+    public static final int REMOVE_INDEX = 0;
+    public static final int FOLDER_INDEX = 1;
+    
+    private static final int COLUMN_COUNT = 2;
     
     public LibraryManagerModel(RootLibraryManagerItem item) {
         super(item);
+    }
+    
+    @Override
+    public int getHierarchicalColumn() {
+        return FOLDER_INDEX;
     }
     
     /**
@@ -36,36 +41,30 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
     public LibraryManagerItem[] getPathToRoot(LibraryManagerItem item) {
         List<LibraryManagerItem> path = new ArrayList<LibraryManagerItem>();
         LibraryManagerItem node = item;
-
         while (node != root) {
             path.add(0, node);
-
             node = node.getParent();
         }
-
         if (node == root) {
             path.add(0, node);
         }
-
         return path.toArray(new LibraryManagerItem[0]);
     }
     
-    /**
-     * Invoked this to insert newChild at location index in parents children.
-     * This will then message nodesWereInserted to create the appropriate event.
-     * This is the preferred way to add children as it will create the
-     * appropriate event.
-     */
-    public void addChildToRoot(LibraryManagerItem item) {
-        int idx = getRoot().addChild(item);
-        modelSupport.fireChildAdded(new TreePath(getPathToRoot(getRoot())), idx, item);
+    public void addChild(LibraryManagerItem child, LibraryManagerItem parent) {
+        int idx = parent.addChild(child);
+        modelSupport.fireChildAdded(new TreePath(getPathToRoot(parent)), idx, child);
     }
     
-    public void removeChildFromRoot(LibraryManagerItem item) {
-        int idx = getRoot().removeChild(item);
-        modelSupport.fireChildRemoved(new TreePath(getPathToRoot(getRoot())), idx, item);
-    }
-    
+    public void removeChild(LibraryManagerItem item) {
+        LibraryManagerItem parent = item.getParent();
+        if (parent == null) {
+            throw new IllegalStateException("node does not have a parent.");
+        }
+
+        int index = parent.removeChild(item);
+        modelSupport.fireChildRemoved(new TreePath(getPathToRoot(parent)), index, item);
+    }    
     
     @Override
     public RootLibraryManagerItem getRoot() {
@@ -74,7 +73,7 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
     
     @Override
     public int getColumnCount() {
-        return 3;
+        return COLUMN_COUNT;
     }
 
     @Override
@@ -82,9 +81,8 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
         if(node instanceof LibraryManagerItem) {
             LibraryManagerItem item = (LibraryManagerItem) node;
             switch (column) {
-                case DONT_SCAN_INDEX: return item;
-                case SCAN_INDEX: return item;
-                case FOLDER: return item.displayName();
+                case REMOVE_INDEX: return item;
+                case FOLDER_INDEX: return item;
             }
         }
         return null;
@@ -92,9 +90,8 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
     
     public String getColumnName(int column) {
         switch(column) {
-            case DONT_SCAN_INDEX: return I18n.tr("Don't Scan");
-            case SCAN_INDEX: return I18n.tr("Scan");
-            case FOLDER: return I18n.tr("Folder");
+            case REMOVE_INDEX: return null;
+            case FOLDER_INDEX: return null;
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }
@@ -135,35 +132,28 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
         return -1;
     }
     
-    public Collection<File> getManagedDirectories() {
+    public Collection<File> getRootChildrenAsFiles() {
         Collection<File> manageRecursively = new HashSet<File>();
         List<LibraryManagerItem> children = getRoot().getChildren();
         for(LibraryManagerItem child : children) {
-            if(child.isScanned()) {
-                manageRecursively.add(child.getFile());
-            }
+            manageRecursively.add(child.getFile());
         }
         return manageRecursively;
     }
     
-    public Collection<File> getExcludedDirectories() {
+    public Collection<File> getAllExcludedSubfolders() {
         Collection<File> excludes = new HashSet<File>();
         List<LibraryManagerItem> children = getRoot().getChildren();
         for(LibraryManagerItem child : children) {
-            if(child.isScanned()) {
-                addExclusions(child, excludes);
-            }
+            addExclusions(child, excludes);
         }
         return excludes;
     }
         
     private void addExclusions(LibraryManagerItem item, Collection<File> excludes) {
-        if(!item.isScanned()) {
-            excludes.add(item.getFile());
-        } else {
-            for(LibraryManagerItem child : item.getChildren()) {
-                addExclusions(child, excludes);
-            }
+        excludes.addAll(item.getExcludedChildren());
+        for(LibraryManagerItem child : item.getChildren()) {
+            addExclusions(child, excludes);
         }
     }    
 }

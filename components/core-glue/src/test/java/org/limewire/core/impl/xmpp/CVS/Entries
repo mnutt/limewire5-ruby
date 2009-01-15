@@ -1,9 +1,7 @@
-/FriendFileListProviderTest.java/1.9/Wed Dec 17 01:21:17 2008//
-/IdleStatusMonitorTest.java/1.4/Fri Dec 19 00:02:23 2008//
-/MockActivityEventBroadcaster.java/1.3/Fri Dec 19 00:02:23 2008//
-/MockIdleTime.java/1.1/Thu Dec 18 19:16:29 2008//
-/MockListenerSupport.java/1.1/Thu Dec 18 19:16:29 2008//
-/MockScheduledExecutorService.java/1.2/Thu Dec 18 21:18:11 2008//
-/MockServiceRegistry.java/1.1/Thu Dec 18 19:16:29 2008//
-/MockXMPPConnection2.java/1.1/Thu Dec 18 19:48:10 2008//
+/FriendFileListProviderTest.java/1.9/Mon Nov 17 01:55:58 2008//
+/IdleStatusMonitorTest.java/1.6/Mon Jan 12 23:41:03 2009//
+/MockIdleTime.java/1.1/Mon Jan  5 17:05:10 2009//
+/MockScheduledExecutorService.java/1.2/Mon Jan  5 17:05:10 2009//
+/MockServiceRegistry.java/1.1/Mon Jan  5 17:05:10 2009//
+/MockXMPPConnection2.java/1.1/Mon Jan  5 17:05:10 2009//
 D
