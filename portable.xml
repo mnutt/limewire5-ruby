@@ -103,7 +103,7 @@
 				<pathelement location="lib/jars/commons-net.jar"/>
 				<pathelement location="lib/jars/daap.jar"/>
 
-				<pathelement location="lib/jars/dnsjava.jar"/>
+				<pathelement location="lib/jars/dnsjava-2.0.6.jar"/>
 				<pathelement location="lib/jars/EventBus-1.2b.jar"/>
 				<pathelement location="lib/jars/forms.jar"/>
 				<pathelement location="lib/jars/foxtrot.jar"/>
@@ -191,7 +191,7 @@
 
 			<!-- Add all 33 cross-platform jars to the classpath -->
 			<manifest>
-				<attribute name="Class-Path" value="gettext-ant-tasks.jar aopalliance.jar AppFramework.jar base64-2.2.2.jar bsf.jar clink.jar commons-codec-1.3.jar commons-logging.jar commons-math-1.2.jar commons-net.jar cocoaFoundation.jar messages.jar daap.jar dnsjava.jar EventBus-1.2b.jar forms.jar foxtrot.jar gettext-commons.jar glazedlists-1.7.0_java15.jar guice-assistedinject-snapshot.jar guice-snapshot.jar hsqldb.jar httpclient-4.0-beta1.jar httpcore-4.0-beta2.jar httpcore-nio-4.0-beta2.jar icu4j.jar jaudiotagger.jar jcip-annotations.jar jcraft.jar jdic.jar jflac.jar jl.jar jmdns.jar jna.jar jogg.jar jorbis.jar jruby-engine.jar jruby-rack-0.9.3.jar jruby.jar jxlayer.jar log4j.jar looks.jar messages.jar miglayout.jar mozdom4java.jar MozillaGlue-1.9.jar MozillaInterfaces-1.9.jar mozswing.jar mp3spi.jar onion-common.jar onion-fec.jar ProgressTabs.jar smack.jar smackx-debug.jar smackx.jar swing-worker-1.1.jar swingx-0.9.4.jar tritonus.jar vorbisspi.jar"/>
+				<attribute name="Class-Path" value="gettext-ant-tasks.jar aopalliance.jar AppFramework.jar base64-2.2.2.jar bsf.jar clink.jar commons-codec-1.3.jar commons-logging.jar commons-math-1.2.jar commons-net.jar cocoaFoundation.jar messages.jar daap.jar dnsjava-2.0.6.jar EventBus-1.2b.jar forms.jar foxtrot.jar gettext-commons.jar glazedlists-1.7.0_java15.jar guice-assistedinject-snapshot.jar guice-snapshot.jar hsqldb.jar httpclient-4.0-beta1.jar httpcore-4.0-beta2.jar httpcore-nio-4.0-beta2.jar icu4j.jar jaudiotagger.jar jcip-annotations.jar jcraft.jar jdic.jar jflac.jar jl.jar jmdns.jar jna.jar jogg.jar jorbis.jar jruby-engine.jar jruby-rack-0.9.3.jar jruby.jar jxlayer.jar log4j.jar looks.jar messages.jar miglayout.jar mozdom4java.jar MozillaGlue-1.9.jar MozillaInterfaces-1.9.jar mozswing.jar mp3spi.jar onion-common.jar onion-fec.jar ProgressTabs.jar smack.jar smackx-debug.jar smackx.jar swing-worker-1.1.jar swingx-0.9.4.jar tritonus.jar vorbisspi.jar"/>
 			</manifest>
 		</jar>
 	</target>
