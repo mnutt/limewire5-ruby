@@ -38,6 +38,11 @@ abstract class AbstractFriendFileList extends LocalFileListImpl implements Frien
     public void clearCategory(Category category) {
         getCoreFileList().clearCategory(category);
     }
+
+    @Override
+    public void addSnapshotCategory(Category category) {
+        getCoreFileList().addSnapshotCategory(category);
+    }
     
     @Override
     public boolean isCategoryAutomaticallyAdded(Category category) {

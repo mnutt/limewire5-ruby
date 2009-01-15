@@ -1,27 +1,23 @@
 package org.limewire.ui.swing.library.sharing.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.core.settings.LibrarySettings;
-import org.limewire.listener.SwingSafePropertyChangeSupport;
 import org.limewire.ui.swing.library.sharing.SharingTarget;
 
 public class MultiFileShareModel implements LibraryShareModel {
-    private LocalFileItem[] fileItems;
+    private final LocalFileItem[] fileItems;
 
-    private LocalFileList gnutellaList;
+    private final LocalFileList gnutellaList;
 
-    private ShareListManager shareListManager;
+    private final ShareListManager shareListManager;
     
-    private final PropertyChangeSupport support = new SwingSafePropertyChangeSupport(this);
 
-    public MultiFileShareModel(ShareListManager shareListManager) {
+    public MultiFileShareModel(ShareListManager shareListManager, LocalFileItem[] fileItems) {
         this.shareListManager = shareListManager;
+        this.fileItems = fileItems;
         gnutellaList = shareListManager.getGnutellaShareList();
     }   
     
@@ -50,14 +46,6 @@ public class MultiFileShareModel implements LibraryShareModel {
         }
     }
 
-    /**
-     * @param fileItem  The LocalFileItem whose sharing info will be displayed
-     */
-    public void setFileItems(LocalFileItem... fileItems){
-        LocalFileItem[] oldFileItems = this.fileItems;
-        this.fileItems = fileItems;
-        support.firePropertyChange("fileItems", oldFileItems, fileItems);
-    }  
     
     @Override
     public boolean isGnutellaNetworkSharable() {
@@ -80,59 +68,7 @@ public class MultiFileShareModel implements LibraryShareModel {
  
     @Override
     public boolean isShared(SharingTarget friend) {
-        //always false.  
         return false;
-        
-//        //returned true if all files are shared with friend        
-//        for (LocalFileItem item : fileItems) {
-//            // Handle gnutella
-//            if (friend.isGnutellaNetwork()) {
-//                if (!gnutellaList.contains(item.getFile())){
-//                    return false;
-//                }
-//            } else {
-//
-//                // check for share all settings
-//                switch (item.getCategory()) {
-//                case AUDIO:
-//                    if (shareListManager.getOrCreateFriendShareList(friend.getFriend())
-//                            .isAddNewAudioAlways()) {
-//                        return true;
-//                    }
-//                    break;
-//                case VIDEO:
-//                    if (shareListManager.getOrCreateFriendShareList(friend.getFriend())
-//                            .isAddNewVideoAlways()) {
-//                        return true;
-//                    }
-//                    break;
-//                case IMAGE:
-//                    if (shareListManager.getOrCreateFriendShareList(friend.getFriend())
-//                            .isAddNewImageAlways()) {
-//                        return true;
-//                    }
-//                    break;
-//                }
-//
-//                // check individual file share settings
-//                if (!shareListManager.getOrCreateFriendShareList(friend.getFriend()).contains(
-//                        item.getFile())) {
-//                    return false;
-//                }
-//            }
-//        }
-//        
-//        return true;
     }
 
-    @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        support.addPropertyChangeListener(listener);
-    }
-    
-    @Override
-    public void removePropertyChangeListener(PropertyChangeListener listener){
-        support.removePropertyChangeListener(listener);
-    }
-    
 }

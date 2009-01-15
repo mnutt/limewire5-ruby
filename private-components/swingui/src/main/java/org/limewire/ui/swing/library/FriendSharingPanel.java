@@ -66,6 +66,7 @@ public class FriendSharingPanel extends SharingPanel {
         backButton.setIcon(icon);
         backButton.setPressedIcon(pressedIcon);
         backButton.setRolloverIcon(rolloverIcon);
+        backButton.removeActionHandListener();
         
         backButton.setFocusPainted(false);
         addBackButton(backButton);

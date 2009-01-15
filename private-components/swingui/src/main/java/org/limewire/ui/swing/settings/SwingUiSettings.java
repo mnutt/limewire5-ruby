@@ -233,6 +233,11 @@ public final class SwingUiSettings extends LimeProps {
     /** If the 'online contacts' in the nav are collapsed. */
     public static final BooleanSetting ONLINE_COLLAPSED =
         FACTORY.createBooleanSetting("ONLINE_CONTACTS_COLLAPSED", false);
+    
+    /** If the LimeWire media player is enabled. */
+    public static final BooleanSetting PLAYER_ENABLED =
+        FACTORY.createBooleanSetting("PLAYER_ENABLED", true);
+
 
     /**
      * Returns the default directory for the file chooser.

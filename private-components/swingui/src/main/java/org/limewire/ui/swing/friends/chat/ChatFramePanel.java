@@ -19,8 +19,10 @@ import net.miginfocom.swing.MigLayout;
 import org.bushe.swing.event.annotation.EventSubscriber;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Resource;
+import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.AbstractPainter;
+import org.jdesktop.swingx.painter.Painter;
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
@@ -40,6 +42,7 @@ import org.limewire.ui.swing.util.EnabledListener;
 import org.limewire.ui.swing.util.EnabledListenerList;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.ui.swing.util.VisibilityListener;
 import org.limewire.ui.swing.util.VisibilityListenerList;
 import org.limewire.ui.swing.util.VisibleComponent;
@@ -73,9 +76,14 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     private String lastSelectedConversationFriendId;
     private JXPanel borderPanel;
     
+    @Resource private Color border;
+    
     @Inject
     public ChatFramePanel(ChatPanel chatPanel, ChatFriendListPane chatFriendListPane, TrayNotifier notifier) {
         super(new BorderLayout());
+        
+        GuiUtils.assignResources(this);
+        
         this.chatPanel = chatPanel;
         this.chatFriendListPane = chatFriendListPane;
         this.notifier = notifier;
@@ -187,6 +195,8 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
             borderPanel.invalidate();
             borderPanel.repaint();
         }
+        
+        visibilityListenerList.visibilityChanged(true);
     }
     
     @EventSubscriber
@@ -196,6 +206,8 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         }
         borderPanel.invalidate();
         borderPanel.repaint();
+        
+        visibilityListenerList.visibilityChanged(true);
     }
 
     private Notification getNoticeForMessage(MessageReceivedEvent event) {
@@ -305,13 +317,9 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     }
     
     
-    private static class ChatPanelPainter extends AbstractPainter {
-        
-        @Resource private Color border;
-        
+    private class ChatPanelPainter extends AbstractPainter {
+
         public ChatPanelPainter() {
-            GuiUtils.assignResources(this);
-            
             this.setCacheable(true);
             this.setAntialiasing(true);
         }
@@ -322,6 +330,51 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
             g.drawLine(0, 0, 0, height-1);
             g.drawLine(0, 0, width-1, 0);
             g.drawLine(width-1, 0, width-1, height-1);
+        }
+    }
+    
+    
+    /**
+     * Gets a button painter that can be used to sync the contents of this panel with a button
+     */
+    public Painter<JXButton> getChatButtonPainter() {
+        return new ChatButtonPainter();
+    }
+    
+    private class ChatButtonPainter extends AbstractPainter<JXButton> {
+
+        @Resource private Color rolloverBackground = PainterUtils.TRASPARENT;
+        @Resource private Color activeBackground = PainterUtils.TRASPARENT;
+        @Resource private Color activeBorder = PainterUtils.TRASPARENT;
+        
+        public ChatButtonPainter() {
+            
+            GuiUtils.assignResources(this);
+            
+            setCacheable(false);
+            setAntialiasing(true);
+        }
+        
+        @Override
+        protected void doPaint(Graphics2D g, JXButton object, int width, int height) {
+            if (ChatFramePanel.this.isVisible()) {
+                g.setPaint(activeBackground);
+                g.fillRect(0, 0, width, height);
+                g.setPaint(activeBorder);
+                g.drawLine(0, 0, 0, height-1);
+                g.drawLine(0, height-1, width-1, height-1);
+                g.drawLine(width-1, 0, width-1, height-1);
+                
+                if (lastSelectedConversationFriendId != null) {
+                    g.setPaint(border);
+                    g.drawLine(0,0,width-1,0);
+                }
+            } else if (object.getModel().isRollover()) {
+                g.setPaint(rolloverBackground);
+                g.fillRect(0, 2, width-1, height-2);
+                g.setPaint(activeBorder);
+                g.drawLine(0, 1, 0, height-1);
+            }
         }
     }
 }

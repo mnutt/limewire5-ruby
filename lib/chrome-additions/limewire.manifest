@@ -1,0 +1,3 @@
+content limewire jar:limewire.jar!/content/limewire/ xpcnativewrappers=yes
+override chrome://global/skin/netError.css chrome://limewire/content/netError.css
+

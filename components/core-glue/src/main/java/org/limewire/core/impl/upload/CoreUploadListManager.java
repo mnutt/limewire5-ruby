@@ -47,8 +47,8 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
         
         ObservableElementList.Connector<UploadItem> uploadConnector = GlazedLists.beanConnector(UploadItem.class);
         
-        uploadItems = GlazedListsFactory.threadSafeList(GlazedListsFactory.observableElementList(
-                new BasicEventList<UploadItem>(),uploadConnector)) ;
+        uploadItems = GlazedListsFactory.observableElementList(
+                GlazedListsFactory.threadSafeList(new BasicEventList<UploadItem>()),uploadConnector) ;
 
         uploadListenerList.addUploadListener(this);
         

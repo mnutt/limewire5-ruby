@@ -488,6 +488,10 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         case CONNECTING:
             return I18n.tr("Connecting...");
         case DOWNLOADING:
+            // {0}: current size
+            // {1}: total size
+            // {2}: download speed
+            // {3}: number of people
             return I18n.trn("Downloading {0} of {1} ({2}) from {3} person",
                     "Downloading {0} of {1} ({2}) from {3} people",
                     item.getDownloadSourceCount(),
@@ -500,6 +504,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         case ERROR:         
             return I18n.tr("Unable to download - ");
         case PAUSED:
+            // {0}: current size, {1} total size, {2} percent complete
             return I18n.tr("Paused - {0} of {1} ({2}%)", 
                     GuiUtils.toUnitbytes(item.getCurrentSize()), GuiUtils.toUnitbytes(item.getTotalSize()),
                     item.getPercentComplete());

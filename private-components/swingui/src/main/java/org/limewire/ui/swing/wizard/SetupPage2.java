@@ -11,7 +11,6 @@ import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -25,7 +24,7 @@ import org.limewire.ui.swing.components.HorizonalCheckBoxListPanel;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.library.manager.LibraryManagerItemImpl;
 import org.limewire.ui.swing.library.manager.LibraryManagerModel;
-import org.limewire.ui.swing.library.manager.LibraryManagerTreeTable;
+import org.limewire.ui.swing.library.manager.LibraryTreeTableContainer;
 import org.limewire.ui.swing.library.manager.RootLibraryManagerItem;
 import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.util.FileChooser;
@@ -60,8 +59,7 @@ public class SetupPage2 extends WizardPage {
     
     private final JLabel manualLabel;
     
-    private final LibraryManagerTreeTable treeTable;
-    private final JScrollPane treeTableScrollPane;
+    private final LibraryTreeTableContainer treeTableContainer;
     private final JXButton addFolderButton;
     
     private final HorizonalCheckBoxListPanel<Category> checkBoxes;
@@ -96,9 +94,8 @@ public class SetupPage2 extends WizardPage {
         addFolderButton = new JXButton(new AddDirectoryAction(SetupPage2.this));
         decorator.decoratePlainButton(addFolderButton);
         
-        treeTable = new LibraryManagerTreeTable(iconManager, libraryData);
+        treeTableContainer = new LibraryTreeTableContainer(iconManager, libraryData);
         initManualPanel();
-        treeTableScrollPane = new JScrollPane(treeTable);
         setTreeTableVisiable(false);
                 
         Collection<Category> selectedCategories = getDefaultManagedCategories();
@@ -112,7 +109,7 @@ public class SetupPage2 extends WizardPage {
         
         JLabel label;
 
-        add(autoButton, "gaptop 10, gapleft 40");
+        add(autoButton, "gaptop 15, gapleft 40");
         if (isUpgrade) {
             label = new JLabel(autoTextUpgrade);
         } 
@@ -138,7 +135,7 @@ public class SetupPage2 extends WizardPage {
                 }
             }
         });
-        add(manualButton, "gaptop 10, gapleft 40");
+        add(manualButton, "gaptop 25, gapleft 40");
         
         if (isUpgrade) {
             label = new JLabel(manualTextUpgrade);
@@ -149,12 +146,12 @@ public class SetupPage2 extends WizardPage {
 
         decorator.decorateHeadingText(label);
         label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(manualButton));
-        add(label, "gaptop 15, gapleft 10, wrap");
+        add(label, "gaptop 25, gapleft 10, wrap");
 
         add(manualLabel, "gapleft 76, wrap");
         add(checkBoxes, "gaptop 5, gapleft 76, growx, wrap");
         
-        add(treeTableScrollPane, "gaptop 5, gapleft 76, growx");
+        add(treeTableContainer, "gaptop 5, gapleft 76, growx");
         add(addFolderButton, "gaptop 5, gapright 30, wrap");
 
 
@@ -167,7 +164,7 @@ public class SetupPage2 extends WizardPage {
             root.addChild(new LibraryManagerItemImpl(root, libraryData, file, false));
         }
         
-        treeTable.setTreeTableModel(new LibraryManagerModel(root));
+        treeTableContainer.getTable().setTreeTableModel(new LibraryManagerModel(root));
     }
 
     @Override
@@ -199,7 +196,7 @@ public class SetupPage2 extends WizardPage {
         Collection<Category> managedCategories = new HashSet<Category>();
         
         if (manualButton.isSelected()) {
-            LibraryManagerModel model = treeTable.getLibraryModel();
+            LibraryManagerModel model = treeTableContainer.getTable().getLibraryModel();
             manage.addAll(model.getRootChildrenAsFiles());
             exclude.addAll(model.getAllExcludedSubfolders());
             managedCategories.addAll(checkBoxes.getSelected());
@@ -216,7 +213,7 @@ public class SetupPage2 extends WizardPage {
     }
     
     private void setTreeTableVisiable(boolean visible){
-        treeTableScrollPane.setVisible(visible);
+        treeTableContainer.setVisible(visible);
         addFolderButton.setVisible(visible);
     }
     
@@ -247,7 +244,7 @@ public class SetupPage2 extends WizardPage {
                 return;
             } else {
                 if(libraryData.isDirectoryAllowed(folder)) {
-                    treeTable.addDirectory(folder);
+                    treeTableContainer.getTable().addDirectory(folder);
                 } else {
                     // TODO: Display message?
                 }

@@ -19,7 +19,6 @@ import org.limewire.listener.SwingEDTEvent;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.StatusActions;
-import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeComboBox;
 import org.limewire.ui.swing.components.LimeComboBoxFactory;
 import org.limewire.ui.swing.friends.AddFriendDialog;
@@ -67,9 +66,9 @@ class LoggedInPanel extends JXPanel {
         statusMenuLabel = new JLabel();        
         currentUser = new JLabel(iconLibrary.getEndChat());
         loggingInLabel = new JLabel(I18n.tr("Signing in..."));
-        signInButton = new HyperlinkButton();
+        signInButton = new JXButton();
         buttonDecorator.decorateMiniButton(signInButton);
-        switchUserButton = new HyperlinkButton();
+        switchUserButton = new JXButton();
         buttonDecorator.decorateMiniButton(switchUserButton);
         setBackgroundPainter(barPainterFactory.createFriendsBarPainter()); 
 

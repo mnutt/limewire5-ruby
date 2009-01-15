@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -13,7 +14,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.TooManyListenersException;
 
@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -215,9 +216,8 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
     }   
     
     @Override
-    @SuppressWarnings("unchecked")
     protected <T extends FileItem> JComponent createCategoryButton(Action action, Category category, FilterList<T> filteredAllFileList) {
-        SharingSelectionPanel panel = new SharingSelectionPanel(action, category, this, new ShareAction(filteredAllFileList), new UnshareAction(filteredAllFileList));
+        SharingSelectionPanel panel = new SharingSelectionPanel(action, category, this, new ShareAction(category), new UnshareAction(category));
         listeners.put(category, panel);
         addNavigation(panel.getButton());
         return panel;
@@ -313,7 +313,11 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
 
         @Override
         public void settingChanged(SettingEvent evt) {
-            setText();
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run() {
+                    setText();                    
+                }
+            });
         }
     }    
     
@@ -362,10 +366,9 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         @Resource Color selectedBackground;
         @Resource Color selectedTextColor;
         @Resource Color textColor;
-        @Resource Color shareMouseOverColor;
-        @Resource Color shareForegroundColor;
         @Resource Font  shareButtonFont;
         
+        private JLabel emptyCheckBox;
         private JCheckBox checkBox;
         private JButton button;
         
@@ -386,15 +389,20 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
             GuiUtils.assignResources(this);     
             
             setOpaque(false);
-            
+            LibrarySettings.SNAPSHOT_SHARING_ENABLED.addSettingListener(this);            
             if(category == Category.AUDIO || category == Category.VIDEO || category == Category.IMAGE) {
                 createCheckBox(); 
                 add(checkBox);
-                LibrarySettings.SNAPSHOT_SHARING_ENABLED.addSettingListener(this);
+                createSelectionButton(action);
+                add(button, "gapleft 2, growx, span, wrap");
+            } else {
+                createSelectionButton(action);
+                emptyCheckBox = new JLabel();
+                emptyCheckBox.setPreferredSize(new Dimension(16,16));
+                emptyCheckBox.setVisible(!LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue());
+                add(emptyCheckBox);
+                add(button, "gapleft 2, growx, span, wrap");
             }
-
-            createSelectionButton(action);
-            add(button, "gapleft 2, growx, span, wrap");
             
             if(category == Category.AUDIO || category == Category.VIDEO || category == Category.IMAGE) {
                 createShareButtons(shareAction, unshareAction);
@@ -457,13 +465,8 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
             shareButton = new HyperlinkButton(shareAction);
             unshareButton = new HyperlinkButton(unshareAction);
 
-            shareButton.setFont(shareButtonFont);
-            shareButton.setForeground(shareForegroundColor);
-            shareButton.setRolloverForeground(shareMouseOverColor);
-            
+            shareButton.setFont(shareButtonFont);        
             unshareButton.setFont(shareButtonFont);
-            unshareButton.setForeground(shareForegroundColor);
-            unshareButton.setRolloverForeground(shareMouseOverColor);
             
             boolean visible = LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue() && category == Category.AUDIO;
             shareLabel.setVisible(visible);
@@ -508,31 +511,39 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
 
         @Override
         public void dispose() {
-            if(category == Category.AUDIO || category == Category.VIDEO || category == Category.IMAGE)
-                LibrarySettings.SNAPSHOT_SHARING_ENABLED.removeSettingListener(this);
+            LibrarySettings.SNAPSHOT_SHARING_ENABLED.removeSettingListener(this);
         }
 
         @Override
         public void settingChanged(SettingEvent evt) {
-            if(LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue()) {
-                if(checkBox != null) {
-                    checkBox.setVisible(false);
-                    checkBox.setSelected(false);
-                }
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run() {
+                    if(LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue()) {
+                        if(checkBox != null) {
+                            checkBox.setVisible(false);
+                            checkBox.setSelected(false);
+                        }
+                        if(emptyCheckBox != null) {
+                            emptyCheckBox.setVisible(false);
+                        }
 
-                if(button != null && 
-                   button.getAction() != null && 
-                   button.getAction().getValue(Action.SELECTED_KEY) != null && 
-                   button.getAction().getValue(Action.SELECTED_KEY).equals(Boolean.TRUE)) {
-                    setShareButtonVisible(true);
+                        if(button != null && 
+                           button.getAction() != null && 
+                           button.getAction().getValue(Action.SELECTED_KEY) != null && 
+                           button.getAction().getValue(Action.SELECTED_KEY).equals(Boolean.TRUE)) {
+                            setShareButtonVisible(true);
+                        }
+                    } else {
+                        if(checkBox != null) {
+                            checkBox.setVisible(true);
+                        }
+                        if(emptyCheckBox != null)
+                            emptyCheckBox.setVisible(true);
+                        setShareButtonVisible(false);
+                    }
+                    revalidate();
                 }
-            } else {
-                if(checkBox != null) {
-                    checkBox.setVisible(true);
-                }
-                setShareButtonVisible(false);
-            }
-            revalidate();
+            });
         }
     }    
     
@@ -635,25 +646,18 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
      * Shares all the files currently in a category, with a friend
      */
     private class ShareAction<T extends FileItem> extends AbstractAction {
-        FilterList<T> filteredAllFileList;
+        private Category category;
         
-        public ShareAction(FilterList<T> filteredAllFileList) {
-            this.filteredAllFileList = filteredAllFileList;
+        public ShareAction(Category category) {
+            this.category = category;
             
             putValue(Action.NAME, I18n.tr("all"));
-            putValue(Action.SHORT_DESCRIPTION, I18n.tr("Return to what's being shared with you."));
+            putValue(Action.SHORT_DESCRIPTION, I18n.tr("Share all the files in this category."));
         }
         
         @Override
         public void actionPerformed(ActionEvent e) {
-            //TODO: move to background executor
-            filteredAllFileList.getReadWriteLock().readLock().lock();
-            ListIterator<T> iter = filteredAllFileList.listIterator();
-            while(iter.hasNext()) {
-                friendFileList.addFile(((LocalFileItem)iter.next()).getFile());
-            }
-            filteredAllFileList.getReadWriteLock().readLock().unlock();
-            
+            friendFileList.addSnapshotCategory(category);           
             SharingPanel.this.repaint();
         }
     }
@@ -662,25 +666,19 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
      * Unshares all the files currently in a category, with a friend
      */
     private class UnshareAction<T extends FileItem> extends AbstractAction {
-        FilterList<T> filteredAllFileList;
-        
-        public UnshareAction(FilterList<T> filteredAllFileList) {
-            this.filteredAllFileList = filteredAllFileList;
+        private Category category;
+
+        public UnshareAction(Category category) {
+            this.category = category;
             
             putValue(Action.NAME, I18n.tr("none"));
-            putValue(Action.SHORT_DESCRIPTION, I18n.tr("Return to what's being shared with you."));
+            putValue(Action.SHORT_DESCRIPTION, I18n.tr("Unshare all the files in this category."));
         }
         
         @Override
-        public void actionPerformed(ActionEvent e) {            
-            //TODO: move to background executor
-            filteredAllFileList.getReadWriteLock().readLock().lock();
-            ListIterator<T> iter = filteredAllFileList.listIterator();
-            while(iter.hasNext()) {
-                friendFileList.removeFile(((LocalFileItem)iter.next()).getFile());
-            }
-            filteredAllFileList.getReadWriteLock().readLock().unlock();
-            
+        public void actionPerformed(ActionEvent e) {   
+            friendFileList.clearCategory(category);
+
             SharingPanel.this.repaint();
         }
     }

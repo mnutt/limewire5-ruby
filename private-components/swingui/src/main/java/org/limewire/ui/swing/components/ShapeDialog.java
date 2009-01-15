@@ -104,6 +104,14 @@ public class ShapeDialog extends JXPanel implements Resizable {
         getParent().repaint();
     }
     
+    @Override
+    public void setVisible(boolean visible){
+        super.setVisible(visible);
+        //prevent initial strange appearance when reshown
+        if (!visible){
+            setSize(0, 0);
+        }
+    }
     private void positionRelativeToOwner(){
         Point ownerLocation = SwingUtilities.convertPoint(owner.getParent(), owner.getLocation(), getParent());            
         setBounds(ownerLocation.x + owner.getWidth() - getWidth(), ownerLocation.y + owner.getHeight(), getPreferredSize().width, getPreferredSize().height);

@@ -648,7 +648,54 @@ public class ManagedFileListImplTest extends LimeTestCase {
         assertEquals(fileList.getDirectoriesWithImportedFiles(), Collections.singleton(dir1));        
     }
     
-    // TODO: Test that adding folders / setting manageable folders / changing extensions
-    //       does not forcibly exclude the file from adding again.
-
+    public void testGetDirectoriesToManageRecursively() {
+        File a     = new File(      "a");
+        File aa    = new File(a,    "aa");
+        File aaa   = new File(aa,   "aaa");
+        File aab   = new File(aa,   "aab");
+        File aaaa  = new File(aaa,  "aaaa");
+        File aaaaa = new File(aaaa, "aaaaa");
+        List<File> dirs;
+        
+        // Strip out children.
+        fileList.getLibraryData().setDirectoriesToManageRecursively(Arrays.asList(a, aa, aaa, aab));        
+        dirs = fileList.getDirectoriesToManageRecursively();
+        assertEquals(1, dirs.size());
+        assertEquals(a, dirs.get(0));
+        
+        // Strip out exclusion.
+        fileList.getLibraryData().setDirectoriesToManageRecursively(Arrays.asList(a, aa));
+        fileList.getLibraryData().setDirectoriesToExcludeFromManaging(Arrays.asList(aa));
+        dirs = fileList.getDirectoriesToManageRecursively();
+        assertEquals(1, dirs.size());
+        assertEquals(a, dirs.get(0));
+        
+        // Leave children, since parent is excluded..
+        fileList.getLibraryData().setDirectoriesToManageRecursively(Arrays.asList(a, aaa, aab));
+        fileList.getLibraryData().setDirectoriesToExcludeFromManaging(Arrays.asList(aa));
+        dirs = fileList.getDirectoriesToManageRecursively();
+        assertEquals(3, dirs.size());
+        assertContains(dirs, a);
+        assertContains(dirs, aaa);
+        assertContains(dirs, aab);
+        
+        // Leave children if parent is excluded, but make sure duplicate within children is removed
+        fileList.getLibraryData().setDirectoriesToManageRecursively(Arrays.asList(a, aaa, aab, aaaa));
+        fileList.getLibraryData().setDirectoriesToExcludeFromManaging(Arrays.asList(aa));
+        dirs = fileList.getDirectoriesToManageRecursively();
+        assertEquals(3, dirs.size());
+        assertContains(dirs, a);
+        assertContains(dirs, aaa);
+        assertContains(dirs, aab);
+        
+        // Leave children if parent is excluded, but make sure duplicate within children is removed
+        fileList.getLibraryData().setDirectoriesToManageRecursively(Arrays.asList(a, aaa, aab, aaaaa));
+        fileList.getLibraryData().setDirectoriesToExcludeFromManaging(Arrays.asList(aa, aaaa));
+        dirs = fileList.getDirectoriesToManageRecursively();
+        assertEquals(4, dirs.size());
+        assertContains(dirs, a);
+        assertContains(dirs, aaa);
+        assertContains(dirs, aab);
+        assertContains(dirs, aaaaa);
+    }
 }

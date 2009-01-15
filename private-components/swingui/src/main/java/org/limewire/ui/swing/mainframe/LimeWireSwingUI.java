@@ -65,6 +65,7 @@ public class LimeWireSwingUI extends JPanel {
                 
         // The top panel
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.weightx = 1;
         gbc.weighty = 0;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -73,6 +74,7 @@ public class LimeWireSwingUI extends JPanel {
                 
         // The left panel
         gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 0;
         gbc.weighty = 1;
         gbc.gridwidth = 1;
@@ -81,6 +83,7 @@ public class LimeWireSwingUI extends JPanel {
         
         // The main panel
         gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.weightx = 1;
         gbc.weighty = 1;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -88,6 +91,7 @@ public class LimeWireSwingUI extends JPanel {
         
         // The download summary panel
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.SOUTH;
         gbc.weightx = 1;
         gbc.weighty = 0;
         gbc.gridwidth = GridBagConstraints.REMAINDER;

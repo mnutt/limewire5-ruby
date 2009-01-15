@@ -142,4 +142,9 @@ public class MockUploadItem implements UploadItem {
         return 0;
     }
 
+    @Override
+    public BrowseType getBrowseType() {
+        return BrowseType.FRIEND;
+    }
+
 }

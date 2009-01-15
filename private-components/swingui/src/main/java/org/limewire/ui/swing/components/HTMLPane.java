@@ -146,6 +146,18 @@ public class HTMLPane extends JEditorPane {
         });        
         pageLoaded = true; // purposely not in a finally -- if we fail it didn't load
     }
+    
+    @Override
+    public void setDocument(final Document doc) {
+        // Ensure the document is set on the EDT thread,
+        // because it triggers a repaint (and it should be).
+        SwingUtils.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                HTMLPane.super.setDocument(doc);
+            }
+        });
+    }
 
     // Copied from {@link JEditorPane#getStream(URL)} because of package-private problems.
     protected InputStream getStream(URL page) throws IOException {

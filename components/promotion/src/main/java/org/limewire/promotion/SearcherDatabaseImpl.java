@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hsqldb.jdbcDriver;
 import org.limewire.io.BadGGEPBlockException;
 import org.limewire.io.GGEP;
@@ -25,6 +27,8 @@ import com.google.inject.Singleton;
 
 @Singleton
 public class SearcherDatabaseImpl implements SearcherDatabase {
+    
+    private static final Log LOG = LogFactory.getLog(SearcherDatabaseImpl.class);
 
     private Connection connection;
 
@@ -231,7 +235,13 @@ public class SearcherDatabaseImpl implements SearcherDatabase {
         } catch (SQLException ex) {
             throw new RuntimeException("SQLException during query.", ex);
         } catch (PromotionException ex) {
-            throw new RuntimeException("PromotionException caught.", ex);
+            // ignore -- internal problem with the promotion,
+            // and we'll notice the error on the server side.
+            // most typical reason is the cert is invalid
+            // (perhaps because DNS cached the cert hash,
+            //  but the bucket is signed using a newer cert)
+            LOG.error("promotion error", ex);
+            return null;
         } finally {
             if (statement != null) {
                 try {

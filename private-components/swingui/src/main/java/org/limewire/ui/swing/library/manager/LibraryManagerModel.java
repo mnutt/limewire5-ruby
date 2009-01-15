@@ -64,7 +64,7 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
 
         int index = parent.removeChild(item);
         modelSupport.fireChildRemoved(new TreePath(getPathToRoot(parent)), index, item);
-    }    
+    }
     
     @Override
     public RootLibraryManagerItem getRoot() {
@@ -155,5 +155,16 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
         for(LibraryManagerItem child : item.getChildren()) {
             addExclusions(child, excludes);
         }
+    }
+
+    public void setRootChildren(List<LibraryManagerItem> children) {
+        List<LibraryManagerItem> oldChildren = new ArrayList<LibraryManagerItem>(getRoot().getChildren());
+        for(LibraryManagerItem child : oldChildren) {
+            removeChild(child);
+        }
+        for(LibraryManagerItem child : children) {
+            addChild(child, getRoot());
+        }
+        
     }    
 }

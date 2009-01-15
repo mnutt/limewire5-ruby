@@ -2,7 +2,6 @@ package org.limewire.ui.swing.statusbar;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
@@ -13,9 +12,7 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Timer;
 
-import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
-import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 import org.limewire.listener.EventListener;
@@ -26,7 +23,7 @@ import org.limewire.ui.swing.friends.chat.IconLibrary;
 import org.limewire.ui.swing.mainframe.UnseenMessageListener;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.PainterUtils;
+import org.limewire.ui.swing.util.VisibilityListener;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 
 import com.google.inject.Inject;
@@ -36,20 +33,16 @@ import com.google.inject.Singleton;
 class FriendStatusPanel {
 
     private final JXButton chatButton;
-    private final ChatFramePanel friendsPanel;
     
     private Component mainComponent;
 
     @Inject FriendStatusPanel(final ChatFramePanel friendsPanel, IconLibrary iconLibrary) {
         GuiUtils.assignResources(this);
         
-        this.friendsPanel = friendsPanel;
-        
         chatButton = new JXButton(new AbstractAction(I18n.tr("Chat")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 friendsPanel.toggleVisibility();
-                
                 mainComponent.invalidate();
                 mainComponent.repaint();
             }
@@ -57,14 +50,12 @@ class FriendStatusPanel {
         
         chatButton.setName("ChatButton");
         
-        
-        chatButton.setBackgroundPainter(new ChatButtonPainter());
+        chatButton.setBackgroundPainter(friendsPanel.getChatButtonPainter());
         
         chatButton.setIcon(iconLibrary.getChatting());
         chatButton.setHorizontalAlignment(AbstractButton.LEFT);
         
         chatButton.setFocusPainted(false);
-        chatButton.setRolloverEnabled(false);
         chatButton.setOpaque(false);        
         chatButton.setBorder(null);
         chatButton.setContentAreaFilled(false);
@@ -72,9 +63,15 @@ class FriendStatusPanel {
         
         chatButton.setBorder(BorderFactory.createEmptyBorder(2, 10, 0, 10));
         chatButton.setPaintBorderInsets(true);
-                
+        
         friendsPanel.setUnseenMessageListener(new UnseenMessageFlasher(chatButton, iconLibrary));       
-                
+        friendsPanel.addVisibilityListener(new VisibilityListener() {
+            @Override
+            public void visibilityChanged(boolean visible) {
+                chatButton.repaint();
+            }
+        });
+        
         mainComponent = chatButton;
     }
     
@@ -124,6 +121,7 @@ class FriendStatusPanel {
 
         @Override
         public void messageReceivedFrom(String senderId, boolean chatIsVisible) {
+            
             unseenSenderIds.add(senderId);
             if (!chatIsVisible) {
                 flash();
@@ -147,15 +145,20 @@ class FriendStatusPanel {
 
         public void flash() {
             if (!hasFlashed) {
-                new Timer(1500, new ActionListener() {
+                new Timer(1000, new ActionListener() {
                     private int flashCount;
                     
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        
                         if (flashCount++ < 5) {
                             flashingButton.setForeground(toggle(flashingButton.getForeground()));
                             flashingButton.setBackgroundPainter(toggle(flashingButton.getBackgroundPainter()));
                         } else {
+                            
+                            flashingButton.setForeground(originalForeground);
+                            flashingButton.setBackgroundPainter(originalBackgroundPainter);
+                            
                             Timer timer = (Timer)e.getSource();
                             timer.stop();
                         }
@@ -180,35 +183,5 @@ class FriendStatusPanel {
         }
     }
     
-    private class ChatButtonPainter extends AbstractPainter<JXButton> {
 
-        @Resource private Color activeBackground = PainterUtils.TRASPARENT;
-        @Resource private Color activeBorder = PainterUtils.TRASPARENT;
-        @Resource private Color chatWindowBorder = PainterUtils.TRASPARENT;
-        
-        public ChatButtonPainter() {
-            
-            GuiUtils.assignResources(this);
-            
-            setCacheable(false);
-            setAntialiasing(true);
-        }
-        
-        @Override
-        protected void doPaint(Graphics2D g, JXButton object, int width, int height) {
-            
-            if (friendsPanel.isVisible()) {
-                g.setPaint(activeBackground);
-                g.fillRect(0, 0, width, height);
-                g.setPaint(activeBorder);
-                g.drawLine(0, 0, 0, height-1);
-                g.drawLine(0, height-1, width-1, height-1);
-                g.drawLine(width-1, 0, width-1, height-1);
-                
-                // TODO: if (chatting) :
-                g.setPaint(chatWindowBorder);
-                // TODO: paint upper lip
-            }
-        }
-    }
 }

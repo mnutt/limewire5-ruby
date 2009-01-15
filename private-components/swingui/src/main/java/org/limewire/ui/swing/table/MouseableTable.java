@@ -132,8 +132,8 @@ public class MouseableTable extends StripedJXTable {
 		getSelectionMapper().setEnabled(false); // Breaks horribly with glazedlists
 		
 		//HighlightPredicate.EVEN and HighlightPredicate.ODD are zero based
-		setHighlighters(colors.getEvenHighLighter(), 
-		                colors.getOddHighLighter(),
+		setHighlighters(colors.getEvenHighlighter(), 
+		                colors.getOddHighlighter(),
 		                new ColorHighlighter(new MenuHighlightPredicate(this), colors.menuRowColor,  colors.menuRowForeground, colors.menuRowColor, colors.menuRowForeground));
 		
 		setGridColor(colors.getGridColor());
@@ -240,8 +240,8 @@ public class MouseableTable extends StripedJXTable {
 	    if (striped) {
             // HighlightPredicate.EVEN and HighlightPredicate.ODD are zero based
             setHighlighters(
-                    colors.getEvenHighLighter(),
-                    colors.getOddHighLighter());
+                    colors.getEvenHighlighter(),
+                    colors.getOddHighlighter());
 
         } else {
             setHighlighters(

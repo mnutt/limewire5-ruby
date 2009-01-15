@@ -128,34 +128,44 @@ public class DropDownListAutoCompleteControl {
 
     /** Shows the popup. */
     private void showPopup() {
-        // only show the popup if we're currently visible.
-        // due to delay in focus-forwarding & key-pressing events,
-        // we may not be visible by the time this is called.
-        if(popup == null && autoCompleter.isAutoCompleteAvailable()) {
+        if(autoCompleter.isAutoCompleteAvailable()) {
             if(textField.isShowing()) {
                 Point origin = textField.getLocationOnScreen();
                 PopupFactory pf = PopupFactory.getSharedInstance();
 				Component parent = textField;
-				// OSX doesn't handle MOUSE_CLICKED events correctly
-				// using medium-weight popups, so we need to force
-				// PopupFactory to return a heavy-weight popup.
-				// This is done by adding a panel into a Popup, which implicitly
-				// adds it into a Popup.HeavyWeightWindow, which PopupFactory happens
-				// to check as a condition for returning a heavy-weight popup.
-				// In an ideal world, the OSX bug would be fixed.
-				// In a less ideal world, Popup & PopupFactory would be written so that
-				// outside developers can correctly subclass methods.
-				if(OSUtils.isMacOSX()) {
-					parent = new JPanel();
-					new MyPopup(textField, parent, 0, 0);
-				}
 				JComponent component = autoCompleter.getRenderComponent();
-				// Null out our prior preferred size, then set a new one
-				// that overrides the width to be the size we want it, but
-				// preserves the height.
-				component.setPreferredSize(null);
-				Dimension pref = component.getPreferredSize();
-				component.setPreferredSize(new Dimension(textField.getWidth(), pref.height));
+				
+		        // Null out our prior preferred size, then set a new one
+		        // that overrides the width to be the size we want it, but
+		        // preserves the height.
+				Dimension priorPref = component.getPreferredSize();
+		        component.setPreferredSize(null);
+		        Dimension pref = component.getPreferredSize();
+		        pref = new Dimension(textField.getWidth(), pref.height+10);
+		        component.setPreferredSize(pref);
+		        if(popup != null && priorPref.equals(pref)) {
+		            return; // no need to change if sizes are same.
+		        }
+
+                // OSX doesn't handle MOUSE_CLICKED events correctly
+                // using medium-weight popups, so we need to force
+                // PopupFactory to return a heavy-weight popup.
+                // This is done by adding a panel into a Popup, which implicitly
+                // adds it into a Popup.HeavyWeightWindow, which PopupFactory happens
+                // to check as a condition for returning a heavy-weight popup.
+                // In an ideal world, the OSX bug would be fixed.
+                // In a less ideal world, Popup & PopupFactory would be written so that
+                // outside developers can correctly subclass methods.
+                if(OSUtils.isMacOSX()) {
+                    parent = new JPanel();
+                    new MyPopup(textField, parent, 0, 0);
+                }
+		        
+		        // If the popup exists already, hide it & reshow it to make it the right size.
+				if(popup != null) {
+				    popup.hide();
+				}
+				
                 popup = pf.getPopup(parent, component, origin.x, origin.y + textField.getHeight());
                 showPending = false;
                 popup.show();

@@ -160,6 +160,7 @@ public class ChatFriendListPane extends JPanel {
     @Inject void register(ListenerSupport<XMPPConnectionEvent> connectionSupport) {
         connectionSupport.addListener(new EventListener<XMPPConnectionEvent>() {
             @Override
+            @SwingEDTEvent
             public void handleEvent(XMPPConnectionEvent event) {
                 switch(event.getType()) {
                 case DISCONNECTED:

@@ -3,6 +3,7 @@ package org.limewire.ui.swing.library.table;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.player.api.AudioPlayer;
 import org.limewire.ui.swing.table.FileSizeRenderer;
+import org.limewire.ui.swing.table.NameRenderer;
 import org.limewire.ui.swing.table.TimeRenderer;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
@@ -36,5 +37,6 @@ public class SharedAudioLibraryTable<T extends LocalFileItem> extends LibraryTab
 
         getColumnModel().getColumn(SharedAudioTableFormat.LENGTH_INDEX).setCellRenderer(new TimeRenderer());
         getColumnModel().getColumn(SharedAudioTableFormat.SIZE_INDEX).setCellRenderer(new FileSizeRenderer());
+        getColumnModel().getColumn(SharedAudioTableFormat.TITLE_INDEX).setCellRenderer(new NameRenderer());
     }
 }

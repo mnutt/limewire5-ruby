@@ -7,9 +7,9 @@ import java.awt.LayoutManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -21,7 +21,6 @@ import org.limewire.core.settings.LibrarySettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.Disposable;
-import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
@@ -70,8 +69,19 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
         cardPanel.add(panel, category.name());
     }
     
+    /**
+	 * Selects which category info panel to show. If category
+	 * is null, hides the entire card panel since there is no
+     * category visible in this library.
+	 */
     public void showCard(Category category) {
-        cardLayout.show(cardPanel, category.name());
+        if(category == null) 
+            cardPanel.setVisible(false);
+        else {
+            if(!cardPanel.isVisible())
+                cardPanel.setVisible(true);
+            cardLayout.show(cardPanel, category.name());
+        }
     }
     
     /**
@@ -80,8 +90,6 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
      */
     private class InfoPanel<T extends FileItem> extends JPanel implements Disposable, ListEventListener<T>, SettingListener {
         @Resource
-        private Color lineColor;
-        @Resource
         private Color backgroundColor;
         @Resource
         private Color fontColor;
@@ -89,8 +97,6 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
         private Font categoryFont;
         @Resource
         private Font smallFont;
-        @Resource
-        private Color borderHighlight;
         
         private JLabel categoryLabel;
         private JLabel totalLabel;
@@ -115,11 +121,6 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
             categoryLabel = new JLabel(I18n.tr("{0} Info", category));
             categoryLabel.setFont(categoryFont);
             categoryLabel.setForeground(fontColor);
-            FontUtils.bold(categoryLabel);
-            
-            setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(1, 0, 0, 0, lineColor), 
-                    BorderFactory.createMatteBorder(1, 0, 0, 1, borderHighlight)));
 
             setBackground(backgroundColor);
             add(categoryLabel, "wrap, gapbottom 2");
@@ -166,7 +167,11 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
                 LibrarySettings.SHARE_NEW_AUDIO_ALWAYS.addSettingListener(new SettingListener(){
                     @Override
                     public void settingChanged(SettingEvent evt) {
-                        setCollectionLabel(LibrarySettings.SHARE_NEW_AUDIO_ALWAYS.getValue().length);
+                        SwingUtilities.invokeLater(new Runnable(){
+                            public void run() {
+                                setCollectionLabel(LibrarySettings.SHARE_NEW_AUDIO_ALWAYS.getValue().length);                                
+                            }
+                        });
                     }
                  });
             } else if(category == Category.VIDEO) {
@@ -175,7 +180,11 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
                 LibrarySettings.SHARE_NEW_VIDEO_ALWAYS.addSettingListener(new SettingListener(){
                     @Override
                     public void settingChanged(SettingEvent evt) {
-                        setCollectionLabel(LibrarySettings.SHARE_NEW_VIDEO_ALWAYS.getValue().length);
+                        SwingUtilities.invokeLater(new Runnable(){
+                            public void run() {
+                                setCollectionLabel(LibrarySettings.SHARE_NEW_VIDEO_ALWAYS.getValue().length);                                
+                            }
+                        });
                     }
                  });
             } else if(category == Category.IMAGE) { 
@@ -184,7 +193,11 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
                 LibrarySettings.SHARE_NEW_IMAGES_ALWAYS.addSettingListener(new SettingListener(){
                     @Override
                     public void settingChanged(SettingEvent evt) {
-                        setCollectionLabel(LibrarySettings.SHARE_NEW_IMAGES_ALWAYS.getValue().length);
+                        SwingUtilities.invokeLater(new Runnable(){
+                            public void run() {
+                                setCollectionLabel(LibrarySettings.SHARE_NEW_IMAGES_ALWAYS.getValue().length);                                
+                            }
+                        });
                     }
                  });
             }
@@ -247,7 +260,11 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
 
         @Override
         public void settingChanged(SettingEvent evt) {
-            collectionLabel.setVisible(!LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue());
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run() {
+                    collectionLabel.setVisible(!LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue());                    
+                }
+            });
         }
     }
 

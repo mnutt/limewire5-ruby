@@ -1,27 +1,22 @@
 package org.limewire.ui.swing.library.sharing.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.core.settings.LibrarySettings;
-import org.limewire.listener.SwingSafePropertyChangeSupport;
 import org.limewire.ui.swing.library.sharing.SharingTarget;
 
 public class MultiFileUnshareModel implements LibraryShareModel {
-    protected LocalFileItem[] fileItems;
+    private final LocalFileItem[] fileItems;
 
-    protected LocalFileList gnutellaList;
+    private final LocalFileList gnutellaList;
 
-    protected ShareListManager shareListManager;
-    
-    protected final PropertyChangeSupport support = new SwingSafePropertyChangeSupport(this);
+    private final ShareListManager shareListManager;
 
-    public MultiFileUnshareModel(ShareListManager shareListManager) {
+    public MultiFileUnshareModel(ShareListManager shareListManager, LocalFileItem... fileItems) {
         this.shareListManager = shareListManager;
+        this.fileItems = fileItems;
         gnutellaList = shareListManager.getGnutellaShareList();
     }   
     
@@ -43,14 +38,6 @@ public class MultiFileUnshareModel implements LibraryShareModel {
         }
     }
 
-    /**
-     * @param fileItem  The LocalFileItem whose sharing info will be displayed
-     */
-    public void setFileItem(LocalFileItem... fileItems){
-        LocalFileItem[] oldFileItems = this.fileItems;
-        this.fileItems = fileItems;
-        support.firePropertyChange("fileItems", oldFileItems, fileItems);
-    }  
     
     @Override
     public boolean isGnutellaNetworkSharable() {
@@ -78,26 +65,17 @@ public class MultiFileUnshareModel implements LibraryShareModel {
         for (LocalFileItem item : fileItems) {
             // Handle gnutella
             if (friend.isGnutellaNetwork()) {
-                return gnutellaList.contains(item.getFile());
-            }
-
-            // check for share all settings and individual share list
-            if (shareListManager.getOrCreateFriendShareList(friend.getFriend()).contains(item.getFile())){
-                return true;
+                if (gnutellaList.contains(item.getFile())) {
+                    return true;
+                }
+            } else { // not gnutella
+                if (shareListManager.getOrCreateFriendShareList(friend.getFriend()).contains(item.getFile())) {
+                    return true;
+                }
             }
         }
 
         return false;
-    }
-
-    @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        support.addPropertyChangeListener(listener);
-    }
-    
-    @Override
-    public void removePropertyChangeListener(PropertyChangeListener listener){
-        support.removePropertyChangeListener(listener);
     }
     
 }

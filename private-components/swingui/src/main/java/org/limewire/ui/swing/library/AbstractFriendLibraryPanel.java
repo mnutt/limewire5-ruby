@@ -8,6 +8,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
@@ -55,7 +56,6 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
     
     public AbstractFriendLibraryPanel(Friend friend,
                     FriendFileList friendFileList,
-                    EventList<RemoteFileItem> eventList, 
                     CategoryIconManager categoryIconManager, 
                     LibraryTableFactory tableFactory,
                     DownloadListManager downloadListManager,
@@ -94,6 +94,8 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
     }
     
     protected JComponent createMyCategoryAction(Category category, EventList<RemoteFileItem> filtered) {
+        addFriendInfoBar(category, filtered);
+        
         FilterList<RemoteFileItem> filterList = GlazedListsFactory.filterList(filtered, 
                 new TextComponentMatcherEditor<RemoteFileItem>(getFilterTextField(), new LibraryTextFilterator<RemoteFileItem>()));
         addDisposable(filterList);
@@ -173,7 +175,11 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
 
         @Override
         public void settingChanged(SettingEvent evt) {
-            setText();
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run() {
+                    setText();                    
+                }
+            });
         }
     }    
     
@@ -194,7 +200,6 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
         @Override
         public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
             RemoteFileItem fileItem = libraryTableModel.getFileItem(adapter.row);
-            //TODO cache values?
             return myLibraryList.contains(fileItem.getUrn()) || downloadListManager.contains(fileItem.getUrn());
         }       
     }

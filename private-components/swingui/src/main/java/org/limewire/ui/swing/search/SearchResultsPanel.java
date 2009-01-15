@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.Scrollable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
@@ -134,13 +135,18 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
            int oldSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
            @Override
             public void settingChanged(SettingEvent evt) {
-               int newSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
-               if(newSearchViewTypeId != oldSearchViewTypeId) {
-                   SearchViewType newSearchViewType = SearchViewType.forId(newSearchViewTypeId);
-                   resultsContainer.setViewType(newSearchViewType);
-                   syncScrollPieces();
-                   oldSearchViewTypeId = newSearchViewTypeId;
-               }
+               SwingUtilities.invokeLater(new Runnable() {
+                   @Override
+                   public void run() {
+                       int newSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
+                       if(newSearchViewTypeId != oldSearchViewTypeId) {
+                           SearchViewType newSearchViewType = SearchViewType.forId(newSearchViewTypeId);
+                           resultsContainer.setViewType(newSearchViewType);
+                           syncScrollPieces();
+                           oldSearchViewTypeId = newSearchViewTypeId;
+                       }
+                   }               
+               });
             } 
         };
         SwingUiSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);

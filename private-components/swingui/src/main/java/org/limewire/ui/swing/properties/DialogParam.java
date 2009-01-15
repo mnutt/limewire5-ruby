@@ -22,7 +22,6 @@ public class DialogParam {
     @Inject private CategoryIconManager categoryIconManager;
     @Inject private FilterList filterList;
     @Inject private PropertyDictionary propertyDictionary;
-    @Resource private Color linkColor;
     @Resource private Color backgroundColor;
     @Resource private Font smallFont;
     @Resource private Font mediumFont;
@@ -52,9 +51,6 @@ public class DialogParam {
         return categoryIconManager;
     }
 
-    public Color getLinkColor() {
-        return linkColor;
-    }
 
     public Color getBackgroundColor() {
         return backgroundColor;

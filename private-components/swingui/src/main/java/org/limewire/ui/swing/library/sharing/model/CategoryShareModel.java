@@ -1,30 +1,21 @@
 package org.limewire.ui.swing.library.sharing.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.ShareListManager;
-import org.limewire.listener.SwingSafePropertyChangeSupport;
 import org.limewire.ui.swing.library.sharing.SharingTarget;
 
 public class CategoryShareModel implements LibraryShareModel{
 
     private final ShareListManager shareListManager;
-    private final PropertyChangeSupport support = new SwingSafePropertyChangeSupport(this);
     
-    private Category category;    
+    private final Category category;    
     
-    public CategoryShareModel(ShareListManager shareListManager){
+    public CategoryShareModel(ShareListManager shareListManager, Category category){
         this.shareListManager = shareListManager;
+        this.category = category;
     }
 
-    public void setCategory(Category category) {
-        Category oldCategory = this.category;
-        this.category = category;
-        support.firePropertyChange("category", oldCategory, category);
-    }
         
     private FriendFileList getFileListForFriend(SharingTarget friend) {
         if(friend.isGnutellaNetwork()) {
@@ -54,13 +45,4 @@ public class CategoryShareModel implements LibraryShareModel{
         return true;
     }
 
-    @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        support.addPropertyChangeListener(listener);
-    }
-    
-    @Override
-    public void removePropertyChangeListener(PropertyChangeListener listener){
-        support.removePropertyChangeListener(listener);
-    }
 }

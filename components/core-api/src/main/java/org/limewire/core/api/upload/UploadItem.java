@@ -15,6 +15,8 @@ public interface UploadItem extends PropertiableFile {
         GNUTELLA,
         BITTORRENT
     }
+    
+    public enum BrowseType {FRIEND, P2P, NONE}
 
     /**
      * cancels the upload
@@ -82,4 +84,6 @@ public interface UploadItem extends PropertiableFile {
      * Returns the number of connections we are currently uploading to.
      */
     public int getNumUploadConnections();
+
+    BrowseType getBrowseType();
 }

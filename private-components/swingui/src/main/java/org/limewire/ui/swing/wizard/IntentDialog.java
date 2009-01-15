@@ -4,8 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -23,13 +24,20 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.JXPanel;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.painter.GenericBarPainter;
+import org.limewire.ui.swing.painter.GreenButtonBackgroundPainter;
+import org.limewire.ui.swing.painter.LightButtonBackgroundPainter;
+import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LanguageUtils;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
+import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.util.SystemUtils;
 
@@ -38,13 +46,24 @@ public class IntentDialog extends LimeJDialog {
     private final Color backgroundColor = Color.WHITE;
     private final Font headingFont = new Font("Arial", Font.BOLD, 16);
     private final Font normalFont = new Font("Arial", Font.PLAIN, 14);
+    private final Font buttonFont = new Font("Arial", Font.BOLD, 14);
+    
+    
+    private final Color headerGradientTop = new Color(0xf4f4f4);
+    private final Color headerGradientBottom = new Color(0xd7d7d7);
+    private final Paint headerTopBorder1 = new Color(0xffffff);
+    private final Paint headerTopBorder2 = PainterUtils.TRASPARENT; 
+    private final Paint headerBottomBorder1 = new Color(0x696969);
+    private final Paint headerBottomBorder2 = new Color(0xffffff);
+    
     
     private final JLabel headingLabel;
     private final MultiLineLabel bodyLabel;
     private final JLabel agreeLabel;
-    private final HyperlinkButton linkButton;
-    private final JButton agreeButton;
-    private final JButton exitButton;
+    private final JButton linkButton;
+    private final JLabel languageLabel;
+    private final JXButton agreeButton;
+    private final JXButton exitButton;
     
     private final String learnMoreURL = "http://www.limewire.com/learnMore/intent";
     
@@ -60,7 +79,7 @@ public class IntentDialog extends LimeJDialog {
     public IntentDialog(String version){
         super();
         
-        ResizeUtils.forceSize(this, new Dimension(590,400));
+        ResizeUtils.forceSize(this, new Dimension(514,402));
                 
         setTitle("LimeWire " + version);
         setModal(true);
@@ -75,44 +94,80 @@ public class IntentDialog extends LimeJDialog {
         
         headingLabel = new JLabel();
         headingLabel.setFont(headingFont);
-        agreeLabel = new MultiLineLabel("", 500);
+        agreeLabel = new MultiLineLabel("", 450);
         agreeLabel.setFont(normalFont);
-        linkButton = new HyperlinkButton("", urlAction);
+        linkButton = new HyperlinkButton(urlAction);
         linkButton.setFont(normalFont);
+        FontUtils.underline(linkButton);
         linkButton.setForeground(new Color(0x2152a6));
-        bodyLabel = new MultiLineLabel("", 500);        
+        bodyLabel = new MultiLineLabel("", 450);        
         bodyLabel.setFont(normalFont);
-        agreeButton = new JButton();
-        exitButton = new JButton();
+        languageLabel = new JLabel();
+        languageLabel.setFont(normalFont);
+        agreeButton = new JXButton();
+        decorateButton(agreeButton);
+        agreeButton.setBackgroundPainter(new GreenButtonBackgroundPainter());
+        exitButton = new JXButton();
+        decorateButton(exitButton);
+        exitButton.setBackgroundPainter(new LightButtonBackgroundPainter(6,6));
+
+        JComboBox languageDropDown = createLanguageDropDown(normalFont);
+                
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        JPanel outerPanel = new JPanel(new BorderLayout());
+        JPanel innerPanel = new JPanel(new MigLayout("gap 6, insets 0, fill"));
+        JPanel langInnerPanel = new JPanel(new MigLayout("flowy, gap 4, insets 0, fill"));
         
-        int indent = 50;
-        panel.add(headingLabel, "gapleft 10, gaptop 15, wrap");
-        panel.add(bodyLabel, "gapleft " + indent + ", gaptop 20, wrap");
+        bottomPanel.setOpaque(false);
+        outerPanel.setOpaque(false);
+        innerPanel.setOpaque(false);
+        langInnerPanel.setOpaque(false);
+        
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0,14,14,14));
+        
+        JXPanel headerBar = new JXPanel(new MigLayout("insets 14, gap 0, fill"));
+        headerBar.setBackgroundPainter(new GenericBarPainter<JXPanel>(
+                new GradientPaint(0,0, headerGradientTop, 0,1, headerGradientBottom, false),
+                headerTopBorder1, headerTopBorder2, headerBottomBorder1, headerBottomBorder2));
+        
+        int indent = 14;
+        headerBar.add(headingLabel, "grow, wrap");
+        panel.add(bodyLabel, "gapleft " + indent + ", gaptop 10, wrap");
         panel.add(linkButton, "gapleft " + indent +  ", gaptop 20, wrap");
         panel.add(agreeLabel, "gapleft " + indent +  ", gaptop 70, wrap");
 
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setOpaque(false);
-        JPanel innerPanel = new JPanel(new FlowLayout());
-        innerPanel.setOpaque(false);
-        innerPanel.add(agreeButton);
-        innerPanel.add(exitButton);
-        bottomPanel.add(innerPanel, BorderLayout.EAST);
-        
-        JPanel langInnerPanel = new JPanel(new FlowLayout());
-        langInnerPanel.setOpaque(false);
-        langInnerPanel.setBorder(BorderFactory.createEmptyBorder(0,44,0,0));
-        JComboBox languageDropDown = createLanguageDropDown(normalFont);        
+        langInnerPanel.add(languageLabel);
         langInnerPanel.add(languageDropDown);
         bottomPanel.add(langInnerPanel, BorderLayout.WEST);
-
+        
+        innerPanel.add(agreeButton);
+        innerPanel.add(exitButton);
+        outerPanel.add(innerPanel, BorderLayout.SOUTH);
+        bottomPanel.add(outerPanel, BorderLayout.EAST);
+        
         setTextContents();
         
-        contentPane.add(panel, BorderLayout.NORTH);
+        contentPane.add(headerBar, BorderLayout.NORTH);
+        contentPane.add(panel, BorderLayout.CENTER);
         contentPane.add(bottomPanel, BorderLayout.SOUTH);
         
         pack();        
     }
+    
+    /**
+     * Helper method to prep (size/unskin) the agree and exit buttons for painting
+     */
+    private void decorateButton(JXButton button) {
+        button.setFont(buttonFont);
+        button.setOpaque(false);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(0,10,3,10));
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
+        button.setMinimumSize(new Dimension(105, 32));
+        button.setPreferredSize(new Dimension(105, 32));
+    }
+    
     
     @Override
     public void addNotify() {
@@ -133,6 +188,10 @@ public class IntentDialog extends LimeJDialog {
         return agreed;
     }
     
+    /**
+     * Creates the language combo box, attempts to guess an appropriate *available* locale to select,
+     *  and sets the application locale to that match.
+     */
     private JComboBox createLanguageDropDown(Font normalFont) {
         final JComboBox languageDropDown = new JComboBox();
         Locale[] locales = LanguageUtils.getLocales(normalFont);
@@ -180,13 +239,18 @@ public class IntentDialog extends LimeJDialog {
     }
 
     
+    /**
+     * Allows a soft localised refresh of the text within the panel based
+     *  on the language selected in the combo box.
+     */
     private void setTextContents() {
 
-        String heading  = " ";
+        String heading  = I18n.tr("State Your Intent");
         String bodyText1
-        = I18n.tr("LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only.  Installing and using either program does not constitute a license for obtaining or distributing unauthorized content.");
+        = I18n.tr("LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only. Installing and using either program does not constitute a license for obtaining or distributing unauthorized content.");
         String linkText = I18n.tr("Learn more");
         String agreementText = I18n.tr("By clicking \"I Agree\", you agree to not use LimeWire for copyright infringement.");
+        String languageText = I18n.tr("Choose your language");
         
         
         Action exitAction = new AbstractAction(I18n.tr("Exit")){
@@ -207,6 +271,7 @@ public class IntentDialog extends LimeJDialog {
         bodyLabel.setText(bodyText1);
         linkButton.setText(linkText);
         agreeLabel.setText(agreementText);
+        languageLabel.setText(languageText);
         exitButton.setAction(exitAction);
         agreeButton.setAction(agreeAction);
     }

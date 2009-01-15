@@ -10,6 +10,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -214,7 +215,11 @@ public class MainDownloadPanel extends JPanel {
 	    SharingSettings.CLEAR_DOWNLOAD.addSettingListener(new SettingListener() {
             @Override
             public void settingChanged(SettingEvent evt) {
-                clearFinishedCheckBox.setSelected(SharingSettings.CLEAR_DOWNLOAD.getValue());
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run() {
+                        clearFinishedCheckBox.setSelected(SharingSettings.CLEAR_DOWNLOAD.getValue());                        
+                    }
+                });
             }
 	    });
 	    

@@ -49,7 +49,6 @@ import javax.swing.text.html.HTMLEditorKit;
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.RectanglePainter;
 import org.limewire.concurrent.FutureEvent;
@@ -81,6 +80,7 @@ import org.limewire.ui.swing.action.CopyAction;
 import org.limewire.ui.swing.action.CopyAllAction;
 import org.limewire.ui.swing.action.PopupUtil;
 import org.limewire.ui.swing.components.FocusJOptionPane;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.event.RuntimeTopicEventSubscriber;
 import org.limewire.ui.swing.friends.chat.Message.Type;
@@ -123,8 +123,8 @@ public class ConversationPane extends JPanel implements Displayable {
     private final ShareListManager shareListManager;
     private final IconManager iconManager;
     private final LibraryNavigator libraryNavigator;
-    private JXHyperlink downloadlink;
-    private JXHyperlink sharelink;
+    private HyperlinkButton downloadlink;
+    private HyperlinkButton sharelink;
     private ResizingInputPanel inputPanel;
     private ChatState currentChatState;
     private final ResultDownloader downloader;
@@ -134,7 +134,7 @@ public class ConversationPane extends JPanel implements Displayable {
     @Resource(key="ChatConversation.toolbarBottomColor") private Color toolbarBottomColor;
     @Resource(key="ChatConversation.toolbarBorderColor") private Color toolbarBorderColor;
     @Resource(key="ChatConversation.linkFont") private Font linkFont;
-    @Resource(key="ChatConversation.linkColor") private Color linkColor;
+
     private JScrollPane conversationScroll;
     
     @AssistedInject
@@ -363,9 +363,8 @@ public class ConversationPane extends JPanel implements Displayable {
     private JPanel footerPanel(MessageWriter writer, ChatFriend chatFriend) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BACKGROUND_COLOR);
-        downloadlink = new JXHyperlink(new DownloadFromFriendLibraryAction());
+        downloadlink = new HyperlinkButton(new DownloadFromFriendLibraryAction());
         downloadlink.setFont(linkFont);
-        downloadlink.setForeground(linkColor);
         JXPanel toolbar = new JXPanel(new MigLayout("insets 0", "push[]10[]5", "0[22px]0"));
         Border insideBorder = BorderFactory.createEmptyBorder(0, -1, 0, -1);
         Border outsideBorder = BorderFactory.createLineBorder(toolbarBorderColor, 1);
@@ -378,9 +377,8 @@ public class ConversationPane extends JPanel implements Displayable {
         toolbar.setBackgroundPainter(painter);
         toolbar.setPaintBorderInsets(true);
         toolbar.add(downloadlink);
-        sharelink = new JXHyperlink(new ShareAction());
+        sharelink = new HyperlinkButton(new ShareAction());
         sharelink.setFont(linkFont);
-        sharelink.setForeground(linkColor);
         toolbar.add(sharelink);
         inputPanel = new ResizingInputPanel(writer);
         inputPanel.setBorder(BorderFactory.createEmptyBorder());

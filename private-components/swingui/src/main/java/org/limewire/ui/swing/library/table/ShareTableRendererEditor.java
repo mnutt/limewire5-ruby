@@ -1,6 +1,5 @@
 package org.limewire.ui.swing.library.table;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 
@@ -27,12 +26,6 @@ import com.google.inject.assistedinject.AssistedInject;
 public class ShareTableRendererEditor extends TableRendererEditor implements Configurable{
     @Resource
     private Font shareButtonFont;
-    @Resource
-    private Color shareForegroundColor;
-    @Resource
-    private Color shareMouseOverColor;
-    @Resource
-    private Color disabledColor;
 
     private HyperlinkButton shareButton;
     private LocalFileItem fileItem;
@@ -46,14 +39,7 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
         
         shareButton = new HyperlinkButton(I18n.tr("share"));
         shareButton.setFont(shareButtonFont);
-        shareButton.setFocusPainted(false);
-        shareButton.setBorder(null);
-        shareButton.setHorizontalTextPosition(SwingConstants.LEFT);
-        shareButton.setContentAreaFilled(false);
-        shareButton.setForeground(shareForegroundColor);
-        shareButton.setRolloverForeground(shareMouseOverColor);
-        shareButton.setDisabledForeground(disabledColor);
-        
+        shareButton.setHorizontalTextPosition(SwingConstants.LEFT);       
         shareButton.addActionListener(shareAction);
         
         setLayout(new MigLayout("insets 2 5 2 5, hidemode 0, aligny 50%"));

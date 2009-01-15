@@ -110,20 +110,10 @@ public class XMPPAddressResolver implements AddressResolver {
      * Also ensures that auth-token and address feature are set.
      */
     private FriendPresence getMatchingPresence(XMPPAddress xmppAddress, String resourceId, FriendPresence presence) {
-        String originalId = xmppAddress.getFullId();
-        int slash = originalId.indexOf('/');
-        if (slash == -1) {
-            LOG.debugf("no slash in full id: {0}", originalId);
-            return null;
-        }
-        // only look at the first 5 characters of the resource string, since jabber servers
-        // add their own random characters
-        int toOffset = Math.min(originalId.length(), slash + 5);
-        if (originalId.substring(0, toOffset).equals(resourceId.substring(0, toOffset))) {
-            // only return address if auth-token is available too, otherwise
-            // the address is worthless still
-            // do lookup with current resource id, the one from xmppAddress might differ
-            Address address = addressRegistry.get(new XMPPAddress(resourceId));
+        if (xmppAddress.equals(new XMPPAddress(resourceId))) {
+            // only return address actual address is not null and auth-token is 
+            // available too, otherwise the address is worthless still
+            Address address = addressRegistry.get(xmppAddress);
             Feature authTokenFeature = presence.getFeature(AuthTokenFeature.ID);
             if(address != null && authTokenFeature != null) {
                 return presence;
@@ -143,7 +133,7 @@ public class XMPPAddressResolver implements AddressResolver {
             observer.handleIOException(new IOException("Could not be resolved"));
         } else {
             // TODO have to use xmpp address with current presence id to make look up work
-            Address resolvedAddress = addressRegistry.get(new XMPPAddress(resolvedPresence.getPresenceId()));
+            Address resolvedAddress = addressRegistry.get(xmppAddress);
             if (resolvedAddress == null) {
                 LOG.debugf("could not resolve {0}, not in registry {1}", address, addressRegistry);
                 observer.handleIOException(new IOException("could not be resolved, no address"));

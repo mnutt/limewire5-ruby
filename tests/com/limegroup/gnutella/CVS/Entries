@@ -2,8 +2,6 @@ D/altlocs////
 D/auth////
 D/bootstrap////
 D/browser////
-D/bugs////
-D/chat////
 D/connection////
 D/data////
 D/dht////
@@ -12,7 +10,6 @@ D/downloader////
 D/filters////
 D/geocode////
 D/guess////
-D/gui////
 D/handshaking////
 D/helpers////
 D/http////

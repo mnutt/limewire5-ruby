@@ -19,7 +19,9 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
@@ -260,10 +262,15 @@ public class MyLibraryPanel extends LibraryPanel {
                 SelectAllable<LocalFileItem> selectAllable = selectableMap.get(category);
                 selectAllable.selectAll();
                 List<LocalFileItem> selectedItems = selectAllable.getSelectedItems();
-                //TODO this is a temporary fix for LWC-2490.  A real fix depends on LWC-2494.
+
                 if (selectedItems.size() > 0) {
                     multiShareWidget.setShareable(selectedItems.toArray(new LocalFileItem[selectedItems.size()]));
                     multiShareWidget.show(null);
+                } else {
+                   JPopupMenu popup = new JPopupMenu();
+                   popup.add(new JLabel(I18n.tr("Add files to My Library from Tools > Options to share them")));
+                   //move popup 15 pixels to the right so the mouse doesn't obscure the first word
+                   popup.show(MyLibraryPanel.this, getMousePosition().x + 15, getMousePosition().y);
                 }
             } else {
                 categoryShareWidget.setShareable(category);
@@ -278,8 +285,6 @@ public class MyLibraryPanel extends LibraryPanel {
         @Resource Color selectedTextColor;
         @Resource Color textColor;
         @Resource Font shareButtonFont;
-        @Resource Color shareForegroundColor;
-        @Resource Color shareMouseOverColor;
         
         private JButton button;
         private HyperlinkButton shareButton;
@@ -340,8 +345,6 @@ public class MyLibraryPanel extends LibraryPanel {
                 shareButton.setBorder(BorderFactory.createEmptyBorder(2,0,2,4));
                 shareButton.setVisible(false);
                 shareButton.setFont(shareButtonFont);
-                shareButton.setForeground(shareForegroundColor);
-                shareButton.setRolloverForeground(shareMouseOverColor);
                 add(shareButton, "wrap");
             }
         }

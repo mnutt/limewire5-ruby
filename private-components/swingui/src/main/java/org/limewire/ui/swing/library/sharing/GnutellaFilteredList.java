@@ -12,6 +12,7 @@ import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;
 
+/**Not thread safe*/
 class GnutellaFilteredList extends CompositeList<SharingTarget>{
     private EventList<SharingTarget> noShareFriendList;
     private EventList<SharingTarget> filteredNoShareFriendList;

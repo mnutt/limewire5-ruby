@@ -1,6 +1,9 @@
 package org.limewire.ui.swing.library.table;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
@@ -44,7 +47,7 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
     @Override
     public Object getColumnValue(T baseObject, int column) {
         switch(column) {
-        case NAME_INDEX: return baseObject.getFileName();
+        case NAME_INDEX: return baseObject;
         case LENGTH_INDEX: return baseObject.getProperty(FilePropertyKey.LENGTH);
         case MISC_INDEX: return "";
         case YEAR_INDEX: return baseObject.getProperty(FilePropertyKey.YEAR);
@@ -68,5 +71,22 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
             case ACTION_INDEX: return new CheckBoxComparator(localFileList);
         }
         return super.getColumnComparator(column);
+    }
+    
+    @Override
+    public int getDefaultSortColumn() {
+        return NAME_INDEX;
+    }
+
+    @Override
+    public List<Integer> getSecondarySortColumns(int column) {
+        switch (column) {
+        case NAME_INDEX:
+            return Arrays.asList(SIZE_INDEX);
+        case SIZE_INDEX:
+            return Arrays.asList(NAME_INDEX);
+        default:
+            return Collections.emptyList();
+        }
     }
 }

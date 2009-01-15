@@ -1,0 +1,28 @@
+<html>
+	<body>
+
+		<h1>
+			Overview
+		</h1>
+		<p>
+			This package provides tools and a base class for using the <a href="https://eventbus.dev.java.net/">EventBus library</a> for GUI event messaging.</p>
+
+		<h1>
+			Implementation
+		</h1>
+		<p>
+			The EventBus message subscription can be added to an object instance by adding a call to <code>EventAnnotationProcessor.subscribe(this);</code> within the constructor of an object.  Within the subscription process, all public methods that have been decorated with an EventBus-specic annotations (<code>org.bushe.swing.event.annotation.EventSubscriber</code>, <code>org.bushe.swing.event.annotation.EventTopicSubscriber</code>, <code>org.bushe.swing.event.annotation.EventTopicPatternSubscriber</code>, <code>org.limewire.ui.swing.event.RuntimeTopicEventSubscriber</code>, or <code>org.limewire.ui.swing.event.RuntimeTopicPatternEventSubscriber</code>) will be connected to the EventBus (via a proxy object) and will afterward receive callbacks specific to the type of message subscription with which they are decorated.
+		</p>
+		<p>
+			There are a few classes in this package that are notable:
+		</p>
+		<h2>AbstractEDTEvent</h2>
+		<p>This is the base class for events that need to be passed along on the EventDispatchThread.  Events passed along for either topics, topic patterns, or just simple subscription should extend this class. The subclasses (by default) will publish to the Swing event service but the implementation of the publishing service can be easily changed (via a method defined here).  Changing which event service is used can be useful for unit testing.</p>
+		<h2>EventAnnotationProcessor</h2>
+		<p>This class uses reflection to discover which methods in a class have one of the EventBus-related annotations.  The class provides methods for event subscription and unsubscription.</p>
+		<h2>RuntimeTopicEventSubscriber</h2>
+		<p>This annotation allows classes to define the topics they would like to subscribe to at runtime by specifying a callback method in the annotation declaration that will be queried as the subscribing object is registered with the event bus.</p>
+		<h2>RuntimeTopicPatternEventSubscriber</h2>
+		<p>This annotation allows classes to do the same style of runtime subscription declaration that <code>RuntimeTopicEventSubscriber</code> supports, except that (regular expression) topic patterns provide the indication for which event messages should be sent to the subscribing annotated methods.</p>
+	</body>
+</html>

@@ -37,7 +37,7 @@ public class LimeMozillaInitializer {
         
         File xulInstallPath = new File(CommonUtils.getUserSettingsDir(), "/browser");
         // Check to see if the correct version of XUL exists.
-        File xulFile = new File(xulInstallPath, "xul-v2.0b2.2-do-not-remove");
+        File xulFile = new File(xulInstallPath, "xul-v2.0b2.3-do-not-remove");
         if (!xulFile.exists()) {
             if (LOG.isDebugEnabled())
                 LOG.debug("unzip xulrunner to " + xulInstallPath);

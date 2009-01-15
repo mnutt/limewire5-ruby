@@ -132,14 +132,20 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         selectionPanel.updateLayout(layout);
     }
     
-    protected void select(Category id) {        
+    /**
+	 * Selects which category to show in the info panel. If Id
+	 * is null, than no category should be shown. This is accomplished
+     * be hiding the entire card layout.
+	 */
+    protected void select(Category id) {
         if(currentItem != null)
             currentItem.fireSelected(false);
         
-        currentItem = categoryTables.get(id);
-        currentItem.fireSelected(true);
-        
-        cardLayout.show(cardPanel, id.name());
+        if(id != null) {
+            currentItem = categoryTables.get(id);
+            currentItem.fireSelected(true);
+            cardLayout.show(cardPanel, id.name());
+        }    
         selectionPanel.showCard(id);
     }
     
@@ -245,7 +251,8 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
             if(current.isEnabled())
                 return categoryOrder.get(index);
         }
-        return categoryOrder.get(selectedIndex);
+        // if no categories are visible, return null
+        return null;
     }
     
     private void selectPrev() {

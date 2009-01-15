@@ -28,6 +28,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.limewire.collection.CollectionUtils;
 import org.limewire.collection.IntSet;
+import org.limewire.collection.Tuple;
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.concurrent.FutureEvent;
 import org.limewire.concurrent.ListeningExecutorService;
@@ -673,7 +674,64 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
 
     @Override
     public List<File> getDirectoriesToManageRecursively() {
-        return getLibraryData().getDirectoriesToManageRecursively();
+        // Make sure that things listed twice in the data are not
+        // listed twice in the returned list.  That is, if somehow
+        // the serialized user data got messed up and said,
+        // "I want to recursively share: /parent and /parent/sub
+        // We only want to return just /parent, because /parent/sub
+        // is automatically included.
+        // The catch is there are exclusions, so we have
+        // to make sure that if the listed items are:
+        // /parent, /parent/sub/sub2,
+        // but the exclusions include /parent/sub, then
+        // we don't want to filter out /parent/sub/sub2.
+        
+        List<File> managed = getLibraryData().getDirectoriesToManageRecursively();
+        List<File> excluded = getLibraryData().getDirectoriesToExcludeFromManaging();
+        managed.removeAll(excluded); // First remove any things that were duplicated.
+        
+        List<Tuple<File, File>> tuples = null;
+        for(File f1 : managed) {
+            for(File f2 : managed) {
+                if(f1 == f2) {
+                    continue;
+                }
+                if(FileUtils.isAncestor(f1, f2)) {
+                    if(tuples == null) {
+                        tuples = new ArrayList<Tuple<File,File>>();                        
+                    }
+                    tuples.add(new Tuple<File, File>(f1, f2));
+                }
+            }
+        }
+        // No ancestors, phew!
+        if(tuples == null) {
+            return managed;
+        }
+        
+        // Damn, there were some duplicate listings...
+        // Check if the child has excluded as an ancestor, the parent
+        // must *not* have excluded as an ancestor, too.
+        // Consider:
+        // managed: /parent, /parent/sub/sub1, parent/sub/sub1/sub2
+        // excluded: /parent/sub
+        // In this case, sub1 & sub2 have sub as an ancestor,
+        // but sub2 is still a duplicate.
+        for(File exclude : excluded) {
+            for(Iterator<Tuple<File, File>> tupleI = tuples.iterator(); tupleI.hasNext(); ) {
+                Tuple<File, File> tuple = tupleI.next();
+                if(FileUtils.isAncestor(exclude, tuple.getSecond()) && !FileUtils.isAncestor(exclude, tuple.getFirst())) {
+                    tupleI.remove();
+                }
+            }
+        }
+        
+        // Now that the tuples are cleaned up, go through & remove all tuples.
+        for(Tuple<File, File> tuple : tuples) {
+            managed.remove(tuple.getSecond());
+        }
+        return managed;
+        
     }
     
     @Override

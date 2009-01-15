@@ -1,5 +1,9 @@
 package org.limewire.ui.swing.library.table;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
@@ -36,5 +40,24 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
         }
         throw new IllegalArgumentException("Unknown column:" + column);
+    }
+
+    @Override
+    public int getDefaultSortColumn() {
+        return NAME_INDEX;
+    }
+
+    @Override
+    public List<Integer> getSecondarySortColumns(int column) {
+        switch (column) {
+        case NAME_INDEX:
+            return Arrays.asList(TYPE_INDEX, SIZE_INDEX);
+        case TYPE_INDEX:
+            return Arrays.asList(NAME_INDEX, SIZE_INDEX);
+        case SIZE_INDEX:
+            return Arrays.asList(NAME_INDEX, TYPE_INDEX);
+        default:
+            return Collections.emptyList();
+        }
     }
 }

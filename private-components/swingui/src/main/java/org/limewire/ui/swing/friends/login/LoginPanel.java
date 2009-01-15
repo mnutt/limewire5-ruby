@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -276,7 +277,11 @@ class LoginPanel extends JXPanel implements SettingListener {
 
     @Override
     public void settingChanged(SettingEvent evt) {
-        populateInputs();
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run() {
+                populateInputs();                
+            }
+        });
     }
 
     class SignInAction extends AbstractAction {

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
@@ -50,6 +51,7 @@ public class HyperlinkButton extends JXButton implements MouseListener {
     }
     
     private void initialize() {
+        setBorder(BorderFactory.createEmptyBorder());
         setBorderPainted(false);
         setMargin(new Insets(0, 0, 0, 0));
         setFocusPainted(false);
@@ -70,6 +72,8 @@ public class HyperlinkButton extends JXButton implements MouseListener {
     }
     
     public void removeUnderline() {
+        // Note: cannot use FontUtils.removeUnderline because that
+        // calls setFont, which will just re-add the underline!
         Font font = getFont();
         if (font != null) {
             Map<TextAttribute, ?> map = font.getAttributes();

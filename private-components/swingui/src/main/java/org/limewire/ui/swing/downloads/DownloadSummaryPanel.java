@@ -17,7 +17,6 @@ import java.awt.event.MouseListener;
 import javax.swing.ActionMap;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,8 +35,6 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.painter.AbstractPainter;
-import org.jdesktop.swingx.painter.Painter;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
@@ -180,6 +177,14 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
                 }
                 return super.prepareRenderer(renderer, row, column);
             }
+            
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                if (row >= getRowCount() || col >= getColumnCount() || row < 0 || col < 0) {
+                    return false;
+                }
+                return getColumnModel().getColumn(col).getCellEditor() != null;
+            }
         };
         table.setModel(horizontalTableModel);
 		table.setShowHorizontalLines(false);
@@ -192,17 +197,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 		table.setDefaultRenderer(DownloadItem.class, renderer);
         table.setRowHeight(panelHeight);
         
-
         final DownloadSummaryPanelRendererEditor editorPanel = new DownloadSummaryPanelRendererEditor();
-        Painter mouseOverPainter = new AbstractPainter<JComponent>(){
-            @Override
-            protected void doPaint(Graphics2D g, JComponent object, int width, int height) {
-                g.setPaint(Color.WHITE);
-                g.fillRect(0, 1, width, height);
-                // g.fillRoundRect(6, 6, 199, 39, 6, 6);
-            }
-        };
-        editorPanel.setBackgroundPainter(mouseOverPainter);
         final DownloadTableEditor editor = new DownloadTableEditor(editorPanel);
         editor.initialiseEditor(allList, downloadActionHandlerFactory.create(allList));
         table.setDefaultEditor(DownloadItem.class, editor);
@@ -259,7 +254,6 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
         tableScroll.getViewport().setOpaque(false);
         tableScroll.setBorder(new EmptyBorder(0, 0, 0, 0));
         tableScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        
 
         showAllButton = new HyperlinkButton();
         showAllButton.setText(I18n.tr("Show all"));
@@ -284,13 +278,13 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
         initializeDownloadCompleteListener();
         initializeDownloadAddedListener();
 
-        setLayout(new MigLayout("nocache, ins 0, gap 0! 0!, novisualpadding"));
+        setLayout(new MigLayout("nocache, ins 0 0 0 0, gap 0! 0!, novisualpadding"));
         
-        JPanel rightPanel = new JPanel(new MigLayout("nogrid, ins 0, gap 0! 0!, novisualpadding"));
+        JPanel rightPanel = new JPanel(new MigLayout("ins 0 0 0 0, gap 0! 0!, novisualpadding"));
         rightPanel.setMaximumSize(new Dimension(clearFinishedButton.getPreferredSize().width + 32, panelHeight));
         rightPanel.setOpaque(false);
-        rightPanel.add(showAllButton, "aligny 100%, wrap");
-        rightPanel.add(clearFinishedButton, "gaptop 10, aligny 0%, hidemode 3");
+        rightPanel.add(showAllButton, "aligny 100%, gapbottom 5, wrap");
+        rightPanel.add(clearFinishedButton, "gaptop 5, aligny 0%, hidemode 3");
         
         add(tableScroll, "aligny 50%, growx, growy, push");
         add(rightPanel, "gapleft 12, gapright 20");
@@ -449,6 +443,8 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 
 		public DownloadSummaryPanelRendererEditor() {
 			GuiUtils.assignResources(this);
+			setOpaque(false);
+			
 			//construct labels with throwaway strings for proper layout
 			statusLabel = new JLabel("STATUS");		
 			statusLabel.setFont(itemFont);
@@ -495,13 +491,18 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 
             linkButtons = new JButton[]{launchButton, tryAgainButton, cancelButton};
             buttons = new JButton[]{pauseButton, resumeButton};
-                        
-			setOpaque(false);
 
+            addComponents();
+            
+            initializeBorder();
+		}
+		
+
+        private void addComponents() {
             setLayout(new MigLayout("fill, ins 0 0 0 0 , nogrid, gap 0! 0!, novisualpadding"));
-          
+            
             add(nameLabel, "bottom, left, gapleft 15, gapright 15, gaptop 10, wrap");
-			add(progressBar, "top, left,gapleft 15, gapright 2, gaptop 6, hidemode 3");
+            add(progressBar, "top, left,gapleft 15, gapright 2, gaptop 6, hidemode 3");
             add(statusLabel, "top, left, gapleft 15, gapright 2, gaptop 6, hidemode 3");
             for(JButton button : linkButtons){
                 add(button, "top, hidemode 3, gaptop 6, gapright 15");
@@ -514,9 +515,11 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
             add(new JLabel(), "wrap");
             
             add(timeLabel, "top, left, gapleft 15, gaptop 4");
-            
-            setBorder(new Border(){
+        }
 
+
+        private void initializeBorder() {            
+            setBorder(new Border() {
                 @Override
                 public Insets getBorderInsets(Component c) {
                     return new Insets(0, 0, 0, 2);
@@ -529,20 +532,25 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 
                 @Override
                 public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-                    Graphics2D g2 = (Graphics2D)g.create();
+                    Graphics2D g2 = (Graphics2D) g.create();
                     g2.setPaint(firstBorderGradient);
-                    g2.drawLine(width - 1, 1, width - 1, height);                    
+                    g2.drawLine(width - 1, 1, width - 1, height);
                     g2.setPaint(secondBorderGradient);
-                    g2.drawLine(width, 1, width , height);
+                    g2.drawLine(width, 1, width, height);
                     g2.dispose();
-                    
-                }});
-            
-		}
-		
+
+                }
+            });
+        }
+
 
         @Override
         public void update(DownloadItem item){
+            // can be null because of accessibility calls.
+            if(item == null) {
+                return;
+            }
+            
             nameLabel.setText(item.getTitle());
             progressBar.setVisible(item.getState() == DownloadState.DOWNLOADING || item.getState() == DownloadState.PAUSED);
             if (progressBar.isVisible()) { 

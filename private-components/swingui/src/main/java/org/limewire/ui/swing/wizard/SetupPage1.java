@@ -1,11 +1,15 @@
 package org.limewire.ui.swing.wizard;
 
+import java.awt.event.ActionEvent;
+
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.limewire.core.settings.ContentSettings;
+import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.settings.InstallSettings;
@@ -15,18 +19,15 @@ import org.limewire.ui.swing.shell.LimeAssociationOption;
 import org.limewire.ui.swing.shell.LimeAssociations;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.MacOSXUtils;
+import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.WindowsUtils;
 import org.limewire.util.OSUtils;
-
-
 
 public class SetupPage1 extends WizardPage {
 
     private String titleLine = I18n.tr("Please take a minute to configure these options before moving on.");
     
     private String filterTitle = I18n.tr("Content Filters");
-    
-    private String learnMore = I18n.tr("Learn more"); 
     
     private String filterCheckText = I18n.tr("Don't let me download or upload files copyright owners request not be shared.");
     private JCheckBox filterCheck;
@@ -43,7 +44,12 @@ public class SetupPage1 extends WizardPage {
         setOpaque(false);
         setLayout(new MigLayout("insets 0, gap 0, nogrid"));
         
-        HyperlinkButton learnMoreButton = new HyperlinkButton(learnMore);
+        HyperlinkButton learnMoreButton = new HyperlinkButton(new AbstractAction(I18n.tr("Learn more")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NativeLaunchUtils.openURL("http://filtered.limewire.com/learnmore/contentFiltering");
+            }
+        });
         decorator.decorateNormalText(learnMoreButton);
         decorator.decorateLink(learnMoreButton);
         
@@ -58,7 +64,6 @@ public class SetupPage1 extends WizardPage {
         decorator.decorateLargeCheckBox(startupCheck);
         decorator.decorateNormalText(startupCheck);
         
-
         JLabel label;
         
         label = new JLabel(filterTitle);
@@ -70,8 +75,10 @@ public class SetupPage1 extends WizardPage {
         label = new MultiLineLabel(filterCheckText, 500);
         label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(filterCheck));
         decorator.decorateNormalText(label);       
-        add(label, "gaptop 10, gapleft 10, wrap");
-        add(learnMoreButton, "gapleft 76, wrap");
+        JPanel textAndLinkCell = new JPanel(new MigLayout("flowy, gap 2, insets 0, fill"));
+        textAndLinkCell.add(label);
+        textAndLinkCell.add(learnMoreButton);
+        add(textAndLinkCell, "gaptop 10, gapleft 10, wrap");
         
         if (LimeAssociations.isMagnetAssociationSupported() 
                || LimeAssociations.isTorrentAssociationSupported()
@@ -87,16 +94,16 @@ public class SetupPage1 extends WizardPage {
             label = new MultiLineLabel(associationsText, 500);
             label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(associationCheck));
             decorator.decorateNormalText(label);       
-            add(label, "gaptop 10, gapleft 10, wrap");
+            add(label, "gaptop 9, gapleft 10, wrap");
         }
         
         if (shouldShowStartOnStartupWindow()) {
             startupCheck.setSelected(true);
-            add(startupCheck, "gaptop 0, gapleft 40");
+            add(startupCheck, "gaptop 10, gapleft 40");
             label = new MultiLineLabel(startupText, 500);
             label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(startupCheck));
             decorator.decorateNormalText(label);       
-            add(label, "gaptop 10, gapleft 10, wrap");
+            add(label, "gaptop 9, gapleft 10, wrap");
         }
         
     }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Locale;
 
 import org.limewire.player.api.AudioPlayer;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 
 import com.google.inject.Inject;
@@ -36,7 +37,7 @@ public class PlayerUtils {
      * @return true if file is played internally, false if played in native player
      */
     public static boolean playOrLaunch(File file) {
-        if (isPlayableFile(file)) {
+        if (SwingUiSettings.PLAYER_ENABLED.getValue() && isPlayableFile(file)) {
             play(file);
             return true;
         } else {    

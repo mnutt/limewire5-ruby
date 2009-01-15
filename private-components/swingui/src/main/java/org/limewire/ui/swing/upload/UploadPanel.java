@@ -16,6 +16,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
+import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadListManager;
 import org.limewire.core.api.upload.UploadState;
@@ -58,14 +59,14 @@ public class UploadPanel extends JXPanel{
     public UploadPanel(UploadListManager listManager, LimeHeaderBarFactory headerBarFactory,
             ButtonDecorator buttonDecorator, CategoryIconManager categoryIconManager, LimeProgressBarFactory progressBarFactory, 
             PropertiesFactory<UploadItem> propertiesFactory, LibraryNavigator libraryNavigator,
-            BackAction backAction){
+            BackAction backAction, LibraryManager libraryManager){
         super(new BorderLayout());
         
         this.buttonDecorator = buttonDecorator;
         this.headerBarFactory = headerBarFactory;
         this.uploadItems = listManager.getSwingThreadSafeUploads();
 
-        UploadTable table = new UploadTable(uploadItems, categoryIconManager, progressBarFactory, propertiesFactory, libraryNavigator);
+        UploadTable table = new UploadTable(uploadItems, categoryIconManager, progressBarFactory, propertiesFactory, libraryNavigator, libraryManager);
         table.setTableHeader(null);
         initHeader(backAction);
         

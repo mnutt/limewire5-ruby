@@ -48,5 +48,12 @@ public interface FriendFileList extends SharedFileList {
 
     /** Clears all files in the given category from this list. */
     void clearCategory(Category category);
+    
+    /** 
+     *  Adds all the files of type category in Managed FileList to this FileList.
+     *  Future files of type category added to Managed FileList will not be added
+     *  to this list.
+     */
+    void addSnapshotCategory(Category category);
 
 }

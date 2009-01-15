@@ -33,7 +33,6 @@ public class SearchResultMenu extends JPopupMenu {
             }
         }
         
-        boolean markAsSpamEnabled = selectedItems.size() == 1;
         boolean showHideSimilarFileVisible = selectedItems.size() == 1 && firstItem.getSimilarResults().size() > 0;
         boolean showHideSimilarFileEnabled = selectedItems.size() == 1 && firstItem.getDownloadState() == BasicDownloadState.NOT_STARTED;
         boolean viewFileInfoEnabled = selectedItems.size() == 1;
@@ -48,11 +47,14 @@ public class SearchResultMenu extends JPopupMenu {
             }
         }).setEnabled(downloadEnabled);
 
-        add(new AbstractAction(markAsSpamEnabled && firstItem.isSpam() ? tr("Unmark as spam") : tr("Mark as spam")) {
+        add(new AbstractAction(firstItem.isSpam() ? tr("Unmark as spam") : tr("Mark as spam")) {
             public void actionPerformed(ActionEvent e) {
-                firstItem.setSpam(!firstItem.isSpam());
+                boolean spam = !firstItem.isSpam();
+                for(VisualSearchResult visualSearchResult : selectedItems) {
+                    visualSearchResult.setSpam(spam);
+                }
             }
-        }).setEnabled(markAsSpamEnabled);
+        });
 
         addSeparator();
 

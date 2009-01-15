@@ -1,6 +1,9 @@
 package org.limewire.ui.swing.library.table;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
@@ -64,5 +67,24 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
          case UPLOADS_INDEX: return baseObject.getNumUploads();
          }
          throw new IllegalArgumentException("Unknown column:" + column);
+    }
+
+    @Override
+    public int getDefaultSortColumn() {
+        return NAME_INDEX;
+    }
+
+    @Override
+    public List<Integer> getSecondarySortColumns(int column) {
+        switch (column) {
+        case NAME_INDEX:
+            return Arrays.asList(TYPE_INDEX, SIZE_INDEX);
+        case TYPE_INDEX:
+            return Arrays.asList(NAME_INDEX, SIZE_INDEX);
+        case SIZE_INDEX:
+            return Arrays.asList(NAME_INDEX, TYPE_INDEX);
+        default:
+            return Collections.emptyList();
+        }
     }
 }

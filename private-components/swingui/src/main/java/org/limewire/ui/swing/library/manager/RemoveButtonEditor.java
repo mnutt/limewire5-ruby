@@ -1,5 +1,6 @@
 package org.limewire.ui.swing.library.manager;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -36,6 +37,13 @@ class RemoveButtonEditor extends HyperlinkButton implements TableCellEditor {
         setBorder(BorderFactory.createEmptyBorder(2, 4, 0, 4));
     }
 
+    /**
+     * Changes to foreground using this method will be ignored
+     */
+    @Override
+    public void setForeground(Color c) {
+    }
+    
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
             int row, int column) {

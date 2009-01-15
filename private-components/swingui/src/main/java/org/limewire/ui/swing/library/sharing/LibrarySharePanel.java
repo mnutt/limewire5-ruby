@@ -21,24 +21,23 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -52,7 +51,6 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.painter.Painter;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
-import org.limewire.core.api.friend.Friend;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeEditableComboBox;
@@ -73,6 +71,7 @@ import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.gui.WritableTableFormat;
+import ca.odell.glazedlists.impl.ThreadSafeList;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.matchers.MatcherEditor.Event;
 import ca.odell.glazedlists.swing.EventComboBoxModel;
@@ -81,14 +80,9 @@ import ca.odell.glazedlists.swing.EventTableModel;
 /**
  * This is used internally by ShareWidget.  Needs refactoring.
  */
-class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Disposable, ShapeComponent {
+class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
 
-    private static final int SHARED_ROW_COUNT = 10;
-    
-    public static enum ShadowMode {SHADOW, NO_SHADOW};
-    
- //   private ShadowMode shadowMode = ShadowMode.SHADOW;
-  //  private static final int HGAP = 5;
+    private static final int SHARED_ROW_COUNT = 10;        
     
     @Resource
     private int panelWidth;
@@ -109,29 +103,16 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
 
     private String startTypingText = I18n.tr("Start typing a friend's name");
     private String addFriendText = I18n.tr("Add another friend");
-    
 
-//
-//    /**
-//     * all unshared friends
-//     */    
-//    private SortedList<SharingTarget> noShareFriendList;
-//    /**
-//     * filtered list of unshared friends
-//     */
-//    private FilterList<SharingTarget> noShareFilterList;
-    private GnutellaFilteredList noShareList;
+    private GnutellaFilteredList noShareListEDTOnly;  
+    //wraps noShareList 
+    private SortedList<SharingTarget> comboBoxListEDTOnly;
     
-    private SortedList<SharingTarget> comboBoxList;
-    /**
-     * list of shared friends
-     */
-    private EventList<SharingTarget> shareFriendList;
-
-    /** list of all friends */
-    private Collection<Friend> allFriends;
-    /** list of all friends */
-    private SortedList<SharingTarget> allFriendsSorted;
+    /** list of shared friends */
+    private EventList<SharingTarget> shareFriendListEDTOnly;
+    
+     /** list of all friends */
+    private SortedList<SharingTarget> allFriendsSortedThreadSafe;
 
     private JScrollPane shareScroll;
 
@@ -216,22 +197,16 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     };    
     
 
-    public LibrarySharePanel(Collection<Friend> allFriends, ShapeDialog dialog) {
-        this(allFriends, dialog, ShadowMode.SHADOW);
-    }
-    
-    public LibrarySharePanel(Collection<Friend> allFriends, ShapeDialog dialog, ShadowMode shadowMode) {
-        this.allFriends = allFriends;
+    public LibrarySharePanel(ThreadSafeList<SharingTarget> allFriends, ShapeDialog dialog) {        
         this.dialog = dialog;
-        //this.shadowMode = shadowMode;
-        initialize();
+        initialize(allFriends);
     }
   
     
-    private void initialize(){
+    private void initialize(ThreadSafeList<SharingTarget> allFriends){
         GuiUtils.assignResources(this);         
                 
-        initializeLists();
+        initializeLists(allFriends);
 
         initializeShareTable();
 
@@ -371,11 +346,11 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
      //   bottomLabel.setForegroundPainter(new TextShadowPainter());
     }
 
-    private void initializeLists() {
-        allFriendsSorted = GlazedListsFactory.sortedList(new BasicEventList<SharingTarget>(), new SharingTargetComparator());
+    private void initializeLists(EventList<SharingTarget> allFriendsThreadSafe) {
+        allFriendsSortedThreadSafe = GlazedListsFactory.sortedList(allFriendsThreadSafe, new SharingTargetComparator());
         
-        shareFriendList = new BasicEventList<SharingTarget>();
-        shareFriendList.addListEventListener(new ListEventListener<SharingTarget>() {
+        shareFriendListEDTOnly = new BasicEventList<SharingTarget>();
+        shareFriendListEDTOnly.addListEventListener(new ListEventListener<SharingTarget>() {
             @Override
             public void listChanged(ListEvent<SharingTarget> listChanges) {
                 adjustFriendLabel();
@@ -383,16 +358,21 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         });
         
 
-        noShareList = new GnutellaFilteredList();
-        comboBoxList = GlazedListsFactory.sortedList(noShareList, new SharingTargetComparator());
+        noShareListEDTOnly = new GnutellaFilteredList();
+        comboBoxListEDTOnly = GlazedListsFactory.sortedList(noShareListEDTOnly, new SharingTargetComparator());
         
         // force list to re-sort when textMatcher is updated
-        noShareList.addMatcherEditorListener(new MatcherEditor.Listener<SharingTarget>() {
+        noShareListEDTOnly.addMatcherEditorListener(new MatcherEditor.Listener<SharingTarget>() {
             @Override
             public void changedMatcher(Event<SharingTarget> matcherEvent) {
                 Comparator<SharingTarget> comparator = (comboPanel.getTextField().getText() == null || comboPanel.getTextField().getText().equals("")) ? 
                         new SharingTargetComparator() : new FilteredSharingTargetComparator();
-                comboBoxList.setComparator(comparator);
+                comboBoxListEDTOnly.getReadWriteLock().writeLock().lock();
+                try {
+                    comboBoxListEDTOnly.setComparator(comparator);
+                } finally {
+                    comboBoxListEDTOnly.getReadWriteLock().writeLock().unlock();
+                }
             }
         });
 
@@ -426,7 +406,7 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         comboPanel.setMaximumSize(comboPanel.getPreferredSize());   
         comboPanel.setMinimumSize(comboPanel.getPreferredSize());
         friendCombo = comboPanel.getComboBox();
-        friendCombo.setModel(GlazedListsSwingFactory.eventComboBoxModel(comboBoxList));
+        friendCombo.setModel(GlazedListsSwingFactory.eventComboBoxModel(comboBoxListEDTOnly));
         initializeInputField();       
         
         comboPopup = comboPanel.getPopup();           
@@ -448,15 +428,7 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         };
         
         comboPopup.getList().addMouseListener(shareListener);
-        comboPopup.getList().setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
-                Friend friend = ((SharingTarget)value).getFriend();
-                String text = ((SharingTarget)value).isGnutellaNetwork()? friend.getRenderName() : I18n.tr("<HTML>{0} <font color=#cccccc>({1})</font></HTML>", friend.getRenderName(), friend.getId());
-                return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
-            }
-        });
+        comboPopup.getList().setCellRenderer(new FriendListCellRenderer());
     }
 
     //must be called after friendCombo is initialized
@@ -493,7 +465,7 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
             }
             
             private void update() {
-                noShareList.setFilterText(inputField.getText().split(" "));
+                noShareListEDTOnly.setFilterText(inputField.getText().split(" "));
                 if (friendCombo.getModel().getSize() > 0) {
                     friendCombo.setSelectedIndex(0);
                     fixPopupSize();
@@ -514,7 +486,8 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
 
     private void initializeShareTable() {
         final int actionCol = 0;
-        shareTable = new MouseableTable(GlazedListsSwingFactory.eventTableModel(shareFriendList, new LibraryShareTableFormat(actionCol)));
+        final int friendNameCol = 1;
+        shareTable = new MouseableTable(GlazedListsSwingFactory.eventTableModel(shareFriendListEDTOnly, new LibraryShareTableFormat(actionCol)));
         shareTable.setTableHeader(null);
         final ShareRendererEditor removeEditor = new ShareRendererEditor(removeIcon, removeIconRollover, removeIconPressed);
         removeEditor.addActionListener(new ActionListener(){
@@ -533,6 +506,7 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         shareTable.getColumnModel().getColumn(actionCol).setPreferredWidth(removeEditor.getPreferredSize().width + 4);    
         shareTable.getColumnModel().getColumn(actionCol).setMaxWidth(removeEditor.getPreferredSize().width + 4);    
         shareTable.getColumnModel().getColumn(actionCol).setCellRenderer(new ShareRendererEditor(removeIcon, removeIconRollover, removeIconPressed));      
+        shareTable.getColumnModel().getColumn(friendNameCol).setCellRenderer(new FocuslessTableCellRenderer());      
         shareTable.setShowGrid(false);   
         shareTable.setIntercellSpacing(new Dimension(0, 0));
         shareTable.setOpaque(false);
@@ -563,7 +537,7 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     
 
     private void adjustFriendLabel() {
-        friendLabel.setText(shareFriendList.size() == 0 ? startTypingText : addFriendText);
+        friendLabel.setText(shareFriendListEDTOnly.size() == 0 ? startTypingText : addFriendText);
         friendLabel.paintImmediately(friendLabel.getVisibleRect());
     }
     
@@ -571,10 +545,7 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         int index = friendCombo.getSelectedIndex();
         if (index > -1) {
             shareFriend((SharingTarget)friendCombo.getSelectedItem());
-            //clear filter every time friend is added
-           // if (friendCombo.getModel().getSize() == 0) {
             inputField.setText(null);
-            // }
             resetRowSelection(index);
 
             if (friendCombo.getModel().getSize() > 0) {
@@ -594,15 +565,10 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         tablePanel.setVisible(visible);
     }
 
-    public void setShareModel(LibraryShareModel shareModel){
+    private void setShareModel(LibraryShareModel shareModel){
         this.shareModel = shareModel;
-        shareModel.addPropertyChangeListener(this);
     }
     
-    public LibraryShareModel getShareModel(){
-        return shareModel;
-    }
-
     private void setChildComponentKeyStrokes(JComponent component){
         setKeyStrokes(component);
         for(Component child : component.getComponents()){
@@ -620,15 +586,13 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     }
 
     
-    public void show(Component owner) {       
-        inputField.setText(null);
-        if (friendCombo.getModel().getSize() > 0) {
-            friendCombo.setSelectedIndex(0);
-        }
-        reloadSharedBuddies();
-        adjustSize();
-        dialog.show(this, owner, true);
-        inputField.requestFocusInWindow();
+    public void show(final Component owner, LibraryShareModel shareModel) {        
+        dialog.show(new LoadingPanel(), owner, false);
+        
+        SwingWorker setupWorker = new SetupWorker(shareModel);
+        
+        setupWorker.execute();
+
     }
     
 
@@ -654,8 +618,8 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     
     
     private void shareFriend(SharingTarget friend) {
-        shareFriendList.add(friend);
-        noShareList.remove(friend);
+        shareFriendListEDTOnly.add(friend);
+        noShareListEDTOnly.remove(friend);
 
         shareModel.shareFriend(friend);
         
@@ -669,8 +633,8 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     
     
     private void unshareFriend(SharingTarget friend) {
-        shareFriendList.remove(friend);
-        noShareList.add(friend);
+        shareFriendListEDTOnly.remove(friend);
+        noShareListEDTOnly.add(friend);
         
         shareModel.unshareFriend(friend);
         
@@ -681,62 +645,28 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
     
     private void adjustSize(){
         adjustFriendLabel();
-        bottomPanel.setVisible(!bottomPanelHidden && noShareList.getUnfilteredSize() > 0);
-        
+        bottomPanel.setVisible(!bottomPanelHidden && noShareListEDTOnly.getUnfilteredSize() > 0);
         if (!tableHidden ) {
             int visibleRows = (shareTable.getRowCount() < SHARED_ROW_COUNT) ? shareTable.getRowCount() : SHARED_ROW_COUNT;
             shareTable.setVisibleRowCount(visibleRows);
             tablePanel.setVisible(visibleRows > 0);
-            
+
             //prevent flashing scrollbar
             int scrollPolicy = shareTable.getRowCount() > visibleRows ? JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED : JScrollPane.VERTICAL_SCROLLBAR_NEVER;
             shareScroll.setVerticalScrollBarPolicy(scrollPolicy);
         }
-        
         setSize(getPreferredSize());  
     }
     
     
     
     public void dispose() {
-        noShareList.dispose();
-        allFriendsSorted.dispose();
+        noShareListEDTOnly.dispose();
+        allFriendsSortedThreadSafe.dispose();
         
         ((EventTableModel)shareTable.getModel()).dispose();
         ((EventComboBoxModel)comboPanel.getComboBox().getModel()).dispose();
     }
-    
-    
-    private void reloadSharedBuddies() {
-        shareFriendList.clear();
-        noShareList.clear();
-        allFriendsSorted.clear();
-        comboBoxList.clear();
-
-        if (shareModel.isGnutellaNetworkSharable()) {
-            loadFriend(SharingTarget.GNUTELLA_SHARE);
-        }
-        
-        for (Friend friend : allFriends) {
-            allFriendsSorted.add(new SharingTarget(friend));
-        }
-        
-        for (SharingTarget target : allFriendsSorted){            
-            loadFriend(target);
-        }
-    }
-    
-    private void loadFriend(SharingTarget friend) {
-        if (isShared(friend)) {
-            shareFriendList.add(friend);
-        } else {
-            noShareList.add(friend);
-        }
-    }
-    
-    private boolean isShared(SharingTarget friend){
-        return shareModel.isShared(friend);
-    }   
     
             
     private static class LibraryShareTableFormat implements WritableTableFormat<SharingTarget> {
@@ -812,10 +742,70 @@ class LibrarySharePanel extends JXPanel implements PropertyChangeListener, Dispo
         
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        // the share model file or category has changed - reload friends.
-        reloadSharedBuddies();
-    }
-         
+    //Need to ensure 
+    private class SetupWorker extends SwingWorker {
+        private final List<SharingTarget> sharedFriendsTemp = Collections.synchronizedList(new ArrayList<SharingTarget>());
+        private final List<SharingTarget> noShareFriendsTemp = Collections.synchronizedList(new ArrayList<SharingTarget>());
+        private final LibraryShareModel setupShareModel;
+        
+        public SetupWorker(LibraryShareModel shareModel){
+            this.setupShareModel = shareModel;
+        }
+        
+        @Override
+        protected Object doInBackground() throws Exception {
+            reloadSharedFriendsInBackground();
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            shareFriendListEDTOnly.clear();
+            noShareListEDTOnly.clear();
+            
+            shareFriendListEDTOnly.addAll(sharedFriendsTemp);
+            //CompositeList doesn't support addAll
+            for (SharingTarget target : noShareFriendsTemp) {
+                noShareListEDTOnly.add(target);
+            }
+            
+            setShareModel(setupShareModel);
+                        
+            inputField.setText(null);
+            adjustSize();
+            if (friendCombo.getModel().getSize() > 0) {
+                friendCombo.setSelectedIndex(0);
+            }
+            dialog.setVisible(false);
+            dialog.show(LibrarySharePanel.this, null, true);
+            inputField.requestFocusInWindow();
+        }
+        
+        
+        private void reloadSharedFriendsInBackground() {           
+
+            if (setupShareModel.isGnutellaNetworkSharable()) {
+                loadFriendInBackground(SharingTarget.GNUTELLA_SHARE);
+            }
+
+            allFriendsSortedThreadSafe.getReadWriteLock().readLock().lock();
+            try {
+                for (SharingTarget target : allFriendsSortedThreadSafe) {
+                    loadFriendInBackground(target);
+                }
+            } finally {
+                allFriendsSortedThreadSafe.getReadWriteLock().readLock().unlock();
+            }
+        }
+        
+        private void loadFriendInBackground(SharingTarget friend) {
+            if (setupShareModel.isShared(friend)) {
+                sharedFriendsTemp.add(friend);
+            } else {
+                noShareFriendsTemp.add(friend);
+            }
+        }        
+      
+    };
+          
 }

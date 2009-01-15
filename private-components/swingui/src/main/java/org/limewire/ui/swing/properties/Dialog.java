@@ -27,12 +27,12 @@ import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.jdesktop.swingx.JXHyperlink;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.library.PropertiableFile;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.Line;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -74,10 +74,10 @@ public abstract class Dialog extends LimeJDialog {
     protected final JTextField company = new JTextField();
     protected final DefaultTableModel readOnlyInfoModel = new ReadOnlyTableModel();
     protected final JLabel fileLocation = newLabel();
-    protected final JXHyperlink locateOnDisk;
-    protected final JXHyperlink locateInLibrary;
-    protected final JXHyperlink copyToClipboard;
-    protected final JXHyperlink moreFileInfo;
+    protected final HyperlinkButton locateOnDisk;
+    protected final HyperlinkButton locateInLibrary;
+    protected final HyperlinkButton copyToClipboard;
+    protected final HyperlinkButton moreFileInfo;
     protected final JTable readOnlyInfo = new JTable(readOnlyInfoModel);
     private final Font smallFont;
     private final Font mediumFont;
@@ -99,11 +99,10 @@ public abstract class Dialog extends LimeJDialog {
         this.largeFont = param.getLargeFont();
         
         mainPanel = new JPanel(new MigLayout("insets 0 3 3 0", "[fill]push[]", "[][][][]push[]"));
-        Color hyperlinkColor = param.getLinkColor();
-        locateOnDisk = newHyperlink(hyperlinkColor);
-        locateInLibrary = newHyperlink(hyperlinkColor);
-        copyToClipboard = newHyperlink(hyperlinkColor);
-        moreFileInfo = newHyperlink(hyperlinkColor);
+        locateOnDisk = newHyperlink();
+        locateInLibrary = newHyperlink();
+        copyToClipboard = newHyperlink();
+        moreFileInfo = newHyperlink();
         
         add(mainPanel);
         mainPanel.setBackground(param.getBackgroundColor());
@@ -137,10 +136,8 @@ public abstract class Dialog extends LimeJDialog {
         addOverview();
     }
     
-    private JXHyperlink newHyperlink(Color linkColor) {
-        JXHyperlink link = new JXHyperlink();
-        link.setClickedColor(linkColor);
-        link.setUnclickedColor(linkColor);
+    private HyperlinkButton newHyperlink() {
+        HyperlinkButton link = new HyperlinkButton();
         return link;
     }
 

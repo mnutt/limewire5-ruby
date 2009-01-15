@@ -10,6 +10,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.table.TableCellEditor;
 
 import org.limewire.core.api.Category;
+import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadState;
 import org.limewire.ui.swing.table.TablePopupHandler;
@@ -19,6 +20,7 @@ import org.limewire.ui.swing.util.I18n;
 public class UploadPopupHandler implements TablePopupHandler {
     private int popupRow = -1;
 
+    private final LibraryManager libraryManager;
 
     private JPopupMenu popupMenu;
     private JMenuItem launchMenuItem;
@@ -31,7 +33,7 @@ public class UploadPopupHandler implements TablePopupHandler {
 
     private MenuListener menuListener;
     
-    private UploadItem menuItem;
+    private UploadItem uploadItem;
 
 
     private UploadTable table;
@@ -39,7 +41,8 @@ public class UploadPopupHandler implements TablePopupHandler {
 
     private UploadActionHandler actionHandler;
     
-    public UploadPopupHandler(UploadTable table, UploadActionHandler actionHandler){
+    public UploadPopupHandler(UploadTable table, UploadActionHandler actionHandler, LibraryManager libraryManager){
+        this.libraryManager = libraryManager;
         this.table = table;
         this.actionHandler = actionHandler;
         
@@ -51,23 +54,23 @@ public class UploadPopupHandler implements TablePopupHandler {
         showInLibraryMenuItem.setActionCommand(UploadActionHandler.LIBRARY_COMMAND);
         showInLibraryMenuItem.addActionListener(menuListener);        
         
-        cancelMenuItem = new JMenuItem(I18n.tr("Cancel Upload"));
+        cancelMenuItem = new JMenuItem(I18n.tr("Cancel"));
         cancelMenuItem.setActionCommand(UploadActionHandler.CANCEL_COMMAND);
         cancelMenuItem.addActionListener(menuListener);
 
-        launchMenuItem = new JMenuItem(I18n.tr("Launch file"));
+        launchMenuItem = new JMenuItem(I18n.tr("Launch File"));
         launchMenuItem.setActionCommand(UploadActionHandler.LAUNCH_COMMAND);
         launchMenuItem.addActionListener(menuListener);
         
-        playMenuItem = new JMenuItem(I18n.tr("Play file"));
+        playMenuItem = new JMenuItem(I18n.tr("Play File"));
         playMenuItem.setActionCommand(UploadActionHandler.PLAY_COMMAND);
         playMenuItem.addActionListener(menuListener);
         
-        removeMenuItem = new JMenuItem(I18n.tr("Remove from list"));
+        removeMenuItem = new JMenuItem(I18n.tr("Remove from List"));
         removeMenuItem.setActionCommand(UploadActionHandler.REMOVE_COMMAND);
         removeMenuItem.addActionListener(menuListener);
         
-        locateOnDiskMenuItem = new JMenuItem(I18n.tr("Locate on disk"));
+        locateOnDiskMenuItem = new JMenuItem(I18n.tr("Locate on Disk"));
         locateOnDiskMenuItem.setActionCommand(UploadActionHandler.LOCATE_ON_DISK_COMMAND);
         locateOnDiskMenuItem.addActionListener(menuListener);
         
@@ -84,10 +87,10 @@ public class UploadPopupHandler implements TablePopupHandler {
     @Override
     public void maybeShowPopup(Component component, int x, int y) {
         popupRow = getPopupRow(x, y);
-        menuItem = table.getUploadItem(popupRow);
+        uploadItem = table.getUploadItem(popupRow);
         
         popupMenu.removeAll();
-        UploadState state = menuItem.getState();
+        UploadState state = uploadItem.getState();
         
         if(state == UploadState.BROWSE_HOST || state == UploadState.BROWSE_HOST_DONE || state == UploadState.DONE || state == UploadState.UNABLE_TO_UPLOAD){
             popupMenu.add(removeMenuItem);
@@ -98,13 +101,13 @@ public class UploadPopupHandler implements TablePopupHandler {
         if (state != UploadState.BROWSE_HOST && state != UploadState.BROWSE_HOST_DONE) {
             popupMenu.addSeparator();
 
-            if (menuItem.getCategory() == Category.VIDEO || menuItem.getCategory() == Category.AUDIO) {
+            if (uploadItem.getCategory() == Category.VIDEO || uploadItem.getCategory() == Category.AUDIO) {
                 popupMenu.add(playMenuItem);
-            } else if (menuItem.getCategory() != Category.PROGRAM && menuItem.getCategory() != Category.OTHER) {
+            } else if (uploadItem.getCategory() != Category.PROGRAM && uploadItem.getCategory() != Category.OTHER) {
                 popupMenu.add(launchMenuItem);
             }
             popupMenu.add(locateOnDiskMenuItem);
-            popupMenu.add(showInLibraryMenuItem);
+            popupMenu.add(showInLibraryMenuItem).setEnabled(libraryManager.getLibraryManagedList().contains(uploadItem.getUrn()));
 
             popupMenu.addSeparator();
 
@@ -122,7 +125,7 @@ public class UploadPopupHandler implements TablePopupHandler {
     private class MenuListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            actionHandler.performAction(e.getActionCommand(), menuItem);
+            actionHandler.performAction(e.getActionCommand(), uploadItem);
             //must cancel editing
             Component comp = table.getEditorComponent();
             if(comp!=null && comp instanceof TableCellEditor){

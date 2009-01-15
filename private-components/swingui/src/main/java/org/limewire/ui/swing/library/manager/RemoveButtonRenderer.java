@@ -1,5 +1,6 @@
 package org.limewire.ui.swing.library.manager;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 
@@ -22,7 +23,14 @@ public class RemoveButtonRenderer extends HyperlinkButton implements TableCellRe
         setOpaque(true);
         setBorder(BorderFactory.createEmptyBorder(2, 4, 0, 4));
     }
-
+    
+    /**
+     * Changes to foreground using this method will be ignored
+     */
+    @Override
+    public void setForeground(Color c) {
+    }
+    
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
             boolean hasFocus, int row, int column) {

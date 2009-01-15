@@ -3,8 +3,9 @@ package com.limegroup.gnutella.library;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
-import org.limewire.concurrent.ThreadExecutor;
+import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.core.api.Category;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.util.FileUtils;
@@ -27,11 +28,14 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
     private volatile boolean addNewVideoAlways = false;
     
     protected final LibraryFileData data;
+    
+    private final Executor executor;
 
     public FriendFileListImpl(LibraryFileData data, ManagedFileListImpl managedList,  String id) {
         super(managedList);
         this.id = Objects.nonNull(id, "id");
         this.data = data;
+        this.executor = ExecutorsHelper.newProcessingQueue("FriendListAdder");
         
         addNewAudioAlways = LibrarySettings.containsFriendShareNewAudio(id);
         addNewImagesAlways = LibrarySettings.containsFriendShareNewImages(id);
@@ -124,57 +128,76 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
             fireCollectionEvent(FileListChangedEvent.Type.IMAGE_COLLECTION, value);
             addNewImagesAlways = value;
             if(addNewImagesAlways) {
-                ThreadExecutor.newManagedThread(new AddCategory(Category.IMAGE)).start();
+                executor.execute(new AddCategory(Category.IMAGE));
             }
         }
     }
     
     @Override
-    public void clearCategory(Category category) {
-        List<FileDesc> fdList = new ArrayList<FileDesc>(size());
-        getReadLock().lock();
-        try {
-            for(FileDesc fd : this) {
-                if(CategoryConverter.categoryForFile(fd.getFile()) == category) {
-                    fdList.add(fd);
+    public void clearCategory(final Category category) {
+        executor.execute(new Runnable(){
+            public void run() {
+                List<FileDesc> fdList = new ArrayList<FileDesc>(size());
+                getReadLock().lock();
+                try {
+                    for(FileDesc fd : FriendFileListImpl.this) {
+                        if(CategoryConverter.categoryForFile(fd.getFile()) == category) {
+                            fdList.add(fd);
+                        }
+                    }
+                } finally {
+                    getReadLock().unlock();
+                }
+        
+                for(FileDesc fd : fdList) {
+                    remove(fd);
                 }
             }
-        } finally {
-            getReadLock().unlock();
-        }
-        
-        for(FileDesc fd : fdList) {
-            remove(fd);
-        }
+        });
+
+    }
+
+    @Override
+    public void addSnapshotCategory(Category category) {
+        executor.execute(new AddCategory(category, true));
     }
     
     private class AddCategory implements Runnable {
         private final Category category;
+        private final boolean isSnapshot;
         
         public AddCategory(Category category) {
+            this(category, false);
+        }
+        
+        public AddCategory(Category category, boolean isSnapShot) {
             this.category = category;
+            this.isSnapshot = isSnapShot;
         }
         
         @Override
         public void run() {
             for (FileDesc fd : managedList.pausableIterable()) {
-                // exit early if off.
-                switch(category) {
-                case AUDIO:
-                    if (!addNewAudioAlways) {
-                        return;
+                // Only exit early if we're not doing a snapshot addition.
+                if(!isSnapshot) {
+                    // exit early if off.
+                    switch(category) {
+                    case AUDIO:
+                        if (!addNewAudioAlways) {
+                            return;
+                        }
+                        break;
+                    case IMAGE:
+                        if (!addNewImagesAlways) {
+                            return;
+                        }
+                        break;
+                    case VIDEO:
+                        if (!addNewVideoAlways) {
+                            return;
+                        }
+                        break;
                     }
-                    break;
-                case IMAGE:
-                    if (!addNewImagesAlways) {
-                        return;
-                    }
-                    break;
-                case VIDEO:
-                    if (!addNewVideoAlways) {
-                        return;
-                    }
-                    break;
                 }
                 
                 if (CategoryConverter.categoryForFile(fd.getFile()) == category) {
@@ -209,7 +232,7 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
             fireCollectionEvent(FileListChangedEvent.Type.AUDIO_COLLECTION, value);
             addNewAudioAlways = value;
             if(addNewAudioAlways) {
-                ThreadExecutor.newManagedThread(new AddCategory(Category.AUDIO)).start();
+                executor.execute(new AddCategory(Category.AUDIO));
             }
         }
     }
@@ -239,7 +262,7 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
             fireCollectionEvent(FileListChangedEvent.Type.VIDEO_COLLECTION, value);
             addNewVideoAlways = value;
             if(addNewVideoAlways) {
-                ThreadExecutor.newManagedThread(new AddCategory(Category.VIDEO)).start();
+                executor.execute(new AddCategory(Category.VIDEO));
             }
         }
     }

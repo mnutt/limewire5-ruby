@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -17,6 +18,9 @@ import javax.swing.table.TableCellRenderer;
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.FilterPipeline;
+import org.jdesktop.swingx.decorator.SortController;
+import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
@@ -76,7 +80,7 @@ public class TableCellHeaderRenderer extends JXLabel implements TableCellRendere
         
         if(column >= 0) {
             // show the appropriate arrow if this column is sorted
-            SortOrder order = t.getSortOrder(column);
+            SortOrder order = getSortOrder(t, t.convertColumnIndexToModel(column));
             if(order == SortOrder.UNSORTED) { 
                 setIcon(null);
             } else if(order == SortOrder.ASCENDING) {
@@ -88,7 +92,35 @@ public class TableCellHeaderRenderer extends JXLabel implements TableCellRendere
         
         return this;
     }
-
+    
+    /**
+     * Returns the sort order associated with the specified JXTable and model
+     * column index.  The sort order is meaningful only if the column is the 
+     * first sort key column; otherwise, SortOrder.UNSORTED is returned.
+     */
+    private SortOrder getSortOrder(JXTable table, int modelColumn) {
+        FilterPipeline filters = table.getFilters();
+        if (filters == null) {
+            return SortOrder.UNSORTED;
+        }
+        
+        SortController sortController = filters.getSortController();
+        if (sortController == null) {
+            return SortOrder.UNSORTED;
+        }
+        
+        List<? extends SortKey> sortKeys = sortController.getSortKeys();
+        if (sortKeys == null) {
+            return SortOrder.UNSORTED;
+        }
+        
+        SortKey firstKey = SortKey.getFirstSortingKey(sortKeys);
+        if ((firstKey != null) && (firstKey.getColumn() == modelColumn)) {
+            return firstKey.getSortOrder();
+        } else {
+            return SortOrder.UNSORTED;
+        }
+    }
     
     // The following methods override the defaults for performance reasons
     public void validate() {}

@@ -1,5 +1,9 @@
 package org.limewire.ui.swing.library.table;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
@@ -13,8 +17,8 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
     static final int NAME_INDEX = 0;
     static final int TYPE_INDEX = 1;
     static final int EXTENSION_INDEX = 2;
-    static final int SIZE_INDEX = 3;
-    static final int CREATED_INDEX = 4;
+    static final int CREATED_INDEX = 3;
+    static final int SIZE_INDEX = 4;
     static final int AUTHOR_INDEX = 5;
     static final int DESCRIPTION_INDEX = 6;
     
@@ -46,5 +50,24 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
              case DESCRIPTION_INDEX: return "";
          }
          throw new IllegalArgumentException("Unknown column:" + column);
+    }
+
+    @Override
+    public int getDefaultSortColumn() {
+        return NAME_INDEX;
+    }
+
+    @Override
+    public List<Integer> getSecondarySortColumns(int column) {
+        switch (column) {
+        case NAME_INDEX:
+            return Arrays.asList(TYPE_INDEX, SIZE_INDEX);
+        case TYPE_INDEX:
+            return Arrays.asList(NAME_INDEX, SIZE_INDEX);
+        case SIZE_INDEX:
+            return Arrays.asList(NAME_INDEX, TYPE_INDEX);
+        default:
+            return Collections.emptyList();
+        }
     }
 }

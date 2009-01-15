@@ -92,8 +92,8 @@ public class CoreDownloadListManager implements DownloadListManager {
         this.spamManager = spamManager;
         this.itunesDownloadListenerFactory = itunesDownloadListenerFactory;
 	    ObservableElementList.Connector<DownloadItem> downloadConnector = GlazedLists.beanConnector(DownloadItem.class);
-	    downloadItems = GlazedListsFactory.threadSafeList(
-	            GlazedListsFactory.observableElementList(new BasicEventList<DownloadItem>(), downloadConnector));
+	    downloadItems = GlazedListsFactory.observableElementList(
+	            GlazedListsFactory.threadSafeList(new BasicEventList<DownloadItem>()), downloadConnector);
 	    this.queueTimeCalculator = new QueueTimeCalculator(downloadItems);
 	    listenerList.addDownloadListener(new CoreDownloadListener(downloadItems, queueTimeCalculator));
 	    

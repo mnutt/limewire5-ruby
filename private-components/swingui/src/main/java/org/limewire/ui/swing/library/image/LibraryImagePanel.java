@@ -25,7 +25,6 @@ import org.limewire.ui.swing.images.ImageList;
 import org.limewire.ui.swing.images.ImageListModel;
 import org.limewire.ui.swing.library.LibraryOperable;
 import org.limewire.ui.swing.library.sharing.ShareWidget;
-import org.limewire.ui.swing.library.table.menu.MyImageLibraryPopupHandler.ImageLibraryPopupParams;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.SwingUtils;
 
@@ -63,11 +62,10 @@ public class LibraryImagePanel extends JPanel
     private final LocalFileList fileList;
     private final LocalFileList currentFriendFileList;
     
-    private ImageLibraryPopupParams params;
     
     private JScrollPane scrollPane;
     
-    public LibraryImagePanel(String name, ImageLibraryPopupParams params, EventList<LocalFileItem> eventList, 
+    public LibraryImagePanel(String name, EventList<LocalFileItem> eventList, 
             LocalFileList fileList, JScrollPane scrollPane,
             LibraryImageSubPanelFactory factory,
             ShareWidget<File> shareWidget,
@@ -78,7 +76,6 @@ public class LibraryImagePanel extends JPanel
         
         this.fileList = fileList;
         this.currentEventList = eventList;
-        this.params = params;
         this.scrollPane = scrollPane;
         this.factory = factory;
         this.shareWidget = shareWidget;
@@ -135,9 +132,9 @@ public class LibraryImagePanel extends JPanel
     private void createSubPanel(File parent, EventList<LocalFileItem> list){
         LibraryImageSubPanel subPanel;
         if(shareWidget != null )
-            subPanel = factory.createMyLibraryImageSubPanel(parent, list, fileList, params, shareWidget);
+            subPanel = factory.createMyLibraryImageSubPanel(parent, list, fileList, shareWidget);
         else {
-            subPanel = factory.createSharingLibraryImageSubPanel(parent, list, fileList, params, currentFriendFileList);
+            subPanel = factory.createSharingLibraryImageSubPanel(parent, list, fileList, currentFriendFileList);
         }
         panelMap.put(parent, subPanel);
         add(subPanel);

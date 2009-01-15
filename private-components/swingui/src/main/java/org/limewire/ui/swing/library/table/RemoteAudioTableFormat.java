@@ -1,5 +1,9 @@
 package org.limewire.ui.swing.library.table;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
@@ -64,5 +68,22 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
             case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
         }
         throw new IllegalArgumentException("Unknown column:" + column);
+    }
+    
+    @Override
+    public int getDefaultSortColumn() {
+        return ARTIST_INDEX;
+    }
+
+    @Override
+    public List<Integer> getSecondarySortColumns(int column) {
+        switch (column) {
+        case ARTIST_INDEX:
+            return Arrays.asList(ALBUM_INDEX, TRACK_INDEX, NAME_INDEX);
+        case ALBUM_INDEX:
+            return Arrays.asList(TRACK_INDEX, NAME_INDEX);
+        default:
+            return Collections.emptyList();
+        }
     }
 }

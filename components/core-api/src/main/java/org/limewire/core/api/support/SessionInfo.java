@@ -78,6 +78,10 @@ public interface SessionInfo {
     public int getNumQueuedUploads();
 
     public int getSharedFileListSize();
+    
+    public int getManagedFileListSize();
+    
+    public int getAllFriendsFileListSize();
 
     public int getNumActiveDownloads();
 

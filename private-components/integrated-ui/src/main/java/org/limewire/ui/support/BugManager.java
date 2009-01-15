@@ -476,11 +476,11 @@ public final class BugManager {
             public void actionPerformed(ActionEvent e) {
                 if (panelVisible) {
                     bugSpecificsPanel.setVisible(false);
-                    showHideBugLink.setText("Show Bug");
+                    showHideBugLink.setText(I18n.tr("Show Bug"));
                     DIALOG.pack();
                 } else {
                     bugSpecificsPanel.setVisible(true);
-                    showHideBugLink.setText("Hide Bug");
+                    showHideBugLink.setText(I18n.tr("Hide Bug"));
                 }
                 DIALOG.pack();
                 panelVisible = !panelVisible;

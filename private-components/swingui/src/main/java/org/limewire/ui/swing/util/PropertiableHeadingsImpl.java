@@ -107,10 +107,16 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
         }
             break;
         case IMAGE: {
+            Long fileSize = getFileSizeLong(propertiable);
+            
+            boolean insertHyphen = false;
             Object time = propertiable.getProperty(FilePropertyKey.DATE_CREATED);
             if (time != null  && time instanceof Long) {
                 subheading = DATE_FORMAT.format(new java.util.Date((Long) time));
+                insertHyphen = true;
             }
+            
+            subheading = addFileSize(subheading, fileSize, insertHyphen);
         }
             break;
         case PROGRAM: {

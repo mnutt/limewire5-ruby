@@ -1,5 +1,7 @@
 package org.limewire.ui.swing.library.nav;
 
+import javax.swing.SwingUtilities;
+
 import org.limewire.setting.BooleanSetting;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
@@ -16,7 +18,11 @@ class OfflineNavList extends NavList {
         SwingUiSettings.XMPP_SHOW_OFFLINE.addSettingListener(new SettingListener() {
             @Override
             public void settingChanged(SettingEvent evt) {
-                checkVisibility(SwingUiSettings.XMPP_SHOW_OFFLINE.getValue());
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run() {
+                        checkVisibility(SwingUiSettings.XMPP_SHOW_OFFLINE.getValue());                        
+                    }
+                });
             }
         });
     }

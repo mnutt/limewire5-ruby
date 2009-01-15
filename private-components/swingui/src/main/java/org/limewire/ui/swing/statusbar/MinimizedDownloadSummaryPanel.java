@@ -3,7 +3,7 @@ package org.limewire.ui.swing.statusbar;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import org.jdesktop.swingx.JXHyperlink;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.downloads.DownloadSummaryPanel;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -13,7 +13,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
-public class MinimizedDownloadSummaryPanel extends JXHyperlink {
+public class MinimizedDownloadSummaryPanel extends HyperlinkButton {
     
     private DownloadSummaryPanel downloadSummaryPanel;
 

@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -166,7 +167,11 @@ public class SearchBar extends JXPanel {
         LibrarySettings.ALLOW_PROGRAMS.addSettingListener(new SettingListener() {            
             @Override
             public void settingChanged(SettingEvent evt) {
-                configureProgramCategory();
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run() {
+                        configureProgramCategory();                        
+                    }
+                });
             }            
         });
     }

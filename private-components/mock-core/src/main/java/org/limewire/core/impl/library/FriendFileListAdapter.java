@@ -23,8 +23,11 @@ public class FriendFileListAdapter extends FileListAdapter implements FriendFile
     
     @Override
     public void clearCategory(Category category) {
-        // TODO Auto-generated method stub
-        
+
     }
 
+    @Override
+    public void addSnapshotCategory(Category category) {
+
+    }
 }

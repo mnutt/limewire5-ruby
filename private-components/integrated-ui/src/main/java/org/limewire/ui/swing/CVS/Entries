@@ -1,6 +1,5 @@
 /AWTSplashWindow.java/1.2/Mon Jan  5 17:05:13 2009//
 /AllLimeWireModules.java/1.1/Tue Oct 14 15:07:06 2008//
-/DefaultErrorCatcher.java/1.2/Wed Dec  3 18:00:35 2008//
 /GURLHandler.java/1.1/Wed Dec  3 15:19:43 2008//
 /GuiLoader.java/1.1/Wed Aug  6 19:53:33 2008//
 /Initializer.java/1.47/Mon Jan 12 23:41:43 2009//
@@ -10,4 +9,5 @@
 /MessageHandler.java/1.1/Mon Dec 29 21:07:36 2008//
 /SettingsWarningManager.java/1.1/Mon Dec 29 21:07:36 2008//
 /UncaughtExceptionHandlerImpl.java/1.1/Wed Nov 12 08:49:27 2008//
+/DefaultErrorCatcher.java/1.2/Thu Jan 15 03:21:58 2009//
 D

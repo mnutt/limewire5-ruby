@@ -1,10 +1,9 @@
 package org.limewire.ui.support;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,12 +11,10 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -27,6 +24,7 @@ import org.limewire.core.api.support.LocalClientInfo;
 import org.limewire.core.api.support.LocalClientInfoFactory;
 import org.limewire.core.api.support.SessionInfo;
 import org.limewire.core.impl.support.LocalClientInfoImpl;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.MultiLineLabel;
 
@@ -39,11 +37,6 @@ import com.google.inject.Inject;
 public final class FatalBugManager {
     
     @Inject private static volatile LocalClientInfoFactory localClientInfoFactory;    
-    
-    /**
-     * The initial text displayed in the user comments area.
-     */
-    private static final String TEXT_AREA_DESCRIPTION_TEXT =  "Please add any comments you may have (e.g what caused the error). \nThank you and please use English.";
     
     private FatalBugManager() {}
     
@@ -80,138 +73,150 @@ public final class FatalBugManager {
         }
     }
     
-    private static String warning() {
-        String msg = "Ui" + "jt!j" + "t!Mjn" + "fXjs" + "f/!U" + "if!pg"+
-                     "gjdjbm!xfc" + "tjuf!j" + "t!xx" + "x/mj" + "nfxjs" + "f/d" + "pn/";
-        StringBuilder ret = new StringBuilder(msg.length());
-        for(int i = 0; i < msg.length(); i++) {
-            ret.append((char)(msg.charAt(i) - 1));
-        }
-        return ret.toString();
-    }
-    
     /**
      * Reviews the bug.
      */
     public static void reviewBug(final LocalClientInfo info) {
-        final JDialog DIALOG = new LimeJDialog();
-        DIALOG.setTitle("Fatal Error");
-		final Dimension DIALOG_DIMENSION = new Dimension(100, 300);
-		DIALOG.setSize(DIALOG_DIMENSION);
+        final JDialog dialog = new LimeJDialog();
+        dialog.setSize(new Dimension(300, 100));
+        dialog.setTitle("LimeWire Couldn't Start :-(");
+        
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setLayout(new GridBagLayout());
+        
+        String msg = "Sorry, LimeWire ran into a problem while it was starting up. This is usually caused by a problem during installation. Try downloading and installing LimeWire again. If that doesn't fix it, visit www.limewire.com and click on 'Support'. You can also send the bug to us so we can try and fix it.";
+        MultiLineLabel label = new MultiLineLabel(msg, 500);
+        JPanel labelPanel = new JPanel();
+        labelPanel.setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.gridheight = GridBagConstraints.REMAINDER;
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;        
+        labelPanel.add(label, constraints); 
 
-        MultiLineLabel label = new MultiLineLabel(
-            warning() + "\n\n" +
-            "LimeWire has encountered a fatal internal error and will now exit. " +
-            "This is generally caused by a corrupted installation.  Please try " + 
-            "downloading and installing LimeWire again.\n\n" +
-            "To aid with debugging, please click 'Send' to notify LimeWire about the problem. " +
-            "If desired, you can click 'Review' to look at the information that will be sent. " + 
-            "If the problem persists, please visit www.limewire.com and click the 'Support' " + 
-            "link.\n\n" +
-            "Thank You.", 300);        
-		JPanel labelPanel = new JPanel();
-		labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
-		labelPanel.add(Box.createHorizontalGlue());
-		labelPanel.add(label);
-		
-		String textAreaDescription;
-        textAreaDescription = TEXT_AREA_DESCRIPTION_TEXT;
-        
-        final JTextArea userCommentsTextArea = new JTextArea(textAreaDescription);        
+        final JPanel bugSpecificsPanel = new JPanel();
+        bugSpecificsPanel.setLayout(new GridBagLayout());
+        bugSpecificsPanel.setVisible(false);
+
+        // the component with the bug stacktrace
+        JTextArea showBug = new JTextArea(info.toBugReport());
+        showBug.setColumns(50);
+        showBug.setEditable(false);
+        showBug.setCaretPosition(0);
+        showBug.setLineWrap(true);
+        showBug.setWrapStyleWord(true);
+        JScrollPane showBugScroller = new JScrollPane(showBug);
+        showBugScroller.setBorder(BorderFactory.createEtchedBorder());
+        showBugScroller.setPreferredSize( new Dimension(500, 200) );
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        bugSpecificsPanel.add(showBugScroller, constraints);
+
+        final String defaultDesc = "Want to help? Write in some extra info to help us find what's causing LimeWire to crash.";
+        final JTextArea userCommentsTextArea = new JTextArea(defaultDesc);
         userCommentsTextArea.setLineWrap(true);
-        userCommentsTextArea.setWrapStyleWord(true);                        
-        
+        userCommentsTextArea.setWrapStyleWord(true);
+
         // When the user clicks anywhere in the text field, it highlights the whole text
         // so that user could just type over it without having to delete it manually
         userCommentsTextArea.addFocusListener(new FocusAdapter() {
              @Override
             public void focusGained(FocusEvent e) {
-                 if(userCommentsTextArea.getText().equals(TEXT_AREA_DESCRIPTION_TEXT))
-                     userCommentsTextArea.selectAll();                 
+                 if(userCommentsTextArea.getText().equals(defaultDesc)) {
+                    userCommentsTextArea.selectAll();
+                 }
              }
         });
         JScrollPane userCommentsScrollPane = new JScrollPane(userCommentsTextArea);
         userCommentsScrollPane.setBorder(BorderFactory.createEtchedBorder());
-        userCommentsScrollPane.setPreferredSize( new Dimension(300, 80) ); 
+        userCommentsScrollPane.setPreferredSize( new Dimension(500, 60) );
 
-        JPanel buttonPanel = new JPanel();
-        JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			    String userComments = userCommentsTextArea.getText(); 
-                if(!userComments.equals(TEXT_AREA_DESCRIPTION_TEXT))
-                    info.addUserComments(userComments);
-				sendToServlet(info);
-				DIALOG.dispose();
-				System.exit(1);
-			}
-		});
-
-        JButton reviewButton = new JButton("Review");
-        reviewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			    String userComments = userCommentsTextArea.getText(); 
-                if(!userComments.equals(TEXT_AREA_DESCRIPTION_TEXT))
-                    info.addUserComments(userComments);
-                JTextArea textArea = new JTextArea(info.toBugReport());
-                textArea.setColumns(50);
-                textArea.setEditable(false);
-                textArea.selectAll();
-                textArea.copy();
-                textArea.setCaretPosition(0);                
-                JScrollPane scroller = new JScrollPane(textArea);
-                scroller.setBorder(BorderFactory.createEtchedBorder());
-                scroller.setPreferredSize( new Dimension(500, 200) );
-                showMessage(DIALOG, scroller);
-			}
-		});
-
-		JButton discardButton = new JButton("Discard");
-		discardButton.addActionListener(new ActionListener() {
-		    public void actionPerformed(ActionEvent e) {
-		        DIALOG.dispose();
-		        System.exit(1);
-		    }
-		});
-        buttonPanel.add(sendButton);
-        buttonPanel.add(reviewButton);
-        buttonPanel.add(discardButton);
-
-        mainPanel.add(labelPanel);
-        GridBagConstraints constraints = new GridBagConstraints();
+        constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
+        constraints.insets = new Insets(10, 0, 0, 0);
+        bugSpecificsPanel.add(userCommentsScrollPane, constraints);
+
+        final HyperlinkButton showHideBugLink = new HyperlinkButton("Show Bug");
+        showHideBugLink.addActionListener(new AbstractAction() {
+            boolean panelVisible = false;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (panelVisible) {
+                    bugSpecificsPanel.setVisible(false);
+                    showHideBugLink.setText("Show Bug");
+                    dialog.pack();
+                } else {
+                    bugSpecificsPanel.setVisible(true);
+                    showHideBugLink.setText("Hide Bug");
+                }
+                dialog.pack();
+                panelVisible = !panelVisible;
+            }
+        });
+
+        JButton sendButton = new JButton("Send Bug");
+        sendButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String userComments = userCommentsTextArea.getText();
+                if(!userComments.equals(defaultDesc))
+                    info.addUserComments(userComments);
+                sendToServlet(info);
+                dialog.dispose();
+            }
+        });
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        mainPanel.add(labelPanel, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.insets = new Insets(10, 0, 0, 0);
+        constraints.anchor = GridBagConstraints.LINE_START;
+        mainPanel.add(showHideBugLink, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 2;
         constraints.fill = GridBagConstraints.BOTH;
-        constraints.weightx = 1.0;            
+        constraints.weightx = 1.0;
         constraints.weighty = 1.0;
-        constraints.insets = new Insets(20, 0, 6, 0);
-        mainPanel.add(userCommentsScrollPane, constraints);        
+        constraints.insets = new Insets(30, 0, 6, 0);
+        mainPanel.add(bugSpecificsPanel, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        mainPanel.add(sendButton, constraints);
         
-        mainPanel.add(buttonPanel);
-
-        DIALOG.getContentPane().add(mainPanel);
-		DIALOG.pack();
-
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension dialogSize = DIALOG.getSize();
-		DIALOG.setLocation((screenSize.width - dialogSize.width)/2,
-						   (screenSize.height - dialogSize.height)/2);
-       
-		// Get rid of all other windows.
+        mainPanel.validate();
+        dialog.getContentPane().add(mainPanel);
+        dialog.pack();
+        sendButton.requestFocusInWindow();
+        dialog.setLocationRelativeTo(null);
+        
+        // Get rid of all other windows.
         for(Window window : Window.getWindows()) {
-            if(window == DIALOG) {
+            if(window == dialog) {
                 continue;
             }
             window.setVisible(false);
             window.dispose();
         }
         
-        DIALOG.setVisible(true);
-        DIALOG.toFront();
+        dialog.setVisible(true);
+        dialog.toFront();
     }
     
     /**
@@ -219,16 +224,6 @@ public final class FatalBugManager {
      */
     private static void sendToServlet(LocalClientInfo info) {
         new ServletAccessor().getRemoteBugInfo(info);
-    }
-    
-    /**
-     * Shows a message.
-     */
-    private static void showMessage(Component parent, Component toDisplay) {
-		JOptionPane.showMessageDialog(parent,
-				  toDisplay,
-				  "Fatal Error - Review",
-				  JOptionPane.INFORMATION_MESSAGE);	
     }
     
     private static class FatalSessionInfo implements SessionInfo {
@@ -341,6 +336,16 @@ public final class FatalBugManager {
 
         @Override
         public int getSharedFileListSize() {
+            return 0;
+        }
+
+        @Override
+        public int getManagedFileListSize() {
+            return 0;
+        }
+
+        @Override
+        public int getAllFriendsFileListSize() {
             return 0;
         }
 

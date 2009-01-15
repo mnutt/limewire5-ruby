@@ -284,8 +284,12 @@ public class PlayerPanel extends JXPanel {
             if (file != null) {
                 player.loadSong(file);
                 player.playSong();
+                return;
             }
         }
+        
+        // If there is no next song because we are past the start of the list
+        innerPanel.setVisible(false);
     }
     
     private void nextSong() {
@@ -295,8 +299,11 @@ public class PlayerPanel extends JXPanel {
             if (file != null) {
                 player.loadSong(file);
                 player.playSong();
+                return;
             }
         }
+        // If there is no next song because we are at the end of the list
+        innerPanel.setVisible(false);
     }
     
     private class ButtonListener implements ActionListener {

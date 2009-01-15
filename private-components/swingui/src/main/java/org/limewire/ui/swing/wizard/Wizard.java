@@ -8,6 +8,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -157,6 +159,14 @@ public class Wizard extends JPanel {
             dialog = new LimeJDialog(owner, true);
             
             ResizeUtils.forceSize(dialog, size);
+
+            // Focus must be set after the window becomes visible
+            dialog.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowOpened(WindowEvent e) {
+                    setFocus();
+                }
+            });
             
             dialog.setUndecorated(true);
             dialog.add(this);
@@ -177,8 +187,14 @@ public class Wizard extends JPanel {
         }
     }
 
+    private void next(){
+        setCurrentPage(currentPage + 1);
+        setFocus();
+    }
+    
     private void back() {
         setCurrentPage(currentPage - 1);
+        setFocus();
     }
 
     private void updateTitle(WizardPage page) {
@@ -202,10 +218,6 @@ public class Wizard extends JPanel {
         footer.setText(page.getFooter());
     }
     
-    private void next(){
-        setCurrentPage(currentPage + 1);
-    }
-    
     public void setCurrentPage(int step){
         currentPage = step;
         cardLayout.show(mainPanel, currentPage + "");
@@ -213,5 +225,21 @@ public class Wizard extends JPanel {
         continueButton.setVisible(!finishButton.isVisible());
         backButton.setVisible(currentPage != 0);
         updateTitle(pageList.get(currentPage));
+    }
+ 
+    /**
+     * Sets the window focus to the visible of either the continue or finish button.
+     * 
+     * NOTE: This method will have no effect unless the window is visible.  It can not be
+     *        called once on setCurrentPage() because this method is used before the dialogue
+     *        is shown. 
+     *  
+     */
+    private void setFocus() {
+        if (finishButton.isVisible()) {
+            finishButton.requestFocusInWindow();
+        } else {
+            continueButton.requestFocusInWindow();
+        }
     }
 }

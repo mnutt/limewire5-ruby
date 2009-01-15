@@ -3,8 +3,10 @@ package org.limewire.ui.swing.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.FilterPipeline;
@@ -24,9 +26,19 @@ import ca.odell.glazedlists.swing.EventTableModel;
  * This is essentially a copy of glazedLists.EventListJXTableSorting class. The 
  * main difference is this class enforces the column comparators within 
  * AdvancedTableFormat if the table is constructed with an AdvancedTableFormat.
- * Otherwise is reverts to the default GlazedListComparator. 
+ * Otherwise is reverts to the default GlazedListComparator.
+ * 
+ * <p>This class supports multiple column sorts with stable results so that 
+ * equal elements are not reordered by sorts on successive columns.  In 
+ * addition, any column may have secondary sort columns associated with it - 
+ * a single sort request on such a column will result in a multiple-column
+ * sort.  Secondary sort columns are specified by providing a non-null instance
+ * of EventListTableSortFormat in the <code>install()</code> method.</p> 
  */
 public class EventListJXTableSorting {
+    
+    /** Maximum number of sorted columns. */
+    private static final int MAX_SORT_COLUMNS = 4;
 
     /** the sorted list behind the table being sorted */
     private final SortedList sortedList;
@@ -38,20 +50,33 @@ public class EventListJXTableSorting {
 
     /** the original filter pipeline, used in {@link #uninstall} only */
     private final FilterPipeline originalFilterPipeline;
+    
+    /** Format for table sorts on event list. */
+    private final EventListTableSortFormat tableSortFormat;
 
     /**
      * Usually, constructors shouldn't supposed to have side-effects, but this one
      * changes the table's filter pipeline. Therefore we use this private
      * constructor and call through it from the {@link #install} method.
      */
-    private EventListJXTableSorting(JXTable table, SortedList sortedList) {
+    private EventListJXTableSorting(JXTable table, SortedList sortedList,
+            EventListTableSortFormat tableSortFormat) {
         this.table = table;
         this.sortedList = sortedList;
+        this.tableSortFormat = tableSortFormat;
         this.originalFilterPipeline = table.getFilters();
 
         this.sortController = new EventListSortController();
         this.filterPipeline = new EventListFilterPipeline();
         table.setFilters(filterPipeline);
+        
+        // Apply default sort column.
+        if (tableSortFormat != null) {
+            int sortColumn = tableSortFormat.getDefaultSortColumn();
+            if (sortColumn >= 0) {
+                this.sortController.toggleSortOrder(sortColumn, null);
+            }
+        }
     }
 
     /**
@@ -59,7 +84,17 @@ public class EventListJXTableSorting {
      * behaviour for the specified {@link JXTable}.
      */
     public static EventListJXTableSorting install(JXTable table, SortedList sortedList) {
-        return new EventListJXTableSorting(table, sortedList);
+        return new EventListJXTableSorting(table, sortedList, null);
+    }
+
+    /**
+     * Install this {@link EventListJXTableSorting} to provide the sorting
+     * behaviour for the specified {@link JXTable}.  A non-null value for
+     * <code>tableSortFormat</code> provides support for secondary sort columns.
+     */
+    public static EventListJXTableSorting install(JXTable table, SortedList sortedList, 
+            EventListTableSortFormat tableSortFormat) {
+        return new EventListJXTableSorting(table, sortedList, tableSortFormat);
     }
 
     /**
@@ -89,7 +124,7 @@ public class EventListJXTableSorting {
     private class EventListSortController implements SortController {
 
         /** the active sort columns */
-        private final List<SortKey> sortKeys = new ArrayList<SortKey>(1);
+        private final List<SortKey> sortKeys = new ArrayList<SortKey>(MAX_SORT_COLUMNS);
         private final List<SortKey> sortKeysReadOnly = Collections.unmodifiableList(sortKeys);
 
         /** {@inheritDoc} */
@@ -120,9 +155,76 @@ public class EventListJXTableSorting {
                 SortOrder sortOrder = columnSortKey.getSortOrder() == SortOrder.ASCENDING ? SortOrder.DESCENDING : SortOrder.ASCENDING;
                 columnSortKey = new SortKey(sortOrder, columnIndex);
             }
+            
+            // Create new list of sort keys based on existing list.
+            List<? extends SortKey> newSortKeys = sortKeys;
+            
+            // Apply secondary sort columns if available.
+            if (tableSortFormat != null) {
+                List<Integer> columnList = tableSortFormat.getSecondarySortColumns(columnIndex);
+                // Apply secondary sort columns in reverse order, from least 
+                // significant to most significant.  If possible, we use the
+                // existing sort key for the column.
+                for (int i = columnList.size(); i > 0; i--) {
+                    Integer secondaryColumn = columnList.get(i - 1);
+                    SortKey sortKey = findSortKey(secondaryColumn, sortKeys);
+                    newSortKeys = buildSortKeys(sortKey, newSortKeys);
+                }
+            }
 
-            // prepare the new sort order
-            setSortKeys(Collections.singletonList(columnSortKey));
+            // Apply primary sort column, and set sort keys to perform sort.
+            setSortKeys(buildSortKeys(columnSortKey, newSortKeys));
+        }
+        
+        /**
+         * Returns the SortKey corresponding to the specified column from the 
+         * specified list.  If a meaningful SortKey is not found, then a 
+         * default SortKey with ascending order is returned. 
+         */
+        private SortKey findSortKey(int column, List<? extends SortKey> sortKeys) {
+            // Search for sort key with matching column.
+            for (SortKey sortKey : sortKeys) {
+                if ((sortKey.getSortOrder() != SortOrder.UNSORTED) && 
+                    (sortKey.getColumn() == column)) {
+                    return new SortKey(sortKey.getSortOrder(), column);
+                }
+            }
+            
+            // Not found so return default sort key.
+            return new SortKey(SortOrder.ASCENDING, column);
+        }
+
+        /**
+         * Returns a list of sort keys containing the specified first key, 
+         * followed by the specified list of additional keys.  This method 
+         * provides support for sorting over multiple columns.
+         */
+        private List<? extends SortKey> buildSortKeys(SortKey firstKey, 
+                List<? extends SortKey> sortKeys) {
+            
+            // Create SortKey list and unique column set. 
+            List<SortKey> newSortKeys = new ArrayList<SortKey>();
+            Set<Integer> columnSet = new HashSet<Integer>();
+            
+            // Add first sort key.
+            newSortKeys.add(firstKey);
+            columnSet.add(firstKey.getColumn());
+            
+            // Add remaining sort keys.  Only keys with a meaningful sort order
+            // are added, and duplicate columns are omitted.
+            for (SortKey sortKey : sortKeys) {
+                if (newSortKeys.size() >= MAX_SORT_COLUMNS) {
+                    break;
+                }
+                if ((sortKey.getSortOrder() != SortOrder.UNSORTED) &&
+                        !columnSet.contains(sortKey.getColumn())) {
+                    newSortKeys.add(sortKey);
+                    columnSet.add(sortKey.getColumn());
+                }
+            }
+
+            // Return new list.
+            return newSortKeys;
         }
 
         /** {@inheritDoc} */

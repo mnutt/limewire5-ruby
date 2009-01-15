@@ -35,8 +35,7 @@ import org.limewire.ui.swing.images.ImageCellRenderer;
 import org.limewire.ui.swing.images.ImageList;
 import org.limewire.ui.swing.images.ImageListModel;
 import org.limewire.ui.swing.library.table.Configurable;
-import org.limewire.ui.swing.library.table.menu.MyImageLibraryPopupHandler;
-import org.limewire.ui.swing.library.table.menu.MyImageLibraryPopupHandler.ImageLibraryPopupParams;
+import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.table.TableRendererEditor;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -71,8 +70,7 @@ public class LibraryImageSubPanel extends JPanel implements ListEventListener<Lo
     
     private HyperlinkButton shareFolderButton;
     
-    public LibraryImageSubPanel(final File parentFolder, EventList<LocalFileItem> eventList, LocalFileList fileList, 
-            ImageLibraryPopupParams params) {       
+    public LibraryImageSubPanel(final File parentFolder, EventList<LocalFileItem> eventList, LocalFileList fileList) {       
         GuiUtils.assignResources(this); 
         
         setBackground(backgroundColor);
@@ -98,7 +96,6 @@ public class LibraryImageSubPanel extends JPanel implements ListEventListener<Lo
         Line line = Line.createHorizontalLine(lineColor, lineSize);
         
         imageList = new ImageList(currentEventList, fileList);        
-        imageList.setPopupHandler(new MyImageLibraryPopupHandler(this, params));
         
         // top row should never be tall than 30pixels, the bottom row(table, should fill any remaining space
         setLayout(new MigLayout("gap 0, insets 18 4 10 4",     //layout constraints
@@ -124,6 +121,10 @@ public class LibraryImageSubPanel extends JPanel implements ListEventListener<Lo
         eventList.addListEventListener(this);
     }
     
+    public void setPopupHandler(TablePopupHandler popupHandler) {
+        imageList.setPopupHandler(popupHandler);
+    }
+    
     public void addShareFolderButtonAction(ActionListener listener){
         shareFolderButton.addActionListener(listener);
     }
@@ -143,6 +144,10 @@ public class LibraryImageSubPanel extends JPanel implements ListEventListener<Lo
     
     public List<LocalFileItem> getSelectedItems(){
         return new ArrayList<LocalFileItem>(imageList.getListSelection());
+    }
+    
+    public void setSelectedIndex(int index) {
+        imageList.setSelectedIndex(index);
     }
 
     

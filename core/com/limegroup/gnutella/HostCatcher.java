@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.limewire.collection.BucketQueue;
 import org.limewire.collection.Cancellable;
 import org.limewire.collection.FixedSizeSortedList;
@@ -37,6 +38,7 @@ import org.limewire.collection.RandomAccessMap;
 import org.limewire.collection.RandomOrderHashMap;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.core.settings.FilterSettings;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionPoint;
@@ -53,6 +55,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+
 import com.limegroup.gnutella.bootstrap.TcpBootstrap;
 import com.limegroup.gnutella.bootstrap.UDPHostCache;
 import com.limegroup.gnutella.bootstrap.UDPHostCacheFactory;
@@ -141,20 +144,20 @@ public class HostCatcher implements Service {
     
     private static final Comparator<ExtendedEndpoint> DHT_COMPARATOR = 
         new Comparator<ExtendedEndpoint>() {
-            public int compare(ExtendedEndpoint e1, ExtendedEndpoint e2) {
-                DHTMode mode1 = e1.getDHTMode();
-                DHTMode mode2 = e2.getDHTMode();
-                if ((mode1.equals(DHTMode.ACTIVE) && !mode2.equals(DHTMode.ACTIVE))
-                        || (mode1.equals(DHTMode.PASSIVE) && mode2.equals(DHTMode.INACTIVE))) {
-                    return -1;
-                } else if ((mode2.equals(DHTMode.ACTIVE) && !mode1.equals(DHTMode.ACTIVE))
-                        || (mode2.equals(DHTMode.PASSIVE) && mode1.equals(DHTMode.INACTIVE))) {
-                    return 1;
-                } else {
-                    return 0;
-                }
+        public int compare(ExtendedEndpoint e1, ExtendedEndpoint e2) {
+            DHTMode mode1 = e1.getDHTMode();
+            DHTMode mode2 = e2.getDHTMode();
+            if ((mode1.equals(DHTMode.ACTIVE) && !mode2.equals(DHTMode.ACTIVE)) ||
+                    (mode1.equals(DHTMode.PASSIVE) && mode2.equals(DHTMode.INACTIVE))) {
+                return -1;
+            } else if ((mode2.equals(DHTMode.ACTIVE) && !mode1.equals(DHTMode.ACTIVE)) ||
+                    (mode2.equals(DHTMode.PASSIVE) && mode1.equals(DHTMode.INACTIVE))) {
+                return 1;
+            } else {
+                return 0;
             }
-        };
+        }
+    };
 
     // NOTE: ENDPOINT_SET, FREE_ULTRAPEER_SLOTS_SET & FREE_LEAF_SLOTS_SET
     //       are actually Maps that point to themselves so that we can
@@ -173,7 +176,8 @@ public class HostCatcher implements Service {
      * LOCKING: obtain this' monitor before modifying either.  */
     private final BucketQueue<ExtendedEndpoint> ENDPOINT_QUEUE = 
         new BucketQueue<ExtendedEndpoint>(new int[] {NORMAL_SIZE,GOOD_SIZE});
-    private final Map<ExtendedEndpoint, ExtendedEndpoint> ENDPOINT_SET = new HashMap<ExtendedEndpoint, ExtendedEndpoint>();
+    private final Map<ExtendedEndpoint, ExtendedEndpoint> ENDPOINT_SET =
+        new HashMap<ExtendedEndpoint, ExtendedEndpoint>();
     
     /**
      * <tt>Set</tt> of hosts advertising free Ultrapeer connection slots.
@@ -190,7 +194,8 @@ public class HostCatcher implements Service {
     /**
      * map of locale (string) to sets (of endpoints).
      */
-    private final Map<String, Set<ExtendedEndpoint>> LOCALE_SET_MAP =  new HashMap<String, Set<ExtendedEndpoint>>();
+    private final Map<String, Set<ExtendedEndpoint>> LOCALE_SET_MAP =
+        new HashMap<String, Set<ExtendedEndpoint>>();
     
     /**
      * number of endpoints to keep in the locale set
@@ -208,17 +213,19 @@ public class HostCatcher implements Service {
      * INVARIANT: permanentHosts contains no duplicates and contains exactly
      *  the same elements and permanentHostsSet
      * LOCKING: obtain this' monitor before modifying either */
-    private final FixedSizeSortedList<ExtendedEndpoint> permanentHosts=
-        new FixedSizeSortedList<ExtendedEndpoint>(ExtendedEndpoint.priorityComparator(),
-                                   PERMANENT_SIZE);
-    private final Set<ExtendedEndpoint> permanentHostsSet=new HashSet<ExtendedEndpoint>();
+    private final FixedSizeSortedList<ExtendedEndpoint> permanentHosts =
+        new FixedSizeSortedList<ExtendedEndpoint>(
+                ExtendedEndpoint.priorityComparator(),
+                PERMANENT_SIZE);
+    private final Set<ExtendedEndpoint> permanentHostsSet =
+        new HashSet<ExtendedEndpoint>();
     
     /**
      * List of the hosts that were restored from disk.
      * INVARIANT: a subset of permanentHosts.  
      * LOCKING: this
      */
-    private final List<ExtendedEndpoint> restoredHosts=
+    private final List<ExtendedEndpoint> restoredHosts =
         new FixedSizeSortedList<ExtendedEndpoint>(
                 ExtendedEndpoint.priorityComparator(),
                 PERMANENT_SIZE);
@@ -370,16 +377,16 @@ public class HostCatcher implements Service {
      * Currently, this schedules occasional services.
      */
     public void start() {
-        LOG.trace("START scheduling");
-        
         scheduleServices();
     }
     
     public String getServiceName() {
         return org.limewire.i18n.I18nMarker.marktr("Peer Locator");
     }
+    
     public void initialize() {
-    }  
+    }
+    
     public void stop() {
         try {
             write();
@@ -397,6 +404,10 @@ public class HostCatcher implements Service {
                 LOG.trace("restoring hosts on probation");
                 List<Endpoint> toAdd;
                 synchronized(HostCatcher.this) {
+                    if(LOG.isTraceEnabled()) {
+                        LOG.trace("Restoring " + PROBATION_HOSTS.size() +
+                                " probated hosts");
+                    }
                     toAdd = new ArrayList<Endpoint>(PROBATION_HOSTS);
                     PROBATION_HOSTS.clear();
                 }
@@ -407,12 +418,14 @@ public class HostCatcher implements Service {
         };
         // Recover hosts on probation every minute.
         backgroundExecutor.scheduleWithFixedDelay(probationRestorer, 
-            PROBATION_RECOVERY_WAIT_TIME, PROBATION_RECOVERY_TIME, TimeUnit.MILLISECONDS);
+                PROBATION_RECOVERY_WAIT_TIME, PROBATION_RECOVERY_TIME,
+                TimeUnit.MILLISECONDS);
             
         // Try to fetch hosts whenever we need them.
         // Start it immediately, so that if we have no hosts
         // (because of a fresh installation) we will connect.
-        backgroundExecutor.scheduleWithFixedDelay(FETCHER, 0, 2*1000, TimeUnit.MILLISECONDS);
+        backgroundExecutor.scheduleWithFixedDelay(FETCHER, 0, 2*1000,
+                TimeUnit.MILLISECONDS);
         LOG.trace("STOP scheduling");
     }
 
@@ -436,6 +449,8 @@ public class HostCatcher implements Service {
      */
     private void rank(Collection<? extends IpPort> hosts) {
         if(needsPongRanking()) {
+            if(LOG.isTraceEnabled())
+                LOG.trace("Sending " + hosts.size() + " hosts to pinger");
             uniqueHostPinger.rank(
                 hosts,
                 // cancel when connected -- don't send out any more pings
@@ -447,7 +462,6 @@ public class HostCatcher implements Service {
             );
         }
     }
-    
     
     public void sendMessageToAllHosts(Message m, MessageListener listener, Cancellable c) {
         uniqueHostPinger.rank(getAllHosts(), listener, c, m);
@@ -473,34 +487,41 @@ public class HostCatcher implements Service {
      * @return A Collection of ExtendedEndpoints that support the DHT.
      */
     public synchronized List<ExtendedEndpoint> getDHTSupportEndpoint(int minVersion) {
-        List<ExtendedEndpoint> hostsList = new ArrayList<ExtendedEndpoint>();
-        IntSet classC = new IntSet();
+        List<ExtendedEndpoint> hosts = new ArrayList<ExtendedEndpoint>();
+        IntSet masked = new IntSet();
+        boolean filter = ConnectionSettings.FILTER_CLASS_C.getValue();
         for(ExtendedEndpoint host : getAllHosts()) {
-            if(host.supportsDHT() 
-                    && host.getDHTVersion() >= minVersion &&
-                    (!ConnectionSettings.FILTER_CLASS_C.getValue() ||
-                    classC.add(NetworkUtils.getMaskedIP(host.getInetAddress(), PONG_MASK)))) {
-                hostsList.add(host);
+            if(host.supportsDHT() && host.getDHTVersion() >= minVersion) {
+                int ip = NetworkUtils.getMaskedIP(host.getInetAddress(), PONG_MASK);
+                if(!filter || masked.add(ip))
+                    hosts.add(host);
             }
         }
-        Collections.sort(hostsList, DHT_COMPARATOR);
-        return hostsList;
+        Collections.sort(hosts, DHT_COMPARATOR);
+        return hosts;
     }
     
     /**
      * Determines if UDP Pongs need to be sent out.
      */
     private synchronized boolean needsPongRanking() {
-        if(connectionServices.isFullyConnected())
+        if(connectionServices.isFullyConnected()) {
+            if(LOG.isTraceEnabled())
+                LOG.trace("Pong ranking not needed - fully connected");
             return false;
+        }
         int have = connectionManager.get().getInitializedConnections().size();
-        if(have >= MAX_CONNECTIONS)
+        if(have >= MAX_CONNECTIONS) {
+            if(LOG.isTraceEnabled())
+                LOG.trace("Pong ranking not needed - have max connections");
             return false;
-            
+        }
         long now = System.currentTimeMillis();
-        if(now > lastAllowedPongRankTime)
+        if(now > lastAllowedPongRankTime) {
+            if(LOG.isTraceEnabled())
+                LOG.trace("Pong ranking not allowed - last time has passed");
             return false;
-
+        }
         int size;
         if(connectionServices.isSupernode()) {
             synchronized(this) {
@@ -511,10 +532,11 @@ public class HostCatcher implements Service {
                 size = FREE_LEAF_SLOTS_SET.size();
             }
         }
-
-        int preferred = connectionManager.get().getPreferredConnectionCount();
-        
-        return size < preferred - have;
+        int preferred = connectionManager.get().getPreferredConnectionCount();        
+        boolean needsPongRanking =  size < preferred - have;
+        if(!needsPongRanking)
+            LOG.trace("Pong ranking not needed - have enough hosts to try");
+        return needsPongRanking;
     }
     
     /**
@@ -525,20 +547,15 @@ public class HostCatcher implements Service {
      * @modifies this
      * @effects read hosts from the given file.  
      */
-    void read(File hostFile) throws FileNotFoundException, 
-												 IOException {
-        LOG.trace("entered HostCatcher.read(File)");
+    void read(File hostFile) throws FileNotFoundException, IOException {
+        LOG.trace("Reading host file");
         BufferedReader in = null;
         try {
             in = new BufferedReader(new FileReader(hostFile));
-            while (true) {
-                String line=in.readLine();
-                if(LOG.isTraceEnabled())
-                    LOG.trace("read line: " + line);
-
-                if (line==null)
+            while(true) {
+                String line = in.readLine();
+                if(line == null)
                     break;
-    
                 try {
                     ExtendedEndpoint e = ExtendedEndpoint.read(line); 
                     if(e.isUDPHostCache()) {
@@ -549,18 +566,23 @@ public class HostCatcher implements Service {
                             restoredHosts.add(e);
                         }
                         endpointAdded();
+                    } else {
+                        if(LOG.isTraceEnabled())
+                            LOG.trace("File contains invalid host: " + line);
                     }
                 } catch (ParseException pe) {
+                    LOG.debug("Exception parsing host file", pe);
                     continue;
                 }
             }
         } finally {
             try {
-                if( in != null )
+                if(in != null)
                     in.close();
-            } catch(IOException e) {}
+            } catch(IOException e) {
+                LOG.debug("Exception closing host file", e);
+            }
         }
-        LOG.trace("left HostCatcher.read(File)");
     }
 
 	/**
@@ -578,8 +600,8 @@ public class HostCatcher implements Service {
      *  is prioritized by rough probability of being good.
      */
     synchronized void write(File hostFile) throws IOException {
-        repOk();
-        
+        checkInvariants();
+        LOG.trace("Writing host file");
         if(dirty || udpHostCache.isWriteDirty()) {
             FileWriter out = new FileWriter(hostFile);
                 
@@ -652,8 +674,8 @@ public class HostCatcher implements Service {
             endpoint.setDHTVersion(dhtVersion);
             endpoint.setDHTMode(mode);
             
-            if (dhtManager.get().isRunning()) {
-                // If active DHT endpoint, immediately send to dht manager
+            if(dhtManager.get().isRunning()) {
+                // Send active and passive DHT endpoints to the DHT manager
                 if(mode.equals(DHTMode.ACTIVE)) {
                     SocketAddress address = new InetSocketAddress(
                             endpoint.getAddress(), endpoint.getPort());
@@ -672,10 +694,9 @@ public class HostCatcher implements Service {
         
         // if the pong carried packed IP/Ports, add those as their own
         // endpoints.
-        Collection<IpPort> packed = 
-            ConnectionSettings.FILTER_CLASS_C.getValue() ?
-                    NetworkUtils.filterOnePerClassC(pr.getPackedIPPorts()) :
-                        pr.getPackedIPPorts();
+        Collection<IpPort> packed = pr.getPackedIPPorts();
+        if(ConnectionSettings.FILTER_CLASS_C.getValue())
+            packed = NetworkUtils.filterOnePerClassC(packed);
         rank(packed);
         
         for(IpPort ipp : packed) {            
@@ -714,31 +735,35 @@ public class HostCatcher implements Service {
         //Add the endpoint, forcing it to be high priority if marked pong from 
         //an ultrapeer.
             
-        if (pr.isUltrapeer()) {
-            // Add it to our free leaf slots list if it has free leaf slots and
-            // is an Ultrapeer.
+        if(pr.isUltrapeer()) {
+            // Add it to our free leaf slots list if it has free leaf slots
             if(pr.hasFreeLeafSlots()) {
+                LOG.trace("Adding host to free leaf slot set");
                 addToFreeSlotSet(endpoint, FREE_LEAF_SLOTS_SET);
                 // Return now if the pong is not also advertising free 
                 // ultrapeer slots.
                 if(!pr.hasFreeUltrapeerSlots()) {
+                    LOG.trace("Host has no free UP slots");
                     return true;
                 }
             } 
             
-            // Add it to our free leaf slots list if it has free leaf slots and
-            // is an Ultrapeer.
-            if(pr.hasFreeUltrapeerSlots() 
-               || //or if the locales match and it has free locale pref. slots
-               (ApplicationSettings.LANGUAGE.getValue()
-                .equals(pr.getClientLocale()) && pr.getNumFreeLocaleSlots() > 0)) {
+            // Add it to our free UP slots list if it has UP leaf slots, or if
+            // the locales match and it has free locale preferencing slots
+            String myLocale = ApplicationSettings.LANGUAGE.getValue();
+            if(pr.hasFreeUltrapeerSlots() || 
+                    (myLocale.equals(pr.getClientLocale()) &&
+                            pr.getNumFreeLocaleSlots() > 0)) {
+                LOG.trace("Adding host to free UP slot set");
                 addToFreeSlotSet(endpoint, FREE_ULTRAPEER_SLOTS_SET);
                 return true;
             } 
-            
+            LOG.trace("Adding host with good priority");
             return add(endpoint, GOOD_PRIORITY); 
-        } else
+        } else {
+            LOG.trace("Adding host with normal priority");
             return add(endpoint, NORMAL_PRIORITY);
+        }
     }
     
     /**
@@ -813,8 +838,6 @@ public class HostCatcher implements Service {
     public boolean add(Endpoint e, boolean forceHighPriority) {
         if(!isValidHost(e))
             return false;
-            
-        
         if (forceHighPriority)
             return add(e, GOOD_PRIORITY);
         else
@@ -830,18 +853,13 @@ public class HostCatcher implements Service {
     public boolean add(Endpoint e, boolean forceHighPriority, String locale) {
         if(!isValidHost(e))
             return false;        
-        
         //need ExtendedEndpoint for the locale
-        if (forceHighPriority)
+        if(forceHighPriority)
             return add(new ExtendedEndpoint(e.getAddress(), 
-                                            e.getPort(),
-                                            locale),
-                       GOOD_PRIORITY);
+                    e.getPort(), locale), GOOD_PRIORITY);
         else
             return add(new ExtendedEndpoint(e.getAddress(),
-                                            e.getPort(),
-                                            locale), 
-                       NORMAL_PRIORITY);
+                    e.getPort(), locale), NORMAL_PRIORITY);
     }
 
     /**
@@ -852,15 +870,11 @@ public class HostCatcher implements Service {
      * @return <tt>true</tt> if the endpoint was added, otherwise <tt>false</tt>
      */
     public boolean add(Endpoint host, int priority) {
-        if (LOG.isTraceEnabled())
-            LOG.trace("adding host "+host);
         if(host instanceof ExtendedEndpoint)
             return add((ExtendedEndpoint)host, priority);
-        
         //need ExtendedEndpoint for the locale
         return add(new ExtendedEndpoint(host.getAddress(), 
-                                        host.getPort()), 
-                   priority);
+                host.getPort()), priority);
     }
 
     /**
@@ -878,34 +892,35 @@ public class HostCatcher implements Service {
      * @return true iff e was actually added 
      */
     private boolean add(ExtendedEndpoint e, int priority) {
-        repOk();
+        checkInvariants();
         
-        if(e.isUDPHostCache())
+        if(e.isUDPHostCache()) {
+            LOG.trace("Adding host as UHC");
             return addUDPHostCache(e);
+        }
         
-        boolean ret = false;
+        boolean added = false;
         synchronized(this) {
             //Add to permanent list, regardless of whether it's actually in queue.
             //Note that this modifies e.
             addPermanent(e);            
-            if (! (ENDPOINT_SET.containsKey(e))) {
-                ret=true;
+            if(!(ENDPOINT_SET.containsKey(e))) {
+                added = true;
                 //Add to temporary list. Adding e may eject an older point from
                 //queue, so we have to cleanup the set to maintain
                 //rep. invariant.
                 ENDPOINT_SET.put(e, e);
                 ExtendedEndpoint ejected = ENDPOINT_QUEUE.insert(e, priority);
-                if (ejected!=null) {
+                if(ejected != null) {
                     ENDPOINT_SET.remove(ejected);
-                }         
-
+                    if(LOG.isTraceEnabled())
+                        LOG.trace("Ejected host " + ejected);
+                }
             }
         }
-        
-        endpointAdded();        
-
-        repOk();
-        return ret;
+        endpointAdded();
+        checkInvariants();
+        return added;
     }
 
     /**
@@ -918,19 +933,25 @@ public class HostCatcher implements Service {
      * @return true iff e was actually added 
      */
     private synchronized boolean addPermanent(ExtendedEndpoint e) {
-        if (networkInstanceUtils.isPrivateAddress(e.getInetAddress()))
+        if(networkInstanceUtils.isPrivateAddress(e.getInetAddress())) {
+            LOG.trace("Not permanently adding host with private address");
             return false;
-        if (permanentHostsSet.contains(e))
+        }
+        if(permanentHostsSet.contains(e)) {
             //TODO: we could adjust the key
+            LOG.trace("Not permanently adding duplicate host");
             return false;
+        }
 
         addToLocaleMap(e); //add e to locale mapping 
         
-        ExtendedEndpoint removed=permanentHosts.insert(e);
-        if (removed!=e) {
+        ExtendedEndpoint removed = permanentHosts.insert(e);
+        if(removed != e) {
             //Was actually added...
+            if(LOG.isTraceEnabled())
+                LOG.trace("Permanently adding host " + e);
             permanentHostsSet.add(e);
-            if (removed!=null)
+            if(removed != null)
                 //...and something else was removed.
                 permanentHostsSet.remove(removed);
             dirty = true;
@@ -938,6 +959,7 @@ public class HostCatcher implements Service {
         } else {
             //Uptime not good enough to add.  (Note that this is 
             //really just an optimization of the above case.)
+            LOG.trace("Not permanently adding host with low uptime");
             return false;
         }
     }
@@ -945,11 +967,14 @@ public class HostCatcher implements Service {
     /** Removes e from permanentHostsSet and permanentHosts. 
      *  @return true iff this was modified */
     private synchronized boolean removePermanent(ExtendedEndpoint e) {
-        boolean removed1=permanentHosts.remove(e);
-        boolean removed2=permanentHostsSet.remove(e);
-        assert removed1==removed2 : "Queue "+removed1+" but set "+removed2;
-        if(removed1)
+        boolean removed1 = permanentHosts.remove(e);
+        boolean removed2 = permanentHostsSet.remove(e);
+        assert removed1 == removed2 : "Queue "+removed1+" but set "+removed2;
+        if(removed1) {
             dirty = true;
+            if(LOG.isTraceEnabled())
+                LOG.trace("Removed permanent host " + e);
+        }
         return removed1;
     }
 
@@ -964,10 +989,11 @@ public class HostCatcher implements Service {
      *  <tt>false</tt>
      */
     private boolean isValidHost(Endpoint host) {
+        if(LOG.isTraceEnabled())
+            LOG.trace("Validating host " + host);
         // caches will validate for themselves.
         if(host.isUDPHostCache()) {
-            if(LOG.isDebugEnabled())
-                LOG.debug(host + " is valid: UDP host cache");
+            LOG.trace("Host is valid: UHC");
             return true;
         }
         
@@ -975,14 +1001,12 @@ public class HostCatcher implements Service {
         try {
             addr = host.getHostBytes();
         } catch(UnknownHostException uhe) {
-            if(LOG.isDebugEnabled())
-                LOG.debug(host + " is invalid: unknown host exception");
+            LOG.trace("Host is invalid: unknown host");
             return false;
         }
         
         if(networkInstanceUtils.isPrivateAddress(addr)) {
-            if(LOG.isDebugEnabled())
-                LOG.debug(host + " is invalid: private address");
+            LOG.trace("Host is invalid: private address");
             return false;
         }
 
@@ -992,36 +1016,33 @@ public class HostCatcher implements Service {
         //Skip if this would connect us to our listening port.  TODO: I think
         //this check is too strict sometimes, which makes testing difficult.
         if(networkInstanceUtils.isMe(addr, host.getPort())) {
-            if(LOG.isDebugEnabled())
-                LOG.debug(host + " is invalid: own address");
+            LOG.trace("Host is invalid: own address");
             return false;
         }
 
         //Skip if this host is banned.
         if(!ipFilter.get().allow(addr)) {
-            if(LOG.isDebugEnabled())
-                LOG.debug(host + " is invalid: blacklisted");
+            if(FilterSettings.USE_NETWORK_FILTER.getValue())
+                LOG.trace("Using network filter");
+            LOG.trace("Host is invalid: blacklisted");
             return false;
         }
         
         synchronized(this) {
             // Don't add this host if it has previously failed.
             if(EXPIRED_HOSTS.contains(host)) {
-                if(LOG.isDebugEnabled())
-                    LOG.debug(host + " is invalid: expired");
+                LOG.trace("Host is invalid: expired");
                 return false;
             }
             
             // Don't add this host if it has previously rejected us.
             if(PROBATION_HOSTS.contains(host)) {
-                if(LOG.isDebugEnabled())
-                    LOG.debug(host + " is invalid: on probation");
+                LOG.trace("Host is invalid: on probation");
                 return false;
             }
         }
         
-        if(LOG.isDebugEnabled())
-            LOG.debug(host + " is valid");
+        LOG.trace("Host is valid");
         return true;
     }
     
@@ -1029,8 +1050,8 @@ public class HostCatcher implements Service {
     public boolean isHostTLSCapable(IpPort ipp) {
         if(ipp instanceof Connectable) {
             boolean capable = ((Connectable)ipp).isTLSCapable();
-            if(LOG.isDebugEnabled())
-                LOG.debug(ipp + (capable ? " is" : " is not") + " TLS capable: connectable");
+            if(LOG.isTraceEnabled())
+                LOG.trace(ipp + (capable ? " is" : " is not") + " TLS capable");
             return capable;
         }
         
@@ -1048,13 +1069,13 @@ public class HostCatcher implements Service {
         }
         
         if(ee == null) {
-            if(LOG.isDebugEnabled())
-                LOG.debug(ipp + " is not TLS capable: no extended endpoint data");
+            if(LOG.isTraceEnabled())
+                LOG.trace(ipp + " is not known to be TLS capable");
             return false;
         } else {
             boolean capable = ee.isTLSCapable();
-            if(LOG.isDebugEnabled())
-                LOG.debug(ipp + (capable ? " is" : " is not") + " TLS capable: extended endpoint");
+            if(LOG.isTraceEnabled())
+                LOG.trace(ipp + (capable ? " is" : " is not") + " TLS capable");
             return capable;
         }
     }
@@ -1073,18 +1094,23 @@ public class HostCatcher implements Service {
         Endpoint p;
         EndpointObserver observer;
         synchronized (this) {
-            if(_catchersWaiting.isEmpty())
+            if(_catchersWaiting.isEmpty()) {
+                LOG.trace("No observers waiting");
                 return; // no one waiting.
+            }
             
             p = getAnEndpointInternal();
-            if (p == null)
+            if(p == null) {
+                LOG.trace("No hosts available");
                 return; // no more endpoints to give.
+            }
             
             observer = _catchersWaiting.remove(0);
         }
         
         // It is important that this is outside the lock.  Otherwise HostCatcher's lock
         // is exposed to the outside world.
+        LOG.trace("Returning a host to a waiting observer");
         observer.handleEndpoint(p);
     }
 
@@ -1096,8 +1122,10 @@ public class HostCatcher implements Service {
         // we don't want to expose our lock to the observer.
         synchronized(this) {
             p = getAnEndpointInternal();
-            if(p == null)
-                _catchersWaiting.add(observer);    
+            if(p == null) {
+                LOG.trace("Couldn't get a host immediately; waiting");
+                _catchersWaiting.add(observer);
+            }
         }
         
         if(p != null)
@@ -1120,8 +1148,10 @@ public class HostCatcher implements Service {
         
         synchronized(this) {
             p = getAnEndpointInternal();
-            if(p == null && observer != null)
-                _catchersWaiting.add(observer);    
+            if(p == null && observer != null) {
+                LOG.trace("Couldn't get a host immediately; waiting");
+                _catchersWaiting.add(observer);
+            }
         }
         
         return p;
@@ -1129,6 +1159,7 @@ public class HostCatcher implements Service {
     
     /** Removes an oberserver from wanting to get an endpoint. */
     public synchronized void removeEndpointObserver(EndpointObserver observer) {
+        LOG.trace("Removing waiting observer");
         _catchersWaiting.remove(observer);
     }
 
@@ -1146,15 +1177,16 @@ public class HostCatcher implements Service {
         getAnEndpoint(observer);
         try {
             synchronized (observer) {
-                if (observer.getEndpoint() == null) {
-                    observer.wait(); // only stops waiting when
-                                     // handleEndpoint is called.
+                if(observer.getEndpoint() == null) {
+                    // only stops waiting when handleEndpoint is called.
+                    observer.wait();
                 }
                 return observer.getEndpoint();
             }
         } catch (InterruptedException ie) {
             // If we got interrupted, we must remove the waiting observer.
             synchronized (this) {
+                LOG.trace("Removing waiting observer");
                 _catchersWaiting.remove(observer);
                 throw ie;
             }
@@ -1174,17 +1206,19 @@ public class HostCatcher implements Service {
      *            e, at least temporarily; false otherwise
      */
     public synchronized void doneWithConnect(Endpoint e, boolean success) {
-        //Normal host: update key.  TODO3: adjustKey() operation may be more
+        //Normal host: update key.  TODO: adjustKey() operation may be more
         //efficient.
-        if (! (e instanceof ExtendedEndpoint))
+        if(!(e instanceof ExtendedEndpoint)) {
             //Should never happen, but I don't want to update public
             //interface of this to operate on ExtendedEndpoint.
+            LOG.warn("Endpoint in doneWithConnect() is not ExtendedEndpoint");
             return;
+        }
         
-        ExtendedEndpoint ee=(ExtendedEndpoint)e;
+        ExtendedEndpoint ee = (ExtendedEndpoint)e;
 
         removePermanent(ee);
-        if (success) {
+        if(success) {
             ee.recordConnectionSuccess();
         } else {
             _failures++;
@@ -1200,10 +1234,11 @@ public class HostCatcher implements Service {
      *  of quick-connect settings, etc.  Returns null if this is empty.
      */
     protected ExtendedEndpoint getAnEndpointInternal() {
-        //LOG.trace("entered getAnEndpointInternal");
         // If we're already an ultrapeer and we know about hosts with free
         // ultrapeer slots, try them.
-        if(connectionServices.isSupernode() && !FREE_ULTRAPEER_SLOTS_SET.isEmpty()) {
+        if(connectionServices.isSupernode() &&
+                !FREE_ULTRAPEER_SLOTS_SET.isEmpty()) {
+            LOG.trace("UP: returning host with free UP slots");
             return preferenceWithLocale(FREE_ULTRAPEER_SLOTS_SET);
                                     
         } 
@@ -1211,23 +1246,27 @@ public class HostCatcher implements Service {
         // free leaf slots, try those.
         else if(connectionServices.isShieldedLeaf() && 
                 !FREE_LEAF_SLOTS_SET.isEmpty()) {
+            LOG.trace("Leaf: returning host with free leaf slots");
             return preferenceWithLocale(FREE_LEAF_SLOTS_SET);
         } 
         // Otherwise, assume we'll be a leaf and we're trying to connect, since
         // this is more common than wanting to become an ultrapeer and because
         // we want to fill any remaining leaf slots if we can.
         else if(!FREE_ULTRAPEER_SLOTS_SET.isEmpty()) {
+            LOG.trace("Returning host with free UP slots");
             return preferenceWithLocale(FREE_ULTRAPEER_SLOTS_SET);
         } 
         // Otherwise, might as well use the leaf slots hosts up as well
         // since we added them to the size and they can give us other info
         else if(!FREE_LEAF_SLOTS_SET.isEmpty()) {
+            LOG.trace("Returning host with free leaf slots");
             Iterator<ExtendedEndpoint> iter = FREE_LEAF_SLOTS_SET.keySet().iterator();
             ExtendedEndpoint ee = iter.next();
             FREE_LEAF_SLOTS_SET.remove(ee);
             return ee;
         } 
-        else if (! ENDPOINT_QUEUE.isEmpty()) {
+        else if(!ENDPOINT_QUEUE.isEmpty()) {
+            LOG.trace("Returning ordinary host");
             //pop e from queue and remove from set.
             ExtendedEndpoint e= ENDPOINT_QUEUE.extractMax();
             ExtendedEndpoint removed=ENDPOINT_SET.remove(e);
@@ -1235,13 +1274,15 @@ public class HostCatcher implements Service {
             assert removed == e : "Rep. invariant for HostCatcher broken.";
             return e;
         } 
-        else if (!restoredHosts.isEmpty()) {
+        else if(!restoredHosts.isEmpty()) {
+            LOG.trace("Returning restored host with long uptime");
             // highest partition has highest uptimes
             List<ExtendedEndpoint> best = uptimePartitions.getLastPartition();
             ExtendedEndpoint e = best.remove((int)(Math.random() * best.size()));
             return e;
         }
         else {
+            LOG.trace("No hosts to return");
             return null;
         }
     }
@@ -1251,7 +1292,8 @@ public class HostCatcher implements Service {
      * tries to return an endpoint that matches the locale of this client
      * from the passed in set.
      */
-    private ExtendedEndpoint preferenceWithLocale(RandomAccessMap<ExtendedEndpoint, ExtendedEndpoint> base) {
+    private ExtendedEndpoint preferenceWithLocale(
+            RandomAccessMap<ExtendedEndpoint, ExtendedEndpoint> base) {
 
         String loc = ApplicationSettings.LANGUAGE.getValue();
         ExtendedEndpoint ret = null;
@@ -1261,6 +1303,7 @@ public class HostCatcher implements Service {
                 Set<ExtendedEndpoint> locales = LOCALE_SET_MAP.get(loc);
                 for(ExtendedEndpoint e : base.keySet()) {
                     if(locales.contains(e)) {
+                        LOG.trace("Found a host with matching locale");
                         locales.remove(e);
                         ret = e;
                         break;
@@ -1269,8 +1312,12 @@ public class HostCatcher implements Service {
             }
         }
         
-        if (ret == null)
+        // TODO: why do we choose deterministically if we're matching
+        // locales and randomly if we're not?
+        if(ret == null) {
+            LOG.trace("Did not find a host with matching locale");
             ret = base.getKeyAt(RND.nextInt(base.size()));
+        }
         
         Object removed = base.remove(ret);
         assert ret == removed : "Key: " + ret + ", value: " + removed;
@@ -1314,15 +1361,15 @@ public class HostCatcher implements Service {
      * @return a <tt>Collection</tt> containing 10 <tt>IpPort</tt> hosts that 
      *  have advertised they have free ultrapeer slots
      */
-    public synchronized Collection<IpPort> getUltrapeersWithFreeUltrapeerSlots(int num) {
+    public synchronized Collection<IpPort>
+    getUltrapeersWithFreeUltrapeerSlots(int num) {
         return getPreferencedCollection(FREE_ULTRAPEER_SLOTS_SET,
-                                        ApplicationSettings.LANGUAGE.getValue(),num);
+                ApplicationSettings.LANGUAGE.getValue(), num);
     }
 
     public synchronized Collection<IpPort>
-        getUltrapeersWithFreeUltrapeerSlots(String locale,int num) {
-        return getPreferencedCollection(FREE_ULTRAPEER_SLOTS_SET,
-                                        locale,num);
+    getUltrapeersWithFreeUltrapeerSlots(String locale, int num) {
+        return getPreferencedCollection(FREE_ULTRAPEER_SLOTS_SET, locale, num);
     }
     
 
@@ -1334,22 +1381,24 @@ public class HostCatcher implements Service {
      * @return a <tt>Collection</tt> containing 10 <tt>IpPort</tt> hosts that 
      *  have advertised they have free leaf slots
      */
-    public synchronized Collection<IpPort> getUltrapeersWithFreeLeafSlots(int num) {
+    public synchronized Collection<IpPort>
+    getUltrapeersWithFreeLeafSlots(int num) {
         return getPreferencedCollection(FREE_LEAF_SLOTS_SET,
-                                        ApplicationSettings.LANGUAGE.getValue(),num);
+                ApplicationSettings.LANGUAGE.getValue(), num);
     }
     
     public synchronized Collection<IpPort>
-        getUltrapeersWithFreeLeafSlots(String locale,int num) {
-        return getPreferencedCollection(FREE_LEAF_SLOTS_SET,
-                                        locale,num);
+    getUltrapeersWithFreeLeafSlots(String locale, int num) {
+        return getPreferencedCollection(FREE_LEAF_SLOTS_SET, locale, num);
     }
 
     /**
      * preference the set so we try to return those endpoints that match
      * passed in locale "loc"
      */
-    private Collection<IpPort> getPreferencedCollection(Map<? extends ExtendedEndpoint, ? extends ExtendedEndpoint> base, String loc, int num) {
+    private Collection<IpPort> getPreferencedCollection(
+            Map<? extends ExtendedEndpoint, ? extends ExtendedEndpoint> base,
+            String loc, int num) {
         if(loc == null || loc.equals(""))
             loc = ApplicationSettings.DEFAULT_LOCALE.getValue();
 
@@ -1362,19 +1411,25 @@ public class HostCatcher implements Service {
             for(ExtendedEndpoint e : locales) {
                 if(hosts.size() >= num)
                     break;
-                if(base.containsKey(e) && 
-                        (!filter ||
-                        masked.add(NetworkUtils.getMaskedIP(e.getInetAddress(), PONG_MASK))))
-                    hosts.add(e);
+                if(base.containsKey(e)) { 
+                    int ip = NetworkUtils.getMaskedIP(e.getInetAddress(), PONG_MASK);
+                    if(!filter || masked.add(ip))
+                        hosts.add(e);
+                }
             }
+            if(LOG.isTraceEnabled())
+                LOG.trace("Found " + hosts.size() + " locale-matched hosts");
         }
         
         for(IpPort ipp : base.keySet()) {
             if(hosts.size() >= num)
                 break;
-            if (!filter || masked.add(NetworkUtils.getMaskedIP(ipp.getInetAddress(), PONG_MASK)))
+            int ip = NetworkUtils.getMaskedIP(ipp.getInetAddress(), PONG_MASK);
+            if(!filter || masked.add(ip))
                 hosts.add(ipp);
         }
+        if(LOG.isTraceEnabled())
+            LOG.trace("Found " + hosts.size() + " hosts");
         
         return hosts;
     }
@@ -1408,10 +1463,17 @@ public class HostCatcher implements Service {
      * @effects removes all entries from this
      */
     public synchronized void clear() {
+        LOG.trace("Clearing hosts");
         FREE_LEAF_SLOTS_SET.clear();
         FREE_ULTRAPEER_SLOTS_SET.clear();
+        LOCALE_SET_MAP.clear();
         ENDPOINT_QUEUE.clear();
         ENDPOINT_SET.clear();
+        restoredHosts.clear();
+        PROBATION_HOSTS.clear();
+        EXPIRED_HOSTS.clear();
+        permanentHosts.clear();
+        permanentHostsSet.clear();
     }
     
     public UDPPinger getPinger() {
@@ -1420,45 +1482,24 @@ public class HostCatcher implements Service {
 
     /** Enable very slow rep checking?  Package access for use by
      *  HostCatcherTest. */
-    static boolean DEBUG=false;
+    static boolean DEBUG = false;
 
     
     /** Checks invariants. Very slow; method body should be enabled for testing
      *  purposes only. */
-    protected void repOk() {
-        if (!DEBUG)
-            return;
-
-        synchronized(this) {
-            //Check ENDPOINT_SET == ENDPOINT_QUEUE
-            outer:
-            for (Iterator iter=ENDPOINT_SET.keySet().iterator(); iter.hasNext(); ) {
-                Object e=iter.next();
-                for (Iterator iter2=ENDPOINT_QUEUE.iterator(); 
-                     iter2.hasNext();) {
-                    if (e.equals(iter2.next()))
-                        continue outer;
+    protected void checkInvariants() {
+        if(DEBUG) {
+            synchronized(this) {
+                // Check ENDPOINT_SET == ENDPOINT_QUEUE
+                for(ExtendedEndpoint ee : ENDPOINT_QUEUE) {
+                    assert ENDPOINT_SET.containsKey(ee);
                 }
-                throw new IllegalStateException("Couldn't find "+e+" in queue");
-            }
-            for (Iterator iter=ENDPOINT_QUEUE.iterator(); iter.hasNext(); ) {
-                Object e=iter.next();
-                assert e instanceof ExtendedEndpoint;
-                assert ENDPOINT_SET.containsKey(e);
-            }
-        
-            //Check permanentHosts === permanentHostsSet
-            for (Iterator iter=permanentHosts.iterator(); iter.hasNext(); ) {
-                Object o=iter.next();
-                assert o instanceof ExtendedEndpoint;
-                assert permanentHostsSet.contains(o);
-            }
-            for (Iterator iter=permanentHostsSet.iterator(); iter.hasNext(); ) {
-                Object e=iter.next();
-                assert e instanceof ExtendedEndpoint;
-                assert permanentHosts.contains(e) :
-                            "Couldn't find "+e+" from "
-                            +permanentHostsSet+" in "+permanentHosts;
+                assert ENDPOINT_QUEUE.size() == ENDPOINT_SET.size();
+                // Check permanentHostsSet === permanentHosts
+                for(ExtendedEndpoint ee : permanentHosts) {
+                    assert permanentHostsSet.contains(ee);
+                }
+                assert permanentHosts.size() == permanentHostsSet.size();
             }
         }
     }
@@ -1477,7 +1518,7 @@ public class HostCatcher implements Service {
     }
 
     private File getHostsFile() {
-        return new File(CommonUtils.getUserSettingsDir(),"gnutella.net");
+        return new File(CommonUtils.getUserSettingsDir(), "gnutella.net");
     }
     
     /**
@@ -1485,7 +1526,7 @@ public class HostCatcher implements Service {
      * removal from our hosts list.
      */
     public void recoverHosts() {
-        LOG.debug("recovering hosts file");
+        LOG.debug("Recovering hosts file");
         
         synchronized(this) {
             PROBATION_HOSTS.clear();
@@ -1513,6 +1554,7 @@ public class HostCatcher implements Service {
      * @param host the <tt>Endpoint</tt> to put on probation
      */
     public synchronized void putHostOnProbation(Endpoint host) {
+        LOG.trace("Putting a host on probation");
         PROBATION_HOSTS.add(host);
         if(PROBATION_HOSTS.size() > PROBATION_HOSTS_SIZE) {
             PROBATION_HOSTS.remove(PROBATION_HOSTS.iterator().next());
@@ -1527,6 +1569,7 @@ public class HostCatcher implements Service {
      * @param host the <tt>Endpoint</tt> to expire
      */
     public synchronized void expireHost(Endpoint host) {
+        LOG.trace("Expiring a host");
         EXPIRED_HOSTS.add(host);
         if(EXPIRED_HOSTS.size() > EXPIRED_HOSTS_SIZE) {
             EXPIRED_HOSTS.remove(EXPIRED_HOSTS.iterator().next());
@@ -1544,18 +1587,19 @@ public class HostCatcher implements Service {
         
         /**
          * The next allowed multicast time.
+         * Incremented after each attempted multicast fetch.
          */
         private long nextAllowedMulticastTime = 0; // Immediately
         
         /**
-         * The next time we're allowed to udp fetch.
-         * Incremented after each succesful udp fetch.
+         * The next allowed UDP fetch time.
+         * Incremented after each attempted UDP fetch.
          */
         private long nextAllowedUdpTime = 0; // Immediately
         
         /**
-         * The next time we're allowed to tcp fetch.
-         * Incremeneted after each succesful tcp fetch.
+         * The next allowed TCP fetch time.
+         * Incremented after each attempted TCP fetch.
          */
         private long nextAllowedTcpTime = Long.MAX_VALUE; // Not just yet
         
@@ -1577,13 +1621,13 @@ public class HostCatcher implements Service {
          */
         public synchronized void run() {            
             if(ConnectionSettings.DO_NOT_BOOTSTRAP.getValue()) {
-                LOG.debug("Not bootstrapping");
+                LOG.trace("Not bootstrapping");
                 return;
             }
 
             // If no one's waiting for an endpoint, don't get any.
             if(_catchersWaiting.isEmpty()) {
-                LOG.debug("No catchers waiting");
+                LOG.trace("No observers waiting");
                 return;
             }
 
@@ -1612,9 +1656,17 @@ public class HostCatcher implements Service {
          */
         private synchronized boolean needsHosts() {
             synchronized(HostCatcher.this) { 
-                return getNumHosts() == 0 ||
-                    (!connectionServices.isConnected() && _failures > 100);
+                if(getNumHosts() == 0) {
+                    LOG.trace("Need hosts: none known");
+                    return true;
+                }
+                if(!connectionServices.isConnected() && _failures > 100) {
+                    LOG.trace("Need hosts: not connected after 100 failures");
+                    return true;
+                }
             }
+            LOG.trace("Do not need hosts");
+            return false;
         }
         
         /**
@@ -1690,8 +1742,6 @@ public class HostCatcher implements Service {
     }
 
     //Unit test: tests/com/.../gnutella/HostCatcherTest.java   
-    //           tests/com/.../gnutella/bootstrap/HostCatcherFetchTest.java
-    //
     @SuppressWarnings("unused")
     @InspectableContainer
     private class HCInspectables {

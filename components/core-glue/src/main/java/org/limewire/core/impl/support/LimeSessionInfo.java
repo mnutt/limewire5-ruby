@@ -1,5 +1,6 @@
 package org.limewire.core.impl.support;
 
+import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.api.support.SessionInfo;
 import org.limewire.net.SocketsManager;
 import org.limewire.nio.ByteBufferCache;
@@ -24,7 +25,7 @@ import com.limegroup.gnutella.simpp.SimppManager;
 import com.limegroup.gnutella.uploader.UploadSlotManager;
 
 /** An implementation of SessionInfo that gets it's statistics from various LimeWire components. */
-public class LimeSessionInfo implements SessionInfo {
+class LimeSessionInfo implements SessionInfo {
     
     private final NIODispatcher dispatcher;
     private final DownloadManager downloadManager;
@@ -46,18 +47,19 @@ public class LimeSessionInfo implements SessionInfo {
     private final UploadSlotManager uploadSlotManager;
     private final ConnectionServices connectionServices;
     private final LifecycleManager lifecycleManager;
+    private final RemoteLibraryManager remoteLibraryManager;
 
     @Inject
     public LimeSessionInfo(NIODispatcher dispatcher, DownloadManager downloadManager,
-            Statistics statistics, ConnectionManager connectionManager,
-            ContentManager contentManager, CreationTimeCache creationTimeCache,
-            DiskController diskController, SocketsManager socketsManager,
-            ByteBufferCache byteBufferCache, UDPService udpService, Acceptor acceptor,
-            DownloadServices downloadServices, UploadServices uploadServices,
-            ConnectionCheckerManager connectionCheckerManager, NIODispatcher nioDispatcher,
-            FileManager fileManager, SimppManager simppManager,
-            UploadSlotManager uploadSlotManager, ConnectionServices connectionServices,
-            LifecycleManager lifecycleManager) {
+                           Statistics statistics, ConnectionManager connectionManager,
+                           ContentManager contentManager, CreationTimeCache creationTimeCache,
+                           DiskController diskController, SocketsManager socketsManager,
+                           ByteBufferCache byteBufferCache, UDPService udpService, Acceptor acceptor,
+                           DownloadServices downloadServices, UploadServices uploadServices,
+                           ConnectionCheckerManager connectionCheckerManager, NIODispatcher nioDispatcher,
+                           FileManager fileManager, SimppManager simppManager,
+                           UploadSlotManager uploadSlotManager, ConnectionServices connectionServices,
+                           LifecycleManager lifecycleManager, RemoteLibraryManager remoteLibraryManager) {
         this.dispatcher = dispatcher;
         this.downloadManager = downloadManager;
         this.statistics = statistics;
@@ -78,6 +80,7 @@ public class LimeSessionInfo implements SessionInfo {
         this.uploadSlotManager = uploadSlotManager;
         this.connectionServices = connectionServices;
         this.lifecycleManager = lifecycleManager;
+        this.remoteLibraryManager = remoteLibraryManager;
     }
 
     
@@ -236,6 +239,16 @@ public class LimeSessionInfo implements SessionInfo {
     @Override
     public int getSharedFileListSize() {
         return fileManager.getGnutellaFileList().size();
+    }
+
+    @Override
+    public int getManagedFileListSize() {
+        return fileManager.getManagedFileList().size();
+    }
+
+    @Override
+    public int getAllFriendsFileListSize() {
+        return remoteLibraryManager.getAllFriendsFileList().size();
     }
 
     @Override

@@ -1,28 +1,24 @@
 package org.limewire.ui.swing.library.sharing.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.core.settings.LibrarySettings;
-import org.limewire.listener.SwingSafePropertyChangeSupport;
 import org.limewire.ui.swing.library.sharing.SharingTarget;
 import org.limewire.ui.swing.util.CategoryUtils;
 
 public class FileShareModel implements LibraryShareModel {
-    private File file;
+    private final File file;
 
-    private LocalFileList gnutellaList;
+    private final LocalFileList gnutellaList;
 
-    private ShareListManager shareListManager;
+    private final ShareListManager shareListManager;
     
-    private final PropertyChangeSupport support = new SwingSafePropertyChangeSupport(this);
-
-    public FileShareModel(ShareListManager shareListManager) {
+    public FileShareModel(ShareListManager shareListManager, File file) {
         this.shareListManager = shareListManager;
+        this.file = file;
         gnutellaList = shareListManager.getGnutellaShareList();
     }   
     
@@ -45,15 +41,6 @@ public class FileShareModel implements LibraryShareModel {
         }
     }
 
-
-    /**
-     * @param file  The File whose sharing info will be displayed
-     */
-    public void setFile(File file){
-        File oldFile = this.file;
-        this.file = file;
-        support.firePropertyChange("file", oldFile, file);
-    } 
     
     @Override
     public boolean isGnutellaNetworkSharable() {
@@ -70,14 +57,4 @@ public class FileShareModel implements LibraryShareModel {
         }
     }
 
-    @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        support.addPropertyChangeListener(listener);
-    }
-    
-    @Override
-    public void removePropertyChangeListener(PropertyChangeListener listener){
-        support.removePropertyChangeListener(listener);
-    }
-    
 }

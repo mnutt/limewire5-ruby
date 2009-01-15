@@ -21,6 +21,7 @@ import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
+import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.FileUtils;
 import org.limewire.util.StringUtils;
@@ -73,7 +74,17 @@ public class IconLabelRenderer extends JXPanel implements TableCellRenderer {
             } else {
                 label.setIcon(iconManager.getIconForFile(((LocalFileItem) item).getFile()));
             }
-            label.setText(item.getFileName());
+            
+            if(item instanceof LocalFileItem) {
+                LocalFileItem localFileItem = (LocalFileItem) item;
+                if(localFileItem.isIncomplete()) {
+                    label.setText(I18n.tr("{0} (incomplete)", item.getFileName()));
+                } else {
+                    label.setText(item.getFileName());
+                }
+            } else {
+                label.setText(item.getFileName());
+            }
             
         } else if (value instanceof VisualSearchResult){
             

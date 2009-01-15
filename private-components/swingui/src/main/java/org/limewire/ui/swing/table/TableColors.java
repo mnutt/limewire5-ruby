@@ -35,22 +35,22 @@ public class TableColors {
     @Resource
     private Color gridColor;
     
-    private ColorHighlighter evenHighLighter;
+    private ColorHighlighter evenHighlighter;
     
     private ColorHighlighter oddHighlighter;
     
     public TableColors() {
         GuiUtils.assignResources(this);
         
-        evenHighLighter = new ColorHighlighter(HighlightPredicate.EVEN, evenColor, evenForeground, selectionColor, selectionForeground);
+        evenHighlighter = new ColorHighlighter(HighlightPredicate.EVEN, evenColor, evenForeground, selectionColor, selectionForeground);
         oddHighlighter = new ColorHighlighter(HighlightPredicate.ODD, oddColor, oddForeground, selectionColor, selectionForeground);
     }
     
-    public ColorHighlighter getEvenHighLighter() {
-        return evenHighLighter;
+    public ColorHighlighter getEvenHighlighter() {
+        return evenHighlighter;
     }
     
-    public ColorHighlighter getOddHighLighter() {
+    public ColorHighlighter getOddHighlighter() {
         return oddHighlighter;
     }
     

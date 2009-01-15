@@ -1,7 +1,6 @@
 package org.limewire.ui.swing.statusbar;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,7 +51,6 @@ class ConnectionStatusPanel extends JXPanel {
     @Resource private Icon full;
     @Resource private Icon turbo;
     @Resource private Font font;
-    @Resource private Color linkForeground;
 
     @Inject
     ConnectionStatusPanel(final GnutellaConnectionManager gnutellaConnectionManager) {
@@ -72,7 +70,6 @@ class ConnectionStatusPanel extends JXPanel {
         tryAgainButton = new HyperlinkButton("Try Again");
         tryAgainButton.setFont(font);
         tryAgainButton.setVisible(false);
-        tryAgainButton.setForeground(linkForeground);
         
         tryAgainButton.addActionListener(new ActionListener() {
             @Override

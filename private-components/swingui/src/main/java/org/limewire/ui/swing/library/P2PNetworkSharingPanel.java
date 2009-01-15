@@ -37,7 +37,7 @@ public class P2PNetworkSharingPanel extends SharingPanel {
 
         setInnerNavLayout(new MigLayout("insets 0, gap 0, fill, wrap, hidemode 3", "[138!]", ""));
         
-        getHeaderPanel().setText(I18n.tr("Share with {0}", getFullPanelName()));
+        getHeaderPanel().setText(I18n.tr("Share with the P2P Network"));
 
         createMyCategories(libraryManager.getLibraryManagedList().getSwingModel(),
                            shareListManager.getGnutellaShareList());

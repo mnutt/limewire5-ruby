@@ -57,7 +57,8 @@
 	<classpathentry kind="src" path="components/core-settings/src/main/java"/>
 	<classpathentry kind="src" path="lib/resources/linux"/>
 	<classpathentry kind="src" path="lib/resources/osx"/>
-	<classpathentry kind="src" path="components/xmpp-api/src/main/java"/>
+	<classpathentry kind="src" output="components/xmpp-api/build/classes" path="components/xmpp-api/src/main/java"/>
+	<classpathentry kind="src" path="components/xmpp-api/src/test/java"/>
 	<classpathentry kind="lib" path="lib/jars/clink.jar"/>
 	<classpathentry kind="lib" path="lib/jars/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/jars/compile/cocoaFoundation.jar"/>
@@ -88,7 +89,7 @@
 	<classpathentry kind="lib" path="lib/jars/base64-2.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jcip-annotations.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jxlayer.jar"/>
-	<classpathentry kind="lib" path="lib/jars/dnsjava-2.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/jars/dnsjava-2.0.6.jar" sourcepath="lib/sources/dnsjava-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/commons-math-1.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/jars/tests/jmock/cglib-nodep.jar"/>

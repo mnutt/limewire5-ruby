@@ -84,7 +84,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         setSelectionModel(model);
         model.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
         this.listSelection = model.getSelected();
-        setHighlighters(tableColors.getEvenHighLighter(), tableColors.getOddHighLighter(), 
+        setHighlighters(tableColors.getEvenHighlighter(), tableColors.getOddHighlighter(), 
                 new ColorHighlighter(new DisabledHighlightPredicate(this), null, tableColors.getDisabledForegroundColor(), null, tableColors.getDisabledForegroundColor()));
        
         setFillsViewportHeight(true);
@@ -110,7 +110,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
      * Creates a column handler that handles saving column state
      */
     private void setupColumnHandler() {
-        columnStateHandler = new ColumnStateHandler(this, getTabelFormat());
+        columnStateHandler = new ColumnStateHandler(this, getTableFormat());
     }
     
     protected void setupCellRenderers(LibraryTableFormat<T> format) {
@@ -134,7 +134,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         menu.show(getTableHeader(), p.x, p.y);
     }
     
-    public LibraryTableFormat<T> getTabelFormat() {
+    public LibraryTableFormat<T> getTableFormat() {
         return format;
     }
     

@@ -55,9 +55,8 @@ public class StatusPanel extends JXPanel {
         
         minDownloadPanel.setVisible(false);
         
-        Component friendPanel = friendStatusPanel.getComponent();
-        friendPanel.setVisible(false);
-        ResizeUtils.forceHeight(friendPanel, height);
+        Component chatButton = friendStatusPanel.getComponent();
+        chatButton.setVisible(false);
         
         JPanel leftPanel = new JPanel(new MigLayout("insets 0, gap 0, fill, nogrid"));
         JPanel centerPanel = new JPanel(new MigLayout("insets 0, gap 0, filly, nogrid, center"));
@@ -70,8 +69,8 @@ public class StatusPanel extends JXPanel {
         leftPanel.add(connectionStatus, "growy, gapbefore 2, gaptop 2");
         leftPanel.add(sharedFileCountPanel, "growy, gaptop 2");
         centerPanel.add(minDownloadPanel, "growy, gaptop 2");
-        rightPanel.add(miniPlayerPanel, "gapafter 4");
-        rightPanel.add(friendPanel, "growy");
+        rightPanel.add(miniPlayerPanel, "gapafter 4, hidemode 3");
+        rightPanel.add(chatButton, "growy, growy, hidemode 3");
         
         add(leftPanel, BorderLayout.WEST);
         add(centerPanel, BorderLayout.CENTER);

@@ -48,10 +48,10 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
 	    //Store the basic information ...	    
 	    _limewireVersion = LimeWireUtils.getLimeWireVersion();
 	    _javaVersion = VersionUtils.getJavaVersion();
-        _javaVendor = prop("java.vendor");
+        _javaVendor = System.getProperty("java.vendor", "?");
 	    _os = OSUtils.getOS();
-	    _osVersion = prop("os.version");
-	    _architecture = prop("os.arch");
+	    _osVersion = System.getProperty("os.version", "?");
+	    _architecture = System.getProperty("os.arch", "?");
 	    _freeMemory = "" + Runtime.getRuntime().freeMemory();
 	    _totalMemory = "" + Runtime.getRuntime().totalMemory();
 	    _peakThreads = "" + ManagementFactory.getThreadMXBean().getPeakThreadCount();
@@ -119,6 +119,8 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
             _waitingDownloaders = "" + sessionInfo.getNumWaitingDownloads();
             _acceptedIncoming = "" +sessionInfo.acceptedIncomingConnection();
             _sharedFiles = "" +sessionInfo.getSharedFileListSize();
+            _managedFiles = "" +sessionInfo.getManagedFileListSize();
+            _friendFiles = "" +sessionInfo.getAllFriendsFileListSize();
             _guessCapable = "" + sessionInfo.isGUESSCapable();
             _solicitedCapable= ""+sessionInfo.canReceiveSolicited();
             _latestSIMPP= "" + sessionInfo.getSimppVersion();
@@ -170,16 +172,6 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
         pw.flush();
         _otherThreads = sw.toString();            
 	}
-    
-    /** 
-	 * Returns the System property with the given name, or
-     * "?" if it is unknown. 
-	 */
-    private final String prop(String name) {
-        String value = System.getProperty(name);
-        if (value == null) return "?";
-        else return value;
-    }	
 
     /** 
      * Returns an array of map entries in this info.
@@ -252,6 +244,8 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
         if(!_userComments.equals("")) {
             append(params, USER_COMMENTS, _userComments);
         }
+        append(params, MANAGED_FILES, _managedFiles);
+        append(params, FRIEND_FILES, _friendFiles);
         // APPEND OTHER PARAMETERS HERE.
         
         return params.toArray(new Map.Entry[params.size()]);
@@ -262,7 +256,6 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
      */
     public String getShortParamList() {
         StringBuilder sb = new StringBuilder(2000);
-        //for (NameValuePair nvp : getPostRequestParams())
         for (Map.Entry entry : getPostRequestParams()) {
             sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
         }

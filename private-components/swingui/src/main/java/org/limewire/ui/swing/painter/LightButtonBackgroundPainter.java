@@ -28,9 +28,28 @@ public class LightButtonBackgroundPainter extends ButtonBackgroundPainter {
     @Resource private Color bevelRightGradientBottom;
     @Resource private Color bevelBottom;
     
+    
+    /**
+     * A constructor used to override the default curvature of the button.
+     *  This is/would be used "outside" the app in areas such as the setup wizard
+     *  and intent screen where the default skin does not completely apply.  
+     */
+    public LightButtonBackgroundPainter(int arcWidth, int arcHeight) {
+        GuiUtils.assignResources(this);
+        
+        this.arcWidth = arcWidth;
+        this.arcHeight = arcHeight;
+        
+        init();
+    }
+    
     public LightButtonBackgroundPainter() {
         GuiUtils.assignResources(this);
                 
+        init();
+    }
+    
+    private void init() {
         GradientPaint gradientRight = new GradientPaint(0,0, this.bevelRightGradientTop, 
                 0, 1, this.bevelRightGradientBottom, false);
         

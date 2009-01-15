@@ -1,6 +1,7 @@
 package org.limewire.ui.swing.library;
 
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.FileItem;
@@ -82,7 +83,11 @@ class LibraryPanel extends AbstractFileListPanel {
 
         @Override
         public void settingChanged(SettingEvent evt) {
-            setText();
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run() {
+                    setText();                    
+                }
+            });
         }
     }        
 }

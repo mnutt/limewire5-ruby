@@ -1,13 +1,19 @@
 package org.limewire.ui.swing.library.sharing;
 
 import java.io.File;
-import java.util.Collection;
 
+
+import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
-import org.limewire.core.api.friend.Friend;
+import org.limewire.core.api.friend.FriendEvent;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.ShareListManager;
+import org.limewire.listener.EventListener;
+import org.limewire.listener.ListenerSupport;
 import org.limewire.ui.swing.components.ShapeDialog;
+
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.impl.ThreadSafeList;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -26,22 +32,22 @@ public class ShareWidgetFactoryImpl implements ShareWidgetFactory {
 
     private ShareListManager shareListManager;
 
-    private Collection<Friend> allFriends;
+    private ThreadSafeList<SharingTarget> allFriendsThreadSafe;
 
     private ShapeDialog shapeDialog;
     
+    
     @Inject
-    public ShareWidgetFactoryImpl(ShareListManager shareListManager,
-            @Named("known") Collection<Friend> allFriends, ShapeDialog shapeDialog){
+    public ShareWidgetFactoryImpl(ShareListManager shareListManager, ShapeDialog shapeDialog){
         this.shareListManager = shareListManager;
-        this.allFriends = allFriends;
+        allFriendsThreadSafe = GlazedListsFactory.threadSafeList(new BasicEventList<SharingTarget>());
         this.shapeDialog = shapeDialog;
     }
 
     @Override
     public ShareWidget<File> createFileShareWidget() {
         if(fileShareWidget == null){
-            fileShareWidget = new FileShareWidget(shareListManager, allFriends, shapeDialog);
+            fileShareWidget = new FileShareWidget(shareListManager, allFriendsThreadSafe, shapeDialog);
         }
         return fileShareWidget;
     }
@@ -49,7 +55,7 @@ public class ShareWidgetFactoryImpl implements ShareWidgetFactory {
     @Override
     public ShareWidget<LocalFileItem[]> createMultiFileShareWidget() {
         if(multiFileShareWidget == null){
-            multiFileShareWidget = new MultiFileShareWidget(shareListManager, allFriends, shapeDialog);
+            multiFileShareWidget = new MultiFileShareWidget(shareListManager, allFriendsThreadSafe, shapeDialog);
         }
         return multiFileShareWidget;
     }
@@ -57,7 +63,7 @@ public class ShareWidgetFactoryImpl implements ShareWidgetFactory {
     @Override
     public ShareWidget<LocalFileItem[]> createMultiFileUnshareWidget() {
         if(multiFileUnshareWidget == null){
-            multiFileUnshareWidget = new MultiFileUnshareWidget(shareListManager, allFriends, shapeDialog);
+            multiFileUnshareWidget = new MultiFileUnshareWidget(shareListManager, allFriendsThreadSafe, shapeDialog);
         }
         return multiFileUnshareWidget;
     }
@@ -65,9 +71,28 @@ public class ShareWidgetFactoryImpl implements ShareWidgetFactory {
     @Override
     public ShareWidget<Category> createCategoryShareWidget() {
         if(categoryShareWidget == null){
-            categoryShareWidget = new CategoryShareWidget(shareListManager, allFriends, shapeDialog);
+            categoryShareWidget = new CategoryShareWidget(shareListManager, allFriendsThreadSafe, shapeDialog);
         }
         return categoryShareWidget;
+    }
+    
+    @Inject
+    void register(@Named("known") ListenerSupport<FriendEvent> knownListeners) {
+
+        knownListeners.addListener(new EventListener<FriendEvent>() {
+            @Override
+            public void handleEvent(FriendEvent event) {
+                switch (event.getType()) {
+                case ADDED:
+                    allFriendsThreadSafe.add(new SharingTarget(event.getSource()));
+                    break;
+                case REMOVED:
+                    allFriendsThreadSafe.remove(new SharingTarget(event.getSource()));
+                    break;
+                }
+            }
+        });
+
     }
 
 }

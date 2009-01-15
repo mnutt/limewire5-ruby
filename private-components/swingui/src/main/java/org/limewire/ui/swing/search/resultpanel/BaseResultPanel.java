@@ -8,12 +8,10 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JComponent;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -37,7 +35,6 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
-import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.search.DownloadItemPropertyListener;
@@ -249,20 +246,6 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         resultsList.setRowHeight(ROW_HEIGHT);
         
         resultsList.addMouseListener(new ResultDownloaderAdaptor());
-
-        resultsList.addMouseListener(new MousePopupListener() {
-            @Override
-            public void handlePopupMouseEvent(MouseEvent e) {
-                // Get the VisualSearchResult that was selected.
-                int row = resultsList.rowAtPoint(e.getPoint());
-                VisualSearchResult vsr = maxSizedList.get(row);
-
-                // Display a SearchResultMenu for the VisualSearchResult.
-                JComponent component = (JComponent) e.getSource();
-                SearchResultMenu searchResultMenu = new SearchResultMenu(BaseResultPanel.this, Collections.singletonList(vsr), properties);
-                searchResultMenu.show(component, e.getX(), e.getY());
-            }
-        });
     }
     
     private EventList<VisualSearchResult> newVisibleFilterList(
@@ -461,8 +444,8 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
             
             colors.evenColor = Color.WHITE;
             colors.oddColor = Color.WHITE;
-            colors.getEvenHighLighter().setBackground(colors.evenColor);
-            colors.getOddHighLighter().setBackground(colors.oddColor);
+            colors.getEvenHighlighter().setBackground(colors.evenColor);
+            colors.getOddHighlighter().setBackground(colors.oddColor);
             return colors;
         }
         

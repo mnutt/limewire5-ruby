@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.search.SearchCategory;
@@ -103,7 +104,11 @@ public class ToolsMenu extends MnemonicMenu {
                 LibrarySettings.ALLOW_PROGRAMS.addSettingListener(new SettingListener() {
                     @Override
                     public void settingChanged(SettingEvent evt) {
-                        item.setVisible(LibrarySettings.ALLOW_PROGRAMS.getValue());
+                        SwingUtilities.invokeLater(new Runnable(){
+                            public void run() {
+                                item.setVisible(LibrarySettings.ALLOW_PROGRAMS.getValue());                                
+                            }
+                        });
                     }
                 });
             }

@@ -89,4 +89,10 @@ public class GnutellaFileListStub extends AbstractFileListStub implements Gnutel
     public void removeDocuments() {
         
     }
+
+    @Override
+    public void addSnapshotCategory(Category category) {
+        // TODO Auto-generated method stub
+        
+    }
 }

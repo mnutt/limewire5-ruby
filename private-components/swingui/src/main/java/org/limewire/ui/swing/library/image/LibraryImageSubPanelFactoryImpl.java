@@ -24,7 +24,9 @@ import org.limewire.ui.swing.library.sharing.ShareWidget;
 import org.limewire.ui.swing.library.sharing.ShareWidgetFactory;
 import org.limewire.ui.swing.library.table.ShareTableRendererEditor;
 import org.limewire.ui.swing.library.table.ShareTableRendererEditorFactory;
-import org.limewire.ui.swing.library.table.menu.MyImageLibraryPopupHandler.ImageLibraryPopupParams;
+import org.limewire.ui.swing.library.table.menu.MyImageLibraryPopupHandler;
+import org.limewire.ui.swing.library.table.menu.ShareImageLibraryPopupHandler;
+import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.table.TableRendererEditor;
 import org.limewire.ui.swing.util.I18n;
 
@@ -45,23 +47,26 @@ public class LibraryImageSubPanelFactoryImpl implements LibraryImageSubPanelFact
     
     private final ShareTableRendererEditorFactory shareTableRendererEditorFactory;
 
-    private ShareWidgetFactory shareWidgetFactory;
+    private final PropertiesFactory<LocalFileItem> localFilePropFactory;
+    private final ShareWidgetFactory shareWidgetFactory;
     
     @Inject
     public LibraryImageSubPanelFactoryImpl(ThumbnailManager thumbnailManager, LibraryManager libraryManager, 
-            ShareTableRendererEditorFactory shareTableRendererEditorFactory, ShareWidgetFactory shareWidgetFactory) {
+            ShareTableRendererEditorFactory shareTableRendererEditorFactory, ShareWidgetFactory shareWidgetFactory, PropertiesFactory<LocalFileItem> localFilePropFactory) {
         this.thumbnailManager = thumbnailManager;
         this.libraryManager = libraryManager;
         this.shareTableRendererEditorFactory = shareTableRendererEditorFactory;
         this.shareWidgetFactory = shareWidgetFactory;
+        this.localFilePropFactory = localFilePropFactory;
     }
     
     @Override
     public LibraryImageSubPanel createMyLibraryImageSubPanel(File parentFolder,
             EventList<LocalFileItem> eventList, LocalFileList fileList,
-            ImageLibraryPopupParams params, ShareWidget<File> shareWidget) {
+            ShareWidget<File> shareWidget) {
 
-        LibraryImageSubPanel panel = new LibraryImageSubPanel(parentFolder, eventList, fileList, params);
+        LibraryImageSubPanel panel = new LibraryImageSubPanel(parentFolder, eventList, fileList);
+        panel.setPopupHandler(new MyImageLibraryPopupHandler(panel, shareWidgetFactory, libraryManager, localFilePropFactory));
         panel.addShareFolderButtonAction(new MyLibraryShareFolderAction(panel.getImageList(), shareWidgetFactory.createMultiFileShareWidget()));
         ImageList list = panel.getImageList();
         list.setImageCellRenderer(enableMyLibraryRenderer(list));
@@ -75,8 +80,9 @@ public class LibraryImageSubPanelFactoryImpl implements LibraryImageSubPanelFact
     @Override
     public LibraryImageSubPanel createSharingLibraryImageSubPanel(File parentFolder,
             EventList<LocalFileItem> eventList, LocalFileList fileList,
-            ImageLibraryPopupParams params, LocalFileList currentFriendFileList) {
-        LibraryImageSubPanel panel = new LibraryImageSubPanel(parentFolder, eventList, fileList, params);
+            LocalFileList currentFriendFileList) {
+        LibraryImageSubPanel panel = new LibraryImageSubPanel(parentFolder, eventList, fileList);
+        panel.setPopupHandler(new ShareImageLibraryPopupHandler(currentFriendFileList, panel, libraryManager, localFilePropFactory));
         panel.addShareFolderButtonAction(new SharingLibraryShareFolderAction(currentFriendFileList, eventList, panel));
         ImageList list = panel.getImageList();
         list.setImageCellRenderer(enableSharingRenderer(list, currentFriendFileList));

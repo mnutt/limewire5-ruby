@@ -103,7 +103,7 @@ public class MouseableTreeTable extends StripedJXTreeTable {
                                                 // glazedlists
 
         // HighlightPredicate.EVEN and HighlightPredicate.ODD are zero based
-        setHighlighters(colors.getEvenHighLighter(), colors.getOddHighLighter());
+        setHighlighters(colors.getEvenHighlighter(), colors.getOddHighlighter());
 
         setGridColor(colors.getGridColor());
 

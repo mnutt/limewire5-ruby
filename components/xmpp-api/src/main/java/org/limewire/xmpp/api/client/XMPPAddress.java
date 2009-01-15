@@ -5,18 +5,40 @@ import org.limewire.util.Objects;
 
 /**
  * Provides a permanent address for a full jabber id including
- * its resource. 
+ * its resource.
+ * 
+ * An {@link XMPPAddress} is equal to another one if the full
+ * id matches up to the first 5 characters in the resource part.
  */
 public class XMPPAddress implements PermanentAddress {
 
     private final String id;
+    
+    /**
+     * Id prefix used for equals and hashcode semantics.
+     */
+    private final String idPrefix;
+
+    private static String parseIdPrefix(String id) {
+        int slash = id.indexOf('/');
+        if (slash == -1) {
+            return id;
+        }
+        int endPrefix = Math.min(id.length(), slash + 6);
+        return id.substring(0, endPrefix);
+    }
 
     /**
      * 
      * @param id the full jabber id including resource
      */
     public XMPPAddress(String id) {
-        this.id = Objects.nonNull(id, "id");
+        this(Objects.nonNull(id, "id"), parseIdPrefix(id));
+    }
+    
+    XMPPAddress(String id, String idPrefix) {
+        this.id = id;
+        this.idPrefix = idPrefix;
     }
     
     /**
@@ -69,7 +91,7 @@ public class XMPPAddress implements PermanentAddress {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return idPrefix.hashCode();
     }
 
     @Override
@@ -78,6 +100,6 @@ public class XMPPAddress implements PermanentAddress {
             return false;
         }
         XMPPAddress other = (XMPPAddress)obj;
-        return id.equals(other.id);
+        return idPrefix.equals(other.idPrefix);
     }
 }

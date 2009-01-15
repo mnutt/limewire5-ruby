@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
@@ -218,9 +219,13 @@ public class SortAndFilterPanel implements Disposable {
         viewTypeListener = new SettingListener() {
             @Override
             public void settingChanged(SettingEvent evt) {
-                int newViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
-                SearchViewType newSearchViewType = SearchViewType.forId(newViewTypeId);
-                updateView(outerThis, newSearchViewType);
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run() {
+                        int newViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
+                        SearchViewType newSearchViewType = SearchViewType.forId(newViewTypeId);
+                        updateView(outerThis, newSearchViewType);                        
+                    }
+                });
             }
         };
         SwingUiSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);

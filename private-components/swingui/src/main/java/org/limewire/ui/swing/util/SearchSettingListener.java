@@ -4,6 +4,7 @@
 package org.limewire.ui.swing.util;
 
 import javax.swing.JComboBox;
+import javax.swing.SwingUtilities;
 
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.setting.BooleanSetting;
@@ -33,17 +34,21 @@ public class SearchSettingListener implements SettingListener {
 
     @Override
     public void settingChanged(SettingEvent evt) {
-        boolean newValue = booleanSetting.getValue();
-        if(oldValue != newValue) {
-            if(newValue) {
-                combo.addItem(searchCategory);
-            } else {
-                if(combo.getSelectedItem() == searchCategory) {
-                    combo.setSelectedItem(SearchCategory.ALL);
-                }
-                combo.removeItem(searchCategory);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                boolean newValue = booleanSetting.getValue();
+                if(oldValue != newValue) {
+                    if(newValue) {
+                        combo.addItem(searchCategory);
+                    } else {
+                        if(combo.getSelectedItem() == searchCategory) {
+                            combo.setSelectedItem(SearchCategory.ALL);
+                        }
+                        combo.removeItem(searchCategory);
+                    }
+                    oldValue = newValue;
+                }     
             }
-            oldValue = newValue;
-        }
+        });
     }
 }

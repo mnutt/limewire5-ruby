@@ -40,7 +40,6 @@ public class SetupComponentDecorator {
     @Resource private Color greenButtonForeground;
     @Resource private Font greenButtonFont;
     
-    @Resource private Color backButtonForeground;
     @Resource private Font backButtonFont;
     
     @Resource private Icon largeBox;
@@ -97,13 +96,11 @@ public class SetupComponentDecorator {
     }
     
     public void decorateBackButton(JComponent button) {
-        button.setForeground(backButtonForeground);
         button.setFont(backButtonFont);
         button.setBorder(BorderFactory.createEmptyBorder(0,10,3,10));
     }
     
     public void decorateLink(JComponent link) {
-        link.setForeground(backButtonForeground);
     }
     
     public void decoratePlainButton(JXButton button) {
