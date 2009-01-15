@@ -73,3 +73,10 @@ Rails::Initializer.run do |config|
   # Please note that observers generated using script/generate observer need to have an _observer suffix
   # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 end
+
+uri = java.net.URI.new("http://localhost:3000/cloud")
+begin
+  java.awt.Desktop.desktop.browse(uri);
+rescue
+  puts "couldn't open browser: #{$!.message}"
+end
