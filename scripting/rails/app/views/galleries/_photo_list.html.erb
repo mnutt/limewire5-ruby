@@ -1,7 +1,7 @@
 <% photos = photos || []  %>
 <ul class="gallery">
   <% photos.each do |photo| %>
-  <li><img src="/library/<%= photo.sha1 %>.mp3" height="438" width="700" alt="Foo" title="Foo" /> </li>
+  <li><img src="/library/<%= photo.sha1 %>.mp3" alt="Foo" title="Foo" /> </li>
   <% end %>
 
 </ul>
