@@ -1,10 +1,14 @@
 package org.limewire.ui.swing.mainframe;
 
+import java.awt.Desktop;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,9 +68,11 @@ class TopPanel extends JXPanel implements SearchNavigator {
     private final Navigator navigator;
         
     private final NavItem homeNav;
+    private final JButton webButton;
     
     @Resource private Icon libraryCollapseIcon;
     @Resource private Icon libraryExpandIcon;
+    @Resource private Icon webIcon;
     
     @Inject
     public TopPanel(final SearchHandler searchHandler,
@@ -102,6 +108,21 @@ class TopPanel extends JXPanel implements SearchNavigator {
                 homePanel.loadDefaultUrl();
             }
         });
+        
+        JButton webButton = new IconButton(NavigatorUtils.getNavAction(homeNav));
+        webButton.setName("WireframeTop.webButton");
+        webButton.setToolTipText("Web Interface");
+        webButton.setText(null);
+        webButton.setIconTextGap(1);
+        webButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                   Desktop.getDesktop().browse(new URI("http://localhost:3000/cloud"));
+                } catch (IOException exception) { // Don't do anything if it doesn't work
+                } catch (URISyntaxException exception) {}
+            }
+        });
+        this.webButton = webButton;
         
         JButton storeButton;
         if(MozillaInitialization.isInitialized()) {
@@ -159,6 +180,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
 
         setLayout(new MigLayout("gap 0, insets 0, filly, alignx leading"));        
         add(homeButton, "gapbottom 2, gaptop 0");
+        add(webButton, "gapbottom 2, gaptop 0");
         add(storeButton, "gapbottom 2, gaptop 0");
 
         add(searchBar, "gapleft 70, gapbottom 2, gaptop 0");
@@ -183,6 +205,10 @@ class TopPanel extends JXPanel implements SearchNavigator {
             @Override public void itemSelected(NavCategory category, NavItem navItem, NavSelectable selectable, JComponent panel) {}
       ;  });
     };
+    
+    public void activateWebButton() {
+        this.webButton.setIcon(webIcon);
+    }
 
     @Override
     public boolean requestFocusInWindow() {
