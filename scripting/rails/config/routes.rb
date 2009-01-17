@@ -11,6 +11,7 @@ ActionController::Routing::Routes.draw do |map|
   map.iphone "/iphone", :controller => 'iphone', :action => 'index'
   map.resources :downloads
   map.download '/download/:magnet', :controller => 'library', :action => 'download'
+  map.backups '/backups/:action', :controller => 'backup', :action => 'index'
   map.resources :galleries, :collection => {:all => :get}
   # The priority is based upon order of creation: first created -> highest priority.
 

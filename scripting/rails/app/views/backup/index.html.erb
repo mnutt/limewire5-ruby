@@ -1,0 +1,13 @@
+<% form_tag backups_url(:action => 'create'), :method => 'post' do |f| -%>
+  <div>
+    <%= label_tag :aws_id, "AWS Key" -%>
+    <%= text_field_tag :aws_key -%>
+  </div>
+  <div>
+    <%= label_tag :aws_key, "AWS Secret" -%>
+    <%= text_field_tag :aws_secret -%>
+  </div>
+  <div>
+    <%= submit_tag "Backup" -%>
+  </div>
+<% end -%>
