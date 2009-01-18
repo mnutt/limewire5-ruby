@@ -1,9 +1,7 @@
-var blah;
 jQuery(document).ready(function(){
   var submitSearch = function() {
 
   var startDownload = function(ev) {
-    blah = ev.target;
     li = $(ev.target).parent();
     li.addClass("downloading");
     urn = li.attr('id');
