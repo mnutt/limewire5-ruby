@@ -106,13 +106,18 @@ module Net
       supply_default_content_type
       write_header(sock, ver, path) unless send_only == :body
       unless send_only == :header
+        total_written = 0
         if chunked?
           while s = f.read(@@local_read_size)
+            total_written += s.length
+            PersistentStore[:transfer_file_bytes_written] = total_written
             sock.write(sprintf("%x\r\n", s.length) << s << "\r\n")
           end
           sock.write "0\r\n\r\n"
         else
           while s = f.read(@@local_read_size)
+            total_written += s.length
+            PersistentStore[:transfer_file_bytes_written] = total_written
             sock.write s
           end
         end

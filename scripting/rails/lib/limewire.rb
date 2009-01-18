@@ -19,6 +19,10 @@ module Limewire
     Limewire.core.get_statistics.uptime / 1000
   end
 
+  def self.my_guid
+    Core::GUID.new(self.core.application_services.get_my_guid)
+  end
+
   # The average length of time the LimeWire has been run so far today.
   def self.daily_uptime
     Limewire.core.get_statistics.calculate_daily_uptime
@@ -209,6 +213,10 @@ module Limewire
       file_list = self.core_file_list.map{ |file| Limewire::File.new(file) }.compact
       file_list.extend(Filterable)
       file_list
+    end
+
+    def self.count
+      self.core_file_list.size
     end
 
     # Find the first file in the library.
