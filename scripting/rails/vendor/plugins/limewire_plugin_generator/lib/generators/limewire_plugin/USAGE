@@ -1,0 +1,25 @@
+Description:
+    The limewire_plugin generator creates a skeleton plugin for use with
+    Remote Limewire.  
+
+    The Limewire 'plugin' is not a rails plugin but more like a Rails Engine.  
+    It contains models, controllers, helpers, views, and assets. It is
+    intended to be the distribution system for miniature apps that run
+    on top of Limewire.
+
+Example:
+    ./script/generate limewire_plugin Peers index show widget
+        ...
+        create  plugins/peers/controllers/
+        create  plugins/peers/helpers/
+        create  plugins/peers/views/peers
+        create  plugins/peers/test/functional/
+        create  plugins/peers/controllers/peers_controller.rb
+        create  plugins/peers/test/functional/peers_controller_test.rb
+        create  plugins/peers/helpers/peers_helper.rb
+        create  plugins/peers/routes.rb
+        create  plugins/peers/views/peers/index.html.erb
+        create  plugins/peers/views/peers/show.html.erb
+        create  plugins/peers/views/peers/widget.html.erb
+
+Your plugin will be available immediately at /[plugin_name]
