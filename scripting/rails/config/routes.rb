@@ -11,8 +11,10 @@ ActionController::Routing::Routes.draw do |map|
   map.iphone "/iphone", :controller => 'iphone', :action => 'index'
   map.resources :downloads
   map.download '/download/:magnet', :controller => 'library', :action => 'download'
-  map.backups '/backups/:action', :controller => 'backup', :action => 'index'
+  # map.backups '/backups/:action', :controller => 'backup', :action => 'index'
   map.resources :galleries, :collection => {:all => :get}
+
+  map.assets '/assets/:plugin/*path', :controller => 'assets', :action => 'show'
   # The priority is based upon order of creation: first created -> highest priority.
 
   # Sample of regular route:
@@ -43,6 +45,7 @@ ActionController::Routing::Routes.draw do |map|
   #     # Directs /admin/products/* to Admin::ProductsController (app/controllers/admin/products_controller.rb)
   #     admin.resources :products
   #   end
+#map.connect "blah", :controller => 'backup', :action => 'index'
 
   # You can have the root of your site routed with map.root -- just remember to delete public/index.html.
   # map.root :controller => "welcome"
@@ -52,6 +55,12 @@ ActionController::Routing::Routes.draw do |map|
   # Install the default routes as the lowest priority.
   # Note: These default routes make all actions in every controller accessible via GET requests. You should
   # consider removing the them or commenting them out if you're using named routes and resources.
-  map.connect ':controller/:action/:id'
-  map.connect ':controller/:action/:id.:format'
+  # map.connect ':controller/:action/:id'
+  # map.connect ':controller/:action/:id.:format'
+  Dir.glob("#{RAILS_ROOT}/plugins/*/routes.rb").each do |routes_file|
+    plugin_name = routes_file.split("/").reverse[1]
+    map.with_options(:path_prefix => plugin_name) do |plugin_map|
+      eval(File.open(routes_file).read)
+    end
+  end
 end

@@ -73,3 +73,6 @@ Rails::Initializer.run do |config|
   # Please note that observers generated using script/generate observer need to have an _observer suffix
   # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 end
+
+PLUGIN_ROOT = "#{RAILS_ROOT}/plugins"
+require 'lib/external_routes'
