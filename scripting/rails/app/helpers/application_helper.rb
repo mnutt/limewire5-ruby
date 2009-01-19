@@ -5,6 +5,10 @@ module ApplicationHelper
     @javascript_includes << scripts
   end
 
+  def plugin_javascript_include(js)
+    javascript_include("/assets/#{_plugin_name}/javascripts/#{js}")
+  end
+
   def print_dollars(cents)
     if cents.to_s.include?("-")
       decimals = cents.to_s.split("-").last + 1

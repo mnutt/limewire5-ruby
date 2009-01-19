@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>LimeWire Remote</title>
+    <%= javascript_include_tag 'jquery' -%>
+    <%= javascript_include_tag 'jquery-periodic' -%>
+    <%= javascript_include_tag @javascript_includes if @javascript_includes -%>
+    <style type="text/css">
+      #total_progress,
+      #file_progress {
+        height: 5px;
+        width: 100%;
+        background-color: #EEE;
+        border: 1px solid #EEE;
+      }
+      #total_progress_indicator,
+      #file_progress_indicator {
+        height: 5px;
+        width: 0%;
+        background-color: #8CE;
+      }
+    </style>
+  </head>
+  <body>
+    <%= yield -%>
+  </body>
+</html>
