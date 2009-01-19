@@ -1,4 +1,4 @@
-class IphoneController < ApplicationController
+class IphoneController < PluginController
   layout 'iphone'
 
   def index

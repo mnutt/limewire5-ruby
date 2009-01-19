@@ -8,7 +8,6 @@ ActionController::Routing::Routes.draw do |map|
   map.new_search "/search/q/:query", :controller => 'search', :action => 'perform'
   map.search_control "/search/:guid/:query", :controller => 'search', :action => 'control'
   map.cloud "/cloud", :controller => 'cloud', :action => 'index'
-  map.iphone "/iphone", :controller => 'iphone', :action => 'index'
   map.resources :downloads
   map.download '/download/:magnet', :controller => 'library', :action => 'download'
   map.resources :galleries, :collection => {:all => :get}
