@@ -2,7 +2,6 @@ class IphoneController < PluginController
   layout 'iphone'
 
   def index
-    raise MIME_TYPES.to_yaml
     @tracks = Limewire::Library.find(:all)
 
     @tracks_by_alpha = @tracks.group_by{|t| t.title.split('')[0] rescue "misc" }.sort_by{|t| t[0].downcase rescue 'z' }
