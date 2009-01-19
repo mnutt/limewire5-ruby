@@ -1,8 +1,4 @@
 class PluginController < ApplicationController
-  def self.controller_path
-    "" # Use ./views for the view path, rather than ./{controller}/views
-  end
-
   def self.view_paths
     [File.expand_path("#{PLUGIN_ROOT}/#{self.plugin_name}/views")]
   end
