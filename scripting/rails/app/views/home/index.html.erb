@@ -1,11 +1,20 @@
-<h1>LimeWire Remote</h1>
+<% javascript_include 'ui.core', 'ui.draggable', 'ui.sortable', 'widgets' -%>
 
-Plugins:
+<h1 class="main_logo">LimeWire Remote</h1>
 
-<ul>
+<h2 class="plugins_header">Plugins</h2>
+
+<ul id="widgets">
   <% @plugins.each do |plugin| -%>
     <li class="widget" id="plugin_<%= plugin.name -%>">
-      <%= plugin.name -%>
+      <div class="handle">drag</div>
+      <div class="title"><%= plugin.name -%></div>
+      <% if plugin.has_widget? -%>
+	<iframe src="<%= url_for(:controller => plugin.name, :action => 'widget') -%>"></iframe>
+      <% end -%>
+      <div class="link">
+	Go to <%= link_to plugin.name, "/#{plugin.name}" -%> &raquo;
+      </div>
     </li>
   <% end if @plugins -%>
 </ul>

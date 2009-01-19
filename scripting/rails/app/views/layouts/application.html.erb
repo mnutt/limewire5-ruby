@@ -3,9 +3,9 @@
 <html>
   <head>
     <title>LimeWire Remote</title>
-    <%= javascript_include_tag 'jquery' -%>
-    <%= javascript_include_tag 'jquery-periodic' -%>
+    <%= javascript_include_tag 'jquery', 'jquery-periodic' -%>
     <%= javascript_include_tag @javascript_includes if @javascript_includes -%>
+    <%= stylesheet_link_tag 'reset', 'application' -%>
     <style type="text/css">
       #total_progress,
       #file_progress {
