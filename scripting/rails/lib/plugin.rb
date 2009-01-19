@@ -11,7 +11,8 @@ class Plugin
     @name = @path.split("/").last
   end
 
+  # TODO: make this better, since they can remap the widget route
   def has_widget?
-    File.exist?("#{@path}/views/widget.html.erb") || File.exist?("#{@path}/views/widget.erb")
+    File.exist?("#{@path}/views/#{@name}/widget.html.erb") || File.exist?("#{@path}/views/widget.erb")
   end
 end
