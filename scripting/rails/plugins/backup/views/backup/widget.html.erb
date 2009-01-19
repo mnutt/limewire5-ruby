@@ -1,1 +1,12 @@
-Hello from the widget.
+<p>
+  You have <b><%= FileSize.new(@library_size).to_s -%></b> in your library.
+</p>
+<p>
+  The transfer rate is <b>$<%= print_dollars(@transfer_rate.gigabytes) -%> per GB</b>,
+  so your transfer cost to back up your library is approximately 
+  <b>$<%= print_dollars(@library_size * @transfer_rate) -%></b>.
+</p>
+<p>The storage rate is <b>$<%= print_dollars(@storage_rate.gigabytes) -%> per GB</b>,
+   so your storage cost will be approximately 
+  <b>$<%= print_dollars(@library_size * @storage_rate) -%> <u>per month</u></b>.
+</p>

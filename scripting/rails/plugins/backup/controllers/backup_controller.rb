@@ -58,5 +58,7 @@ class BackupController < PluginController
   end
 
   def widget
+    index
+    render :layout => 'widget'
   end
 end
