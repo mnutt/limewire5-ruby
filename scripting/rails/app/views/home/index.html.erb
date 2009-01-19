@@ -1,0 +1,11 @@
+<h1>LimeWire Remote</h1>
+
+Plugins:
+
+<ul>
+  <% @plugins.each do |plugin| -%>
+    <li class="widget" id="plugin_<%= plugin.name -%>">
+      <%= plugin.name -%>
+    </li>
+  <% end if @plugins -%>
+</ul>
