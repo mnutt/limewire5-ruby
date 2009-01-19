@@ -11,7 +11,6 @@ ActionController::Routing::Routes.draw do |map|
   map.iphone "/iphone", :controller => 'iphone', :action => 'index'
   map.resources :downloads
   map.download '/download/:magnet', :controller => 'library', :action => 'download'
-  # map.backups '/backups/:action', :controller => 'backup', :action => 'index'
   map.resources :galleries, :collection => {:all => :get}
 
   map.assets '/assets/:plugin/*path', :controller => 'assets', :action => 'show'
@@ -45,7 +44,6 @@ ActionController::Routing::Routes.draw do |map|
   #     # Directs /admin/products/* to Admin::ProductsController (app/controllers/admin/products_controller.rb)
   #     admin.resources :products
   #   end
-#map.connect "blah", :controller => 'backup', :action => 'index'
 
   # You can have the root of your site routed with map.root -- just remember to delete public/index.html.
   # map.root :controller => "welcome"

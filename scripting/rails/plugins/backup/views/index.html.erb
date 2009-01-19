@@ -7,7 +7,7 @@
 <p>The storage rate is <b>$<%= print_dollars(@storage_rate.gigabytes) -%> per GB</b>,
    so your storage cost will be approximately <b>$<%= print_dollars(@library_size * @storage_rate) -%> <u>per month</u></b>.</p>
 
-<% form_tag backups_url(:action => 'create'), :method => 'post', :id => 'start_backup' do |f| -%>
+<% form_tag backup_url(:action => 'create'), :method => 'post', :id => 'start_backup' do |f| -%>
   <div>
     <%= label_tag :aws_id, "AWS Key" -%>
     <%= text_field_tag :aws_key -%>
