@@ -20,7 +20,7 @@ module ApplicationHelper
       decimals = 2
     end
 
-    sprintf("%6.#{decimals}f", cents)
+    sprintf("%6.#{decimals}f", cents).lstrip
   end
       
 end
