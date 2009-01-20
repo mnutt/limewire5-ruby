@@ -4,17 +4,22 @@
 
 <h2 class="plugins_header">Plugins</h2>
 
-<ul id="widgets">
-  <% @plugins.each do |plugin| -%>
-    <li class="widget" id="plugin_<%= plugin.name -%>">
-      <div class="handle">drag</div>
-      <div class="title"><%= plugin.name -%></div>
-      <% if plugin.has_widget? -%>
-	<iframe src="<%= url_for(:controller => plugin.name, :action => 'widget') -%>"></iframe>
-      <% end -%>
-      <div class="link">
-	Go to <%= link_to plugin.name, "/#{plugin.name}" -%> &raquo;
-      </div>
-    </li>
-  <% end if @plugins -%>
-</ul>
+<div id="widgets_container">
+<% @columns.each_with_index do |column, i| -%>
+  <ul class="widgets" id="widgets_<%= i -%>">
+    &nbsp;
+    <% column.each do |plugin| -%>
+      <li class="widget" id="plugin_<%= plugin.name -%>">
+	<div class="handle">drag</div>
+	<div class="title"><%= plugin.name -%></div>
+	<% if plugin.has_widget? -%>
+	  <iframe src="<%= url_for(:controller => plugin.name, :action => 'widget') -%>"></iframe>
+	<% end -%>
+	<div class="link">
+	  Go to <%= link_to plugin.name, "/#{plugin.name}" -%> &raquo;
+	</div>
+      </li>
+    <% end if @plugins -%>
+  </ul>
+<% end -%>
+</div>
