@@ -8,4 +8,4 @@
 plugin_map.backup ':action/:id', :controller => 'stats'
 
 # Add this route to point to your widget action if you want to display a widget on the homepage
-# plugin_map.widget "/widget", :controller => 'stats', :action => 'widget'
+plugin_map.widget "/widget", :controller => 'stats', :action => 'widget'
