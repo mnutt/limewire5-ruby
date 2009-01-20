@@ -3,7 +3,7 @@
 development: &defaults
   # These are the settings for repository :default
   adapter:  jdbchsqldb
-  database: ../../scripting/rails/db/limewire_development.db
+  database: scripting/rails/db/limewire_development.db
   username: sa
   password:
  
