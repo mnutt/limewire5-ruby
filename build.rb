@@ -41,8 +41,5 @@ if(File.exist?(scripting_dir))
   `rm -Rf #{scripting_dir}`
 end
 
-puts "Installing rails..."
-puts `cp -R scripting #{scripting_dir}` 
-
 puts "Compressing archive..."
 puts `cd #{release_dir} && zip -r portable-limewire.zip *`
