@@ -38,7 +38,7 @@ import ca.odell.glazedlists.swing.EventTableModel;
 public class EventListJXTableSorting {
     
     /** Maximum number of sorted columns. */
-    private static final int MAX_SORT_COLUMNS = 4;
+    private static final int MAX_SORT_COLUMNS = 5;
 
     /** the sorted list behind the table being sorted */
     private final SortedList sortedList;
@@ -70,12 +70,10 @@ public class EventListJXTableSorting {
         this.filterPipeline = new EventListFilterPipeline();
         table.setFilters(filterPipeline);
         
-        // Apply default sort column.
+        // Apply default sort keys.
         if (tableSortFormat != null) {
-            int sortColumn = tableSortFormat.getDefaultSortColumn();
-            if (sortColumn >= 0) {
-                this.sortController.toggleSortOrder(sortColumn, null);
-            }
+            List<SortKey> sortKeys = tableSortFormat.getDefaultSortKeys();
+            this.sortController.setSortKeys(sortKeys);
         }
     }
 

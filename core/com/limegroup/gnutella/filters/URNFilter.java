@@ -13,14 +13,13 @@ import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.QueryReply;
-import com.limegroup.gnutella.messages.QueryRequest;
 
 import org.limewire.core.settings.FilterSettings;
 
 /**
- * A filter that blocks queries and query responses with URNs that match
- * either of two blacklists, one local and one remote (SIMPP). This is
- * designed for filtering out spam and malware.
+ * A filter that blocks query responses with URNs that match either of
+ * two blacklists, one local and one remote (SIMPP). This is designed
+ * for filtering out spam and malware.
  */
 @Singleton
 public class URNFilter implements SpamFilter {
@@ -47,8 +46,8 @@ public class URNFilter implements SpamFilter {
     }
     
     /**
-     * Returns false if the message is a query request or query response with
-     * a URN matching either of the blacklists; otherwise returns true.
+     * Returns false if the message is a query response with a URN
+     * matching either of the blacklists; otherwise returns true.
      */
     @Override
     public boolean allow(Message m) {
@@ -68,17 +67,6 @@ public class URNFilter implements SpamFilter {
             } catch (BadPacketException bpe) {
                 return true;
             }
-        } else if(m instanceof QueryRequest) {
-            // Note: we might not want to block query requests if this is a routing filter
-            QueryRequest q = (QueryRequest)m;
-            for(URN u : q.getQueryUrns()) {
-                if(blacklist.contains(u)) {
-                    if(LOG.isDebugEnabled())
-                        LOG.debug("Filtering request with URN " + u);
-                    return false;
-                }
-            }
-            return true;
         }
         return true; // Don't block other kinds of messages
     }

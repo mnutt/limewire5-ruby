@@ -420,6 +420,11 @@ class UDPSocketChannel extends AbstractNBSocketChannel implements InterestReadab
 
     @Override
     public String toString() {
-        return getRemoteSocketAddress().toString();
+        InetSocketAddress addr = getRemoteSocketAddress();
+        if(addr == null) {
+            return "[disconnected]";
+        } else {
+            return addr.toString();
+        }
     }
 }

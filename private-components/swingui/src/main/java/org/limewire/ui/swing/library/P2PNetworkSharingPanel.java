@@ -60,7 +60,7 @@ public class P2PNetworkSharingPanel extends SharingPanel {
         }
         @Override
         public String getId() {
-            return "_@_GNUTELLA_@_";
+            return Friend.P2P_FRIEND_ID;
         }
         
         @Override

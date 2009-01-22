@@ -151,7 +151,6 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         fullStatusLabel = new JLabel();
         fullStatusLabel.setFont(statusFontPlainFull);
         fullStatusLabel.setForeground(statusLabelColour);
-        fullStatusLabel.setPreferredSize(new Dimension(20, 20));
         
         fullProgressBar = progressBarFactory.create(0, 100);
         Dimension size = new Dimension(progressBarWidth, 16);
@@ -169,17 +168,20 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         cancelLink.setText(I18n.tr("Remove"));
         cancelLink.setFont(statusFontPlainMin);
         cancelLink.setActionCommand(DownloadActionHandler.CANCEL_COMMAND);
-        FontUtils.bold(cancelLink);
+        //FontUtils.bold(cancelLink);
         FontUtils.underline(cancelLink); 
         
         launchButton = new HyperlinkButton();
         launchButton.setText(I18n.tr("Launch"));
         launchButton.setFont(statusFontPlainMin);
         launchButton.setActionCommand(DownloadActionHandler.LAUNCH_COMMAND);
-        FontUtils.bold(launchButton);
+        //FontUtils.bold(launchButton);
         FontUtils.underline(launchButton); 
         
-        removeLinkSpacer = new JLabel(I18n.tr(" - "));
+        removeLinkSpacer = new JLabel(I18n.tr("- "));
+        removeLinkSpacer.setMinimumSize(new Dimension(0,cancelLink.getPreferredSize().height));
+        removeLinkSpacer.setFont(statusFontPlainMin);
+        removeLinkSpacer.setForeground(errorLabelColour);
         
         createFullView();
         createMinView();
@@ -340,7 +342,8 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         
         case STALLED :
             
-            editor.minIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
+            //editor.minIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
+            editor.minIconLabel.setIcon(warningIcon);
             editor.minStatusLabel.setForeground(warningLabelColour);
             editor.minStatusLabel.setFont(statusFontPlainMin);
             
@@ -411,8 +414,8 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
                //  editor.minLinkButton.setText("<html><u>" + I18n.tr(item.getErrorState().getMessage()) + "</u></html>");
                 // TODO remove color and rollover settings once error link is active
                 editor.minLinkButton.setRolloverEnabled(false);
-                editor.minLinkButton.setForeground(Color.decode("#313131"));
-                editor.minLinkButton.setClickedColor(Color.decode("#313131"));
+                editor.minLinkButton.setForeground(errorLabelColour);
+                editor.minLinkButton.setClickedColor(errorLabelColour);
                 break;
                 
             case STALLED :
@@ -502,7 +505,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         case STALLED:
             return I18n.tr("Stalled - ");
         case ERROR:         
-            return I18n.tr("Unable to download - ");
+            return I18n.tr("Unable to download: ");
         case PAUSED:
             // {0}: current size, {1} total size, {2} percent complete
             return I18n.tr("Paused - {0} of {1} ({2}%)", 

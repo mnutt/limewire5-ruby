@@ -70,9 +70,7 @@ public class CachingEventMulticasterImpl<E> implements CachingEventMulticaster<E
     }
 
     @Override
-    public void broadcast(E event) {
-        assert eventConsistentWithBroadcastPolicy(event);
-        
+    public void broadcast(E event) {        
         boolean broadcast = false;
         synchronized(LOCK) {
             if(cachedEvent == null ||
@@ -86,12 +84,6 @@ public class CachingEventMulticasterImpl<E> implements CachingEventMulticaster<E
         if(broadcast) {
             multicaster.broadcast(event);
         }
-    }
-
-    private boolean eventConsistentWithBroadcastPolicy(E event) {
-        return broadcastPolicy == BroadcastPolicy.ALWAYS ||
-                event.getClass().isEnum() ||
-                System.identityHashCode(event) != event.hashCode(); // other case caching won't work
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,7 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
+import ca.odell.glazedlists.impl.ThreadSafeList;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -35,6 +37,7 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
     private final EventList<UploadItem> uploadItems;
 
     private EventList<UploadItem> swingThreadUploadItems;
+    private ThreadSafeList<UploadItem> threadSafeUploadItems;
     
     private static final int PERIOD = 1000;
 
@@ -45,10 +48,10 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
 
         this.uploadServices = uploadServices;
         
-        ObservableElementList.Connector<UploadItem> uploadConnector = GlazedLists.beanConnector(UploadItem.class);
+        threadSafeUploadItems = GlazedListsFactory.threadSafeList(new BasicEventList<UploadItem>());
         
-        uploadItems = GlazedListsFactory.observableElementList(
-                GlazedListsFactory.threadSafeList(new BasicEventList<UploadItem>()),uploadConnector) ;
+        ObservableElementList.Connector<UploadItem> uploadConnector = GlazedLists.beanConnector(UploadItem.class);        
+        uploadItems = GlazedListsFactory.observableElementList(threadSafeUploadItems, uploadConnector) ;
 
         uploadListenerList.addUploadListener(this);
         
@@ -155,6 +158,22 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
             if (item.getState() == UploadState.CANCELED) {
                 uploadItems.remove(item);
             }
+        }
+    }
+
+    @Override
+    public void clearFinished() {
+        List<UploadItem> finishedItems = new ArrayList<UploadItem>();
+        threadSafeUploadItems.getReadWriteLock().writeLock().lock();
+        try {
+            for(UploadItem item : threadSafeUploadItems){
+                if(item.getState() == UploadState.DONE || item.getState() == UploadState.UNABLE_TO_UPLOAD || item.getState() == UploadState.BROWSE_HOST_DONE){
+                    finishedItems.add(item);
+                }
+            }
+            threadSafeUploadItems.removeAll(finishedItems);
+        } finally {
+            threadSafeUploadItems.getReadWriteLock().writeLock().unlock();
         }
     }
 

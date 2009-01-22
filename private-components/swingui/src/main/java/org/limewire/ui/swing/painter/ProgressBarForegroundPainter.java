@@ -10,6 +10,7 @@ import javax.swing.JSlider;
 
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.util.PaintUtils;
+import org.limewire.ui.swing.util.PainterUtils;
 
 /**
  * An implementation of SwingX Painter used to draw the progress bar 
@@ -22,19 +23,31 @@ public class ProgressBarForegroundPainter<X extends JComponent> extends Abstract
     
     private Paint foreground;
     private Paint disabledForeground;
+    
+    private final Paint upperAccent;
 
     private int heightCache = 0;
     
     public ProgressBarForegroundPainter(Paint foreground, Paint disabledForeground) {
-        this(foreground, disabledForeground, false);
+        this(foreground, disabledForeground, PainterUtils.TRASPARENT, false);
+    }
+    
+    public ProgressBarForegroundPainter(Paint foreground, Paint disabledForeground, Paint upperAccent) {
+        this(foreground, disabledForeground, upperAccent, false);
     }
     
     public ProgressBarForegroundPainter(Paint foreground, Paint disabledForeground, boolean drawHandle) {
+        this(foreground, disabledForeground, PainterUtils.TRASPARENT, drawHandle);
+    }
+    
+    public ProgressBarForegroundPainter(Paint foreground, Paint disabledForeground,
+            Paint upperAccent, boolean drawHandle) {
         
         this.drawHandle = drawHandle;
         
         this.foreground = foreground;
         this.disabledForeground = disabledForeground;
+        this.upperAccent = upperAccent;
         
         this.setAntialiasing(false);
         this.setCacheable(false);
@@ -53,12 +66,14 @@ public class ProgressBarForegroundPainter<X extends JComponent> extends Abstract
                         
         if (object.isEnabled()) {
             g.setPaint(this.foreground);
+            g.fillRect(1, 1, progress, height-2);
+            g.setPaint(upperAccent);
+            g.drawLine(1, 1, progress, 1);
         } 
         else {
             g.setPaint(this.disabledForeground);
+            g.fillRect(1, 1, progress, height-2);
         }
-        
-        g.fillRect(1, 1, progress, height-2);
         
         if (drawHandle && object.getMousePosition() != null) {
             if (progress == 0) {

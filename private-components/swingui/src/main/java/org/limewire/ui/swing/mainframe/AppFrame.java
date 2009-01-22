@@ -289,12 +289,12 @@ public class AppFrame extends SingleFrameApplication {
         };
         if (injector == null) {
             LimeMozillaInitializer.initialize();
-            injector = Guice.createInjector(Stage.PRODUCTION, new MockModule(), new LimeWireSwingUiModule(), thiz);
+            injector = Guice.createInjector(Stage.PRODUCTION, new MockModule(), new LimeWireSwingUiModule(false), thiz);
             return injector;
         } else {
             List<Module> modules = new ArrayList<Module>();
             modules.add(thiz);
-            modules.add(new LimeWireSwingUiModule());
+            modules.add(new LimeWireSwingUiModule(injector.getInstance(Application.class).isProVersion()));
             modules.add(Modules.providersFrom(injector)); // Add all the parent bindings
             return Guice.createInjector(Stage.PRODUCTION, modules);
         }

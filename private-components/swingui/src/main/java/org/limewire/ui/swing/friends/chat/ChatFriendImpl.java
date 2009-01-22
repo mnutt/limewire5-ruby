@@ -8,6 +8,7 @@ import java.util.Comparator;
 import org.jdesktop.beans.AbstractBean;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.feature.features.LimewireFeature;
+import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.xmpp.api.client.MessageReader;
 import org.limewire.xmpp.api.client.MessageWriter;
 import org.limewire.xmpp.api.client.Presence;
@@ -93,10 +94,14 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
         return chatting;
     }
 
-    void setChatting(boolean chatting) {
-        boolean oldChatting = isChatting();
+    void setChatting(final boolean chatting) {
+        final boolean oldChatting = isChatting();
         this.chatting = chatting;
-        firePropertyChange("chatting", oldChatting, chatting);
+        SwingUtils.invokeLater(new Runnable(){
+            public void run() {
+                firePropertyChange("chatting", oldChatting, chatting);                
+            }
+        });
     }
 
     @Override

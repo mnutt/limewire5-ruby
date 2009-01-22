@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
@@ -30,9 +32,9 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
     
     public SharedVideoTableFormat(LocalFileList localFileList) {
         super(ACTION_INDEX, new ColumnStateInfo[] {
-                new ColumnStateInfo(ACTION_INDEX, "SHARED_LIBRARY_VIDEO_ACTION", I18n.tr("Sharing"), 60, true, false),
-                new ColumnStateInfo(NAME_INDEX, "SHARED_LIBRARY_VIDEO_NAME", I18n.tr("Name"), 260, true, true), 
-                new ColumnStateInfo(LENGTH_INDEX, "SHARED_LIBRARY_VIDEO_LENGTH", I18n.tr("Length"), 100, true, true), 
+                new ColumnStateInfo(ACTION_INDEX, "SHARED_LIBRARY_VIDEO_ACTION", I18n.tr("Sharing"), 61, true, false),
+                new ColumnStateInfo(NAME_INDEX, "SHARED_LIBRARY_VIDEO_NAME", I18n.tr("Name"), 611, true, true), 
+                new ColumnStateInfo(LENGTH_INDEX, "SHARED_LIBRARY_VIDEO_LENGTH", I18n.tr("Length"), 62, true, true), 
                 new ColumnStateInfo(MISC_INDEX, "SHARED_LIBRARY_VIDEO_MISC", I18n.tr("Misc"), 100, false, true), 
                 new ColumnStateInfo(YEAR_INDEX, "SHARED_LIBRARY_VIDEO_YEAR", I18n.tr("Year"), 80, false, true), 
                 new ColumnStateInfo(SIZE_INDEX, "SHARED_LIBRARY_VIDEO_SIZE", I18n.tr("Size"), 60, false, true),
@@ -49,7 +51,7 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
         switch(column) {
         case NAME_INDEX: return baseObject;
         case LENGTH_INDEX: return baseObject.getProperty(FilePropertyKey.LENGTH);
-        case MISC_INDEX: return "";
+        case MISC_INDEX: return baseObject;
         case YEAR_INDEX: return baseObject.getProperty(FilePropertyKey.YEAR);
         case RATING_INDEX: return baseObject.getProperty(FilePropertyKey.RATING);
         case SIZE_INDEX: return baseObject.getSize();
@@ -74,8 +76,10 @@ public class SharedVideoTableFormat<T extends LocalFileItem> extends AbstractMyL
     }
     
     @Override
-    public int getDefaultSortColumn() {
-        return NAME_INDEX;
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
     }
 
     @Override

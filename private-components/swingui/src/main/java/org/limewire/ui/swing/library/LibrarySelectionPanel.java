@@ -6,6 +6,10 @@ import java.awt.Font;
 import java.awt.LayoutManager;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.util.Collections;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,9 +24,11 @@ import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
+import org.limewire.setting.StringArraySetting;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.SwingUtils;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
@@ -33,8 +39,9 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
     
     @Resource private Color backgroundColor;
     
-    private Map<String, Disposable> map = new HashMap<String, Disposable>();
-    
+    private Map<String, InfoPanel> categoryInfoPanels = new HashMap<String, InfoPanel>();
+    private Set<String> possibleShareValues;
+
     /**used to fill empty space and hold the info bar at the bottom of the screen. */
     private final JPanel selectionGrow = new JPanel(new MigLayout("fill"));
     
@@ -43,7 +50,24 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
 
     public LibrarySelectionPanel() {
         super(new MigLayout("insets 0, gap 0, fill, wrap, hidemode 3", "[125!]", ""));
+        possibleShareValues = Collections.emptySet();
         init();
+    }
+
+    /**
+     * Updates each applicable (supports share new always) InfoPanel with the set
+     * of allowable names (for example, the set of friends in the user's roster)
+     *
+     * @param possibleShareValues
+     */
+    public void updateCollectionShares(Set<String> possibleShareValues) {
+        this.possibleShareValues = possibleShareValues;
+
+        for (InfoPanel infoPanel : categoryInfoPanels.values()) {
+            if (infoPanel.supportsShareNewAlways()) {
+                infoPanel.updateCategoryShareCount();
+            }
+        }
     }
     
     private void init() {
@@ -65,7 +89,7 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
     @SuppressWarnings("unchecked")
     public<T extends FileItem> void addCard(Category category, EventList<T> fileList, FriendFileList friendFileList, FilterList<T> sharedList, boolean isFriendView) {
         InfoPanel panel = new InfoPanel(category, fileList, friendFileList, sharedList, isFriendView);
-        map.put(category.name(), panel);
+        categoryInfoPanels.put(category.name(), panel);
         cardPanel.add(panel, category.name());
     }
     
@@ -107,6 +131,8 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
         private final FilterList<T> sharedList;
         private final FriendFileList friendList;
         private final Category category;
+        private StringArraySetting shareNewAlwaysSetting;
+        private SettingListener categoryCollectionListener;
         
         public InfoPanel(Category category, EventList<T> fileList, FriendFileList friendList, FilterList<T> sharedList, boolean isFriendView) {
             super(new MigLayout("fillx, gap 0, insets 5 10 5 0, hidemode 3"));
@@ -117,7 +143,7 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
             this.friendList = friendList;
             this.sharedList = sharedList;
             this.category = category;
-            
+
             categoryLabel = new JLabel(I18n.tr("{0} Info", category));
             categoryLabel.setFont(categoryFont);
             categoryLabel.setForeground(fontColor);
@@ -127,8 +153,8 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
             
             initTotalLabel(fileList);
             initSharedList(sharedList);
-            if(!isFriendView && sharedList == null) 
-                initCollectionListener(category);
+            if(!isFriendView && sharedList == null && supportsShareNewAlways())
+                initCollectionListener();
         }
         
         /** 
@@ -158,51 +184,51 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
         }
         
         /**
-         * Displays the number of collections that are shared of this category
+         * Displays the number of collections that are shared of this category.
+         * Assumes category supports "share new always"
          */
-        private void initCollectionListener(Category category) {
-            if(category == Category.AUDIO) {
-                createCollectionLabel();
-                setCollectionLabel(LibrarySettings.SHARE_NEW_AUDIO_ALWAYS.getValue().length);
-                LibrarySettings.SHARE_NEW_AUDIO_ALWAYS.addSettingListener(new SettingListener(){
-                    @Override
-                    public void settingChanged(SettingEvent evt) {
-                        SwingUtilities.invokeLater(new Runnable(){
-                            public void run() {
-                                setCollectionLabel(LibrarySettings.SHARE_NEW_AUDIO_ALWAYS.getValue().length);                                
-                            }
-                        });
-                    }
-                 });
-            } else if(category == Category.VIDEO) {
-                createCollectionLabel();
-                setCollectionLabel(LibrarySettings.SHARE_NEW_VIDEO_ALWAYS.getValue().length);
-                LibrarySettings.SHARE_NEW_VIDEO_ALWAYS.addSettingListener(new SettingListener(){
-                    @Override
-                    public void settingChanged(SettingEvent evt) {
-                        SwingUtilities.invokeLater(new Runnable(){
-                            public void run() {
-                                setCollectionLabel(LibrarySettings.SHARE_NEW_VIDEO_ALWAYS.getValue().length);                                
-                            }
-                        });
-                    }
-                 });
-            } else if(category == Category.IMAGE) { 
-                createCollectionLabel();
-                setCollectionLabel(LibrarySettings.SHARE_NEW_IMAGES_ALWAYS.getValue().length);
-                LibrarySettings.SHARE_NEW_IMAGES_ALWAYS.addSettingListener(new SettingListener(){
-                    @Override
-                    public void settingChanged(SettingEvent evt) {
-                        SwingUtilities.invokeLater(new Runnable(){
-                            public void run() {
-                                setCollectionLabel(LibrarySettings.SHARE_NEW_IMAGES_ALWAYS.getValue().length);                                
-                            }
-                        });
-                    }
-                 });
-            }
+        private void initCollectionListener() {
+            shareNewAlwaysSetting = getShareCategorySetting();
+
+            createCollectionLabel();
+            updateCategoryShareCount();
+
+            categoryCollectionListener = new SettingListener() {
+                @Override
+                public void settingChanged(SettingEvent evt) {
+                    updateCategoryShareCount();
+                }
+            };
+            shareNewAlwaysSetting.addSettingListener(categoryCollectionListener);
         }
-        
+
+
+        public boolean supportsShareNewAlways() {
+            return (getShareCategorySetting() != null);
+        }
+
+        /**
+         * @return LibrarySetting associated with the category member variable
+         *         null if not applicable (does not support share all in category)
+         */
+        private StringArraySetting getShareCategorySetting() {
+            StringArraySetting shareNewAlwaysSetting = null;
+
+            switch (category) {
+                case AUDIO:
+                    shareNewAlwaysSetting = LibrarySettings.SHARE_NEW_AUDIO_ALWAYS;
+                    break;
+                case VIDEO:
+                    shareNewAlwaysSetting = LibrarySettings.SHARE_NEW_VIDEO_ALWAYS;
+                    break;
+                case IMAGE:
+                    shareNewAlwaysSetting = LibrarySettings.SHARE_NEW_IMAGES_ALWAYS;
+                    break;
+                default:
+            }
+            return shareNewAlwaysSetting;
+        }
+
         private void createCollectionLabel() {
             collectionLabel = new JLabel();
             collectionLabel.setFont(smallFont);
@@ -248,6 +274,8 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
                 sharedList.removeListEventListener(this);
             if(sharedList == null)
                 LibrarySettings.SNAPSHOT_SHARING_ENABLED.removeSettingListener(this);
+            if (categoryCollectionListener != null)
+                shareNewAlwaysSetting.removeSettingListener(categoryCollectionListener);
         }
 
         @Override
@@ -266,11 +294,25 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
                 }
             });
         }
+
+        public void updateCategoryShareCount() {
+            Set<String> shareNewAlways = new HashSet<String>(Arrays.asList(shareNewAlwaysSetting.getValue()));
+            shareNewAlways.retainAll(possibleShareValues);
+            updateShareCountLabel(shareNewAlways.size());
+        }
+
+        private void updateShareCountLabel(final int shareCount) {
+            SwingUtils.invokeLater(new Runnable() {
+                public void run() {
+                    setCollectionLabel(shareCount);
+                }
+            });
+        }
     }
 
     @Override
     public void dispose() {
-        for(Disposable disposable : map.values())
+        for(Disposable disposable : categoryInfoPanels.values())
             disposable.dispose();
     }
 }

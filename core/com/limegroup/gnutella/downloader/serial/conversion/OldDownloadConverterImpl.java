@@ -28,6 +28,7 @@ import org.limewire.util.CommonUtils;
 
 import com.google.inject.Inject;
 import com.limegroup.gnutella.PushEndpointFactory;
+import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.DownloaderType;
@@ -316,7 +317,7 @@ public class OldDownloadConverterImpl implements OldDownloadConverter {
         return mementos;
     }
 
-    private Address getAddress(SerialRemoteFileDesc rfd) throws IOException {
+    Address getAddress(SerialRemoteFileDesc rfd) throws IOException {
         if (rfd.isFirewalled() ) {
             if(rfd.getHttpPushAddr() != null) {
                 return pushEndpointFactory.createPushEndpoint(rfd.getHttpPushAddr());
@@ -324,7 +325,11 @@ public class OldDownloadConverterImpl implements OldDownloadConverter {
             	// This is from very old versions, or versions that didn't have proxies.
             	// In this case, we still make it, but the address might be private, in which
             	// case the only useful bit of info is the clientGUID.
-                return pushEndpointFactory.createPushEndpoint(rfd.getClientGUID(), IpPort.EMPTY_SET, (byte)0, 0, new IpPortImpl(rfd.getHost(), rfd.getPort()));
+                if (!RemoteFileDesc.BOGUS_IP.equals(rfd.getHost())) {
+                    return pushEndpointFactory.createPushEndpoint(rfd.getClientGUID(), IpPort.EMPTY_SET, (byte)0, 0, new IpPortImpl(rfd.getHost(), rfd.getPort()));
+                } else {
+                    return pushEndpointFactory.createPushEndpoint(rfd.getClientGUID());
+                }
             }
         } else {
             return new ConnectableImpl(rfd.getHost(), rfd.getPort(), rfd.isTlsCapable());

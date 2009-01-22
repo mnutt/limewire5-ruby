@@ -138,6 +138,12 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
      * be hiding the entire card layout.
 	 */
     protected void select(Category id) {
+        // Clear filter text when category view changes.
+        Category oldCategory = (currentItem != null) ? currentItem.getCategory() : null;
+        if (id != oldCategory) {
+            filterField.setText(null);
+        }
+        
         if(currentItem != null)
             currentItem.fireSelected(false);
         

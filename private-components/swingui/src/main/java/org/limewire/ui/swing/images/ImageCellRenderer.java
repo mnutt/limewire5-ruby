@@ -19,7 +19,8 @@ import org.limewire.ui.swing.util.GuiUtils;
 public class ImageCellRenderer extends ImageLabel implements ListCellRenderer {
     
     protected Border border;
-    protected Border selectedBorder;
+    
+    private ImageCellRendererParams params;
     
     private ThumbnailManager thumbnailManager;
     
@@ -28,12 +29,11 @@ public class ImageCellRenderer extends ImageLabel implements ListCellRenderer {
         
         this.thumbnailManager = thumbnailManager;
         
-        ImageCellRendererParams params = new ImageCellRendererParams();
+        params = new ImageCellRendererParams();
         
         setBackground(params.cellBackgroundColor);
         
         border = BorderFactory.createMatteBorder(1, 1, 1, 1, params.cellBorderColor);
-        selectedBorder = BorderFactory.createMatteBorder(2, 2, 2, 2, params.cellBorderSelectionColor);
     }
     
     @Override
@@ -50,9 +50,10 @@ public class ImageCellRenderer extends ImageLabel implements ListCellRenderer {
         setToolTipText(item.getFileName());
         
         if(isSelected)
-            this.setBorder(selectedBorder);
+            setBackground(params.cellSelectedBackground);
         else 
-            this.setBorder(border);
+            setBackground(params.cellBackgroundColor);
+        this.setBorder(border);
         
         return this;
     }
@@ -63,7 +64,7 @@ public class ImageCellRenderer extends ImageLabel implements ListCellRenderer {
         @Resource
         protected Color cellBorderColor;
         @Resource
-        protected Color cellBorderSelectionColor;
+        protected Color cellSelectedBackground;
         @Resource
         protected Icon errorIcon;
         

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
@@ -32,11 +34,11 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
     
     public RemoteVideoTableFormat() {
         super(new ColumnStateInfo[] {
-                new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_VIDEO_NAME", I18n.tr("Name"), 260, true, true),     
-                new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_VIDEO_EXTENSION", I18n.tr("Extension"), 60, true, true), 
-                new ColumnStateInfo(LENGTH_INDEX, "REMOTE_LIBRARY_VIDEO_LENGTH", I18n.tr("Length"), 80, true, true), 
-                new ColumnStateInfo(QUALITY_INDEX, "REMOTE_LIBRARY_VIDEO_QUALITY", I18n.tr("Quality"), 60, true, true), 
-                new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_VIDEO_SIZE", I18n.tr("Size"), 60, true, true),
+                new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_VIDEO_NAME", I18n.tr("Name"), 812, true, true),     
+                new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_VIDEO_EXTENSION", I18n.tr("Extension"), 128, true, true), 
+                new ColumnStateInfo(LENGTH_INDEX, "REMOTE_LIBRARY_VIDEO_LENGTH", I18n.tr("Length"), 104, true, true), 
+                new ColumnStateInfo(QUALITY_INDEX, "REMOTE_LIBRARY_VIDEO_QUALITY", I18n.tr("Quality"), 199, true, true), 
+                new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_VIDEO_SIZE", I18n.tr("Size"), 136, true, true),
                 new ColumnStateInfo(MISC_INDEX, "REMOTE_LIBRARY_VIDEO_MISC", I18n.tr("Misc"), 120, false, true), 
                 new ColumnStateInfo(YEAR_INDEX, "REMOTE_LIBRARY_VIDEO_YEAR", I18n.tr("Year"), 60, false, true), 
                 new ColumnStateInfo(RATING_INDEX, "REMOTE_LIBRARY_VIDEO_RATING", I18n.tr("Rating"), 60, false, true),
@@ -49,11 +51,11 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
     @Override
     public Object getColumnValue(T baseObject, int column) {
         switch(column) {
-            case NAME_INDEX: return baseObject.getName();
+            case NAME_INDEX: return baseObject;
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
             case LENGTH_INDEX: return baseObject.getProperty(FilePropertyKey.LENGTH);
             case MISC_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
-            case QUALITY_INDEX: return "";
+            case QUALITY_INDEX: return baseObject;
             case YEAR_INDEX: return baseObject.getProperty(FilePropertyKey.YEAR);
             case RATING_INDEX: return baseObject.getProperty(FilePropertyKey.RATING);
             case SIZE_INDEX: return baseObject.getSize();
@@ -70,8 +72,10 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
     }
 
     @Override
-    public int getDefaultSortColumn() {
-        return NAME_INDEX;
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
     }
 
     @Override

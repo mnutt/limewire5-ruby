@@ -83,12 +83,6 @@ public class FilterSettings extends LimeProps {
         FACTORY.createBooleanSetting("FILTER_GREEDY_QUERIES", true);
     
     /**
-	 * Sets whether or not high bit queries a filtered.
-	 */    
-    public static final BooleanSetting FILTER_HIGHBIT_QUERIES =
-        FACTORY.createBooleanSetting("FILTER_HIGHBIT_QUERIES", true);
-    
-    /**
 	 * An array of ip addresses that the user has banned.
 	 */    
     @InspectablePrimitive("blacklisted hosts")

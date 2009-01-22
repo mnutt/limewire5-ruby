@@ -5,9 +5,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
@@ -25,8 +22,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
@@ -36,6 +31,7 @@ import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jdesktop.swingx.icon.EmptyIcon;
+import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.util.Objects;
 
 /** A combobox rendered in the LimeWire 5.0 style. */
@@ -46,6 +42,12 @@ public class LimeComboBox extends JXButton {
 
     /** The currently selected item. */
     private Action selectedAction;
+    
+    /** The currently selected component. */
+    private JComponent selectedComponent;
+    
+    /** The currently selected label */
+    private ActionLabel selectedLabel;
 
     /** Listeners that will be notified when a new item is selected. */
     private final List<SelectionListener> selectionListeners 
@@ -134,7 +136,7 @@ public class LimeComboBox extends JXButton {
         if (selectedAction == null) {
             selectedAction = actions.get(0);
         }
-        updateSize();
+        ResizeUtils.updateSize(this, actions);
         if (menu == null) {
             createPopupMenu();
         }
@@ -151,7 +153,7 @@ public class LimeComboBox extends JXButton {
         if (selectedAction == null) {
             selectedAction = actions.get(0);
         }
-        updateSize();
+        ResizeUtils.updateSize(this, actions);
         if (menu == null) {
             createPopupMenu();
         }
@@ -189,7 +191,7 @@ public class LimeComboBox extends JXButton {
     public void setSelectedAction(Action action) {        
         // Make sure the selected action is in the list
         if (actions.contains(action)) {
-            selectedAction = action;        
+            selectedAction = action;     
             menuDirty = true;
         }        
     }
@@ -215,7 +217,7 @@ public class LimeComboBox extends JXButton {
     public void setText(String promptText) {
         super.setText(promptText);        
         if (promptText != null) {
-            updateSize();
+            ResizeUtils.updateSize(this, actions);
         }
     }
 
@@ -311,7 +313,7 @@ public class LimeComboBox extends JXButton {
     @Override
     public void setFont(Font f) {
         super.setFont(f);
-        updateSize();
+        ResizeUtils.updateSize(this, actions);
     }
     
     /**
@@ -356,70 +358,7 @@ public class LimeComboBox extends JXButton {
         menu = new JPopupMenu();        
         initMenu();
     }
-    
-    /**
-     * Updates the size of the button to match either the explicit text of the
-     * button, or the largest item in the menu.
-     */
-    private void updateSize() {        
-        if (getText() == null && (actions == null || actions.isEmpty())) {
-            return;
-        }
-        
-        Font font = getFont();
-        FontMetrics fm = getFontMetrics(font);
-        Rectangle largest = new Rectangle();
-        Rectangle iconR = new Rectangle();
-        Rectangle textR = new Rectangle();
-        Rectangle viewR = new Rectangle(Short.MAX_VALUE, Short.MAX_VALUE);
-        
-        // If text is explicitly set, layout that text.
-        if(getText() != null && !getText().isEmpty()) {
-            SwingUtilities.layoutCompoundLabel(
-                    this, fm, getText(), null,
-                    SwingConstants.CENTER, SwingConstants.CENTER,
-                    SwingConstants.CENTER, SwingConstants.TRAILING,
-                    viewR, iconR, textR, (getText() == null ? 0 : 4)
-            );
-            Rectangle r = iconR.union(textR);
-            largest = r;
-        } else {
-            // Otherwise, find the largest layout area of all the menu items.
-            for(Action action : actions) {
-                Icon icon = (Icon)action.getValue(Action.SMALL_ICON);
-                String text = (String)action.getValue(Action.NAME);            
-                
-                iconR.height = iconR.width = iconR.x = iconR.y = 0;
-                textR.height = textR.width = textR.x = textR.y = 0;
-                viewR.x = viewR.y = 0;
-                viewR.height = viewR.width = Short.MAX_VALUE;
-                
-                SwingUtilities.layoutCompoundLabel(
-                        this, fm, text, icon,
-                        SwingConstants.CENTER, SwingConstants.CENTER,
-                        SwingConstants.CENTER, SwingConstants.TRAILING,
-                        viewR, iconR, textR, (text == null ? 0 : 4)
-                );
-                Rectangle r = iconR.union(textR);                
-                largest.height = Math.max(r.height, largest.height);
-                largest.width = Math.max(r.width, largest.width);
-            }
-        }
-        
-        Insets insets = getInsets();
-        largest.width += insets.left + insets.right;
-        largest.height += insets.top + insets.bottom;
-        largest.height = Math.max(getMinimumSize().height, largest.height);
-        
-        setMaximumSize(new Dimension(200, 100));
-        setMinimumSize(largest.getSize());
-        setPreferredSize(largest.getSize());
-        setSize(largest.getSize());
-        
-        revalidate();
-        repaint();
-    }
-    
+       
     private void updateMenu() {
         // If custom or not dirty, do nothing.
         if(customMenu || !menuDirty) {
@@ -435,6 +374,8 @@ public class LimeComboBox extends JXButton {
                 ActionLabel label = (ActionLabel)e.getSource();
                 Action action = label.getAction();
                 selectedAction = action;
+                selectedComponent = (JComponent)label.getParent();
+                selectedLabel = label;
                 // Fire the parent listeners
                 for (SelectionListener listener : selectionListeners) {
                     listener.selectionChanged(action);
@@ -447,29 +388,41 @@ public class LimeComboBox extends JXButton {
         // This is a workaround for not using JMenuItem -- it mimicks the feel
         // without requiring odd spacing.
         MouseListener mouseListener = new MouseAdapter() {
+            
+            private final Color foreground = UIManager.getColor("MenuItem.foreground");
+            private final Color selectedForeground = UIManager.getColor("MenuItem.selectionForeground");
+            
             @Override
             public void mouseEntered(MouseEvent e) {
-                ActionLabel label = (ActionLabel)e.getSource();
-                ((JComponent)label.getParent()).setOpaque(true);
-                label.setForeground(UIManager.getColor("MenuItem.selectionForeground"));
-                label.getParent().repaint();
+                paintNormal(e.getSource(), true);
             }
             
             @Override
             public void mouseExited(MouseEvent e) {
-                paintNormal(e.getSource());
+                paintNormal(e.getSource(), false);
             }
             
             @Override
             public void mouseClicked(MouseEvent e) {
-                paintNormal(e.getSource());
+                paintNormal(e.getSource(), true);
             }
             
-            private void paintNormal(Object source) {
-                ActionLabel label = (ActionLabel)source;
-                ((JComponent)label.getParent()).setOpaque(false);
-                label.setForeground(UIManager.getColor("MenuItem.foreground"));
-                label.getParent().repaint();
+            private void paintNormal(Object source, boolean selected) {
+                 ActionLabel label = (ActionLabel)source;
+                 label.setForeground(selected ? selectedForeground : foreground );
+                 
+                 JComponent parent = (JComponent) label.getParent();
+                 parent.setOpaque(selected);
+                 parent.repaint();
+                
+                 // Remove highlight on the last selected component.
+                 if (selectedComponent != null && selectedComponent != parent) {
+                     selectedLabel.setForeground(foreground);
+                     selectedComponent.setOpaque(false);
+                     selectedComponent.repaint();
+                     selectedLabel = null;
+                     selectedComponent = null;
+                 }
             }
         };
         
@@ -481,13 +434,28 @@ public class LimeComboBox extends JXButton {
             }
         }
         
+        selectedComponent = null;
+        selectedLabel = null;
+        
         for (Action action : actions) {
+            
             // We create the label ourselves (instead of using JMenuItem),
             // because JMenuItem adds lots of bulky insets.
             JXPanel panel = new JXPanel(new VerticalLayout());
-            panel.setOpaque(false);
-            panel.setBackground(UIManager.getColor("MenuItem.selectionBackground"));                
             ActionLabel menuItem = new ActionLabel(action, false);
+            
+            panel.setBackground(UIManager.getColor("MenuItem.selectionBackground"));
+            
+            if (action != selectedAction) {
+                panel.setOpaque(false);
+                menuItem.setForeground(UIManager.getColor("MenuItem.foreground"));
+            } else {
+                selectedComponent = panel;
+                selectedLabel = menuItem;
+                selectedComponent.setOpaque(true);
+                selectedLabel.setForeground(UIManager.getColor("MenuItem.selectionForeground"));
+            }
+            
             if(menuItem.getIcon() == null) {
                 menuItem.setIcon(emptyIcon);
             }

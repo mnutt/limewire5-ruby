@@ -73,6 +73,10 @@ public final class SwingUiSettings extends LimeProps {
                 "http://www.limewire.com/index.jsp/pro&29",
                 "0.111111"},
                 "UpdateSettings.proAds");
+    
+    /** Show classic warning. */
+    public static final BooleanSetting SHOW_CLASSIC_REMINDER =
+        FACTORY.createBooleanSetting("SHOW_CLASSIC_SEARCH_REMINDER", true);
 
     /**
      * Setting for whether or not to group similar results
@@ -237,6 +241,14 @@ public final class SwingUiSettings extends LimeProps {
     /** If the LimeWire media player is enabled. */
     public static final BooleanSetting PLAYER_ENABLED =
         FACTORY.createBooleanSetting("PLAYER_ENABLED", true);
+    
+    /** Shows an overlay on My Library first time logging in */
+    public static final BooleanSetting SHOW_FRIEND_OVERLAY_MESSAGE =
+        FACTORY.createBooleanSetting("SHOW_FRIEND_OVERLAY_MESSAGE", true);
+    
+    /** True if the user has logged into chat and viewed their library after, false otherwise */
+    public static final BooleanSetting HAS_LOGGED_IN_AND_SHOWN_LIBRARY =
+        FACTORY.createBooleanSetting("HAS_LOGGED_IN_AND_SHOWN_LIBRARY", false);
 
 
     /**

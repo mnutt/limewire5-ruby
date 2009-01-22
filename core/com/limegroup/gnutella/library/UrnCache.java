@@ -431,7 +431,7 @@ public final class UrnCache {
 			throws IOException, ClassNotFoundException {
 			s.defaultReadObject();
 			_modTime = s.readLong();
-			_path = (String)s.readObject();
+			_path = ((String)s.readObject()).intern();
 			_hashCode = calculateHashCode();
 		}
 	}

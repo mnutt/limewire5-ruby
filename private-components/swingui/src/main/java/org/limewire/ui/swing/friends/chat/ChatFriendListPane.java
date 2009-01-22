@@ -574,7 +574,9 @@ public class ChatFriendListPane extends JPanel {
                 .append("<body>")
                 .append("<img src=\"")
                 .append(ChatFriendsUtil.getIconURL(chatFriend.getMode())).append("\"/>&nbsp;")
-                .append("<b>").append(chatFriend.getName()).append("</b><br/>");
+                .append("<b>").append(chatFriend.getName())
+                .append(" &lt;").append(chatFriend.getID())
+                .append("&gt;").append("</b><br/>");
             String status = chatFriend.getStatus();
             if (status != null && status.length() > 0) {
                 //using width to limit the size of the tooltip, unfortunately looks like max-width does not work 

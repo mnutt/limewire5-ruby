@@ -1,6 +1,5 @@
 package org.limewire.ui.swing.library;
 
-import java.awt.Component;
 import java.util.TooManyListenersException;
 
 import javax.swing.Action;
@@ -10,9 +9,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
-import org.jdesktop.swingx.decorator.ColorHighlighter;
-import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.download.DownloadListManager;
@@ -20,7 +16,6 @@ import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.LibraryManager;
-import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.setting.evt.SettingEvent;
@@ -33,9 +28,7 @@ import org.limewire.ui.swing.dnd.LocalFileListTransferHandler;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.table.LibraryTable;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
-import org.limewire.ui.swing.library.table.LibraryTableModel;
 import org.limewire.ui.swing.lists.CategoryFilter;
-import org.limewire.ui.swing.table.TableColors;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.I18n;
 
@@ -112,17 +105,9 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
             scrollPane.setCorner(JScrollPane.UPPER_TRAILING_CORNER, table.getColumnControl());
             scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         }
-        TableColors tableColors = new TableColors();
-        table.addHighlighter(new ColorHighlighter(new AlreadyDownloadedHighlightPredicate(getTableModel(table), libraryManager.getLibraryManagedList(), downloadListManager), 
-                    null, tableColors.getDisabledForegroundColor(), null, tableColors.getDisabledForegroundColor()));
-        
+
         return scrollPane;
     }
-    
-    @SuppressWarnings("unchecked")
-    private LibraryTableModel<RemoteFileItem> getTableModel(LibraryTable table){
-        return (LibraryTableModel<RemoteFileItem>)table.getModel();
-    }   
     
     @Override
     protected <T extends FileItem> void addCategorySizeListener(Category category,
@@ -182,25 +167,4 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
             });
         }
     }    
-    
-    /**
-     * Grays out a table row if a file is already downloading or
-     * if the file already exists in your library.
-     */
-    private static class AlreadyDownloadedHighlightPredicate implements HighlightPredicate {
-        private final LibraryTableModel<RemoteFileItem> libraryTableModel;
-        private final LocalFileList myLibraryList;
-        private final DownloadListManager downloadListManager;
-        
-        public AlreadyDownloadedHighlightPredicate (LibraryTableModel<RemoteFileItem> libraryTableModel, LocalFileList myLibraryList, DownloadListManager downloadListManager) {
-            this.libraryTableModel = libraryTableModel;
-            this.myLibraryList = myLibraryList;
-            this.downloadListManager = downloadListManager;
-        }
-        @Override
-        public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-            RemoteFileItem fileItem = libraryTableModel.getFileItem(adapter.row);
-            return myLibraryList.contains(fileItem.getUrn()) || downloadListManager.contains(fileItem.getUrn());
-        }       
-    }
 }

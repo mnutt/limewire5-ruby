@@ -168,7 +168,8 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     
     @RuntimeTopicPatternEventSubscriber(methodName="getMessagingTopicPatternName")
     public void handleMessageReceived(String topic, MessageReceivedEvent event) {
-        if (event.getMessage().getType() != Message.Type.Sent && !GuiUtils.getMainFrame().isActive()) {
+        if (event.getMessage().getType() != Message.Type.Sent &&
+             (!GuiUtils.getMainFrame().isActive() || !isVisible())) {
             notifyUnseenMessageListener(event);
             LOG.debug("Sending a message to the tray notifier");
             notifier.showMessage(getNoticeForMessage(event));
@@ -229,9 +230,14 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     
     private void handleConnectionEstablished(XMPPConnectionEvent event) {
         addChatPanel();
-        chatPanel.setLoggedInID(event.getSource().getConfiguration().getCanonicalizedLocalID());
+        chatPanel.setLoggedInID(formatLoggedInName(event.getSource().getConfiguration().getCanonicalizedLocalID()));
         resetBounds();
         setActionEnabled(true);
+    }
+
+    private String formatLoggedInName(String fullLoggedInId) {
+        int index = fullLoggedInId.lastIndexOf("@");
+        return (index == -1) ? fullLoggedInId : fullLoggedInId.substring(0, index);
     }
 
     private void addChatPanel() {

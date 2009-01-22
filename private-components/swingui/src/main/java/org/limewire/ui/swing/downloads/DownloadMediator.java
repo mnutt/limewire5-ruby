@@ -1,18 +1,15 @@
 package org.limewire.ui.swing.downloads;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.ui.swing.downloads.table.DownloadStateExcluder;
 
+import ca.odell.glazedlists.EventList;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import ca.odell.glazedlists.EventList;
 
 @Singleton
 public class DownloadMediator {
@@ -21,9 +18,11 @@ public class DownloadMediator {
 	 * unfiltered - common to all tables
 	 */
 	private final EventList<DownloadItem> commonBaseList;
+	private DownloadListManager downloadListManager;
 	
 	@Inject
 	public DownloadMediator(DownloadListManager downloadManager) {
+	    this.downloadListManager = downloadManager;
 		commonBaseList = GlazedListsFactory.filterList(downloadManager.getSwingThreadSafeDownloads(), new DownloadStateExcluder(DownloadState.CANCELLED));
 	}
 
@@ -48,20 +47,6 @@ public class DownloadMediator {
 	}
 	
 	public void clearFinished() {
-		List<DownloadItem> finishedItems = new ArrayList<DownloadItem>();
-		commonBaseList.getReadWriteLock().writeLock().lock();
-		try {
-		    for (DownloadItem item : commonBaseList) {
-		        if (item.getState() == DownloadState.DONE) {
-		            finishedItems.add(item);
-		        }
-		    }
-		    
-		    for (DownloadItem item : finishedItems) {
-                commonBaseList.remove(item);
-            }
-		} finally {
-		    commonBaseList.getReadWriteLock().writeLock().unlock();
-		}
+	    downloadListManager.clearFinished();
 	}
 }

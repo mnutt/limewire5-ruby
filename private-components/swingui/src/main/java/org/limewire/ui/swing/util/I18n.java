@@ -43,12 +43,10 @@ public class I18n {
     }
 
     /**
-     * Returns the translated singular or plural form of the strings.  For the plural form, 
-     * will perform variable substitution '{0}' for any present in the plural string.
-     * @param singularText
-     * @param pluralText
-     * @param number
-     * @return
+     * Returns the translated singular or plural form of the strings.  The singular
+     * case is shown for number == 1, the plural form is shown for all other cases
+     * including number == 0. Variable substitution '{0}' may still be used with the
+     * singular and plural forms.
      */
     public static String trn(String singularText, String pluralText, long number) {
         return trn(singularText, pluralText, number, number);

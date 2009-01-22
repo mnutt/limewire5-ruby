@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +24,7 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.icon.EmptyIcon;
+import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.BusyPainter;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FriendLibrary;
@@ -34,8 +36,10 @@ import org.limewire.ui.swing.library.FriendLibraryMediator;
 import org.limewire.ui.swing.listener.ActionHandListener;
 import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.menu.actions.ChatAction;
+import org.limewire.ui.swing.painter.GenericBarPainter;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Provider;
@@ -51,7 +55,8 @@ public class NavPanel extends JXPanel {
     @Resource private Icon failedRemoveLibraryHoverIcon;
     @Resource private Icon removeLibraryHoverIcon;
     
-    @Resource private Color selectedBackground;
+    @Resource private Color selectedBackgroundGradientTop = PainterUtils.TRASPARENT;
+    @Resource private Color selectedBackgroundGradientBottom = PainterUtils.TRASPARENT;
     
     @Resource private Font selectedTextFont;
     @Resource private Color selectedTextColor;
@@ -67,6 +72,8 @@ public class NavPanel extends JXPanel {
     private final ActionLabel categoryLabel;
     private final JXBusyLabel statusIcon;
     private final Action action;
+    
+    private final AbstractPainter<JXPanel> selectedPainter;
     
     private NavList parentList;
     private MouseListener removeListener;     
@@ -92,6 +99,9 @@ public class NavPanel extends JXPanel {
         this.friend = friend;           
         this.libraryPanel = libraryPanel;
         this.remoteLibraryManager = remoteLibraryManager;        
+        
+        selectedPainter = new GenericBarPainter<JXPanel>(new GradientPaint(0,0, selectedBackgroundGradientTop,
+                0,1, selectedBackgroundGradientBottom));
         
         categoryLabel = new ActionLabel(action, false);
         categoryLabel.setFont(textFont);
@@ -120,13 +130,13 @@ public class NavPanel extends JXPanel {
                 if(evt.getPropertyName().equals(Action.SELECTED_KEY)) {
                     if(Boolean.TRUE.equals(evt.getNewValue())) {
                         requestFocus();
-                        setBackground(selectedBackground);
+                        setBackgroundPainter(selectedPainter);
                         categoryLabel.setForeground(selectedTextColor);
                         categoryLabel.setFont(selectedTextFont);
                         setOpaque(true);
                         repaint();
                     } else {
-                        setBackground(null);
+                        setBackgroundPainter(null);
                         categoryLabel.setForeground(textColor);
                         categoryLabel.setFont(textFont);
                         setOpaque(false);

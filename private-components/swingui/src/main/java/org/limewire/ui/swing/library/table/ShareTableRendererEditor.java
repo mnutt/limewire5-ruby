@@ -2,9 +2,13 @@ package org.limewire.ui.swing.library.table;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
@@ -32,6 +36,8 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
     
     private final XMPPService xmppService;
     
+    private final ToolTipMouseListener toolTipMouseListener;
+    
     @AssistedInject
     public ShareTableRendererEditor(@Assisted Action shareAction, XMPPService xmppService){
         GuiUtils.assignResources(this);
@@ -41,7 +47,8 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
         shareButton.setFont(shareButtonFont);
         shareButton.setHorizontalTextPosition(SwingConstants.LEFT);       
         shareButton.addActionListener(shareAction);
-        
+    
+        this.toolTipMouseListener = new ToolTipMouseListener(shareButton);
         setLayout(new MigLayout("insets 2 5 2 5, hidemode 0, aligny 50%"));
         add(shareButton);
     }
@@ -65,16 +72,21 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
         fileItem = item;
 
         int friendCount = item.getFriendShareCount();
+        shareButton.removeMouseListener(toolTipMouseListener);
 
-        if(!item.isShareable() || item.isIncomplete()) {
-            shareButton.setEnabled(item.isShareable() && !item.isIncomplete());
+        if(!item.isShareable()) {
+            shareButton.setEnabled(false);
             shareButton.setToolTipText(I18n.tr("This file cannot be shared."));
+            shareButton.addMouseListener(toolTipMouseListener);
         } else if(item.getCategory() == Category.DOCUMENT && (!LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.getValue() && !xmppService.isLoggedIn())) {
             //if the share documents with gnutella option is unchecked, the user must be logged in for the share button to be enabled.
             shareButton.setEnabled(false);
             shareButton.setToolTipText(I18n.tr("Sign in to share Documents with your friends"));
+            shareButton.addMouseListener(toolTipMouseListener);
         } else if(item.getCategory() == Category.PROGRAM && !LibrarySettings.ALLOW_PROGRAMS.getValue()) {
             shareButton.setEnabled(false);
+            shareButton.setToolTipText(I18n.tr("This file cannot be shared."));
+            shareButton.addMouseListener(toolTipMouseListener);
         } else {
             shareButton.setEnabled(true);
             shareButton.setToolTipText(I18n.tr("Share this file with a friend"));
@@ -95,5 +107,24 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
     
     public JButton getShareButton(){
         return shareButton;
+    }
+    
+    /**
+     * On clicking the given component the tooltip will immediatley be displayed. 
+     */
+    private final class ToolTipMouseListener extends MouseAdapter {
+        private final JComponent component;
+
+        private ToolTipMouseListener(JComponent component) {
+            this.component = component;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            Action action = component.getActionMap().get("postTip");
+            if (action != null) {
+                action.actionPerformed(new ActionEvent(component, ActionEvent.ACTION_PERFORMED, "postTip"));
+            }
+        }
     }
 }

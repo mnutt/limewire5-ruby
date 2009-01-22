@@ -2,6 +2,7 @@ package org.limewire.ui.swing.search.resultpanel;
 
 
 import org.limewire.core.api.download.DownloadListManager;
+import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.search.Search;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.nav.Navigator;
@@ -38,12 +39,13 @@ public class DocumentsResultsPanel extends BaseResultPanel {
         ListViewRowHeightRule rowHeightRule,
         SaveLocationExceptionHandler saveLocationExceptionHandler,
         SearchResultFromWidgetFactory searchResultFromWidget, IconManager iconManager, CategoryIconManager categoryIconManager,
-        LibraryNavigator libraryNavigator) {
+        LibraryNavigator libraryNavigator,
+        LibraryManager libraryManager) {
 
         super(listViewEditorRendererFactory, eventList, tableFormat, downloadListManager,
             search, searchInfo, preserver, navigator, properties, rowHeightRule, saveLocationExceptionHandler,
             searchResultFromWidget, iconManager, categoryIconManager,
-            libraryNavigator);
+            libraryNavigator, libraryManager);
         
     }
     

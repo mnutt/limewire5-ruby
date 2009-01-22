@@ -61,10 +61,20 @@ public class ShareLibraryPopupMenu extends JPopupMenu {
         boolean locateActionEnabled = singleFile && !firstItem.isIncomplete();
         boolean viewFileInfoEnabled = singleFile;
         boolean shareActionEnabled = false;
+        boolean removeActionEnabled = false;
+        boolean deleteActionEnabled = false;
         
         for(LocalFileItem localFileItem : fileItems) {
-            if(localFileItem.isShareable() && !localFileItem.isIncomplete()) {
+            if(localFileItem.isShareable()) {
                 shareActionEnabled = true;
+                break;
+            }
+        }
+        
+        for(LocalFileItem localFileItem : fileItems) {
+            if(!localFileItem.isIncomplete()) {
+                removeActionEnabled = true;
+                deleteActionEnabled = true;
                 break;
             }
         }
@@ -96,8 +106,8 @@ public class ShareLibraryPopupMenu extends JPopupMenu {
             add(new LocateFileAction(firstItem)).setEnabled(locateActionEnabled);
         }
 
-        add(new RemoveAction(createFileItemArray(), libraryManager));
-        add(new DeleteAction(createFileItemArray(), libraryManager));
+        add(new RemoveAction(createFileItemArray(), libraryManager)).setEnabled(removeActionEnabled);
+        add(new DeleteAction(createFileItemArray(), libraryManager)).setEnabled(deleteActionEnabled);
 
         addSeparator();
         add(new ViewFileInfoAction(firstItem, propertiesFactory)).setEnabled(viewFileInfoEnabled);
@@ -146,7 +156,7 @@ public class ShareLibraryPopupMenu extends JPopupMenu {
         @Override
         public void actionPerformed(ActionEvent e) {
             for (LocalFileItem localFileItem : localFileItems) {
-                if(localFileItem.isShareable() && !localFileItem.isIncomplete()) {
+                if(localFileItem.isShareable()) {
                     friendFileList.addFile(localFileItem.getFile());
                 }
             }

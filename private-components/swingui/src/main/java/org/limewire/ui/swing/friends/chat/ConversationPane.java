@@ -8,7 +8,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.GradientPaint;
-import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
@@ -17,6 +17,10 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -38,8 +42,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.text.JTextComponent;
@@ -50,7 +52,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.painter.RectanglePainter;
 import org.limewire.concurrent.FutureEvent;
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.download.DownloadAction;
@@ -81,15 +82,19 @@ import org.limewire.ui.swing.action.CopyAllAction;
 import org.limewire.ui.swing.action.PopupUtil;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.HyperlinkButton;
+import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.event.RuntimeTopicEventSubscriber;
 import org.limewire.ui.swing.friends.chat.Message.Type;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
+import org.limewire.ui.swing.painter.GenericBarPainter;
 import org.limewire.ui.swing.util.DNDUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
+import org.limewire.ui.swing.util.PainterUtils;
+import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 import org.limewire.util.FileUtils;
 import org.limewire.xmpp.api.client.ChatState;
@@ -135,7 +140,9 @@ public class ConversationPane extends JPanel implements Displayable {
     @Resource(key="ChatConversation.toolbarBorderColor") private Color toolbarBorderColor;
     @Resource(key="ChatConversation.linkFont") private Font linkFont;
 
-    private JScrollPane conversationScroll;
+    private final JScrollPane conversationScroll;
+    private final JPanel chatWrapper;
+    
     
     @AssistedInject
     public ConversationPane(@Assisted MessageWriter writer, final @Assisted ChatFriend chatFriend, @Assisted String loggedInID,
@@ -164,32 +171,61 @@ public class ConversationPane extends JPanel implements Displayable {
         editor.setEditable(false);
         editor.setContentType("text/html");
         editor.addHyperlinkListener(new HyperlinkListener());
+        editor.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
         HTMLEditorKit editorKit = (HTMLEditorKit) editor.getEditorKit();
         editorKit.setAutoFormSubmission(false);
 
         conversationScroll = new JScrollPane(editor, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         conversationScroll.setOpaque(false);
         conversationScroll.setBorder(BorderFactory.createEmptyBorder());
-        JButton closeConversation = new JButton(new AbstractAction() {
+        
+        
+        final JButton closeConversation = new IconButton(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new CloseChatEvent(chatFriend).publish();
             }
         });
         closeConversation.setIcon(iconLibrary.getEndChat());
-        closeConversation.setBorderPainted(false);
-        closeConversation.setContentAreaFilled(false);
-        closeConversation.setFocusPainted(false);
-        JPanel closeConversationButtonPanel = new JPanel(new BorderLayout());
-        closeConversationButtonPanel.setOpaque(false);
-        closeConversationButtonPanel.add(closeConversation, BorderLayout.EAST);
-        conversationScroll.setColumnHeaderView(closeConversationButtonPanel);
-        editor.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
         
-        JPanel chatWrapper = new JPanel(new BorderLayout());
-        chatWrapper.setBackground(BACKGROUND_COLOR);
+        // TODO: This should be done with a custom layout or 
+        //        a mix of overlay layout, border layout, and mig layout.
+        //        Mig layout may also have this functionality on its own.
+        //        This is a proof on concept / temp bug fix.
+        chatWrapper = new JPanel();
+        chatWrapper.setLayout(null);
+        final Rectangle closeBounds = new Rectangle(268,5,6,6);
+        final Rectangle closeBoundsSlider = new Rectangle(250,5,6,6);
+        closeConversation.setBounds(closeBounds);
+        conversationScroll.setBounds(0,0, 278,171);
+        
+        chatWrapper.add(closeConversation);
         chatWrapper.add(conversationScroll);
-
+        
+        conversationScroll.getVerticalScrollBar().addComponentListener(new ComponentListener() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                closeConversation.setBounds(closeBounds);
+            }
+            @Override
+            public void componentMoved(ComponentEvent e) {
+            }
+            @Override
+            public void componentResized(ComponentEvent e) {
+            }
+            @Override
+            public void componentShown(ComponentEvent e) {
+                closeConversation.setBounds(closeBoundsSlider);
+            }
+        });
+        
+        conversationScroll.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                chatWrapper.repaint();
+            }
+        });
+        
         add(chatWrapper, BorderLayout.CENTER);
 
         PopupUtil.addPopupMenus(editor, new CopyAction(editor), new CopyAllAction());
@@ -324,7 +360,10 @@ public class ConversationPane extends JPanel implements Displayable {
                 }
             });
         }
+        
         decorateFileOfferButtons();
+        
+        chatWrapper.repaint();
     }
 
     private void decorateFileOfferButtons() {
@@ -363,23 +402,25 @@ public class ConversationPane extends JPanel implements Displayable {
     private JPanel footerPanel(MessageWriter writer, ChatFriend chatFriend) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BACKGROUND_COLOR);
+        
         downloadlink = new HyperlinkButton(new DownloadFromFriendLibraryAction());
         downloadlink.setFont(linkFont);
-        JXPanel toolbar = new JXPanel(new MigLayout("insets 0", "push[]10[]5", "0[22px]0"));
-        Border insideBorder = BorderFactory.createEmptyBorder(0, -1, 0, -1);
-        Border outsideBorder = BorderFactory.createLineBorder(toolbarBorderColor, 1);
-        toolbar.setBorder(new CompoundBorder(insideBorder, outsideBorder));
-        RectanglePainter painter = new RectanglePainter();
-        painter.setBorderPaint(toolbarBorderColor);
-        painter.setBorderWidth(0.0f);
-        painter.setInsets(new Insets(0, 0, 0, 0));
-        painter.setFillPaint(new GradientPaint(50.0f, 0.0f, toolbarTopColor, 50.0f, 11.0f, toolbarBottomColor));
-        toolbar.setBackgroundPainter(painter);
-        toolbar.setPaintBorderInsets(true);
-        toolbar.add(downloadlink);
+
         sharelink = new HyperlinkButton(new ShareAction());
         sharelink.setFont(linkFont);
+        
+        
+        JXPanel toolbar = new JXPanel(new MigLayout("insets 0 0 0 5, gap 10, alignx right, aligny 50%"));
+        ResizeUtils.forceHeight(toolbar, 22);
+        
+        toolbar.setBackgroundPainter(new GenericBarPainter<JXPanel>(
+                new GradientPaint(0, 0, toolbarTopColor, 0, 1, toolbarBottomColor),
+                toolbarBorderColor, PainterUtils.TRASPARENT,
+                toolbarBorderColor, PainterUtils.TRASPARENT));
+        
+        toolbar.add(downloadlink);
         toolbar.add(sharelink);
+
         inputPanel = new ResizingInputPanel(writer);
         inputPanel.setBorder(BorderFactory.createEmptyBorder());
         panel.add(toolbar, BorderLayout.NORTH);
@@ -474,6 +515,9 @@ public class ConversationPane extends JPanel implements Displayable {
                     LOG.debugf("Opening a view to {0}'s library", chatFriend.getName());
                     libraryNavigator.selectFriendLibrary(chatFriend.getFriend());
 
+                } else if (ChatDocumentBuilder.MY_LIBRARY_LINK.equals(e.getDescription())) {
+                    LOG.debugf("Opening a view to my library");
+                    libraryNavigator.selectLibrary();
                 } else {
                     String linkDescription = e.getDescription();
                     LOG.debugf("Hyperlink clicked: {0}", linkDescription);

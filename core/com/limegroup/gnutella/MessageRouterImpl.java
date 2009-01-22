@@ -66,6 +66,7 @@ import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.connection.ConnectionLifecycleListener;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.dht.DHTManager;
+import com.limegroup.gnutella.filters.URNFilter;
 import com.limegroup.gnutella.guess.GUESSEndpoint;
 import com.limegroup.gnutella.guess.OnDemandUnicaster;
 import com.limegroup.gnutella.library.FileManager;
@@ -334,6 +335,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
     private final Provider<MACCalculatorRepositoryManager> MACCalculatorRepositoryManager;
     protected final Provider<LimeACKHandler> limeAckHandler;
     protected final QRPUpdater qrpUpdater;
+    private final URNFilter urnFilter;
     
     private final PingRequestFactory pingRequestFactory;
 
@@ -388,7 +390,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
             Provider<OOBHandler> oobHandlerFactory,
             Provider<MACCalculatorRepositoryManager> MACCalculatorRepositoryManager,
             Provider<LimeACKHandler> limeACKHandler, OutgoingQueryReplyFactory outgoingQueryReplyFactory,
-            QRPUpdater qrpUpdater) {
+            QRPUpdater qrpUpdater, URNFilter urnFilter) {
         this.networkManager = networkManager;
         this.queryRequestFactory = queryRequestFactory;
         this.queryHandlerFactory = queryHandlerFactory;
@@ -429,6 +431,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
         this.MACCalculatorRepositoryManager = MACCalculatorRepositoryManager;
         this.limeAckHandler = limeACKHandler;
         this.qrpUpdater = qrpUpdater;
+        this.urnFilter = urnFilter;
 
         _clientGUID = applicationServices.getMyGUID();
         _bypassedResultsCache = new BypassedResultsCache(activityCallback, downloadManager);
@@ -1896,12 +1899,13 @@ public abstract class MessageRouterImpl implements MessageRouter {
         //For flow control reasons, we keep track of the bytes routed for this
         //GUID.  Replies with less volume have higher priorities (i.e., lower
         //numbers).
+        int classC = ByteUtils.beb2int(queryReply.getIPBytes(), 0);
         RouteTable.ReplyRoutePair rrp =
             _queryRouteTable.getReplyHandler(queryReply.getGUID(),
                                              queryReply.getTotalLength(),
 											 queryReply.getUniqueResultCount(),
 											 queryReply.getPartialResultCount(),
-                                             ByteUtils.beb2int(queryReply.getIPBytes(), 0));
+                                             classC, urnFilter.allow(queryReply));
 
         if(rrp != null) {
             queryReply.setPriority(rrp.getBytesRouted());
@@ -2122,8 +2126,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
             _queryRouteTable.getReplyHandler(queryReply.getGUID(),
                                              queryReply.getTotalLength(),
 											 queryReply.getResultCount(),
-											 queryReply.getPartialResultCount(),
-                                             0);
+											 queryReply.getPartialResultCount());
 
         if(rrp != null) {
             queryReply.setPriority(rrp.getBytesRouted());

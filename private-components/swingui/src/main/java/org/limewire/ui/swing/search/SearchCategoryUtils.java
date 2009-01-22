@@ -9,7 +9,7 @@ public class SearchCategoryUtils {
         
     public static String getName(SearchCategory category) {
         switch(category) {
-        case ALL:      return I18n.tr("All");
+        case ALL:      return I18n.trc("All (categories)", "All");
         case AUDIO:    return I18n.tr("Audio"); 
         case DOCUMENT: return I18n.tr("Documents"); 
         case IMAGE:    return I18n.tr("Images"); 
@@ -24,7 +24,7 @@ public class SearchCategoryUtils {
     
     public static String getWhatsNewMenuName(SearchCategory category) {
         switch(category) {
-        case ALL:      return I18n.tr("&All");
+        case ALL:      return I18n.trc("&All (categories)", "&All");
         case AUDIO:    return I18n.tr("A&udio"); 
         case DOCUMENT: return I18n.tr("&Documents"); 
         case IMAGE:    return I18n.tr("&Images"); 

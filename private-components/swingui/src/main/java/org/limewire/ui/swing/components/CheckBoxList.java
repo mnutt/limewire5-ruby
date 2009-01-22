@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,7 +25,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -54,9 +52,11 @@ import org.limewire.ui.swing.util.I18n;
  */
 public class CheckBoxList<E> extends BoxPanel {
 
+    private static final String REMOVE_TEXT = I18n.tr("remove");
+    
     private String disabledTooltip = null;
     
-    private boolean removeable = false;
+    private boolean areAllRemoveable = false;
     
     private boolean selectOff;
     private JScrollPane scrollPane;
@@ -78,6 +78,11 @@ public class CheckBoxList<E> extends BoxPanel {
      */
     private final Set<E>     unchecked = new HashSet<E>();
     private final Set<E>     checked   = new HashSet<E>();
+    
+    /**
+     * The set of singly removable items
+     */
+    private final Set<E>     removableElements = new HashSet<E>();
     
     /**
      * The subset of individual items that have been force disabled.
@@ -243,20 +248,43 @@ public class CheckBoxList<E> extends BoxPanel {
     /**
      * Deletes an item from the list with key "key"
      */
-    public void removeItem(Object key) {
+    public void removeItem(E key) {
         Set<E> newElements = new HashSet<E>(this.elements);
         Set<E> newUnchecked = new HashSet<E>(this.unchecked);
         newElements.remove(key);
         newUnchecked.remove(key);
+        this.setElements(newElements, newUnchecked);
+        removableElements.remove(key);
+    }
+    
+    public void addItem(E key) {
+        Set<E> newElements = new HashSet<E>(this.elements);
+        Set<E> newUnchecked = new HashSet<E>(this.unchecked);
+        newElements.add(key);
+        newUnchecked.add(key);
         this.setElements(newElements, newUnchecked);
     }
    
     /**
      * Enables or disables the delete buttons on each row
      */
-    public void setRemovable(boolean state) {
-        this.removeable = state;
+    public void setAllRemovable(boolean state) {
+        this.areAllRemoveable = state;
         this.update();
+    }
+    
+    /**
+     * Sets a specific element as removable or not
+     */
+    public void setRemovable(E key, boolean state) {
+        if (state) {
+            removableElements.add(key);
+        }
+        else {
+            removableElements.remove(key);
+        }
+        
+        update();
     }
     
      /**
@@ -662,7 +690,7 @@ public class CheckBoxList<E> extends BoxPanel {
         
         @Override
         protected void processMouseMotionEvent( MouseEvent e) {
-            if (removeable) {
+            if (areAllRemoveable) {
                 int row = rowAtPoint(e.getPoint());
                 
                 Rectangle firstRowRect = getCellRect(row, 0, false);
@@ -682,7 +710,7 @@ public class CheckBoxList<E> extends BoxPanel {
         
         @Override
         protected void processMouseEvent( MouseEvent e) {
-            if (removeable) {
+            if (areAllRemoveable) {
                 shift(-1);
             }
             
@@ -1032,7 +1060,7 @@ public class CheckBoxList<E> extends BoxPanel {
         private SeperatorBorder sepBorder;
         private Font originalFont;
         private Font boldFont;
-        
+
         public IconDataCheckBox() {
             super(BoxPanel.X_AXIS);
             
@@ -1078,7 +1106,7 @@ public class CheckBoxList<E> extends BoxPanel {
             this.obj = obj;
             
             checkBox.setVisible(checkBoxesVisible);
-            this.setRemovable(removeable);
+            this.setRemovable(areAllRemoveable || removableElements.contains(obj));
             
             String text = provider.getText(obj);
 
@@ -1118,7 +1146,7 @@ public class CheckBoxList<E> extends BoxPanel {
         public void setHighlight(boolean b) {
             button.setHighlight(b);
             if (b) {
-                this.setToolTipText("Remove...");
+                this.setToolTipText(REMOVE_TEXT);
             } 
             else {
                this.setToolTipText(provider.getToolTipText(obj));
@@ -1175,9 +1203,7 @@ public class CheckBoxList<E> extends BoxPanel {
             label.setForeground(UIManager.getColor("List.foreground"));
             label.setFont(UIManager.getFont("Table.font"));
             label.setOpaque(false);
-            
-            
-        }
+       }
         
         /**
          * Adds an <code>ActionListener</code> to the button.
@@ -1196,18 +1222,14 @@ public class CheckBoxList<E> extends BoxPanel {
         
         
         
-        private class DeleteButton extends JButton {
-            private Icon iconReg;
-            private Icon iconHi;
+        private class DeleteButton extends HyperlinkButton {
             
             public DeleteButton() {
-                iconReg = null; // TODO: GUIMediator.getThemeImage("delete_small");
-                iconHi = null;  // TODO: GUIMediator.getThemeImage("delete_small_hi");
                 
-                this.setIcon(iconReg);
-                this.setMargin(new Insets(0,0,0,0));         
-                this.setBorder(BorderFactory.createEmptyBorder());
-                this.setContentAreaFilled(false);
+                setFont(new Font("Dialog", Font.PLAIN, 11));
+                setText(REMOVE_TEXT);
+                setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
+                
                 this.setVisible(false);
                 this.addMouseListener(new MouseListener() {
                     public void mouseClicked(MouseEvent e) {
@@ -1217,20 +1239,14 @@ public class CheckBoxList<E> extends BoxPanel {
                     public void mouseExited(MouseEvent e) {
                     }
                     public void mousePressed(MouseEvent e) {
-                        removeItem(obj);                        
+                        removeItem(obj);                     
                     }
                     public void mouseReleased(MouseEvent e) {
                     }
                 });
             }
-            
+
             public void setHighlight(boolean b) {
-                if (b) {
-                    this.setIcon(iconHi);
-                }
-                else {
-                    this.setIcon(iconReg);
-                }
             }
         }
         

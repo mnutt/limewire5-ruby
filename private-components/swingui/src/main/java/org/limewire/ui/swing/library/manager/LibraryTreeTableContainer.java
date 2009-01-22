@@ -42,7 +42,7 @@ public class LibraryTreeTableContainer extends JXPanel {
         
         textLabel.setForeground(Color.GRAY);
         
-        setBorder(scrollPane.getBorder());
+        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
     }
     

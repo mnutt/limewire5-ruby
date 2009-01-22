@@ -4,6 +4,7 @@ import java.awt.Insets;
 import java.awt.event.MouseListener;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.SwingConstants;
 
@@ -74,7 +75,7 @@ public class IconButton extends JXButton {
         setFocusPainted(false);
         setRolloverEnabled(false);
         setHideActionText(true);
-        setBorder(null);
+        setBorder(BorderFactory.createEmptyBorder());
         setOpaque(false);
         setHorizontalTextPosition(SwingConstants.CENTER);
         setVerticalTextPosition(SwingConstants.BOTTOM);

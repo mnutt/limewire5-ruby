@@ -22,6 +22,7 @@ public class SharingCheckBoxSubPanel extends JPanel implements Configurable {
         setOpaque(false);
         
         checkBox = new JCheckBox();
+        checkBox.setOpaque(false);
         
         add(checkBox, "alignx right");
     }

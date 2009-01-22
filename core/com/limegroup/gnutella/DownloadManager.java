@@ -305,4 +305,9 @@ LWSIntegrationServicesDelegate, PushedSocketHandler, ListenerSupport<DownloadMan
      */
     public Downloader downloadFromMozilla(MozillaDownload listener);
 
+    /**
+     * Returns true if the given downloader is in either the waiting or active lists. 
+     */
+    public boolean contains(Downloader downloader);
+
 }

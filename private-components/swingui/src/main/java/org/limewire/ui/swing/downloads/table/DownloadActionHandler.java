@@ -2,6 +2,8 @@ package org.limewire.ui.swing.downloads.table;
 
 import java.io.File;
 
+import org.limewire.core.api.Category;
+import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.ui.swing.downloads.DownloadItemUtils;
@@ -75,9 +77,14 @@ public class DownloadActionHandler {
             shareWidget.show(null);
         } else if( actionCommmand == LIBRARY_COMMAND) {
             File file = item.getState() == DownloadState.DONE ? item.getLaunchableFile() : item.getDownloadingFile();
-            libraryNavigator.selectInLibrary(file, item.getCategory());
+            URN urn = item.getUrn();
+            Category category = item.getCategory();
+            
+            if(file != null) {
+                libraryNavigator.selectInLibrary(file, category);
+            } else if (urn != null){
+                libraryNavigator.selectInLibrary(urn, category);
+            }
         }
     }
-    
-
 }

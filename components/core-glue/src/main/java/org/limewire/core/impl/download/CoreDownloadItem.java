@@ -3,7 +3,10 @@ package org.limewire.core.impl.download;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
@@ -11,6 +14,7 @@ import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.core.impl.URNImpl;
+import org.limewire.core.impl.util.FilePropertyKeyPopulator;
 import org.limewire.io.Address;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
@@ -21,6 +25,7 @@ import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.Downloader.DownloadStatus;
 import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 class CoreDownloadItem implements DownloadItem {
    
@@ -29,6 +34,8 @@ class CoreDownloadItem implements DownloadItem {
     private volatile int hashCode = 0;
     private volatile long cachedSize;
     private volatile boolean cancelled = false;
+    
+    private Map<FilePropertyKey, Object> propertiesMap;  // TODO this is a shallow copy of LimeXMLDocument.fieldToValue
 
     /**
      * size in bytes. FINISHING state is only shown for files greater than this
@@ -331,13 +338,46 @@ class CoreDownloadItem implements DownloadItem {
 
     @Override
     public Object getProperty(FilePropertyKey key) {
-        // TODO - Implement me
-        return "Property not implemented";
+        return getPropertiesMap().get(key);
     }
 
     @Override
-    public String getPropertyString(FilePropertyKey filePropertyKey) {
-        // TODO - Implement me
-        return "PropertyString not implemented";
+    public String getPropertyString(FilePropertyKey key) {
+        Object value = getProperty(key);
+        if (value != null) {
+            String stringValue = value.toString();
+            return stringValue;
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Lazily builds the properties map for this local file item.
+     */
+    private Map<FilePropertyKey, Object> getPropertiesMap() {
+        synchronized (this) {
+            if(propertiesMap == null) {
+                reloadProperties();
+            }
+            return propertiesMap;
+        }
+    }
+    
+    /**
+     * Reloads the properties map to whatever values are stored in the
+     * LimeXmlDocs for this file.
+     */
+    public void reloadProperties() {
+        synchronized (this) {
+            Map<FilePropertyKey, Object> reloadedMap = Collections
+                    .synchronizedMap(new HashMap<FilePropertyKey, Object>());
+            //"LimeXMLDocument" attribute is set in ManagedDownloaderImpl
+            LimeXMLDocument doc = (LimeXMLDocument)downloader.getAttribute("LimeXMLDocument");
+            if (doc != null) {
+                FilePropertyKeyPopulator.populateProperties(getFileName(), getTotalSize(), downloader.getFile().lastModified(), reloadedMap, doc);
+            }
+            propertiesMap = reloadedMap;
+        }
     }
 }

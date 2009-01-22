@@ -47,6 +47,7 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.downloads.MainDownloadPanel;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
+import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.properties.PropertiesFactory;
@@ -103,9 +104,9 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     @Resource private Icon spamIcon;
     @Resource private Icon downloadingIcon;
     @Resource private Icon libraryIcon;
-    @Resource private Icon optionsDownIcon;
-    @Resource private Icon optionsHoverIcon;
-    @Resource private Icon optionsUpIcon;
+    @Resource private Icon propertiesDown;
+    @Resource private Icon propertiesHover;
+    @Resource private Icon propertiesNormal;
     @Resource private Icon similarUpIcon;
     @Resource private Icon similarDownIcon;
     @Resource private Icon similarActiveIcon;
@@ -123,7 +124,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     private SearchResultFromWidget fromWidget;
     private JLabel itemIconLabel;
     private JToggleButton similarButton = new JToggleButton();
-    private JButton optionsButton = new JButton();
+    private JButton propertiesButton = new JButton();
     private JEditorPane heading = new JEditorPane();
     private JLabel subheadingLabel = new JLabel();
     private JLabel metadataLabel = new JLabel();
@@ -205,44 +206,14 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             }
         });
 
-        optionsButton.setIcon(optionsUpIcon);
-        optionsButton.setRolloverIcon(optionsHoverIcon);
-        optionsButton.setToolTipText(I18n.tr("More options"));
-        optionsButton.setBorderPainted(false);
-        optionsButton.setContentAreaFilled(false);
-        optionsButton.setFocusPainted(false);
-        
-        //This mouse listening code is necessary for the same reason that the listening code
-        //for similar results is necessary.  The automatic table editing upon mouse entry 
-        //makes responding to mouse events more complicated for components within the edited row
-        optionsButton.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                optionsButton.setRolloverIcon(vsr.isShowingContextOptions() ? optionsDownIcon : optionsHoverIcon);
-                optionsButton.setIcon(vsr.isShowingContextOptions() ? optionsDownIcon : optionsHoverIcon);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                optionsButton.setIcon(vsr.isShowingContextOptions() ? optionsDownIcon : optionsUpIcon);
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                optionsButton.setIcon(optionsDownIcon);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                optionsButton.setIcon(optionsDownIcon);
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                optionsButton.setIcon(optionsDownIcon);
-            }
-        });
+        propertiesButton.setIcon(propertiesNormal);
+        propertiesButton.setRolloverIcon(propertiesHover);
+        propertiesButton.setRolloverEnabled(true);
+        propertiesButton.setPressedIcon(propertiesDown);
+        propertiesButton.setToolTipText(I18n.tr("View file info"));
+        propertiesButton.setBorderPainted(false);
+        propertiesButton.setContentAreaFilled(false);
+        propertiesButton.setFocusPainted(false);
         
         fromWidget = fromWidgetFactory.create(false);
        
@@ -274,33 +245,20 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
                 if(SwingUtilities.isLeftMouseButton(e) && isDownloadEligible(vsr)) {
                     actionButtonPanel.startDownload();
                     table.editingStopped(new ChangeEvent(table));
-                } else {
-                    handlePopupMouseEvent(e); 
-                }
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                handlePopupMouseEvent(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                handlePopupMouseEvent(e);
-            }
-
-            private void handlePopupMouseEvent(MouseEvent e) {
-                if(e.isPopupTrigger()) {
-                    SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), properties);
-                    searchResultMenu.show(itemIconLabel, e.getX(), e.getY());
                 }
             }
         });
         
-        optionsButton.addMouseListener( new MouseAdapter() {
-            
+        propertiesButton.addActionListener(new ActionListener() {
             @Override
-            public void mousePressed(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
+                properties.newProperties().showProperties(vsr);
+            }
+        });
+        
+        MousePopupListener popupListener = new MousePopupListener() {
+            @Override
+            public void handlePopupMouseEvent(MouseEvent e) {
                 final VisualSearchResult result = vsr; 
                 SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), properties);
                 searchResultMenu.addPopupMenuListener(new PopupMenuListener() {
@@ -320,10 +278,13 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
                         result.setShowingContextOptions(true);
                     }
                 });
-                searchResultMenu.show(optionsButton, e.getX(), e.getY());
+                searchResultMenu.show(editorComponent, e.getX()+3, e.getY()+3);
             }
-        });
-
+        };
+        
+        editorComponent.addMouseListener(popupListener);
+        itemIconLabel.addMouseListener(popupListener);
+        heading.addMouseListener(popupListener);
     }
 
     public Object getCellEditorValue() {
@@ -382,7 +343,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             panel = col == 0 ? leftPanel : fromPanel;
             
             if (col == 1) {
-                optionsButton.setIcon(vsr.isShowingContextOptions() ? optionsDownIcon : optionsUpIcon);
+                propertiesButton.setIcon(propertiesNormal);
                 similarButton.setIcon(isShowingSimilarResults() ? similarActiveIcon : similarUpIcon);
                 similarButton.setToolTipText(isShowingSimilarResults() ? 
                         I18n.tr("Hide similar files") : I18n.tr("Show similar files"));
@@ -429,7 +390,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         panel.add(fromWidget, "push");
         //Tweaked the width of the icon because display gets clipped otherwise
         panel.add(similarButton, "hmax 25, wmax 27");
-        panel.add(optionsButton, "hmax 25, wmax 27");
+        panel.add(propertiesButton, "hmax 25, wmax 27");
 
         return panel;
     }

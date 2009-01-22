@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.limewire.util.FileUtils;
 import org.limewire.util.MediaType;
+import org.limewire.core.api.friend.Friend;
 
 
 class GnutellaFileListImpl extends FriendFileListImpl implements GnutellaFileList {
@@ -25,7 +26,7 @@ class GnutellaFileListImpl extends FriendFileListImpl implements GnutellaFileLis
     private final AtomicInteger applicationShared = new AtomicInteger();
     
     public GnutellaFileListImpl(LibraryFileData data, ManagedFileListImpl managedList) {
-        super(data, managedList, "_@_GNUTELLA_@_"); // @'s added to avoid clashes with xmpp ids.
+        super(data, managedList, Friend.P2P_FRIEND_ID); // @'s added to avoid clashes with xmpp ids.
         this.numBytes = new AtomicLong();
     }
     

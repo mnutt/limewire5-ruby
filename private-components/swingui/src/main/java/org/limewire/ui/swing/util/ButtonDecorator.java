@@ -3,6 +3,8 @@ package org.limewire.ui.swing.util;
 import java.awt.Color;
 import java.awt.Font;
 
+import javax.swing.BorderFactory;
+
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.Painter;
@@ -39,6 +41,7 @@ public class ButtonDecorator {
         button.setBackgroundPainter(painterFactory.createMiniButtonBackgroundPainter());
         
         decorateGeneral(button);
+        button.setBorder(BorderFactory.createEmptyBorder(2,6,3,6));
         
         button.setForeground(miniTextForeground);
         button.setFont(miniTextFont);

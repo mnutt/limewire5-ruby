@@ -101,6 +101,28 @@ public class FocusJOptionPane {
         
         
     }
+    
+    /**
+     * @see JOptionPane#showConfirmDialog(Component, Object, String, int)
+     */
+    public static int showConfirmDialog(Component parentComponent, Object message, String title,
+            int optionType, int messageType) throws HeadlessException {
+        boolean dispose = false;
+        parentComponent = getWindowForComponent(parentComponent);
+        if(parentComponent == null) {
+            parentComponent = createFocusComponent();
+            dispose = true;
+        }
+        
+        try {
+            return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType, messageType);
+        } finally {
+            if(dispose)
+                ((JFrame)parentComponent).dispose();
+        }
+        
+        
+    }
 
     /**
      * @see JOptionPane#showOptionDialog(Component, Object, String, int, int,

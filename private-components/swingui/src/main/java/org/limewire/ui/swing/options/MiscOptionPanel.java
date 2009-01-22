@@ -19,11 +19,13 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.jdesktop.application.Resource;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.friends.settings.XMPPAccountConfiguration;
 import org.limewire.ui.swing.friends.settings.XMPPAccountConfigurationManager;
 import org.limewire.ui.swing.settings.SwingUiSettings;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LanguageUtils;
 import org.limewire.ui.swing.util.SwingUtils;
@@ -41,7 +43,7 @@ public class MiscOptionPanel extends OptionPanel {
     private FriendsChatPanel friendsChatPanel;
     
     //Language components, does not exist in its own subcomponent
-    private Font font = new Font("Arial", Font.PLAIN, 12);
+    @Resource private Font font;
     private Locale currentLanguage;
     private JLabel comboLabel;
     private JComboBox languageDropDown;
@@ -49,6 +51,8 @@ public class MiscOptionPanel extends OptionPanel {
     @Inject
     public MiscOptionPanel(XMPPAccountConfigurationManager accountManager) {
         this.accountManager = accountManager;
+        
+        GuiUtils.assignResources(this);
 
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
 

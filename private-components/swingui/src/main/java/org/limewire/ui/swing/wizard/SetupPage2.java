@@ -152,7 +152,7 @@ public class SetupPage2 extends WizardPage {
         add(checkBoxes, "gaptop 5, gapleft 76, growx, wrap");
         
         add(treeTableContainer, "gaptop 5, gapleft 76, growx");
-        add(addFolderButton, "gaptop 5, gapright 30, wrap");
+        add(addFolderButton, "aligny 0%, gaptop 5, gapright 30, wrap");
 
 
     }

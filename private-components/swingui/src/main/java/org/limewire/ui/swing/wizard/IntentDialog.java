@@ -31,8 +31,6 @@ import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.painter.GenericBarPainter;
-import org.limewire.ui.swing.painter.GreenButtonBackgroundPainter;
-import org.limewire.ui.swing.painter.LightButtonBackgroundPainter;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LanguageUtils;
@@ -44,10 +42,10 @@ import org.limewire.util.SystemUtils;
 public class IntentDialog extends LimeJDialog {
 
     private final Color backgroundColor = Color.WHITE;
-    private final Font headingFont = new Font("Arial", Font.BOLD, 16);
-    private final Font normalFont = new Font("Arial", Font.PLAIN, 14);
-    private final Font buttonFont = new Font("Arial", Font.BOLD, 14);
-    
+    private final Font headingFont = new Font("Dialog", Font.BOLD, 14);
+    private final Font smallFont = new Font("Dialog", Font.PLAIN, 12);
+    private final Font normalFont = new Font("Dialog", Font.PLAIN, 14);
+    private final Font buttonFont = new Font("Dialog", Font.BOLD, 14);
     
     private final Color headerGradientTop = new Color(0xf4f4f4);
     private final Color headerGradientBottom = new Color(0xd7d7d7);
@@ -56,21 +54,29 @@ public class IntentDialog extends LimeJDialog {
     private final Paint headerBottomBorder1 = new Color(0x696969);
     private final Paint headerBottomBorder2 = new Color(0xffffff);
     
-    
     private final JLabel headingLabel;
     private final MultiLineLabel bodyLabel;
     private final JLabel agreeLabel;
-    private final JButton linkButton;
+    private final JButton copyrightButton;
+    private final JButton agreementButton;
+    private final JButton privacyButton;
     private final JLabel languageLabel;
     private final JXButton agreeButton;
     private final JXButton exitButton;
     
-    private final String learnMoreURL = "http://www.limewire.com/learnMore/intent";
+    private final String copyrightURL = "http://www.limewire.com/learnmore/copyright";
+    private final String agreementURL = "http://www.limewire.com/learnmore/agreement";
+    private final String privacyURL = "http://www.limewire.com/learnmore/privacy";
     
     private final Action urlAction = new AbstractAction(){
         @Override
         public void actionPerformed(ActionEvent e) {
-           NativeLaunchUtils.openURL(learnMoreURL);
+            if(e.getSource().equals(copyrightButton))
+                NativeLaunchUtils.openURL(copyrightURL);
+            else if(e.getSource().equals(agreementButton))
+                NativeLaunchUtils.openURL(agreementURL);
+            else if(e.getSource().equals(privacyButton))
+                NativeLaunchUtils.openURL(privacyURL);
         }
     };
     
@@ -94,22 +100,34 @@ public class IntentDialog extends LimeJDialog {
         
         headingLabel = new JLabel();
         headingLabel.setFont(headingFont);
-        agreeLabel = new MultiLineLabel("", 450);
-        agreeLabel.setFont(normalFont);
-        linkButton = new HyperlinkButton(urlAction);
-        linkButton.setFont(normalFont);
-        FontUtils.underline(linkButton);
-        linkButton.setForeground(new Color(0x2152a6));
-        bodyLabel = new MultiLineLabel("", 450);        
-        bodyLabel.setFont(normalFont);
+        agreeLabel = new MultiLineLabel("", 500);
+        agreeLabel.setFont(smallFont);
+        //FontUtils.bold(agreeLabel);
+        copyrightButton = new HyperlinkButton(urlAction);
+        copyrightButton.setFocusPainted(false);
+        copyrightButton.setFont(smallFont);
+        FontUtils.underline(copyrightButton);
+        copyrightButton.setForeground(new Color(0x2152a6));
+        agreementButton = new HyperlinkButton(urlAction);
+        agreementButton.setFocusPainted(false);
+        agreementButton.setFont(smallFont);
+        FontUtils.underline(agreementButton);
+        agreementButton.setForeground(new Color(0x2152a6));
+        privacyButton = new HyperlinkButton(urlAction);
+        privacyButton.setFocusPainted(false);
+        privacyButton.setFont(smallFont);
+        FontUtils.underline(privacyButton);
+        privacyButton.setForeground(new Color(0x2152a6));
+        bodyLabel = new MultiLineLabel("", 500);        
+        bodyLabel.setFont(smallFont);
         languageLabel = new JLabel();
-        languageLabel.setFont(normalFont);
+        languageLabel.setFont(smallFont);
         agreeButton = new JXButton();
         decorateButton(agreeButton);
-        agreeButton.setBackgroundPainter(new GreenButtonBackgroundPainter());
+        agreeButton.setBackgroundPainter(new IntentGreenButtonBackgroundPainter());
         exitButton = new JXButton();
         decorateButton(exitButton);
-        exitButton.setBackgroundPainter(new LightButtonBackgroundPainter(6,6));
+        exitButton.setBackgroundPainter(new IntentLightButtonBackgroundPainter());
 
         JComboBox languageDropDown = createLanguageDropDown(normalFont);
                 
@@ -133,8 +151,10 @@ public class IntentDialog extends LimeJDialog {
         int indent = 14;
         headerBar.add(headingLabel, "grow, wrap");
         panel.add(bodyLabel, "gapleft " + indent + ", gaptop 10, wrap");
-        panel.add(linkButton, "gapleft " + indent +  ", gaptop 20, wrap");
-        panel.add(agreeLabel, "gapleft " + indent +  ", gaptop 70, wrap");
+        panel.add(copyrightButton, "gapleft " + indent +  ", gaptop 20, wrap");
+        panel.add(agreementButton, "gapleft " + indent +  ", wrap");
+        panel.add(privacyButton, "gapleft " + indent +  ", wrap");
+        panel.add(agreeLabel, "gapleft " + indent +  ", gaptop 40, wrap");
 
         langInnerPanel.add(languageLabel);
         langInnerPanel.add(languageDropDown);
@@ -165,7 +185,6 @@ public class IntentDialog extends LimeJDialog {
         button.setBorder(BorderFactory.createEmptyBorder(0,10,3,10));
         button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
         button.setMinimumSize(new Dimension(105, 32));
-        button.setPreferredSize(new Dimension(105, 32));
     }
     
     
@@ -196,7 +215,7 @@ public class IntentDialog extends LimeJDialog {
         final JComboBox languageDropDown = new JComboBox();
         Locale[] locales = LanguageUtils.getLocales(normalFont);
         languageDropDown.setRenderer(new LocaleRenderer());
-        languageDropDown.setFont(normalFont);
+        languageDropDown.setFont(smallFont);
         languageDropDown.setModel(new DefaultComboBoxModel(locales));
         
         // Attempt to guess the default locale and set accordingly
@@ -245,10 +264,12 @@ public class IntentDialog extends LimeJDialog {
      */
     private void setTextContents() {
 
-        String heading  = I18n.tr("State Your Intent");
+        String heading  = I18n.tr("Some Legal Stuff");
         String bodyText1
-        = I18n.tr("LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only. Installing and using either program does not constitute a license for obtaining or distributing unauthorized content.");
-        String linkText = I18n.tr("Learn more");
+        = I18n.tr("LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only. Copyright laws may forbid obtaining or distributing certain copyrighted content. Learn more about your rights below:");
+        String copyText = I18n.tr("Copyright Information");
+        String privacyText = I18n.tr("Privacy Policy");
+        String licenseText = I18n.tr("License");
         String agreementText = I18n.tr("By clicking \"I Agree\", you agree to not use LimeWire for copyright infringement.");
         String languageText = I18n.tr("Choose your language");
         
@@ -269,7 +290,9 @@ public class IntentDialog extends LimeJDialog {
         
         headingLabel.setText(heading);
         bodyLabel.setText(bodyText1);
-        linkButton.setText(linkText);
+        copyrightButton.setText(copyText);
+        agreementButton.setText(privacyText);
+        privacyButton.setText(licenseText);
         agreeLabel.setText(agreementText);
         languageLabel.setText(languageText);
         exitButton.setAction(exitAction);

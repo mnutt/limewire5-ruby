@@ -29,7 +29,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.RemoteFileDesc;
@@ -62,12 +61,6 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
     private DownloadStatus downloadStatus = DownloadStatus.QUEUED;
 
     private BTMetaInfo btMetaInfo = null;
-
-    /**
-     * The URN for this download - initialized as soon as we fetch the metadata,
-     * but before the downloader object is created. See equals().
-     */
-    private volatile URN urn;
 
     /**
      * Something to shutdown if the user cancels the fetching
@@ -131,14 +124,9 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
 
         if (m == null) {
             downloadStatus = DownloadStatus.INVALID;
-            urn = null;
             return false;
         }
 
-        synchronized (this) {
-            urn = m.getURN();
-        }
-        
         torrentManager.shareTorrentFile(m, body);
         downloadStatus = DownloadStatus.COMPLETE;
         this.btMetaInfo = m;
@@ -326,23 +314,6 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
     }
 
     public void measureBandwidth() {
-    }
-
-    /**
-     * The equals() method ensures that once the delegate downloader is created,
-     * it is considered identical to this. Until then, this is a regular unique
-     * downloader.
-     */
-    @Override
-    public synchronized boolean equals(Object o) {
-        if (urn == null) {
-            return super.equals(o);
-        }
-        if (!(o instanceof BTTorrentFileDownloader)) {
-            return false;
-        }
-        Downloader d = (Downloader) o;
-        return urn.equals(d.getSha1Urn());
     }
 
     public int getTriedHostCount() {

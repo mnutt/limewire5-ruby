@@ -5,6 +5,8 @@ import java.awt.Component;
 import javax.swing.JTable;
 
 import org.limewire.core.api.FilePropertyKey;
+import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -22,7 +24,8 @@ public class QualityRenderer extends DefaultLibraryRenderer {
         
         if(value == null) {
             setText("");
-        } else {
+        } else if(value instanceof VisualSearchResult){
+            
             VisualSearchResult result = (VisualSearchResult)value;
             if(result.isSpam()) {
                 setText(I18n.tr("Spam"));
@@ -33,6 +36,24 @@ public class QualityRenderer extends DefaultLibraryRenderer {
                     Number num = ((Number)result.getProperty(FilePropertyKey.QUALITY));
                     setText(GuiUtils.toQualityStringShort(num.longValue())); 
                 }
+            }
+        } else if(value instanceof RemoteFileItem) {
+            RemoteFileItem item = (RemoteFileItem) value;
+
+            if(!(item.getProperty(FilePropertyKey.QUALITY) instanceof Number))
+                setText("");
+            else {
+                Number num = ((Number)item.getProperty(FilePropertyKey.QUALITY));
+                setText(GuiUtils.toQualityStringShort(num.longValue())); 
+            }
+        } else if(value instanceof LocalFileItem) {
+            LocalFileItem item = (LocalFileItem) value;
+
+            if(!(item.getProperty(FilePropertyKey.QUALITY) instanceof Number))
+                setText("");
+            else {
+                Number num = ((Number)item.getProperty(FilePropertyKey.QUALITY));
+                setText(GuiUtils.toQualityStringShort(num.longValue())); 
             }
         }
         return this;

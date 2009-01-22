@@ -10,6 +10,7 @@ import java.util.TooManyListenersException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
@@ -165,7 +166,7 @@ class LibraryNavigatorImpl extends JXPanel implements LibraryNavigator {
         friendsScrollArea.getViewport().setOpaque(false);
         friendsScrollArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         friendsScrollArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        friendsScrollArea.setBorder(null);
+        friendsScrollArea.setBorder(BorderFactory.createEmptyBorder());
         
         // Increase the painted gaps a bit to make sure it's not smushed.
         myLibrary.setTopGap(2);

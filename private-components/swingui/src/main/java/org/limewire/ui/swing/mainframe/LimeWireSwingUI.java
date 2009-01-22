@@ -28,6 +28,7 @@ import org.limewire.ui.swing.friends.chat.ChatFramePanel;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.pro.ProNag;
 import org.limewire.ui.swing.search.SearchHandler;
+import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.statusbar.StatusPanel;
 import org.limewire.ui.swing.update.UpdatePanel;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -42,6 +43,7 @@ public class LimeWireSwingUI extends JPanel {
     private final ProNag proNag;
     private final Application application;
     private final JLayeredPane layeredPane;
+    private final boolean isFirstLaunch;
     
 	@Inject
     public LimeWireSwingUI(
@@ -107,6 +109,8 @@ public class LimeWireSwingUI extends JPanel {
         layeredPane.add(shapeDialog, JLayeredPane.POPUP_LAYER);
         add(layeredPane, BorderLayout.CENTER);
         add(statusPanel, BorderLayout.SOUTH);
+        
+        isFirstLaunch = !InstallSettings.UPGRADED_TO_5.getValue();
     }
 	
 	void hideMainPanel() {
@@ -118,7 +122,7 @@ public class LimeWireSwingUI extends JPanel {
 	}
 	
 	void loadProNag() {
-        if(!application.isProVersion()) {
+        if(!application.isProVersion() && !isFirstLaunch) {
 	        proNag.loadContents().addFutureListener(new EventListener<FutureEvent<Void>>() {
 	            @Override
 	            @SwingEDTEvent

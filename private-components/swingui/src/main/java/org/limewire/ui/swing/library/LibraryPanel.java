@@ -12,6 +12,7 @@ import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.LimePromptTextField;
+import org.limewire.ui.swing.painter.FilterPainter;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.FilterList;
@@ -31,7 +32,8 @@ class LibraryPanel extends AbstractFileListPanel {
     
     @Override
     protected LimePromptTextField createFilterField(String prompt) {
-        return new LimePromptTextField(prompt);
+        // Create filter field and install painter.
+        return FilterPainter.decorate(new LimePromptTextField(prompt));
     }
     
     @Override
@@ -89,5 +91,5 @@ class LibraryPanel extends AbstractFileListPanel {
                 }
             });
         }
-    }        
+    }
 }

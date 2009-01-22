@@ -173,6 +173,15 @@ public class LimePromptTextField extends JTextField implements FocusListener {
 
     }
     
+    /**
+     * Creates the border painter for this component.
+     */
+    public Painter<JTextField> createBorderPainter() {
+        return new BorderPainter<JTextField>(arcWidth, arcHeight, workingBorder,  
+                bevelLeft,  bevelTop1,  bevelTop2, bevelRight,  bevelBottom, 
+                accentType);
+    }
+    
     private Painter<LimePromptTextField> createPromptPainter() {
         AbstractPainter<LimePromptTextField> painter = new AbstractPainter<LimePromptTextField>() {
 
@@ -224,9 +233,7 @@ public class LimePromptTextField extends JTextField implements FocusListener {
         painter.setAntialiasing(true);
         painter.setCacheable(true);
         
-        compoundPainter.setPainters(painter, new BorderPainter<JTextField>(this.arcWidth, this.arcHeight,
-                workingBorder,  this.bevelLeft,  this.bevelTop1,  this.bevelTop2, 
-                this.bevelRight,  this.bevelBottom, this.accentType));
+        compoundPainter.setPainters(painter, createBorderPainter());
         compoundPainter.setCacheable(true);
         
         return compoundPainter;

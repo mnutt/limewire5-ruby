@@ -637,8 +637,10 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     			    AbstractNBSocket socket = udpSelectorProvider.get().openSocketChannel().socket();
                     data.getMultiShutdownable().addShutdownable(socket);
                     IpPort publicAddress = getPublicAddress(data.getFile().getAddress());
-                    assert(NetworkUtils.isValidIpPort(publicAddress)) : "invalid public address: " + publicAddress;
-    				socket.connect(publicAddress.getInetSocketAddress(), 20000, new FWTConnectObserver(socketProcessor.get()));
+                    // TODO: see issue: LWC-2278
+                    if (NetworkUtils.isValidIpPort(publicAddress)) {
+                        socket.connect(publicAddress.getInetSocketAddress(), 20000, new FWTConnectObserver(socketProcessor.get()));
+                    }
                 }
                 
                 return false; // don't need to process any more methods.

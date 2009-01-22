@@ -15,7 +15,10 @@ import ca.odell.glazedlists.EventList;
 public interface DownloadListManager extends ResultDownloader {
     /** Property name for downloads completed event. */
     public static final String DOWNLOADS_COMPLETED = "downloadsCompleted";
-	
+
+    /** Property name for a download completed event. */
+    public static final String DOWNLOAD_COMPLETED = "downloadCompleted";
+
     /**
      * Returns all items currently being downloaded.
      */
@@ -61,6 +64,11 @@ public interface DownloadListManager extends ResultDownloader {
      * all downloads are completed.
      */
     public void updateDownloadsCompleted();
+    
+    /**
+     * Clears all completed downloads
+     */
+    public void clearFinished();
 
     /**
      * Returns a download item for the given URN if any, null is returned otherwise. 

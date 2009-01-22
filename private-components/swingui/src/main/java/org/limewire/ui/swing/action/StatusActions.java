@@ -1,9 +1,8 @@
 package org.limewire.ui.swing.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.Icon;
+import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
@@ -15,7 +14,6 @@ import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.friends.chat.IconLibrary;
 import org.limewire.ui.swing.friends.login.FriendActions;
-import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
@@ -40,24 +38,31 @@ public class StatusActions {
     public StatusActions(final XMPPService xmppService, final IconLibrary iconLibrary) {
         this.xmppService = xmppService;
         
-        available = new MnemonicCheckBoxMenuItem( I18n.tr("&Available"), iconLibrary.getAvailable());
-        available.addActionListener(new ActionListener() {
+        available = new JCheckBoxMenuItem(new AbstractAction(I18n.tr("&Available")) {
+            { 
+                putValue(Action.SMALL_ICON, iconLibrary.getAvailable());
+                setEnabled(false);
+            }
             @Override
             public void actionPerformed(ActionEvent e) {
                 xmppService.setMode(Mode.available);
                 XMPPSettings.XMPP_DO_NOT_DISTURB.setValue(false);
             }
         });
-        available.setEnabled(false);
-        dnd = new MnemonicCheckBoxMenuItem(I18n.tr("&Do Not Disturb"), iconLibrary.getDoNotDisturb());
-        dnd.addActionListener(new ActionListener() {
+
+        
+        dnd = new JCheckBoxMenuItem(new AbstractAction(I18n.tr("&Do Not Disturb")) {
+            {
+                putValue(Action.SMALL_ICON, iconLibrary.getDoNotDisturb());
+                setEnabled(false);
+            }
             @Override
             public void actionPerformed(ActionEvent e) {
                 xmppService.setMode(Mode.dnd);
                 XMPPSettings.XMPP_DO_NOT_DISTURB.setValue(true);
             }
         });
-        dnd.setEnabled(false);
+        
         
         updateSelection();
         
@@ -110,24 +115,11 @@ public class StatusActions {
         });
     }
 
-    public JMenuItem getAvailableAction() {
+    public JMenuItem getAvailableMenuItem() {
         return available;
     }
 
-    public JMenuItem getDnDAction() {
+    public JMenuItem getDnDMenuItem() {
         return dnd;
-    }
-    
-    private class MnemonicCheckBoxMenuItem extends JCheckBoxMenuItem {
-        public MnemonicCheckBoxMenuItem(String name, Icon icon) {
-            super();
-            int mnemonicKeyCode = GuiUtils.getMnemonicKeyCode(name);
-            name = GuiUtils.stripAmpersand(name);
-            if (mnemonicKeyCode != -1) { 
-                setMnemonic(mnemonicKeyCode);
-            }
-            setText(name);
-            setIcon(icon);
-        }
     }
 }

@@ -136,9 +136,11 @@ public final class Initializer {
         //must agree not to use LW for copyright infringement on first running
         confirmIntent(awtSplash);
 
+        boolean isPro = injector.getInstance(org.limewire.core.api.Application.class).isProVersion();
+        
         // Move from the AWT splash to the Swing splash & start early core.
         //assuming not showing splash screen if there are program arguments
-        switchSplashes(awtSplash, splashImage);
+        switchSplashes(awtSplash, splashImage, isPro);
         
         startEarlyCore(limeWireCore);
         
@@ -437,11 +439,11 @@ public final class Initializer {
     }
     
     /** Switches from the AWT splash to the Swing splash. */
-    private void switchSplashes(final Frame awtSplash, final Image splashImage) {
+    private void switchSplashes(final Frame awtSplash, final Image splashImage, final boolean isPro) {
         SwingUtils.invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                splashRef.set(new SplashWindow(splashImage, Locale.getDefault(), 4));
+                splashRef.set(new SplashWindow(splashImage, isPro, Locale.getDefault(), 4));
                 if(!isStartup) {
                     splashRef.get().begin();
                     stopwatch.resetAndLog("begin splash window");
@@ -460,7 +462,7 @@ public final class Initializer {
      * @param mozillaOverrides */
     private void initializeEarlyUI(LimeMozillaOverrides mozillaOverrides) {
         // Load up the HTML engine.
-        splashRef.get().setStatusText(I18n.tr("Loading HTML engine..."));
+        splashRef.get().setStatusText(I18n.tr("Muddling Mint..."));        //html engine
         stopwatch.resetAndLog("update splash for HTML engine");
 
         SwingUtils.invokeAndWait(new Runnable() {
@@ -477,7 +479,7 @@ public final class Initializer {
         });
         stopwatch.resetAndLog("return from evt queue");
         
-        splashRef.get().setStatusText(I18n.tr("Loading browser..."));
+        splashRef.get().setStatusText(I18n.tr("Scouring NYC for Limes..."));           //loading browser
         // Not pretty but Mozilla initialization errors should not crash the
         // program
         if (LimeMozillaInitializer.shouldInitialize()) {
@@ -502,7 +504,7 @@ public final class Initializer {
     
     /** Loads the UI. */
     private void loadUI() {
-        splashRef.get().setStatusText(I18n.tr("Loading user interface..."));
+        splashRef.get().setStatusText(I18n.tr("Squeezing Limes..."));        //loading user interface
         stopwatch.resetAndLog("update splash for UI");
         
         DefaultErrorCatcher.storeCaughtBugs();
@@ -538,7 +540,7 @@ public final class Initializer {
     /** Runs any late UI tasks, such as initializing Icons, I18n support. */
     private void loadLateTasksForUI() {
         // Touch the I18N stuff to ensure it loads properly.
-        splashRef.get().setStatusText(I18n.tr("Loading other languages..."));
+        splashRef.get().setStatusText(I18n.tr("Prepping Mojitos..."));  //other languages?
         I18NConvert.instance();
         stopwatch.resetAndLog("I18nConvert instance");
     }

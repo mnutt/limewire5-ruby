@@ -83,7 +83,7 @@ final class ServletAccessor {
 	synchronized RemoteClientInfo getRemoteBugInfo(LocalClientInfo localInfo) {
         RemoteClientInfo remoteInfo = new RemoteClientInfo();
         HttpResponse response = null;
-        LimeHttpClient client = ALLOW_NIO ? limeHttpClient.get() : new SimpleLimeHttpClient();
+        LimeHttpClient client = ALLOW_NIO && limeHttpClient != null ? limeHttpClient.get() : new SimpleLimeHttpClient();
         try {
             NameValuePair[] params = getNameValuePairs(localInfo.getPostRequestParams());
             HttpPost post = new HttpPost(SERVLET_URL);

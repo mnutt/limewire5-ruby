@@ -26,7 +26,7 @@ import com.google.inject.Singleton;
 
 @Singleton
 class ConnectionStatusPanel extends JXPanel {
-       
+    
     private final String connectingText = I18n.tr("Connecting");
     
     private ConnectionStrength currentStrength;
@@ -56,13 +56,13 @@ class ConnectionStatusPanel extends JXPanel {
     ConnectionStatusPanel(final GnutellaConnectionManager gnutellaConnectionManager) {
         
         GuiUtils.assignResources(this);
-             
+        
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
         this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
         
         connectionStrengthLabel = new JLabel();
-        connectionStrengthLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,4));
+        connectionStrengthLabel.setBorder(BorderFactory.createEmptyBorder(1,0,0,4));
         connectionStatusLabel = new JLabel();
         connectionStatusLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,4));
         connectionStatusLabel.setFont(font);
@@ -109,13 +109,13 @@ class ConnectionStatusPanel extends JXPanel {
         
         switch(strength) {
         case NO_INTERNET:
-            statusMessage = I18n.tr("No Internet Connection");
+            statusMessage = I18n.tr("No internet connection");
             tooltipText = I18n.tr("You have no internet connection");
             strengthIcon = noInternet;
             break;
         case DISCONNECTED:
-            tooltipText = "Couldn't connect - ";
-            statusMessage = "You couldn't connect to LimeWire";
+            tooltipText = I18n.tr("Couldn't connect");
+            statusMessage = I18n.tr("You couldn't connect to LimeWire");
             strengthIcon = disconnected;
             showTryAgain = true;
             break;
@@ -137,24 +137,24 @@ class ConnectionStatusPanel extends JXPanel {
             break;            
          case MEDIUM:
             statusMessage = I18n.tr("Medium connection");
-            tooltipText = I18n.tr("You have an medium connection");
+            tooltipText = I18n.tr("You have a medium connection");
             strengthIcon = medium; 
             break;
          case MEDIUM_PLUS:
              statusMessage = I18n.tr("Medium connection");
-             tooltipText = I18n.tr("You have an medium connection");
+             tooltipText = I18n.tr("You have a medium connection");
              strengthIcon = mediumPlus; 
              break;            
         case FULL:
             shouldHideStatusLater = true;
-            statusMessage = I18n.tr("Full Connection");
+            statusMessage = I18n.tr("Full connection");
             tooltipText = I18n.tr("You are fully connected");
             strengthIcon = full;
             break;
         case TURBO:
             shouldHideStatusLater = true;
-            statusMessage = I18n.tr("Turbo charged Connection");
-            tooltipText = I18n.tr("You have an turbo-charged connection");
+            statusMessage = I18n.tr("Turbo-charged connection");
+            tooltipText = I18n.tr("You have a turbo-charged connection");
             strengthIcon = turbo; 
             break;
         }
@@ -162,6 +162,7 @@ class ConnectionStatusPanel extends JXPanel {
         if (shouldHideStatusLater) {
             hideStatusLater();
         }
+            
         
         connectionStatusLabel.setVisible(true);
         connectionStatusLabel.setText(statusMessage);
@@ -219,13 +220,19 @@ class ConnectionStatusPanel extends JXPanel {
                     return;
                 }
                 
-                int numDots = (connectionStatusLabel.getText().length()
+                int numDots = (connectionStatusLabel.getText().trim().length()
                             -  connectingText.length() + 1)
                             % 4;
-                
+
                 StringBuffer message = new StringBuffer(connectingText);
-                for ( int i=0 ; i<numDots ; i++ ) {
-                    message.append('.');
+                // must be a nicer way of doing this. By always appending same # of .'s or ' '
+                // we ensure the positioning on the status bar doesn't move while
+                // in connecting mode
+                for ( int i=0 ; i<4 ; i++ ) {
+                    if(i < numDots)
+                        message.append('.');
+                    else
+                        message.append(' ');
                 }
                 
                 connectionStatusLabel.setText(message.toString());

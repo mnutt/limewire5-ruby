@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.limewire.collection.Periodic;
 import org.limewire.core.api.browse.server.BrowseTracker;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendPresence;
@@ -24,6 +26,7 @@ import org.limewire.xmpp.api.client.XMPPService;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.ManagedListStatusEvent;
 
@@ -42,15 +45,18 @@ class FriendShareListRefresher implements RegisteringEventListener<FriendShareLi
 
     private final BrowseTracker tracker;
     private final XMPPService xmppService;
+    private final ScheduledExecutorService scheduledExecutorService;
 
     private final Map<String, LibraryChangedSender> listeners;
     private final AtomicBoolean fileManagerLoaded = new AtomicBoolean(false);
 
     @Inject
     FriendShareListRefresher(BrowseTracker tracker,
-                             XMPPService xmppService) {
+                             XMPPService xmppService,
+                             @Named("backgroundExecutor")ScheduledExecutorService scheduledExecutorService) {
         this.tracker = tracker;
         this.xmppService = xmppService;
+        this.scheduledExecutorService = scheduledExecutorService;
         listeners = new ConcurrentHashMap<String, LibraryChangedSender>();
     }
 
@@ -98,17 +104,28 @@ class FriendShareListRefresher implements RegisteringEventListener<FriendShareLi
         }            
     }
     
-    class LibraryChangedSender implements ListEventListener<LocalFileItem> {
+    private class LibraryChangedSender implements ListEventListener<LocalFileItem> {
         
         private final Friend friend;
         
+        private final Periodic libraryRefreshPeriodic;
+        
         LibraryChangedSender(Friend friend){
             this.friend = friend;
-        }
+            this.libraryRefreshPeriodic = new Periodic(new ScheduledLibraryRefreshSender(), scheduledExecutorService);
+        }        
         
-        @SuppressWarnings("unchecked")
         public void listChanged(ListEvent<LocalFileItem> listChanges) {
             if(fileManagerLoaded.get()) {
+                libraryRefreshPeriodic.rescheduleIfLater(5000);                                
+            }
+        }        
+    
+        private class ScheduledLibraryRefreshSender implements Runnable {
+    
+            @SuppressWarnings("unchecked")
+            @Override
+            public void run() {
                 BrowseTracker browseTracker = FriendShareListRefresher.this.tracker;
                 Date lastBrowseTime = browseTracker.lastBrowseTime(friend.getId());
                 Date lastRefreshTime = browseTracker.lastRefreshTime(friend.getId());
@@ -121,8 +138,8 @@ class FriendShareListRefresher implements RegisteringEventListener<FriendShareLi
                             notifier.getFeature().sendLibraryRefresh();
                         }
                     }
-                }                        
+                }
             }
-        }        
+        }
     }
 }

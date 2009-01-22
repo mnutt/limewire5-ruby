@@ -58,6 +58,13 @@ public class BasicSearchResultsModel implements SearchResultsModel {
 
     @Override
     public void addSearchResult(SearchResult result) {
+        if(result.getUrn() == null) {
+            // Some results can be missing a URN, specifically
+            // secure results.  For now, we drop these.
+            // We should figure out a way to show them later on.
+            return;
+        }
+        
         LOG.debugf("Adding result urn: {0} EDT: {1}", result.getUrn(), SwingUtilities
                 .isEventDispatchThread());
         allSearchResults.add(result);

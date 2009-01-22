@@ -1,6 +1,8 @@
 package org.limewire.ui.swing.library;
 
 import static org.limewire.ui.swing.util.I18n.tr;
+
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -24,18 +26,21 @@ import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.jdesktop.application.Resource;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.MetaDataManager;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.images.ThumbnailManager;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.properties.DialogParam;
 import org.limewire.ui.swing.properties.Properties;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.util.CategoryIconManager;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
@@ -82,6 +87,10 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
         private final LibraryNavigator libraryNavigator;
         private final JPanel sharing = new JPanel();
         private LocalFileItem displayedItem;
+        
+        @Resource private Icon removeIcon;
+        @Resource private Icon removeIconRollover;
+        @Resource private Icon removeIconPressed;
 
         private List<Friend> unsharedFriendList = new ArrayList<Friend>();
 
@@ -89,6 +98,9 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
                 MetaDataManager metaDataManager, Collection<Friend> allFriends,
                 ShareListManager shareListManager, DialogParam dialogParam) {
             super(dialogParam);
+            
+            GuiUtils.assignResources(this);
+            
             this.libraryNavigator = dialogParam.getLibraryNavigator();
             this.thumbnailManager = thumbnailManager;
             this.categoryIconManager = dialogParam.getCategoryIconManager();
@@ -99,17 +111,19 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
 
         @Override
         protected void commit() {
-            if (changedProps.size() == 0) {
-                return;
-            }
+            if (changedProps.size() != 0) {
+                for (FilePropertyKey key : changedProps.keySet()) {
+                    displayedItem.setProperty(key, changedProps.get(key));
+                }
+                metaDataManager.save(displayedItem);
+            }      
             
-            for(FilePropertyKey key : changedProps.keySet()) {
-                displayedItem.setProperty(key, changedProps.get(key));
-            }
-            metaDataManager.save(displayedItem);
-            
-            for(Friend friend : unsharedFriendList) {
-                shareListManager.getOrCreateFriendShareList(friend).removeFile(displayedItem.getFile());
+            if(unsharedFriendList.size() > 0){
+                for(Friend friend : unsharedFriendList) {
+                    shareListManager.getOrCreateFriendShareList(friend).removeFile(displayedItem.getFile());
+                }
+                //ensure table values are updated
+                GuiUtils.getMainFrame().repaint();
             }
         }
 
@@ -143,26 +157,27 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
             List<Friend> sharedWithList = getSharedWithList(propertiable);
             boolean isShared = sharedWithList.size() > 0;
             
-            if (isShared) {
-                StringBuilder rowDescription = new StringBuilder().append("0");
-                for(int i = 0; i < sharedWithList.size(); i++) {
-                    rowDescription.append("[sg]0");
-                }
-                sharing.setLayout(new MigLayout("fillx, nocache", "3[grow]push[]0", rowDescription.toString()));
+            if (isShared) {                
+                sharing.setLayout(new MigLayout("fillx, nogrid, nocache, gap 0! 0!, insets 0 0 0 0"));
                 for(Friend friend : sharedWithList) {
                     final Friend shareFriend = friend;
-                    final JLabel friendLabel = new JLabel(friend.getName());
-                    sharing.add(friendLabel);
-                    final JButton friendButton = new JButton(tr("X"));
+                    final JLabel friendLabel = new JLabel(friend.getRenderName());
+                    final JButton friendButton = new IconButton(removeIcon, removeIconRollover, removeIconPressed);
                     friendButton.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             unsharedFriendList.add(shareFriend);
                             sharing.remove(friendLabel);
                             sharing.remove(friendButton);
+                            //make sure the friend actually disappears
+                            mainPanel.revalidate();
+                            //make sure we don't get stuck on the hand cursor
+                            setCursor(Cursor.getDefaultCursor());
                         }
                     });
-                    sharing.add(friendButton, "wrap");
+                    
+                    sharing.add(friendButton);
+                    sharing.add(friendLabel, "gapright 20, wrap");
                 }
                 JScrollPane scroll = new JScrollPane(sharing);
                 scroll.setBorder(BorderFactory.createEmptyBorder());

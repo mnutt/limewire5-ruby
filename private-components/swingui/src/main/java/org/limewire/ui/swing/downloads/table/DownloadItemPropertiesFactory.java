@@ -49,6 +49,7 @@ public class DownloadItemPropertiesFactory implements PropertiesFactory<Download
             super(dialogParam);
             this.libraryNavigator = dialogParam.getLibraryNavigator();
             GuiUtils.assignResources(this);
+            disableEditForAllCommonFields();
         }
 
         @Override

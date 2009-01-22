@@ -484,8 +484,8 @@ public class AcceptorImpl implements ConnectionAcceptor, SocketProcessor, Accept
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.Acceptor#getPort(boolean)
      */
-    public int getPort(boolean checkForce) {
-        if(checkForce && ConnectionSettings.FORCE_IP_ADDRESS.getValue())
+    public int getPort(boolean preferForcedPort) {
+        if(preferForcedPort && ConnectionSettings.FORCE_IP_ADDRESS.getValue())
 			return ConnectionSettings.FORCED_PORT.getValue();
         return _port;
     }

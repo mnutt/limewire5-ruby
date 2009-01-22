@@ -16,6 +16,8 @@ import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.Application;
 import org.limewire.ui.swing.components.HTMLPane;
 import org.limewire.ui.swing.components.Resizable;
+import org.limewire.ui.swing.statusbar.ProStatusPanel;
+import org.limewire.ui.swing.statusbar.ProStatusPanel.InvisibilityCondition;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 
 import com.google.inject.Inject;
@@ -24,12 +26,17 @@ import com.google.inject.Inject;
 public class ProNag extends JXPanel implements Resizable {
     
     private final Application application;
+    private final ProStatusPanel proStatusPanel;
+    
     private final java.awt.Panel parent;
     private final HTMLPane editorPane;
     
-    @Inject public ProNag(Application application) {
+    @Inject public ProNag(Application application, ProStatusPanel proStatusPanel) {
         super(new BorderLayout());
+        
         this.application = application;
+        this.proStatusPanel = proStatusPanel;
+        
         this.parent = new Panel(new BorderLayout()); // heavyweight, to show over other things.
         this.editorPane = new HTMLPane();
 
@@ -72,6 +79,8 @@ public class ProNag extends JXPanel implements Resizable {
         int w = childPreferredSize.width;
         int h = childPreferredSize.height; 
         setBounds(parentBounds.width / 2 - w / 2, parentBounds.height - h, w, h);
+        
+        notifyVisibilityChange();
     }
     
     @Override
@@ -80,6 +89,22 @@ public class ProNag extends JXPanel implements Resizable {
         super.setVisible(flag);
         if(notViz && isVisible()) {
             resize();
+        } 
+        else {
+            notifyVisibilityChange();
+        }
+    }
+
+    /**
+     *  Add or remove the pro add shown condition for the pro add status panel.
+     *    May cause the pro status add to change visibility.
+     */
+    private void notifyVisibilityChange() {
+       if (isVisible()) {
+            proStatusPanel.addCondition(InvisibilityCondition.PRO_ADD_SHOWN);
+        } 
+        else {
+            proStatusPanel.removeCondition(InvisibilityCondition.PRO_ADD_SHOWN);    
         }
     }
     

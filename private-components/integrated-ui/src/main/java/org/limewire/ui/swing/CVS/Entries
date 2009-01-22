@@ -1,13 +1,12 @@
-/AWTSplashWindow.java/1.2/Mon Jan  5 17:05:13 2009//
-/AllLimeWireModules.java/1.1/Tue Oct 14 15:07:06 2008//
-/GURLHandler.java/1.1/Wed Dec  3 15:19:43 2008//
-/GuiLoader.java/1.1/Wed Aug  6 19:53:33 2008//
-/Initializer.java/1.47/Mon Jan 12 23:41:43 2009//
-/LimeWireModule.java/1.3/Mon Jan 12 23:41:43 2009//
-/MacEventHandler.java/1.10/Mon Jan  5 17:05:13 2009//
-/Main.java/1.7/Wed Dec  3 16:07:40 2008//
-/MessageHandler.java/1.1/Mon Dec 29 21:07:36 2008//
-/SettingsWarningManager.java/1.1/Mon Dec 29 21:07:36 2008//
-/UncaughtExceptionHandlerImpl.java/1.1/Wed Nov 12 08:49:27 2008//
-/DefaultErrorCatcher.java/1.2/Thu Jan 15 03:21:58 2009//
+/AWTSplashWindow.java/1.2/Thu Jan 22 05:05:32 2009//
+/DefaultErrorCatcher.java/1.2/Thu Jan 22 05:05:32 2009//
+/GURLHandler.java/1.1/Thu Jan 22 05:05:32 2009//
+/GuiLoader.java/1.1/Thu Jan 22 05:05:32 2009//
+/Initializer.java/1.49/Thu Jan 22 05:09:31 2009//
+/LimeWireModule.java/1.3/Thu Jan 22 05:05:32 2009//
+/MacEventHandler.java/1.10/Thu Jan 22 05:05:32 2009//
+/Main.java/1.7/Thu Jan 22 05:05:32 2009//
+/MessageHandler.java/1.1/Thu Jan 22 05:05:32 2009//
+/SettingsWarningManager.java/1.1/Thu Jan 22 05:05:32 2009//
+/UncaughtExceptionHandlerImpl.java/1.2/Thu Jan 22 05:09:31 2009//
 D

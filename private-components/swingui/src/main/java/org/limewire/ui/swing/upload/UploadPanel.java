@@ -2,8 +2,6 @@ package org.limewire.ui.swing.upload;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -19,7 +17,6 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadListManager;
-import org.limewire.core.api.upload.UploadState;
 import org.limewire.ui.swing.action.BackAction;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeHeaderBar;
@@ -54,6 +51,7 @@ public class UploadPanel extends JXPanel{
     };
     
     private ButtonDecorator buttonDecorator;
+    private UploadListManager listManager;
     
     @Inject
     public UploadPanel(UploadListManager listManager, LimeHeaderBarFactory headerBarFactory,
@@ -62,6 +60,7 @@ public class UploadPanel extends JXPanel{
             BackAction backAction, LibraryManager libraryManager){
         super(new BorderLayout());
         
+        this.listManager = listManager;
         this.buttonDecorator = buttonDecorator;
         this.headerBarFactory = headerBarFactory;
         this.uploadItems = listManager.getSwingThreadSafeUploads();
@@ -78,22 +77,7 @@ public class UploadPanel extends JXPanel{
     }
     
     private void clearFinished() {
-        List<UploadItem> finishedItems = new ArrayList<UploadItem>();
-        uploadItems.getReadWriteLock().writeLock().lock();
-        try {
-            for(UploadItem item : uploadItems){
-                if(item.getState() == UploadState.DONE || item.getState() == UploadState.UNABLE_TO_UPLOAD || item.getState() == UploadState.BROWSE_HOST){
-                    finishedItems.add(item);
-                }
-            }
-            
-            for (UploadItem item : finishedItems) {
-                uploadItems.remove(item);
-            }
-        } finally {
-            uploadItems.getReadWriteLock().writeLock().unlock();
-        }
-        
+        listManager.clearFinished();
     }
 
     private void initHeader(Action backAction) {

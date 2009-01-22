@@ -13,6 +13,7 @@ import org.limewire.xmpp.api.client.ChatState;
  */
 class ChatDocumentBuilder {
     static final String LIBRARY_LINK = "#library";
+    static final String MY_LIBRARY_LINK = "#mylibrary";
 
     private static final String LINE_BREAK = "<br/>";
 
@@ -32,7 +33,6 @@ class ChatDocumentBuilder {
                         "color: #af0511;" + 
                         "font-weight: bold;}" +
                     ".typing { " +
-                        "font-size: 90%;" +
                         "color: #646464;}" + 
                     "form { text-align: center;}" +
                 "</style>" +
@@ -100,7 +100,7 @@ class ChatDocumentBuilder {
         if (friendSignedOff) {
             stateMessage = tr("{0} has signed off", senderName);
         } else if (chatState == ChatState.composing) {
-            stateMessage = tr("{0} is typing a message...", senderName);
+            stateMessage = tr("{0} is typing...", senderName);
         } else if (chatState == ChatState.paused) {
             stateMessage = tr("{0} has entered text", senderName);
         } else {

@@ -2,6 +2,7 @@ package org.limewire.core.impl.upload;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
@@ -14,15 +15,18 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList.Connector;
+import ca.odell.glazedlists.impl.ThreadSafeList;
 
 public class MockUploadListManager implements UploadListManager {
 
     private EventList<UploadItem> uploadItems;
+    private ThreadSafeList<UploadItem> threadSafeUploadItems;
 
     public MockUploadListManager() {
+        threadSafeUploadItems = GlazedListsFactory.threadSafeList(new BasicEventList<UploadItem>());
         Connector<UploadItem> uploadConnector = GlazedLists.beanConnector(UploadItem.class);
         uploadItems = GlazedListsFactory.swingThreadProxyEventList(GlazedListsFactory
-                .observableElementList(new BasicEventList<UploadItem>(), uploadConnector));
+                .observableElementList(threadSafeUploadItems, uploadConnector));
         
         addUpload(UploadState.DONE, "File.mp3", 30000, 15000, Category.AUDIO);
         addUpload(UploadState.QUEUED, "File.avi", 3000, 150, Category.VIDEO);
@@ -72,6 +76,22 @@ public class MockUploadListManager implements UploadListManager {
             if (item.getState() == UploadState.CANCELED) {
                 uploadItems.remove(item);
             }
+        }
+    }
+    
+    @Override
+    public void clearFinished() {
+        List<UploadItem> finishedItems = new ArrayList<UploadItem>();
+        threadSafeUploadItems.getReadWriteLock().writeLock().lock();
+        try {
+            for(UploadItem item : threadSafeUploadItems){
+                if(item.getState() == UploadState.DONE || item.getState() == UploadState.UNABLE_TO_UPLOAD || item.getState() == UploadState.BROWSE_HOST_DONE){
+                    finishedItems.add(item);
+                }
+            }
+            threadSafeUploadItems.removeAll(finishedItems);
+        } finally {
+            threadSafeUploadItems.getReadWriteLock().writeLock().unlock();
         }
     }
 

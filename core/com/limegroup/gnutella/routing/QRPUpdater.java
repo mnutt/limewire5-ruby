@@ -14,6 +14,8 @@ import org.limewire.inspection.Inspectable;
 import org.limewire.lifecycle.Service;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 
@@ -36,7 +38,7 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
 @Singleton
 public class QRPUpdater implements SettingListener, Service, Inspectable {
 
-    // private static Log LOG = LogFactory.getLog(QRPUpdater.class);
+    private static Log LOG = LogFactory.getLog(QRPUpdater.class);
     
     /**
      * delay between qrp updates should the simpp words change.
@@ -117,6 +119,7 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
      * QRT prior to returning a new QueryRouteTable.
      */
     public synchronized QueryRouteTable getQRT() {
+        LOG.debug("getQRT");
         if (needRebuild) {
             if(scheduledSimppRebuildTimer != null )
                 scheduledSimppRebuildTimer.cancel(true);
@@ -133,6 +136,7 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
      * Build the qrt.  
      */
     private void buildQRT() {
+        LOG.debug("building QRT");
         queryRouteTable = new QueryRouteTable();
         if (SearchSettings.PUBLISH_LIME_KEYWORDS.getBoolean()) {
             for (String entry : SearchSettings.LIME_QRP_ENTRIES.getValue()) {
@@ -152,6 +156,9 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
                     for(String word : doc.getKeyWordsIndivisible()) {
                         queryRouteTable.addIndivisible(word);
                     }
+                    // also add schema uri needed by rich queries
+                    String schemaURI = doc.getSchemaURI();
+                    queryRouteTable.addIndivisible(schemaURI);
                 }
             }
         } finally {

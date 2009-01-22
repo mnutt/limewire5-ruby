@@ -215,7 +215,7 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
         private final Border firstSuggestionBorder = new SideLineBorder(Color.BLACK, SideLineBorder.Side.TOP);
         
         public Renderer() {
-            compoundBorder = new ExtendedCompoundBorder(null, BorderFactory.createEmptyBorder(0, 2, 0, 2));
+            compoundBorder = new ExtendedCompoundBorder(BorderFactory.createEmptyBorder(), BorderFactory.createEmptyBorder(0, 2, 0, 2));
             
             firstSuggestionPanel = new JPanel();
             firstSuggestionPanel.setLayout(new MigLayout("nocache, fill, gap 0, insets 0"));
@@ -243,7 +243,7 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
                 if(value instanceof Entry) {
                     if(((Entry)value).reason == Entry.Reason.FIRST_SUGGESTION) {
                         firstSuggestionLabel.getListCellRendererComponent(list, render, index, isSelected, cellHasFocus);
-                        firstSuggestionLabel.setBorder(null);
+                        firstSuggestionLabel.setBorder(BorderFactory.createEmptyBorder());
                         if(isSelected) {
                             firstSuggestionTitle.setForeground(list.getSelectionForeground());
                         } else {
@@ -252,7 +252,7 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
                         if(index != 0) {
                             compoundBorder.setOuterBorder(firstSuggestionBorder);
                         } else {
-                            compoundBorder.setOuterBorder(null);
+                            compoundBorder.setOuterBorder(BorderFactory.createEmptyBorder());
                         }
                         firstSuggestionTitle.setBackground(firstSuggestionLabel.getBackground());
                         firstSuggestionPanel.setBackground(firstSuggestionLabel.getBackground());

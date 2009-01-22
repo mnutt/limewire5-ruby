@@ -50,6 +50,7 @@ import org.limewire.util.FileUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.UrnSet;
 import com.limegroup.gnutella.auth.UrnValidator;
@@ -440,6 +441,13 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
             
             // Remove any files that need removing.
             removedFds = removeFilesInDirectoriesOrWithExtensions(removedDirs, removedExtensions);
+            
+            if(!getLibraryData().isProgramManagingAllowed()) {
+                Collection<FileDesc> programFiles = removePrograms();
+                programFiles.removeAll(removedFds);
+                removedFds.addAll(programFiles);
+            }
+            
         } finally {
             rwLock.writeLock().unlock();
         }
@@ -466,6 +474,21 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
         return futures;
     }
     
+    /**
+     * Returns a list of all files that are programs so that they can be removed.
+     */
+    private List<FileDesc> removePrograms() {
+        List<FileDesc> removed = new ArrayList<FileDesc>();
+        for(FileDesc fd : files) {
+            if(fd != null) {
+                if(Category.PROGRAM == CategoryConverter.categoryForExtension(FileUtils.getFileExtension(fd.getFile()))) {
+                    removed.add(fd);
+                }
+            }
+        }
+        return removed;
+    }
+
     private List<FileDesc> removeFilesInDirectoriesOrWithExtensions(Collection<File> removedDirs, Collection<String> removedExtensions) {
         List<FileDesc> removed = new ArrayList<FileDesc>();
         if(!removedDirs.isEmpty() || !removedExtensions.isEmpty()) {
@@ -779,7 +802,8 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
         // Make sure capitals are resolved properly, etc.
         final File file;
         try {
-            file = FileUtils.getCanonicalFile(f);
+            File canonicalFile = FileUtils.getCanonicalFile(f);
+            file = new File(canonicalFile.getPath().intern());
         } catch (IOException e) {
             LOG.debugf("Not adding {0} because canonicalize failed", f);
             FileListChangedEvent event = dispatchFailure(f, oldFileDesc);
@@ -1301,6 +1325,7 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
 
     /** Dispatches a SAVE event & tells library data to save. */
     void save() {
+        dispatch(new ManagedListStatusEvent(this, ManagedListStatusEvent.Type.SAVE));
         urnCache.persistCache();
         getLibraryData().save();
     }

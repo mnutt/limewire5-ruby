@@ -24,14 +24,16 @@ public class FriendMenu extends MnemonicMenu {
   
     @Inject
     public FriendMenu(SwitchUserAction switchUserAction, SignInOutAction signInOutAction, ChatAction chatAction, StatusActions statusActions) {
-        super(I18n.tr("F&riend"));
+        // TODO fberger
+        //super(I18n.tr("F&riend"));
+        super(I18n.tr("Friend"));
         this.chatAction = chatAction;
         add(chatAction);
 //        add(new FriendDownloadAction());
 //        add(new FriendShareAction());
         addSeparator();
-        add(statusActions.getAvailableAction());
-        add(statusActions.getDnDAction());
+        add(statusActions.getAvailableMenuItem());
+        add(statusActions.getDnDMenuItem());
         addSeparator();
         add(switchUserAction);
         add(signInOutAction);

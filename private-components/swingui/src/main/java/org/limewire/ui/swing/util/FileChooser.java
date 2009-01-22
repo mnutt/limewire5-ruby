@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.FileDialog;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -299,6 +300,24 @@ public final class FileChooser {
                 // workaround for Windows XP, not sure if second try succeeds
                 // then
                 chooser = new JFileChooser(directory);
+            } catch (RuntimeException re) {
+                // see: LWC-2690
+                // happens only on windows, try again and if it still happening
+                // us Metal L&F file chooser
+                if (re.getCause() instanceof IOException && OSUtils.isWindows()) {
+                    // but construction succeeds on successive attempts.
+                    try {
+                        chooser = new JFileChooser(directory);
+                    } catch (RuntimeException r) {
+                        // ok, now we use the metal file chooser, takes a long time to load
+                        // but the user can still use the program
+                        UIManager.getDefaults().put("FileChooserUI", "javax.swing.plaf.metal.MetalFileChooserUI");
+                        chooser = new JFileChooser(directory);
+                    }
+                } else {
+                    // rethrow if other OS or exception type
+                    throw re;
+                }
             }
         }
         if (filter != null) {

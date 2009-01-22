@@ -118,7 +118,7 @@ public class LimeXMLDocument implements StringLookup {
         this.fieldToValue = result.get(0);
         this.schemaUri = result.schemaURI;
         setFields(result.canonicalKeyPrefix);
-        
+        internStrings();
         if(!isValid())
             throw new IOException("Invalid XML: " + xml + ", fieldToValue: " + fieldToValue + ", attrString: " + getAttributeString() + ", schemaURI: " + schemaUri);
     }
@@ -143,7 +143,8 @@ public class LimeXMLDocument implements StringLookup {
         this.fieldToValue = map;
         fieldToValue.remove(keyPrefix + XML_ID_ATTRIBUTE); // remove id.
         setFields(keyPrefix);
-        
+        internStrings();
+
         if(!isValid())
             throw new IOException("invalid doc! "+map+" \nschema uri: "+schemaURI);
         
@@ -174,12 +175,21 @@ public class LimeXMLDocument implements StringLookup {
         
         // scan for action/id/etc..
         scanFields();
+        internStrings();
         
         if(!isValid()) {
             throw new IllegalArgumentException("Invalid Doc!  nameValueList: " + nameValueList + ", schema: " + schemaURI + ", attributeStrings: " + getAttributeString() + ", schemaFields: " + ((getSchema() != null) ? getSchema().getCanonicalizedFieldNames() : "n/a"));
         }
     }
-    
+
+    private void internStrings() {
+        for(Map.Entry<String, String> entry : fieldToValue.entrySet()) {
+            String key = entry.getKey() != null ? entry.getKey().intern() : null;
+            String value = entry.getValue() != null ? entry.getValue().intern() : null;
+            fieldToValue.put(key, value);    
+        }
+    }
+
     /**
      * Determines whether or not this LimeXMLDocument is valid.
      */

@@ -4,6 +4,7 @@
 package org.limewire.ui.swing.table;
 
 import java.awt.Color;
+import java.awt.Font;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
@@ -34,6 +35,8 @@ public class TableColors {
     private Color disabledForegroundColor;
     @Resource
     private Color gridColor;
+    @Resource
+    private Font tableFont;
     
     private ColorHighlighter evenHighlighter;
     
@@ -60,5 +63,9 @@ public class TableColors {
     
     public Color getGridColor() {
         return gridColor;
+    }
+    
+    public Font getTableFont() {
+        return tableFont;
     }
 }

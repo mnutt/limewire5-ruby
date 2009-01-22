@@ -91,7 +91,7 @@ public class MessageFileOfferImpl extends AbstractMessageImpl implements Message
                 case DONE:
                     fileOfferFormatted = fileOfferReceived +
                             tr("{0}Downloaded{1}","<a href=\"" +
-                            ChatDocumentBuilder.LIBRARY_LINK + "\">", "</a>");
+                            ChatDocumentBuilder.MY_LIBRARY_LINK + "\">", "</a>");
                     break;
                 default:
                     fileOfferFormatted = defaultFileOfferFormatted;

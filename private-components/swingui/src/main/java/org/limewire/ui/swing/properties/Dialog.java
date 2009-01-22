@@ -61,6 +61,7 @@ public abstract class Dialog extends LimeJDialog {
     protected final JLabel metadata = newLabel();
     protected final JTextField title = new JTextField();
     protected final JComboBox genre = new JComboBox();
+    protected final JTextField unEditableGenre = new JTextField();
     protected final JComboBox rating = new JComboBox();
     protected final JTextField year = new JTextField();
     protected final JTextArea description = newTextArea();
@@ -109,7 +110,7 @@ public abstract class Dialog extends LimeJDialog {
         
         setFont(mediumFont, heading, filename, fileSize);
         setFont(smallFont, metadata, copyToClipboard, moreFileInfo, locateOnDisk, locateInLibrary,
-                title, genre, rating, year, description, artist, album, track, author, platform,
+                title, genre, unEditableGenre, rating, year, description, artist, album, track, author, platform,
                 company, fileLocation);
         //Use the same border that a textfield uses - JTextAreas by default are not given a border
         //This makes the look consistent with JTextField
@@ -134,6 +135,8 @@ public abstract class Dialog extends LimeJDialog {
         overview.add(metadata, "cell 1 1");
 
         addOverview();
+        
+        unEditableGenre.setVisible(false);
     }
     
     private HyperlinkButton newHyperlink() {
@@ -338,7 +341,8 @@ public abstract class Dialog extends LimeJDialog {
         details.add(newSmallLabel(GENRE));
         details.add(newSmallLabel(RATING));
         details.add(newSmallLabel(YEAR), "wrap");
-        details.add(genre, "wmin 90");
+        details.add(genre, "wmin 90, hidemode 3");
+        details.add(unEditableGenre, "wmin 90, hidemode 3");
         details.add(rating, "wmin 90");
         details.add(year, "growx, wrap");
         details.add(newSmallLabel(DESCRIPTION), "wrap");
@@ -358,7 +362,8 @@ public abstract class Dialog extends LimeJDialog {
         details.add(newSmallLabel(YEAR));
         details.add(newSmallLabel(TRACK), "wrap");
         details.add(album, "growx");
-        details.add(genre, "wmin 90");
+        details.add(genre, "wmin 90, hidemode 3");
+        details.add(unEditableGenre, "wmin 90, hidemode 3");
         details.add(year, "wmin 90");
         details.add(track, "wrap, wmin 40");
         details.add(newSmallLabel(DESCRIPTION), "wrap");
@@ -385,8 +390,6 @@ public abstract class Dialog extends LimeJDialog {
         details.add(newSmallLabel(COMPANY), "wrap");
         details.add(platform, "wmin 90");
         details.add(company, "growx, wrap");
-        details.add(newSmallLabel(DESCRIPTION), "wrap");
-        details.add(descriptionScrollPane, "hmin pref, grow, span");
         
         addDetails();
     }
@@ -456,10 +459,12 @@ public abstract class Dialog extends LimeJDialog {
     }
 
     protected void disableEditForAllCommonFields() {
-        disableEdit(album, author, artist, company, year, title, track, description);
-        disableEdit(genre, rating, platform);
+        genre.setVisible(false);
+        unEditableGenre.setVisible(true);
+        disableEdit(album, author, artist, company, year, title, track, description, unEditableGenre);
+        disableEdit(rating, platform);
         
-        setColors(album.getForeground(), album.getBackground(), description, genre, rating, platform);
+        setColors(album.getForeground(), album.getBackground(), description, unEditableGenre, rating, platform);
     }
 
     protected void setColors(Color foreground, Color background, JComponent... comps) {

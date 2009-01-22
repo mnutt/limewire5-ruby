@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LocalFileItem;
@@ -37,7 +39,7 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
     public AudioTableFormat() {
         super(ACTION_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(PLAY_INDEX, "LIBRARY_AUDIO_PLAY", "", 25, true, false), 
-                new ColumnStateInfo(TITLE_INDEX, "LIBRARY_AUDIO_TITLE", I18n.tr("Name"), 260, true, true),     
+                new ColumnStateInfo(TITLE_INDEX, "LIBRARY_AUDIO_TITLE", I18n.tr("Name"), 278, true, true),     
                 new ColumnStateInfo(ARTIST_INDEX, "LIBRARY_AUDIO_ARTIST", I18n.tr("Artist"), 120, true, true), 
                 new ColumnStateInfo(ALBUM_INDEX, "LIBRARY_AUDIO_ALBUM", I18n.tr("Album"), 180, true, true), 
                 new ColumnStateInfo(LENGTH_INDEX, "LIBRARY_AUDIO_LENGTH", I18n.tr("Length"), 60, true, true), 
@@ -52,7 +54,7 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
                 new ColumnStateInfo(HIT_INDEX, "LIBRARY_AUDIO_HITS", I18n.tr("Hits"), 100, false, true), 
                 new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_AUDIO_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
                 new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_AUDIO_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true), 
-                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_AUDIO_ACTION", I18n.tr("Sharing"), 50, true, false)
+                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_AUDIO_ACTION", I18n.tr("Sharing"), 61, true, false)
         });
     }
 
@@ -100,8 +102,12 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
     }
     
     @Override
-    public int getDefaultSortColumn() {
-        return ARTIST_INDEX;
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(SortOrder.ASCENDING, ARTIST_INDEX),
+                new SortKey(SortOrder.ASCENDING, ALBUM_INDEX),
+                new SortKey(SortOrder.ASCENDING, TRACK_INDEX),
+                new SortKey(SortOrder.ASCENDING, TITLE_INDEX));
     }
     
     @Override

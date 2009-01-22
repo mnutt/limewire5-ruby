@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -131,7 +130,7 @@ public class Wizard extends JPanel {
         headerBar.add(headerLine2, "growx");
 
         JPanel bottomBar = new JPanel(new BorderLayout());
-        JPanel bottomBarInner = new JPanel(new FlowLayout());
+        JPanel bottomBarInner = new JPanel(new MigLayout("gap 10, insets 0 0 10 10, nogrid, hidemode 3"));
         bottomBarInner.add(backButton);
         bottomBarInner.add(continueButton);
         bottomBarInner.add(finishButton);

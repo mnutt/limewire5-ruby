@@ -52,6 +52,9 @@ public class BTMetaInfoFactoryImpl implements BTMetaInfoFactory {
     @Override
     public BTMetaInfo createMetaInfo(File torrentFile) throws IOException {
         byte[] torrentBytes = FileUtils.readFileFully(torrentFile);
+        if(torrentBytes == null) {
+            throw new IOException("Error reading torrent file: " + torrentFile);
+        }
         return createBTMetaInfoFromBytes(torrentBytes);
     }
 }

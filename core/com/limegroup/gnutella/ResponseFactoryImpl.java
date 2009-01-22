@@ -16,6 +16,7 @@ import java.util.StringTokenizer;
 
 import org.limewire.collection.BitNumbers;
 import org.limewire.collection.IntervalSet;
+import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.MessageSettings;
 import org.limewire.io.BadGGEPPropertyException;
 import org.limewire.io.ConnectableImpl;
@@ -51,12 +52,6 @@ import com.limegroup.gnutella.xml.LimeXMLNames;
 
 @Singleton
 public class ResponseFactoryImpl implements ResponseFactory {
-
-    /**
-     * The maximum number of alternate locations to include in responses in the
-     * GGEP block
-     */
-    private static final int MAX_LOCATIONS = 10;
 
     /** The magic byte to use as extension separators. */
     private static final byte EXT_SEPARATOR = 0x1c;
@@ -414,8 +409,11 @@ public class ResponseFactoryImpl implements ResponseFactory {
         synchronized (col) {
             Set<IpPort> endpoints = null;
             int i = 0;
+            // Never send more alt-locs than another LimeWire peer would accept
+            final int maxLocations = Math.min(10,
+                    FilterSettings.MAX_ALTS_PER_RESPONSE.getValue() - 1);
             for (Iterator<DirectAltLoc> iter = col.iterator(); iter.hasNext()
-                    && i < MAX_LOCATIONS;) {
+                    && i < maxLocations;) {
                 DirectAltLoc al = iter.next();
                 if (al.canBeSent(AlternateLocation.MESH_RESPONSE)) {
                     IpPort host = al.getHost();

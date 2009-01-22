@@ -1,7 +1,12 @@
 package org.limewire.ui.swing.search.resultpanel.classic;
 
 import java.awt.Component;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
@@ -29,12 +34,12 @@ public class VideoTableFormat extends ResultsTableFormat<VisualSearchResult> {
     
     public VideoTableFormat() {
         super(NAME_INDEX, FROM_INDEX, new ColumnStateInfo[] {
-                new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_VIDEO_FROM", I18n.tr("From"), 55, true, true), 
-                new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_VIDEO_NAME", I18n.tr("Name"), 410, true, true),     
-                new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_VIDEO_EXTENSION", I18n.tr("Extension"), 60, true, true), 
-                new ColumnStateInfo(LENGTH_INDEX, "CLASSIC_SEARCH_VIDEO_LENGTH", I18n.tr("Length"), 60, true, true), 
-                new ColumnStateInfo(QUALITY_INDEX, "CLASSIC_SEARCH_VIDEO_QUALITY", I18n.tr("Quality"), 60, true, true), 
-                new ColumnStateInfo(SIZE_INDEX, "CLASSIC_SEARCH_VIDEO_SIZE", I18n.tr("Size"), 60, true, true),
+                new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_VIDEO_FROM", I18n.tr("From"), 88, true, true), 
+                new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_VIDEO_NAME", I18n.tr("Name"), 434, true, true),     
+                new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_VIDEO_EXTENSION", I18n.tr("Extension"), 85, true, true), 
+                new ColumnStateInfo(LENGTH_INDEX, "CLASSIC_SEARCH_VIDEO_LENGTH", I18n.tr("Length"), 85, true, true), 
+                new ColumnStateInfo(QUALITY_INDEX, "CLASSIC_SEARCH_VIDEO_QUALITY", I18n.tr("Quality"), 85, true, true), 
+                new ColumnStateInfo(SIZE_INDEX, "CLASSIC_SEARCH_VIDEO_SIZE", I18n.tr("Size"), 81, true, true),
                 new ColumnStateInfo(MISC_INDEX, "CLASSIC_SEARCH_VIDEO_MISC", I18n.tr("Misc"), 60, false, true),
                 new ColumnStateInfo(RATING_INDEX, "CLASSIC_SEARCH_VIDEO_RATING", I18n.tr("Rating"), 60, false, true), 
                 new ColumnStateInfo(DIMENSION_INDEX, "CLASSIC_SEARCH_VIDEO_RESOLUTION", I18n.tr("Resolution"), 60, false, true),
@@ -76,5 +81,25 @@ public class VideoTableFormat extends ResultsTableFormat<VisualSearchResult> {
             case GENRE_INDEX: return vsr.getProperty(FilePropertyKey.GENRE);
         }
         throw new IllegalArgumentException("Unknown column:" + index);
+    }
+    
+    @Override
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(SortOrder.DESCENDING, FROM_INDEX),
+                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+    }
+    
+    @Override
+    public List<Integer> getSecondarySortColumns(int column) {
+        switch (column) {
+        case NAME_INDEX:
+            return Arrays.asList(SIZE_INDEX);
+        case SIZE_INDEX:
+            return Arrays.asList(NAME_INDEX);
+        default:
+            return Collections.emptyList();
+        }
     }
 }

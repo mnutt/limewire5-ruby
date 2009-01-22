@@ -38,7 +38,7 @@ public class HorizontalDownloadTableModel implements TableModel {
     
     public DownloadItem getDownloadItem(int index){
         //in accessible tables, can be 0 even if no items exist        
-        if(index == 0 && downloadItems.isEmpty()) {
+        if(index >= downloadItems.size()) {
             return null;
         } else {
             return downloadItems.get(downloadItems.size() - 1 - index);
@@ -47,10 +47,7 @@ public class HorizontalDownloadTableModel implements TableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        // in accessible tables, can be 0 even if no items exist
-        if (columnIndex != 0 && columnIndex >= downloadItems.size()){
-            throw new IllegalArgumentException("Unknown column:" + columnIndex);
-        }
+        // in accessible tables, columnIndex can be larger than column count
         return DownloadItem.class;
     }
 
@@ -61,10 +58,7 @@ public class HorizontalDownloadTableModel implements TableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        // in accessible tables, can be 0 even if no items exist
-        if (columnIndex != 0 && columnIndex >= downloadItems.size()){
-            throw new IllegalArgumentException("Unknown column:" + columnIndex);
-        }
+        // in accessible tables, columnIndex can be larger than column count
         return Integer.toString(columnIndex);
     }
 
@@ -75,24 +69,18 @@ public class HorizontalDownloadTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        // in accessible tables, can be 0 even if no items exist
-        if (columnIndex != 0 && columnIndex >= downloadItems.size()){
-            throw new IllegalArgumentException("Unknown column:" + columnIndex);
-        }
-        if (rowIndex > 0){
-            throw new IllegalArgumentException("Unknown row:" + rowIndex);
+        // in accessible tables, rowIndex and columnIndex can be larger than row and column counts
+        if (columnIndex >= downloadItems.size() || rowIndex > 0){
+            return null;
         }
         return getDownloadItem(columnIndex);
     }
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        // in accessible tables, can be 0 even if no items exist
-        if (columnIndex != 0 && columnIndex >= downloadItems.size()){
-            throw new IllegalArgumentException("Unknown column:" + columnIndex);
-        }
-        if (rowIndex > 0){
-            throw new IllegalArgumentException("Unknown row:" + rowIndex);
+        // in accessible tables, rowIndex and columnIndex can be larger than row and column counts
+        if (columnIndex >= downloadItems.size() || rowIndex > 0){
+            return false;
         }
         return true;
     }

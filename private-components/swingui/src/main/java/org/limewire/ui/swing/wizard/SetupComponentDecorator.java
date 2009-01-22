@@ -92,7 +92,6 @@ public class SetupComponentDecorator {
         button.setBorder(BorderFactory.createEmptyBorder(0,10,3,10));
         button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
         button.setMinimumSize(new Dimension(105, 32));
-        button.setPreferredSize(new Dimension(105, 32));
     }
     
     public void decorateBackButton(JComponent button) {

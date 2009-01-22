@@ -193,6 +193,4 @@ class LibraryManagerImpl implements LibraryManager {
         protected void collectionUpdate(Type type, boolean shared) {
         }
     }
-    
-
 }

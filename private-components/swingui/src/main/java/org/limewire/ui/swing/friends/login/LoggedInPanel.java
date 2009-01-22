@@ -99,8 +99,8 @@ class LoggedInPanel extends JXPanel {
         optionsMenu.add(optionsBox.decorateMenuComponent(showOfflineFriends));
         optionsMenu.addSeparator();
         optionsMenu.add(optionsBox.decorateMenuComponent(statusMenuLabel));
-        optionsMenu.add(optionsBox.decorateMenuComponent(statusActions.getAvailableAction()));
-        optionsMenu.add(optionsBox.decorateMenuComponent(statusActions.getDnDAction()));
+        optionsMenu.add(optionsBox.decorateMenuComponent(statusActions.getAvailableMenuItem()));
+        optionsMenu.add(optionsBox.decorateMenuComponent(statusActions.getDnDMenuItem()));
         optionsBox.overrideMenu(optionsMenu);
         optionsBox.setText(I18n.tr("Options"));
 

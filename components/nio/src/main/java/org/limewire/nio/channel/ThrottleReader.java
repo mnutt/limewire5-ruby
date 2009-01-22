@@ -110,7 +110,9 @@ public class ThrottleReader implements InterestReadableByteChannel, ChannelReade
         } else {
             // Humur the underlying channel -- it may need
             // to read data internally.
-            channel.read(BufferUtils.getEmptyBuffer());
+            // Important to set totalRead because it may be -1, 
+            // which we have to propogate outwards for EOF detection.
+            totalRead = channel.read(BufferUtils.getEmptyBuffer());
         	channel.interestRead(false);
         	if(lastInterestState)
         		throttle.interest(throttleListener);

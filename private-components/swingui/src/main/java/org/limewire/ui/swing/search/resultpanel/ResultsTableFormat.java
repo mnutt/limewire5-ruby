@@ -7,6 +7,7 @@ import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.table.AbstractColumnStateFormat;
 import org.limewire.ui.swing.table.ColumnStateInfo;
+import org.limewire.ui.swing.util.EventListTableSortFormat;
 import org.limewire.util.StringUtils;
 
 
@@ -14,7 +15,8 @@ import org.limewire.util.StringUtils;
  * This class is the base class for each of the TableFormat classes
  * that describe the various table views of search results.
  */
-public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T> {
+public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T> 
+    implements EventListTableSortFormat {
 
     protected VisualSearchResult vsr;
     private final int nameColumn;

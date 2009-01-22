@@ -21,6 +21,6 @@ public class StatusBarSectionPainter<X> extends AbstractPainter<X>{
     @Override
     protected void doPaint(Graphics2D g, X object, int width, int height) {
         g.setPaint(this.dividerForeground);
-        g.drawLine(0, 2, 0, height-4);
+        g.drawLine(0, 2, 0, height-3);
     }    
 }

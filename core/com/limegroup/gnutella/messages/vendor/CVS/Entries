@@ -11,7 +11,6 @@
 /HeadPing.java/1.16/Mon Jan  5 17:05:12 2009//
 /HeadPong.java/1.35/Sun Nov 16 23:50:35 2008//
 /HeadPongFactory.java/1.2/Thu Dec  6 16:34:42 2007//
-/HeadPongFactoryImpl.java/1.23/Wed Dec  3 22:02:01 2008//
 /HeadPongImpl.java/1.10/Mon Jan  5 17:05:12 2009//
 /HeadPongRequestor.java/1.2/Wed Jun 20 00:43:38 2007//
 /HeaderUpdateVendorMessage.java/1.6/Wed Dec 26 20:58:32 2007//
@@ -49,4 +48,5 @@
 /VendorMessageFactoryImpl.java/1.4/Mon Apr 28 18:22:19 2008//
 /VendorMessageParserBinder.java/1.1/Wed Aug 15 15:41:22 2007//
 /VendorMessageParserBinderImpl.java/1.6/Tue Mar 11 17:12:58 2008//
+/HeadPongFactoryImpl.java/1.24/Thu Jan 22 05:08:12 2009//
 D

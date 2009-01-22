@@ -3,10 +3,8 @@
 /Container.java/1.12/Mon Oct 27 22:29:32 2008//
 /CreationTimeCache.java/1.10/Wed Dec 10 16:29:34 2008//
 /FileDesc.java/1.5/Tue Nov 11 17:31:53 2008//
-/FileDescChangeEvent.java/1.3/Sun Nov  2 04:53:09 2008//
 /FileDescFactory.java/1.1/Mon Oct 20 04:06:10 2008//
 /FileDescFactoryImpl.java/1.1/Mon Oct 20 04:06:10 2008//
-/FileDescImpl.java/1.7/Mon Jan 12 23:41:32 2009//
 /FileList.java/1.15/Wed Nov  5 21:05:43 2008//
 /FileListChangeFailedException.java/1.3/Mon Jan 12 23:41:32 2009//
 /FileListChangedEvent.java/1.8/Tue Dec  9 22:44:31 2008//
@@ -14,13 +12,11 @@
 /FileManager.java/1.12/Mon Jan  5 17:05:12 2009//
 /FileManagerImpl.java/1.19/Mon Jan  5 17:05:12 2009//
 /GnutellaFileList.java/1.7/Fri Dec 12 21:40:36 2008//
-/GnutellaFileListImpl.java/1.8/Mon Jan  5 17:05:12 2009//
 /IncompleteFileDesc.java/1.2/Fri Oct 17 22:07:06 2008//
 /IncompleteFileDescImpl.java/1.3/Mon Oct 20 04:06:10 2008//
 /IncompleteFileList.java/1.2/Sun Nov  2 04:53:09 2008//
 /IncompleteFileListImpl.java/1.10/Wed Nov  5 21:05:43 2008//
 /LibraryConverter.java/1.7/Fri Nov 21 18:59:32 2008//
-/LibraryFileData.java/1.17/Result of merge//
 /LibraryUtils.java/1.5/Fri Nov 21 18:59:32 2008//
 /LimeWireLibraryModule.java/1.5/Mon Oct 27 22:29:32 2008//
 /LocalFileDetailsFactory.java/1.1/Fri Oct 17 15:23:47 2008//
@@ -34,8 +30,12 @@
 /SharedFilesKeywordIndex.java/1.2/Fri Oct 17 19:19:34 2008//
 /SharedFilesKeywordIndexImpl.java/1.14/Mon Jan  5 17:05:12 2009//
 /ThreadSafeFileListIterator.java/1.3/Sun Nov  2 04:53:09 2008//
-/UrnCache.java/1.8/Mon Jan 12 23:41:32 2009//
 /FriendFileList.java/1.6/Thu Jan 15 03:58:51 2009//
 /FriendFileListImpl.java/1.21/Thu Jan 15 03:58:51 2009//
-/ManagedFileListImpl.java/1.37/Result of merge//
+/FileDescChangeEvent.java/1.5/Thu Jan 22 05:08:12 2009//
+/FileDescImpl.java/1.9/Thu Jan 22 05:08:12 2009//
+/GnutellaFileListImpl.java/1.9/Thu Jan 22 05:08:12 2009//
+/LibraryFileData.java/1.18/Result of merge//
+/ManagedFileListImpl.java/1.41/Result of merge//
+/UrnCache.java/1.9/Thu Jan 22 05:08:12 2009//
 D

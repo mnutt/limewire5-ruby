@@ -18,8 +18,7 @@ public class MacOSXUtils {
         if (OSUtils.isMacOSX105()) {
             try {
                 System.loadLibrary("MacOSXUtils");
-            }
-            catch (UnsatisfiedLinkError err) {
+            } catch (UnsatisfiedLinkError err) {
                 ErrorService.error(err);
             }
         }
@@ -37,14 +36,23 @@ public class MacOSXUtils {
      * starting up LimeWire.
      */
     public static void setLoginStatus(boolean allow) {
-        SetLoginStatusNative(allow);
+        try {
+            SetLoginStatusNative(allow);
+        } catch(UnsatisfiedLinkError ule) {
+            // Ignore, no big deal.
+        }
     }
     
     /**
      * Gets the full user's name.
      */
     public static String getUserName() {
-        return GetCurrentFullUserName();
+        try {
+            return GetCurrentFullUserName();
+        } catch(UnsatisfiedLinkError ule) {
+            // No big deal, just return user name.
+            return CommonUtils.getUserName();
+        }
     }
     
     /**

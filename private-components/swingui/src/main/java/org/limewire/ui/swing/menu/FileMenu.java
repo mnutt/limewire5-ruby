@@ -21,7 +21,9 @@ public class FileMenu extends MnemonicMenu {
             RecentDownloadsMenu recentDownloadsMenu, AddFileAction addFileAction,
             AddFolderAction addFolderAction, ExitAfterTransferAction exitAfterTransferAction,
             ExitAction exitAction) {
-        super(I18n.tr("&File"));
+        // TODO fberger comment out
+        // super(I18n.tr("&File"));
+        super(I18n.tr("File"));
         add(openFileAction);
         add(openLinkAction);
         add(recentDownloadsMenu);

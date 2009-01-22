@@ -124,12 +124,12 @@ public class FilesOptionPanel extends OptionPanel {
         private JButton manageButton;
         
         public ManageExtensionsPanel() {
-            super(I18n.tr("Manage Extensions"));
+            super(I18n.tr("File Extensions"));
             
             extensionsPanel = manageFileExtensionsOptionPanel;
             
             manageButton = new JButton(new DialogDisplayAction(FilesOptionPanel.this,
-                    extensionsPanel, I18n.tr("Manage file extensions"),
+                    extensionsPanel, I18n.tr("Manage File Extensions"),
                     I18n.tr("Manage..."),I18n.tr("Manage file extensions to load")));
             
             add(new JLabel(I18n.tr("Choose the file extensions that belong in each category")), "push");
@@ -158,15 +158,15 @@ public class FilesOptionPanel extends OptionPanel {
         private JButton configureButton;
         
         public SaveFoldersPanel() {
-            super(I18n.tr("Save Folders"));
+            super(I18n.tr("Download Folders"));
             
             saveFolderPanel = manageFoldersOptionPanelFactory.create(new OKDialogAction(), new CancelDialogAction());
             saveFolderPanel.setSize(new Dimension(400,500));
             
             configureButton = new JButton(new DialogDisplayAction(FilesOptionPanel.this, saveFolderPanel, 
-                    I18n.tr("Manage Save Folders"),I18n.tr("Configure..."),I18n.tr("Configure how file types are saved")));
+                    I18n.tr("Download Folders"),I18n.tr("Configure..."),I18n.tr("Configure where different categories are downloaded")));
             
-            add(new JLabel(I18n.tr("Choose where specific file types get saved")), "push");
+            add(new JLabel(I18n.tr("Choose where specific categories are downloaded")), "push");
             add(configureButton);
         }
         
@@ -208,8 +208,8 @@ public class FilesOptionPanel extends OptionPanel {
             storePathTextField.addMouseListener(directoryAction);
             browseStorePathButton = new JButton(directoryAction);
             configureNamingButton = new JButton(new DialogDisplayAction(FilesOptionPanel.this,
-                    storeOptionPanel,I18n.tr("LimeWire Store File Organization"),
-                    I18n.tr("Configure file naming..."),I18n.tr("Configure how files are automatically named")));
+                    storeOptionPanel,I18n.tr("Store File Organization"),
+                    I18n.tr("Configure File Organization..."),I18n.tr("Configure how files downloaded from the LimeWire Store are organized")));
             
             add(new JLabel(I18n.tr("Save store downloads to:")), "split");
             add(storePathTextField);

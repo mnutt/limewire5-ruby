@@ -22,9 +22,6 @@
 			<fileset dir="components/common/src/main/resources"/>
 			<fileset dir="components/resources/src/main/resources"/>
 			<fileset dir="private-components/swingui/src/main/resources"/>
-			<fileset dir="lib/resources/osx"/>
-			<fileset dir="lib/resources/windows"/>
-			<fileset dir="lib/resources/linux"/>
 		</copy>
 
 		<!--

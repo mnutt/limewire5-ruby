@@ -55,6 +55,7 @@ import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeHeaderBar;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.LimePromptTextField;
+import org.limewire.ui.swing.components.MessageComponent;
 import org.limewire.ui.swing.dnd.GhostDragGlassPane;
 import org.limewire.ui.swing.dnd.GhostDropTargetListener;
 import org.limewire.ui.swing.dnd.SharingLibraryTransferHandler;
@@ -63,13 +64,12 @@ import org.limewire.ui.swing.library.table.LibraryTable;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
 import org.limewire.ui.swing.library.table.LibraryTableModel;
 import org.limewire.ui.swing.lists.CategoryFilter;
-import org.limewire.ui.swing.painter.BackgroundMessagePainter;
+import org.limewire.ui.swing.painter.FilterPainter;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.player.PlayerUtils;
 import org.limewire.ui.swing.table.TableColors;
 import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.util.CategoryIconManager;
-import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
@@ -79,6 +79,7 @@ import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
+import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 abstract class SharingPanel extends AbstractFileListPanel implements PropertyChangeListener {
@@ -140,7 +141,8 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
     
     @Override
     protected LimePromptTextField createFilterField(String prompt) {
-        return new LimePromptTextField(prompt, AccentType.GREEN_SHADOW);
+        // Create filter field and install painter.
+        return FilterPainter.decorate(new LimePromptTextField(prompt, AccentType.GREEN_SHADOW));
     }
     
     protected void addBackButton(JButton button) {
@@ -165,9 +167,18 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
                 new TextComponentMatcherEditor<LocalFileItem>(getFilterTextField(), new LibraryTextFilterator<LocalFileItem>()));
         addDisposable(filterList);
 
+        
+        FilterList<LocalFileItem> storeFileFilteredList = GlazedListsFactory.filterList(filterList, new Matcher<LocalFileItem>() {
+                @Override
+                public boolean matches(LocalFileItem item) {
+                    return item.isShareable();
+                }
+        });
+        addDisposable(storeFileFilteredList);
+        
         Comparator<LocalFileItem> c = new LocalFileItemComparator(friendFileList);
         
-        SortedList<LocalFileItem> sortedList = new SortedList<LocalFileItem>(filterList, c);
+        SortedList<LocalFileItem> sortedList = new SortedList<LocalFileItem>(storeFileFilteredList, c);
         addDisposable(sortedList);
 
         JScrollPane scrollPane;
@@ -187,7 +198,7 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
                 scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
             }
 			TableColors tableColors = new TableColors();
-            table.addHighlighter(new ColorHighlighter(new UnsharedHighlightPredicate(getTableModel(table), friendFileList), null, tableColors.getDisabledForegroundColor(), null, tableColors.getDisabledForegroundColor()));
+            table.addHighlighter(new ColorHighlighter(new IncompleteHighlightPredicate(getTableModel(table)), null, tableColors.getDisabledForegroundColor(), null, tableColors.getDisabledForegroundColor()));
         } else {//Category.IMAGE
             scrollPane = new JScrollPane();
             scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -261,7 +272,7 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
             if(category == Category.AUDIO || category == Category.VIDEO || category == Category.IMAGE) {
                 LibrarySettings.SNAPSHOT_SHARING_ENABLED.addSettingListener(this);
             }
-            if(category == Category.DOCUMENT && friend.getId().equals("_@_GNUTELLA_@_")) {
+            if(category == Category.DOCUMENT && friend.getId().equals(Friend.P2P_FRIEND_ID)) {
                 LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.addSettingListener(this);
             }
         }
@@ -286,7 +297,7 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
                 action.setEnabled(allFileList.size() > 0);
             } else if(category == Category.PROGRAM) {// hide program category is not enabled
                 action.setEnabled(LibrarySettings.ALLOW_PROGRAMS.getValue());
-            } else if(category == Category.DOCUMENT && friend.getId().equals("_@_GNUTELLA_@_")) {
+            } else if(category == Category.DOCUMENT && friend.getId().equals(Friend.P2P_FRIEND_ID)) {
                 action.setEnabled(LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.getValue());
             }
         }
@@ -301,7 +312,7 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
             if(category == Category.AUDIO || category == Category.VIDEO || category == Category.IMAGE) {
                 LibrarySettings.SNAPSHOT_SHARING_ENABLED.removeSettingListener(this);
             }
-            if(category == Category.DOCUMENT && friend.getId().equals("_@_GNUTELLA_@_")) {
+            if(category == Category.DOCUMENT && friend.getId().equals(Friend.P2P_FRIEND_ID)) {
                 LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.removeSettingListener(this);
             }
         }
@@ -348,17 +359,15 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         }
     }
     
-    private static class UnsharedHighlightPredicate implements HighlightPredicate {
+    private static class IncompleteHighlightPredicate implements HighlightPredicate {
         LibraryTableModel<LocalFileItem> libraryTableModel;
-        private LocalFileList friendFileList;
-        public UnsharedHighlightPredicate (LibraryTableModel<LocalFileItem> libraryTableModel, LocalFileList friendFileList) {
+        public IncompleteHighlightPredicate (LibraryTableModel<LocalFileItem> libraryTableModel) {
             this.libraryTableModel = libraryTableModel;
-            this.friendFileList = friendFileList;
         }
         @Override
         public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
             LocalFileItem fileItem = libraryTableModel.getFileItem(adapter.row);
-            return !friendFileList.contains(fileItem.getFile());
+            return !fileItem.isShareable();
         }       
     }
     
@@ -367,6 +376,7 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         @Resource Color selectedTextColor;
         @Resource Color textColor;
         @Resource Font  shareButtonFont;
+        @Resource Font  shareLabelFont;
         
         private JLabel emptyCheckBox;
         private JCheckBox checkBox;
@@ -381,7 +391,7 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
         
         public SharingSelectionPanel(Action action, Category category, AbstractFileListPanel library, 
                 ShareAction shareAction, UnshareAction unshareAction) {
-            super(new MigLayout("insets 0, fill, hidemode 3"));
+            super(new MigLayout("gap 0, insets 0 0 2 0, fill, hidemode 3"));
             
             this.libraryPanel = library;
             this.category = category;
@@ -406,7 +416,7 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
             
             if(category == Category.AUDIO || category == Category.VIDEO || category == Category.IMAGE) {
                 createShareButtons(shareAction, unshareAction);
-                add(shareLabel, "gapleft 15, span 2, split");
+                add(shareLabel, "gapleft 22, span 2, split");
                 add(shareButton, "split");
                 add(unshareButton);
             }
@@ -465,6 +475,8 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
             shareButton = new HyperlinkButton(shareAction);
             unshareButton = new HyperlinkButton(unshareAction);
 
+            shareLabel.setForeground(textColor);
+            shareLabel.setFont(shareLabelFont);
             shareButton.setFont(shareButtonFont);        
             unshareButton.setFont(shareButtonFont);
             
@@ -553,32 +565,28 @@ abstract class SharingPanel extends AbstractFileListPanel implements PropertyCha
      */
     private class LockedUI extends LockableUI {
         private JXPanel panel;
-        private JXPanel messagePanel;
+        private MessageComponent messageComponent;
         private JLabel label;
         private JLabel minLabel;
         
         public LockedUI(Category category, LayerEffect... lockedEffects) {
             super(lockedEffects);
             
-            messagePanel = new JXPanel(new MigLayout("insets 10, gapy 10, wrap, alignx 50%"));
-            messagePanel.setOpaque(false);
-            messagePanel.setBackgroundPainter(new BackgroundMessagePainter<JXPanel>());
+            messageComponent = new MessageComponent();
             
             label = new JLabel(I18n.tr("Sharing entire {0} Collection with {1}", category.getSingularName(), getFullPanelName()));
-            FontUtils.setSize(label, 12);
-            FontUtils.bold(label);
+            messageComponent.decorateHeaderLabel(label);
             
-            minLabel = new JLabel(I18n.tr("Sharing your {0} collection shares new {1} files that automatically get added to your Library", category.getSingularName(), category.getSingularName().toLowerCase()));
-            FontUtils.setSize(minLabel, 10);
+            minLabel = new JLabel(I18n.tr("New {0} files that are added to your Library will be automatically shared with this person", category.getSingularName()));
+            messageComponent.decorateSubLabel(minLabel);
+
+            messageComponent.addComponent(label, "wrap");
+            messageComponent.addComponent(minLabel, "");
             
-            panel = new JXPanel(new MigLayout("aligny 50%, alignx 50%"));
+            panel = new JXPanel(new MigLayout("fill"));
             panel.setBackground(new Color(147,170,209,80));
-            panel.setVisible(false);
-            
-            messagePanel.add(label, "alignx 50%");
-            messagePanel.add(minLabel, "alignx 50%");
-            
-            panel.add(messagePanel);
+            panel.setVisible(false);           
+            panel.add(messageComponent, "align 50% 40%");
         }
         
         @SuppressWarnings("unchecked")

@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.limewire.core.api.connection.FirewallStatusEvent;
+import org.limewire.core.api.connection.FirewallTransferStatus;
 import org.limewire.core.api.connection.FirewallTransferStatusEvent;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.LimeProps;
@@ -126,9 +127,12 @@ public class NetworkManagerImpl implements NetworkManager {
             }
         });    
         firewallTransferStatusSupport.addListener(new EventListener<FirewallTransferStatusEvent>() {
+            private volatile FirewallTransferStatus lastStatus = null;
+            
             @Override
             public void handleEvent(FirewallTransferStatusEvent event) {
-                if(started) {
+                if(started && lastStatus != event.getSource()) {
+                    lastStatus = event.getSource();
                     updateCapabilities();
                 }
             }

@@ -30,6 +30,7 @@ import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.search.Search;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
@@ -61,8 +62,6 @@ import org.limewire.ui.swing.util.EventListJXTableSorting;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
-import ca.odell.glazedlists.CollectionList;
-import ca.odell.glazedlists.CompositeList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.RangeList;
 import ca.odell.glazedlists.SortedList;
@@ -98,7 +97,8 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
     private CategoryIconManager categoryIconManager;
     private List<DownloadPreprocessor> downloadPreprocessors = new ArrayList<DownloadPreprocessor>();
     
-    private LibraryNavigator libraryNavigator;
+    private final LibraryNavigator libraryNavigator;
+    private final LibraryManager libraryManager;
 
     BaseResultPanel(ListViewTableEditorRendererFactory listViewTableEditorRendererFactory,
             EventList<VisualSearchResult> eventList,
@@ -111,7 +111,8 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
             ListViewRowHeightRule rowHeightRule,
             SaveLocationExceptionHandler saveLocationExceptionHandler,
             SearchResultFromWidgetFactory fromWidgetFactory, IconManager iconManager, CategoryIconManager categoryIconManager,
-            LibraryNavigator libraryNavigator) {
+            LibraryNavigator libraryNavigator,
+            LibraryManager libraryManager) {
         
         this.listViewTableEditorRendererFactory = listViewTableEditorRendererFactory;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
@@ -123,6 +124,7 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         this.categoryIconManager = categoryIconManager;
         this.downloadPreprocessors.add(new LicenseWarningDownloadPreprocessor());
         this.libraryNavigator = libraryNavigator;
+        this.libraryManager = libraryManager;
         
         setLayout(layout);
                 
@@ -264,27 +266,11 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         final ResultsTableFormat<VisualSearchResult> tableFormat, Navigator navigator,
         PropertiesFactory<VisualSearchResult> properties) {
         
-        CollectionList<VisualSearchResult, VisualSearchResult> explodedParentResults = 
-            new CollectionList<VisualSearchResult, VisualSearchResult>(eventList, 
-                    new CollectionList.Model<VisualSearchResult, VisualSearchResult>() {
-                @Override
-                public List<VisualSearchResult> getChildren(VisualSearchResult parent) {
-                    return parent.getSimilarResults();
-                }
-            });
-        
-        //Group together all search results (parent & similar) into one big list so that
-        //everything displays by default in the table view.
-        CompositeList<VisualSearchResult> allTogetherList = new CompositeList<VisualSearchResult>(eventList.getPublisher(),
-                eventList.getReadWriteLock());
-        allTogetherList.addMemberList(eventList);
-        allTogetherList.addMemberList(explodedParentResults);
-
-        SortedList<VisualSearchResult> sortedList = new SortedList<VisualSearchResult>(allTogetherList);
+        SortedList<VisualSearchResult> sortedList = new SortedList<VisualSearchResult>(eventList);
         resultsTable = new ConfigurableTable<VisualSearchResult>(sortedList, tableFormat, true);
 
         //link the jxtable column headers to the sorted list
-        EventListJXTableSorting.install(resultsTable, sortedList);
+        EventListJXTableSorting.install(resultsTable, sortedList, tableFormat);
             
         setupCellRenderers(tableFormat);
   
@@ -301,7 +287,7 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
 
     protected void setupCellRenderers(final ResultsTableFormat<VisualSearchResult> tableFormat) {
         CalendarRenderer calendarRenderer = new CalendarRenderer();
-        IconLabelRenderer iconLabelRenderer = new IconLabelRenderer(iconManager, categoryIconManager);
+        IconLabelRenderer iconLabelRenderer = new IconLabelRenderer(iconManager, categoryIconManager, downloadListManager, libraryManager);
         TableCellRenderer defaultRenderer = new DefaultLibraryRenderer();
         
         int columnCount = tableFormat.getColumnCount();
@@ -382,10 +368,7 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         @Override
         public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
             VisualSearchResult result = sortedList.get(adapter.row);
-            return (result.getDownloadState() == BasicDownloadState.LIBRARY || 
-                    result.getDownloadState() == BasicDownloadState.DOWNLOADING ||
-                    result.getDownloadState() == BasicDownloadState.DOWNLOADED ||
-                    result.isSpam());
+            return result.isSpam();
         }       
     }
     
@@ -409,7 +392,7 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
     private class ResultDownloaderAdaptor extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2) {
+            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
                 int row = resultsList.rowAtPoint(e.getPoint());
                 if (row == -1 || row == MAX_DISPLAYED_RESULT_SIZE) return;
                 TableModel tm = resultsList.getModel();

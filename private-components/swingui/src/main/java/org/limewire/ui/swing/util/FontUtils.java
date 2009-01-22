@@ -60,10 +60,14 @@ public class FontUtils {
     public static void removeUnderline(JComponent component) {
         Font font = component.getFont();
         if (font == null) return;
+        component.setFont(deriveUnderlineRemoved(font));
+    }
+    
+    public static Font deriveUnderlineRemoved(Font font) {
         Map<TextAttribute, ?> map = font.getAttributes();
         Map<TextAttribute, Object> newMap = new HashMap<TextAttribute, Object>(map);
         newMap.put(TextAttribute.UNDERLINE, Integer.valueOf(-1));
-        component.setFont(font.deriveFont(newMap));
+        return font.deriveFont(newMap);
     }
     
     /**

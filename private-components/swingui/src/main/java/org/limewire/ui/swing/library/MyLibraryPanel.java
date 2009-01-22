@@ -1,22 +1,27 @@
-/**
- * 
- */
 package org.limewire.ui.swing.library;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TooManyListenersException;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -25,17 +30,25 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
+import org.jdesktop.jxlayer.JXLayer;
+import org.jdesktop.jxlayer.plaf.effect.LayerEffect;
+import org.jdesktop.jxlayer.plaf.ext.LockableUI;
+import org.jdesktop.swingx.JXPanel;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.URN;
+import org.limewire.core.api.friend.FriendEvent;
+import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LibraryFileList;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.core.api.library.ShareListManager;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
@@ -43,10 +56,12 @@ import org.limewire.listener.SwingEDTEvent;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.components.MessageComponent;
 import org.limewire.ui.swing.dnd.GhostDragGlassPane;
 import org.limewire.ui.swing.dnd.GhostDropTargetListener;
 import org.limewire.ui.swing.dnd.MyLibraryTransferHandler;
 import org.limewire.ui.swing.library.image.LibraryImagePanel;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.sharing.ShareWidget;
 import org.limewire.ui.swing.library.sharing.ShareWidgetFactory;
 import org.limewire.ui.swing.library.table.LibraryTable;
@@ -55,6 +70,7 @@ import org.limewire.ui.swing.library.table.LibraryTableModel;
 import org.limewire.ui.swing.lists.CategoryFilter;
 import org.limewire.ui.swing.player.PlayerPanel;
 import org.limewire.ui.swing.player.PlayerUtils;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -65,27 +81,46 @@ import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
+import ca.odell.glazedlists.event.ListEvent;
+import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
-public class MyLibraryPanel extends LibraryPanel {
+public class MyLibraryPanel extends LibraryPanel implements EventListener<FriendEvent> {
     
     @Resource(key="LibraryPanel.selectionPanelBackgroundOverride")
     private Color selectionPanelBackgroundOverride = null;
+    @Resource
+    private Icon closeButton;
+    @Resource
+    private Icon closeHoverButton;
     
     private final LibraryTableFactory tableFactory;
     private final CategoryIconManager categoryIconManager;
     private final PlayerPanel playerPanel;
     private final LibraryManager libraryManager;
+    private final LibraryNavigator libraryNavigator;
     private final Map<Category, LibraryOperable<LocalFileItem>> selectableMap;
     private final ShareWidgetFactory shareFactory;    
    
     private ShareWidget<Category> categoryShareWidget = null;
     private ShareWidget<LocalFileItem[]> multiShareWidget = null;
     
+    /** Map of JXLayers and categories they exist in */
+    private Map<Category, JXLayer> map = new HashMap<Category, JXLayer>();
+    
+    private Timer repaintTimer;
+    private ListenerSupport<XMPPConnectionEvent> connectionListeners;
+    private final ListenerSupport<FriendEvent> knownFriendsListeners;
+    
+    // set of known friends helps keep correct share numbers
+    private final Set<String> knownFriends;
+
     @Inject
     public MyLibraryPanel(LibraryManager libraryManager,
+                          LibraryNavigator libraryNavigator,
                           IconManager iconManager,
                           LibraryTableFactory tableFactory,
                           CategoryIconManager categoryIconManager,
@@ -93,19 +128,23 @@ public class MyLibraryPanel extends LibraryPanel {
                           LimeHeaderBarFactory headerBarFactory,
                           PlayerPanel player, 
                           GhostDragGlassPane ghostPane,
-                          ListenerSupport<XMPPConnectionEvent> connectionListeners) {
+                          ListenerSupport<XMPPConnectionEvent> connectionListeners,
+                          ShareListManager shareListManager,
+                          @Named("known") ListenerSupport<FriendEvent> knownFriendsListeners) {
         
         super(headerBarFactory);
         
         GuiUtils.assignResources(this);
         
         this.libraryManager = libraryManager;
+        this.libraryNavigator = libraryNavigator;
         this.tableFactory = tableFactory;
         this.categoryIconManager = categoryIconManager;    
         this.shareFactory = shareFactory;
         this.playerPanel = player;
         this.selectableMap = new EnumMap<Category, LibraryOperable<LocalFileItem>>(Category.class);
-
+        this.connectionListeners = connectionListeners;
+        
         if (selectionPanelBackgroundOverride != null) { 
             getSelectionPanel().setBackground(selectionPanelBackgroundOverride);
         }
@@ -116,6 +155,12 @@ public class MyLibraryPanel extends LibraryPanel {
         multiShareWidget = shareFactory.createMultiFileShareWidget();
         createMyCategories(libraryManager.getLibraryManagedList());
         selectFirstVisible();
+
+        this.knownFriends = new HashSet<String>();
+        this.knownFriends.add(Friend.P2P_FRIEND_ID);
+        this.knownFriendsListeners = knownFriendsListeners;
+        this.knownFriendsListeners.addListener(this);
+        getSelectionPanel().updateCollectionShares(knownFriends);
         
         addHeaderComponent(playerPanel, "cell 0 0, grow");
         playerPanel.setMaximumSize(new Dimension(999,999));
@@ -128,24 +173,43 @@ public class MyLibraryPanel extends LibraryPanel {
         } catch (TooManyListenersException ignoreException) {            
         }      
         
-        connectionListeners.addListener(new EventListener<XMPPConnectionEvent>() {
+        shareListManager.getCombinedShareList().getModel().addListEventListener(new ListEventListener<LocalFileItem>(){
             @Override
-            @SwingEDTEvent
-            public void handleEvent(XMPPConnectionEvent event) {
-                switch(event.getType()) {
-                case CONNECT_FAILED: break;
-                case DISCONNECTED:
-                    if(isVisible())
-                        repaint();
-                    break;
-                case CONNECTING: break;
-                case CONNECTED:
-                    if(isVisible())
-                        repaint();
-                    break;
-                }
+            public void listChanged(ListEvent<LocalFileItem> listChanges) {
+                //coalesces repaint calls. Updates usually come in bulk, ie you sign on/off,
+                // share a collection, etc..
+                if(repaintTimer.isRunning())
+                    repaintTimer.restart();
+                else
+                    repaintTimer.start();
             }
         });
+        
+        repaintTimer = new Timer(250, new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MyLibraryPanel.this.repaint();
+                repaintTimer.stop();
+            }
+        });
+    }
+
+    @Override
+    public void handleEvent(FriendEvent event) {
+        Friend friend = event.getSource();
+
+        switch (event.getType()) {
+            case ADDED:
+                knownFriends.add(friend.getId());
+                break;
+            case REMOVED:
+            case DELETE:
+                knownFriends.remove(friend.getId());
+                break;
+            default:
+                return;
+        }
+        getSelectionPanel().updateCollectionShares(knownFriends);
     }
     
     private void createMyCategories(LibraryFileList libraryFileList) {
@@ -168,7 +232,7 @@ public class MyLibraryPanel extends LibraryPanel {
         }
     }
 
-    private JComponent createMyCategoryAction(Category category, EventList<LocalFileItem> filtered) {        
+    private JComponent createMyCategoryAction(final Category category, EventList<LocalFileItem> filtered) {        
         //TODO: can this be a singleton??? 
         final ShareWidget<File> fileShareWidget = shareFactory.createFileShareWidget();
         addDisposable(fileShareWidget);             
@@ -191,7 +255,37 @@ public class MyLibraryPanel extends LibraryPanel {
             scrollPane.setViewportView(imagePanel);
             scrollPane.setBorder(BorderFactory.createEmptyBorder());            
             addDisposable(imagePanel);
-        }                      
+        }           
+        // only do this if the message hasn't been shown before
+        if(SwingUiSettings.SHOW_FRIEND_OVERLAY_MESSAGE.getValue() == true) {
+            connectionListeners.addListener(new EventListener<XMPPConnectionEvent>() {
+                @Override
+                @SwingEDTEvent
+                public void handleEvent(XMPPConnectionEvent event) {
+                    switch(event.getType()) { 
+                    case CONNECTED:
+                        if(SwingUiSettings.SHOW_FRIEND_OVERLAY_MESSAGE.getValue() == true) {
+                            JPanel panel = new JPanel(new MigLayout("fill"));
+                            panel.setOpaque(false);
+                            panel.add(getMessageComponent(), "align 50% 40%");
+                            JXLayer layer = map.get(category);
+                            layer.getGlassPane().add(panel);
+                            layer.getGlassPane().setVisible(true);
+                            if(!SwingUiSettings.HAS_LOGGED_IN_AND_SHOWN_LIBRARY.getValue()) {
+                                libraryNavigator.selectLibrary();
+                                SwingUiSettings.HAS_LOGGED_IN_AND_SHOWN_LIBRARY.setValue(true);
+                            }
+                        }
+                    }
+                }
+            });
+            // this shouldn't be necesarry, the panel above isn't fill the viewport if we don't set this at
+            // jxlayer creation time. 
+            LockableUI blurUI = new LockedUI(category);
+            JXLayer<JComponent> jxlayer = new JXLayer<JComponent>(scrollPane, blurUI);
+            map.put(category, jxlayer);
+            return jxlayer;
+        }
         return scrollPane;
     }
     
@@ -213,6 +307,7 @@ public class MyLibraryPanel extends LibraryPanel {
         
         categoryShareWidget.dispose();
         multiShareWidget.dispose();
+        knownFriendsListeners.removeListener(this);
     }
     
     private static class MyLibraryDoubleClickHandler implements TableDoubleClickHandler{
@@ -375,4 +470,83 @@ public class MyLibraryPanel extends LibraryPanel {
         select(category);
         selectableMap.get(category).selectAndScrollTo(urn);        
     }    
+    
+    /**
+     * Creates a locked layer over a table. This layer prevents the user from
+     * interacting with the contents underneath it.
+     */
+    private class LockedUI extends LockableUI {
+        private JXPanel panel;
+        
+        public LockedUI(Category category, LayerEffect... lockedEffects) {
+            panel = new JXPanel(new MigLayout("aligny 50%, alignx 50%"));
+            panel.setVisible(false);
+        }
+        
+        @SuppressWarnings("unchecked")
+        public void installUI(JComponent c) {
+            super.installUI(c);
+            JXLayer<JComponent> l = (JXLayer<JComponent>) c;
+            l.getGlassPane().setLayout(new BorderLayout());
+            l.getGlassPane().add(panel, BorderLayout.CENTER);
+        }
+        
+        @SuppressWarnings("unchecked")
+        public void uninstall(JComponent c) {
+            super.uninstallUI(c);
+            JXLayer<JComponent> l = (JXLayer<JComponent>) c;
+            l.getGlassPane().setLayout(new FlowLayout());
+            l.getGlassPane().remove(panel);
+        }
+        
+        public void setLocked(boolean isLocked) {
+            super.setLocked(isLocked);
+            panel.setVisible(isLocked);
+        }
+        
+        @Override
+        public Cursor getLockedCursor() {
+            return Cursor.getDefaultCursor();
+        }
+    }
+    
+    /**
+     * Creates the MessageComponent when the user first signs in.
+     */
+    public MessageComponent getMessageComponent() {
+        MessageComponent messageComponent;
+        messageComponent = new MessageComponent(6, 22, 18, 6);
+        
+        JLabel headerLabel = new JLabel(I18n.tr("What Now?"));
+        messageComponent.decorateHeaderLabel(headerLabel);
+        
+        JLabel minLabel = new JLabel(I18n.tr("Share entire categories or individual files with your friends."));
+        messageComponent.decorateSubLabel(minLabel);
+        
+        JLabel secondMinLabel = new JLabel(I18n.tr("Chat with them about using LimeWire 5"));
+        messageComponent.decorateSubLabel(secondMinLabel);
+        
+        JButton cancelButton = new JButton(closeButton);
+        cancelButton.setBorder(BorderFactory.createEmptyBorder());
+        cancelButton.setRolloverIcon(closeHoverButton);
+        cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        cancelButton.setContentAreaFilled(false);
+        cancelButton.setFocusPainted(false);
+        cancelButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(JXLayer layer : map.values()) {
+                    layer.getGlassPane().setVisible(false);
+                }
+                SwingUiSettings.SHOW_FRIEND_OVERLAY_MESSAGE.setValue(false);
+            }
+        });
+
+        messageComponent.addComponent(cancelButton, "span, alignx right");
+        messageComponent.addComponent(headerLabel, "push, wrap");
+        messageComponent.addComponent(minLabel, "wrap, gapright 16");
+        messageComponent.addComponent(secondMinLabel, "gapright 16");
+
+        return messageComponent;
+    }
 }

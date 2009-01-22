@@ -27,8 +27,12 @@ public class NameRenderer extends DefaultLibraryRenderer {
             boolean hasFocus, int row, int column) {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        LocalFileItem localFileItem = (LocalFileItem) value;
-        String name = getName(localFileItem);
+        String name = null;
+        if (value != null && value instanceof LocalFileItem) {
+            LocalFileItem localFileItem = (LocalFileItem) value;
+            name = getName(localFileItem);
+        }
+        
         if (name != null) {
             setText(name);
         } else {
@@ -43,21 +47,21 @@ public class NameRenderer extends DefaultLibraryRenderer {
 
         if (localFileItem.getCategory() == Category.AUDIO) {
             name = localFileItem.getPropertyString(FilePropertyKey.TITLE);
-        } else if( localFileItem.getCategory() == Category.VIDEO) {
+        } else if (localFileItem.getCategory() == Category.VIDEO) {
             name = localFileItem.getFileName();
         }
 
         if (name == null) {
             name = localFileItem.getPropertyString(FilePropertyKey.NAME);
         }
-        
-        if(name == null) {
+
+        if (name == null) {
             name = localFileItem.getFileName();
         }
 
         if (name != null) {
             if (localFileItem.isIncomplete()) {
-                name = I18n.tr("{0} (incomplete)", name);
+                name = I18n.tr("{0} (downloading)", name);
             }
         }
         return name;

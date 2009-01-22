@@ -26,6 +26,7 @@ import org.limewire.collection.FixedsizeForgetfulHashMap;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.UploadSettings;
 import org.limewire.http.HttpAcceptorListener;
+import org.limewire.http.auth.ServerAuthState;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.util.FileLocker;
@@ -459,6 +460,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
     /**
      * Checks whether the given upload may proceed based on number of slots,
      * position in upload queue, etc. Updates the upload queue as necessary.
+     * @param context TODO
      * 
      * @return ACCEPTED if the download may proceed, QUEUED if this is in the
      *         upload queue, REJECTED if this is flat-out disallowed (and hence
@@ -468,17 +470,21 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
      *         LIMIT_REACHED. If BANNED, the <code>Uploader</code>'s state
      *         will be set to BANNED_GREEDY.
      */
-    private synchronized QueueStatus checkAndQueue(HTTPUploadSession session) {
+    private synchronized QueueStatus checkAndQueue(HTTPUploadSession session, HttpContext context) {
         RequestCache rqc = REQUESTS.get(session.getHost());
         if (rqc == null)
             rqc = new RequestCache();
         // make sure we don't forget this RequestCache too soon!
         REQUESTS.put(session.getHost(), rqc);
         rqc.countRequest();
-        if (rqc.isHammering()) {
-           if (LOG.isWarnEnabled())
-                LOG.warn("BANNED: " + session.getHost() + " (hammering)");
-            return QueueStatus.BANNED;
+        // only enforce hammering for unauthenticated clients that don't have credentials
+        ServerAuthState serverAuthState = (ServerAuthState) context.getAttribute(ServerAuthState.AUTH_STATE); 
+        if (serverAuthState == null || serverAuthState.getCredentials() == null) {
+            if (rqc.isHammering()) {
+                if (LOG.isWarnEnabled())
+                    LOG.warn("BANNED: " + session.getHost() + " (hammering)");
+                return QueueStatus.BANNED;
+            }
         }
 
         FileDesc fd = session.getUploader().getFileDesc();
@@ -794,7 +800,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
         } else if (HttpContextParams.isLocal(context)) {
             session.setQueueStatus(QueueStatus.ACCEPTED);
         } else {
-            session.setQueueStatus(checkAndQueue(session));
+            session.setQueueStatus(checkAndQueue(session, context));
         }
 
         if (LOG.isDebugEnabled())

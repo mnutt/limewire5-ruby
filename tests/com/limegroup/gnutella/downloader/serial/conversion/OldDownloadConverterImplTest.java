@@ -9,9 +9,12 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.limewire.collection.Range;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
+import org.limewire.io.GUID;
 import org.limewire.net.address.AddressFactory;
 import org.limewire.util.NameValue;
 import org.limewire.util.TestUtils;
@@ -36,9 +39,10 @@ import com.limegroup.gnutella.util.LimeTestCase;
 
 public class OldDownloadConverterImplTest extends LimeTestCase {
     private Injector injector;
-    private OldDownloadConverter oldDownloadConverter;
+    private OldDownloadConverterImpl oldDownloadConverter;
     private AddressFactory addressFactory;
     private PushEndpointFactory pushEndpointFactory;
+    private Mockery context;
 
 
     public OldDownloadConverterImplTest(String name) {
@@ -53,11 +57,11 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         injector = LimeTestUtils.createInjector();
-        oldDownloadConverter = injector.getInstance(OldDownloadConverter.class);
+        oldDownloadConverter = (OldDownloadConverterImpl) injector.getInstance(OldDownloadConverter.class);
         addressFactory = injector.getInstance(AddressFactory.class);
         pushEndpointFactory = injector.getInstance(PushEndpointFactory.class);
 //        ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
-        
+        context = new Mockery();
     }
 
     public void testConversionForTypes() throws Exception {
@@ -456,5 +460,26 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
         }
         assertEquals("has left: " + leftoverXml, 0, leftoverXml.length());
         
+    }
+    
+    public void testGetAddressHandlesRFDWithBogusPushEndpointIp() throws Exception {
+        final SerialRemoteFileDesc serialRemoteFileDesc = context.mock(SerialRemoteFileDesc.class);
+        final GUID clientGuid = new GUID();
+        context.checking(new Expectations() {{
+            allowing(serialRemoteFileDesc).isFirewalled();
+            will(returnValue(true));
+            allowing(serialRemoteFileDesc).getHttpPushAddr();
+            will(returnValue(null));
+            allowing(serialRemoteFileDesc).getHost();
+            // return bogus ip for host
+            will(returnValue("1.1.1.1"));
+            allowing(serialRemoteFileDesc).getClientGUID();
+            will(returnValue(clientGuid.bytes()));
+            
+        }});
+        Address address = oldDownloadConverter.getAddress(serialRemoteFileDesc);
+        assertInstanceof(PushEndpoint.class, address);
+        assertEquals(clientGuid.bytes(), ((PushEndpoint)address).getClientGUID());
+        context.assertIsSatisfied();
     }
 }

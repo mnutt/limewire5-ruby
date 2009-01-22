@@ -9,8 +9,9 @@ import java.awt.event.ComponentEvent;
 import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.VerticalLayout;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.EventListener;
@@ -46,7 +47,7 @@ public class FriendsSignInPanel extends JXPanel implements FriendActions {
         this.loginPanel = loginPanel;
         this.xmppService = xmppService;
         this.accountManager = accountManager;
-        setLayout(new VerticalLayout());
+        setLayout(new MigLayout("fill, flowy, gap 0, insets 0, hidemode 3, nogrid"));
         setOpaque(false);
         
         shareLabel = new HyperlinkButton(I18n.tr("Share with friends!"), new AbstractAction() {
@@ -58,9 +59,9 @@ public class FriendsSignInPanel extends JXPanel implements FriendActions {
         });
         shareLabel.setOpaque(false);
         shareLabel.setName("FriendsSignIn.ShareLabel");
-        add(shareLabel);
-        add(loginPanel);
-        add(loggedInPanel);
+        add(shareLabel, "alignx center, gaptop 3");
+        add(loginPanel, "growx, gaptop 6");
+        add(loggedInPanel, "growx, gaptop 6");
         
         // Presetup the UI so that it looks correct until services start.
         XMPPConnectionConfiguration config = accountManager.getAutoLoginConfig();

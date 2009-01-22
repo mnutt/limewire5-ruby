@@ -2,6 +2,8 @@ package org.limewire.ui.swing.mainframe;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.JPanel;
 
@@ -39,6 +41,16 @@ public class StorePanel extends JPanel {
         gbc.weightx = 1;
         gbc.weighty = 1;
         add(browser, gbc);
+        
+        // Hide the page when the browser goes away.
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                if(MozillaInitialization.isInitialized()) {
+                    browser.load("about:blank");
+                }
+            }
+        });
         
         BrowserUtils.addTargetedUrlAction("_lwStore", new TargetedUrlAction() {
             @Override

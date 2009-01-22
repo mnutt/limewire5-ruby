@@ -17,7 +17,9 @@ public class ExitAfterTransferAction extends AbstractAction {
     
     @Inject
     public ExitAfterTransferAction() {
-        super(I18n.tr("Exit After &Transfers"));
+        // TODO fberger
+        // super(I18n.tr("Exit After &Transfers"));
+        super(I18n.tr("Exit After Transfers"));
     }
 
     @Override

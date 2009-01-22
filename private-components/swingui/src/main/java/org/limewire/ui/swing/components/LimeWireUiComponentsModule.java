@@ -7,7 +7,6 @@ public class LimeWireUiComponentsModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        
         bind(FancyTabListFactory.class).toProvider(
                 FactoryProvider.newFactory(FancyTabListFactory.class, FancyTabList.class));   
         

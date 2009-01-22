@@ -1,11 +1,9 @@
 /CoreGlueLibraryModule.java/1.17/Tue Nov  4 20:51:40 2008//
-/CoreLocalFileItem.java/1.33/Mon Jan 12 23:41:00 2009//
 /CoreLocalFileItemFactory.java/1.1/Sun Oct 19 06:09:53 2008//
 /CoreRemoteFileItem.java/1.14/Mon Dec 15 05:55:12 2008//
 /FriendLibraries.java/1.30/Mon Jan 12 23:41:00 2009//
 /FriendLibraryAutoCompleter.java/1.5/Mon Dec 15 02:20:25 2008//
 /FriendSearcher.java/1.6/Mon Jan 12 23:41:00 2009//
-/LibraryManagerImpl.java/1.64/Mon Jan 12 23:41:00 2009//
 /LocalFileListImpl.java/1.9/Result of merge//
 /MagnetLinkFactoryImpl.java/1.1/Thu Oct 16 18:45:37 2008//
 /MetaDataManagerImpl.java/1.6/Mon Jan 12 23:41:01 2009//
@@ -13,4 +11,6 @@
 /RemoteLibraryManagerImpl.java/1.19/Mon Jan 12 23:41:01 2009//
 /ShareListManagerImpl.java/1.23/Mon Jan 12 23:41:01 2009//
 /AbstractFriendFileList.java/1.2/Thu Jan 15 03:58:28 2009//
+/CoreLocalFileItem.java/1.36/Thu Jan 22 05:07:35 2009//
+/LibraryManagerImpl.java/1.66/Thu Jan 22 05:07:35 2009//
 D

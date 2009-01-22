@@ -19,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
@@ -127,7 +128,7 @@ public class MouseableTable extends StripedJXTable {
 		setRowSelectionAllowed(true);
 	    setTableHeaderRenderer();
 	    setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-		
+	    setFont(colors.getTableFont());
 		// See http://sites.google.com/site/glazedlists/documentation/swingx		
 		getSelectionMapper().setEnabled(false); // Breaks horribly with glazedlists
 		
@@ -169,7 +170,7 @@ public class MouseableTable extends StripedJXTable {
 					if (rowDoubleClickHandler != null || columnDoubleClickHandler != null) {
 						Component component = e.getComponent();
 						//launch file on double click unless the click is on a button
-						if (e.getClickCount() == 2
+						if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)
 								&& !(component.getComponentAt(e.getPoint()) instanceof JButton)) {
                             if (rowDoubleClickHandler != null) {
                                 rowDoubleClickHandler.handleDoubleClick(row);

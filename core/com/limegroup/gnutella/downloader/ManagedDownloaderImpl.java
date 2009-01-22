@@ -524,8 +524,11 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         
         isFriendDownload = isFriendDownload(rfds);
         
-        if (rfds.size() > 0) 
-            initPropertiesMap(rfds.iterator().next());
+        if (rfds.size() > 0) {
+            RemoteFileDesc initialRfd = rfds.iterator().next();
+            initPropertiesMap(initialRfd);
+            setAttribute("LimeXMLDocument", initialRfd.getXMLDocument(), false);
+        }
 
         assert rfds.size() > 0 || defaultFileName != null;
         if (!hasDefaultFileName())
@@ -2101,7 +2104,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             if (ttroot != null)
                 urns.add(ttroot);
             urnCache.addUrns(file, urns);
-            fileManager.getManagedFileList().add(file);
+            fileManager.getManagedFileList().add(file, getXMLDocuments());
         }
     }
     
@@ -2128,8 +2131,6 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
 		if (SharingSettings.SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES.getValue() 
 		        && !isFriendDownload)
 		    fileManager.getGnutellaFileList().add(saveFile, getXMLDocuments());
-		else
-		    fileManager.getManagedFileList().add(saveFile, getXMLDocuments());
     }
 
     /** Removes all entries for incompleteFile from incompleteFileManager 
@@ -2569,7 +2570,6 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
 			if(doc != null)
 				allDocs.add(doc);
         }
-
         return allDocs;
     }
 

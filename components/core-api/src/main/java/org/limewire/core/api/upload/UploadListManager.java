@@ -40,4 +40,10 @@ public interface UploadListManager {
      */
     public void updateUploadsCompleted();
     
+    
+    /**
+     * Clears all completed uploads from the list
+     */
+    public void clearFinished();
+    
 }

@@ -2,6 +2,17 @@ package org.limewire.ui.swing.util;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.util.List;
+
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 /**
  * Common methods for adjusting the size of various components 
@@ -35,5 +46,68 @@ public class ResizeUtils {
         comp.setMaximumSize(d);
         comp.setPreferredSize(d);
         comp.setSize(d);
+    }
+    
+    /**
+     * Updates the size of the button to match either the explicit text of the
+     * button, or the largest item in the menu.
+     */
+    public static void updateSize(JButton comp,  List<Action> items) {        
+        if (comp.getText() == null && (items == null || items.isEmpty())) {
+            return;
+        }
+        
+        Font font = comp.getFont();
+        FontMetrics fm = comp.getFontMetrics(font);
+        Rectangle largest = new Rectangle();
+        Rectangle iconR = new Rectangle();
+        Rectangle textR = new Rectangle();
+        Rectangle viewR = new Rectangle(Short.MAX_VALUE, Short.MAX_VALUE);
+        
+        // If text is explicitly set, layout that text.
+        if(comp.getText() != null && !comp.getText().isEmpty()) {
+            SwingUtilities.layoutCompoundLabel(
+                    comp, fm, comp.getText(), null,
+                    SwingConstants.CENTER, SwingConstants.CENTER,
+                    SwingConstants.CENTER, SwingConstants.TRAILING,
+                    viewR, iconR, textR, (comp.getText() == null ? 0 : 4)
+            );
+            Rectangle r = iconR.union(textR);
+            largest = r;
+        } else {
+            // Otherwise, find the largest layout area of all the menu items.
+            for(Action action : items) {
+                Icon icon = (Icon)action.getValue(Action.SMALL_ICON);
+                String text = (String)action.getValue(Action.NAME);            
+                
+                iconR.height = iconR.width = iconR.x = iconR.y = 0;
+                textR.height = textR.width = textR.x = textR.y = 0;
+                viewR.x = viewR.y = 0;
+                viewR.height = viewR.width = Short.MAX_VALUE;
+                
+                SwingUtilities.layoutCompoundLabel(
+                        comp, fm, text, icon,
+                        SwingConstants.CENTER, SwingConstants.CENTER,
+                        SwingConstants.CENTER, SwingConstants.TRAILING,
+                        viewR, iconR, textR, (text == null ? 0 : 4)
+                );
+                Rectangle r = iconR.union(textR);                
+                largest.height = Math.max(r.height, largest.height);
+                largest.width = Math.max(r.width, largest.width);
+            }
+        }
+        
+        Insets insets = comp.getInsets();
+        largest.width += insets.left + insets.right;
+        largest.height += insets.top + insets.bottom;
+        largest.height = Math.max(comp.getMinimumSize().height, largest.height);
+        
+        comp.setMaximumSize(new Dimension(200, 100));
+        comp.setMinimumSize(largest.getSize());
+        comp.setPreferredSize(largest.getSize());
+        comp.setSize(largest.getSize());
+        
+        comp.revalidate();
+        comp.repaint();
     }
 }

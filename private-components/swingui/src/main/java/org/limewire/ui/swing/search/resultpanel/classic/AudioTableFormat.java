@@ -1,7 +1,12 @@
 package org.limewire.ui.swing.search.resultpanel.classic;
 
 import java.awt.Component;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
@@ -30,12 +35,12 @@ public class AudioTableFormat extends ResultsTableFormat<VisualSearchResult> {
     
     public AudioTableFormat() {
         super(TITLE_INDEX, FROM_INDEX, new ColumnStateInfo[] {
-                new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_AUDIO_FROM", I18n.tr("From"), 55, true, true), 
-                new ColumnStateInfo(TITLE_INDEX, "CLASSIC_SEARCH_AUDIO_TITLE", I18n.tr("Name"), 550, true, true),     
-                new ColumnStateInfo(ARTIST_INDEX, "CLASSIC_SEARCH_AUDIO_ARTIST", I18n.tr("Artist"), 80, true, true), 
-                new ColumnStateInfo(ALBUM_INDEX, "CLASSIC_SEARCH_AUDIO_ALBUM", I18n.tr("Album"), 60, true, true), 
-                new ColumnStateInfo(LENGTH_INDEX, "CLASSIC_SEARCH_AUDIO_LENGTH", I18n.tr("Length"), 60, true, true), 
-                new ColumnStateInfo(QUALITY_INDEX, "CLASSIC_SEARCH_AUDIO_QUALITY", I18n.tr("Quality"), 55, true, true), 
+                new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_AUDIO_FROM", I18n.tr("From"), 88, true, true), 
+                new ColumnStateInfo(TITLE_INDEX, "CLASSIC_SEARCH_AUDIO_TITLE", I18n.tr("Name"), 287, true, true),     
+                new ColumnStateInfo(ARTIST_INDEX, "CLASSIC_SEARCH_AUDIO_ARTIST", I18n.tr("Artist"), 174, true, true), 
+                new ColumnStateInfo(ALBUM_INDEX, "CLASSIC_SEARCH_AUDIO_ALBUM", I18n.tr("Album"), 157, true, true), 
+                new ColumnStateInfo(LENGTH_INDEX, "CLASSIC_SEARCH_AUDIO_LENGTH", I18n.tr("Length"), 64, true, true), 
+                new ColumnStateInfo(QUALITY_INDEX, "CLASSIC_SEARCH_AUDIO_QUALITY", I18n.tr("Quality"), 73, true, true), 
                 new ColumnStateInfo(BITRATE_INDEX, "CLASSIC_SEARCH_AUDIO_BITRATE", I18n.tr("Bitrate"), 55, false, true), 
                 new ColumnStateInfo(GENRE_INDEX, "CLASSIC_SEARCH_AUDIO_GENRE", I18n.tr("Genre"), 80, false, true),
                 new ColumnStateInfo(TRACK_INDEX, "CLASSIC_SEARCH_AUDIO_TRACK", I18n.tr("Track"), 60, false, true), 
@@ -76,5 +81,27 @@ public class AudioTableFormat extends ResultsTableFormat<VisualSearchResult> {
             case DESCRIPTION_INDEX: return "";
         }
         throw new IllegalArgumentException("Unknown column:" + column);
+    }
+    
+    @Override
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(SortOrder.DESCENDING, FROM_INDEX),
+                new SortKey(SortOrder.ASCENDING, ARTIST_INDEX),
+                new SortKey(SortOrder.ASCENDING, ALBUM_INDEX),
+                new SortKey(SortOrder.ASCENDING, TRACK_INDEX),
+                new SortKey(SortOrder.ASCENDING, TITLE_INDEX));
+    }
+    
+    @Override
+    public List<Integer> getSecondarySortColumns(int column) {
+        switch (column) {
+        case ARTIST_INDEX:
+            return Arrays.asList(ALBUM_INDEX, TRACK_INDEX, TITLE_INDEX);
+        case ALBUM_INDEX:
+            return Arrays.asList(TRACK_INDEX, TITLE_INDEX);
+        default:
+            return Collections.emptyList();
+        }
     }
 }

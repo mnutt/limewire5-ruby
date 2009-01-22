@@ -8,7 +8,9 @@ import java.util.Map;
 // TODO: Move this out of xmpp-api and into something that different
 //       friend extensions can share.
 public interface Friend {
-    
+
+    public static final String P2P_FRIEND_ID = "_@_GNUTELLA_@_";
+
     /**
      * Returns the ID of the user.  This can be any form of unique ID.
      * For example, an XMPP Friend can be in the form of <code>user@host.com</code>,

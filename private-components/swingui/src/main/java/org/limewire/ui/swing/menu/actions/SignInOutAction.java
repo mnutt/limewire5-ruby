@@ -16,7 +16,9 @@ import com.google.inject.Inject;
 
 public class SignInOutAction extends AbstractAction {
     
+    
     private static final String SIGN_INTO_FRIENDS_TEXT = I18n.tr("&Sign into Friends");
+    
     private static final String SIGN_OUT_OF_FRIENDS_TEXT = I18n.tr("&Sign out of Friends");
     
     private final FriendActions friendActions;

@@ -109,7 +109,7 @@ public class LimeComboBoxFactory {
     public void decorateMiniComboBox(LimeComboBox box, String promptText) {
         buttonDecorator.decorateMiniButton(box);
         box.setIcons(this.miniRegIcon, this.miniHoverIcon, this.miniDownIcon);
-        box.setBorder(BorderFactory.createEmptyBorder(2,6,2,15));
+        box.setBorder(BorderFactory.createEmptyBorder(2,6,3,15));
         box.setText(promptText);
         box.setMouseOverCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }

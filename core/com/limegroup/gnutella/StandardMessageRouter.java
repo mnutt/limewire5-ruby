@@ -31,6 +31,7 @@ import com.google.inject.name.Named;
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.dht.DHTManager;
+import com.limegroup.gnutella.filters.URNFilter;
 import com.limegroup.gnutella.guess.OnDemandUnicaster;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.SharedFilesKeywordIndex;
@@ -112,11 +113,14 @@ public class StandardMessageRouter extends MessageRouterImpl {
             Provider<UDPCrawlerPingHandler> udpCrawlerPingHandlerFactory,
             Statistics statistics,
             ReplyNumberVendorMessageFactory replyNumberVendorMessageFactory,
-            PingRequestFactory pingRequestFactory, MessageHandlerBinder messageHandlerBinder,
+            PingRequestFactory pingRequestFactory,
+            MessageHandlerBinder messageHandlerBinder,
             Provider<OOBHandler> oobHandlerFactory,
             Provider<MACCalculatorRepositoryManager> MACCalculatorRepositoryManager,
-            Provider<LimeACKHandler> limeACKHandler, OutgoingQueryReplyFactory outgoingQueryReplyFactory,
-            SharedFilesKeywordIndex sharedFilesKeywordIndex, QRPUpdater qrpUpdater) {
+            Provider<LimeACKHandler> limeACKHandler,
+            OutgoingQueryReplyFactory outgoingQueryReplyFactory,
+            SharedFilesKeywordIndex sharedFilesKeywordIndex,
+            QRPUpdater qrpUpdater, URNFilter urnFilter) {
         super(networkManager, queryRequestFactory, queryHandlerFactory,
                 onDemandUnicaster, headPongFactory, pingReplyFactory,
                 connectionManager, forMeReplyHandler, queryUnicaster,
@@ -126,11 +130,11 @@ public class StandardMessageRouter extends MessageRouterImpl {
                 messageDispatcher, multicastService, queryDispatcher,
                 activityCallback, connectionServices, applicationServices,
                 backgroundExecutor, pongCacher, simppManager, updateHandler,
-                guidMapManager, udpReplyHandlerCache, inspectionRequestHandlerFactory, 
-                udpCrawlerPingHandlerFactory, 
+                guidMapManager, udpReplyHandlerCache,
+                inspectionRequestHandlerFactory, udpCrawlerPingHandlerFactory, 
                 pingRequestFactory, messageHandlerBinder, oobHandlerFactory, 
-                MACCalculatorRepositoryManager, limeACKHandler, outgoingQueryReplyFactory,
-                qrpUpdater);
+                MACCalculatorRepositoryManager, limeACKHandler,
+                outgoingQueryReplyFactory, qrpUpdater, urnFilter);
         this.statistics = statistics;
         this.replyNumberVendorMessageFactory = replyNumberVendorMessageFactory;
         this.sharedFilesKeywordIndex = sharedFilesKeywordIndex;

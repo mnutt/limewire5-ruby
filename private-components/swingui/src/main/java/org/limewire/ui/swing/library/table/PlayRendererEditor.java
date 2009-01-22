@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -60,7 +61,7 @@ public class PlayRendererEditor extends TableRendererEditor implements AudioPlay
         playButton.setFocusPainted(false);
         playButton.setRolloverEnabled(true);
         playButton.setHideActionText(true);
-        playButton.setBorder(null);
+        playButton.setBorder(BorderFactory.createEmptyBorder());
         playButton.setOpaque(false);
         playButton.addMouseListener(new ActionHandListener(new ActionListener(){
             @Override

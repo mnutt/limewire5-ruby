@@ -31,7 +31,7 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
 
     private final Category category;
 
-    private Map<FilePropertyKey, Object> propertiesMap;
+    private Map<FilePropertyKey, Object> propertiesMap;  // TODO this is a shallow copy of LimeXMLDocument.fieldToValue
 
     private final FileDesc fileDesc;
 
@@ -280,9 +280,9 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
 
     @Override
     public boolean isShareable() {
-        return !fileDesc.isStoreFile();
+        return !fileDesc.isStoreFile() && !isIncomplete();
     }
-
+    
     @Override
     public org.limewire.core.api.URN getUrn() {
         URN urn = fileDesc.getSHA1Urn();

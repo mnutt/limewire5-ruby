@@ -83,13 +83,11 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
         if ((sle.getErrorCode() != SaveLocationException.LocationCode.FILE_ALREADY_EXISTS)
                 && (sle.getErrorCode() != SaveLocationException.LocationCode.FILE_IS_ALREADY_DOWNLOADED_TO)) {
             // Create user message.
-            String message = I18n.tr("Unable to download: {0}\nfile {1}", sle.getErrorCode(), sle
-                    .getFile());
-
-            // Log exception and display user message.
-            LOG.error(message, sle);
-            FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), message, I18n
-                    .tr("Download"), JOptionPane.INFORMATION_MESSAGE);
+            showErrorMessage(sle);
+            return;
+        } else if(sle.getErrorCode() == SaveLocationException.LocationCode.FILE_IS_ALREADY_DOWNLOADED_TO && !supportNewSaveDir) {
+            //prevents infinite loop case where for bit torrent files we can't change the save file at the moment
+            showErrorMessage(sle);
             return;
         }
 
@@ -117,6 +115,16 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
         } else {
             download(downLoadAction, supportNewSaveDir, saveFile, false);
         }
+    }
+
+    private void showErrorMessage(final SaveLocationException sle) {
+        String message = I18n.tr("Unable to download: {0}\nfile {1}", sle.getErrorCode(), sle
+                .getFile());
+
+        // Log exception and display user message.
+        LOG.error(message, sle);
+        FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), message, I18n
+                .tr("Download"), JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**

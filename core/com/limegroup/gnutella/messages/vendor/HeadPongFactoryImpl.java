@@ -160,15 +160,17 @@ public class HeadPongFactoryImpl implements HeadPongFactory {
     /** Calculates the queue status. */
     private byte calculateQueueStatus() {
         int queueSize = uploadManager.get().getNumQueuedUploads();
-        
-        if (queueSize >= UploadSettings.UPLOAD_QUEUE_SIZE.getValue())
+
+        if(queueSize >= UploadSettings.UPLOAD_QUEUE_SIZE.getValue()) {
             return HeadPong.BUSY;
-        else if (queueSize > 0) 
-            return (byte) queueSize;
-        else   
-            return (byte)(uploadManager.get().uploadsInProgress() - 
-                          UploadSettings.HARD_MAX_UPLOADS.getValue()
-                         );
+        } else if(queueSize > 0) {
+            return (byte) Math.min(queueSize, 127); // 127 == HeadPong.BUSY
+        } else {
+            // Negative queue status means free slots
+            queueSize = uploadManager.get().uploadsInProgress() - 
+                        UploadSettings.HARD_MAX_UPLOADS.getValue();
+            return (byte) Math.max(Math.min(queueSize, 127), -128);
+        }
     }
 
     /** Calculates the code that should be returned, based on the FileDesc. */

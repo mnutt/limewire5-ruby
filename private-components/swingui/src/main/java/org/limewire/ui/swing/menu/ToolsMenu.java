@@ -39,9 +39,12 @@ public class ToolsMenu extends MnemonicMenu {
             final Navigator navigator,
             SearchHandler searchHandler, final LibraryManager libraryManager, final UploadPanel uploadPanel) {
 
-        super(I18n.tr("&Tools"));
+        // TODO fberger
+        // super(I18n.tr("&Tools"));
+        super(I18n.tr("Tools"));
 
-        add(new AbstractAction(I18n.tr("&Downloads")) {
+//        add(new AbstractAction(I18n.tr("&Downloads")) {
+        add(new AbstractAction(I18n.tr("Downloads")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NavItem navItem = navigator
@@ -50,24 +53,18 @@ public class ToolsMenu extends MnemonicMenu {
             }
         });
         navigator.createNavItem(NavCategory.UPLOAD, UploadPanel.NAME, uploadPanel);
-        add(new AbstractAction(I18n.tr("&Uploads")) {
+//        add(new AbstractAction(I18n.tr("&Uploads")) {
+        add(new AbstractAction(I18n.tr("Uploads")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NavItem navItem = navigator.getNavItem(NavCategory.UPLOAD, UploadPanel.NAME);
                 navItem.select();
             }
         });
-//        addSeparator();
-//        add(new AbstractAction(I18n.tr("Advanced Search")) {
-//            // TODO wire in advanced search panel once it is written.
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                throw new UnsupportedOperationException("TODO implement me.");
-//            }
-//        });
         add(createWhatsNewSubmenu(searchHandler));
         addSeparator();
-        add(new AbstractAction(I18n.tr("&Advanced Tools...")) {
+//        add(new AbstractAction(I18n.tr("&Advanced Tools...")) {
+        add(new AbstractAction(I18n.tr("Advanced Tools...")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 AdvancedToolsPanel advancedTools = advancedProvider.get();
@@ -76,7 +73,8 @@ public class ToolsMenu extends MnemonicMenu {
         });
         if (!OSUtils.isMacOSX()) {
             addSeparator();
-            add(new AbstractAction(I18n.tr("&Options...")) {
+//            add(new AbstractAction(I18n.tr("&Options...")) {
+            add(new AbstractAction(I18n.tr("Options...")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     new OptionsDisplayEvent().publish();
@@ -86,13 +84,15 @@ public class ToolsMenu extends MnemonicMenu {
     }
 
     private JMenu createWhatsNewSubmenu(final SearchHandler searchHandler) {
-        JMenu menu = new MnemonicMenu(I18n.tr("&What's New Search")){};
+        // JMenu menu = new MnemonicMenu(I18n.tr("&What's New Search"));
+        JMenu menu = new MnemonicMenu(I18n.tr("What's New Search"));
         for (final SearchCategory category : SearchCategory.values()) {
             if (category == SearchCategory.OTHER) {
                 continue;
             }
 
-            Action action = new AbstractAction(SearchCategoryUtils.getWhatsNewMenuName(category)) {
+            // TODO fberger: change back to menu name
+            Action action = new AbstractAction(SearchCategoryUtils.getName(category)) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     searchHandler.doSearch(DefaultSearchInfo.createWhatsNewSearch(category));

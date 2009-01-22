@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -51,12 +52,14 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.painter.Painter;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
+import org.limewire.core.api.friend.Friend;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeEditableComboBox;
 import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.components.ShapeComponent;
 import org.limewire.ui.swing.components.ShapeDialog;
+import org.limewire.ui.swing.library.sharing.FriendShareEvent.ShareEventType;
 import org.limewire.ui.swing.library.sharing.model.LibraryShareModel;
 import org.limewire.ui.swing.painter.TextShadowPainter;
 import org.limewire.ui.swing.table.MouseableTable;
@@ -108,6 +111,7 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
     //wraps noShareList 
     private SortedList<SharingTarget> comboBoxListEDTOnly;
     
+    //TODO is EventList necessary for shareFriendListEDTOnly?  Could be ArrayList?
     /** list of shared friends */
     private EventList<SharingTarget> shareFriendListEDTOnly;
     
@@ -165,6 +169,8 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
     private Color borderColor;
     @Resource
     private Color titleFontColor;
+    
+    private final List<ShareListener> shareListeners = new CopyOnWriteArrayList<ShareListener>();
     
     private Action up = new AbstractAction() {
         @Override
@@ -629,6 +635,8 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
         }
         //bit heavy handed here but it ensures that changes are reflected everywhere
         GuiUtils.getMainFrame().repaint();
+        
+        handleShareChanged(friend.getFriend(), ShareEventType.SHARE);
     }
     
     
@@ -641,6 +649,8 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
         adjustSize();
       //bit heavy handed here but it ensures that changes are reflected everywhere
         GuiUtils.getMainFrame().repaint();
+        
+        handleShareChanged(friend.getFriend(), ShareEventType.UNSHARE);
     }
     
     private void adjustSize(){
@@ -743,7 +753,7 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
     }
 
     //Need to ensure 
-    private class SetupWorker extends SwingWorker {
+    private class SetupWorker extends SwingWorker<Void, Void> {
         private final List<SharingTarget> sharedFriendsTemp = Collections.synchronizedList(new ArrayList<SharingTarget>());
         private final List<SharingTarget> noShareFriendsTemp = Collections.synchronizedList(new ArrayList<SharingTarget>());
         private final LibraryShareModel setupShareModel;
@@ -753,7 +763,7 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
         }
         
         @Override
-        protected Object doInBackground() throws Exception {
+        protected Void doInBackground() throws Exception {
             reloadSharedFriendsInBackground();
             return null;
         }
@@ -776,6 +786,7 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
             if (friendCombo.getModel().getSize() > 0) {
                 friendCombo.setSelectedIndex(0);
             }
+                        
             dialog.setVisible(false);
             dialog.show(LibrarySharePanel.this, null, true);
             inputField.requestFocusInWindow();
@@ -804,8 +815,31 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
             } else {
                 noShareFriendsTemp.add(friend);
             }
-        }        
-      
+        }  
     };
+    
+    public int getShareCount(){
+        return shareFriendListEDTOnly.size();
+    }
+    
+    public int getNoShareCount(){
+        return noShareListEDTOnly.size();
+    }
+    
+    public void addShareListener(ShareListener listener){
+        shareListeners.add(listener);
+    }
+    
+    public void removeShareListener(ShareListener listener){
+        shareListeners.remove(listener);
+    }
+    
+    private void handleShareChanged(Friend friend, ShareEventType type){
+        FriendShareEvent event = new FriendShareEvent(friend, type);
+        for(ShareListener listener : shareListeners){
+            listener.sharingChanged(event);
+        }
+        
+    }
           
 }

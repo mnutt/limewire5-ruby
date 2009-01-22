@@ -1,15 +1,10 @@
 package org.limewire.ui.swing.library;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 
-import net.miginfocom.swing.MigLayout;
-
-import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendEvent;
 import org.limewire.core.api.library.FriendFileList;
@@ -24,10 +19,9 @@ import org.limewire.listener.SwingEDTEvent;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.HyperlinkButton;
+import org.limewire.ui.swing.components.MessageComponent;
 import org.limewire.ui.swing.friends.chat.ChatFramePanel;
 import org.limewire.ui.swing.friends.chat.ChatFriendListPane;
-import org.limewire.ui.swing.util.FontUtils;
-import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.EventList;
@@ -40,7 +34,7 @@ import com.google.inject.name.Named;
 
 public class FriendLibraryMediator extends LibraryMediator implements EventListener<FriendEvent> {
 
-    private MessageComponent emptyPanelMessage;
+    private Message emptyPanelMessage;
     
     private final EmptyLibraryFactory emptyFactory;
     private final FriendLibraryFactory factory;
@@ -54,7 +48,7 @@ public class FriendLibraryMediator extends LibraryMediator implements EventListe
     private final FriendFileList friendFileList;
     private EventList<RemoteFileItem> eventList;
     
-    private ListenerSupport<FriendEvent> availListeners;
+    private final ListenerSupport<FriendEvent> availListeners;
 
     @AssistedInject
     public FriendLibraryMediator(@Assisted Friend friend, FriendLibraryFactory factory, EmptyLibraryFactory emptyFactory,
@@ -84,11 +78,11 @@ public class FriendLibraryMediator extends LibraryMediator implements EventListe
     private void createEmptyCard() {
     	// if their already online during signon, set appropriate message, otherwise their offline
         if(!friend.getFriendPresences().isEmpty()) {
-            emptyPanelMessage = new MessageComponent(friendFileList.getSwingModel(), MessageTypes.ONLINE);
+            emptyPanelMessage = new Message(friendFileList.getSwingModel(), MessageTypes.ONLINE);
         } else {
-            emptyPanelMessage = new MessageComponent(friendFileList.getSwingModel(), MessageTypes.OFFLINE);
+            emptyPanelMessage = new Message(friendFileList.getSwingModel(), MessageTypes.OFFLINE);
         }
-        setEmptyCard(emptyFactory.createEmptyLibrary(friend, friendFileList, FriendLibraryMediator.this, emptyPanelMessage));
+        setEmptyCard(emptyFactory.createEmptyLibrary(friend, friendFileList, FriendLibraryMediator.this, emptyPanelMessage, emptyPanelMessage.getComponent()));
     }
     
     /**
@@ -115,6 +109,10 @@ public class FriendLibraryMediator extends LibraryMediator implements EventListe
                 }
                 break;
             case LOADED:
+                // must do this here also, may skip loading step all together
+                if(this.eventList != eventList) {
+                    this.eventList = eventList;
+                } 
                 if(eventList.size() == 0) {
                     emptyPanelMessage.setMessageType(MessageTypes.LW_NO_FILES);
                     if(!isSharingCardShown()) {
@@ -123,7 +121,7 @@ public class FriendLibraryMediator extends LibraryMediator implements EventListe
                 } else {
                     setLibraryCard(factory.createFriendLibrary(friend, friendFileList, eventList, this));
                     if(isEmptyCardShown()) {
-                        showLibraryCard();
+                        super.showLibraryCard();
                     }
                 }
                 break;
@@ -139,7 +137,7 @@ public class FriendLibraryMediator extends LibraryMediator implements EventListe
                 } else {
                     setLibraryCard(factory.createFriendLibrary(friend, friendFileList, eventList, this));
                     if(isEmptyCardShown()) {
-                        showLibraryCard();
+                        super.showLibraryCard();
                     }
                 }
                 break;
@@ -191,14 +189,9 @@ public class FriendLibraryMediator extends LibraryMediator implements EventListe
 	 * Hover over message panel in the EmptyLibrary. This displays feedback to the user as to
 	 * what state their friend is in. 
 	 */
-    private class MessageComponent extends JXPanel implements ListEventListener<LocalFileItem>, Disposable {
-        @Resource
-        private Font headingFont;
-        @Resource
-        private Color fontColor;
-        @Resource
-        private Font subFont;
-                
+    private class Message implements ListEventListener<LocalFileItem>, Disposable {                
+        private MessageComponent messageComponent;
+        
         private EventList<LocalFileItem> friendList;
         private MessageTypes messageType;
         private final JLabel firstLabel;
@@ -207,40 +200,41 @@ public class FriendLibraryMediator extends LibraryMediator implements EventListe
         private final HyperlinkButton shareLink;
         private final HyperlinkButton chatLink;
         
-        public MessageComponent(EventList<LocalFileItem> friendList, MessageTypes messageType) {
+        public Message(EventList<LocalFileItem> friendList, MessageTypes messageType) {
             this.friendList = friendList;
             this.friendList.addListEventListener(this);
             this.messageType = messageType;
             
-            GuiUtils.assignResources(this);
-            
-            setLayout(new MigLayout("insets 18 22 18 22, hidemode 3"));
+            messageComponent = new MessageComponent();
             
             firstLabel = new JLabel();
-            firstLabel.setFont(headingFont);
-            firstLabel.setForeground(fontColor);
-            FontUtils.bold(firstLabel);
+            messageComponent.decorateHeaderLabel(firstLabel);
 
             shareLink = new HyperlinkButton(new ShowSharingAction());
-            shareLink.setFont(subFont);
+            messageComponent.decorateFont(shareLink);
+
             shareLabel = new JLabel();
-            shareLabel.setFont(subFont);
-            shareLabel.setForeground(fontColor);
+            messageComponent.decorateSubLabel(shareLabel);
+
             chatLink = new HyperlinkButton(new ChatWithAction());
-            chatLink.setFont(subFont);
+            messageComponent.decorateFont(chatLink);
+
             chatLabel = new JLabel();
-            chatLabel.setFont(subFont);
-            chatLabel.setForeground(fontColor);
+            messageComponent.decorateSubLabel(chatLabel);
             
             setMessage();
             
-            add(firstLabel, "span, gapbottom 0, wrap");
-            add(shareLink);
-            add(shareLabel);
-            add(chatLink);
-            add(chatLabel);
+            messageComponent.addComponent(firstLabel, "span, gapbottom 0, wrap");
+            messageComponent.addComponent(shareLink,"");
+            messageComponent.addComponent(shareLabel,"");
+            messageComponent.addComponent(chatLink,"");
+            messageComponent.addComponent(chatLabel,"");
             
             setMessage();
+        }
+        
+        public JComponent getComponent() {
+            return messageComponent;
         }
         
         /**

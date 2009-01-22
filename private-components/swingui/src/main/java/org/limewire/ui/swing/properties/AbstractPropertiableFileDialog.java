@@ -28,6 +28,7 @@ public abstract class AbstractPropertiableFileDialog extends Dialog {
         filename.setText(propertiable.getFileName());
         fileSize.setText(propertiableHeadings.getFileSize(propertiable));
         genre.setModel(new DefaultComboBoxModel(getGenres(propertiable)));
+        unEditableGenre.setText(propertiable.getPropertyString(FilePropertyKey.GENRE));
         rating.setModel(new DefaultComboBoxModel(getRatings(propertiable)));
         platform.setModel(new DefaultComboBoxModel(getPlatforms(propertiable)));
         populateMetadata(propertiable);

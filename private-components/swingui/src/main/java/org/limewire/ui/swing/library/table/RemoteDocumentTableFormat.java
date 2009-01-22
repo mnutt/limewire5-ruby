@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
@@ -28,11 +30,11 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
     
     public RemoteDocumentTableFormat() {
         super(new ColumnStateInfo[] {
-                new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_DOCUMENT_NAME", I18n.tr("Name"), 250, true, true), 
-                new ColumnStateInfo(TYPE_INDEX, "REMOTE_LIBRARY_DOCUMENT_TYPE", I18n.tr("Type"), 80, true, true),     
-                new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_DOCUMENT_EXTENSION", I18n.tr("Extension"), 60, true, true), 
-                new ColumnStateInfo(CREATED_INDEX, "REMOTE_LIBRARY_DOCUMENT_CREATED", I18n.tr("Date Created"), 100, true, true), 
-                new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_DOCUMENT_SIZE", I18n.tr("Size"), 60, true, true),
+                new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_DOCUMENT_NAME", I18n.tr("Name"), 417, true, true), 
+                new ColumnStateInfo(TYPE_INDEX, "REMOTE_LIBRARY_DOCUMENT_TYPE", I18n.tr("Type"), 170, true, true),     
+                new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_DOCUMENT_EXTENSION", I18n.tr("Extension"), 78, true, true), 
+                new ColumnStateInfo(CREATED_INDEX, "REMOTE_LIBRARY_DOCUMENT_CREATED", I18n.tr("Date Created"), 100, false, true), 
+                new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_DOCUMENT_SIZE", I18n.tr("Size"), 57, true, true),
                 new ColumnStateInfo(AUTHOR_INDEX, "REMOTE_LIBRARY_DOCUMENT_AUTHOR", I18n.tr("Author"), 120, false, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_DOCUMENT_DESCRIPTION", I18n.tr("Description"), 120, false, false)
         });
@@ -45,7 +47,7 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
              case CREATED_INDEX: return baseObject.getCreationTime();
              case NAME_INDEX: return baseObject;
              case SIZE_INDEX: return baseObject.getSize();
-             case TYPE_INDEX: return baseObject.getProperty(FilePropertyKey.TOPIC);  
+             case TYPE_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);  
              case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
              case DESCRIPTION_INDEX: return "";
          }
@@ -53,8 +55,11 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
     }
 
     @Override
-    public int getDefaultSortColumn() {
-        return NAME_INDEX;
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
+                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
     }
 
     @Override

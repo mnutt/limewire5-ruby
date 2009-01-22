@@ -1,7 +1,6 @@
 package org.limewire.security.certificate;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,16 +32,8 @@ public class HashLookupProviderDNSTXTImpl implements HashLookupProvider {
             if (answers == null || answers.length != 1)
                 throw new IOException("Incorrect number of answers, expected 1.");
             return stripLeadingTrailingQuotes(answers[0].rdataToString());
-        } catch(UnknownHostException e) {
-            throw new RuntimeException(e); // FIXME: remove after DNS bug is caught
         } catch (IOException ex) {
             LOG.error("Failed lookup for key '" + key + "'", ex);
-            return null;
-        } catch (ExceptionInInitializerError error) {
-            // LWC-2214 dnsjava signals initialization
-            // failure by failing to load its classes,
-            // instead of something like IllegalStateException
-            LOG.error("dnsjava failed to initialize", error);
             return null;
         }
     }

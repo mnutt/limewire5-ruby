@@ -18,7 +18,7 @@ public class AllFriendProgramTableFormat <T extends RemoteFileItem> extends Remo
                 new ColumnStateInfo(PLATFORM_INDEX, "ALL_LIBRARY_PLATFORM_PLATFORM", I18n.tr("Platform"), 120, false, true), 
                 new ColumnStateInfo(COMPANY_INDEX, "ALL_LIBRARY_PROGRAM_COMPANY", I18n.tr("Company"), 120, true, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "ALL_LIBRARY_PROGRAM_DESCRIPTION", I18n.tr("Description"), 120, false, true),
-                new ColumnStateInfo(FROM_INDEX, "ALL_LIBRARY_OTHER_FROM", I18n.tr("From"), 100, true, true)
+                new ColumnStateInfo(FROM_INDEX, "ALL_LIBRARY_OTHER_FROM", I18n.tr("From"), 80, true, true)
         });
     }
     

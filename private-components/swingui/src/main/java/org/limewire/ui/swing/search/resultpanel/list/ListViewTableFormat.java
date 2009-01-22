@@ -1,5 +1,9 @@
 package org.limewire.ui.swing.search.resultpanel.list;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.jdesktop.swingx.decorator.SortKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
 
@@ -54,5 +58,15 @@ public class ListViewTableFormat extends ResultsTableFormat<VisualSearchResult> 
     @Override
     public String getColumnName(int column) {
         return "";
+    }
+    
+    @Override
+    public List<SortKey> getDefaultSortKeys() {
+        return Collections.emptyList();
+    }
+    
+    @Override
+    public List<Integer> getSecondarySortColumns(int column) {
+        return Collections.emptyList();
     }
 }

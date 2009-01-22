@@ -94,6 +94,14 @@ public class BorderPainter<X> extends AbstractPainter<X> {
         
         this.setCacheable(true);
     }
+
+    public int getArcHeight() {
+        return arcHeight;
+    }
+
+    public int getArcWidth() {
+        return arcWidth;
+    }
     
     public void setInsets(Insets insets) {
         this.insets = insets;

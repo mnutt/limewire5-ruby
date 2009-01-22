@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
@@ -100,6 +101,11 @@ public class MockDownloadListManager implements DownloadListManager {
                 DownloadState.CONNECTING, Category.VIDEO);
         item.addDownloadSource(new MockDownloadSource("23.12.33.4"));
         addDownload(item);
+        
+        item = new MockDownloadItem("Tester.bmp", 46,
+                DownloadState.STALLED, Category.AUDIO);
+        item.addDownloadSource(new MockDownloadSource("234.2.2.2"));
+        addDownload(item);
 
 	}
 	
@@ -166,6 +172,25 @@ public class MockDownloadListManager implements DownloadListManager {
     @Override
     public DownloadItem getDownloadItem(URN urn) {
         return null;
+    }
+    
+    @Override
+    public void clearFinished() {
+        List<DownloadItem> finishedItems = new ArrayList<DownloadItem>();
+        downloadItems.getReadWriteLock().writeLock().lock();
+        try {
+            for (DownloadItem item : downloadItems) {
+                if (item.getState() == DownloadState.DONE) {
+                    finishedItems.add(item);
+                }
+            }
+            
+            for (DownloadItem item : finishedItems) {
+                downloadItems.remove(item);
+            }
+        } finally {
+            downloadItems.getReadWriteLock().writeLock().unlock();
+        }
     }
     
 }

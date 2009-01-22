@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.EventObject;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -249,7 +250,7 @@ public class FilteringOptionPanel extends OptionPanel {
         public RemoveButtonRenderer(final FilteringTable table) {
             super(I18n.tr("remove"));
             
-            setBorder(null);
+            setBorder(BorderFactory.createEmptyBorder());
             setContentAreaFilled(false);
             FontUtils.underline(this);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

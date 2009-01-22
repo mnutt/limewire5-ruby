@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
@@ -25,15 +27,15 @@ public class ProgramTableFormat<T extends LocalFileItem> extends AbstractMyLibra
     
     public ProgramTableFormat() {
         super(ACTION_INDEX, new ColumnStateInfo[] {
-                new ColumnStateInfo(NAME_INDEX, "LIBRARY_PROGRAM_NAME", I18n.tr("Name"), 250, true, true), 
+                new ColumnStateInfo(NAME_INDEX, "LIBRARY_PROGRAM_NAME", I18n.tr("Name"), 493, true, true), 
                 new ColumnStateInfo(SIZE_INDEX, "LIBRARY_PROGRAM_SIZE", I18n.tr("Size"), 60, false, true),
                 new ColumnStateInfo(PLATFORM_INDEX, "LIBRARY_PROGRAM_PLATFORM", I18n.tr("Platform"), 120, false, true), 
-                new ColumnStateInfo(COMPANY_INDEX, "LIBRARY_PROGRAM_COMPANY", I18n.tr("Company"), 120, true, true), 
+                new ColumnStateInfo(COMPANY_INDEX, "LIBRARY_PROGRAM_COMPANY", I18n.tr("Company"), 180, true, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "LIBRARY_PROGRAM_DESCRIPTION", I18n.tr("Description"), 120, false, true), 
                 new ColumnStateInfo(HIT_INDEX, "LIBRARY_PROGRAM_HITS", I18n.tr("Hits"), 100, false, true), 
                 new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_PROGRAM_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
                 new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_PROGRAM_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true),
-                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_PROGRAM_ACTION", I18n.tr("Sharing"), 50, true, false)
+                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_PROGRAM_ACTION", I18n.tr("Sharing"), 61, true, false)
         });
     }
 
@@ -54,8 +56,10 @@ public class ProgramTableFormat<T extends LocalFileItem> extends AbstractMyLibra
     }
     
     @Override
-    public int getDefaultSortColumn() {
-        return NAME_INDEX;
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
     }
 
     @Override

@@ -66,7 +66,7 @@ public class FilePropertyKeyPopulator {
                 if (FilePropertyKey.isLong(property)) {
                     value = CommonUtils.parseLongNoException((String)value);
                 } else {
-                    value = I18NConvert.instance().compose((String) value);
+                    value = I18NConvert.instance().compose((String) value).intern();
                 }
             }
             map.put(property, value);
@@ -232,7 +232,7 @@ public class FilePropertyKeyPopulator {
                 return LimeXMLNames.DOCUMENT_AUTHOR;
             case TITLE:
                 return LimeXMLNames.DOCUMENT_TITLE;
-            case TOPIC:
+            case DESCRIPTION:
                 return LimeXMLNames.DOCUMENT_TOPIC;
             }
             break;
@@ -248,8 +248,6 @@ public class FilePropertyKeyPopulator {
             break;
         case PROGRAM:
             switch (filePropertyKey) {
-            case AUTHOR:
-                return LimeXMLNames.APPLICATION_PUBLISHER;
             case COMPANY:
                 return LimeXMLNames.APPLICATION_PUBLISHER;
             case PLATFORM:
@@ -268,6 +266,8 @@ public class FilePropertyKeyPopulator {
                 return LimeXMLNames.VIDEO_COMMENTS;
             case COMPANY:
                 return LimeXMLNames.VIDEO_STUDIO;
+            case GENRE:
+                return LimeXMLNames.VIDEO_TYPE;
             case HEIGHT:
                 return LimeXMLNames.VIDEO_HEIGHT;
             case WIDTH:

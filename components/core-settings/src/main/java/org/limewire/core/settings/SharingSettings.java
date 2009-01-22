@@ -48,6 +48,9 @@ public class SharingSettings extends LimeProps {
     public static final String DEFAULT_LWS_FILENAME_TEMPLATE = 
         "<artist> - <album> - <track> - <title>";
     
+    public static final String DEFAULT_LWS_FOLDER_TEMPLATE =
+        "<artist>\\<album>";
+    
     /**
      * Whether or not we're going to add an alternate for ourselves
      * to our shared files.  Primarily set to false for testing.
@@ -75,7 +78,7 @@ public class SharingSettings extends LimeProps {
      * ie. LWS_dir/artist/album/songX.mp3
      */
     public static final StringSetting TEMPLATE_SUBDIRECTORY_LWS_FILES = 
-        FACTORY.createStringSetting("TEMPLATE_FOR_SAVING_LWS_FILES","");
+        FACTORY.createStringSetting("TEMPLATE_FOR_SAVING_LWS_FILES",DEFAULT_LWS_FOLDER_TEMPLATE);
     
     /**
      * Template for file name structure when saving songs purchased from the LimeWire Store (LWS)

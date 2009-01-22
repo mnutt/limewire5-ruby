@@ -96,10 +96,6 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
         if (FilterSettings.FILTER_HASH_QUERIES.getValue())
             buf.add(new HashFilter());
         
-        //4. BearShare high-bit queries.
-        // if (FilterSettings.FILTER_HIGHBIT_QUERIES.getValue())
-        //     buf.add(new BearShareFilter());
-        
         // always filter hostiles
         buf.add(hostileFilter.get());
 

@@ -17,6 +17,7 @@ import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.util.BackgroundExecutorService;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
@@ -127,6 +128,7 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
                             }
                         }
                     }
+                    GuiUtils.getMainFrame().repaint();
                 }
             });
         }

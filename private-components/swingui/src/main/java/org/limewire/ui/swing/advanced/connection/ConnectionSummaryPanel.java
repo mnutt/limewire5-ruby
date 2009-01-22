@@ -2,6 +2,7 @@ package org.limewire.ui.swing.advanced.connection;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -186,18 +187,15 @@ public class ConnectionSummaryPanel extends JPanel {
             // Set firewall status and reason.
             if (transferStatus == FirewallTransferStatus.DOES_NOT_SUPPORT_FWT) {
                 firewallLabel.setText(IS_FIREWALLED_NO_TRANSFERS);
-                reasonLabel.setText("<html>(<u>" + WHY + "</u>)</html>");
                 reasonLabel.setReasonText(getReasonText(transferReason));
             } else {
                 firewallLabel.setText(IS_FIREWALLED_TRANSFERS);
-                reasonLabel.setText("");
                 reasonLabel.setReasonText(null);
             }
             
         } else {
             // Not firewalled so clear transfer status and reason.
             firewallLabel.setText(IS_NOT_FIREWALLED);
-            reasonLabel.setText("");
             reasonLabel.setReasonText(null);
         }
     }
@@ -242,6 +240,14 @@ public class ConnectionSummaryPanel extends JPanel {
         
         public void setReasonText(String reasonText) {
             this.reasonText = reasonText;
+            
+            if ((reasonText != null) && (reasonText.length() > 0)) {
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setText("<html>(<u>" + WHY + "</u>)</html>");
+            } else {
+                setCursor(Cursor.getDefaultCursor());
+                setText("");
+            }
         }
     }
     

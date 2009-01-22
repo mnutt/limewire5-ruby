@@ -115,7 +115,8 @@ public class LimitReachedRequestHandler extends SimpleNHttpRequestHandler {
     private boolean isFriendRequest(HttpContext context) {
         // it's enough to check if auth state is there, the guarding handler
         // already verified the credentials
-        return context.getAttribute(ServerAuthState.AUTH_STATE) != null;
+        ServerAuthState serverAuthState = (ServerAuthState) context.getAttribute(ServerAuthState.AUTH_STATE);
+        return serverAuthState != null && serverAuthState.getCredentials() != null;
     }
     
     /**

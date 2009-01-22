@@ -37,6 +37,10 @@ public class HostileFilter extends  AbstractIPFilter {
         LOG.info("refreshing hosts at hostile level");
         // Load hostile, making sure the list is valid
         IPList newHostile = new IPList();
+        if(!FilterSettings.USE_NETWORK_FILTER.getValue()) {
+            hostileHosts = newHostile;
+            return;
+        }
         String [] allHosts = FilterSettings.HOSTILE_IPS.getValue();
         try {
             for(String ip : allHosts)

@@ -44,6 +44,7 @@ import org.limewire.ui.swing.table.CalendarRenderer;
 import org.limewire.ui.swing.table.FileSizeRenderer;
 import org.limewire.ui.swing.table.IconLabelRenderer;
 import org.limewire.ui.swing.table.NameRenderer;
+import org.limewire.ui.swing.table.QualityRenderer;
 import org.limewire.ui.swing.table.TimeRenderer;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.DNDUtils;
@@ -90,6 +91,7 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
     private final TimeRenderer timeRenderer = new TimeRenderer();
     private final FileSizeRenderer fileSizeRenderer = new FileSizeRenderer();
     private final CalendarRenderer calendarRenderer = new CalendarRenderer();
+    private final QualityRenderer qualityRenderer = new QualityRenderer();
     private final IconLabelRenderer iconLabelRenderer;
     private final NameRenderer nameRenderer = new NameRenderer();
     private final IconManager iconManager;
@@ -131,7 +133,7 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         this.fromWidgetFactory = fromWidgetfactory;
         
         this.shareTableRendererEditorFactory = shareTableRendererEditorFactory;
-        iconLabelRenderer = new IconLabelRenderer(iconManager, categoryIconManager);
+        iconLabelRenderer = new IconLabelRenderer(iconManager, categoryIconManager, downloadListManager, libraryManager);
     }
 
 //    @Inject void register(@Named("known") ListenerSupport<FriendEvent> knownFriends) {
@@ -250,12 +252,16 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         case AUDIO:
             if(friend != null) {
                 libTable = new LibraryTable<T>(sortedList, new RemoteAudioTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
+                libTable.getColumnModel().getColumn(RemoteAudioTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
                 libTable.getColumnModel().getColumn(RemoteAudioTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer);
                 libTable.getColumnModel().getColumn(RemoteAudioTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+                libTable.getColumnModel().getColumn(RemoteAudioTableFormat.QUALITY_INDEX).setCellRenderer(qualityRenderer);
             } else {
                 libTable = new LibraryTable<T>(sortedList, new AllFriendAudioTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
+                libTable.getColumnModel().getColumn(AllFriendAudioTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
                 libTable.getColumnModel().getColumn(AllFriendAudioTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer);
                 libTable.getColumnModel().getColumn(AllFriendAudioTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+                libTable.getColumnModel().getColumn(AllFriendAudioTableFormat.QUALITY_INDEX).setCellRenderer(qualityRenderer);
                 libTable.getColumnModel().getColumn(AllFriendAudioTableFormat.FROM_INDEX).setCellRenderer(new FromTableCellRenderer(fromWidgetFactory.create(true)));
                 libTable.getColumnModel().getColumn(AllFriendAudioTableFormat.FROM_INDEX).setCellEditor(new FromTableCellRenderer(fromWidgetFactory.create(true)));
             }
@@ -263,12 +269,16 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         case VIDEO:
             if(friend != null) {
                 libTable = new LibraryTable<T>(sortedList, new RemoteVideoTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
+                libTable.getColumnModel().getColumn(RemoteVideoTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
                 libTable.getColumnModel().getColumn(RemoteVideoTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer);
                 libTable.getColumnModel().getColumn(RemoteVideoTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+                libTable.getColumnModel().getColumn(RemoteVideoTableFormat.QUALITY_INDEX).setCellRenderer(qualityRenderer);
             } else {
                 libTable = new LibraryTable<T>(sortedList, new AllFriendVideoTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
+                libTable.getColumnModel().getColumn(AllFriendVideoTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
                 libTable.getColumnModel().getColumn(AllFriendVideoTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer);
                 libTable.getColumnModel().getColumn(AllFriendVideoTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
+                libTable.getColumnModel().getColumn(AllFriendVideoTableFormat.QUALITY_INDEX).setCellRenderer(qualityRenderer);
                 libTable.getColumnModel().getColumn(AllFriendVideoTableFormat.FROM_INDEX).setCellRenderer(new FromTableCellRenderer(fromWidgetFactory.create(true)));
                 libTable.getColumnModel().getColumn(AllFriendVideoTableFormat.FROM_INDEX).setCellEditor(new FromTableCellRenderer(fromWidgetFactory.create(true)));
             }
@@ -291,10 +301,12 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         case IMAGE:
             if(friend != null) {
                 libTable = new LibraryTable<T>(sortedList, new RemoteImageTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
+                libTable.getColumnModel().getColumn(RemoteImageTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
                 libTable.getColumnModel().getColumn(RemoteImageTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
                 libTable.getColumnModel().getColumn(RemoteImageTableFormat.CREATED_INDEX).setCellRenderer(calendarRenderer);
             } else {
                 libTable = new LibraryTable<T>(sortedList, new AllFriendImageTableFormat<T>(), saveLocationExceptionHandler, shareTableRendererEditorFactory);
+                libTable.getColumnModel().getColumn(AllFriendImageTableFormat.NAME_INDEX).setCellRenderer(iconLabelRenderer);
                 libTable.getColumnModel().getColumn(AllFriendImageTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer);
                 libTable.getColumnModel().getColumn(AllFriendImageTableFormat.CREATED_INDEX).setCellRenderer(calendarRenderer);
                 libTable.getColumnModel().getColumn(AllFriendImageTableFormat.FROM_INDEX).setCellRenderer(new FromTableCellRenderer(fromWidgetFactory.create(true)));
@@ -358,7 +370,7 @@ public class LibraryTableFactoryImpl implements LibraryTableFactory {
         
         switch (category) {
         case AUDIO:
-            libTable = new SharedAudioLibraryTable<T>(sortedList, new SharedAudioTableFormat<T>(friendFileList), player, saveLocationExceptionHandler, shareTableRendererEditorFactory);
+            libTable = new SharedAudioLibraryTable<T>(sortedList, new SharedAudioTableFormat<T>(friendFileList), saveLocationExceptionHandler, shareTableRendererEditorFactory);
             libTable.getColumnModel().getColumn(SharedAudioTableFormat.ACTION_INDEX).setCellRenderer(new SharingCheckBoxRendererEditor(friendFileList, libTable));
             libTable.getColumnModel().getColumn(SharedAudioTableFormat.ACTION_INDEX).setCellEditor(new SharingCheckBoxRendererEditor(friendFileList, libTable));
             break;

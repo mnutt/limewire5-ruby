@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
@@ -34,11 +36,11 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
     
     public RemoteAudioTableFormat() {
         super(new ColumnStateInfo[] {
-                new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_AUDIO_TITLE", I18n.tr("Name"), 260, true, true),     
+                new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_AUDIO_TITLE", I18n.tr("Name"), 278, true, true),     
                 new ColumnStateInfo(ARTIST_INDEX, "REMOTE_LIBRARY_AUDIO_ARTIST", I18n.tr("Artist"), 120, true, true), 
-                new ColumnStateInfo(ALBUM_INDEX, "REMOTE_LIBRARY_AUDIO_ALBUM", I18n.tr("Album"), 180, true, true), 
+                new ColumnStateInfo(ALBUM_INDEX, "REMOTE_LIBRARY_AUDIO_ALBUM", I18n.tr("Album"), 161, true, true), 
                 new ColumnStateInfo(LENGTH_INDEX, "REMOTE_LIBRARY_AUDIO_LENGTH", I18n.tr("Length"), 60, true, true), 
-                new ColumnStateInfo(QUALITY_INDEX, "REMOTE_LIBRARY_AUDIO_QUALITY", I18n.tr("Quality"), 60, true, true), 
+                new ColumnStateInfo(QUALITY_INDEX, "REMOTE_LIBRARY_AUDIO_QUALITY", I18n.tr("Quality"), 80, true, true), 
                 new ColumnStateInfo(GENRE_INDEX, "REMOTE_LIBRARY_AUDIO_GENRE", I18n.tr("Genre"), 60, false, true),
                 new ColumnStateInfo(BITRATE_INDEX, "REMOTE_LIBRARY_AUDIO_BITRATE", I18n.tr("Bitrate"), 50, false, true), 
                 new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_AUDIO_SIZE", I18n.tr("Size"), 60, false, true),
@@ -53,11 +55,11 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
     @Override
     public Object getColumnValue(T baseObject, int column) {
         switch(column) {
-            case NAME_INDEX: return (baseObject.getProperty(FilePropertyKey.TITLE) == null) ? baseObject.getProperty(FilePropertyKey.NAME) : baseObject.getProperty(FilePropertyKey.TITLE);
+            case NAME_INDEX: return baseObject;
             case ARTIST_INDEX: return baseObject.getProperty(FilePropertyKey.AUTHOR);
             case ALBUM_INDEX: return baseObject.getProperty(FilePropertyKey.ALBUM);
             case LENGTH_INDEX: return baseObject.getProperty(FilePropertyKey.LENGTH);
-            case QUALITY_INDEX: return "";
+            case QUALITY_INDEX: return baseObject;
             case GENRE_INDEX: return baseObject.getProperty(FilePropertyKey.GENRE);
             case BITRATE_INDEX: return baseObject.getProperty(FilePropertyKey.BITRATE);
             case SIZE_INDEX: return baseObject.getSize();
@@ -71,8 +73,12 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
     }
     
     @Override
-    public int getDefaultSortColumn() {
-        return ARTIST_INDEX;
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(SortOrder.ASCENDING, ARTIST_INDEX),
+                new SortKey(SortOrder.ASCENDING, ALBUM_INDEX),
+                new SortKey(SortOrder.ASCENDING, TRACK_INDEX),
+                new SortKey(SortOrder.ASCENDING, NAME_INDEX));
     }
 
     @Override

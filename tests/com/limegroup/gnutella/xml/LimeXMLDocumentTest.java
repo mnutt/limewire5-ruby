@@ -2,15 +2,17 @@ package com.limegroup.gnutella.xml;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import junit.framework.Test;
+import java.util.Map;
 
 import org.limewire.collection.KeyValue;
 
 import com.google.inject.Injector;
 import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.util.LimeTestCase;
+
+import junit.framework.Test;
 
 public class LimeXMLDocumentTest extends LimeTestCase {
             
@@ -60,5 +62,26 @@ public class LimeXMLDocumentTest extends LimeTestCase {
         document = limeXMLDocumentFactory.createLimeXMLDocument(xml);
         assertEquals(LimeXMLNames.AUDIO_SCHEMA, document.getSchemaURI());
         assertEquals(xml, document.getXMLString());
+    }
+
+    public void testNullValues() {
+        String schemaURI = "http://www.limewire.com/schemas/audio.xsd";
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("audios__audio__title__", "foo");
+        map.put("audios__audio__artist__", null);
+        LimeXMLDocument document = limeXMLDocumentFactory.createLimeXMLDocument(map.entrySet(), schemaURI);
+        assertEquals("foo", document.getValue("audios__audio__title__"));
+        assertNull(document.getValue("audios__audio__artist__"));
+    }
+
+    public void testCachedValues() {
+        String schemaURI = "http://www.limewire.com/schemas/audio.xsd";
+        Map<String, String> map = new HashMap<String, String>();
+        String foo_1 = new String(new char[]{'f','o','o'});
+        String foo_2 = new String(new char[]{'f','o','o'});
+        map.put("audios__audio__title__", foo_1);
+        map.put("audios__audio__artist__", foo_2);
+        LimeXMLDocument document = limeXMLDocumentFactory.createLimeXMLDocument(map.entrySet(), schemaURI);
+        assertSame(document.getValue("audios__audio__title__"), document.getValue("audios__audio__artist__"));
     }
 }	

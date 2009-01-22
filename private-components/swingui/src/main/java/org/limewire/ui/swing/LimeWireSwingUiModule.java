@@ -11,6 +11,7 @@ import org.limewire.ui.swing.library.sharing.LimeWireUiLibrarySharingModule;
 import org.limewire.ui.swing.mainframe.LimeWireUiMainframeModule;
 import org.limewire.ui.swing.nav.LimeWireUiNavModule;
 import org.limewire.ui.swing.options.LimeWireUiOptionsModule;
+import org.limewire.ui.swing.painter.LimeWireUiPainterModule;
 import org.limewire.ui.swing.player.LimeWireUiPlayerModule;
 import org.limewire.ui.swing.properties.LimeWireUiPropertiesModule;
 import org.limewire.ui.swing.search.LimeWireUiSearchModule;
@@ -23,6 +24,12 @@ import org.limewire.ui.swing.wizard.LimeWireUiWizardModule;
 import com.google.inject.AbstractModule;
 
 public class LimeWireSwingUiModule extends AbstractModule {
+    
+    private final boolean isPro;
+    
+    public LimeWireSwingUiModule(boolean isPro) {
+        this.isPro = isPro;
+    }
     
     @Override
     protected void configure() {
@@ -40,6 +47,7 @@ public class LimeWireSwingUiModule extends AbstractModule {
         install(new LimeWireUiDownloadsModule());
         install(new LimeWireUiOptionsModule());
         install(new LimeWireUiStatusbarModule());
+        install(new LimeWireUiPainterModule(isPro));
         install(new LimeWireUiComponentsModule());
         install(new LimeWireUiUploadModule());
         install(new LimeWireUiDockModule());

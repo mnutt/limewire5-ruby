@@ -105,7 +105,6 @@ public class MockLocalFileItem implements LocalFileItem {
     
     @Override
     public boolean isShareable() {
-        // TODO Auto-generated method stub
         return true;
     }
 

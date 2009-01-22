@@ -344,6 +344,11 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             public void handleQueryReply(QueryReply qr, Address address) {
             }
 
+            @Override
+            public boolean contains(Downloader downloader) {
+                return false;
+            }
+
         },new NoOpSaveLocationManager(), new DefaultHttpExecutor(new Provider<LimeHttpClient>() {
            @Override
             public LimeHttpClient get() {

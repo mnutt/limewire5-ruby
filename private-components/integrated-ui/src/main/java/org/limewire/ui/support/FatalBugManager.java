@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.AbstractAction;
@@ -19,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import org.limewire.core.api.support.LocalClientInfo;
 import org.limewire.core.api.support.LocalClientInfoFactory;
@@ -81,6 +84,13 @@ public final class FatalBugManager {
         dialog.setSize(new Dimension(300, 100));
         dialog.setTitle("LimeWire Couldn't Start :-(");
         
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(1);
+            }
+        });
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
@@ -163,14 +173,28 @@ public final class FatalBugManager {
             }
         });
 
-        JButton sendButton = new JButton("Send Bug");
+        final JButton sendButton = new JButton("Send Bug");
         sendButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String userComments = userCommentsTextArea.getText();
                 if(!userComments.equals(defaultDesc))
                     info.addUserComments(userComments);
-                sendToServlet(info);
-                dialog.dispose();
+                sendButton.setEnabled(false);
+                sendButton.setText("Sending...");
+                new Thread("Fatal Bug Sending Thread") {
+                    public void run() {
+                        try {
+                            sendToServlet(info);
+                        } finally {
+                            SwingUtilities.invokeLater(new Runnable() {
+                                public void run() {
+                                    dialog.dispose();
+                                    System.exit(1);
+                                }
+                            });
+                        }
+                    }
+                }.start();
             }
         });
 

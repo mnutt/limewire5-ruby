@@ -78,14 +78,14 @@ public class SetupPage1 extends WizardPage {
         JPanel textAndLinkCell = new JPanel(new MigLayout("flowy, gap 2, insets 0, fill"));
         textAndLinkCell.add(label);
         textAndLinkCell.add(learnMoreButton);
-        add(textAndLinkCell, "gaptop 10, gapleft 10, wrap");
+        add(textAndLinkCell, "gaptop 28, gapleft 5, wrap");
         
         if (LimeAssociations.isMagnetAssociationSupported() 
                || LimeAssociations.isTorrentAssociationSupported()
                || shouldShowStartOnStartupWindow()) {
             label = new JLabel(associationsAndStartupTitle);
             decorator.decorateHeadingText(label);
-            add(label, "gaptop 20, gapleft 14, wrap");
+            add(label, "gaptop 30, gapleft 14, wrap");
         }
         
         if (LimeAssociations.isMagnetAssociationSupported() 
@@ -94,7 +94,7 @@ public class SetupPage1 extends WizardPage {
             label = new MultiLineLabel(associationsText, 500);
             label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(associationCheck));
             decorator.decorateNormalText(label);       
-            add(label, "gaptop 9, gapleft 10, wrap");
+            add(label, "gaptop 9, gapleft 5, wrap");
         }
         
         if (shouldShowStartOnStartupWindow()) {
@@ -103,7 +103,7 @@ public class SetupPage1 extends WizardPage {
             label = new MultiLineLabel(startupText, 500);
             label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(startupCheck));
             decorator.decorateNormalText(label);       
-            add(label, "gaptop 9, gapleft 10, wrap");
+            add(label, "gaptop 9, gapleft 5, wrap");
         }
         
     }

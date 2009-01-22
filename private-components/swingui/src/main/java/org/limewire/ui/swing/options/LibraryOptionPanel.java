@@ -28,7 +28,6 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.VerticalLayout;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FriendFileList;
@@ -125,6 +124,7 @@ public class LibraryOptionPanel extends OptionPanel {
             super(I18n.tr("Sharing Categories"));
             setLayout(new MigLayout("gap 0, fill"));
 
+            
             shareSnapshot = new JRadioButton(I18n.tr("Only share files in that category at that point"));
             shareSnapshot.setContentAreaFilled(false);
             shareCollection = new JRadioButton(I18n.tr("Share my entire collection, including new files that automatically get added to My Library"));
@@ -135,9 +135,10 @@ public class LibraryOptionPanel extends OptionPanel {
             buttonGroup.add(shareCollection);
             
             buttonPanel = new JXPanel();
-            buttonPanel.setLayout(new VerticalLayout(2));
-            buttonPanel.add(shareSnapshot);
-            buttonPanel.add(shareCollection);
+            buttonPanel.setLayout(new MigLayout("ins 0 0 0 0, gap 0! 0!, novisualpadding"));//new VerticalLayout(2));
+            buttonPanel.add(new JLabel(I18n.tr("When I share a category:")), "wrap");
+            buttonPanel.add(shareSnapshot,"gapleft 5, gaptop 8, wrap");
+            buttonPanel.add(shareCollection, "gapleft 5");
             
             add(new JLabel(I18n.tr("Choose what happens when I share a category")), "alignx left");
             add(new JButton(new AbstractAction(I18n.tr("Configure...")) {
@@ -146,7 +147,7 @@ public class LibraryOptionPanel extends OptionPanel {
                     boolean snapC = shareSnapshot.isSelected();
                     boolean collC = shareCollection.isSelected();
                     int result = FocusJOptionPane.showConfirmDialog(ShareCategoryPanel.this,
-                            buttonPanel, I18n.tr("Sharing Categories - Configure"), JOptionPane.OK_CANCEL_OPTION);
+                            buttonPanel, I18n.tr("Sharing Categories"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                     if(result != JOptionPane.OK_OPTION) {
                         buttonGroup.setSelected(shareSnapshot.getModel(), snapC);
                         buttonGroup.setSelected(shareCollection.getModel(), collC);
@@ -326,8 +327,8 @@ public class LibraryOptionPanel extends OptionPanel {
             public AddDirectoryAction(Container parent) {
                 this.parent = parent;
                 
-                putValue(Action.NAME, I18n.tr("Add New Folder..."));
-                putValue(Action.SHORT_DESCRIPTION, I18n.tr("Choose a folder to automatically scan for changes"));
+                putValue(Action.NAME, I18n.tr("Add Folder..."));
+                putValue(Action.SHORT_DESCRIPTION, I18n.tr("Choose a folder to automatically add to My Library"));
             }
             
             @Override
@@ -355,6 +356,8 @@ public class LibraryOptionPanel extends OptionPanel {
     private class ManualImportPanel extends OptionPanel {
         private final Collection<File> initialList;
         private final LibraryData libraryData;
+        private final JPanel manPanel; 
+        private final JScrollPane scroller;
         private LibraryManagerTreeTable treeTable;
         
         public ManualImportPanel(LibraryData libraryData) {
@@ -368,17 +371,24 @@ public class LibraryOptionPanel extends OptionPanel {
             setLayout(new MigLayout("insets 0, gap 0, fill"));            
             setOpaque(false);
             
+            scroller = new JScrollPane(treeTable);
+            scroller.setPreferredSize(new Dimension(500, 300));
+            
+            manPanel = new JXPanel();
+            manPanel.setLayout(new MigLayout("ins 0 0 0 0, gap 0! 0!, novisualpadding"));//new VerticalLayout(2));
+            manPanel.add(new JLabel(I18n.tr("At some point, you manually added files from the following folders into My Library:")), "wrap");
+            manPanel.add(scroller, "gaptop 8");
+            
             add(Line.createHorizontalLine(Color.LIGHT_GRAY), "gapbefore 30, gapafter 30, growx, gaptop 10, gapbottom 10, wrap");
-            add(new JLabel(I18n.tr("At some point, you manually imported files from some folders into My Library.")), "gapbottom 5, split");
+            add(new JLabel(I18n.tr("At some point, you manually added files from some folders into My Library.")), "gapbottom 5, split");
             add(new JButton(new AbstractAction(I18n.tr("View Folders...")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     LibraryManagerModel model = treeTable.getLibraryModel();
                     List<LibraryManagerItem> children = new ArrayList<LibraryManagerItem>(model.getRoot().getChildren());
-                    JScrollPane scroller = new JScrollPane(treeTable);
-                    scroller.setPreferredSize(new Dimension(500, 300));
                     int result = FocusJOptionPane.showConfirmDialog(ManualImportPanel.this,
-                            scroller, I18n.tr("Manually Imported Folders"), JOptionPane.OK_CANCEL_OPTION);
+                            manPanel, I18n.tr("Manually Added Folders"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                   
                     if(result != JOptionPane.OK_OPTION) {
                         model.setRootChildren(children);
                     }

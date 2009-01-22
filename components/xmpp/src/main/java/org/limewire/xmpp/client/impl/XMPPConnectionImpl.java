@@ -1,7 +1,6 @@
 package org.limewire.xmpp.client.impl;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -232,8 +231,6 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                     }
                 }
             }
-        } catch(UnknownHostException e) {
-            throw new RuntimeException(e); // FIXME: remove after DNS bug is caught
         } catch(IOException iox) {
             // Failure looking up the SRV record - use the service name
             LOG.debug("Failed to look up SRV record", iox);

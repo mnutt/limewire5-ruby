@@ -1266,4 +1266,14 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
     public boolean removeListener(EventListener<DownloadManagerEvent> listener) {
         return listeners.removeListener(listener);
     }
+
+    @Override
+    public synchronized boolean contains(Downloader downloader) {
+        for(CoreDownloader coreDownloader : activeAndWaiting) {
+            if(coreDownloader == downloader) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

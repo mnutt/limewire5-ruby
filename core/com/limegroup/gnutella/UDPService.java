@@ -201,7 +201,7 @@ public class UDPService implements ReadWriteObserver {
 	@Inject
     public UDPService(NetworkManager networkManager,
             Provider<MessageDispatcher> messageDispatcher,
-            Provider<IPFilter> ipFilter,
+            @Named("hostileFilter") Provider<IPFilter> ipFilter,
             Provider<ConnectionManager> connectionManager,
             Provider<MessageRouter> messageRouter, Provider<Acceptor> acceptor,
             Provider<QueryUnicaster> queryUnicaster,
@@ -720,29 +720,29 @@ public class UDPService implements ReadWriteObserver {
                             FWTStatusReason.REUSING_STATUS_FROM_PREVIOUS_SESSION));
                 }
                 retValue = canDoFWTSetting;
-            }
-
-    	    boolean needToUpdateState;
-    	    synchronized(this) {
-    	        if (_numReceivedIPPongs < 1) {
-                    if(canDoFWTSetting) {
-                        fwtStatusBroadcaster.broadcast(new FirewallTransferStatusEvent(FirewallTransferStatus.SUPPORTS_FWT,
-                                FWTStatusReason.REUSING_STATUS_FROM_PREVIOUS_SESSION));
+            } else {
+        	    boolean needToUpdateState;
+        	    synchronized(this) {
+        	        if (_numReceivedIPPongs < 1) {
+                        if(canDoFWTSetting) {
+                            fwtStatusBroadcaster.broadcast(new FirewallTransferStatusEvent(FirewallTransferStatus.SUPPORTS_FWT,
+                                    FWTStatusReason.REUSING_STATUS_FROM_PREVIOUS_SESSION));
+                        } else {
+                            fwtStatusBroadcaster.broadcast(new FirewallTransferStatusEvent(FirewallTransferStatus.DOES_NOT_SUPPORT_FWT,
+                                    FWTStatusReason.REUSING_STATUS_FROM_PREVIOUS_SESSION));
+                        }
+                        needToUpdateState = false;
+                        retValue = canDoFWTSetting;
                     } else {
-                        fwtStatusBroadcaster.broadcast(new FirewallTransferStatusEvent(FirewallTransferStatus.DOES_NOT_SUPPORT_FWT,
-                                FWTStatusReason.REUSING_STATUS_FROM_PREVIOUS_SESSION));
+                        needToUpdateState = true;
                     }
-                    needToUpdateState = false;
-                    retValue = canDoFWTSetting;
-                } else {
-                    needToUpdateState = true;
-                }
-    	    }
-    	    
-    	    if(needToUpdateState) {
-    	        updateFWTState();
-    	        retValue = !ConnectionSettings.CANNOT_DO_FWT.getValue();
-    	    }
+        	    }
+        	    
+        	    if(needToUpdateState) {
+        	        updateFWTState();
+        	        retValue = !ConnectionSettings.CANNOT_DO_FWT.getValue();
+        	    }
+            }
 	    }
 	    
 	    return retValue;

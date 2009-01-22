@@ -12,11 +12,11 @@ public class AllFriendOtherTableFormat <T extends RemoteFileItem> extends Remote
     
     public AllFriendOtherTableFormat() {
         super(new ColumnStateInfo[] {
-                new ColumnStateInfo(NAME_INDEX, "ALL_LIBRARY_OTHER_NAME", I18n.tr("Name"), 450, true, true),     
-                new ColumnStateInfo(TYPE_INDEX, "ALL_LIBRARY_OTHER_TYPE", I18n.tr("Type"), 60, true, true), 
-                new ColumnStateInfo(EXTENSION_INDEX, "ALL_LIBRARY_OTHER_EXTENSION", I18n.tr("Extension"), 60, true, true), 
-                new ColumnStateInfo(SIZE_INDEX, "ALL_LIBRARY_OTHER_SIZE", I18n.tr("Size"), 60, true, true),
-                new ColumnStateInfo(FROM_INDEX, "ALL_LIBRARY_OTHER_FROM", I18n.tr("From"), 100, true, true)
+                new ColumnStateInfo(NAME_INDEX, "ALL_LIBRARY_OTHER_NAME", I18n.tr("Name"), 318, true, true),     
+                new ColumnStateInfo(TYPE_INDEX, "ALL_LIBRARY_OTHER_TYPE", I18n.tr("Type"), 118, true, true), 
+                new ColumnStateInfo(EXTENSION_INDEX, "ALL_LIBRARY_OTHER_EXTENSION", I18n.tr("Extension"), 42, true, true), 
+                new ColumnStateInfo(SIZE_INDEX, "ALL_LIBRARY_OTHER_SIZE", I18n.tr("Size"), 24, true, true),
+                new ColumnStateInfo(FROM_INDEX, "ALL_LIBRARY_OTHER_FROM", I18n.tr("From"), 32, true, true)
         });
     }
     

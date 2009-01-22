@@ -16,7 +16,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.limegroup.bittorrent.Torrent.TorrentState;
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.RemoteFileDesc;
@@ -477,6 +476,8 @@ public class BTDownloaderImpl extends AbstractCoreDownloader
 	}
 	
 	public synchronized void finish() {
+	    //when finish is called it is expected that the downloader has already been removed from the download manager.
+        assert downloadManager.contains(this) == false;
         finished = true;
 		torrentManager.get().removeEventListener(this);
 		torrent = new FinishedTorrentDownload(torrent);
@@ -488,14 +489,6 @@ public class BTDownloaderImpl extends AbstractCoreDownloader
 		return "downloader facade for "+torrentFileSystem.getCompleteFile().getName();
 	}
 	
-	@Override
-    public boolean equals(Object o) {
-		if (! (o instanceof Downloader))
-			return false;
-		Downloader other = (Downloader)o;
-		return getSha1Urn().equals(other.getSha1Urn());
-	}
-
 	public int getTriedHostCount() {
 		return torrent.getTriedHostCount();
 	}

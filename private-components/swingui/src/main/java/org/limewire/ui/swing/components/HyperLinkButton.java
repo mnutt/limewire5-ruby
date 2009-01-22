@@ -1,17 +1,11 @@
 package org.limewire.ui.swing.components;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.font.TextAttribute;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
@@ -26,8 +20,6 @@ import org.limewire.ui.swing.util.GuiUtils;
 public class HyperlinkButton extends JXButton implements MouseListener {
     
     private final HyperlinkButtonResources r = new HyperlinkButtonResources();
-    
-    private Cursor oldCursor;
     
     public HyperlinkButton() {
         initialize();
@@ -51,19 +43,12 @@ public class HyperlinkButton extends JXButton implements MouseListener {
     }
     
     private void initialize() {
-        setBorder(BorderFactory.createEmptyBorder());
-        setBorderPainted(false);
-        setMargin(new Insets(0, 0, 0, 0));
-        setFocusPainted(false);
-        setRolloverEnabled(false);
-        setOpaque(false);        
-        setBorder(null);
-        setContentAreaFilled(false);
-        setFocusable(false);
+        this.setUI(new CustomHyperlinkUI());
         addMouseListener(this);
         FontUtils.underline(this);
     }
     
+    @Override
     public void setFont(Font font) {
         super.setFont(font);
         if(!FontUtils.isUnderlined(this)) {
@@ -72,60 +57,66 @@ public class HyperlinkButton extends JXButton implements MouseListener {
     }
     
     public void removeUnderline() {
-        // Note: cannot use FontUtils.removeUnderline because that
-        // calls setFont, which will just re-add the underline!
         Font font = getFont();
         if (font != null) {
-            Map<TextAttribute, ?> map = font.getAttributes();
-            Map<TextAttribute, Object> newMap = new HashMap<TextAttribute, Object>(map);
-            newMap.put(TextAttribute.UNDERLINE, Integer.valueOf(-1));    
-            super.setFont(font.deriveFont(newMap));
+            super.setFont(FontUtils.deriveUnderlineRemoved(font));
         }
+    }
+    
+    /**
+     * Shared method to update foreground according to mouse and enabled status.
+     */
+    private void updateForeground() {
+        if (isEnabled()) {
+            if (getModel().isRollover()) {
+                super.setForeground(r.rolloverForeground);
+            } else {
+                super.setForeground(r.foreground);
+            }
+        } else {
+            super.setForeground(r.disabledForeground);
+        }
+    }
+    
+     // Separated setting the foreground temporarily and setting the foreground 
+     //  permanently to avoid limewire l&f violations
+     //
+    public void setNormalForeground(Color color) {
+        r.foreground = color;
+        updateForeground();
     }
     
     public void setRolloverForeground(Color color) {
         r.rolloverForeground = color;
-    }
-    
-    public void setForeground(Color color) {
-        super.setForeground(color);
-        // r may be null because this is set by the constructor
-        if(r != null) {
-            r.foreground = color;
-        }
+        updateForeground();
     }
     
     public void setDisabledForeground(Color color) {
         r.disabledForeground = color;
+        updateForeground();
     }
+    
+    // Uncomment to expose lw look and feel violations 
+    // @Override
+    // public void setForeground(Color c) {
+    //     new IllegalArgumentException().printStackTrace();
+    // }
     
     @Override
     public void setEnabled(boolean value) {
         super.setEnabled(value);
         if(r != null) {
-            if(value) {
-                super.setForeground(r.foreground);
-            } else {
-                super.setForeground(r.disabledForeground);
-            }
+            updateForeground();
         }
     }
     
     @Override
     public void mouseEntered(MouseEvent e) {
-        if(isEnabled()) {
-            super.setForeground(r.rolloverForeground);
-            oldCursor = getCursor();
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        }
+        updateForeground();
     }
-
     @Override
     public void mouseExited(MouseEvent e) {
-        if(isEnabled()) {
-            super.setForeground(r.foreground);
-            setCursor(oldCursor);
-        }
+        updateForeground();
     }
 
     @Override
@@ -145,4 +136,5 @@ public class HyperlinkButton extends JXButton implements MouseListener {
             HyperlinkButton.super.setForeground(foreground);
         }
     }
+    
 }

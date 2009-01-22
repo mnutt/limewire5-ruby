@@ -94,7 +94,7 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
             }
         });
 
-        JXPanel panel = new JXPanel(new MigLayout("fill, gap 0px 0px, insets 5 5 5 5"));
+        JXPanel panel = new JXPanel(new MigLayout("fill, gap 0px 0px, insets 0 5 5 0"));
         add(panel);
 
         panel.setBackground(backgroundColor);
@@ -157,15 +157,15 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
         messageLabel2.addMouseListener(performNotificationActionsMouseListener);
 
         // adding components to panel
-        panel.add(titleLabel1, "aligny top");
+        panel.add(titleLabel1, "aligny top, gaptop 5");
 
-        panel.add(closeButton, "alignx right, aligny top, gapright 0, wrap");
+        panel.add(closeButton, "alignx right, aligny top, wrap");
 
         if (!StringUtils.isEmpty(titleLine2)) {
             panel.add(titleLabel2, "spanx 2, wrap");
         }
 
-        panel.add(messageLabel1, "spanx 2, wrap, gap 0 0 6 0");
+        panel.add(messageLabel1, "spanx 2, wrap, gaptop 6");
 
         if (!StringUtils.isEmpty(messageLine2)) {
             panel.add(messageLabel2, "spanx 2, wrap");
@@ -179,7 +179,7 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
             launchLink.setFont(linkFont);
             launchLink.setForeground(linkFontColor);
             launchLink.addMouseListener(performNotificationActionsMouseListener);
-            panel.add(launchLink, "spanx 2, alignx right, aligny bottom, gap 0 0 6 0");
+            panel.add(launchLink, "spanx 2, alignx right, aligny bottom, gaptop 6,  gapright 5");
         }
         setPreferredSize(new Dimension(204, 97));
         pack();
