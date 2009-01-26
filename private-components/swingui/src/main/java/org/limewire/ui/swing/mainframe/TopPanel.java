@@ -117,7 +117,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
         webButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                   Desktop.getDesktop().browse(new URI("http://localhost:3000/cloud"));
+                   Desktop.getDesktop().browse(new URI("http://localhost:3000/"));
                 } catch (IOException exception) { // Don't do anything if it doesn't work
                 } catch (URISyntaxException exception) {}
             }
