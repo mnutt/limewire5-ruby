@@ -25,10 +25,6 @@ public class RubyEvaluator {
     public void eval(String file)
     throws FileNotFoundException, ScriptException {
         // Evaluate JRuby code from string.
-        try {
-            engine.eval(new BufferedReader(new FileReader(file)));
-        } catch (Exception exception) {
-            exception.getCause().printStackTrace();
-        }
+        engine.eval(new BufferedReader(new FileReader(file)));
     }
 }

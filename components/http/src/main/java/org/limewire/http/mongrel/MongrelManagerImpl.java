@@ -1,5 +1,6 @@
 package org.limewire.http.mongrel;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import javax.script.ScriptException;
@@ -26,10 +27,26 @@ public class MongrelManagerImpl implements MongrelManager {
     public void start() {
         System.out.println("Starting mongrel...");
         try {
-            this.rubyEvaluator.eval("../../../../../script/start_rails");
+            String usablePath = null;
+            String[] loadPaths = {
+                "../../../../../script/start_rails",
+                "rails/script/start_rails"
+            };
+            
+            // Look through the paths to find one 
+            for(String path : loadPaths) {
+                File file = new File(path);
+                if(file.exists()) {
+                    usablePath = path;
+                }
+            };
+            if(usablePath != null) {
+                this.rubyEvaluator.eval(usablePath);
+            } else {
+                throw new FileNotFoundException();
+            }
         } catch(FileNotFoundException exception) {
             System.out.println("couldn't find mongrel start script.");
-            exception.printStackTrace();
         } catch(ScriptException exception) {
             exception.getCause().printStackTrace();
         }
