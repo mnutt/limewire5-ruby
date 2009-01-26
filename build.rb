@@ -13,9 +13,9 @@ puts "Release created in #{release_dir}"
 
 # Add the portable LimeWire skeleton
 puts "Adding the portable LimeWire skeleton..."
-if File.exist?("deploy/LimeWire.zip")
+if File.exist?("skeleton/LimeWire.zip")
   `unzip -d #{release_dir} deploy/LimeWire.zip`
-elsif File.exist?("deploy/LimeWire")
+elsif File.exist?("skeleton/LimeWire")
   `cp -R deploy/LimeWire #{release_dir}/`
 else
   puts "LimeWire Portable skeleton not found.  Get it from http://wiki.limewire.org/... and put it in ./deploy/ directory"

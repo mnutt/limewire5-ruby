@@ -1,6 +1,6 @@
 <project default="jar">
 
-	<!-- Compile and package LimeWire's 4.18.8 source code into LimeWire.jar -->
+	<!-- Compile and package LimeWire's 5.0.9 source code into LimeWire.jar -->
 
 	<target name="clean" description="Clean temporary files to compile everything from scratch">
 
@@ -34,7 +34,7 @@
 		destdir            Where to put the .class files
 		excludes           Don't take the .java files in the windows and macosx folders
 		                   These were compiled on those platforms separately and put in ProgressTabs.jar
-		source and target  Use Java version 1.5
+		source and target  Use Java version 1.6
 		-->
 		<javac
 			fork="yes"
@@ -48,9 +48,10 @@
 
 			<!-- Compile the code in these folders, each has a tree of .java files in it -->
 			<src path="core"/>
+
 			<src path="private-components/integrated-ui/src/main/java"/>
-			<src path="private-components/swingui/src/main/java"/>
 			<src path="private-components/mock-core/src/main/java"/>
+			<src path="private-components/swingui/src/main/java"/>
 
 			<src path="components/collection/src/main/java"/>
 			<src path="components/common/src/main/java"/>
@@ -63,106 +64,108 @@
 			<src path="components/http/src/main/java"/>
 
 			<src path="components/io/src/main/java"/>
+			<!-- skip  components/jingle -->
 			<src path="components/lwsserver/src/main/java"/>
 			<src path="components/mojito/src/main/java"/>
-			<src path="components/mojito-ui/src/main/java"/>
 
+			<src path="components/mojito-ui/src/main/java"/>
 			<src path="components/net/src/main/java"/>
 			<src path="components/nio/src/main/java"/>
 			<src path="components/player/src/main/java"/>
-			<src path="components/player-api/src/main/java"/>
 
+			<src path="components/player-api/src/main/java"/>
 			<src path="components/promotion/src/main/java"/>
 			<!-- skip  components/resources -->
 			<src path="components/rudp/src/main/java"/>
-			<src path="components/security/src/main/java"/>
 
+			<src path="components/security/src/main/java"/>
 			<src path="components/setting/src/main/java"/>
 			<src path="components/statistic/src/main/java"/>
 			<src path="components/swarm/src/main/java"/>
-			<src path="components/xmpp/src/main/java"/>
 
-			<src path="components/xmpp-api/src/main/java"/>
 			<!-- skip  components/test-util -->
+			<src path="components/xmpp/src/main/java"/>
+			<src path="components/xmpp-api/src/main/java"/>
 
 			<!-- Tell the Java compiler where .jar files are that the code above uses -->
 			<classpath>
 
-				<!-- Paths to all the .jar files in lib/jars and subfolders, but not lib/jars/tests -->
+				<!-- Paths to all the .jar files in lib/jars and subfolders -->
 				<fileset dir="lib/jars">
-				  <include name="**/*.jar"/>
+					<include name="**/*.jar"/>
 				</fileset>
-
 			</classpath>
 		</javac>
 
-		<!-- Class path list for the jar file -->
-		<path id="jar.classpath">
+		<!-- List all the cross-platform jars for the LimeWire.jar classpath -->
+		<path id="jar.list">
+			<pathelement location="additional_resources.jar"/>
 			<pathelement location="aopalliance.jar"/>
 			<pathelement location="AppFramework.jar"/>
 			<pathelement location="base64-2.2.2.jar"/>
-			<pathelement location="bsf.jar"/>
+
 			<pathelement location="clink.jar"/>
 			<pathelement location="commons-codec-1.3.jar"/>
 			<pathelement location="commons-logging.jar"/>
 			<pathelement location="commons-math-1.2.jar"/>
-			<pathelement location="cocoaFoundation.jar"/>
+
 			<pathelement location="daap.jar"/>
 			<pathelement location="dnsjava-2.0.6.jar"/>
 			<pathelement location="EventBus-1.2b.jar"/>
-			<pathelement location="forms.jar"/>
-			<pathelement location="foxtrot.jar"/>
-		        <pathelement location="gettext-ant-tasks.jar"/>
 			<pathelement location="gettext-commons.jar"/>
+
 			<pathelement location="glazedlists-1.7.0_java15.jar"/>
 			<pathelement location="guice-assistedinject-snapshot.jar"/>
 			<pathelement location="guice-snapshot.jar"/>
 			<pathelement location="hsqldb.jar"/>
+
 			<pathelement location="httpclient-4.0-beta1.jar"/>
 			<pathelement location="httpcore-4.0-beta2.jar"/>
 			<pathelement location="httpcore-nio-4.0-beta2.jar"/>
 			<pathelement location="icu4j.jar"/>
+
 			<pathelement location="jaudiotagger.jar"/>
 			<pathelement location="jcip-annotations.jar"/>
 			<pathelement location="jcraft.jar"/>
 			<pathelement location="jdic.jar"/>
-			<pathelement location="jlac.jar"/>
+
+			<pathelement location="jflac.jar"/>
 			<pathelement location="jl.jar"/>
 			<pathelement location="jmdns.jar"/>
 			<pathelement location="jna.jar"/>
+
+			<pathelement location="jruby.jar"/>
+			<pathelement location="jruby-engine.jar"/>
+
 			<pathelement location="jogg.jar"/>
 			<pathelement location="jorbis.jar"/>
-			<pathelement location="jruby-engine.jar"/>
-			<pathelement location="jruby-rack-0.9.3.jar"/>
-			<pathelement location="jruby.jar"/>
 			<pathelement location="jxlayer.jar"/>
 			<pathelement location="log4j.jar"/>
-			<pathelement location="looks.jar"/>
+
 			<pathelement location="messages.jar"/>
 			<pathelement location="miglayout.jar"/>
 			<pathelement location="mozdom4java.jar"/>
 			<pathelement location="MozillaGlue-1.9.jar"/>
+
 			<pathelement location="MozillaInterfaces-1.9.jar"/>
 			<pathelement location="mozswing.jar"/>
 			<pathelement location="mp3spi.jar"/>
 			<pathelement location="onion-common.jar"/>
+
 			<pathelement location="onion-fec.jar"/>
-			<pathelement location="ProgressTabs.jar"/>
 			<pathelement location="smack.jar"/>
-			<pathelement location="smackx-debug.jar"/>
 			<pathelement location="smackx.jar"/>
+			<pathelement location="smackx-debug.jar"/>
+
 			<pathelement location="swing-worker-1.1.jar"/>
 			<pathelement location="swingx-0.9.4.jar"/>
 			<pathelement location="tritonus.jar"/>
 			<pathelement location="vorbisspi.jar"/>
 		</path>
-
-		<!-- Convert project class path to string property -->
-		<pathconvert property="mf.classpath" pathsep=" ">
-		        <path refid="jar.classpath" />
-			<flattenmapper />
+		<pathconvert property="jar.line" pathsep=" ">
+			<path refid="jar.list"/>
+			<flattenmapper/>
 		</pathconvert>
-
 
 		<!--
 		Bundle resource files and .class files together to make LimeWire.jar
@@ -177,10 +180,8 @@
 			basedir="build"
 			filesonly="yes"
 			compress="no">
-
-			<!-- Add all 33 cross-platform jars to the classpath -->
 			<manifest>
-				<attribute name="Class-Path" value="${mf.classpath}"/>
+				<attribute name="Class-Path" value="${jar.line}"/>
 			</manifest>
 		</jar>
 	</target>
@@ -197,7 +198,7 @@
 		<jar jarfile="deploy/launch-win.jar">
 			<manifest>
 				<attribute name="Main-Class" value="org.limewire.ui.swing.Main"/>
-				<attribute name="Class-Path" value="LimeWire.jar win-jdic_stub.jar win-jacob-1.14.1.jar win-iTunes-0.0.1.jar"/>
+				<attribute name="Class-Path" value="LimeWire.jar win-iTunes-0.0.1.jar win-jacob-1.14.1.jar win-jdic_stub.jar"/>
 			</manifest>
 		</jar>
 		<jar jarfile="deploy/launch-linux.jar">

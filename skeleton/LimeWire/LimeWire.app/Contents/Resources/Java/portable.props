@@ -1,0 +1,9 @@
+# portable.props
+SOURCE=Source
+SETTINGS=../../../../Documents/Settings
+PORTABLE_PATH_DIRECTORY_FOR_SAVING_FILES=../../../../Documents/Shared
+PORTABLE_PATH_DIRECTORIES_TO_SEARCH_FOR_FILES=../../../../Documents/Shared
+PORTABLE_PATH_INCOMPLETE_DIRECTORY=../../../../Documents/Incomplete
+PORTABLE_PATH_DOWNLOAD_SNAPSHOT_FILE=../../../../Documents/Incomplete/downloads.dat
+PORTABLE_PATH_DOWNLOAD_SNAPSHOT_BACKUP_FILE=../../../../Documents/Incomplete/downloads.bak
+PORTABLE_PATH_DIRETORY_FOR_SAVING_LWS_FILES=../../../../Documents/Store

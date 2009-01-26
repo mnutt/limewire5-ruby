@@ -1,0 +1,32 @@
+The Windows native exe reads this launch.txt file to run the Java program.
+It will first look next to itself, then in the Program.app\Contents\Resources\Java folder.
+The lines of text that matter are right beneath headings, everything else is a comment.
+
+The minimum Java version the program needs to run.
+==Version==
+1.6
+
+Where to set the working directory.
+Relative to where the exe is running, not where this launch.txt file is.
+A blank line makes the working directory the running exe's folder.
+==Working==
+LimeWire.app\\Contents\\Resources\\Java
+
+The package name of the Main class.
+Separate parts with forward slashes, not periods.
+==Main==
+org/limewire/ui/swing/Main
+
+Parameters to start the Java virtual machine.
+Put each parameter on a single line.
+Don't put anything in this file after them.
+Don't end the file with a newline.
+==Java==
+-Xms32m
+-Xmx256m
+-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.NoOpLog
+-Djava.net.preferIPv6Addresses=false
+-Djava.net.preferIPv4Stack=true
+-ea
+-Djava.class.path=launch-win.jar
+-Dsun.java.command=launch-win.jar

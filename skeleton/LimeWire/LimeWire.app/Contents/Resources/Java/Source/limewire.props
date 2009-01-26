@@ -1,0 +1,8 @@
+#LimeWire properties file
+HANDLE_MAGNETS=false
+HANDLE_TORRENTS=false
+INSTALLED=true
+MINIMIZE_TO_TRAY=false
+RUN_ON_STARTUP=false
+RUN_ONCE=true
+SHOW_TOTD=false
