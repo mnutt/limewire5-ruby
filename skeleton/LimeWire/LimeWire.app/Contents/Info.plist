@@ -91,7 +91,8 @@
 		<array>
 			<string>-ea:com.limegroup...</string>
 			<string>-ea:org.limewire...</string>
-			<string>-Xmx256M</string>
+			<string>-Xmx512M</string>
+			<string>-XX:MaxPermSize=256M</string>
 		</array>
 		<key>WorkingDirectory</key>
 		<string>$APP_PACKAGE/Contents/Resources/Java</string>
