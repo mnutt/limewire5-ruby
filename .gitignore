@@ -1,5 +1,6 @@
 *.class
 .#*
+.DS_Store
 components/*/build/*
 bin/*
 tests/build
