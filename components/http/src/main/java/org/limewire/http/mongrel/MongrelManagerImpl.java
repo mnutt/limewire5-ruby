@@ -5,17 +5,32 @@ import java.io.FileNotFoundException;
 
 import javax.script.ScriptException;
 
-import com.google.inject.Inject;
+import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.io.NetworkUtils;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
+import com.limegroup.gnutella.NetworkManager;
+import com.limegroup.gnutella.UPnPManager;
 import com.limegroup.scripting.RubyEvaluator;
 
 public class MongrelManagerImpl implements MongrelManager {
 
     private RubyEvaluator rubyEvaluator;
+    private final Provider<UPnPManager> upnpManager;
+    private NetworkManager networkManager;
+        
+    private int _port = 4422;
     
     @Inject
-    public MongrelManagerImpl(RubyEvaluator rubyEvaluator) {
+    public MongrelManagerImpl(RubyEvaluator rubyEvaluator, Provider<UPnPManager> upnpManager, 
+            NetworkManager networkManager) {
         this.rubyEvaluator = rubyEvaluator;
+        this.upnpManager = upnpManager;
+        this.networkManager = networkManager;
     }
     
     @Override
@@ -26,6 +41,10 @@ public class MongrelManagerImpl implements MongrelManager {
     @Override
     public void start() {
         System.out.println("Starting mongrel...");
+        
+        // Try to port forward incoming traffic to our server via UPnP
+        mapPort();
+        
         try {
             String usablePath = null;
             String[] loadPaths = {
@@ -50,6 +69,21 @@ public class MongrelManagerImpl implements MongrelManager {
         } catch(ScriptException exception) {
             exception.getCause().printStackTrace();
         }
+    }
+    
+    private void mapPort() {
+        boolean natted = upnpManager.get().isNATPresent();
+        boolean validPort = NetworkUtils.isValidPort(_port);
+        boolean forcedIP = ConnectionSettings.FORCE_IP_ADDRESS.getValue() &&
+            !ConnectionSettings.UPNP_IN_USE.getValue();
+                
+        if(natted && validPort && !forcedIP) {
+            byte[] externalAddress = networkManager.getExternalAddress();
+            System.out.println(_port);
+            System.out.println(externalAddress);
+            int usedPort = upnpManager.get().mapPort(_port, externalAddress);
+            System.out.println(usedPort);
+        } 
     }
     @Override
     public void stop() {
