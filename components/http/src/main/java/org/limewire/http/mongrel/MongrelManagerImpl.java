@@ -21,7 +21,7 @@ public class MongrelManagerImpl implements MongrelManager {
     private final Provider<UPnPManager> upnpManager;
     private NetworkManager networkManager;
     
-    private Thread serverThread = null;
+    private MongrelThread serverThread = null;
         
     private int _port = 4422;
     private String status = "stopped";
@@ -33,42 +33,7 @@ public class MongrelManagerImpl implements MongrelManager {
         this.upnpManager = upnpManager;
         this.networkManager = networkManager;
         
-        this.serverThread = new Thread(){
-            @Override
-            public void run() {
-                System.out.println("Starting mongrel...");
-                setStatus("starting");
-
-                // Try to port forward incoming traffic to our server via UPnP
-                mapPort();
-
-                try {
-                    String usablePath = null;
-                    String[] loadPaths = {
-                            "../../../../../script/start_rails",
-                            "rails/script/start_rails"
-                    };
-
-                    // Look through the paths to find one 
-                    for(String path : loadPaths) {
-                        File file = new File(path);
-                        if(file.exists()) {
-                            usablePath = path;
-                        }
-                    };
-                    if(usablePath != null) {
-                        rubyEvaluator.eval(usablePath);
-                        System.out.println("hey, script is done");
-                    } else {
-                        throw new FileNotFoundException();
-                    }
-                } catch(FileNotFoundException exception) {
-                    System.out.println("couldn't find mongrel start script.");
-                } catch(ScriptException exception) {
-                    exception.getCause().printStackTrace();
-                }
-            }
-        };
+        this.serverThread = new MongrelThread();
     }
     
     @Override
@@ -81,6 +46,32 @@ public class MongrelManagerImpl implements MongrelManager {
         System.out.println(this.serverThread.getState().toString());
         if(!this.isServerRunning()) {
             this.serverThread.start();
+        }
+    }
+    
+    private void loadMongrel() {
+        try {
+            String usablePath = null;
+            String[] loadPaths = {
+                    "../../../../../script/start_rails",
+                    "rails/script/start_rails"
+            };
+
+            // Look through the paths to find one 
+            for(String path : loadPaths) {
+                File file = new File(path);
+                if(file.exists()) {
+                    usablePath = path;
+                }
+            };
+            if(usablePath != null) {
+                // rubyEvaluator.eval(usablePath);
+                setStatus("started");
+            } else {
+                throw new FileNotFoundException();
+            }
+        } catch(FileNotFoundException exception) {
+            System.out.println("couldn't find mongrel start script.");
         }
     }
     
@@ -100,10 +91,10 @@ public class MongrelManagerImpl implements MongrelManager {
     }
 
     public void stop() {
-        System.out.println(this.serverThread.getState().toString());
         if(this.isServerRunning()) {
             System.out.println("interrupted");
             this.setStatus("stopped");
+            this.serverThread.shutdown();
         }
     }
     
@@ -115,7 +106,7 @@ public class MongrelManagerImpl implements MongrelManager {
     }
     
     public Boolean isServerRunning() {
-        return this.serverThread.getState().toString() == "started";
+        return this.status == "started" || this.status == "starting";
     }
     
     public String getStatus() {
@@ -123,6 +114,7 @@ public class MongrelManagerImpl implements MongrelManager {
     }
     
     public void setStatus(String status) {
+        System.out.println("setting status to " + status);
         this.status = status;
     }
     
@@ -131,4 +123,31 @@ public class MongrelManagerImpl implements MongrelManager {
         return true;
     }
 
+    
+    public class MongrelThread extends Thread {
+        private Boolean finished = false;
+        
+        @Override
+        public void run() {
+            System.out.println("Starting mongrel...");
+            setStatus("starting");
+
+            // Try to port forward incoming traffic to our server via UPnP
+            mapPort();
+
+            loadMongrel();
+            
+            //while(this.finished != true) {
+            //    try {
+            //    Thread.currentThread().sleep(1000);
+            //    System.out.println("looping...");
+            //    } catch(InterruptedException exception) {
+            //    }
+           // }
+        }
+        
+        public void shutdown() {
+            this.finished = true;
+        }
+    }
 }
