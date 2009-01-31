@@ -5,4 +5,6 @@ public interface MongrelManager {
     void stop();
     boolean isAsyncStop();
     String getServiceName();
+    String getStatus();
+    void restart();
 }

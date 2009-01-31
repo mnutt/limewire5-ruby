@@ -213,6 +213,12 @@ public final class SwingUiSettings extends LimeProps {
         FACTORY.createBooleanSetting("PLAY_NOTIFICATION_SOUND", false);
 
     /**
+     * Setting to enable LimeWire Remote to start when LimeWire starts.
+     */
+    public static final BooleanSetting START_REMOTE_ON_LAUNCH =
+        FACTORY.createBooleanSetting("START_REMOTE_ON_LAUNCH", false);
+    
+    /**
      * Out-of-the-box list of well known jabber servers
      */
     public static final StringSetSetting XMPP_SERVERS =

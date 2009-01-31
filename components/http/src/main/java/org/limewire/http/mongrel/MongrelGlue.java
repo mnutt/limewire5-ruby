@@ -2,7 +2,6 @@ package org.limewire.http.mongrel;
 
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceStage;
-import org.limewire.ui.swing.util.BackgroundExecutorService;
 
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
@@ -22,23 +21,23 @@ class MongrelGlue {
     private void register(org.limewire.lifecycle.ServiceRegistry registry) {
         registry.register(new Service() {
             public String getServiceName() {
-                return "Mongrel Manager";
+                return "Mongrel";
             }
 
             public void initialize() {
             };
 
             public void start() {
-                BackgroundExecutorService.execute(new Runnable(){
-                    @Override
-                    public void run() {
-                        mongrelManager.start();
-                    }
-                });
+                mongrelManager.start();
             };
         
             public void stop() {
+                mongrelManager.stop();
             };
+            
+            public void restart() {
+                mongrelManager.restart();
+            }
         
             public boolean isAsyncStop() {
                 return true;

@@ -55,6 +55,8 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     @Resource
     private Icon miscIcon;
     @Resource
+    private Icon remoteIcon;
+    @Resource
     private Icon searchIcon;
     
     
@@ -63,6 +65,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     private static final String DOWNLOADS = I18n.tr("Downloads");
     private static final String SECURITY = I18n.tr("Security");
     private static final String MISC = I18n.tr("Misc");
+    private static final String REMOTE = I18n.tr("Remote");
     private static final String ADVANCED = I18n.tr("Advanced");
     
     private Provider<LibraryOptionPanel> libraryOptionPanel;
@@ -70,6 +73,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     private Provider<DownloadOptionPanel> downloadOptionPanel;
     private Provider<SecurityOptionPanel> securityOptionPanel;
     private Provider<MiscOptionPanel> miscOptionPanel;
+    private Provider<RemoteOptionPanel> remoteOptionPanel;
     private Provider<AdvancedOptionPanel> advancedOptionPanel;
     
     private Map<String, OptionTabItem> cards = new HashMap<String,OptionTabItem>();
@@ -90,7 +94,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     @Inject
     public OptionsDialog(Provider<LibraryOptionPanel> libraryOptionPanel, Provider<SearchOptionPanel> searchOptionPanel,
             Provider<DownloadOptionPanel> downloadOptionPanel, Provider<SecurityOptionPanel> securityOptionPanel,
-            Provider<MiscOptionPanel> miscOptionPanel, Provider<AdvancedOptionPanel> advancedOptionPanel,
+            Provider<MiscOptionPanel> miscOptionPanel, Provider<RemoteOptionPanel> remoteOptionPanel, Provider<AdvancedOptionPanel> advancedOptionPanel,
             AppFrame appFrame, BarPainterFactory barPainterFactory) {
         super(appFrame.getMainFrame(), I18n.tr("Options"), true);
 
@@ -101,6 +105,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         this.downloadOptionPanel = downloadOptionPanel;
         this.securityOptionPanel = securityOptionPanel;
         this.miscOptionPanel = miscOptionPanel;
+        this.remoteOptionPanel = remoteOptionPanel;
         this.advancedOptionPanel = advancedOptionPanel;
 
         if (!OSUtils.isAnyMac()) {
@@ -170,6 +175,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         createButton(DOWNLOADS, downloadsIcon, downloadOptionPanel, down, up);
         createButton(SECURITY, securityIcon, securityOptionPanel, down, up);
         createButton(MISC, miscIcon, miscOptionPanel, down, up);
+        createButton(REMOTE, remoteIcon, remoteOptionPanel, down, up);
         createButton(ADVANCED, advancedIcon, advancedOptionPanel, down, up);
     }
     

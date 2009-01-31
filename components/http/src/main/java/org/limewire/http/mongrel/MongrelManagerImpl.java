@@ -7,8 +7,6 @@ import javax.script.ScriptException;
 
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.io.NetworkUtils;
-import org.limewire.logging.Log;
-import org.limewire.logging.LogFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -22,15 +20,55 @@ public class MongrelManagerImpl implements MongrelManager {
     private RubyEvaluator rubyEvaluator;
     private final Provider<UPnPManager> upnpManager;
     private NetworkManager networkManager;
+    
+    private Thread serverThread = null;
         
     private int _port = 4422;
+    private String status = "stopped";
     
     @Inject
-    public MongrelManagerImpl(RubyEvaluator rubyEvaluator, Provider<UPnPManager> upnpManager, 
+    public MongrelManagerImpl(final RubyEvaluator rubyEvaluator, Provider<UPnPManager> upnpManager, 
             NetworkManager networkManager) {
         this.rubyEvaluator = rubyEvaluator;
         this.upnpManager = upnpManager;
         this.networkManager = networkManager;
+        
+        this.serverThread = new Thread(){
+            @Override
+            public void run() {
+                System.out.println("Starting mongrel...");
+                setStatus("starting");
+
+                // Try to port forward incoming traffic to our server via UPnP
+                mapPort();
+
+                try {
+                    String usablePath = null;
+                    String[] loadPaths = {
+                            "../../../../../script/start_rails",
+                            "rails/script/start_rails"
+                    };
+
+                    // Look through the paths to find one 
+                    for(String path : loadPaths) {
+                        File file = new File(path);
+                        if(file.exists()) {
+                            usablePath = path;
+                        }
+                    };
+                    if(usablePath != null) {
+                        rubyEvaluator.eval(usablePath);
+                        System.out.println("hey, script is done");
+                    } else {
+                        throw new FileNotFoundException();
+                    }
+                } catch(FileNotFoundException exception) {
+                    System.out.println("couldn't find mongrel start script.");
+                } catch(ScriptException exception) {
+                    exception.getCause().printStackTrace();
+                }
+            }
+        };
     }
     
     @Override
@@ -40,34 +78,9 @@ public class MongrelManagerImpl implements MongrelManager {
     
     @Override
     public void start() {
-        System.out.println("Starting mongrel...");
-        
-        // Try to port forward incoming traffic to our server via UPnP
-        mapPort();
-        
-        try {
-            String usablePath = null;
-            String[] loadPaths = {
-                "../../../../../script/start_rails",
-                "rails/script/start_rails"
-            };
-            
-            // Look through the paths to find one 
-            for(String path : loadPaths) {
-                File file = new File(path);
-                if(file.exists()) {
-                    usablePath = path;
-                }
-            };
-            if(usablePath != null) {
-                this.rubyEvaluator.eval(usablePath);
-            } else {
-                throw new FileNotFoundException();
-            }
-        } catch(FileNotFoundException exception) {
-            System.out.println("couldn't find mongrel start script.");
-        } catch(ScriptException exception) {
-            exception.getCause().printStackTrace();
+        System.out.println(this.serverThread.getState().toString());
+        if(!this.isServerRunning()) {
+            this.serverThread.start();
         }
     }
     
@@ -85,8 +98,32 @@ public class MongrelManagerImpl implements MongrelManager {
             System.out.println(usedPort);
         } 
     }
-    @Override
+
     public void stop() {
+        System.out.println(this.serverThread.getState().toString());
+        if(this.isServerRunning()) {
+            System.out.println("interrupted");
+            this.setStatus("stopped");
+        }
+    }
+    
+    public void restart() {
+        if(this.isServerRunning()) {
+            this.stop();
+        }
+        this.start();
+    }
+    
+    public Boolean isServerRunning() {
+        return this.serverThread.getState().toString() == "started";
+    }
+    
+    public String getStatus() {
+        return this.status;
+    }
+    
+    public void setStatus(String status) {
+        this.status = status;
     }
     
     @Override
