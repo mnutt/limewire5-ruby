@@ -27,7 +27,6 @@ import org.limewire.core.impl.URNImpl;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.Constants;
-import com.limegroup.gnutella.LimeWireCore;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
@@ -64,15 +63,13 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
     
     private LibraryManager libraryManager;
 
-    public LimeWireCore core;
 
     @Inject
-    public LocalHTTPAcceptor(ExternalControl externalControl, LimeWireCore core, LibraryManager libraryManager,
+    public LocalHTTPAcceptor(ExternalControl externalControl, LibraryManager libraryManager,
                         AuthenticationInterceptor requestAuthenticator) {
         super(createDefaultParams(LimeWireUtils.getHttpServer(), Constants.TIMEOUT),
                 requestAuthenticator, SUPPORTED_METHODS);
         this.externalControl = externalControl;
-        this.core = core;
         this.libraryManager = libraryManager;
         
         registerHandler("magnet:", new MagnetCommandRequestHandler());

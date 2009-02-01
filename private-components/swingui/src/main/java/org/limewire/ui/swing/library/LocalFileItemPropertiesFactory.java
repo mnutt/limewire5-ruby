@@ -18,6 +18,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.UndoableEditEvent;
@@ -30,9 +31,13 @@ import org.jdesktop.application.Resource;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.core.api.library.MetaDataException;
 import org.limewire.core.api.library.MetaDataManager;
 import org.limewire.core.api.library.ShareListManager;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.images.ThumbnailManager;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
@@ -51,6 +56,8 @@ import com.google.inject.name.Named;
 
 @Singleton
 public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFileItem> {
+    private static final Log LOG = LogFactory.getLog(LocalFileItemPropertiesFactory.class);
+
     private final ThumbnailManager thumbnailManager;
     private final MetaDataManager metaDataManager;
     private final Collection<Friend> allFriends;
@@ -115,7 +122,15 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
                 for (FilePropertyKey key : changedProps.keySet()) {
                     displayedItem.setProperty(key, changedProps.get(key));
                 }
-                metaDataManager.save(displayedItem);
+                try {
+                    metaDataManager.save(displayedItem);
+                } catch (MetaDataException e) {
+                    String message = I18n.tr("Unable to save metadata changes.");
+                    // Log exception and display user message.
+                    LOG.error(message, e);
+                    FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), message, I18n
+                            .tr("View File Info"), JOptionPane.INFORMATION_MESSAGE);
+                }
             }      
             
             if(unsharedFriendList.size() > 0){
@@ -158,7 +173,7 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
             boolean isShared = sharedWithList.size() > 0;
             
             if (isShared) {                
-                sharing.setLayout(new MigLayout("fillx, nogrid, nocache, gap 0! 0!, insets 0 0 0 0"));
+                sharing.setLayout(new MigLayout("fillx, nogrid, gap 0! 0!, insets 0 0 0 0"));
                 for(Friend friend : sharedWithList) {
                     final Friend shareFriend = friend;
                     final JLabel friendLabel = new JLabel(friend.getRenderName());
@@ -185,7 +200,7 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
             }
             
             location.setLayout(new MigLayout("", "[]10[]15[]", isShared ? "[top][]" : "[top]"));
-            location.add(fileLocation, "gapbottom 5,push");
+            location.add(fileLocation, "gapbottom 5,growx, push");
             location.add(locateOnDisk);
             location.add(locateInLibrary, isShared ? "wrap" : "");
 

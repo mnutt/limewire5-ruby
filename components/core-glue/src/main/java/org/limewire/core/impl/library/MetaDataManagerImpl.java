@@ -9,10 +9,10 @@ import java.util.Map;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.core.api.library.MetaDataException;
 import org.limewire.core.api.library.MetaDataManager;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
 import org.limewire.util.NameValue;
-import org.limewire.util.NotImplementedException;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
@@ -41,14 +41,14 @@ public class MetaDataManagerImpl implements MetaDataManager {
     }
 
     @Override
-    public void save(LocalFileItem localFileItem) {
+    public void save(LocalFileItem localFileItem) throws MetaDataException {
         if (localFileItem instanceof CoreLocalFileItem) {
             CoreLocalFileItem coreLocalFileItem = (CoreLocalFileItem) localFileItem;
             saveMetaData(coreLocalFileItem);
         }
     }
 
-    private void saveMetaData(CoreLocalFileItem coreLocalFileItem) {
+    private void saveMetaData(CoreLocalFileItem coreLocalFileItem) throws MetaDataException {
         FileDesc fileDesc = coreLocalFileItem.getFileDesc();
         Category category = coreLocalFileItem.getCategory();
 
@@ -70,16 +70,13 @@ public class MetaDataManagerImpl implements MetaDataManager {
             newDoc = limeXMLDocumentFactory.createLimeXMLDocument(input);
         } catch (SAXException e) {
             coreLocalFileItem.reloadProperties();
-            throw new NotImplementedException(
-                    "Internal Document Error. Data could not be saved.");
+            throw new MetaDataException("Internal Document Error. Data could not be saved.", e);
         } catch (SchemaNotFoundException e) {
             coreLocalFileItem.reloadProperties();
-            throw new NotImplementedException(
-                    "Internal Document Error. Data could not be saved.");
+            throw new MetaDataException("Internal Document Error. Data could not be saved.", e);
         } catch (IOException e) {
             coreLocalFileItem.reloadProperties();
-            throw new NotImplementedException(
-                    "Internal Document Error. Data could not be saved.");
+            throw new MetaDataException("Internal Document Error. Data could not be saved.", e);
         }
 
         String schemaURI = newDoc.getSchemaURI();
@@ -100,13 +97,11 @@ public class MetaDataManagerImpl implements MetaDataManager {
             final MetaDataState committed = collection.mediaFileToDisk(fileDesc, result);
             if (committed != MetaDataState.NORMAL && committed != MetaDataState.UNCHANGED) {
                 coreLocalFileItem.reloadProperties();
-                throw new NotImplementedException(
-                        "Internal Document Error. Data could not be saved.");
+                throw new MetaDataException("Internal Document Error. Data could not be saved.");
             }
         } else if (!collection.writeMapToDisk()) {
             coreLocalFileItem.reloadProperties();
-            throw new NotImplementedException(
-                    "Internal Document Error. Data could not be saved.");
+            throw new MetaDataException("Internal Document Error. Data could not be saved.");
         }
     }
 
@@ -167,13 +162,13 @@ public class MetaDataManagerImpl implements MetaDataManager {
                 .getXMLString();
     }
 
-    private void removeMeta(FileDesc fileDesc, String limeXMLSchemaUri) {
+    private void removeMeta(FileDesc fileDesc, String limeXMLSchemaUri) throws MetaDataException {
 
         LimeXMLReplyCollection collection = schemaReplyCollectionMapper
                 .getReplyCollection(limeXMLSchemaUri);
 
         if (!collection.removeDoc(fileDesc)) {
-            throw new NotImplementedException("Internal Document Error. Data could not be saved.");
+            throw new MetaDataException("Internal Document Error. Data could not be saved.");
         }
     }
 

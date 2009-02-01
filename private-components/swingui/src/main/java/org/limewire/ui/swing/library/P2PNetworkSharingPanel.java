@@ -9,10 +9,11 @@ import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.friend.Network;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.ShareListManager;
-import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.components.decorators.ButtonDecorator;
+import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
+import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
 import org.limewire.ui.swing.dnd.GhostDragGlassPane;
 import org.limewire.ui.swing.library.table.LibraryTableFactory;
-import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
@@ -28,12 +29,15 @@ public class P2PNetworkSharingPanel extends SharingPanel {
             IconManager iconManager,
             CategoryIconManager categoryIconManager,
             LibraryTableFactory tableFactory,
-            LimeHeaderBarFactory headerBarFactory,
+            HeaderBarDecorator headerBarFactory,
             ButtonDecorator buttonDecorator,
-            GhostDragGlassPane ghostPane) {
+            GhostDragGlassPane ghostPane,
+            TextFieldDecorator textFieldDecorator) {
+        
         super(libraryManager.getLibraryManagedList().getSwingModel(), 
                 shareListManager.getGnutellaShareList(), categoryIconManager, 
-                tableFactory, headerBarFactory, ghostPane, new P2PFriend());
+                tableFactory, headerBarFactory, ghostPane, new P2PFriend(),
+                textFieldDecorator);
 
         setInnerNavLayout(new MigLayout("insets 0, gap 0, fill, wrap, hidemode 3", "[138!]", ""));
         

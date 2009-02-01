@@ -30,7 +30,7 @@ public class StatusActions {
 
     private final JCheckBoxMenuItem available;
 
-    private final JCheckBoxMenuItem dnd;
+    private final JCheckBoxMenuItem doNotDisturb;
     
     private final XMPPService xmppService;
 
@@ -51,7 +51,7 @@ public class StatusActions {
         });
 
         
-        dnd = new JCheckBoxMenuItem(new AbstractAction(I18n.tr("&Do Not Disturb")) {
+        doNotDisturb = new JCheckBoxMenuItem(new AbstractAction(I18n.tr("&Do Not Disturb")) {
             {
                 putValue(Action.SMALL_ICON, iconLibrary.getDoNotDisturb());
                 setEnabled(false);
@@ -83,11 +83,11 @@ public class StatusActions {
         if(xmppService.isLoggedIn()) {
             boolean dndBool = XMPPSettings.XMPP_DO_NOT_DISTURB.getValue();
             available.setSelected(!dndBool);
-            dnd.setSelected(dndBool);
+            doNotDisturb.setSelected(dndBool);
         } else {
             //do not show selections when logged out
             available.setSelected(false);
-            dnd.setSelected(false);
+            doNotDisturb.setSelected(false);
         }
     }
 
@@ -101,13 +101,13 @@ public class StatusActions {
                 case CONNECTED:
                 case CONNECTING:
                     available.setEnabled(true);
-                    dnd.setEnabled(true);
+                    doNotDisturb.setEnabled(true);
                     updateSelection();
                     break;
                 case CONNECT_FAILED:
                 case DISCONNECTED:
                     available.setEnabled(false);
-                    dnd.setEnabled(false);
+                    doNotDisturb.setEnabled(false);
                     updateSelection();
                     break;
                 }
@@ -120,6 +120,6 @@ public class StatusActions {
     }
 
     public JMenuItem getDnDMenuItem() {
-        return dnd;
+        return doNotDisturb;
     }
 }

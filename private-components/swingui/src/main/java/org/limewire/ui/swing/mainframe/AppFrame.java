@@ -3,7 +3,6 @@ package org.limewire.ui.swing.mainframe;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -304,7 +303,7 @@ public class AppFrame extends SingleFrameApplication {
      * Sets the custom default UI color and behavior properties
      */
     private void initUIDefaults() {       
-        if (OSUtils.isAnyMac()) {
+        if (OSUtils.isMacOSX()) {
             initMacUIDefaults();
         }
         
@@ -314,20 +313,29 @@ public class AppFrame extends SingleFrameApplication {
         
         initBackgrounds();
         
-        // Set the menu item highlight colors
-        Paint highlightBackground = new Color(0xdaf2b5);
-        UIManager.put("Menu.selectionBackground", highlightBackground);
-        UIManager.put("MenuItem.selectionBackground", highlightBackground);
-        UIManager.put("CheckBoxMenuItem.selectionBackground", highlightBackground);
-        UIManager.put("RadioButtonMenuItem.selectionBackground", highlightBackground);
+        // Set default selection colours
+        Color selectionBackground = new Color(0xc2e986);
+        UIManager.put("TextField.selectionBackground", selectionBackground);
+        UIManager.put("PasswordField.selectionBackground", selectionBackground);
+        UIManager.put("EditorPane.selectionBackground", selectionBackground);
+        UIManager.put("TextArea.selectionBackground", selectionBackground);
+        UIManager.put("Menu.selectionBackground", selectionBackground);
+        UIManager.put("MenuItem.selectionBackground", selectionBackground);
+        UIManager.put("CheckBoxMenuItem.selectionBackground", selectionBackground);
+        UIManager.put("RadioButtonMenuItem.selectionBackground", selectionBackground);
         
         // Set the menu item highlight colors to avoid contrast issues with
         //  new highlight background in default XP theme
-        Color highlightForeground = Color.BLACK;
-        UIManager.put("Menu.selectionForeground", highlightForeground);
-        UIManager.put("MenuItem.selectionForeground", highlightForeground);
-        UIManager.put("CheckBoxMenuItem.selectionForeground", highlightForeground);
-        UIManager.put("RadioButtonMenuItem.selectionForeground", highlightForeground);
+        Color selectionForeground = Color.BLACK;
+        UIManager.put("TextField.selectionForeground", selectionForeground);
+        UIManager.put("PasswordField.selectionForeground", selectionForeground);
+        UIManager.put("EditorPane.selectionForeground", selectionForeground);
+        UIManager.put("TextArea.selectionForeground", selectionForeground);
+        UIManager.put("Menu.selectionForeground", selectionForeground);
+        UIManager.put("MenuItem.selectionForeground", selectionForeground);
+        UIManager.put("CheckBoxMenuItem.selectionForeground", selectionForeground);
+        UIManager.put("RadioButtonMenuItem.selectionForeground", selectionForeground);
+        
         
         // Necessary to allow popups to behave normally.
         UIManager.put("PopupMenu.consumeEventOnClose", false);

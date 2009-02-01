@@ -34,7 +34,7 @@ import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.downloader.AbstractCoreDownloader;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.gnutella.downloader.DownloaderType;
 import com.limegroup.gnutella.downloader.serial.DownloadMemento;
 import com.limegroup.gnutella.http.HTTPHeaderName;
@@ -42,7 +42,7 @@ import com.limegroup.gnutella.http.HttpExecutor;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implements
-        BTTorrentFileDownloader, EventListener<DownloadStatusEvent> {
+        BTTorrentFileDownloader, EventListener<DownloadStateEvent> {
     
     private static Log LOG = LogFactory.getLog(BTTorrentFileDownloaderImpl.class);
 
@@ -56,9 +56,9 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
 
     private final BTMetaInfoFactory btMetaInfoFactory;
 
-    private final EventListenerList<DownloadStatusEvent> eventListenerList;
+    private final EventListenerList<DownloadStateEvent> eventListenerList;
 
-    private DownloadStatus downloadStatus = DownloadStatus.QUEUED;
+    private DownloadState downloadStatus = DownloadState.QUEUED;
 
     private BTMetaInfo btMetaInfo = null;
 
@@ -79,7 +79,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         this.httpExecutor = Objects.nonNull(httpExecutor, "httpExecutor");
         this.torrentManager = Objects.nonNull(torrentManager, "torrentMaanger");
         this.btMetaInfoFactory = Objects.nonNull(btMetaInfoFactory, "btMetaInfoFactory");
-        this.eventListenerList = new EventListenerList<DownloadStatusEvent>();
+        this.eventListenerList = new EventListenerList<DownloadStateEvent>();
         addListener(this);
     }
 
@@ -97,7 +97,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
 
     public boolean requestComplete(HttpUriRequest method, HttpResponse response) {
         aborter = null;
-        if (downloadStatus == DownloadStatus.ABORTED)
+        if (downloadStatus == DownloadState.ABORTED)
             return false;
         BTMetaInfo m = null;
         byte[] body = null;
@@ -114,7 +114,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
 
             m = btMetaInfoFactory.createBTMetaInfoFromBytes(body);           
         } catch (IOException iox) {
-            downloadStatus = DownloadStatus.INVALID;
+            downloadStatus = DownloadState.INVALID;
             if(LOG.isErrorEnabled()) {
                 LOG.error("Error downloading torrent: " + torrentURI, iox);
             }
@@ -123,19 +123,19 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         }
 
         if (m == null) {
-            downloadStatus = DownloadStatus.INVALID;
+            downloadStatus = DownloadState.INVALID;
             return false;
         }
 
         torrentManager.shareTorrentFile(m, body);
-        downloadStatus = DownloadStatus.COMPLETE;
+        downloadStatus = DownloadState.COMPLETE;
         this.btMetaInfo = m;
-        eventListenerList.broadcast(new DownloadStatusEvent(this, DownloadStatus.COMPLETE));
+        eventListenerList.broadcast(new DownloadStateEvent(this, DownloadState.COMPLETE));
         return false;
     }
 
     public boolean requestFailed(HttpUriRequest method, HttpResponse response, IOException exc) {
-        downloadStatus = DownloadStatus.INVALID;
+        downloadStatus = DownloadState.INVALID;
         downloadManager.remove(this, true);
         return false;
     }
@@ -248,7 +248,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
             throws SaveLocationException {
     }
 
-    public DownloadStatus getState() {
+    public DownloadState getState() {
         return downloadStatus;
     }
 
@@ -265,7 +265,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
     }
 
     public boolean isCompleted() {
-        return downloadStatus == DownloadStatus.COMPLETE;
+        return downloadStatus == DownloadState.COMPLETE;
     }
 
     public boolean isInactive() {
@@ -325,7 +325,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
     }
 
     public void finish() {
-        downloadStatus = DownloadStatus.ABORTED;
+        downloadStatus = DownloadState.ABORTED;
         if (aborter != null) {
             aborter.shutdown();
             aborter = null;
@@ -357,11 +357,11 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
     }
 
     public boolean shouldBeRemoved() {
-        return isCompleted() || downloadStatus == DownloadStatus.ABORTED || downloadStatus == DownloadStatus.INVALID;
+        return isCompleted() || downloadStatus == DownloadState.ABORTED || downloadStatus == DownloadState.INVALID;
     }
 
     public boolean shouldBeRestarted() {
-        return downloadStatus == DownloadStatus.QUEUED;
+        return downloadStatus == DownloadState.QUEUED;
     }
 
     public void startDownload() {
@@ -372,11 +372,11 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         return DownloaderType.TORRENTFETCHER;
     }
 
-    public void addListener(EventListener<DownloadStatusEvent> listener) {
+    public void addListener(EventListener<DownloadStateEvent> listener) {
         eventListenerList.addListener(listener);
     }
 
-    public boolean removeListener(EventListener<DownloadStatusEvent> listener) {
+    public boolean removeListener(EventListener<DownloadStateEvent> listener) {
         return eventListenerList.removeListener(listener);
     }
 
@@ -421,8 +421,8 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
     }
 
     @Override
-    public void handleEvent(DownloadStatusEvent event) {
-        if (DownloadStatus.COMPLETE == event.getType()) {
+    public void handleEvent(DownloadStateEvent event) {
+        if (DownloadState.COMPLETE == event.getType()) {
             downloadManager.remove(this, true);
         }
     }

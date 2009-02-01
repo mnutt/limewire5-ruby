@@ -48,7 +48,7 @@ public class ShapeDialog extends JXPanel implements Resizable {
     private boolean isPositionedRelativeToOwner;
 
     public ShapeDialog() {
-        super(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+        super(new MigLayout("fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
         GuiUtils.assignResources(this);
         
         setOpaque(false);
@@ -149,7 +149,7 @@ public class ShapeDialog extends JXPanel implements Resizable {
                     if ((event.getID() == MouseEvent.MOUSE_PRESSED)) {
                         MouseEvent e = (MouseEvent) event;                        
                         
-                        if ((getMousePosition() == null || !contains(getMousePosition())) && component != e.getComponent()
+                        if ((getMousePosition(true) == null || !contains(getMousePosition(true))) && component != e.getComponent()
                                 && (!component.contains(SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), component)))) {
                             setVisible(false);
                         }

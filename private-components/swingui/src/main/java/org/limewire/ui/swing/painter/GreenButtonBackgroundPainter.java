@@ -21,7 +21,7 @@ public class GreenButtonBackgroundPainter extends ButtonBackgroundPainter {
     @Resource private Color highlightGradientBottom = PainterUtils.TRASPARENT;
     @Resource private Color clickGradientTop = PainterUtils.TRASPARENT;
     @Resource private Color clickGradientBottom = PainterUtils.TRASPARENT;
-    @Resource private Color borderColour = PainterUtils.TRASPARENT;
+    @Resource private Color border = PainterUtils.TRASPARENT;
     @Resource private Color bevelTop1 = PainterUtils.TRASPARENT;
     @Resource private Color bevelTop2 = PainterUtils.TRASPARENT;
     @Resource private Color bevelLeft = PainterUtils.TRASPARENT;
@@ -36,15 +36,15 @@ public class GreenButtonBackgroundPainter extends ButtonBackgroundPainter {
                 0, 1, this.bevelRightGradientBottom, false);
         
         this.normalPainter = createPainter(this.backgroundGradientTop, this.backgroundGradientBottom,
-                this.borderColour, bevelLeft,  this.bevelTop1,  this.bevelTop2, 
+                this.border, bevelLeft,  this.bevelTop1,  this.bevelTop2, 
                 gradientRight, this.bevelBottom, this.arcWidth, this.arcHeight, AccentType.NONE);
         
         this.hoveredPainter = createPainter(this.highlightGradientTop, this.highlightGradientBottom,
-                this.borderColour, bevelLeft,  this.bevelTop1,  this.bevelTop2, 
+                this.border, bevelLeft,  this.bevelTop1,  this.bevelTop2, 
                 gradientRight, this.bevelBottom, this.arcWidth, this.arcHeight, AccentType.NONE);
         
         this.clickedPainter = createPainter(this.clickGradientTop, this.clickGradientBottom,
-                this.borderColour, bevelLeft, PainterUtils.TRASPARENT, PainterUtils.TRASPARENT, 
+                this.border, bevelLeft, PainterUtils.TRASPARENT, PainterUtils.TRASPARENT, 
                 gradientRight, this.bevelBottom, this.arcWidth, this.arcHeight, AccentType.NONE);
         
         this.setCacheable(false);

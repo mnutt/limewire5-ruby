@@ -14,6 +14,8 @@ import org.limewire.io.Address;
  */
 public interface DownloadItem extends PropertiableFile {	
 
+    public static final String DOWNLOAD_ITEM = "limewire.download.glueItem";
+
 	public static enum ErrorState {
 	    NONE(I18nMarker.marktr("No problems.")),
 	    DISK_PROBLEM(I18nMarker.marktr("There is a disk problem")),

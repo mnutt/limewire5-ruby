@@ -72,26 +72,29 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
     private void handleException(final DownloadAction downLoadAction,
             final SaveLocationException sle, final boolean supportNewSaveDir) {
         // TODO get rid of supportNewSaveDir variable, it looks like bit torrent
-        // can support changing the file name if need be so there should be no need for it anymore
+        // can support changing the file name if need be so there should be no
+        // need for it anymore
 
         if (sle.getErrorCode() == SaveLocationException.LocationCode.FILE_ALREADY_DOWNLOADING) {
             // ignore, just return because we are already downloading this file
             return;
         }
 
-        //check to make sure this is a SaveLocationException we can handle
+        // check to make sure this is a SaveLocationException we can handle
         if ((sle.getErrorCode() != SaveLocationException.LocationCode.FILE_ALREADY_EXISTS)
                 && (sle.getErrorCode() != SaveLocationException.LocationCode.FILE_IS_ALREADY_DOWNLOADED_TO)) {
             // Create user message.
             showErrorMessage(sle);
             return;
-        } else if(sle.getErrorCode() == SaveLocationException.LocationCode.FILE_IS_ALREADY_DOWNLOADED_TO && !supportNewSaveDir) {
-            //prevents infinite loop case where for bit torrent files we can't change the save file at the moment
+        } else if (sle.getErrorCode() == SaveLocationException.LocationCode.FILE_IS_ALREADY_DOWNLOADED_TO
+                && !supportNewSaveDir) {
+            // prevents infinite loop case where for bit torrent files we can't
+            // change the save file at the moment
             showErrorMessage(sle);
             return;
         }
 
-        //select a save file name
+        // select a save file name
         File saveFile = null;
         if (supportNewSaveDir && SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.getValue()) {
             saveFile = getAutoSaveFile(sle);
@@ -102,14 +105,14 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
             } else {
                 saveFile = sle.getFile();
             }
-            
+
             if (saveFile == null) {
                 return;
             }
         }
-        
-        //if save file already exists, prompt to overwrite
-        //otherwise download using the supplied download action
+
+        // if save file already exists, prompt to overwrite
+        // otherwise download using the supplied download action
         if (saveFile.exists()) {
             createOverwriteDialogue(saveFile, downLoadAction, sle, supportNewSaveDir);
         } else {
@@ -118,13 +121,22 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
     }
 
     private void showErrorMessage(final SaveLocationException sle) {
-        String message = I18n.tr("Unable to download: {0}\nfile {1}", sle.getErrorCode(), sle
-                .getFile());
+        String message = null;
+
+        switch (sle.getErrorCode()) {
+        case NOT_A_DIRECTORY:
+        case PATH_NAME_TOO_LONG:
+            message = I18n.tr("Sorry, you can't download files to this location.");
+            break;
+        default:
+            message = I18n.tr("Sorry, there was a problem downloading your file.");
+            break;
+        }
 
         // Log exception and display user message.
         LOG.error(message, sle);
-        FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), message, I18n
-                .tr("Download"), JOptionPane.INFORMATION_MESSAGE);
+        FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), message, I18n.tr("Download"),
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**

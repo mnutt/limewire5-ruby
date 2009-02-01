@@ -7,7 +7,7 @@ import org.limewire.util.Objects;
 /**
  * Sorter for ChatFriends according to the following rules:
  * a) The buddies will be sorted by status first 
- *   - Chatting 
+ *   - Chatting - or has unread messages
  *   - Available 
  *   - Do Not Disturb 
  *   - Idle 
@@ -19,8 +19,8 @@ class FriendAvailabilityComparator implements Comparator<ChatFriend> {
 
     @Override
     public int compare(ChatFriend a, ChatFriend b) {
-        boolean a_chatting = a.isChatting();
-        boolean b_chatting = b.isChatting();
+        boolean a_chatting = a.isChatting() || a.isReceivingUnviewedMessages();
+        boolean b_chatting = b.isChatting() || b.isReceivingUnviewedMessages();
         
         if(a_chatting && b_chatting) {
             return new Long(a.getChatStartTime()).compareTo(new Long(b.getChatStartTime()));

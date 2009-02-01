@@ -186,7 +186,7 @@ public final class FileChooser {
                                 int option,
                                 boolean allowMultiSelect,
                                 final FileFilter filter) {
-            if(!OSUtils.isAnyMac()) {
+            if(!OSUtils.isMacOSX()) {
                 JFileChooser fileChooser = getDirectoryChooser(titleKey, approveKey, directory, mode, filter);
                 fileChooser.setMultiSelectionEnabled(allowMultiSelect);
                 boolean dispose = false;
@@ -376,7 +376,7 @@ public final class FileChooser {
      */
     public static File getSaveAsFile(Component parent, String titleKey,
                                      File suggestedFile, final FileFilter filter) {
-        if (OSUtils.isAnyMac()) {
+        if (OSUtils.isMacOSX()) {
             FileDialog dialog = new FileDialog(GuiUtils.getParentFrame(parent),
                                                I18n.tr(titleKey),
                                                FileDialog.SAVE);

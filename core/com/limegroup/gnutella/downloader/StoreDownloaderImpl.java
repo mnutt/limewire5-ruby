@@ -209,7 +209,7 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
 
     @Override
     public boolean isRelocatable() {
-        return super.isRelocatable() || getState() == DownloadStatus.SAVING;
+        return super.isRelocatable() || getState() == DownloadState.SAVING;
     }
 
     /**

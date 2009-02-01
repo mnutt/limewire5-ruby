@@ -18,7 +18,7 @@ public class SharingCheckBoxSubPanel extends JPanel implements Configurable {
     public SharingCheckBoxSubPanel(LocalFileList localFileList) {
         this.localFileList = localFileList;
         
-        setLayout(new MigLayout());
+        setLayout(new MigLayout("aligny 50%"));
         setOpaque(false);
         
         checkBox = new JCheckBox();

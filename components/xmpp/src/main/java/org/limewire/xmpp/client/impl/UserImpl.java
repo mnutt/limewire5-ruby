@@ -281,13 +281,12 @@ public class UserImpl implements User {
     }
 
     @Override
-    public void setIncomingChatListener(final IncomingChatListener listener) {
+    public void setChatListenerIfNecessary(final IncomingChatListener listener) {
         synchronized (chatListenerLock) {
-            if(listenerAdapter != null) {
-                connection.getChatManager().removeChatListener(listenerAdapter);
+            if (listenerAdapter == null) {
+                listenerAdapter = new IncomingChatListenerAdapter(listener);
+                connection.getChatManager().addChatListener(listenerAdapter);
             }
-            listenerAdapter = new IncomingChatListenerAdapter(listener);
-            connection.getChatManager().addChatListener(listenerAdapter);
         }
     }
 
@@ -296,6 +295,7 @@ public class UserImpl implements User {
         synchronized (chatListenerLock) {
             if(listenerAdapter != null) {
                 connection.getChatManager().removeChatListener(listenerAdapter);
+                listenerAdapter = null;
             }
         }
     }

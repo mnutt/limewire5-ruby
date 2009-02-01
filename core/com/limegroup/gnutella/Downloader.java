@@ -7,7 +7,7 @@ import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.io.Address;
 import org.limewire.listener.ListenerSupport;
 
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 
 /**
  * Defines an interface for downloading a file. The user interface maintains a 
@@ -15,10 +15,10 @@ import com.limegroup.gnutella.downloader.DownloadStatusEvent;
  * resume downloads. Note that there is no start method;
  * it is assumed that the downloader will start as soon as it is instantiated.
  */
-public interface Downloader extends BandwidthTracker, ListenerSupport<DownloadStatusEvent> {
+public interface Downloader extends BandwidthTracker, ListenerSupport<DownloadStateEvent> {
     
     /** Enumerates the various states of a download. */
-    public static enum DownloadStatus {
+    public static enum DownloadState {
         INITIALIZING,
         QUEUED,
         CONNECTING,
@@ -149,7 +149,7 @@ public interface Downloader extends BandwidthTracker, ListenerSupport<DownloadSt
     /**
      * Returns the state of this.
      */
-    public DownloadStatus getState();
+    public DownloadState getState();
 
     /**
      * Returns an upper bound on the amount of time (in seconds) this will stay 
@@ -176,7 +176,7 @@ public interface Downloader extends BandwidthTracker, ListenerSupport<DownloadSt
     /**
      * @return the number locations from which this is currently downloading.
      * The number of hosts returned is only meaningful in the 
-     * {@link DownloadStatus#DOWNLOADING} state.
+     * {@link DownloadState#DOWNLOADING} state.
      */
     public int getNumHosts();
     
@@ -261,7 +261,7 @@ public interface Downloader extends BandwidthTracker, ListenerSupport<DownloadSt
     /**
      * Returns the number of hosts that were attempted to connect to. 
      * Should be reset whenever the downloader returns to the 
-     * {@link DownloadStatus#CONNECTING} state.
+     * {@link DownloadState#CONNECTING} state.
      * 
      * @return -1 if downloader does not support it
      */

@@ -6,6 +6,7 @@ import org.limewire.core.settings.LimeProps;
 import org.limewire.i18n.I18nMarker;
 import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.setting.BooleanSetting;
+import org.limewire.setting.FileArraySetting;
 import org.limewire.setting.FileSetting;
 import org.limewire.setting.IntSetting;
 import org.limewire.setting.StringArraySetting;
@@ -20,7 +21,11 @@ import org.limewire.util.OSUtils;
  */ 
 public final class SwingUiSettings extends LimeProps {
     
-    private SwingUiSettings() {}    
+    private SwingUiSettings() {}
+    
+    /** The directories that have been warned as bad Vista directories. */
+    public static final FileArraySetting VISTA_WARN_DIRECTORIES =
+        FACTORY.createFileArraySetting("VISTA_WARN_DIRECTORIES", new File[0]);
     
     /**
      * This setting is used to track whether or not the user wants to show offline buddies in the left panel.

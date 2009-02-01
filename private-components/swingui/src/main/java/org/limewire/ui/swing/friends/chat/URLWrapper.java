@@ -1,51 +1,28 @@
 package org.limewire.ui.swing.friends.chat;
 
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.limewire.logging.Log;
-import org.limewire.logging.LogFactory;
-
 class URLWrapper {
-    private static final Log LOG = LogFactory.getLog(URLWrapper.class);
     private static Pattern REGEX;
-
-    /**
-     * This method uses a regular expression to detect URLs in the input text and wraps
-     * them in an HTML anchor link.  foo.com -> &lt;a href="http://foo.com"&gt;foo.com&lt;/a&gt;
-     * @param input String that may contain URLs
-     * @return HTML encoded version of the input string
-     */
-    public static String wrap(String input) {
-        Matcher matcher = getRegex().matcher(input);
+    
+    public static boolean isURL(String input) {
+        Matcher matcher = getRegex().matcher(input.toLowerCase());
+        return matcher.matches();
+    }
+    
+    public static String createAnchorTag(String url, String text) {
         StringBuilder bldr = new StringBuilder();
-        int index = 0;
-        while (matcher.find()) {
-            MatchResult result = matcher.toMatchResult();
-
-            int startIndex = result.start();
-            bldr.append(input.substring(index, startIndex));
-            String url = result.group();
-            bldr.append("<a href=\"");
-            if (url.matches("magnet://.*")) {
-                //no-op guard to prevent appending http://
-            } else if (!url.matches("http[s]?://.*")) {
-                bldr.append("http://");
-            }
-            bldr.append(url).append("\">");
-            bldr.append(url);
-            bldr.append("</a>");
-            index = matcher.end();
-
-            LOG.debugf("Start: {0} url: {1} end: {2}", startIndex, url, matcher.end());
+        bldr.append("<a href=\"");
+        if (url.matches("magnet://.*")) {
+            //no-op guard to prevent appending http://
+        } else if (!url.matches("http[s]?://.*")) {
+            bldr.append("http://");
         }
-        
-        bldr.append(input.substring(index, input.length()));
-
-        String message = bldr.toString();
-        LOG.debugf("Transformed message: {0}", message);
-        return message;
+        bldr.append(url).append("\">");
+        bldr.append(text);
+        bldr.append("</a>");
+        return bldr.toString();
     }
     
     private static Pattern getRegex() {

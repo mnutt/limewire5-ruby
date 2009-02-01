@@ -10,30 +10,30 @@ import org.limewire.util.Objects;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 
 /**
  * Listens for the completion of downloads, adding completed ituens supported downloads to the itunes library.
  */
-public class ItunesDownloadListener implements EventListener<DownloadStatusEvent> {
+public class ItunesDownloadListener implements EventListener<DownloadStateEvent> {
     private final Downloader downloader;
     private final ItunesMediator itunesMediator;
     @AssistedInject
     public ItunesDownloadListener(@Assisted Downloader downloader, ItunesMediator itunesMediator) {
         this.downloader = Objects.nonNull(downloader, "downloader");
         this.itunesMediator = itunesMediator;
-        if(downloader.getState() == DownloadStatus.COMPLETE) {
+        if(downloader.getState() == DownloadState.COMPLETE) {
             if(downloader instanceof CoreDownloader) {
-                handleEvent(new DownloadStatusEvent((CoreDownloader)downloader, DownloadStatus.COMPLETE));
+                handleEvent(new DownloadStateEvent((CoreDownloader)downloader, DownloadState.COMPLETE));
             }
         }
     }
     @Override
-    public void handleEvent(DownloadStatusEvent event) {
-        DownloadStatus downloadStatus = event.getType();
-        if(DownloadStatus.COMPLETE == downloadStatus) {
+    public void handleEvent(DownloadStateEvent event) {
+        DownloadState downloadStatus = event.getType();
+        if(DownloadState.COMPLETE == downloadStatus) {
             File saveFile = downloader.getSaveFile();
             if(saveFile != null) {
                 if (iTunesSettings.ITUNES_SUPPORT_ENABLED.getValue()) {

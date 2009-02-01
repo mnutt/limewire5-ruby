@@ -6,6 +6,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -13,11 +14,11 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TooManyListenersException;
 import java.util.Set;
-import java.util.HashSet;
+import java.util.TooManyListenersException;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -42,8 +43,8 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.URN;
-import org.limewire.core.api.friend.FriendEvent;
 import org.limewire.core.api.friend.Friend;
+import org.limewire.core.api.friend.FriendEvent;
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LibraryFileList;
 import org.limewire.core.api.library.LibraryManager;
@@ -55,8 +56,9 @@ import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
-import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.MessageComponent;
+import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
+import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
 import org.limewire.ui.swing.dnd.GhostDragGlassPane;
 import org.limewire.ui.swing.dnd.GhostDropTargetListener;
 import org.limewire.ui.swing.dnd.MyLibraryTransferHandler;
@@ -113,10 +115,12 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
     
     private Timer repaintTimer;
     private ListenerSupport<XMPPConnectionEvent> connectionListeners;
-    private final ListenerSupport<FriendEvent> knownFriendsListeners;
-    
-    // set of known friends helps keep correct share numbers
-    private final Set<String> knownFriends;
+    private ListenerSupport<FriendEvent> knownFriendsListeners;
+
+    /**
+     * set of known friends helps keep correct share numbers
+     */
+    private final Set<String> knownFriends = new HashSet<String>();
 
     @Inject
     public MyLibraryPanel(LibraryManager libraryManager,
@@ -125,14 +129,14 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
                           LibraryTableFactory tableFactory,
                           CategoryIconManager categoryIconManager,
                           ShareWidgetFactory shareFactory,
-                          LimeHeaderBarFactory headerBarFactory,
+                          HeaderBarDecorator headerBarFactory,
                           PlayerPanel player, 
                           GhostDragGlassPane ghostPane,
                           ListenerSupport<XMPPConnectionEvent> connectionListeners,
                           ShareListManager shareListManager,
-                          @Named("known") ListenerSupport<FriendEvent> knownFriendsListeners) {
+                          TextFieldDecorator textFieldDecorator) {
         
-        super(headerBarFactory);
+        super(headerBarFactory, textFieldDecorator);
         
         GuiUtils.assignResources(this);
         
@@ -156,10 +160,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
         createMyCategories(libraryManager.getLibraryManagedList());
         selectFirstVisible();
 
-        this.knownFriends = new HashSet<String>();
         this.knownFriends.add(Friend.P2P_FRIEND_ID);
-        this.knownFriendsListeners = knownFriendsListeners;
-        this.knownFriendsListeners.addListener(this);
         getSelectionPanel().updateCollectionShares(knownFriends);
         
         addHeaderComponent(playerPanel, "cell 0 0, grow");
@@ -193,6 +194,13 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
             }
         });
     }
+
+    @Inject
+    public void register(@Named("known") ListenerSupport<FriendEvent> knownFriendsListeners) {
+        this.knownFriendsListeners = knownFriendsListeners;
+        this.knownFriendsListeners.addListener(this);
+    }
+
 
     @Override
     public void handleEvent(FriendEvent event) {
@@ -364,8 +372,12 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
                 } else {
                    JPopupMenu popup = new JPopupMenu();
                    popup.add(new JLabel(I18n.tr("Add files to My Library from Tools > Options to share them")));
-                   //move popup 15 pixels to the right so the mouse doesn't obscure the first word
-                   popup.show(MyLibraryPanel.this, getMousePosition().x + 15, getMousePosition().y);
+                   
+                   Point mousePoint = getMousePosition(true);
+                   if(mousePoint != null) {
+                       //move popup 15 pixels to the right so the mouse doesn't obscure the first word
+                       popup.show(MyLibraryPanel.this, mousePoint.x + 15, mousePoint.y);
+                   }
                 }
             } else {
                 categoryShareWidget.setShareable(category);

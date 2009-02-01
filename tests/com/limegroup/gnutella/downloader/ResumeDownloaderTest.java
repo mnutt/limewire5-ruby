@@ -18,7 +18,7 @@ import com.limegroup.gnutella.DownloadManagerImpl;
 import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.serial.DownloadMemento;
 import com.limegroup.gnutella.downloader.serial.DownloadSerializeSettings;
 import com.limegroup.gnutella.downloader.serial.DownloadSerializer;
@@ -74,8 +74,6 @@ public class ResumeDownloaderTest extends LimeTestCase {
     
     /** Returns a new ResumeDownloader with stubbed-out DownloadManager, etc. */
     private ResumeDownloader newResumeDownloader() throws Exception {
-        // this ResumeDownloader is started from the library, not from restart,
-        // that is why the last param to init is false
         ResumeDownloader downloader = injector.getInstance(CoreDownloaderFactory.class).createResumeDownloader(
                 incompleteFile, name, size);
         downloader.initialize();
@@ -121,15 +119,9 @@ public class ResumeDownloaderTest extends LimeTestCase {
      */
     public void testRequeryProgress() throws Exception {
         ResumeDownloader downloader = newResumeDownloader();
-        while (downloader.getState() != DownloadStatus.WAITING_FOR_GNET_RESULTS) {
-            if (downloader.getState() != DownloadStatus.QUEUED)
-                assertEquals(DownloadStatus.GAVE_UP, downloader.getState());
-            Thread.sleep(200);
-        }
-        
-        // give the downloader time to change its state
-        Thread.sleep(1000);
-        assertEquals(DownloadStatus.WAITING_FOR_GNET_RESULTS, downloader.getState());
+        DownloadTestUtils.waitForState(downloader, DownloadState.WAITING_FOR_USER);
+        downloader.resume();
+        DownloadTestUtils.strictWaitForState(downloader, DownloadState.WAITING_FOR_GNET_RESULTS, DownloadState.QUEUED, DownloadState.GAVE_UP);
         assertEquals(amountDownloaded, downloader.getAmountRead());
                 
         DownloadMemento memento = downloader.toMemento();
@@ -144,11 +136,7 @@ public class ResumeDownloaderTest extends LimeTestCase {
         newDownloader.startDownload();
 
         // Check same state as before serialization.
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-        }
-        assertEquals(DownloadStatus.WAITING_FOR_USER, newDownloader.getState());
+        DownloadTestUtils.waitForState(newDownloader, DownloadState.WAITING_FOR_USER);
         assertEquals(amountDownloaded, newDownloader.getAmountRead());
         newDownloader.stop(false);
     }

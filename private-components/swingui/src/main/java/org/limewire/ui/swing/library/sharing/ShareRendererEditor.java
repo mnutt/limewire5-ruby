@@ -26,7 +26,7 @@ public class ShareRendererEditor extends JPanel implements  TableCellEditor, Tab
     private SharingTarget friend;
     
     public ShareRendererEditor(Icon icon, Icon rolloverIcon, Icon pressedIcon){
-        super(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+        super(new MigLayout("fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
         setOpaque(true);
         button = new IconButton(icon, rolloverIcon, pressedIcon);
         add(button, "aligny 50%");

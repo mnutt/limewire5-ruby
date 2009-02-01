@@ -1,5 +1,9 @@
 package org.limewire.ui.swing.painter;
 
+import org.limewire.ui.swing.painter.factories.BasicProgressPainterFactory;
+import org.limewire.ui.swing.painter.factories.ProProgressPainterFactory;
+import org.limewire.ui.swing.painter.factories.ProgressPainterFactory;
+
 import com.google.inject.AbstractModule;
 
 public class LimeWireUiPainterModule extends AbstractModule {

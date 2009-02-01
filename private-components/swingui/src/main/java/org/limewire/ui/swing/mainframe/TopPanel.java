@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.annotation.Resource;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -22,7 +23,6 @@ import javax.swing.Timer;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchListener;
@@ -44,8 +44,8 @@ import org.limewire.ui.swing.nav.NavSelectable;
 import org.limewire.ui.swing.nav.NavigationListener;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.nav.NavigatorUtils;
-import org.limewire.ui.swing.painter.BarPainterFactory;
-import org.limewire.ui.swing.painter.SearchTabPainterFactory;
+import org.limewire.ui.swing.painter.factories.BarPainterFactory;
+import org.limewire.ui.swing.painter.factories.SearchTabPainterFactory;
 import org.limewire.ui.swing.search.DefaultSearchInfo;
 import org.limewire.ui.swing.search.SearchBar;
 import org.limewire.ui.swing.search.SearchHandler;
@@ -53,7 +53,6 @@ import org.limewire.ui.swing.search.SearchNavItem;
 import org.limewire.ui.swing.search.SearchNavigator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.VisibilityListener;
 import org.mozilla.browser.MozillaInitialization;
 
 import com.google.inject.Inject;
@@ -70,8 +69,6 @@ class TopPanel extends JXPanel implements SearchNavigator {
     private final NavItem homeNav;
     private final JButton webButton;
     
-    @Resource private Icon libraryCollapseIcon;
-    @Resource private Icon libraryExpandIcon;
     @Resource private Icon webIcon;
     
     @Inject
@@ -141,31 +138,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
                 storePanel.loadDefaultUrl();
             }
         });
-        
-        final JButton libraryButton = new IconButton(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                leftPanel.toggleVisibility();
-            }
-        });
-        libraryButton.setName("WireframeTop.libraryButton");
-        libraryButton.setText(null);
-        libraryButton.setIconTextGap(1);
-        leftPanel.addVisibilityListener(new VisibilityListener() {
-            @Override
-            public void visibilityChanged(boolean visible) {
-                if(!visible) {
-                    libraryButton.setIcon(libraryExpandIcon);
-                    libraryButton.setToolTipText(I18n.tr("Show Sidebar"));
-                } else {
-                    libraryButton.setIcon(libraryCollapseIcon);
-                    libraryButton.setToolTipText(I18n.tr("Hide Sidebar"));
-                }
-            }
-        });
-        libraryButton.setIcon(libraryCollapseIcon);
-        libraryButton.setToolTipText(I18n.tr("Hide Sidebar"));
-        
+     
         searchList = fancyTabListFactory.create();
         searchList.setName("WireframeTop.SearchList");
         searchList.setMaxVisibleTabs(3);

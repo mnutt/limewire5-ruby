@@ -1,10 +1,10 @@
 D/piecestrategy////
-/.cvsignore/1.2/Tue Sep 26 15:08:34 2006//
-/BTConnectionFetcher.java/1.21/Wed Oct  1 19:20:46 2008//
-/BTConnectionFetcherFactory.java/1.8/Thu Aug  9 18:41:57 2007//
-/BTConnectionFetcherFactoryImpl.java/1.3/Wed Oct 24 20:06:38 2007//
-/BTHandshakeObserver.java/1.2/Tue Sep 26 15:08:34 2006//
-/BTHandshaker.java/1.12/Mon Jun 30 18:36:42 2008//
-/IncomingBTHandshaker.java/1.7/Mon Apr 28 18:44:58 2008//
-/IncomingConnectionHandler.java/1.6/Mon Aug 13 19:42:07 2007//
-/OutgoingBTHandshaker.java/1.5/Mon Apr 28 18:44:58 2008//
+/.cvsignore/1.2/Sat Jan  3 19:33:56 2009//
+/BTConnectionFetcher.java/1.21/Sat Jan  3 19:33:56 2009//
+/BTConnectionFetcherFactory.java/1.8/Sat Jan  3 19:33:56 2009//
+/BTConnectionFetcherFactoryImpl.java/1.3/Sat Jan  3 19:33:56 2009//
+/BTHandshakeObserver.java/1.2/Sat Jan  3 19:33:56 2009//
+/BTHandshaker.java/1.12/Sat Jan  3 19:33:56 2009//
+/IncomingBTHandshaker.java/1.7/Sat Jan  3 19:33:56 2009//
+/IncomingConnectionHandler.java/1.6/Sat Jan  3 19:33:56 2009//
+/OutgoingBTHandshaker.java/1.5/Sat Jan  3 19:33:56 2009//

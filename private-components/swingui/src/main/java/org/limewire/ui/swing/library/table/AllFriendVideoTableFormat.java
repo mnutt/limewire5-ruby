@@ -11,7 +11,7 @@ public class AllFriendVideoTableFormat <T extends RemoteFileItem> extends Remote
     static final int FROM_INDEX = 11;
     
     public AllFriendVideoTableFormat() {
-        super(new ColumnStateInfo[] {
+        super("ALL_LIBRARY_VIDEO_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "ALL_LIBRARY_VIDEO_NAME", I18n.tr("Name"), 296, true, true),     
                 new ColumnStateInfo(EXTENSION_INDEX, "ALL_LIBRARY_VIDEO_EXTENSION", I18n.tr("Extension"), 44, true, true), 
                 new ColumnStateInfo(LENGTH_INDEX, "ALL_LIBRARY_VIDEO_LENGTH", I18n.tr("Length"), 34, true, true), 

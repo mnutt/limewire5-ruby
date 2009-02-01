@@ -40,6 +40,11 @@ public class SaveLocationException extends IOException {
          */
         PATH_NAME_TOO_LONG,
         
+        /**
+         * Thrown when trying to open a torrent file that is too large.
+         */
+        TORRENT_FILE_TOO_LARGE
+        
     }
     
     /**

@@ -8,6 +8,7 @@ import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.FileUtils;
@@ -24,12 +25,12 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
     static final int AUTHOR_INDEX = 5;
     static final int DESCRIPTION_INDEX = 6;
     
-    public RemoteDocumentTableFormat(ColumnStateInfo[] columnInfo) {
-        super(columnInfo);
+    public RemoteDocumentTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo) {
+        super(sortID, sortedColumn, isAscending, columnInfo);
     }
     
     public RemoteDocumentTableFormat() {
-        super(new ColumnStateInfo[] {
+        super("REMOTE_LIBRARY_DOCUMENT_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_DOCUMENT_NAME", I18n.tr("Name"), 417, true, true), 
                 new ColumnStateInfo(TYPE_INDEX, "REMOTE_LIBRARY_DOCUMENT_TYPE", I18n.tr("Type"), 170, true, true),     
                 new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_DOCUMENT_EXTENSION", I18n.tr("Extension"), 78, true, true), 
@@ -56,10 +57,14 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
 
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
-                new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
-                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                    new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
+                    new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
 
     @Override

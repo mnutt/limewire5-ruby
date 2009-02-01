@@ -12,7 +12,7 @@ import org.limewire.http.auth.ServerAuthState;
 import org.limewire.util.BaseTestCase;
 
 import com.limegroup.gnutella.library.FileManager;
-import com.limegroup.gnutella.library.SharedFileList;
+import com.limegroup.gnutella.library.FriendFileList;
 import com.limegroup.gnutella.uploader.HttpException;
 
 public class FriendFileListProviderTest extends BaseTestCase {
@@ -40,7 +40,7 @@ public class FriendFileListProviderTest extends BaseTestCase {
     public void testGetListsForValidUserId() throws Exception {
         context.checking(new Expectations() {{
             one(fileManager).getFriendFileList("me@you.com");
-            will(returnValue(context.mock(SharedFileList.class)));
+            will(returnValue(context.mock(FriendFileList.class)));
         }});
         
         HttpContext httpContext = new BasicHttpContext();

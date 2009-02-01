@@ -16,7 +16,7 @@ public class ViewFileInfoAction extends AbstractAction {
     private final LocalFileItem localFileItem;
     
     public ViewFileInfoAction(LocalFileItem localFileItem, PropertiesFactory<LocalFileItem> propertiesFactory) {
-        super(I18n.tr("View File Info"));
+        super(I18n.tr("View File Info..."));
         this.propertiesFactory = propertiesFactory;
         this.localFileItem = localFileItem;
     }

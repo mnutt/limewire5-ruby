@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -15,23 +14,24 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.JXLabel;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.core.settings.SharingSettings;
-import org.limewire.player.api.AudioPlayer;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.BackAction;
+import org.limewire.ui.swing.components.HeaderBar;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeComboBox;
-import org.limewire.ui.swing.components.LimeComboBoxFactory;
-import org.limewire.ui.swing.components.LimeHeaderBar;
-import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.components.decorators.ButtonDecorator;
+import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
+import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
 import org.limewire.ui.swing.dock.DockIcon;
 import org.limewire.ui.swing.dock.DockIconFactory;
 import org.limewire.ui.swing.downloads.table.DownloadStateMatcher;
-import org.limewire.ui.swing.util.ButtonDecorator;
+import org.limewire.ui.swing.painter.TextShadowPainter;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.EventList;
@@ -46,7 +46,7 @@ import com.google.inject.Singleton;
 public class MainDownloadPanel extends JPanel {
 	
     private final ButtonDecorator buttonDecorator;
-    private final LimeComboBoxFactory comboBoxFactory;
+    private final ComboBoxDecorator comboBoxDecorator;
     
     public static final String NAME = "MainDownloadPanel";
 	private final CardLayout cardLayout;
@@ -56,7 +56,7 @@ public class MainDownloadPanel extends JPanel {
 	
 	private final DownloadMediator downloadMediator;
 	
-	private final LimeHeaderBar settingsPanel;
+	private final HeaderBar settingsPanel;
     
 	private LimeComboBox moreButton;
     private JXButton clearFinishedNowButton;
@@ -125,15 +125,15 @@ public class MainDownloadPanel extends JPanel {
 	@Inject
 	public MainDownloadPanel(AllDownloadPanelFactory allDownloadPanelFactory, 
 	        CategoryDownloadPanelFactory categoryDownloadPanelFactory,
-	        DownloadMediator downloadMediator, AudioPlayer player,
-	        LimeHeaderBarFactory headerBarFactory, LimeComboBoxFactory comboBoxFactory,
+	        DownloadMediator downloadMediator,
+	        HeaderBarDecorator headerBarDecorator, ComboBoxDecorator comboBoxFactory,
 	        ButtonDecorator buttonDecorator, DockIconFactory dockIconFactory,
 	        BackAction backAction) {
 	    
 	    
 		this.downloadMediator = downloadMediator;
 		this.buttonDecorator = buttonDecorator;
-		this.comboBoxFactory = comboBoxFactory;
+		this.comboBoxDecorator = comboBoxFactory;
 		
 		dock = dockIconFactory.createDockIcon();
 		
@@ -159,10 +159,18 @@ public class MainDownloadPanel extends JPanel {
 		
 		JPanel headerTitlePanel = new JPanel(new MigLayout("insets 0, gap 0, fill, aligny center"));
         headerTitlePanel.setOpaque(false);        
-        JLabel titleTextLabel = new JLabel(I18n.tr("Downloads"));        
-        headerTitlePanel.add(new IconButton(backAction), "gapafter 6");
+        JXLabel titleTextLabel = new JXLabel(I18n.tr("Downloads"));
+        titleTextLabel.setForegroundPainter(new TextShadowPainter());
+        IconButton backButton = new IconButton(backAction);
+        backButton.removeActionHandListener();
+        backButton.setRolloverEnabled(true);        
+        headerTitlePanel.add(backButton, "gapafter 6, gapbottom 1");
         headerTitlePanel.add(titleTextLabel, "gapbottom 2");        
-        settingsPanel = headerBarFactory.createBasic(headerTitlePanel, titleTextLabel);
+        
+        settingsPanel = new HeaderBar(headerTitlePanel);
+        settingsPanel.linkTextComponent(titleTextLabel);
+        headerBarDecorator.decorateBasic(settingsPanel);
+        
         this.initHeader();
 		add(settingsPanel, BorderLayout.NORTH);
 		
@@ -202,11 +210,12 @@ public class MainDownloadPanel extends JPanel {
 	}
 	
 	private void initHeader() {
-	    moreButton = new LimeComboBox();
 	    clearFinishedNowButton = new JXButton(clearFinishedNowAction);
-	    
 	    buttonDecorator.decorateDarkFullButton(clearFinishedNowButton);
-	    comboBoxFactory.decorateDarkMiniComboBox(moreButton, I18n.tr("more"));
+	    
+	    moreButton = new LimeComboBox();
+	    comboBoxDecorator.decorateDarkFullComboBox(moreButton);
+	    moreButton.setText(I18n.tr("more"));
 
 	    categoriseCheckBox = new JCheckBoxMenuItem(categorizeAction);
 	    clearFinishedCheckBox = new JCheckBoxMenuItem(clearFinishedAction);

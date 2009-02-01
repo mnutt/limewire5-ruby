@@ -19,10 +19,8 @@ import net.miginfocom.swing.MigLayout;
 import org.bushe.swing.event.annotation.EventSubscriber;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.AbstractPainter;
-import org.jdesktop.swingx.painter.Painter;
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
@@ -42,7 +40,6 @@ import org.limewire.ui.swing.util.EnabledListener;
 import org.limewire.ui.swing.util.EnabledListenerList;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.ui.swing.util.VisibilityListener;
 import org.limewire.ui.swing.util.VisibilityListenerList;
 import org.limewire.ui.swing.util.VisibleComponent;
@@ -74,6 +71,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     
     private UnseenMessageListener unseenMessageListener;
     private String lastSelectedConversationFriendId;
+    private String mostRecentConversationFriendId;
     private JXPanel borderPanel;
     
     @Resource private Color border;
@@ -144,7 +142,6 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         mainPanel.setVisible(shouldDisplay);
         setVisible(shouldDisplay);
         if (shouldDisplay) {
-            unseenMessageListener.clearUnseenMessages();
             getDisplayable().handleDisplay();
             new PanelDisplayedEvent(this).publish();
         }
@@ -168,9 +165,16 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     
     @RuntimeTopicPatternEventSubscriber(methodName="getMessagingTopicPatternName")
     public void handleMessageReceived(String topic, MessageReceivedEvent event) {
+        if (event.getMessage().getType() != Message.Type.Sent) {
+            String messageFriendID = event.getMessage().getFriendID();
+            mostRecentConversationFriendId = messageFriendID;
+            notifyUnseenMessageListener(event);
+            if(isVisible()) {
+                chatFriendListPane.markActiveConversationRead();
+            }
+        }
         if (event.getMessage().getType() != Message.Type.Sent &&
              (!GuiUtils.getMainFrame().isActive() || !isVisible())) {
-            notifyUnseenMessageListener(event);
             LOG.debug("Sending a message to the tray notifier");
             notifier.showMessage(getNoticeForMessage(event));
             
@@ -183,7 +187,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     
     private void notifyUnseenMessageListener(MessageReceivedEvent event) {
         String messageFriendID = event.getMessage().getFriendID();
-        if (!messageFriendID.equals(lastSelectedConversationFriendId)) {
+        if (!messageFriendID.equals(lastSelectedConversationFriendId) || !isVisible()) {
             unseenMessageListener.messageReceivedFrom(messageFriendID, isVisible());
         }
     }
@@ -204,6 +208,10 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     public void handleChatClosed(CloseChatEvent event) {
         if (event.getFriend().getID().equals(lastSelectedConversationFriendId)) {
             lastSelectedConversationFriendId = null;
+        }
+        
+        if (event.getFriend().getID().equals(mostRecentConversationFriendId)) {
+            mostRecentConversationFriendId = null;
         }
         borderPanel.invalidate();
         borderPanel.repaint();
@@ -250,6 +258,8 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         setChatPanelVisible(false);
         setActionEnabled(false);
         lastSelectedConversationFriendId = null;
+        mostRecentConversationFriendId = null;
+        unseenMessageListener.clearUnseenMessages();
     }
 
     private void removeChatPanel() {
@@ -285,6 +295,13 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
 
     @Override
     public void setVisibility(boolean visible) {
+        if(visible) {
+        	//make the most recent conversation the active one when opening the chat window
+            if(mostRecentConversationFriendId != null) {
+                chatFriendListPane.fireConversationStarted(mostRecentConversationFriendId);
+            }
+            chatFriendListPane.markActiveConversationRead();
+        }
         setChatPanelVisible(visible);
         visibilityListenerList.visibilityChanged(visible);
     }
@@ -322,6 +339,12 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         }
     }
     
+    /**
+     * Returns the last selected friend id. Or null if none is selected. 
+     */
+    public String getLastSelectedConversationFriendId() {
+        return lastSelectedConversationFriendId;
+    }
     
     private class ChatPanelPainter extends AbstractPainter {
 
@@ -336,51 +359,6 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
             g.drawLine(0, 0, 0, height-1);
             g.drawLine(0, 0, width-1, 0);
             g.drawLine(width-1, 0, width-1, height-1);
-        }
-    }
-    
-    
-    /**
-     * Gets a button painter that can be used to sync the contents of this panel with a button
-     */
-    public Painter<JXButton> getChatButtonPainter() {
-        return new ChatButtonPainter();
-    }
-    
-    private class ChatButtonPainter extends AbstractPainter<JXButton> {
-
-        @Resource private Color rolloverBackground = PainterUtils.TRASPARENT;
-        @Resource private Color activeBackground = PainterUtils.TRASPARENT;
-        @Resource private Color activeBorder = PainterUtils.TRASPARENT;
-        
-        public ChatButtonPainter() {
-            
-            GuiUtils.assignResources(this);
-            
-            setCacheable(false);
-            setAntialiasing(true);
-        }
-        
-        @Override
-        protected void doPaint(Graphics2D g, JXButton object, int width, int height) {
-            if (ChatFramePanel.this.isVisible()) {
-                g.setPaint(activeBackground);
-                g.fillRect(0, 0, width, height);
-                g.setPaint(activeBorder);
-                g.drawLine(0, 0, 0, height-1);
-                g.drawLine(0, height-1, width-1, height-1);
-                g.drawLine(width-1, 0, width-1, height-1);
-                
-                if (lastSelectedConversationFriendId != null) {
-                    g.setPaint(border);
-                    g.drawLine(0,0,width-1,0);
-                }
-            } else if (object.getModel().isRollover()) {
-                g.setPaint(rolloverBackground);
-                g.fillRect(0, 2, width-1, height-2);
-                g.setPaint(activeBorder);
-                g.drawLine(0, 1, 0, height-1);
-            }
         }
     }
 }

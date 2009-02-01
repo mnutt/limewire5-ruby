@@ -9,7 +9,9 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 
 import org.limewire.core.settings.SharingSettings;
+import org.limewire.io.IOUtils;
 import org.limewire.ui.swing.components.FocusJOptionPane;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.OSUtils;
@@ -19,11 +21,6 @@ import org.limewire.util.OSUtils;
 public final class SaveDirectoryHandler {    
 
     private SaveDirectoryHandler() {} 
-    
-    public static enum ValidationResult {
-        VALID, BAD_PERMS, BAD_VISTA, BAD_BANNED, BAD_SENSITIVE;
-    }
-
 
     /**
      * Ensures that the current save directory is valid,
@@ -121,8 +118,7 @@ public final class SaveDirectoryHandler {
         
         RandomAccessFile testRAFile = null;
         try {
-            testRAFile = new RandomAccessFile(testFile, "rw");
-         
+            testRAFile = new RandomAccessFile(testFile, "rw");         
             // Try to write something just to make extra sure we're OK.
             testRAFile.write(7);
             testRAFile.close();
@@ -136,10 +132,7 @@ public final class SaveDirectoryHandler {
         } finally {
             // Delete our test file.
             testFile.delete();
-            try {
-                if(testRAFile != null)
-                    testRAFile.close();
-            } catch (IOException ignored) {}
+            IOUtils.close(testRAFile);
         }
         
         return FileUtils.canWrite(saveDir);
@@ -162,10 +155,28 @@ public final class SaveDirectoryHandler {
     private static boolean showVistaWarningIfNeeded(File f) {
         if (isGoodVistaDirectory(f))
             return true;
-        return FocusJOptionPane.showOptionDialog(GuiUtils.getMainFrame(), 
-                I18n.tr("Saving downloads to {0} may not function correctly.\nTo be sure downloads are saved properly you should save them to a sub-folder of\n{1}.\nWould you like to choose another location?",
-                f, CommonUtils.getUserHomeDir()), I18n.tr("Folder Warning"), JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE, null, 
-                null, JOptionPane.YES_OPTION) == JOptionPane.NO_OPTION;
+        
+        if(SwingUiSettings.VISTA_WARN_DIRECTORIES.contains(f)) {
+            return true;
+        }
+        
+        int ret = FocusJOptionPane
+                .showOptionDialog(
+                        GuiUtils.getMainFrame(),
+                        I18n.tr("Saving downloads to {0} may not function correctly.\nTo be sure downloads are saved properly you should save them to a sub-folder of\n{1}.\nWould you like to choose another location?",
+                                f, CommonUtils.getUserHomeDir()),
+                        I18n.tr("Folder Warning"),
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        null,
+                        JOptionPane.YES_OPTION);
+        
+        if(ret == JOptionPane.NO_OPTION) {
+            SwingUiSettings.VISTA_WARN_DIRECTORIES.add(f);
+        }
+        
+        return ret == JOptionPane.NO_OPTION;
     }
 }
 

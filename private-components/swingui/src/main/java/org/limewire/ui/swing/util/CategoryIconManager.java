@@ -13,8 +13,6 @@ import com.google.inject.Singleton;
 @Singleton
 public class CategoryIconManager {
     
-    public static enum Size { LARGE, SMALL };
-    
     private Icon audioIcon;
     private Icon imageIcon;
     private Icon videoIcon;
@@ -41,69 +39,28 @@ public class CategoryIconManager {
     @Resource
     private Icon smallOtherIcon;
     
-    @Resource
-    private Icon largeAudioIcon;
-    @Resource
-    private Icon largeImageIcon;
-    @Resource
-    private Icon largeVideoIcon;
-    @Resource
-    private Icon largeProgramIconWinVista;
-    @Resource
-    private Icon largeProgramIconWinXP;
-    @Resource
-    private Icon largeProgramIconOSX;
-    @Resource
-    private Icon largeProgramIconLinux;
-    @Resource
-    private Icon largeDocumentIcon;
-    @Resource
-    private Icon largeOtherIcon;
-
     public static CategoryIconManager createTestingCategoryIconManager() {
         return new CategoryIconManager();
     }
     
     @Inject
     CategoryIconManager() {
-        this(Size.SMALL);
-    }
-    
-    CategoryIconManager(Size size) {
         GuiUtils.assignResources(this);
         
-        if (size == Size.LARGE) {
-            audioIcon = largeAudioIcon;
-            imageIcon = largeImageIcon;
-            videoIcon = largeVideoIcon;
-            documentIcon = largeDocumentIcon;
-            otherIcon = largeOtherIcon;
+        audioIcon = smallAudioIcon;
+        imageIcon = smallImageIcon;
+        videoIcon = smallVideoIcon;
+        documentIcon = smallDocumentIcon;
+        otherIcon = smallOtherIcon;
             
-            if (OSUtils.isAnyMac()) {
-                programIcon = largeProgramIconOSX;
-            } else if (OSUtils.isWindowsVista()) {
-                programIcon = largeProgramIconWinVista;
-            } else if (OSUtils.isWindowsXP()) {
-                programIcon = largeProgramIconWinXP;
-            } else {
-                programIcon = largeProgramIconLinux;
-            }
+        if (OSUtils.isMacOSX()) {
+            programIcon = smallProgramIconOSX;
+        } else if (OSUtils.isWindowsVista()) {
+            programIcon = smallProgramIconWinVista;
+        } else if (OSUtils.isWindowsXP()) {
+            programIcon = smallProgramIconWinXP;
         } else {
-            audioIcon = smallAudioIcon;
-            imageIcon = smallImageIcon;
-            videoIcon = smallVideoIcon;
-            documentIcon = smallDocumentIcon;
-            otherIcon = smallOtherIcon;
-            
-            if (OSUtils.isAnyMac()) {
-                programIcon = smallProgramIconOSX;
-            } else if (OSUtils.isWindowsVista()) {
-                programIcon = smallProgramIconWinVista;
-            } else if (OSUtils.isWindowsXP()) {
-                programIcon = smallProgramIconWinXP;
-            } else {
-                programIcon = smallProgramIconLinux;
-            }
+            programIcon = smallProgramIconLinux;
         }
     }
     

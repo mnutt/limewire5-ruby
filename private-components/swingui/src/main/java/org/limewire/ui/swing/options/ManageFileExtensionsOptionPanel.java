@@ -11,9 +11,7 @@ import org.limewire.ui.swing.options.actions.OKDialogAction;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 public class ManageFileExtensionsOptionPanel extends OptionPanel {
 
     private final JButton okButton;
@@ -23,6 +21,7 @@ public class ManageFileExtensionsOptionPanel extends OptionPanel {
 
     @Inject
     public ManageFileExtensionsOptionPanel(FileTypeOptionPanelManager fileTypeOptionPanelManager) {
+        
         this.manager = fileTypeOptionPanelManager;
         
         this.setLayout(new MigLayout("gapy 10, nogrid, fill"));

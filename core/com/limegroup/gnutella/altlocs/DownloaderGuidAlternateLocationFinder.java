@@ -15,18 +15,18 @@ import com.google.inject.name.Named;
 import com.limegroup.gnutella.DownloadManagerEvent;
 import com.limegroup.gnutella.PushEndpoint;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.dht.db.PushEndpointService;
 import com.limegroup.gnutella.dht.db.SearchListener;
 import com.limegroup.gnutella.downloader.CoreDownloader;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.gnutella.downloader.MagnetDownloader;
 
 /**
  * Listens for {@link DownloadManagerEvent} and registers itself as an event listener
  * on {@link MagnetDownloader}. After registration and when a downloader goes into
- * {@link DownloadStatus#QUEUED}, it will peform a search for alternate locations
+ * {@link DownloadState#QUEUED}, it will peform a search for alternate locations
  * asking its {@link PushEndpointManagerImpl} for endpoints.
  * <p>
  * Push endpoints where the external address and port equal its only push proxy
@@ -45,8 +45,8 @@ public class DownloaderGuidAlternateLocationFinder implements EventListener<Down
     /**
      * Package access for testing.
      */
-    final EventListener<DownloadStatusEvent> downloadStatusListener = new EventListener<DownloadStatusEvent>() { 
-        public void handleEvent(DownloadStatusEvent event) {
+    final EventListener<DownloadStateEvent> downloadStatusListener = new EventListener<DownloadStateEvent>() { 
+        public void handleEvent(DownloadStateEvent event) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("per download event received: " + event);
             }
@@ -108,7 +108,7 @@ public class DownloaderGuidAlternateLocationFinder implements EventListener<Down
         searchForPushEndpoints(sha1Urn, magnet.getGUIDUrns());
     }
     
-    void handleStatusEvent(DownloadStatusEvent event) {
+    void handleStatusEvent(DownloadStateEvent event) {
         switch (event.getType()) {
         case GAVE_UP:
         case WAITING_FOR_USER:

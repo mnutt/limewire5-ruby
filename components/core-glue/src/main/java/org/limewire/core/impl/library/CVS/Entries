@@ -1,16 +1,16 @@
-/CoreGlueLibraryModule.java/1.17/Tue Nov  4 20:51:40 2008//
-/CoreLocalFileItemFactory.java/1.1/Sun Oct 19 06:09:53 2008//
-/CoreRemoteFileItem.java/1.14/Mon Dec 15 05:55:12 2008//
-/FriendLibraries.java/1.30/Mon Jan 12 23:41:00 2009//
-/FriendLibraryAutoCompleter.java/1.5/Mon Dec 15 02:20:25 2008//
-/FriendSearcher.java/1.6/Mon Jan 12 23:41:00 2009//
 /LocalFileListImpl.java/1.9/Result of merge//
-/MagnetLinkFactoryImpl.java/1.1/Thu Oct 16 18:45:37 2008//
-/MetaDataManagerImpl.java/1.6/Mon Jan 12 23:41:01 2009//
-/PresenceLibraryBrowser.java/1.28/Mon Jan 12 23:41:01 2009//
-/RemoteLibraryManagerImpl.java/1.19/Mon Jan 12 23:41:01 2009//
-/ShareListManagerImpl.java/1.23/Mon Jan 12 23:41:01 2009//
-/AbstractFriendFileList.java/1.2/Thu Jan 15 03:58:28 2009//
-/CoreLocalFileItem.java/1.36/Thu Jan 22 05:07:35 2009//
-/LibraryManagerImpl.java/1.66/Thu Jan 22 05:07:35 2009//
+/AbstractFriendFileList.java/1.2/Fri Jan 16 05:07:08 2009//
+/CoreGlueLibraryModule.java/1.17/Sat Jan  3 19:33:54 2009//
+/CoreLocalFileItem.java/1.37/Sun Feb  1 00:45:56 2009//
+/CoreLocalFileItemFactory.java/1.1/Sat Jan  3 19:33:54 2009//
+/CoreRemoteFileItem.java/1.14/Sat Jan  3 19:33:54 2009//
+/FriendLibraries.java/1.30/Fri Jan 16 05:07:08 2009//
+/FriendLibraryAutoCompleter.java/1.5/Sat Jan  3 19:33:54 2009//
+/FriendSearcher.java/1.6/Fri Jan 16 05:07:08 2009//
+/LibraryManagerImpl.java/1.66/Sat Jan 31 18:30:17 2009//
+/MagnetLinkFactoryImpl.java/1.1/Sat Jan  3 19:33:54 2009//
+/MetaDataManagerImpl.java/1.7/Sun Feb  1 00:45:56 2009//
+/PresenceLibraryBrowser.java/1.29/Sun Feb  1 00:45:56 2009//
+/RemoteLibraryManagerImpl.java/1.19/Fri Jan 16 05:07:08 2009//
+/ShareListManagerImpl.java/1.23/Fri Jan 16 05:07:08 2009//
 D

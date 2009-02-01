@@ -24,6 +24,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.Painter;
+import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.assistedinject.Assisted;
@@ -35,7 +36,7 @@ import com.google.inject.assistedinject.AssistedInject;
  */
 public class FancyTabList extends JXPanel {
     
-    private final LimeComboBoxFactory comboBoxFactory;
+    private final ComboBoxDecorator comboBoxDecorator;
     
     private final List<FancyTab> tabs = new ArrayList<FancyTab>();
     private final ButtonGroup tabGroup = new ButtonGroup();
@@ -49,8 +50,8 @@ public class FancyTabList extends JXPanel {
     private int maxVisibleTabs;
         
     @AssistedInject
-    FancyTabList(@Assisted Iterable<? extends TabActionMap> actionMaps, LimeComboBoxFactory comboBoxFactory) {
-        this.comboBoxFactory = comboBoxFactory;
+    FancyTabList(@Assisted Iterable<? extends TabActionMap> actionMaps, ComboBoxDecorator comboBoxDecorator) {
+        this.comboBoxDecorator = comboBoxDecorator;
         
         setOpaque(false);
         setLayout(new MigLayout("insets 0, gap 0, filly, hidemode 2"));  
@@ -66,7 +67,7 @@ public class FancyTabList extends JXPanel {
     }
     
     @AssistedInject
-    FancyTabList(LimeComboBoxFactory comboBoxFactory, @Assisted TabActionMap... actionMaps) {
+    FancyTabList(ComboBoxDecorator comboBoxFactory, @Assisted TabActionMap... actionMaps) {
         this(Arrays.asList(actionMaps), comboBoxFactory);
     }
 
@@ -273,7 +274,8 @@ public class FancyTabList extends JXPanel {
         if (tabs.size() > maxVisibleTabs) {
             
             FancyTabMoreButton more = new FancyTabMoreButton(tabs);
-            comboBoxFactory.decorateMiniComboBox(more, I18n.tr("more"));
+            comboBoxDecorator.decorateMiniComboBox(more);
+            more.setText(I18n.tr("more"));
             more.setFont(props.getTextFont());
             
             add(more);

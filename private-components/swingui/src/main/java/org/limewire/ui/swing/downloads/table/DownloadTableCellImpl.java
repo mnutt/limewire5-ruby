@@ -28,7 +28,7 @@ import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeProgressBar;
-import org.limewire.ui.swing.components.LimeProgressBarFactory;
+import org.limewire.ui.swing.components.decorators.ProgressBarDecorator;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -40,7 +40,7 @@ import com.google.inject.assistedinject.AssistedInject;
 public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell {
 
     private final CategoryIconManager categoryIconManager;
-    private final LimeProgressBarFactory progressBarFactory;
+    private final ProgressBarDecorator progressBarDecorator;
     
     private CardLayout statusViewLayout;
     private final static String FULL_LAYOUT = "Full download display";
@@ -81,12 +81,13 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
     private ActionListener editorListener = null;
     
     @AssistedInject
-    public DownloadTableCellImpl(CategoryIconManager categoryIconManager, LimeProgressBarFactory progressBarFactory) {
+    public DownloadTableCellImpl(CategoryIconManager categoryIconManager,
+            ProgressBarDecorator progressBarDecorator) {
         
         GuiUtils.assignResources(this);
 
         this.categoryIconManager = categoryIconManager;
-        this.progressBarFactory = progressBarFactory;
+        this.progressBarDecorator = progressBarDecorator;
         
         initComponents();
     }
@@ -152,7 +153,8 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         fullStatusLabel.setFont(statusFontPlainFull);
         fullStatusLabel.setForeground(statusLabelColour);
         
-        fullProgressBar = progressBarFactory.create(0, 100);
+        fullProgressBar = new LimeProgressBar(0, 100);
+        progressBarDecorator.decoratePlain(fullProgressBar);        
         Dimension size = new Dimension(progressBarWidth, 16);
         fullProgressBar.setMaximumSize(size);
         fullProgressBar.setMinimumSize(size);
@@ -376,6 +378,8 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         
         editor.fullIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
         editor.fullTitleLabel.setText(item.getTitle());
+        editor.fullTimeLabel.setForeground(statusLabelColour);
+        editor.fullTimeLabel.setFont(statusFontPlainFull);
         
         if (item.getTotalSize() != 0) {
             editor.fullProgressBar.setValue((int)(100 * item.getCurrentSize()/item.getTotalSize()));
@@ -392,7 +396,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
             editor.fullTimeLabel.setVisible(false);
         }
         else {
-            editor.fullTimeLabel.setText(CommonUtils.seconds2time(item.getRemainingDownloadTime()));
+            editor.fullTimeLabel.setText(I18n.tr("{0} left", CommonUtils.seconds2time(item.getRemainingDownloadTime())));
             editor.fullTimeLabel.setVisible(item.getState() == DownloadState.DOWNLOADING);
         }
                  
@@ -503,7 +507,11 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
                     GuiUtils.rate2speed(item.getDownloadSpeed()), 
                     item.getDownloadSourceCount());
         case STALLED:
-            return I18n.tr("Stalled - ");
+            return I18n.tr("Stalled - {0} of {1} ({2}%). - ", 
+                    GuiUtils.toUnitbytes(item.getCurrentSize()),
+                    GuiUtils.toUnitbytes(item.getTotalSize()),
+                    item.getPercentComplete()
+                    );
         case ERROR:         
             return I18n.tr("Unable to download: ");
         case PAUSED:
@@ -521,7 +529,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
                     "Waiting - {0} in line",
                     item.getQueuePosition(), item.getQueuePosition());
         default:
-            throw new IllegalArgumentException("Unknown DownloadState: " + item.getState());
+            return null;
         }
         
     }

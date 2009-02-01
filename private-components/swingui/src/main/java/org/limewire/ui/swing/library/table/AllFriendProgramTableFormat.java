@@ -11,7 +11,7 @@ public class AllFriendProgramTableFormat <T extends RemoteFileItem> extends Remo
     static final int FROM_INDEX = 6;
     
     public AllFriendProgramTableFormat() {
-        super(new ColumnStateInfo[] {
+        super("ALL_LIBRARY_PROGRAM_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "ALL_LIBRARY_PROGRAM_NAME", I18n.tr("Name"), 400, true, true),     
                 new ColumnStateInfo(SIZE_INDEX, "ALL_LIBRARY_PROGRAM_SIZE", I18n.tr("Size"), 60, true, true), 
                 new ColumnStateInfo(EXTENSION_INDEX, "ALL_LIBRARY_PROGRAM_EXTENSION", I18n.tr("Extension"), 60, true, true), 

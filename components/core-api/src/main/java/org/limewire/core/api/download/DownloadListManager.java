@@ -74,5 +74,8 @@ public interface DownloadListManager extends ResultDownloader {
      * Returns a download item for the given URN if any, null is returned otherwise. 
      */
     DownloadItem getDownloadItem(URN urn);
+
+    /**Removes download item from the list*/
+    public void remove(DownloadItem item);
     
 }

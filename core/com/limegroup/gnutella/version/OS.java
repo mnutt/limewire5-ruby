@@ -167,13 +167,13 @@ class OS {
         if("windows".equals(s))
             return OSUtils.isWindows();
         else if("mac".equals(s))
-            return OSUtils.isAnyMac();
+            return OSUtils.isMacOSX();
         else if("linux".equals(s))
             return OSUtils.isLinux();
         else if("unix".equals(s))
             return OSUtils.isUnix() && !OSUtils.isLinux();
         else if("other".equals(s))
-            return !OSUtils.isWindows() && !OSUtils.isAnyMac() &&
+            return !OSUtils.isWindows() && !OSUtils.isMacOSX() &&
                    !OSUtils.isUnix() && !OSUtils.isLinux();
         else if("*".equals(s))
             return true;

@@ -112,7 +112,7 @@ public class DownloadOptionPanel extends OptionPanel {
             add(autoRenameDuplicateFilesCheckBox, "gapleft 25, split 2, wrap");
             
             add(shareCompletedDownloadsCheckBox, "split 3, wrap");
-            if(OSUtils.isAnyMac() || OSUtils.isWindows()) {
+            if(OSUtils.isMacOSX() || OSUtils.isWindows()) {
                 add(addToITunesCheckBox, "split 3, wrap");
             }
         }
@@ -141,7 +141,7 @@ public class DownloadOptionPanel extends OptionPanel {
             SharingSettings.SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES.setValue(shareCompletedDownloadsCheckBox.isSelected());
             SharingSettings.ALLOW_PARTIAL_SHARING.setValue(shareCompletedDownloadsCheckBox.isSelected());
             
-            if(OSUtils.isAnyMac() || OSUtils.isWindows()) {
+            if(OSUtils.isMacOSX() || OSUtils.isWindows()) {
                 iTunesSettings.ITUNES_SUPPORT_ENABLED.setValue(addToITunesCheckBox.isSelected());
             }
             return false;
@@ -152,7 +152,7 @@ public class DownloadOptionPanel extends OptionPanel {
             return  !currentSaveDirectory.equals(downloadSaveTextField.getText()) 
                     || SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.getValue() != autoRenameDuplicateFilesCheckBox.isSelected()
                     || SharingSettings.SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES.getValue() != shareCompletedDownloadsCheckBox.isSelected()
-                    || (OSUtils.isAnyMac() || OSUtils.isWindows()) ? iTunesSettings.ITUNES_SUPPORT_ENABLED.getValue() != addToITunesCheckBox.isSelected() : false;
+                    || (OSUtils.isMacOSX() || OSUtils.isWindows()) ? iTunesSettings.ITUNES_SUPPORT_ENABLED.getValue() != addToITunesCheckBox.isSelected() : false;
         }
 
         @Override
@@ -180,7 +180,7 @@ public class DownloadOptionPanel extends OptionPanel {
             
             shareCompletedDownloadsCheckBox.setSelected(SharingSettings.SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES.getValue());
             
-            if(OSUtils.isAnyMac() || OSUtils.isWindows()) {
+            if(OSUtils.isMacOSX() || OSUtils.isWindows()) {
                 addToITunesCheckBox.setSelected(iTunesSettings.ITUNES_SUPPORT_ENABLED.getValue());
             }
         }

@@ -12,7 +12,13 @@ import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;
 
-/**Not thread safe*/
+/**A sorted list that can be filtered using <code>setFilterText(String[] strings)</code>.  Gnutella is always
+ * included in the list, regardless of the filter strings. 
+ * 
+ * The order of the list depends on whether or not the list is filtered.  When the list is unfiltered, Gnutella 
+ * is first in the list.  When filtered, Gnutella is last.
+ * 
+ * <p>This class is not thread safe*/
 class GnutellaFilteredList extends CompositeList<SharingTarget>{
     private EventList<SharingTarget> noShareFriendList;
     private EventList<SharingTarget> filteredNoShareFriendList;
@@ -21,12 +27,10 @@ class GnutellaFilteredList extends CompositeList<SharingTarget>{
     private TextMatcherEditor<SharingTarget> textMatcher;
     private Matcher<SharingTarget> gnutellaMatcher;
     
-    private boolean listsInitialized = false;
     
     
     public GnutellaFilteredList() {
         setupSubLists();
-        listsInitialized = true;
     }
     
     private void setupSubLists() {
@@ -54,8 +58,8 @@ class GnutellaFilteredList extends CompositeList<SharingTarget>{
         };
         filteredNoShareGnutellaList = GlazedListsFactory.filterList(noShareGnutellaList, gnutellaMatcher);            
         
-        addMemberList(filteredNoShareFriendList);
-        addMemberList(filteredNoShareGnutellaList);
+        super.addMemberList(filteredNoShareFriendList);
+        super.addMemberList(filteredNoShareGnutellaList);
     }
 
     public void addMatcherEditorListener(MatcherEditor.Listener<SharingTarget> listener) {
@@ -85,11 +89,7 @@ class GnutellaFilteredList extends CompositeList<SharingTarget>{
     
     @Override
     public void addMemberList(EventList<SharingTarget> list) {
-        //can not add new lists once initialized
-        if(listsInitialized){
-            throw new UnsupportedOperationException("Can not add Lists to GnutellaFilteredList");
-        }
-        super.addMemberList(list);
+        throw new UnsupportedOperationException("Can not add Lists to GnutellaFilteredList");
     }
     
 }

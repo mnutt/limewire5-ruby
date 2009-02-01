@@ -1,0 +1,869 @@
+Application.id = LimeWire
+Application.vendorId = Lime Wire, LLC
+Application.title = LimeWire 5
+Application.lookAndFeel=default
+#NOI18N
+Application.vendor=LimeWire
+
+#Default background color for panels
+AppFrame.bgColor = 255,255,255
+AppFrame.frameIcon = icons/lime.png
+#color when frame is grayed out
+AppFrame.glassPaneColor = 255, 255, 255, 191
+#Icons for JFileChooser bug workaround
+AppFrame.upFolderVistaFixIcon = icons/upFolderVistaFix.png
+AppFrame.detailsViewVistaFixIcon = icons/detailsViewVistaFix.png
+AppFrame.listViewVistaFixIcon = icons/listViewVistaFix.png
+AppFrame.newFolderVistaFixIcon = icons/newFolderVistaFix.png
+
+#Setup wizard properties
+Wizard.size = 650, 490
+Wizard.border = #313131
+Wizard.background = #ffffff
+Wizard.titleBarBackground = #313131
+Wizard.titleBarForeground = #ffffff
+Wizard.titleBarBorder = #313131
+Wizard.titleBarFont = DIALOG-BOLD-13
+SetupComponentDecorator.headingFont = DIALOG-BOLD-14
+SetupComponentDecorator.normalFont = DIALOG-PLAIN-12
+SetupComponentDecorator.largeBox = icons/checkbox/box_large.png
+SetupComponentDecorator.largeBoxChecked = icons/checkbox/box_large_x.png
+SetupComponentDecorator.largeRadio = icons/checkbox/radio_large.png
+SetupComponentDecorator.largeRadioChecked = icons/checkbox/radio_large_selected.png
+SetupComponentDecorator.headerGradientTop = #f4f4f4
+SetupComponentDecorator.headerGradientBottom = #d7d7d7
+SetupComponentDecorator.headerTopBorder1 = #ffffff
+SetupComponentDecorator.headerBottomBorder1 = #696969
+SetupComponentDecorator.headerBottomBorder2 = #ffffff
+SetupComponentDecorator.greenButtonForeground = #313131
+SetupComponentDecorator.greenButtonFont = DIALOG-BOLD-14
+SetupComponentDecorator.backButtonFont = DIALOG-BOLD-14
+
+#The Top panel stuff
+WireframeTop.minimumSize=0, 41
+WireframeTop.maximumSize=99999999, 41
+WireframeTop.preferredSize=1024,41
+WireframeTop.SearchList.textFont = DIALOG-NORMAL-12
+WireframeTop.SearchList.tabTextColor = #2152a6
+WireframeTop.SearchList.tabTextSelectedColor = #FFFFFF
+WireframeTop.homeButton.icon = icons/home.png
+WireframeTop.homeButton.selectedIcon = icons/home_selected.png
+WireframeTop.homeButton.font = DIALOG-NORMAL-10
+WireframeTop.homeButton.foreground = 49,49,49
+WireframeTop.homeButton.minimumSize=40,40
+WireframeTop.homeButton.preferredSize=40,40
+WireframeTop.homeButton.maximumSize=40,40
+WireframeTop.webButton.icon = icons/web.png
+WireframeTop.webButton.selectedIcon = icons/web_disabled.png
+WireframeTop.webButton.font = Arial-NORMAL-10
+WireframeTop.webButton.foreground = 49,49,49
+WireframeTop.webButton.minimumSize=40,40
+WireframeTop.webButton.maximumSize=40,40
+WireframeTop.webButton.preferredSize=40,40
+WireframeTop.storeButton.icon = icons/store.png
+WireframeTop.storeButton.selectedIcon = icons/store_selected.png
+WireframeTop.storeButton.font = DIALOG-NORMAL-10
+WireframeTop.storeButton.foreground = 49,49,49
+WireframeTop.storeButton.minimumSize=40,40
+WireframeTop.storeButton.preferredSize=40,40
+WireframeTop.storeButton.maximumSize=40,40
+WireframeTop.libraryButton.font = DIALOG-NORMAL-10
+WireframeTop.libraryButton.foreground = 49,49,49
+WireframeTop.libraryButton.minimumSize = 40,40
+WireframeTop.libraryButton.preferredSize = 40, 40
+WireframeTop.libraryButton.maximumSize = 40,40
+
+#Properties for the pro add on the status bar
+ProStatusPanel.font = DIALOG-PLAIN-12
+
+#The friends signin label.
+FriendsSignIn.ShareLabel.font = DIALOG-BOLD-12
+
+#The status panel at the very bottom
+StatusPanel.height = 19
+
+ChatButton.font = DIALOG-PLAIN-11
+ChatButton.foreground = #313131
+ChatButtonPainter.rolloverBackground = #e6e6e6
+ChatButtonPainter.activeBorder = #696969
+ChatButtonPainter.activeBackground = #ffffff
+ChatButtonPainter.border = #313131
+ChatFramePanel.border = #313131
+
+#Icons to use in FancyTabs
+FancyTab.removeActiveIcon = icons/tab_x_hover.png
+FancyTab.removeActiveRolloverIcon = icons/tab_x_hover_active.png
+FancyTab.removeActivePressedIcon = icons/tab_x_down.png
+FancyTab.removeInactiveIcon = icons/tab_x.png
+FancyTab.removeInactiveRolloverIcon = icons/tab_x_hover.png
+FancyTab.removeInactivePressedIcon = icons/tab_x_down.png
+FancyTabMoreButton.selectedIcon = icons/dot.png
+
+#SubPanelPainter
+SubpanelPainter.borderColorTop = #919191
+SubpanelPainter.backgroundGradientTop = #787878
+SubpanelPainter.backgroundGradientBottom = #4c4c4c
+SubpanelPainter.borderColorBottom = #9b9b9b
+
+#The library area
+LibraryNavigator.myLibrary.panelIcon = icons/library.png
+LibraryNavigator.p2pNetwork.panelIcon = icons/sidebar_p2p.png
+LibraryNavigator.allFriends.panelIcon = icons/sidebar_all_friends.png
+LibraryNavigator.myLibrary.panelFont = DIALOG-BOLD-12
+LibraryNavigator.p2pNetwork.panelFont = DIALOG-BOLD-12
+LibraryNavigator.allFriends.panelFont = DIALOG-BOLD-12
+LibraryNavigator.myLibrary.fontColor = #000000
+LibraryNavigator.p2pNetwork.fontColor = #000000
+LibraryNavigator.allFriends.fontColor = #000000
+LibraryNavigator.myLibrary.selectedFontColor = #313131
+LibraryNavigator.p2pNetwork.selectedFontColor = #313131
+LibraryNavigator.allFriends.selectedFontColor = #313131
+LibraryNavigator.friendsScrollArea.background = #FFFFFF
+
+MyLibraryPanel.closeButton = icons/login_hide.png
+MyLibraryPanel.closeHoverButton = icons/login_hide_hover.png
+
+NavListResources.expandedIcon = icons/Arrow_Down.png
+NavListResources.collapsedIcon = icons/Arrow_Right.png
+
+NavPanel.selectedBackgroundGradientTop = #dcf3b9
+NavPanel.selectedBackgroundGradientBottom = #e0f3c3
+NavPanel.textFont = DIALOG-NORMAL-11
+NavPanel.selectedTextColor = #313131
+NavPanel.failedTextFont = DIALOG-ITALIC-11
+NavPanel.textColor = #313131
+NavPanel.removeLibraryIcon = icons/sidebar_x.png
+NavPanel.removeLibraryHoverIcon = icons/sidebar_x_hover.png
+NavPanel.failedRemoveLibraryIcon = icons/sidebar_x_failed.png
+NavPanel.failedRemoveLibraryHoverIcon = icons/sidebar_x_failed_hover.png
+
+SelectionPanel.selectedBackground = #c2e986
+SelectionPanel.selectedTextFont = DIALOG-BOLD-11 
+SelectionPanel.selectedTextColor = #313131
+SelectionPanel.textFont = DIALOG-NORMAL-11
+SelectionPanel.textColor = #313131
+
+InfoPanel.backgroundColor = #f9fdf3
+InfoPanel.fontColor = #6d6f6c
+InfoPanel.categoryFont = DIALOG-BOLD-11
+InfoPanel.smallFont = DIALOG-NORMAL-11
+
+SharingSelectionPanel.selectedBackground = #c2e986
+SharingSelectionPanel.selectedTextColor = #313131
+SharingSelectionPanel.textColor = #313131
+SharingSelectionPanel.shareButtonFont = DIALOG-PLAIN-10
+SharingSelectionPanel.shareLabelFont = DIALOG-PLAIN-11
+
+BackAction.icon = icons/toolbar_back_up_dark.png
+BackAction.rolloverIcon = icons/toolbar_back_hover_dark.png
+BackAction.pressedIcon = icons/toolbar_back_down_dark.png
+
+FriendSharingPanel.backButton.icon = icons/toolbar_back_up.png
+FriendSharingPanel.backButton.rolloverIcon = icons/toolbar_back_hover.png
+FriendSharingPanel.backButton.pressedIcon = icons/toolbar_back_down.png
+
+MySelectionPanel.selectedBackground = #c2e986
+MySelectionPanel.selectedTextColor = #313131
+MySelectionPanel.textColor = #313131
+MySelectionPanel.shareButtonFont = DIALOG-PLAIN-10
+
+LibrarySelectionPanel.backgroundColor=#F9FDF3
+LibrarySelectionPanel.rightBorderColor=#696969
+LibraryPanel.selectionPanelBackgroundOverride= #f9fdf3
+
+# Various properties of search bar components
+SearchBar.comboBox.font = DIALOG-PLAIN-14
+SearchBar.comboBox.preferredSize = 98, 26
+SearchBar.comboBox.minimumSize = 98, 26
+SearchBar.searchField.minimumSize = 280, 26
+SearchBar.searchField.maximumSize = 280, 26
+SearchBar.searchField.preferredSize = 280, 26
+SearchBar.searchField.font = DIALOG-PLAIN-14
+SearchBar.searchField.foreground = #313131
+SearchBar.searchButton.icon = icons/magnifying_glass_up.png
+SearchBar.searchButton.rolloverIcon = icons/magnifying_glass_hover.png
+SearchBar.searchButton.pressedIcon = icons/magnifying_glass_down.png
+
+HistoryAndFriendAutoCompleter.selectionBackground = #c2e986
+HistoryAndFriendAutoCompleter.font = DIALOG-PLAIN-12
+
+#The color of the lines separating the areas of the LeftPanel
+LeftPanel.rightBorder.color = #696969
+LeftPanel.rightBorder.thickness = 1
+LeftPanel.background = #f9f9f9
+LeftPanel.minimumSize = 156, 0
+LeftPanel.maximumSize = 156, 999
+LeftPanel.preferredSize = 156, 999
+LeftPanel.contents.minimumSize = 155, 0
+LeftPanel.contents.maximumSize = 155, 999
+LeftPanel.contents.preferredSize = 155, 999
+
+# Category icon resources, do not duplicate
+CategoryIconManager.smallAudioIcon = icons/smallMusicIcon.png
+CategoryIconManager.smallImageIcon = icons/smallPicIcon.png
+CategoryIconManager.smallVideoIcon = icons/smallVideoIcon.png
+CategoryIconManager.smallDocumentIcon = icons/smallDocumentIcon.png
+CategoryIconManager.smallOtherIcon = icons/smallOtherIcon.png
+CategoryIconManager.smallProgramIconWinVista = icons/smallProgramIcon_winvista.png
+CategoryIconManager.smallProgramIconOSX = icons/smallProgramIcon_osx.png
+CategoryIconManager.smallProgramIconWinXP = icons/smallProgramIcon_winxp.png
+CategoryIconManager.smallProgramIconLinux = icons/smallProgramIcon_linux.png
+
+#General DownloadTable settings
+DownloadTable.rowHeight = 60
+
+DragPanel.dragLabelColor = #313131
+DragPanel.dragLabelFont = DIALOG-BOLD-11
+
+#Table cell rendering settings
+DownloadTableCellImpl.warningIcon = icons/warning.png
+DownloadTableCellImpl.downloadIcon = icons/arrow_down.png
+DownloadTableCellImpl.progressBarWidth =  538
+DownloadTableCellImpl.titleLabelColour = #313131
+DownloadTableCellImpl.statusLabelColour = #686868
+DownloadTableCellImpl.warningLabelColour  = #686868
+DownloadTableCellImpl.errorLabelColour  = #686868
+DownloadTableCellImpl.finishedLabelColour = #686868
+DownloadTableCellImpl.linkColour = #2b5baa
+DownloadTableCellImpl.statusFontPlainFull = DIALOG-PLAIN-10
+DownloadTableCellImpl.statusFontPlainMin = DIALOG-PLAIN-12
+DownloadTableCellImpl.titleFont = DIALOG-BOLD-13
+DownloadTableCellImpl.borderPaint = #eaeaea
+
+#DownloadButtonPanel button icons
+DownloadButtonPanel.pauseIcon = icons/pause_up.png
+DownloadButtonPanel.cancelIcon = icons/cancel_up.png
+DownloadButtonPanel.resumeIcon = icons/resume_up.png
+DownloadButtonPanel.pauseIconRollover = icons/pause_hover.png
+DownloadButtonPanel.cancelIconRollover = icons/cancel_hover.png
+DownloadButtonPanel.resumeIconRollover = icons/resume_hover.png
+DownloadButtonPanel.pauseIconPressed = icons/pause_down.png
+DownloadButtonPanel.cancelIconPressed = icons/cancel_down.png
+DownloadButtonPanel.resumeIconPressed = icons/resume_down.png
+
+#color numbering is zero based - even is the first row display
+TableColors.evenColor = 255,255,255
+TableColors.evenForeground = #313131
+TableColors.oddColor = #f0f3f6
+TableColors.oddForeground = #313131
+TableColors.menuRowColor = #f9fdf3
+TableColors.tableFont = DIALOG-PLAIN-11
+
+TableColors.menuRowForeground = 0,0,0
+TableColors.selectionColor = #c2e986
+TableColors.selectionForeground = 0,0,0
+TableColors.gridColor = #d9d9d9
+#font color for incomplete downloads in library
+TableColors.disabledForegroundColor = 128,128,128
+
+#color numbering is zero based - even is the first row display
+CategoryDownloadPanel.evenColor = 255,255,255
+CategoryDownloadPanel.evenForeground = 0,0,0
+CategoryDownloadPanel.oddColor = 192,192,192
+CategoryDownloadPanel.oddForeground = 0,0,0
+
+#The 'Downloads' area in the nav
+DownloadSummaryPanel.fontColor = #313131
+DownloadSummaryPanel.itemFont = DIALOG-PLAIN-11
+DownloadSummaryPanel.showAllFont = DIALOG-BOLD-12
+DownloadSummaryPanel.grayForeground = #686868
+DownloadSummaryPanel.orangeForeground = #686868
+DownloadSummaryPanel.panelHeight = 55
+DownloadSummaryPanel.nameLabelWidth = 187
+DownloadSummaryPanel.borderTopGradient = #a2a2a2
+DownloadSummaryPanel.borderBottomGradient = #bfbfbf
+DownloadSummaryPanel.secondBorderTopGradient = #dfdfdf
+DownloadSummaryPanel.secondBorderBottomGradient = #f9f9f9
+
+DownloadSummaryPanelRendererEditor.mouseOverColor = 0,49,255
+DownloadSummaryPanelRendererEditor.pauseIcon = icons/download/pause_tiny_up.png
+DownloadSummaryPanelRendererEditor.pauseIconHover = icons/download/pause_tiny_hover.png
+DownloadSummaryPanelRendererEditor.pauseIconDown = icons/download/pause_tiny_down.png
+DownloadSummaryPanelRendererEditor.resumeIcon = icons/download/resume_tiny_up.png
+DownloadSummaryPanelRendererEditor.resumeIconHover = icons/download/resume_tiny_hover.png
+DownloadSummaryPanelRendererEditor.resumeIconDown = icons/download/resume_tiny_down.png
+
+IndividualSharePanel.cancelIcon = icons/tab_active.png
+IndividualSharePanel.sharingIcon = icons/someFriends.png
+
+#Custom table header renderer
+CustomTableCellHeaderRenderer.backgroundColor = #4c83ae
+CustomTableCellHeaderRenderer.foregroundColor = #ffffff
+
+#Icons to show when a thumbnail is being created or when an error occurs
+ThumbnailManagerImpl.loadIcon = icons/loading.png
+ThumbnailManagerImpl.errorIcon = icons/loading_failed.png
+
+ImageList.backgroundListcolor = 255,255,255
+ImageList.imageBoxWidth = 132
+ImageList.imageBoxHeight = 125
+ImageList.insetTop = 5
+ImageList.insetBottom = 4
+ImageList.insetLeft = 4
+ImageList.insetRight = 4
+
+ImageCellRendererParams.cellSelectedBackground = #c2e986
+ImageCellRendererParams.cellBorderColor = #cfcfcf
+ImageCellRendererParams.cellBackgroundColor #ffffff
+ImageCellRendererParams.icons/loading_failed.png
+
+LibraryImageCellRenderer.cellBorderSelectionColor = #004e8b
+LibraryImageCellRenderer.cellBorderColor = #cfcfcf
+
+# Library Image SubPanel
+LibraryImageSubPanel.lineColor = #313131
+LibraryImageSubPanel.lineSize = 2
+LibraryImageSubPanel.backgroundColor = #ffffff
+LibraryImageSubPanel.mainLabelColor = #313131
+LibraryImageSubPanel.mainLabelFontSize = 12
+LibraryImageSubPanel.panelIcon = icons/folder.png
+
+#The icon to use for all frames or dialogues.
+LimeIconInfo.limeIcon = icons/limeicon.gif
+LimeIconInfo.limeFrameIconLocation=org/limewire/ui/swing/mainframe/resources/icons/lime.ico
+
+# Icons to use in SortAndFilterPanel.
+SortAndFilterPanel.listViewIcon = icons/Toggle_List.png
+SortAndFilterPanel.tableViewIcon = icons/Toggle_Table.png
+SortAndFilterPanel.sortLabelFont = DIALOG-NORMAL-11
+
+# Color for hyperlink buttons 
+HyperlinkButtonResources.foreground = #2152a6
+HyperlinkButtonResources.rolloverForeground = #2152a6
+HyperlinkButtonResources.disabledForeground = #d4d4d4
+
+#Option Dialog
+OptionsDialog.dividerColor = 0,0,0
+OptionsDialog.backgroundColor = 236,233,216
+OptionsDialog.securityIcon = icons/options/options_security.png
+OptionsDialog.advancedIcon = icons/options/options_advanced.png
+OptionsDialog.downloadsIcon = icons/options/options_downloads.png
+OptionsDialog.libraryIcon = icons/options/options_library.png
+OptionsDialog.miscIcon = icons/options/options_misc.png
+OptionsDialog.searchIcon = icons/options/options_search.png
+OptionsDialog.remoteIcon = icons/options/options_remote.png
+
+FancyOptionTabButton.headerGradientTop = #f5f5f5
+FancyOptionTabButton.headerGradientBottom = #a5a5a5
+FancyOptionTabButton.fontColor = #313131
+FancyOptionTabButton.font = DIALOG-NORMAL-11
+
+# Advanced Tools window
+AdvancedToolsPanel.backgroundColor = 236,233,216
+AdvancedToolsPanel.connectionsIcon = icons/advanced_connections.png
+AdvancedToolsPanel.consoleIcon = icons/advanced_console.png
+AdvancedToolsPanel.mojitoIcon = icons/advanced_mojito.png
+AdvancedToolsPanel.tabTopColor = #f5f5f5
+AdvancedToolsPanel.tabBottomColor = #a5a5a5
+AdvancedToolsPanel.tabFontColor = #313131
+AdvancedToolsPanel.tabFont = DIALOG-NORMAL-11
+
+Console.outputFont = Dialog-PLAIN-11
+Console.tableColor = 255,255,255
+
+# Icons for Friend LoginPanel
+LoginPanel.hideButton.icon = icons/login_hide.png
+LoginPanel.hideButton.rolloverIcon = icons/login_hide_hover.png
+LoginPanel.hideButton.pressedIcon = icons/login_hide_hover.png
+LoginPanel.titleLabel.font = DIALOG-BOLD-12
+LoginPanel.autoLoginCheckBox.font = DIALOG-PLAIN-11
+LoginPanel.authFailedLabel.font = DIALOG-BOLD-11
+LoginPanel.authFailedLabel.foreground = #ff0000
+LoginPanel.autoLoginCheckBox.icon = icons/checkbox_small.png
+LoginPanel.autoLoginCheckBox.selectedIcon = icons/checkbox_small_checked.png
+
+ChatTopPanel.backgroundGradientTop=#787878
+ChatTopPanel.backgroundGradientBottom=#4c4c4c
+ChatTopPanel.borderBottom=#313131
+ChatTopPanel.buddyTextFont=DIALOG-PLAIN-11
+ChatTopPanel.hideTextFont=DIALOG-PLAIN-10
+ChatTopPanel.textColor=#ffffff
+
+ChatFriendList.rightEdgeBorderColor=#838383
+ChatFriendList.conversationsSeparatorColor=#cbcbcb
+ChatFriendList.friendColor=#313131
+ChatFriendList.friendFont=DIALOG-PLAIN-11
+ChatFriendList.friendSelectionColor=#c2e986
+ChatFriendList.activeConversationBackgroundColor=#d1d1d1
+
+IconLibraryImpl.chatting = icons/friends/chatting.png
+IconLibraryImpl.incomingChat = icons/friends/incomingChat.png
+IconLibraryImpl.available = icons/friends/available.png
+IconLibraryImpl.away = icons/friends/away.png
+IconLibraryImpl.doNotDisturb = icons/friends/doNotDisturb.png
+IconLibraryImpl.endChat = icons/friends/endChat.png
+IconLibraryImpl.endChatOverIcon = icons/friends/endChatOverIcon.png
+IconLibraryImpl.chatStatusStub = icons/friends/chatStatusStub.png
+IconLibraryImpl.library = icons/friends/library.png
+IconLibraryImpl.sharing = icons/friends/sharing.png
+IconLibraryImpl.closeChat = icons/friends/closeChat.png
+IconLibraryImpl.offline = icons/friends/chat_status_offline.png
+
+# Stuff for the tray & tray notifications
+SystemTrayNotifier.windowsIconResource16 = icons/lime_16.gif
+SystemTrayNotifier.windowsIconResource32 = icons/lime_32.gif
+SystemTrayNotifier.windowsIconResource48 = icons/lime_48.gif
+SystemTrayNotifier.linuxIconResource16 = icons/lime_16.png
+SystemTrayNotifier.linuxIconResource24 = icons/lime_24.png
+SystemTrayNotifier.linuxIconResource32 = icons/lime_32.png
+SystemTrayNotifier.linuxIconResource48 = icons/lime_48.png
+BasicNotifier.notificationIcon = icons/limeicon.gif
+NotificationWindow.trayNotifyClose = icons/friends/endChat.png
+NotificationWindow.trayNotifyCloseRollover = icons/friends/endChatOverIcon.png
+NotificationWindow.backgroundColor = #ffffff
+NotificationWindow.borderColor = #313131
+NotificationWindow.titleFont = DIALOG-BOLD-12
+NotificationWindow.titleFontColor = #313131
+NotificationWindow.bodyFont = DIALOG-PLAIN-11
+NotificationWindow.bodyFontColor = #555555
+NotificationWindow.linkFont = DIALOG-BOLD-12
+
+
+# Stuff for sponsored results.
+SponsoredResultsPanel.textWidth = 144
+SponsoredResultsPanel.areaWidth = 150
+SponsoredResultsPanel.headingColor = #0031ff
+SponsoredResultsPanel.bodyColor = #000000
+SponsoredResultsPanel.urlColor = #00823e
+SponsoredResultsPanel.headingFont = DIALOG-NORMAL-12
+SponsoredResultsPanel.bodyFont = DIALOG-NORMAL-11
+SponsoredResultsPanel.urlFont = DIALOG-NORMAL-11
+
+# Icons for ListViewTableEditorRenderer
+ListViewTableEditorRenderer.similarResultsIcon = icons/similar_results_connection.png
+ListViewTableEditorRenderer.similarShownIcon = icons/similar_shown.png
+ListViewTableEditorRenderer.similarShownPressedIcon = icons/similar_shown_pressed.png
+ListViewTableEditorRenderer.similarShownHoverIcon = icons/similar_shown_hover.png
+ListViewTableEditorRenderer.similarHiddenPressedIcon = icons/similar_down.png
+ListViewTableEditorRenderer.similarHiddenHoverIcon = icons/similar_hover.png
+ListViewTableEditorRenderer.similarHiddenIcon = icons/similar_up.png
+ListViewTableEditorRenderer.propertiesIcon = icons/info_up.png
+ListViewTableEditorRenderer.propertiesHoverIcon = icons/info_hover.png
+ListViewTableEditorRenderer.properitesPressedIcon = icons/info_down.png
+ListViewTableEditorRenderer.propertiesSimilarShownIcon = icons/info_similar_shown.png
+ListViewTableEditorRenderer.propertiesSimilarShownHoverIcon = icons/info_similar_shown_hover.png
+ListViewTableEditorRenderer.properitesSimilarShownPressedIcon = icons/info_similar_shown_pressed.png
+ListViewTableEditorRenderer.spamIcon = icons/Trash.png
+ListViewTableEditorRenderer.downloadingIcon = icons/downloads.png
+ListViewTableEditorRenderer.libraryIcon = icons/library.png
+ListViewTableEditorRenderer.dividerIcon = icons/list_view_divider.png
+ListViewTableEditorRenderer.subHeadingLabelColor = #313131
+ListViewTableEditorRenderer.metadataLabelColor = #9a9a9a
+ListViewTableEditorRenderer.downloadSourceCountFont = DIALOG-BOLD-15
+ListViewTableEditorRenderer.downloadSourceCountColor = #2152a6
+# The headingFont prop below needs to be synchronized with SearchHeadingDocumentBuilderImpl.headingFont
+ListViewTableEditorRenderer.headingFont = DIALOG-PLAIN-14
+ListViewTableEditorRenderer.subHeadingFont = DIALOG-NORMAL-11
+ListViewTableEditorRenderer.metadataFont = DIALOG-NORMAL-11
+ListViewTableEditorRenderer.surplusRowLimitFont = DIALOG-BOLD-15
+ListViewTableEditorRenderer.surplusRowLimitColor = #9b9b9b
+ListViewTableEditorRenderer.similarResultsBackgroundColor = #c2e986
+ListViewTable.similarResultParentBackgroundColor = #c2e986
+
+# The headingFont prop below needs to be synchronized with ListViewTableEditorRenderer.headingFont
+SearchHeadingDocumentBuilderImpl.headingFont = DIALOG-PLAIN-14
+
+DialogParam.backgroundColor = #f9f9f9
+DialogParam.smallFont = DIALOG-PLAIN-11
+DialogParam.mediumFont = DIALOG-PLAIN-12
+DialogParam.largeFont = DIALOG-BOLD-13
+
+SearchResultsPanel.tabHighlightTopGradientColor = #787878
+SearchResultsPanel.tabHighlightBottomGradientColor = #797979
+SearchResultsPanel.tabSelectionTopGradientColor = #c2e986
+SearchResultsPanel.tabSelectionBottomGradientColor = #c2e986
+SearchResultsPanel.tabSelectionTextColor = #000000
+SearchResultsPanel.tabSelectionBorderTopGradientColor = #484848
+SearchResultsPanel.tabSelectionBorderBottomGradientColor = #545454
+
+ClassicSearchWarningPanel.height = 40
+ClassicSearchWarningPanel.background = #C2E986
+ClassicSearchWarningPanel.closeFont = DIALOG-14
+ClassicSearchWarningPanel.textFont = DIALOG-16
+ClassicSearchWarningPanel.textColor = #313131
+ClassicSearchWarningPanel.switchFont = DIALOG-BOLD-16
+ClassicSearchWarningPanel.switchColor = #313131
+ClassicSearchWarningPanel.switchIcon = icons/classic_search_arrow.png
+
+SearchTabItems.tabFont = DIALOG-NORMAL-11
+
+PlayerPanel.font = DIALOG-PLAIN-9
+PlayerPanel.arcWidth = 13
+PlayerPanel.arcHeight = 13
+PlayerPanel.foreground = #333333
+PlayerPanel.innerBackground = #a7a7a7
+PlayerPanel.innerBorder = #3a3a3a
+PlayerPanel.bevelLeft = #808080
+PlayerPanel.bevelTop1 = #868686
+PlayerPanel.bevelTop2 = #9c9c9c
+PlayerPanel.bevelRight = #a7a7a7
+PlayerPanel.bevelBottom = #a7a7a7
+PlayerPanel.backIcon = icons/player/player_previous.png
+PlayerPanel.backIconPressed = icons/player/player_previous_down.png
+PlayerPanel.backIconRollover  = icons/player/player_previous_hover.png
+PlayerPanel.backIconDisabled = icons/player/player_previous_disabled.png
+PlayerPanel.forwardIcon = icons/player/player_next.png
+PlayerPanel.forwardIconPressed = icons/player/player_next_down.png
+PlayerPanel.forwardIconRollover = icons/player/player_next_hover.png
+PlayerPanel.forwardIconDisabled = icons/player/player_next_disabled.png
+
+PlayerPanel.playIcon = icons/player/player_play.png
+PlayerPanel.playIconPressed = icons/player/player_play_down.png
+PlayerPanel.playIconRollover = icons/player/player_play_hover.png
+PlayerPanel.playIconDisabled = icons/player/player_play_disabled.png
+PlayerPanel.pauseIcon = icons/player/player_pause.png
+PlayerPanel.pauseIconPressed = icons/player/player_pause_down.png
+PlayerPanel.pauseIconRollover = icons/player/player_pause_hover.png
+PlayerPanel.volumeIcon = icons/player/player_volume.png
+PlayerPanel.volumeIconPressed = icons/player/player_volume_down.png
+PlayerPanel.volumeIconRollover = icons/player/player_volume_hover.png
+PlayerPanel.volumeIconDisabled = icons/player/player_volume_disabled.png
+
+MiniPlayerPanel.pauseIcon = icons/player/player_pause.png
+MiniPlayerPanel.pauseIconPressed = icons/player/player_pause_down.png
+MiniPlayerPanel.pauseIconRollover = icons/player/player_pause_hover.png
+MiniPlayerPanel.playIcon = icons/player/player_play.png
+MiniPlayerPanel.playIconPressed = icons/player/player_play_down.png
+MiniPlayerPanel.playIconRollover = icons/player/player_play_hover.png
+MiniPlayerPanel.foregroundColor = #000000
+MiniPlayerPanel.font = DIALOG-PLAIN-11
+
+LibrarySharePanel.removeIcon = icons/sidebar_x.png
+LibrarySharePanel.removeIconRollover = icons/sidebar_x_hover.png
+LibrarySharePanel.removeIconPressed = icons/sidebar_x_hover.png
+LibrarySharePanel.closeIcon = icons/filterResetInactive.png
+LibrarySharePanel.closeIconRollover = icons/filterResetActive.png
+LibrarySharePanel.closeIconPressed = icons/filterResetActive.png
+LibrarySharePanel.shareTableIndent = 15
+LibrarySharePanel.dividerColor = #313131
+LibrarySharePanel.borderColor = #313131
+LibrarySharePanel.bottomPanelTopGradient = #787878
+LibrarySharePanel.bottomPanelBottomGradient = #4c4c4c
+LibrarySharePanel.shadowColor = 0, 0, 0, 40
+LibrarySharePanel.panelWidth = 244
+LibrarySharePanel.headerHeight = 21
+LibararySharePanel.titleFont = DIALOG-BOLD-14
+LibararySharePanel.titleFontColor = #313131
+LibararySharePanel.titleHeight = 21
+LibararySharePanel.comboLabelFont = DIALOG-BOLD-12
+LibararySharePanel.comboLabelFontColor = #FFFFFF
+LibararySharePanel.bottomFont = DIALOG-PLAIN-11
+LibararySharePanel.bottomFontColor = #d2d2d2
+
+EmptyLibraryPanel.navColor = #f9fdf3
+EmptyLibraryPanel.innerNavBorder = #696969
+EmptyLibraryPanel.backgroundColor = #ffffff
+
+LimeEditableComboBox.arcWidth = 13
+LimeEditableComboBox.arcHeight = 13
+LimeEditableComboBox.borderColour = #484848
+LimeEditableComboBox.bevelLeft = #f3f3f3
+LimeEditableComboBox.bevelTop1 = #c3c3c3
+LimeEditableComboBox.bevelTop2 = #efefef
+LimeEditableComboBox.bevelRight = #f3f3f3
+LimeEditableComboBox.bevelBottom = #ffffff
+
+LimeEditableComboBoxUI.arrowIcon = icons/Arrow_Down.png
+LimeEditableComboBoxUI.rolloverArrowIcon = icons/Arrow_Down.png
+LimeEditableComboBoxUI.downArrowIcon = icons/Arrow_Down.png
+LimeEditableComboBoxUI.selectedBackground = #c2e986
+
+PlayRendererEditor.playIcon = icons/library/table_dot.png
+PlayRendererEditor.pauseIcon = icons/library/table_dot.png
+
+ShareTableRendererEditor.shareButtonFont = DIALOG-PLAIN-11
+
+# Tab painter colours
+SearchTabPainterFactory.selectionTopBevelBackground = #9b9b9b
+SearchTabPainterFactory.selectionTopBevelBorder = #696969
+SearchTabPainterFactory.selectionBackgroundTopGradient = #787878
+SearchTabPainterFactory.selectionBackgroundBottomGradient = #787878
+
+SearchTabPainterFactory.highlightTopBevelBackground = #e0e0e0
+SearchTabPainterFactory.highlightTopBevelBorder = #d6d6d6
+SearchTabPainterFactory.highlightBackgroundTopGradient = #d7d7d7
+SearchTabPainterFactory.highlightBackgroundBottomGradient = #c4c4c4
+
+# Status bar icons, fonts, and colours
+ConnectionStatusPanel.font = DIALOG-PLAIN-11
+ConnectionStatusPanel.foreground = #313131 
+ConnectionStatusPanel.noInternet = icons/status_bars_nointernet.png
+ConnectionStatusPanel.disconnected = icons/status_bars_disconnected.png
+ConnectionStatusPanel.connecting = icons/status_bars_connecting.png
+ConnectionStatusPanel.weak = icons/status_bars_weak.png
+ConnectionStatusPanel.weakPlus = icons/status_bars_weak_plus.png
+ConnectionStatusPanel.medium = icons/status_bars_medium.png
+ConnectionStatusPanel.mediumPlus = icons/status_bars_medium_plus.png
+ConnectionStatusPanel.full = icons/status_bars_full.png
+ConnectionStatusPanel.turbo = icons/status_bars_turbo.png
+
+SharedFileCountPanel.font = DIALOG-PLAIN-11
+SharedFileCountPanel.foreground = #313131
+
+DownloadCountPanel.font = DIALOG-PLAIN-11
+DownloadCountPanel.foreground = #313131
+DownloadCountPanel.icon = icons/status_download.png
+
+StatusBarSectionPainter.dividerForeground = #9b9b9b
+
+# Shared header bar properties
+HeaderBarDecorator.height = 34
+HeaderBarDecorator.headingFont = DIALOG-PLAIN-14
+HeaderBarDecorator.basicForeground = #ffffff
+HeaderBarDecorator.specialForeground = #313131
+HeaderBarDecorator.defaultComponentHeight = 22
+
+# Bar colours for LimeHeaderBar, TopPanel, StatusBar, etc.
+BarPainterFactory.headerBarGradientTop = #787878
+BarPainterFactory.headerBarGradientBottom = #4c4c4c
+BarPainterFactory.specialHeaderBarGradientTop = #c2e986
+BarPainterFactory.specialHeaderBarGradientBottom = #accf77
+BarPainterFactory.specialHeaderBarBorderTop1 = #cded9c
+BarPainterFactory.specialHeaderBarBorderBottom1 = #696969
+BarPainterFactory.topBarGradientTop = #f4f4f4
+BarPainterFactory.topBarGradientBottom = #d6d6d6
+BarPainterFactory.topBarBorderBottom1 = #696969
+BarPainterFactory.topBarBorderBottom2 = #ebebeb
+BarPainterFactory.statusBarGradientTop = #e2e2e2
+BarPainterFactory.statusBarGradientBottom = #b4b4b4
+BarPainterFactory.statusBarBorderTop1 = #696969
+BarPainterFactory.statusBarBorderTop2 = #ebebeb
+BarPainterFactory.downloadSummaryBarGradientTop = #c8c8c8
+BarPainterFactory.downloadSummaryBarGradientBottom = #f9f9f9
+BarPainterFactory.downloadSummaryBarBorderTop1 =  105,105,105
+BarPainterFactory.friendBarGradientTop = #f4f4f4
+BarPainterFactory.friendBarGradientBottom = #d6d6d6
+BarPainterFactory.friendBarBorderTop1 = #818181
+BarPainterFactory.friendBarBorderBottom1 = #696969
+BarPainterFactory.friendBarBorderBottom2 = #ebebeb
+
+# General painting props for the rounded prompting text box
+SearchBar.searchBorder = #696969
+TextFieldPainterFactory.arcWidth = 13
+TextFieldPainterFactory.arcHeight = 13
+TextFieldPainterFactory.promptForeground = #808080
+TextFieldPainterFactory.border = #484848
+TextFieldPainterFactory.bevelLeft = #f3f3f3
+TextFieldPainterFactory.bevelTop1 = #c3c3c3
+TextFieldPainterFactory.bevelTop2 = #efefef
+TextFieldPainterFactory.bevelRight = #f3f3f3
+TextFieldPainterFactory.bevelBottom = #ffffff
+
+# Properties for filter painter
+FilterPainter.fillColor = #daf2b5
+FilterPainter.activeResetIcon = icons/filterResetActive.png
+FilterPainter.inactiveResetIcon = icons/filterResetInactive.png
+
+# Foreground props for custom painted buttons
+ButtonPainterFactory.miniHoverTextForeground = #ffffff
+ButtonPainterFactory.miniDownTextForeground = #ffffff
+ButtonPainterFactory.darkFullHoverTextForeground = #313131
+ButtonPainterFactory.darkFullDownTextForeground = #616060
+ButtonPainterFactory.darkFullDisabledTextForeground = #4f4f4f
+
+# Settings for custom drawn buttons
+ButtonDecorator.miniTextFont = DIALOG-PLAIN-11
+ButtonDecorator.miniTextForeground = #313131
+ButtonDecorator.lightFullTextFont = DIALOG-PLAIN-12
+ButtonDecorator.lightFullTextForeground = #313131
+ButtonDecorator.darkFullTextFont = DIALOG-PLAIN-12
+ButtonDecorator.darkFullTextForeground = #313131
+
+# Custom drawn combo box settings
+ComboBoxDecorator.miniRegIcon = icons/Arrow_Down_Tiny.png
+ComboBoxDecorator.miniHoverIcon = icons/Arrow_Down_Tiny_White.png
+ComboBoxDecorator.miniDownIcon = icons/Arrow_Down_Tiny_White.png
+ComboBoxDecorator.lightFullIcon = icons/Arrow_Down_Tiny.png
+ComboBoxDecorator.darkFullIcon = icons/Arrow_Down_Tiny.png
+
+# Custom drawn progress bar colours
+ProProgressPainterFactory.barBackgroundGradientTop = #ffffff
+ProProgressPainterFactory.barBackgroundGradientBottom = #ffffff
+ProProgressPainterFactory.barBorder = #00316b
+ProProgressPainterFactory.barBorderDisabled = #8a8a8a
+ProProgressPainterFactory.barForegroundGradientTop = #3883cf
+ProProgressPainterFactory.barForegroundGradientBottom = #1667a8
+ProProgressPainterFactory.barDisabledForegroundGradientTop = #dddddd
+ProProgressPainterFactory.barDisabledForegroundGradientBottom = #8a8a8a
+ProProgressPainterFactory.barUpperAccent = #3d9dff
+
+BasicProgressPainterFactory.barBackgroundGradientTop = #ffffff
+BasicProgressPainterFactory.barBackgroundGradientBottom = #ffffff
+BasicProgressPainterFactory.barBorder = #537e10
+BasicProgressPainterFactory.barBorderDisabled = #8a8a8a
+BasicProgressPainterFactory.barForegroundGradientTop = #cff88f
+BasicProgressPainterFactory.barForegroundGradientBottom = #aacb75
+BasicProgressPainterFactory.barDisabledForegroundGradientTop = #dddddd
+BasicProgressPainterFactory.barDisabledForegroundGradientBottom = #8a8a8a
+
+
+# Media Bar Slider colours
+SliderPainterFactory.mediaSliderBorder = #343434
+SliderPainterFactory.mediaSliderBackgroundGradientTop = #b6b6b6
+SliderPainterFactory.mediaSliderBackgroundGradientBottom = #b6b6b6
+SliderPainterFactory.mediaSliderForegroundGradientTop = #8b8b8b
+SliderPainterFactory.mediaSliderForegroundGradientBottom = #555555
+
+#ButtonPainter
+DarkButtonBackgroundPainter.arcWidth = 13
+DarkButtonBackgroundPainter.arcHeight = 13
+DarkButtonBackgroundPainter.border = #3e3e3e
+
+DarkButtonBackgroundPainter.normalGradientTop = #f9f9f9
+DarkButtonBackgroundPainter.normalGradientBottom = #a1a0a0
+DarkButtonBackgroundPainter.normalBevelRightGradientTop = #b5b5b5
+DarkButtonBackgroundPainter.normalBevelRightGradientBottom = #848484
+DarkButtonBackgroundPainter.normalBevelBottom = #6d6c6c
+
+DarkButtonBackgroundPainter.highlightGradientTop = #f0f0f0
+DarkButtonBackgroundPainter.highlightGradientBottom = #939292
+DarkButtonBackgroundPainter.highlightBevelRightGradientTop = #a9a9a9
+DarkButtonBackgroundPainter.highlightBevelRightGradientBottom = #787878
+DarkButtonBackgroundPainter.highlightBevelBottom = #616161
+
+DarkButtonBackgroundPainter.clickGradientTop = #939292
+DarkButtonBackgroundPainter.clickGradientBottom = #f0f0f0
+
+DarkButtonBackgroundPainter.disabledGradientTop = #a7a7a7
+DarkButtonBackgroundPainter.disabledGradientBottom = #767575
+DarkButtonBackgroundPainter.disabledBorderGradientTop = #656565
+DarkButtonBackgroundPainter.disabledBorderGradientBottom = #525252
+
+#Green button painter for the continue button on the wizard
+GreenButtonBackgroundPainter.arcWidth = 6
+GreenButtonBackgroundPainter.arcHeight = 6
+GreenButtonBackgroundPainter.border = #696969
+GreenButtonBackgroundPainter.backgroundGradientTop = #c7ee89
+GreenButtonBackgroundPainter.backgroundGradientBottom = #bce282
+GreenButtonBackgroundPainter.highlightGradientTop = #dafea3
+GreenButtonBackgroundPainter.highlightGradientBottom = #bde383
+GreenButtonBackgroundPainter.clickGradientTop = #cff09a
+GreenButtonBackgroundPainter.clickGradientBottom = #bde282
+GreenButtonBackgroundPainter.bevelTop1 = #e7f8cc
+GreenButtonBackgroundPainter.bevelLeft = #d3efa8
+GreenButtonBackgroundPainter.bevelRightGradientTop = #abe551
+GreenButtonBackgroundPainter.bevelRightGradientBottom = #9bd344
+GreenButtonBackgroundPainter.bevelBottom = #88ca21
+
+#font and colors for the empty message
+MessageComponent.headingFont = DIALOG-BOLD-16
+MessageComponent.fontColor = #313131
+MessageComponent.subFont = DIALOG-PLAIN-14
+MessageComponent.arrowIcon = icons/offline_message_bottom.png
+
+#Green background for empty panels when a friend is signed off
+GreenMessagePainter.arcWidth = 6
+GreenMessagePainter.arcHeight = 6
+GreenMessagePainter.border = #696969
+GreenMessagePainter.backgroundGradientTop = #c7ee89
+GreenMessagePainter.backgroundGradientBottom = #bce282
+GreenMessagePainter.highlightGradientTop = #dafea3
+GreenMessagePainter.highlightGradientBottom = #bde383
+GreenMessagePainter.clickGradientTop = #cff09a
+GreenMessagePainter.clickGradientBottom = #bde282
+GreenMessagePainter.bevelTop1 = #e7f8cc
+GreenMessagePainter.bevelLeft = #d3efa8
+GreenMessagePainter.bevelRightGradientTop = #abe551
+GreenMessagePainter.bevelRightGradientBottom = #9bd344
+GreenMessagePainter.bevelBottom = #88ca21
+
+#ButtonPainter for the search drop down and other buttons with the light scheme
+LightButtonBackgroundPainter.arcWidth = 13
+LightButtonBackgroundPainter.arcHeight = 13
+LightButtonBackgroundPainter.borderColour = #696969
+LightButtonBackgroundPainter.backgroundGradientTop = #ffffff
+LightButtonBackgroundPainter.backgroundGradientBottom = #dcdcdc
+LightButtonBackgroundPainter.highlightGradientTop = #ffffff
+LightButtonBackgroundPainter.highlightGradientBottom = #c7c7c7
+LightButtonBackgroundPainter.clickGradientTop = #c7c7c7
+LightButtonBackgroundPainter.clickGradientBottom = #ffffff
+LightButtonBackgroundPainter.bevelTop1 = #e1e1e1
+LightButtonBackgroundPainter.bevelTop2 = #fefefe
+LightButtonBackgroundPainter.bevelRightGradientTop = #d8d8d8
+LightButtonBackgroundPainter.bevelRightGradientBottom = #c2c2c2
+LightButtonBackgroundPainter.bevelBottom = #b8b8b8
+       
+#ButtonPainter for the text looking until clicked combo boxes
+PopupButtonBackgroundPainter.arcWidth = 10
+PopupButtonBackgroundPainter.arcHeight = 10
+PopupButtonBackgroundPainter.backgroundPressed = 0,0,0
+PopupButtonBackgroundPainter.backgroundRollover = #313131
+
+#Update panel
+UpdatePanel.backgroundIcon = icons/updateBackground.png
+UpdatePanel.backgroundColor = #f4f4f4
+UpdatePanel.foregroundColor = #000000
+
+#Panel that mimics a textfield with a icon in it
+LabelTextField.folderIcon = icons/folder.png
+
+#TableHeader painter
+TableCellHeaderRenderer.topBorderColor = #f5f5f5
+TableCellHeaderRenderer.bottomBorderColor = #9b9b9b
+TableCellHeaderRenderer.leftBorderColor = #f5f5f5
+TableCellHeaderRenderer.rightBorderColor = #9b9b9b
+TableCellHeaderRenderer.topGradientColor = #e8e8e8
+TableCellHeaderRenderer.bottomGradientColor = #c7c6c6
+TableCellHeaderRenderer.fontColor = #313131
+TableCellHeaderRenderer.downIcon = icons/Arrow_Down.png
+TableCellHeaderRenderer.upIcon = icons/Arrow_Up.png
+
+UploadTableRendererEditor.cancelIcon = icons/cancel_up.png
+UploadTableRendererEditor.cancelIconRollover = icons/cancel_hover.png
+UploadTableRendererEditor.cancelIconPressed = icons/cancel_down.png
+UploadTableRendererEditor.p2pBrowseHostIcon = icons/file_browse_p2p.png
+UploadTableRendererEditor.friendBrowseHostIcon = icons/file_browse_friend.png
+UploadTableRendererEditor.statusFont = DIALOG-PLAIN-12
+UploadTableRendererEditor.titleFont = DIALOG-BOLD-13
+
+ChatConversation.toolbarTopColor = #f4f4f4
+ChatConversation.toolbarBottomColor = #d6d6d6
+ChatConversation.toolbarBorderColor = #838383
+ChatConversation.linkFont = DIALOG-PLAIN-11
+
+ChatInputPanel.textFont = DIALOG-PLAIN-11
+
+ShapeDialog.isPositionedRelativeToOwner = false
+
+IconLabelRenderer.spamIcon = icons/Trash.png
+IconLabelRenderer.downloadingIcon = icons/downloads.png
+IconLabelRenderer.libraryIcon = icons/library.png
+IconLabelRenderer.disabledForegroundColor = 128,128,128
+IconLabelRenderer.font = DIALOG-PLAIN-11
+
+LocalFileItemProperties.removeIcon = icons/sidebar_x.png
+LocalFileItemProperties.removeIconRollover = icons/sidebar_x_hover.png
+LocalFileItemProperties.removeIconPressed = icons/sidebar_x_hover.png
+
+MiscOptionPanel.font = DIALOG-PLAIN-12
+
+LoggedInPanel.headingFont = DIALOG-BOLD-11
+LoggedInPanel.headingColor = #000000
+LoggedInPanel.itemFont = DIALOG-PLAIN-12
+LoggedInPanel.itemColor = #313131
+
+##############################################################
+# Props for components that are no longer used or very stale
+##############################################################
+
+<<<<<<< AppFrame.properties
+# Friend bar should have a completely independent colour scheme?
+BarPainterFactory.friendBarTopBorder1 = #818181
+
+# This component should probably not exist.  Although, not ready to delete it yet.
+LimeCheckBox.checkBorder = #3e3e3e
+
+# Are these still used?
+TopPanel.libraryCollapseIcon = icons/library_toolbar_collapse.png
+TopPanel.libraryExpandIcon = icons/library_toolbar_expand.png
+TopPanel.webIcon = icons/web.png
+=======
+>>>>>>> 1.408
+
+# These are bad references to JXHyperLink or cases where people have created custom
+#  hyper link components
+ChatConversation.linkColor = #2152a6
+NotificationWindow.linkFontColor = #2152a6
+
+# Difficult cases where link colour is tied to a class and <html> is used
+SearchHeadingDocumentBuilderImpl.linkColor = #2152a6

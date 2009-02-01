@@ -10,6 +10,7 @@ import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 
@@ -31,9 +32,10 @@ public class VideoTableFormat extends ResultsTableFormat<VisualSearchResult> {
     static final int YEAR_INDEX = 9;
     static final int DESCRIPTION_INDEX = 10;
     static final int GENRE_INDEX = 11;
+    static final int IS_SPAM_INDEX = 12;
     
     public VideoTableFormat() {
-        super(NAME_INDEX, FROM_INDEX, new ColumnStateInfo[] {
+        super("CLASSIC_SEARCH_VIDEO_TABLE", NAME_INDEX, FROM_INDEX, IS_SPAM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_VIDEO_FROM", I18n.tr("From"), 88, true, true), 
                 new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_VIDEO_NAME", I18n.tr("Name"), 434, true, true),     
                 new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_VIDEO_EXTENSION", I18n.tr("Extension"), 85, true, true), 
@@ -45,7 +47,8 @@ public class VideoTableFormat extends ResultsTableFormat<VisualSearchResult> {
                 new ColumnStateInfo(DIMENSION_INDEX, "CLASSIC_SEARCH_VIDEO_RESOLUTION", I18n.tr("Resolution"), 60, false, true),
                 new ColumnStateInfo(YEAR_INDEX, "CLASSIC_SEARCH_VIDEO_YEAR", I18n.tr("Year"), 60, false, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "CLASSIC_SEARCH_VIDEO_DESCRIPTION", I18n.tr("Description"), 60, false, true),
-                new ColumnStateInfo(GENRE_INDEX, "CLASSIC_SEARCH_VIDEO_GENRE", I18n.tr("Genre"), 80, false, true)
+                new ColumnStateInfo(GENRE_INDEX, "CLASSIC_SEARCH_VIDEO_GENRE", I18n.tr("Genre"), 80, false, true),
+                new ColumnStateInfo(IS_SPAM_INDEX, "CLASSIC_SEARCH_VIDEO_IS_SPAM", "", 10, false, false)
         });
     }
 
@@ -79,16 +82,21 @@ public class VideoTableFormat extends ResultsTableFormat<VisualSearchResult> {
                     return (vsr.getProperty(FilePropertyKey.WIDTH) + " X " + vsr.getProperty(FilePropertyKey.HEIGHT));
             case SIZE_INDEX: return vsr.getSize();
             case GENRE_INDEX: return vsr.getProperty(FilePropertyKey.GENRE);
+            case IS_SPAM_INDEX: return vsr;
         }
         throw new IllegalArgumentException("Unknown column:" + index);
     }
     
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.DESCENDING, FROM_INDEX),
-                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
-                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.DESCENDING, FROM_INDEX),
+                    new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                    new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
     
     @Override

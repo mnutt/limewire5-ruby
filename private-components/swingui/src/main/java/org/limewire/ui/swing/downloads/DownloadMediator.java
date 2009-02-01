@@ -27,18 +27,28 @@ public class DownloadMediator {
 	}
 
 	public void pauseAll() {
-	    for (DownloadItem item : commonBaseList) {
-            if (item.getState().isPausable()) {
-                item.pause();
+        commonBaseList.getReadWriteLock().writeLock().lock();
+        try {
+            for (DownloadItem item : commonBaseList) {
+                if (item.getState().isPausable()) {
+                    item.pause();
+                }
             }
+        } finally {
+            commonBaseList.getReadWriteLock().writeLock().unlock();
         }
     }
 
 	public void resumeAll() {
-        for (DownloadItem item : commonBaseList) {
-            if (item.getState().isResumable()) {
-                item.resume();
+        commonBaseList.getReadWriteLock().writeLock().lock();
+        try {
+            for (DownloadItem item : commonBaseList) {
+                if (item.getState().isResumable()) {
+                    item.resume();
+                }
             }
+        } finally {
+            commonBaseList.getReadWriteLock().writeLock().unlock();
         }
     }
 	

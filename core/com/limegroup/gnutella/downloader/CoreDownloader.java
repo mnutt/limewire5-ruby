@@ -14,7 +14,7 @@ import com.limegroup.gnutella.downloader.serial.DownloadMemento;
  * Extends the {@link Downloader} interface to provide more functionality,
  * allowing the download to be more tightly managed.
  */
-public interface CoreDownloader extends Downloader, ListenerSupport<DownloadStatusEvent> {
+public interface CoreDownloader extends Downloader, ListenerSupport<DownloadStateEvent> {
 
     /**
      * Sets the inactive priority of this download.

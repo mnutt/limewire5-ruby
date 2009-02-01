@@ -18,7 +18,7 @@ import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.downloader.AbstractCoreDownloader;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.gnutella.downloader.DownloaderType;
 import com.limegroup.gnutella.downloader.serial.DownloadMemento;
 
@@ -26,7 +26,7 @@ import com.limegroup.gnutella.downloader.serial.DownloadMemento;
  * Downloader listening to events from the Mozilla download process.
  */
 public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
-        EventListener<DownloadStatusEvent> {
+        EventListener<DownloadStateEvent> {
 
     private final MozillaDownload download;
 
@@ -197,7 +197,7 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     }
 
     @Override
-    public DownloadStatus getState() {
+    public DownloadState getState() {
         return download.getDownloadStatus();
     }
 
@@ -305,12 +305,12 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     }
 
     @Override
-    public void addListener(EventListener<DownloadStatusEvent> listener) {
+    public void addListener(EventListener<DownloadStateEvent> listener) {
         this.download.addListener(listener);
     }
 
     @Override
-    public boolean removeListener(EventListener<DownloadStatusEvent> listener) {
+    public boolean removeListener(EventListener<DownloadStateEvent> listener) {
         return this.download.removeListener(listener);
     }
 
@@ -367,14 +367,14 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
      * Listens for events that tell use to remove item from download manager.
      */
     @Override
-    public void handleEvent(DownloadStatusEvent event) {
-        DownloadStatus status = event.getType();
-        if (status == DownloadStatus.COMPLETE || status == DownloadStatus.INVALID
-                || status == DownloadStatus.ABORTED) {
+    public void handleEvent(DownloadStateEvent event) {
+        DownloadState status = event.getType();
+        if (status == DownloadState.COMPLETE || status == DownloadState.INVALID
+                || status == DownloadState.ABORTED) {
             downloadManager.remove(this, false);
         }
 
-        if (status == DownloadStatus.COMPLETE) {
+        if (status == DownloadState.COMPLETE) {
             //move the finished file from the incomplete directory to the Save directory.
             File downloadedFile = getIncompleteFile();
             File savedFile = getSaveFile();

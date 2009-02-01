@@ -5,6 +5,7 @@ import java.io.File;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
+import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.ui.swing.downloads.DownloadItemUtils;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
@@ -13,11 +14,10 @@ import org.limewire.ui.swing.library.sharing.ShareWidgetFactory;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 
-import ca.odell.glazedlists.EventList;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-
+@Singleton
 public class DownloadActionHandler {
     
     public final static String PAUSE_COMMAND = "pause";
@@ -39,14 +39,14 @@ public class DownloadActionHandler {
    // private static final String ERROR_URL = "http://wiki.limewire.org/index.php?title=User_Guide_Download";
     
     private final LibraryNavigator libraryNavigator;
-    private EventList<DownloadItem> downloadItems;
+    private DownloadListManager downloadListManager;
     private PropertiesFactory<DownloadItem> propertiesFactory;
     private ShareWidget<File> shareWidget;
     
-    @AssistedInject
+    @Inject
     public DownloadActionHandler(PropertiesFactory<DownloadItem> propertiesFactory, 
-            ShareWidgetFactory shareFactory, @Assisted EventList<DownloadItem> downloadItems, LibraryNavigator libraryNavigator){
-        this.downloadItems = downloadItems;
+            ShareWidgetFactory shareFactory, DownloadListManager downloadListManager, LibraryNavigator libraryNavigator){
+        this.downloadListManager = downloadListManager;
         this.propertiesFactory = propertiesFactory;
         this.shareWidget = shareFactory.createFileShareWidget();
         this.libraryNavigator = libraryNavigator;
@@ -65,13 +65,15 @@ public class DownloadActionHandler {
             //Do nothing for now
            // NativeLaunchUtils.openURL(ERROR_URL);
         } else if (actionCommmand == PREVIEW_COMMAND || actionCommmand == LAUNCH_COMMAND || actionCommmand == PLAY_COMMAND){
-            DownloadItemUtils.launch(item);
+            if (item.isLaunchable()) {
+                DownloadItemUtils.launch(item);
+            }
         } else if (actionCommmand == LOCATE_COMMAND){
             NativeLaunchUtils.launchExplorer(item.getDownloadingFile());
         } else if (actionCommmand == PROPERTIES_COMMAND){
             propertiesFactory.newProperties().showProperties(item);
         } else if (actionCommmand == REMOVE_COMMAND){
-            downloadItems.remove(item);
+            downloadListManager.remove(item);
         } else if (actionCommmand == SHARE_COMMAND){
             shareWidget.setShareable(item.getDownloadingFile());
             shareWidget.show(null);

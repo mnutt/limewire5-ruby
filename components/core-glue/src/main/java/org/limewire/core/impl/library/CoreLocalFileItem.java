@@ -136,15 +136,14 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
 
     @Override
     public FileMetaData toMetadata() {
-        FileDetails details = getFileDetails();
         FileMetaDataImpl fileMetaData = new FileMetaDataImpl();
-        fileMetaData.setCreateTime(new Date(details.getCreationTime()));
+        fileMetaData.setCreateTime(new Date(creationTimeCache.getCreationTimeAsLong(fileDesc.getSHA1Urn())));
         fileMetaData.setDescription(""); // TODO
-        fileMetaData.setId(details.getSHA1Urn().toString());
-        fileMetaData.setIndex(details.getIndex());
-        fileMetaData.setName(details.getFileName());
-        fileMetaData.setSize(details.getSize());
-        fileMetaData.setURNs(details.getUrns());
+        fileMetaData.setId(fileDesc.getSHA1Urn().toString());
+        fileMetaData.setIndex(fileDesc.getIndex());
+        fileMetaData.setName(fileDesc.getFileName());
+        fileMetaData.setSize(fileDesc.getFileSize());
+        fileMetaData.setURNs(fileDesc.getUrns());
         return fileMetaData;
     }
 
@@ -275,7 +274,7 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
 
     @Override
     public String getFileName() {
-        return getFileDetails().getFileName();
+        return fileDesc.getFileName();
     }
 
     @Override

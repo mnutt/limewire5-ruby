@@ -1,12 +1,12 @@
-/AbstractManager.java/1.3/Wed Jan 17 16:36:06 2007//
-/BootstrapManager.java/1.32/Mon May 19 14:58:16 2008//
-/BootstrapProcess.java/1.5/Sat Oct 25 23:15:23 2008//
-/BootstrapWorker.java/1.2/Thu Dec 13 20:01:18 2007//
-/FindNodeManager.java/1.7/Mon Apr 28 18:44:58 2008//
-/FindValueManager.java/1.8/Mon May 19 14:58:16 2008//
-/GetValueManager.java/1.6/Mon May 19 14:58:16 2008//
-/PingIteratorFactory.java/1.8/Mon May 19 14:58:16 2008//
-/PingManager.java/1.7/Tue May 13 18:50:10 2008//
-/StoreManager.java/1.19/Tue May 13 18:50:10 2008//
-/StoreProcess.java/1.3/Tue May 13 18:50:10 2008//
+/AbstractManager.java/1.3/Sat Jan  3 19:33:55 2009//
+/BootstrapManager.java/1.32/Sat Jan  3 19:33:55 2009//
+/BootstrapProcess.java/1.5/Sat Jan  3 19:33:55 2009//
+/BootstrapWorker.java/1.2/Sat Jan  3 19:33:55 2009//
+/FindNodeManager.java/1.7/Sat Jan  3 19:33:55 2009//
+/FindValueManager.java/1.8/Sat Jan  3 19:33:55 2009//
+/GetValueManager.java/1.6/Sat Jan  3 19:33:55 2009//
+/PingIteratorFactory.java/1.8/Sat Jan  3 19:33:55 2009//
+/PingManager.java/1.7/Sat Jan  3 19:33:55 2009//
+/StoreManager.java/1.19/Sat Jan  3 19:33:55 2009//
+/StoreProcess.java/1.3/Sat Jan  3 19:33:55 2009//
 D

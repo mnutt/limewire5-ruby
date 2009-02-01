@@ -282,7 +282,7 @@ public final class UpdateCollectionTest extends LimeTestCase {
             "</update>");
     	        
             boolean windows = OSUtils.isWindows();
-            boolean mac = OSUtils.isAnyMac();
+            boolean mac = OSUtils.isMacOSX();
             boolean linux = OSUtils.isLinux();
             boolean unix = OSUtils.isUnix() && !linux;
             boolean other = !windows && !mac && !linux && !unix;

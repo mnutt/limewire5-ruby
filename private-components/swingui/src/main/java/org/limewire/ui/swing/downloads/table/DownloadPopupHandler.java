@@ -33,6 +33,7 @@ public class DownloadPopupHandler implements TablePopupHandler {
     private JMenuItem shareMenuItem;
     private JMenuItem playMenuItem;
     private JMenuItem viewMenuItem;
+    private JMenuItem cancelWithRemoveNameMenuItem;
     
     private MenuListener menuListener;
     private DownloadActionHandler actionHandler;
@@ -71,6 +72,10 @@ public class DownloadPopupHandler implements TablePopupHandler {
         removeMenuItem.setActionCommand(DownloadActionHandler.REMOVE_COMMAND);
         removeMenuItem.addActionListener(menuListener);
 
+        cancelWithRemoveNameMenuItem = new JMenuItem(I18n.tr("Remove from List"));
+        cancelWithRemoveNameMenuItem.setActionCommand(DownloadActionHandler.CANCEL_COMMAND);
+        cancelWithRemoveNameMenuItem.addActionListener(menuListener);
+        
         locateMenuItem = new JMenuItem(I18n.tr("Locate on Disk"));
         locateMenuItem.setActionCommand(DownloadActionHandler.LOCATE_COMMAND);
         locateMenuItem.addActionListener(menuListener);
@@ -80,7 +85,7 @@ public class DownloadPopupHandler implements TablePopupHandler {
         libraryMenuItem.addActionListener(menuListener);
 
         
-        propertiesMenuItem = new JMenuItem(I18n.tr("View File Info"));
+        propertiesMenuItem = new JMenuItem(I18n.tr("View File Info..."));
         propertiesMenuItem.setActionCommand(DownloadActionHandler.PROPERTIES_COMMAND);
         propertiesMenuItem.addActionListener(menuListener);
 
@@ -130,9 +135,9 @@ public class DownloadPopupHandler implements TablePopupHandler {
                     popupMenu.add(playMenuItem).setEnabled(downloadItem.isLaunchable());
                 } else if (downloadItem.getCategory() == Category.IMAGE
                         || downloadItem.getCategory() == Category.DOCUMENT) {
-                    popupMenu.add(viewMenuItem);
+                    popupMenu.add(viewMenuItem).setEnabled(downloadItem.isLaunchable());
                 } else {
-                    popupMenu.add(launchMenuItem);
+                    popupMenu.add(launchMenuItem).setEnabled(downloadItem.isLaunchable());
                 }
             }
             popupMenu.add(shareMenuItem);
@@ -144,7 +149,6 @@ public class DownloadPopupHandler implements TablePopupHandler {
             break;
 
         case CONNECTING:
-        case ERROR:
         case FINISHING:
         case LOCAL_QUEUED:
         case REMOTE_QUEUED:
@@ -155,7 +159,14 @@ public class DownloadPopupHandler implements TablePopupHandler {
             popupMenu.add(new JSeparator());
             popupMenu.add(cancelMenuItem);
             break;
-
+        case ERROR:
+            popupMenu.add(cancelWithRemoveNameMenuItem);            
+            popupMenu.add(new JSeparator());
+            if (downloadItem.getCategory() != Category.PROGRAM && downloadItem.getCategory() != Category.OTHER) {
+                popupMenu.add(previewMenuItem).setEnabled(downloadItem.isLaunchable());
+            }
+            popupMenu.add(libraryMenuItem);
+            break;
         case DOWNLOADING:
             if (downloadItem.getCategory() != Category.PROGRAM && downloadItem.getCategory() != Category.OTHER) {
                 popupMenu.add(previewMenuItem).setEnabled(downloadItem.isLaunchable());

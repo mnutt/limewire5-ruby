@@ -71,7 +71,7 @@
 	<target name="compile-tests"
 	        description="Compiles the tests of every component (and the source if necessary)"
 	        depends="compile-src, lw-test-util.compile-src, lw-swingui.compile-tests, lw-mock-core.compile-tests, lw-integrated-ui.compile-tests">
-        <mkdir dir="${build.limewire.components.all.tests}"/>
+        <mkdir dir="${build.limewire.components.private-all.tests}"/>
 	</target>
     
 	<target name="clean-tests"
@@ -106,8 +106,7 @@
 	</target>
     
     <target name="prep-tests">
-        <mkdir dir="${limewire.components.all.tests.resources}"/>
-        <!--<copy file="${limewire.components.home}/log4j.properties" todir="${limewire.components.all.tests.resources}" overwrite="true"/>-->
+        <mkdir dir="${limewire.components.private-all.tests.resources}"/>
     </target>
 	    
     <target name="jar"
@@ -119,8 +118,9 @@
 	    	    <fileset dir="${limewire.components.swingui.src.resources}" />
 			    <!--<fileset dir="${build.limewire.components.mock-core.classes}"/>-->
     	        <fileset dir="${build.limewire.components.integrated-ui.classes}" />
-                <!-- Add as components & resources are added. -->
                 <fileset dir="${build.limewire.components.core-glue.classes}" />
+                <!-- Add as components & resources are added. -->
+
 			</more-jar-elements>
         </do.jar>
     </target>

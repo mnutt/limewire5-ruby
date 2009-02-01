@@ -26,4 +26,9 @@ public class MockDaapManagerImpl implements DaapManager {
     public boolean isServerRunning() {
         return false;
     }
+
+    @Override
+    public void start() throws IOException {
+        
+    }
 }

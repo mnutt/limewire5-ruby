@@ -7,6 +7,7 @@ import junit.framework.Test;
 
 import org.limewire.core.settings.UpdateSettings;
 import org.limewire.io.GGEP;
+import org.limewire.listener.EventListener;
 import org.limewire.util.Base32;
 import org.limewire.util.FileUtils;
 import org.limewire.util.PrivilegedAccessor;
@@ -233,13 +234,16 @@ public class InterClientTest extends PeerTestCase {
     }
     
     /**
-     * Tests that updates are sent out when versions come in.
+     * Tests that no updates are sent to the UI because the 
+     * version is too old
      */
-    public void testUpdatesSentToGUI() throws Exception {
+    public void testUpdatesNotSentToGui() throws Exception {
         setCurrentId(-11);
         assertEquals(-11, getUpdateHandler().getLatestId());
         
-        myActivityCallback.lastUpdate = null;
+        // add listener, should not receive any events
+        HandleUpdate update = new HandleUpdate();
+        getUpdateHandler().addListener(update);
         
         // Get the -8 file.
         byte[] b = readFile(-8);
@@ -247,12 +251,17 @@ public class InterClientTest extends PeerTestCase {
         PEER.flush();
         
         Thread.sleep(1000); // let it process.
+
+        getUpdateHandler().removeListener(update);// remove listener
         
         assertEquals(-8, getUpdateHandler().getLatestId());
-        // since version still == @version@, it wasn't sent to the callback.
-        assertNull(myActivityCallback.lastUpdate);
-        
-        setEmpty();
+        assertNull("Should not recieve update event", update.event);
+    }
+    
+    /**
+     * Tests that updates are sent out when versions come in.
+     */
+    public void testUpdatesSentToGUI() throws Exception {       
         setCurrentId(-11);
         assertEquals(-11, getUpdateHandler().getLatestId());
         setVersion("3.0.0");
@@ -260,16 +269,31 @@ public class InterClientTest extends PeerTestCase {
         // Set the update style to zero to ensure the message is not ignored
         UpdateSettings.UPDATE_STYLE.setValue(0);
         
+        //add listener, should receive an update event
+        HandleUpdate update = new HandleUpdate();
+        getUpdateHandler().addListener(update);
+        
         // Get the -8 file.
-        b = readFile(-8);
+        byte[] b = readFile(-8);
         PEER.send(UpdateResponse.createUpdateResponse(b,dummy));
         PEER.flush();
         
         Thread.sleep(1000); // let it process.
+
+        getUpdateHandler().removeListener(update); //remove listener
         
         assertEquals(-8, getUpdateHandler().getLatestId());
-        assertNotNull(myActivityCallback.lastUpdate);
+        assertEquals(update.event.getType(), com.limegroup.gnutella.version.UpdateEvent.Type.UPDATE);
     }    
+    
+    private class HandleUpdate implements EventListener<UpdateEvent> {
+        UpdateEvent event = null;
+
+        @Override
+        public void handleEvent(UpdateEvent event) {
+            this.event = event;
+        }
+    }
     
     public void testCompressedResponse() throws Exception {
         assertEquals(0, getUpdateHandler().getLatestId());

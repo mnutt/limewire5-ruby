@@ -94,5 +94,10 @@ public class MockUploadListManager implements UploadListManager {
             threadSafeUploadItems.getReadWriteLock().writeLock().unlock();
         }
     }
+    
+    @Override
+    public void remove(UploadItem item) {
+        threadSafeUploadItems.remove(item);
+    }
 
 }

@@ -31,7 +31,6 @@ case ${PLATFORM} in
         CLASSPATH="${CLASSPATH}:/System/Library/Java";
         OPTS="${OPTS} -Djava.library.path=lib/native/osx";
         OPTS="${OPTS} -Djava.endorsed.dirs=\"\"";
-        OPTS="${OPTS} -Djava.nio.preferSelect=true";
         OPTS="${OPTS} -Xdock:icon=LimeWire.icns";
         ADDITIONAL=osx
     ;;

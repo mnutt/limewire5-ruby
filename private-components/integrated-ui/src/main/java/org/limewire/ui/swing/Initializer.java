@@ -24,6 +24,8 @@ import org.jdesktop.application.Application;
 import org.limewire.core.impl.mozilla.LimeMozillaOverrides;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.io.IOUtils;
+import org.limewire.net.FirewallService;
+import org.limewire.nio.NIODispatcher;
 import org.limewire.service.ErrorService;
 import org.limewire.service.MessageService;
 import org.limewire.ui.support.BugManager;
@@ -50,11 +52,14 @@ import org.mozilla.browser.MozillaPanel;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.ActiveLimeWireCheck;
+import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.LimeCoreGlue;
-import com.limegroup.gnutella.LimeWireCore;
+import com.limegroup.gnutella.UPnPManager;
 import com.limegroup.gnutella.LimeCoreGlue.InstallFailedException;
 import com.limegroup.gnutella.browser.ExternalControl;
 import com.limegroup.gnutella.util.LimeWireUtils;
@@ -80,6 +85,15 @@ public final class Initializer {
     
     /** The SplashWindow reference. */
     private final AtomicReference<SplashWindow> splashRef = new AtomicReference<SplashWindow>();
+    
+    // Providers so we don't guarantee early creation, let it be as lazy as possible.
+    @Inject private Provider<ExternalControl> externalControl;
+    @Inject private Provider<FirewallService> firewallServices;
+    @Inject private Provider<LifecycleManager> lifecycleManager;
+    @Inject private Provider<LimeCoreGlue> limeCoreGlue;
+    @Inject private Provider<NIODispatcher> nioDispatcher;
+    @Inject private Provider<UPnPManager> upnpManager;
+    @Inject private Provider<LimeMozillaOverrides> mozillaOverrides;
     
     Initializer() {
         // If Log4J is available then remove the NoOpLog
@@ -113,15 +127,14 @@ public final class Initializer {
         validateStartup(args);
         
         // Creates LimeWire itself.
-        LimeWireCore limeWireCore = createLimeWire();
-        Injector injector = limeWireCore.getInjector();
+        Injector injector = createLimeWire();
        
         // Various tasks that can be done after core is glued & started.
-        glueCore(limeWireCore);        
-        validateEarlyCore(limeWireCore);
+        glueCore();        
+        validateEarlyCore();
         
         // Validate any arguments or properties outside of the LW environment.
-        runExternalChecks(limeWireCore, args, injector);
+        runExternalChecks(args, injector);
 
         // Starts some system monitoring for deadlocks.
         DeadlockSupport.startDeadlockMonitoring();
@@ -135,18 +148,16 @@ public final class Initializer {
         
         //must agree not to use LW for copyright infringement on first running
         confirmIntent(awtSplash);
-
-        boolean isPro = injector.getInstance(org.limewire.core.api.Application.class).isProVersion();
         
         // Move from the AWT splash to the Swing splash & start early core.
         //assuming not showing splash screen if there are program arguments
-        switchSplashes(awtSplash, splashImage, isPro);
+        switchSplashes(awtSplash, splashImage, LimeWireUtils.isPro());
         
-        startEarlyCore(limeWireCore);
+        startEarlyCore();
         
         // Initialize early UI components, display the setup manager (if necessary),
         // and ensure the save directory is valid.
-        initializeEarlyUI(injector.getInstance(LimeMozillaOverrides.class));
+        initializeEarlyUI();
         
         // Load the UI, system tray & notification handlers,
         // and hide the splash screen & display the UI.
@@ -158,8 +169,8 @@ public final class Initializer {
         SettingsWarningManager.checkSettingsLoadSaveFailure();        
         
         // Start the core & run any queued control requests, and load DAAP.
-        startCore(limeWireCore);
-        runQueuedRequests(limeWireCore);
+        startCore();
+        runQueuedRequests();
         
         // Run any after-init tasks.
         postinit();        
@@ -353,28 +364,29 @@ public final class Initializer {
     }
     
     /** Wires together LimeWire. */
-    private LimeWireCore createLimeWire() {
+    private Injector createLimeWire() {
         stopwatch.reset();
         Injector injector = Guice.createInjector(Stage.PRODUCTION, new LimeWireModule(), new AbstractModule() {
             @Override
             protected void configure() {
                 requestStaticInjection(AppFrame.class);
+                requestInjection(Initializer.this);
             }
         });
         stopwatch.resetAndLog("Create injector");
-        return injector.getInstance(LimeWireCore.class);
+        return injector;
     }
     
     /** Wires together remaining non-Guiced pieces. */
-    private void glueCore(LimeWireCore limeWireCore) {
-        limeWireCore.getLimeCoreGlue().install();
+    private void glueCore() {
+        limeCoreGlue.get().install();
         stopwatch.resetAndLog("Install core glue");
     }
     
     /** Tasks that can be done after core is created, before it's started. */
-    private void validateEarlyCore(LimeWireCore limeWireCore) {        
+    private void validateEarlyCore() {        
         // See if our NIODispatcher clunked out.
-        if(!limeWireCore.getNIODispatcher().isRunning()) {
+        if(!nioDispatcher.get().isRunning()) {
             failInternetBlocked();
         }
         stopwatch.resetAndLog("Check for NIO dispatcher");
@@ -386,11 +398,10 @@ public final class Initializer {
      * ensuring that multiple LimeWire's can't run at once,
      * and processing any arguments that were passed to LimeWire.
      */ 
-    private void runExternalChecks(LimeWireCore limeWireCore, String[] args, Injector injector) {        
-        ExternalControl externalControl = limeWireCore.getExternalControl();
+    private void runExternalChecks(String[] args, Injector injector) {        
         stopwatch.resetAndLog("Get externalControl");
         if(OSUtils.isMacOSX()) {
-            GURLHandler.getInstance().enable(externalControl);
+            GURLHandler.getInstance().enable(externalControl.get());
             stopwatch.resetAndLog("Enable GURL");
             injector.injectMembers(MacEventHandler.instance());
             stopwatch.resetAndLog("Enable macEventHandler");
@@ -401,7 +412,7 @@ public final class Initializer {
         if (args.length > 0 && !args[0].equals("-startup")) {
             String arg = ExternalControl.preprocessArgs(args);
             stopwatch.resetAndLog("Preprocess args");
-            externalControl.enqueueControlRequest(arg);
+            externalControl.get().enqueueControlRequest(arg);
             stopwatch.resetAndLog("Enqueue control req");
         }
     }
@@ -427,13 +438,13 @@ public final class Initializer {
     }
     
     /** Starts any early core-related functionality. */
-    private void startEarlyCore(LimeWireCore limeWireCore) {        
+    private void startEarlyCore() {        
         // Add this running program to the Windows Firewall Exceptions list
-        boolean inFirewallException = limeWireCore.getFirewallService().addToFirewall();
+        boolean inFirewallException = firewallServices.get().addToFirewall();
         stopwatch.resetAndLog("add firewall exception");
         
         if(!inFirewallException) {
-            limeWireCore.getLifecycleManager().loadBackgroundTasks();
+            lifecycleManager.get().loadBackgroundTasks();
             stopwatch.resetAndLog("load background tasks");
         }
     }
@@ -460,7 +471,7 @@ public final class Initializer {
     /** Initializes any early UI tasks, such as HTML loading & the Bug Manager. 
      * @param mozillaOverrides 
      * @param mozillaOverrides */
-    private void initializeEarlyUI(LimeMozillaOverrides mozillaOverrides) {
+    private void initializeEarlyUI() {
         // Load up the HTML engine.
         splashRef.get().setStatusText(I18n.tr("Muddling Mint..."));        //html engine
         stopwatch.resetAndLog("update splash for HTML engine");
@@ -485,19 +496,20 @@ public final class Initializer {
         if (LimeMozillaInitializer.shouldInitialize()) {
             try {
                 LimeMozillaInitializer.initialize();
-                mozillaOverrides.overrideMozillaDefaults();
+                mozillaOverrides.get().overrideMozillaDefaults();
             } catch (Exception e) {
                 LOG.error("Mozilla initialization failed");
             }
+            
+            stopwatch.resetAndLog("Load XUL Library Path");
+            SwingUtils.invokeAndWait(new Runnable() {
+                public void run() {
+                    stopwatch.resetAndLog("enter evt queue");
+                    new MozillaPanel();
+                    stopwatch.resetAndLog("Load MozillaPanel");
+                }
+            });
         }
-        stopwatch.resetAndLog("Load XUL Library Path");
-        SwingUtils.invokeAndWait(new Runnable() {
-            public void run() {
-                stopwatch.resetAndLog("enter evt queue");
-                new MozillaPanel();
-                stopwatch.resetAndLog("Load MozillaPanel");
-            }
-        });
         
         stopwatch.resetAndLog("return from evt queue");
     }
@@ -546,22 +558,22 @@ public final class Initializer {
     }
     
     /** Starts the core. */
-    private void startCore(LimeWireCore limeWireCore) {
+    private void startCore() {
         // Start the backend threads.  Note that the GUI is not yet visible,
         // but it needs to be constructed at this point  
-        limeWireCore.getLifecycleManager().start();
+        lifecycleManager.get().start();
         stopwatch.resetAndLog("lifecycle manager start");
         
         if (!ConnectionSettings.DISABLE_UPNP.getValue()) {
-            limeWireCore.getUPnPManager().start();
+            upnpManager.get().start();
             stopwatch.resetAndLog("start UPnPManager");
         }
     }
     
     /** Runs control requests that we queued early in initializing. */
-    private void runQueuedRequests(LimeWireCore limeWireCore) {        
+    private void runQueuedRequests() {        
         // Activate a download for magnet URL locally if one exists
-        limeWireCore.getExternalControl().runQueuedControlRequest();
+        externalControl.get().runQueuedControlRequest();
         stopwatch.resetAndLog("run queued control req");
     }
     

@@ -3,6 +3,7 @@ package org.limewire.ui.swing.friends.chat;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -30,21 +31,25 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.xmpp.api.client.ChatState;
 import org.limewire.xmpp.api.client.MessageWriter;
 import org.limewire.xmpp.api.client.XMPPException;
+import org.limewire.collection.Periodic;
 
 class ResizingInputPanel extends JPanel implements Displayable {
     private static final Log LOG = LogFactory.getLog(ResizingInputPanel.class);
+    private static final int DELAY_IN_MILLIS_FOR_CHAT_PAUSED = 3000;
     private final JTextArea text;
     private final MessageWriter writer;
-    private ChatState currentInputChatState = ChatState.active;
+    private final ChatStateManager chatStateManager;
+
     @Resource(key="ChatInputPanel.textFont") private Font inputTextFont;
 
-    public ResizingInputPanel(MessageWriter writer) {
+    public ResizingInputPanel(MessageWriter writer, ScheduledExecutorService schedExecService) {
         super(new BorderLayout());
 
         this.writer = writer;
         
         GuiUtils.assignResources(this);
-        
+
+        chatStateManager = new ChatStateManager(schedExecService);
         text = new JTextArea();
         text.setFont(inputTextFont);
         text.setRows(2);
@@ -52,7 +57,8 @@ class ResizingInputPanel extends JPanel implements Displayable {
         text.setLineWrap(true);
         text.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "sendMessage");
         text.getActionMap().put("sendMessage", new SendMessage());
-        text.getDocument().addDocumentListener(new ChatStateDocumentListener());
+        text.getDocument().addDocumentListener(chatStateManager);
+        text.setBorder(BorderFactory.createEmptyBorder(2,0,0,0));
         
         JPopupMenu popup = PopupUtil.addPopupMenus(text, new CutAction(text), new CopyAction(text), 
                 new PasteAction(), new DeleteAction(text));
@@ -69,7 +75,7 @@ class ResizingInputPanel extends JPanel implements Displayable {
                 }
             }
         });
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 6));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
         add(scrollPane);
     }
     
@@ -78,6 +84,10 @@ class ResizingInputPanel extends JPanel implements Displayable {
             text.setRows(rowCount);
             revalidate();
         }
+    }
+
+    public void destroy() {
+        chatStateManager.cancelPendingChatStateUpdates();        
     }
     
     @Override
@@ -99,7 +109,7 @@ class ResizingInputPanel extends JPanel implements Displayable {
                     writer.writeMessage(message);
                     text.setText("");
                     resizeTextBox(2);
-                    updateChatState(ChatState.active);
+                    chatStateManager.updateChatState(ChatState.active);
                 }
             } catch (XMPPException e1) {
                 LOG.error("Unable to write message", e1);
@@ -107,36 +117,61 @@ class ResizingInputPanel extends JPanel implements Displayable {
         }
     }
     
-    private void updateChatState(ChatState state) {
-        if (currentInputChatState != state) {
-            currentInputChatState = state;
-            try {
-                writer.setChatState(currentInputChatState);
-            } catch (XMPPException e) {
-                LOG.error("Unable to set chat state", e);
+    private class ChatStateManager implements DocumentListener {
+
+        private final Periodic chatPausedTimer;
+        private volatile ChatState currentInputChatState = ChatState.active;
+
+        ChatStateManager(ScheduledExecutorService schedExecService) {
+            chatPausedTimer = new Periodic(new Runnable() {
+
+                public void run() {
+                    if (currentInputChatState == ChatState.composing) {
+                        updateChatState(ChatState.paused);
+                    }
+                }
+            }, schedExecService);
+        }
+
+        void updateChatState(ChatState state) {
+            if (currentInputChatState != state) {
+                currentInputChatState = state;
+                try {
+                    writer.setChatState(currentInputChatState);
+                } catch (XMPPException e) {
+                    LOG.error("Unable to set chat state", e);
+                }
             }
         }
-    }
-    
-    private class ChatStateDocumentListener implements DocumentListener {
+
+        void cancelPendingChatStateUpdates() {
+            chatPausedTimer.unschedule();
+        }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-            updateChatState(ChatState.composing);
+            updateChatStateComposing();
         }
 
         @Override
         public void insertUpdate(DocumentEvent e) {
-            updateChatState(ChatState.composing);
+            updateChatStateComposing();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
             if (e.getDocument().getLength() == 0) {
-                updateChatState(ChatState.paused);
+                updateChatState(ChatState.active);
             } else {
-                updateChatState(ChatState.composing);
+                updateChatStateComposing();
             }
+        }
+
+        private void updateChatStateComposing() {
+            // update chat state to "composing", if necessary
+            updateChatState(ChatState.composing);
+
+            chatPausedTimer.rescheduleIfLater(DELAY_IN_MILLIS_FOR_CHAT_PAUSED);
         }
     }
 }

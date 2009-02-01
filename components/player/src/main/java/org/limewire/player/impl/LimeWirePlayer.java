@@ -470,6 +470,9 @@ public class LimeWirePlayer implements Runnable, AudioPlayer {
         catch (NullPointerException e) {
             playerState = STOPPED;
         }
+        catch (IllegalArgumentException e) {
+            playerState = STOPPED;
+        }
     }
     
     /**

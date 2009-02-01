@@ -137,7 +137,7 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
      * locations until we find out enough information to start the download 
      */
     @Override
-    protected DownloadStatus initializeDownload() {
+    protected DownloadState initializeDownload() {
         
         // ask ranker since the alt loc manager might have added extra alt locs
         // which were added to the ranker then
@@ -166,7 +166,7 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
         
 			// if all locations included in the magnet URI fail we can't do much
 			if (!foundSource)
-				return DownloadStatus.GAVE_UP;
+				return DownloadState.GAVE_UP;
 		}
         return super.initializeDownload();
     }

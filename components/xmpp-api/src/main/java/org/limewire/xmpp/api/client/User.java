@@ -30,14 +30,17 @@ public interface User extends Friend {
     public MessageWriter createChat(MessageReader reader);
 
     /**
-     * Used to register a listener for new incoming chats
+     * Used to register a listener for new incoming chats.  If a chat listener is already set,
+     * it is necessary to remove it prior to setting a new one. Does nothing if chat
+     * listener is already set.
+     *
      * @param listener the <code>IncomingChatListener</code> to be used
      */
-    public void setIncomingChatListener(IncomingChatListener listener);
+    public void setChatListenerIfNecessary(IncomingChatListener listener);
 
     /**
-     * Used for removing the existing listener set in {@link #setIncomingChatListener}
-     * for new incoming chats.
+     * Used for removing the existing listener set in {@link #setChatListenerIfNecessary}
+     * for new incoming chats.  Does nothing if there is no chat listener set.
      */
     public void removeChatListener();
 

@@ -401,7 +401,7 @@ public class SwarmHttpSourceDownloader implements SwarmSourceDownloader, NHttpRe
 
         public String getPath() {
             String path = this.path;
-            if (path.charAt(path.length() - 1) == '/') {
+            if (path.length() > 0 && path.charAt(path.length() - 1) == '/') {
                 path += swarmFile.getPath();
             }
             return path;

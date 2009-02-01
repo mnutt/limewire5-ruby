@@ -573,7 +573,7 @@ public class QueryRequestFactoryImpl implements QueryRequestFactory {
         else if (type == MediaType.getDocumentMediaType())
             metaFlag |= QueryRequest.DOC_MASK;
         else if (type == MediaType.getProgramMediaType()) {
-            if (OSUtils.isLinux() || OSUtils.isAnyMac())
+            if (OSUtils.isLinux() || OSUtils.isMacOSX())
                 metaFlag |= QueryRequest.LIN_PROG_MASK;
             else if (OSUtils.isWindows())
                 metaFlag |= QueryRequest.WIN_PROG_MASK;

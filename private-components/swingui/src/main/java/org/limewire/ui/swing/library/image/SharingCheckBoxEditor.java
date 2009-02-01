@@ -27,7 +27,7 @@ public class SharingCheckBoxEditor extends TableRendererEditor implements Config
     public SharingCheckBoxEditor(LocalFileList fileList) {
         this.localFileList = fileList;
         
-        setLayout(new MigLayout());
+        setLayout(new MigLayout("aligny 50%"));
         
         checkBox = new JCheckBox();
         checkBox.setOpaque(false);

@@ -121,6 +121,7 @@
             <moretestinfo>
                 <testsources refid="limewire.components.sources.tests"/>
                 <testsources dir="${limewire.components.tests.home}"/>
+                <testsources dir="${limewire.components.core-glue.home}"/>
                 <testresults dir="${tests.limewire.components.all.xml}" includes="TEST-*.xml"/>
                 <testresults dir="${tests.limewire.components.tests.xml}" includes="TEST-*.xml"/>
                 <testresults dir="${tests.limewire.components.core-glue.xml}" includes="TEST-*.xml"/>
@@ -138,6 +139,7 @@
                 <fileset dir="${limewire.components.tests.home}"/>
                 <fileset refid="limewire.components.sources.all"/>
                 <fileset dir="${limewire.components.core-glue.src}"/>
+                <fileset dir="${limewire.components.core-glue.tests}"/>
               </locations>
           </do.clover-setup>
       </target>

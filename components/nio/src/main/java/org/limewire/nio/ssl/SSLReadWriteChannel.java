@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
@@ -214,7 +215,7 @@ class SSLReadWriteChannel implements InterestReadableByteChannel, InterestWritab
             readIncoming.flip();
 
             // Try unwrapping directly into dst first.
-            SSLEngineResult result = engine.unwrap(readIncoming, dst);
+            SSLEngineResult result = unwrap(engine, readIncoming, dst);
             readProduced += result.bytesProduced();
             readConsumed += result.bytesConsumed();
             transferred += result.bytesProduced();
@@ -234,7 +235,7 @@ class SSLReadWriteChannel implements InterestReadableByteChannel, InterestWritab
                         readOutgoing = byteBufferCache.getHeap(engine.getSession().getApplicationBufferSize());
                     }
                 }
-                result = engine.unwrap(readIncoming, readOutgoing);
+                result = unwrap(engine, readIncoming, readOutgoing);
                 readProduced += result.bytesProduced();
                 readConsumed += result.bytesConsumed();
                 status = result.getStatus();
@@ -264,7 +265,7 @@ class SSLReadWriteChannel implements InterestReadableByteChannel, InterestWritab
                             readOutgoing = byteBufferCache.getHeap(engine.getSession().getApplicationBufferSize());
                             
                             // ... and try again!
-                            result = engine.unwrap(readIncoming, readOutgoing);
+                            result = unwrap(engine, readIncoming, readOutgoing);
                             readProduced += result.bytesProduced();
                             readConsumed += result.bytesConsumed();
                             status = result.getStatus();
@@ -320,6 +321,33 @@ class SSLReadWriteChannel implements InterestReadableByteChannel, InterestWritab
         }
     }
     
+
+	/** See {@link SSLEngine#wrap(ByteBuffer, ByteBuffer) */
+    private SSLEngineResult wrap(SSLEngine engine, ByteBuffer src, ByteBuffer dst) throws SSLException, IOException {
+        assert src != null;
+        assert dst != null;
+        try {
+            return engine.wrap(src, dst);
+        } catch(RuntimeException re) {
+            throw new IOException(re);
+        } catch(Error e) {
+            throw new IOException(e);
+        }
+    }
+    
+    /** See {@link SSLEngine#unwrap(ByteBuffer, ByteBuffer) */
+    private SSLEngineResult unwrap(SSLEngine engine, ByteBuffer src, ByteBuffer dst) throws SSLException, IOException {
+        assert dst != null;
+        assert src != null;
+        try {
+            return engine.unwrap(src, dst);
+        } catch(RuntimeException re) {
+            throw new IOException(re);
+        } catch(Error e) {
+            throw new IOException(e);
+        }
+    }
+
     /**
      * Processes a single handshake result.
      * If a delegated task is needed, returns false & schedules the task(s).
@@ -432,7 +460,7 @@ class SSLReadWriteChannel implements InterestReadableByteChannel, InterestWritab
         // do...while because we want to force one write even with empty buffers
         do {
             boolean wasEmpty = writeOutgoing.position() == 0;
-            SSLEngineResult result = engine.wrap(src, writeOutgoing);
+            SSLEngineResult result = wrap(engine, src, writeOutgoing);
             writeProduced += result.bytesProduced();
             writeConsumed += result.bytesConsumed();
             if(LOG.isDebugEnabled())

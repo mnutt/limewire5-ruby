@@ -20,7 +20,7 @@ import org.limewire.service.ErrorService;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.limegroup.gnutella.RemoteFileDesc;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.altlocs.AlternateLocation;
 import com.limegroup.gnutella.altlocs.AlternateLocationCollection;
 import com.limegroup.gnutella.altlocs.DirectAltLoc;
@@ -201,7 +201,7 @@ public class DownloadAltLocTest extends DownloadTestCase {
         }
         
         // ManagedDownloader clears validAlts and invalidAlts after completion
-        assertEquals(DownloadStatus.COMPLETE, managedDownloader.getState());
+        assertEquals(DownloadState.COMPLETE, managedDownloader.getState());
         assertTrue(((Set)PrivilegedAccessor.getValue(managedDownloader, "validAlts")).isEmpty());
         assertTrue(((Set)PrivilegedAccessor.getValue(managedDownloader, "invalidAlts")).isEmpty());
     }    
@@ -240,7 +240,7 @@ public class DownloadAltLocTest extends DownloadTestCase {
         assertFalse(validAlts.contains(alternateLocationHelper.EQUAL_SHA1_LOCATIONS[2]));
         
         // ManagedDownloader clears validAlts and invalidAlts after completion
-        assertEquals(DownloadStatus.COMPLETE, managedDownloader.getState());
+        assertEquals(DownloadState.COMPLETE, managedDownloader.getState());
         assertTrue(((Set)PrivilegedAccessor.getValue(managedDownloader, "validAlts")).isEmpty());
         assertTrue(((Set)PrivilegedAccessor.getValue(managedDownloader, "invalidAlts")).isEmpty());
     }

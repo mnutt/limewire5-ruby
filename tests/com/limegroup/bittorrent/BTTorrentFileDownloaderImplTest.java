@@ -33,11 +33,11 @@ import com.limegroup.gnutella.NoOpSaveLocationManager;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.Uploader;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 import com.limegroup.gnutella.downloader.CoreDownloader;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.gnutella.downloader.IncompleteFileManager;
 import com.limegroup.gnutella.downloader.Visitor;
 import com.limegroup.gnutella.http.DefaultHttpExecutor;
@@ -116,11 +116,11 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
     private void finishDownload(BTTorrentFileDownloader btTorrentFileDownloader) throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
 
-        btTorrentFileDownloader.addListener(new EventListener<DownloadStatusEvent>() {
+        btTorrentFileDownloader.addListener(new EventListener<DownloadStateEvent>() {
 
             @Override
-            public void handleEvent(DownloadStatusEvent event) {
-                if(DownloadStatus.COMPLETE == event.getType()) {
+            public void handleEvent(DownloadStateEvent event) {
+                if(DownloadState.COMPLETE == event.getType()) {
                     countDownLatch.countDown();
                 }        
             }

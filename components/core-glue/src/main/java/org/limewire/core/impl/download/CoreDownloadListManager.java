@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
-import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
@@ -27,6 +26,7 @@ import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.api.spam.SpamManager;
 import org.limewire.core.impl.download.listener.ItunesDownloadListenerFactory;
 import org.limewire.core.impl.download.listener.RecentDownloadListener;
+import org.limewire.core.impl.download.listener.TorrentDownloadListener;
 import org.limewire.core.impl.library.CoreRemoteFileItem;
 import org.limewire.core.impl.magnet.MagnetLinkImpl;
 import org.limewire.core.impl.search.CoreSearch;
@@ -36,11 +36,8 @@ import org.limewire.core.settings.SharingSettings;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortSet;
-import org.limewire.listener.EventListener;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
 import org.limewire.setting.FileSetting;
-import org.limewire.util.FileUtils;
-import org.limewire.util.Objects;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -51,22 +48,15 @@ import ca.odell.glazedlists.impl.ThreadSafeList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.limegroup.bittorrent.BTMetaInfo;
-import com.limegroup.bittorrent.BTTorrentFileDownloader;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.RemoteFileDesc;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.downloader.CoreDownloader;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 
 @Singleton
 public class CoreDownloadListManager implements DownloadListManager {
-    
-    private static final String DOWNLOAD_ITEM = "limewire.download.glueItem";
     
 	private final EventList<DownloadItem> observableDownloadItems;
 	private EventList<DownloadItem> swingThreadDownloadItems;
@@ -196,7 +186,7 @@ public class CoreDownloadListManager implements DownloadListManager {
         Downloader downloader = downloadManager.download(files, alts, queryGuid, overwrite, saveDir, fileName);
         // This should have been funneled through our addDownload callback method, which
         // should have set the CoreDownloadItem.
-        return (DownloadItem)downloader.getAttribute(DOWNLOAD_ITEM);
+        return (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
     }
 
     @Override
@@ -273,7 +263,7 @@ public class CoreDownloadListManager implements DownloadListManager {
         }
     }
 
-    private class CoreDownloadListener implements DownloadListener {
+    class CoreDownloadListener implements DownloadListener {
 	    
 	    private final List<DownloadItem> list;
 	    private final QueueTimeCalculator queueTimeCalculator;
@@ -286,8 +276,8 @@ public class CoreDownloadListManager implements DownloadListManager {
         @Override
         public void downloadAdded(Downloader downloader) {
             DownloadItem item = new CoreDownloadItem(downloader, queueTimeCalculator);
-            downloader.setAttribute(DOWNLOAD_ITEM, item, false);
-            downloader.addListener(new TorrentListener(downloader));
+            downloader.setAttribute(DownloadItem.DOWNLOAD_ITEM, item, false);
+            downloader.addListener(new TorrentDownloadListener(downloadManager, activityCallback, list, downloader));
             downloader.addListener(new RecentDownloadListener(downloader));
             downloader.addListener(itunesDownloadListenerFactory.createListener(downloader));
             list.add(item);
@@ -315,59 +305,9 @@ public class CoreDownloadListManager implements DownloadListManager {
             changeSupport.firePropertyChange(DOWNLOADS_COMPLETED, false, true);
         }
 
-        private DownloadItem getDownloadItem(Downloader downloader) {
-            DownloadItem item = (DownloadItem)downloader.getAttribute(DOWNLOAD_ITEM);
+        DownloadItem getDownloadItem(Downloader downloader) {
+            DownloadItem item = (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
             return item;
-        }
-        
-        
-        /**
-         * Listens for downloads of .torrent files to complete. 
-         * When the download finishes then the torrent download will be started.
-         */
-        private class TorrentListener implements EventListener<DownloadStatusEvent> {
-            private final Downloader downloader;
-            public TorrentListener(Downloader downloader) {
-                this.downloader = Objects.nonNull(downloader, "downloader");
-                if(downloader.getState() == DownloadStatus.COMPLETE) {
-                    //TODO not sure why Downloader and CoreDownloader are not merged into one class.
-                    //No classes implement Downloader, CoreDownloader extends Downloader, and all downloaders implement CoreDownloader
-                    if(downloader instanceof CoreDownloader) {
-                        handleEvent(new DownloadStatusEvent((CoreDownloader)downloader, DownloadStatus.COMPLETE));
-                    }
-                }
-            }
-            @Override
-            public void handleEvent(DownloadStatusEvent event) {
-                DownloadStatus downloadStatus = event.getType();
-                if(DownloadStatus.COMPLETE == downloadStatus) {
-                    try {
-                        if(downloader instanceof BTTorrentFileDownloader){
-                            BTTorrentFileDownloader btTorrentFileDownloader = (BTTorrentFileDownloader)downloader;
-                            BTMetaInfo btMetaInfo = btTorrentFileDownloader.getBtMetaInfo();
-                            list.remove(getDownloadItem(downloader));
-                            downloadManager.downloadTorrent(btMetaInfo, true);
-                            
-                        } else {
-                            File possibleTorrentFile = downloader.getSaveFile();
-                            String fileExtension = FileUtils.getFileExtension(possibleTorrentFile);
-                            if("torrent".equalsIgnoreCase(fileExtension)) {
-                                list.remove(getDownloadItem(downloader));
-                                downloadManager.downloadTorrent(possibleTorrentFile, false);
-                            }
-                        }
-                    } catch (SaveLocationException sle) {
-                        activityCallback.handleSaveLocationException(new DownloadAction() {
-                            @Override
-                            public void download(File saveFile, boolean overwrite)
-                                    throws SaveLocationException {
-                                list.remove(getDownloadItem(downloader));
-                                downloadManager.downloadTorrent(saveFile, overwrite);
-                            }
-                        }, sle, false);
-                    }
-                }
-            }
         }
     }
 
@@ -375,7 +315,7 @@ public class CoreDownloadListManager implements DownloadListManager {
     @Override
     public DownloadItem addTorrentDownload(URI uri, boolean overwrite) throws SaveLocationException {
         Downloader downloader =  downloadManager.downloadTorrent(uri, overwrite);
-        DownloadItem downloadItem = (DownloadItem)downloader.getAttribute(DOWNLOAD_ITEM);
+        DownloadItem downloadItem = (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
         return downloadItem;
     }
     
@@ -394,7 +334,7 @@ public class CoreDownloadListManager implements DownloadListManager {
         }
         MagnetOptions magnetOptions = ((MagnetLinkImpl)magnet).getMagnetOptions();
         Downloader downloader = downloadManager.download(magnetOptions, overwrite, saveDir, fileName);
-        DownloadItem downloadItem = (DownloadItem)downloader.getAttribute(DOWNLOAD_ITEM);
+        DownloadItem downloadItem = (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
         return downloadItem;
     }
 
@@ -402,7 +342,7 @@ public class CoreDownloadListManager implements DownloadListManager {
     public DownloadItem addTorrentDownload(File file, File saveFile, boolean overwrite)
             throws SaveLocationException {
         Downloader downloader = downloadManager.downloadTorrent(file, overwrite);
-		return (DownloadItem)downloader.getAttribute(DOWNLOAD_ITEM);
+		return (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
     }
 
     @Override
@@ -430,6 +370,11 @@ public class CoreDownloadListManager implements DownloadListManager {
         } finally {
             threadSafeDownloadItems.getReadWriteLock().writeLock().unlock();
         }
+    }
+
+    @Override
+    public void remove(DownloadItem item) {
+        threadSafeDownloadItems.remove(item);
     }
 
 }

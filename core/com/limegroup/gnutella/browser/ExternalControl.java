@@ -90,7 +90,6 @@ public class ExternalControl {
 	
 	private ActivityCallback restoreApplication() {
 		activityCallback.get().restoreApplication();
-		activityCallback.get().showDownloads();
 		return activityCallback.get();
 	}
 	

@@ -39,7 +39,13 @@
 				<path refid="build.limewire.components.core-settings.buildpath"/>
 				<path refid="build.limewire.components.collection.buildpath"/>
             </add-src-classpath>
+            
+            <add-tests-classpath>
+				<pathelement location="${limewire.lib.jars}/messages.jar"/>
+		    </add-tests-classpath>
         </do.setup-private-properties>
+        
+        
     </target>
 	
 	<target name="clean" depends="initialize">
@@ -47,10 +53,7 @@
 	</target>
     
     <target name="compile" depends="initialize, lw-core-api.compile, lw-mock-core.compile, lw-common.compile, lw-core-settings.compile, lw-collection.compile">
-        <!-- Currently no tests - using compile-src in the meantime -->
-    	<!--<do.compile component="core-api"/>-->
-    	<do.compile-src component="swingui"/>
-        <mkdir dir="${build.limewire.components.swingui.tests}"/>
+        <do.compile component="swingui"/>
     </target>
 	
 	<target name="compile-src" depends="initialize, lw-core-api.compile-src, lw-mock-core.compile-src, lw-common.compile-src, lw-core-settings.compile-src, lw-collection.compile-src">
@@ -62,8 +65,7 @@
 	</target>
 	
 	<target name="compile-tests" depends="initialize">
-	    <!--<do.compile-tests component="swingui"/>-->
-	    <mkdir dir="${build.limewire.components.swingui.tests}"/>
+	    <do.compile-tests component="swingui"/>
 	</target>
 	
 	<target name="clean-tests" depends="initialize">

@@ -43,7 +43,7 @@ public class MockMessage implements MessageText {
 
     @Override
     public String format() {
-        return "Message with text only: " + message;
+        return message;
     }
 
     @Override

@@ -101,6 +101,10 @@ public abstract class AudioDataEditor implements MetaWriter {
             audioTag = updateTag(audioTag, audioFile);
             audioFile.setTag(audioTag);
             audioFile.commit();
+        } catch(NullPointerException npe) {
+            // See LWC-2310 -- this catch should be removed
+            // when that is fixed.
+            return MetaDataState.RW_ERROR;
         } catch (CannotReadException e) {
             return MetaDataState.RW_ERROR;
         } catch (IOException e) {

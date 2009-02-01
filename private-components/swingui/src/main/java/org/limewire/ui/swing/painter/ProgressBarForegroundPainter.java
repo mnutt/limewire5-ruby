@@ -13,9 +13,13 @@ import org.jdesktop.swingx.util.PaintUtils;
 import org.limewire.ui.swing.util.PainterUtils;
 
 /**
- * An implementation of SwingX Painter used to draw the progress bar 
- * foreground on a specified Swing component.  At this time, the only 
- * components supported are JProgressBar and JSlider.
+ * An implementation of SwingX Painter used to draw the horizontal 
+ * progress bar foreground on a specified Swing component. 
+ * The foreground constitutes the current progress and a knob 
+ * for changing the value if the component is user modifiable.  
+ * 
+ * At this time, the only components supported are
+ * JProgressBar and JSlider.
  */
 public class ProgressBarForegroundPainter<X extends JComponent> extends AbstractPainter<X> {
     

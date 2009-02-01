@@ -25,7 +25,7 @@ public class DeleteAction extends AbstractAction {
     public DeleteAction(final LocalFileItem[] fileItemArray, LibraryManager libraryManager) {
         super();
         String deleteName = I18n.tr("Delete Files");
-        if(OSUtils.isAnyMac()) {
+        if(OSUtils.isMacOSX()) {
             deleteName = I18n.tr("Move to Trash");
         } else if(OSUtils.isWindows()) {
             deleteName = I18n.tr("Move to Recycle Bin");

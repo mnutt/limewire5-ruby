@@ -211,7 +211,7 @@ public class FilesOptionPanel extends OptionPanel {
                     storeOptionPanel,I18n.tr("Store File Organization"),
                     I18n.tr("Configure File Organization..."),I18n.tr("Configure how files downloaded from the LimeWire Store are organized")));
             
-            add(new JLabel(I18n.tr("Save store downloads to:")), "split");
+            add(new JLabel(I18n.tr("Save Store downloads to:")), "split");
             add(storePathTextField);
             add(browseStorePathButton, "wrap");
             

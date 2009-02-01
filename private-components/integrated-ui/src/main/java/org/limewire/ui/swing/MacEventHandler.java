@@ -114,7 +114,7 @@ public class MacEventHandler {
         }
     }
 
-    private void runFileOpen(File file) {
+    private void runFileOpen(final File file) {
         String filename = file.getPath();
         if (filename.endsWith("limestart")) {
             initializer.setStartup();
@@ -129,7 +129,7 @@ public class MacEventHandler {
                         @Override
                         public void download(File saveFile, boolean overwrite)
                                 throws SaveLocationException {
-                            downloadManager.downloadTorrent(saveFile, overwrite);
+                            downloadManager.downloadTorrent(file, overwrite);
                         }
                     }, e, false);
 

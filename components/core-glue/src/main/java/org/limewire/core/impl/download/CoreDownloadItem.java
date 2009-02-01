@@ -23,8 +23,7 @@ import org.limewire.util.FileUtils;
 import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.InsufficientDataException;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 class CoreDownloadItem implements DownloadItem {
@@ -50,12 +49,12 @@ class CoreDownloadItem implements DownloadItem {
         this.downloader = downloader;
         this.queueTimeCalculator = queueTimeCalculator;
         
-        downloader.addListener(new EventListener<DownloadStatusEvent>() {
+        downloader.addListener(new EventListener<DownloadStateEvent>() {
             @Override
-            public void handleEvent(DownloadStatusEvent event) {
+            public void handleEvent(DownloadStateEvent event) {
                 // broadcast the status has changed
                 fireDataChanged();
-                if (event.getType() == DownloadStatus.ABORTED) {
+                if (event.getType() == com.limegroup.gnutella.Downloader.DownloadState.ABORTED) {
                     //attempt to delete ABORTED file
                     File file = CoreDownloadItem.this.downloader.getFile();
                     if (file != null) {
@@ -199,9 +198,9 @@ class CoreDownloadItem implements DownloadItem {
         return downloader.getQueuePosition();
     }
     
-    private DownloadState convertState(DownloadStatus status) {
+    private DownloadState convertState(com.limegroup.gnutella.Downloader.DownloadState state) {
         // TODO: double check states - some are not right
-        switch (status) {
+        switch (state) {
         case SAVING:
         case HASHING:
             if (getTotalSize() > finishingThreshold) {
@@ -254,7 +253,7 @@ class CoreDownloadItem implements DownloadItem {
             
               //FIXME remove RuntimeException when we are out of alpha 
         default:
-            throw new RuntimeException("Unknown State: " + status);
+            throw new RuntimeException("Unknown State: " + state);
         }
     }
 
@@ -295,7 +294,7 @@ class CoreDownloadItem implements DownloadItem {
         if(queueTimeCalculator == null){
             return DownloadItem.UNKNOWN_TIME;
         }
-        if(downloader.getState() == DownloadStatus.BUSY){
+        if(downloader.getState() == com.limegroup.gnutella.Downloader.DownloadState.BUSY){
             return downloader.getRemainingStateTime();
         }
         return queueTimeCalculator.getRemainingQueueTime(this);

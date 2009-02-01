@@ -176,5 +176,10 @@ public class CoreUploadListManager implements UploadListener, UploadListManager{
             threadSafeUploadItems.getReadWriteLock().writeLock().unlock();
         }
     }
+    
+    @Override
+    public void remove(UploadItem item) {
+        threadSafeUploadItems.remove(item);
+    }
 
 }

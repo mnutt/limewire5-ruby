@@ -11,6 +11,7 @@ import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 
@@ -26,16 +27,18 @@ public class ImageTableFormat extends ResultsTableFormat<VisualSearchResult> {
     public static final int SIZE_INDEX = 4;
     static final int DESCRIPTION_INDEX = 5;
     static final int TITLE_INDEX = 6;
+    static final int IS_SPAM_INDEX = 7;
     
     public ImageTableFormat() {
-        super(NAME_INDEX, FROM_INDEX, new ColumnStateInfo[] {
+        super("CLASSIC_SEARCH_IMAGE_TABLE", NAME_INDEX, FROM_INDEX, IS_SPAM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_IMAGE_FROM", I18n.tr("From"), 88, true, true), 
                 new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_IMAGE_NAME", I18n.tr("Name"), 503, true, true),     
                 new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_IMAGE_EXTENSION", I18n.tr("Extension"), 77, true, true), 
                 new ColumnStateInfo(DATE_INDEX, "CLASSIC_SEARCH_IMAGE_DATE", I18n.tr("Date Created"), 112, true, true), 
                 new ColumnStateInfo(SIZE_INDEX, "CLASSIC_SEARCH_IMAGE_SIZE", I18n.tr("Size"), 78, true, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "CLASSIC_SEARCH_IMAGE_DESCRIPTION", I18n.tr("Description"), 80, false, true), 
-                new ColumnStateInfo(TITLE_INDEX, "CLASSIC_SEARCH_IMAGE_TITLE", I18n.tr("Title"), 80, false, true)
+                new ColumnStateInfo(TITLE_INDEX, "CLASSIC_SEARCH_IMAGE_TITLE", I18n.tr("Title"), 80, false, true),
+                new ColumnStateInfo(IS_SPAM_INDEX, "CLASSIC_SEARCH_IMAGE_IS_SPAM", "", 10, false, false)
         });
     }
 
@@ -59,16 +62,21 @@ public class ImageTableFormat extends ResultsTableFormat<VisualSearchResult> {
             case SIZE_INDEX: return vsr.getSize();
             case DESCRIPTION_INDEX: return "";
             case TITLE_INDEX: return vsr.getProperty(FilePropertyKey.TITLE);
+            case IS_SPAM_INDEX: return vsr;
         }
         throw new IllegalArgumentException("Unknown column:" + index);
     }
     
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.DESCENDING, FROM_INDEX),
-                new SortKey(SortOrder.ASCENDING, DATE_INDEX),
-                new SortKey(SortOrder.ASCENDING, NAME_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.DESCENDING, FROM_INDEX),
+                    new SortKey(SortOrder.ASCENDING, DATE_INDEX),
+                    new SortKey(SortOrder.ASCENDING, NAME_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
     
     @Override

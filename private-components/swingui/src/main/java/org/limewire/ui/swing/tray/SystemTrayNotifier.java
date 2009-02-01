@@ -1,6 +1,7 @@
 package org.limewire.ui.swing.tray;
 
 import java.awt.AWTException;
+import java.awt.Dimension;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -18,6 +19,7 @@ import org.jdesktop.application.Resource;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.util.OSUtils;
 
 /**
  * Puts an icon and menu in the system tray. Delegates System Notifications to
@@ -34,7 +36,19 @@ class SystemTrayNotifier implements TrayNotifier {
     private final BasicNotifier basicNotifier;
 
     @Resource
-    private Icon trayIconResource;
+    private Icon windowsIconResource16;
+    @Resource
+    private Icon windowsIconResource32;
+    @Resource
+    private Icon windowsIconResource48;
+    @Resource
+    private Icon linuxIconResource16;
+    @Resource
+    private Icon linuxIconResource24;
+    @Resource
+    private Icon linuxIconResource32;
+    @Resource
+    private Icon linuxIconResource48;
 
     public SystemTrayNotifier() {
         this.basicNotifier = new BasicNotifier();
@@ -52,10 +66,11 @@ class SystemTrayNotifier implements TrayNotifier {
     }
 
     private TrayIcon buildTrayIcon(String desc) {
-        TrayIcon icon = new TrayIcon(((ImageIcon) trayIconResource).getImage(), desc, popupMenu);
+        Icon icon = getIcon();
+        TrayIcon trayIcon = new TrayIcon(((ImageIcon) icon).getImage(), desc, popupMenu);
 
         // left click restores. This happens on the awt thread.
-        icon.addActionListener(new ActionListener() {
+        trayIcon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 ActionMap map = Application.getInstance().getContext().getActionManager()
                         .getActionMap();
@@ -63,8 +78,21 @@ class SystemTrayNotifier implements TrayNotifier {
             }
         });
 
-        icon.setImageAutoSize(true);
-        return icon;
+        trayIcon.setImageAutoSize(true);
+        return trayIcon;
+    }
+
+    private Icon getIcon() {
+        Dimension iconSize = SystemTray.getSystemTray().getTrayIconSize();
+        if(iconSize == null || iconSize.getWidth() <= 16) {
+            return OSUtils.isWindows() ? windowsIconResource16 : linuxIconResource16;
+        } else if(iconSize.getWidth() <= 24) {
+            return OSUtils.isWindows() ? windowsIconResource16 : linuxIconResource24;
+        } else if(iconSize.getWidth() <= 32) {
+            return OSUtils.isWindows() ? windowsIconResource32 : linuxIconResource32;
+        } else {
+            return OSUtils.isWindows() ? windowsIconResource48 : linuxIconResource48;
+        }
     }
 
     private PopupMenu buildPopupMenu() {
@@ -127,7 +155,7 @@ class SystemTrayNotifier implements TrayNotifier {
     }
 
     public boolean showTrayIcon() {
-        if (tray == null || trayIconResource == null) {
+        if (tray == null) {
             return false;
         }
 

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
@@ -11,8 +12,10 @@ import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.PropertyUtils;
 
 /**
  * Table format for the Audio Table when it is in Sharing View
@@ -34,7 +37,7 @@ public class SharedAudioTableFormat<T extends LocalFileItem> extends AbstractMyL
     private final LocalFileList localFileList;
     
     public SharedAudioTableFormat(LocalFileList localFileList) {
-        super(ACTION_INDEX, new ColumnStateInfo[] {
+        super(ACTION_INDEX, "SHARE_LIBRARY_AUDIO_TABLE", ARTIST_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(ACTION_INDEX, "SHARE_LIBRARY_AUDIO_ACTION", I18n.tr("Sharing"), 61, true, false),
                 new ColumnStateInfo(TITLE_INDEX, "SHARE_LIBRARY_AUDIO_TITLE", I18n.tr("Name"), 278, true, true),     
                 new ColumnStateInfo(ARTIST_INDEX, "SHARE_LIBRARY_AUDIO_ARTIST", I18n.tr("Artist"), 181, true, true), 
@@ -74,6 +77,7 @@ public class SharedAudioTableFormat<T extends LocalFileItem> extends AbstractMyL
     public Class getColumnClass(int column) {
         switch(column) {
             case ACTION_INDEX:
+            case TITLE_INDEX:
                 return FileItem.class;
         }
         return super.getColumnClass(column);
@@ -83,17 +87,22 @@ public class SharedAudioTableFormat<T extends LocalFileItem> extends AbstractMyL
     public Comparator getColumnComparator(int column) {
         switch(column) {
             case ACTION_INDEX: return new CheckBoxComparator(localFileList);
+            case TITLE_INDEX: return new NameComparator();
         }
         return super.getColumnComparator(column);
     }
     
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.ASCENDING, ARTIST_INDEX),
-                new SortKey(SortOrder.ASCENDING, ALBUM_INDEX),
-                new SortKey(SortOrder.ASCENDING, TRACK_INDEX),
-                new SortKey(SortOrder.ASCENDING, TITLE_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.ASCENDING, ARTIST_INDEX),
+                    new SortKey(SortOrder.ASCENDING, ALBUM_INDEX),
+                    new SortKey(SortOrder.ASCENDING, TRACK_INDEX),
+                    new SortKey(SortOrder.ASCENDING, TITLE_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
 
     @Override
@@ -105,6 +114,19 @@ public class SharedAudioTableFormat<T extends LocalFileItem> extends AbstractMyL
             return Arrays.asList(TRACK_INDEX, TITLE_INDEX);
         default:
             return Collections.emptyList();
+        }
+    }
+    
+    /**
+     * Compares the title value for the Name column.
+     */
+    private class NameComparator implements Comparator<FileItem> {
+        @Override
+        public int compare(FileItem o1, FileItem o2) {
+            String title1 = PropertyUtils.getTitle(o1);
+            String title2 = PropertyUtils.getTitle(o2);
+            
+            return title1.toLowerCase(Locale.US).compareTo(title2.toLowerCase(Locale.US));
         }
     }
 }

@@ -81,7 +81,7 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
 
     private final class ViewFileInfoAction extends AbstractAction {
         private ViewFileInfoAction() {
-            super(I18n.tr("View File Info"));
+            super(I18n.tr("View File Info..."));
         }
 
         @Override

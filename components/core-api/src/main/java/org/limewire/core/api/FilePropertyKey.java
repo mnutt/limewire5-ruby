@@ -56,8 +56,10 @@ public enum FilePropertyKey {
     };
     
     static {
+        longKeys.add(QUALITY);
         longKeys.add(LENGTH);
         longKeys.add(YEAR);
+        longKeys.add(HEIGHT);  
         longKeys.add(WIDTH);  
         longKeys.add(TRACK_NUMBER);
         longKeys.add(BITRATE);

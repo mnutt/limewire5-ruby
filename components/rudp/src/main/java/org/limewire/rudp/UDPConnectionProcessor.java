@@ -315,10 +315,11 @@ public class UDPConnectionProcessor {
                     throw new ConnectionPendingException();
             }
             setConnectionState(ConnectionState.CONNECTING);
+            // Record their address in synchronized block, to avoid close() seeing
+            // seeing a state != preconnecting with a null address
+            _connectedTo = addr;
         }
         
-        // Record their address
-        _connectedTo = addr;
         
         _startedConnecting = System.currentTimeMillis();
         _sequenceNumber = 0;

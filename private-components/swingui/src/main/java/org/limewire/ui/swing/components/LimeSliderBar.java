@@ -14,20 +14,29 @@ public class LimeSliderBar extends JSlider implements MouseListener {
     private AbstractPainter<JComponent> backgroundPainter;
     private AbstractPainter<JSlider> foregroundPainter;
     
-    public LimeSliderBar(AbstractPainter<JSlider> foregroundPainter,
-            AbstractPainter<JComponent> backgroundPainter) {
-        
-        this.backgroundPainter = backgroundPainter;
-        this.foregroundPainter = foregroundPainter;
-        
+    public LimeSliderBar() {
         addMouseListener(this);
     }
     
     @Override
     protected void paintComponent(Graphics g) {
-        backgroundPainter.paint((Graphics2D) g, this, getWidth(), getHeight());
-        foregroundPainter.paint((Graphics2D) g, this, getWidth(), getHeight());
+        if (backgroundPainter != null && foregroundPainter != null) {
+            backgroundPainter.paint((Graphics2D) g, this, getWidth(), getHeight());
+            foregroundPainter.paint((Graphics2D) g, this, getWidth(), getHeight());
+        }
+        else {
+            super.paintComponent(g);
+        }
     }
+    
+    public void setForegroundPainter(AbstractPainter<JSlider> painter) {
+        this.foregroundPainter = painter;
+    }
+    
+    public void setBackgroundPainter(AbstractPainter<JComponent> painter) {
+        this.backgroundPainter = painter;
+    }
+
 
     @Override
     public void mouseClicked(MouseEvent e) {

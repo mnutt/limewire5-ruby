@@ -52,6 +52,7 @@ class CoreBrowse implements Browse {
 
     @Override
     public void stop() {
+        // TODO: This should cancel the browse if it was active.
         listenerList.removeQueryReplyListener(browseGuid, listener);
         searchServices.stopQuery(new GUID(browseGuid));
     }

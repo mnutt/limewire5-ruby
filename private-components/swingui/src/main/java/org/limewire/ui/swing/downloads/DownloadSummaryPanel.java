@@ -13,8 +13,8 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.ActionMap;
 import javax.swing.Icon;
@@ -45,11 +45,10 @@ import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeProgressBar;
-import org.limewire.ui.swing.components.LimeProgressBarFactory;
+import org.limewire.ui.swing.components.decorators.ProgressBarDecorator;
 import org.limewire.ui.swing.dnd.DownloadableTransferHandler;
 import org.limewire.ui.swing.downloads.table.AbstractDownloadTable;
 import org.limewire.ui.swing.downloads.table.DownloadActionHandler;
-import org.limewire.ui.swing.downloads.table.DownloadActionHandlerFactory;
 import org.limewire.ui.swing.downloads.table.DownloadPopupHandler;
 import org.limewire.ui.swing.downloads.table.DownloadStateMatcher;
 import org.limewire.ui.swing.downloads.table.DownloadTableCell;
@@ -61,7 +60,7 @@ import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.NavItem;
 import org.limewire.ui.swing.nav.NavItemListener;
 import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.painter.BarPainterFactory;
+import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.table.TableColumnDoubleClickHandler;
 import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.tray.Notification;
@@ -97,7 +96,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 
 	//private static final int LEFT_MARGIN = 25;
 
-	private final LimeProgressBarFactory progressBarFactory;
+	private final ProgressBarDecorator progressBarDecorator;
     private final Navigator navigator;
     private final TrayNotifier notifier;
 	
@@ -133,10 +132,11 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
     
     @Inject
 	public DownloadSummaryPanel(DownloadListManager downloadListManager, DownloadMediator downloadMediator, MainDownloadPanel mainDownloadPanel, 
-	        Navigator navigator, LimeProgressBarFactory progressBarFactory, BarPainterFactory barPainterFactory, SaveLocationExceptionHandler saveLocationExceptionHandler,
-	        DownloadActionHandlerFactory downloadActionHandlerFactory, TrayNotifier notifier) {
+	        Navigator navigator, ProgressBarDecorator progressBarDecorator, BarPainterFactory barPainterFactory, SaveLocationExceptionHandler saveLocationExceptionHandler,
+	        DownloadActionHandler actionHandler, TrayNotifier notifier) {
+        
 	    this.navigator = navigator;        
-        this.progressBarFactory = progressBarFactory;
+        this.progressBarDecorator = progressBarDecorator;
         this.notifier = notifier;
         this.allList = downloadMediator.getDownloadList();
         this.downloadMediator = downloadMediator;
@@ -204,11 +204,11 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
         
         final DownloadSummaryPanelRendererEditor editorPanel = new DownloadSummaryPanelRendererEditor();
         final DownloadTableEditor editor = new DownloadTableEditor(editorPanel);
-        editor.initialiseEditor(allList, downloadActionHandlerFactory.create(allList));
+        editor.initialiseEditor(allList, actionHandler);
         table.setDefaultEditor(DownloadItem.class, editor);
         
         table.setColumnDoubleClickHandler(new DownloadClickHandler());
-        TablePopupHandler popupHandler = new DownloadPopupHandler(downloadActionHandlerFactory.create(allList), table){
+        TablePopupHandler popupHandler = new DownloadPopupHandler(actionHandler, table){
             @Override
             protected int getPopupRow(int x, int y){
                 //columns and rows are reversed in this table
@@ -283,9 +283,9 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
         initializeDownloadCompleteListener();
         initializeDownloadAddedListener();
 
-        setLayout(new MigLayout("nocache, ins 0 0 0 0, gap 0! 0!, novisualpadding"));
+        setLayout(new MigLayout("ins 0 0 0 0, gap 0! 0!, novisualpadding"));
         
-        JPanel rightPanel = new JPanel(new MigLayout("nocache, ins 0 0 0 0, gap 0! 0!, novisualpadding"));
+        JPanel rightPanel = new JPanel(new MigLayout("ins 0 0 0 0, gap 0! 0!, novisualpadding"));
         rightPanel.setOpaque(false);
         rightPanel.add(showAllButton, "alignx 0%, aligny 100%, gapbottom 3, gaptop 3, wrap");
         rightPanel.add(clearFinishedButton, "gapbottom 3, gaptop 3, alignx 0%, aligny 0%, hidemode 3");
@@ -454,7 +454,9 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
             nameLabel.setForeground(fontColor);
             nameLabel.setMaximumSize(new Dimension(nameLabelWidth, Integer.MAX_VALUE));
             
-			progressBar = progressBarFactory.create(0, 100);
+			progressBar = new LimeProgressBar(0, 100);
+			progressBarDecorator.decoratePlain(progressBar);
+			
 			Dimension size = new Dimension(173, 8);
             progressBar.setPreferredSize(size);
             progressBar.setMaximumSize(size);
@@ -575,11 +577,16 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
                 } else {
                     statusLabel.setForeground(grayForeground);
                 }
-            }
-
-            timeLabel.setVisible(item.getState() == DownloadState.DOWNLOADING && item.getRemainingDownloadTime() < Long.MAX_VALUE-1000);
-            if (timeLabel.isVisible()) {
-                timeLabel.setText(CommonUtils.seconds2time(item.getRemainingDownloadTime()));
+            }            
+            
+            if(item.getState() == DownloadState.PAUSED){
+                timeLabel.setVisible(true);
+                timeLabel.setText(I18n.tr("Paused at {0}%", item.getPercentComplete()));
+            } else if(item.getState() == DownloadState.DOWNLOADING && item.getRemainingDownloadTime() < Long.MAX_VALUE-1000) {
+                timeLabel.setVisible(true);
+                timeLabel.setText(I18n.tr("{0}% - {1} left", item.getPercentComplete(), CommonUtils.seconds2time(item.getRemainingDownloadTime())));
+            } else {
+                timeLabel.setVisible(false);
             }
         }
         
@@ -594,7 +601,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
             case CONNECTING:
                 return I18n.tr("Connecting...");           
             case STALLED:
-                return I18n.tr("Stalled - ");
+                return I18n.tr("Stalled at {0}% - ", item.getPercentComplete()); 
             case ERROR:         
                 return I18n.tr("Unable to download  - ");            
             case LOCAL_QUEUED:
@@ -607,7 +614,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
                         "Waiting - {0} in line",
                         item.getQueuePosition(), item.getQueuePosition());
             default:
-                throw new IllegalArgumentException("Unknown DownloadState: " + item.getState());
+                return null;
             }            
         }
         

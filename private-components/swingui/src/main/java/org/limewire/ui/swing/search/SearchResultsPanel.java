@@ -38,8 +38,8 @@ import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.FancyTab;
 import org.limewire.ui.swing.components.FancyTabList;
-import org.limewire.ui.swing.components.LimeHeaderBar;
-import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.components.HeaderBar;
+import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.BaseResultPanel.ListViewTable;
 import org.limewire.ui.swing.settings.SwingUiSettings;
@@ -56,7 +56,7 @@ import com.google.inject.assistedinject.AssistedInject;
  * This class displays search results in a panel.
  */
 public class SearchResultsPanel extends JXPanel implements Disposable {
-    private final LimeHeaderBarFactory headerBarFactory;
+    private final HeaderBarDecorator headerBarDecorator;
     
     /**
      * This is the subpanel that appears in the upper-left corner
@@ -118,11 +118,11 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
             SponsoredResultsPanel sponsoredResultsPanel,
             final SortAndFilterPanel sortAndFilterPanel,
             RowSelectionPreserver preserver,
-            LimeHeaderBarFactory headerBarFactory) {        
+            HeaderBarDecorator headerBarDecorator) {        
 
         GuiUtils.assignResources(this);
         
-        this.headerBarFactory = headerBarFactory; 
+        this.headerBarDecorator = headerBarDecorator; 
         
         this.sponsoredResultsPanel = sponsoredResultsPanel;
         sponsoredResultsPanel.setVisible(false);
@@ -278,7 +278,9 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         searchTab.setSelectionPainter(createTabSelectionPainter());
         searchTab.setTabTextSelectedColor(tabSelectionTextColor);
         
-        LimeHeaderBar header = headerBarFactory.createBasic(searchTab);
+        HeaderBar header = new HeaderBar(searchTab);
+        headerBarDecorator.decorateBasic(header);
+        
         sortAndFilterPanel.layoutComponents(header);
         add(header, "growx, wrap");
         add(classicSearchReminderPanel, "growx, wrap");

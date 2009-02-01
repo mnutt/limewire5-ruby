@@ -23,7 +23,7 @@ public class Dock {
     
     static {
         boolean hasDock = false;
-        if (OSUtils.isAnyMac()) {
+        if (OSUtils.isMacOSX()) {
             try {
                 System.loadLibrary("Dock");
                 hasDock = true;

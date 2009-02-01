@@ -38,7 +38,7 @@ interface DownloadWorkerSupport extends ManagedDownloader {
     void hashTreeRead(HashTree newTree);
 
     /** Same as setState(newState, Integer.MAX_VALUE). */
-    void setState(DownloadStatus connecting);
+    void setState(DownloadState connecting);
 
     void incrementTriedHostsCount();
 

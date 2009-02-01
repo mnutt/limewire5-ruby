@@ -3,7 +3,6 @@ package org.limewire.ui.swing.components;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +15,7 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.Icon;
@@ -179,7 +179,14 @@ public class LimeComboBox extends JXButton {
         menuDirty = true;
         actions.remove(action);
         if (action == selectedAction) {
-            selectedAction = null;
+            if (actions.isEmpty()) {
+                selectedAction = null;
+            } else {
+                // Selected the first element if there are any left
+                selectedAction = actions.get(0);
+            }
+            selectedComponent = null;
+            selectedLabel = null;                
         }
     }
 
@@ -276,14 +283,7 @@ public class LimeComboBox extends JXButton {
             }
         });
     }
-        
-    /** Sets the icons of the combobox when the button is rolled over, pressed, and normal. */
-    public void setIcons(Icon regular, Icon hover, Icon down) {
-        setIcon(regular);
-        setRolloverIcon(hover);
-        setPressedIcon(down);
-    }
-    
+
     @Override
     public Icon getRolloverIcon() {
         Icon icon = super.getRolloverIcon();
@@ -347,6 +347,7 @@ public class LimeComboBox extends JXButton {
                     if(!clickForcesVisible && (menuVisible || System.currentTimeMillis() - menuInvizTime <= 10f)) {
                         menu.setVisible(false);
                     } else {
+                        menu.revalidate();
                         menu.show((Component) e.getSource(), 1, getHeight()-1);
                     }
                 }
@@ -466,6 +467,10 @@ public class LimeComboBox extends JXButton {
             panel.add(menuItem);
             menu.add(panel);
         }
+        
+        if (getText() == null) {
+            menu.add(Box.createHorizontalStrut(getWidth()-4));
+        }   
     }
     
     private void initMenu() {        
@@ -489,10 +494,6 @@ public class LimeComboBox extends JXButton {
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
                 menuVisible = true;
                 updateMenu();
-                if (getText() == null) {
-                    menu.setPreferredSize(new Dimension(getWidth()-2, 
-                            (int) menu.getPreferredSize().getHeight()));
-                }                
             }
         });
     }

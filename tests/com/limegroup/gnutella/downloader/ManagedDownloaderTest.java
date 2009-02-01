@@ -54,7 +54,7 @@ import com.limegroup.gnutella.PushEndpointCache;
 import com.limegroup.gnutella.PushEndpointFactory;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.altlocs.AltLocManager;
 import com.limegroup.gnutella.altlocs.AlternateLocation;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
@@ -355,14 +355,14 @@ public class ManagedDownloaderTest extends LimeTestCase {
             assertEquals("should have read 500 bytes", 500, 
                          downloader.getAmountRead());
             assertEquals("should be waiting for user",
-                    DownloadStatus.WAITING_FOR_USER, 
+                    DownloadState.WAITING_FOR_USER, 
                          downloader.getState());
             //Hit resume, make sure progress not erased.
             downloader.resume(); 
             try { Thread.sleep(2000); } catch (InterruptedException e) { }
             // you would think we'd expect wating for results here, but instead
             // we will wait for connections (since we have no one to query)
-            assertEquals(DownloadStatus.WAITING_FOR_CONNECTIONS, 
+            assertEquals(DownloadState.WAITING_FOR_CONNECTIONS, 
                          downloader.getState());
             assertEquals(500, 
                          downloader.getAmountRead());

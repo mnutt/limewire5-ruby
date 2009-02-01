@@ -253,19 +253,19 @@ class LibrarySharePanel extends JXPanel implements Disposable, ShapeComponent {
 
     private void initializePanels(){        
         
-        setLayout(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+        setLayout(new MigLayout("fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
         setOpaque(false);
         
-        mainPanel = new JXPanel(new MigLayout("nocache, fill, ins 0 6 0 6 , gap 0! 0!, novisualpadding"));
+        mainPanel = new JXPanel(new MigLayout("fill, ins 0 6 0 6 , gap 0! 0!, novisualpadding"));
         mainPanel.setOpaque(false);
 
-        titlePanel = new JXPanel(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+        titlePanel = new JXPanel(new MigLayout("fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
         titlePanel.setOpaque(false);
         
-        tablePanel = new JXPanel(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+        tablePanel = new JXPanel(new MigLayout("fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
         tablePanel.setOpaque(false);
         
-        bottomPanel = new JXPanel(new MigLayout("nocache, fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
+        bottomPanel = new JXPanel(new MigLayout("fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
         bottomPanel.setOpaque(false);
 
         mainPanel.setMinimumSize(new Dimension(panelWidth, 0));

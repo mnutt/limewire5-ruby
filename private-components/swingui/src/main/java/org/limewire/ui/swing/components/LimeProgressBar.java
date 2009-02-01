@@ -3,7 +3,6 @@ package org.limewire.ui.swing.components;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JProgressBar;
 
@@ -23,17 +22,15 @@ public class LimeProgressBar extends JProgressBar {
     private AbstractPainter<JComponent> backgroundPainter;
     
 	private boolean isHidden = false;
-	
-	public LimeProgressBar(AbstractPainter<JProgressBar> foregroundPainter, 
-	        AbstractPainter<JComponent> backgroundPainter) {
-	    
-	    this.foregroundPainter = foregroundPainter;
-	    this.backgroundPainter = backgroundPainter;
-	    
-        this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
-    }
 	 
-	public void setForegroundPainter(AbstractPainter<JProgressBar> painter) {
+	public LimeProgressBar() {
+	}
+	
+	public LimeProgressBar(int min, int max) {
+	    super(min, max);        
+    }
+
+    public void setForegroundPainter(AbstractPainter<JProgressBar> painter) {
 	    this.foregroundPainter = painter;
 	    painter.setCacheable(true);
 	}
@@ -70,9 +67,12 @@ public class LimeProgressBar extends JProgressBar {
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-	    if (!isHidden) {
-	        this.backgroundPainter.paint((Graphics2D) g, this, this.getWidth(), this.getHeight());
-	        this.foregroundPainter.paint((Graphics2D) g, this, this.getWidth(), this.getHeight());
+	    if (foregroundPainter == null || backgroundPainter == null) {
+	        super.paintComponent(g);
+	    }
+	    else if (!isHidden) {
+	        backgroundPainter.paint((Graphics2D) g, this, this.getWidth(), this.getHeight());
+	        foregroundPainter.paint((Graphics2D) g, this, this.getWidth(), this.getHeight());
 		}
 	}
 	

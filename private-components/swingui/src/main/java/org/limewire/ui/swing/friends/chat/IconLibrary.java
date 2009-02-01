@@ -29,10 +29,6 @@ public interface IconLibrary {
     Icon getSharing();
     
     Icon getCloseChat();
-
-    Icon getMinimizeNormal();
-
-    Icon getMinimizeOver();
     
-    Icon getMinimizeDown();
+    Icon getOffline();
 }

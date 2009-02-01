@@ -8,6 +8,10 @@ import javax.swing.JComponent;
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.util.PaintUtils;
 
+/**
+ * A painter for the standard background image of horizontal
+ *  progress components.
+ */
 public class ProgressBarBackgroundPainter extends AbstractPainter<JComponent> {
 
     private final Paint border;

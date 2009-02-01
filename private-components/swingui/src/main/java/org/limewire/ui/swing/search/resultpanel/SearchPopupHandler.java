@@ -52,7 +52,7 @@ public class SearchPopupHandler implements TablePopupHandler {
         }
 
         SearchResultMenu searchResultMenu = new SearchResultMenu(baseResultPanel, selectedItems,
-                properties);
+                properties, SearchResultMenu.ViewType.Table);
         searchResultMenu.show(component, x, y);
     }
 

@@ -21,7 +21,7 @@ import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.downloader.AbstractCoreDownloader;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.gnutella.downloader.DownloaderType;
 import com.limegroup.gnutella.downloader.IncompleteFileManager;
 import com.limegroup.gnutella.downloader.serial.BTDownloadMemento;
@@ -172,42 +172,42 @@ public class BTDownloaderImpl extends AbstractCoreDownloader
 	 * Specifically, this maps the states of a torrent
 	 * download to the states of a regular download.
 	 */
-	public DownloadStatus getState() {
+	public DownloadState getState() {
 		// aborted seeding torrents are shown as complete in the
 		// downloads pane.
 		if (torrent.isComplete()) 
-			return DownloadStatus.COMPLETE;
+			return DownloadState.COMPLETE;
 		switch(torrent.getState()) {
 		case WAITING_FOR_TRACKER :
-			return DownloadStatus.WAITING_FOR_GNET_RESULTS;
+			return DownloadState.WAITING_FOR_GNET_RESULTS;
 		case VERIFYING:
-			return DownloadStatus.RESUMING;
+			return DownloadState.RESUMING;
 		case CONNECTING:
-			return DownloadStatus.CONNECTING;
+			return DownloadState.CONNECTING;
 		}
 		
 		if(torrent.isDownloading())	{
-			return DownloadStatus.DOWNLOADING;
+			return DownloadState.DOWNLOADING;
 		}
 		switch(torrent.getState()) {
 		case SAVING:
-			return DownloadStatus.SAVING;
+			return DownloadState.SAVING;
 		case SEEDING:
-			return DownloadStatus.COMPLETE;
+			return DownloadState.COMPLETE;
 		case QUEUED:
-			return DownloadStatus.QUEUED;
+			return DownloadState.QUEUED;
 		case PAUSED:
-			return DownloadStatus.PAUSED;
+			return DownloadState.PAUSED;
 		case STOPPED:
-			return DownloadStatus.ABORTED;
+			return DownloadState.ABORTED;
 		case DISK_PROBLEM:
-			return DownloadStatus.DISK_PROBLEM;
+			return DownloadState.DISK_PROBLEM;
 		case TRACKER_FAILURE:
-			return DownloadStatus.WAITING_FOR_USER; // let the user trigger a scrape
+			return DownloadState.WAITING_FOR_USER; // let the user trigger a scrape
 		case SCRAPING:
-			return DownloadStatus.ITERATIVE_GUESSING; // bad name but practically the same
+			return DownloadState.ITERATIVE_GUESSING; // bad name but practically the same
 		case INVALID:
-			return DownloadStatus.INVALID;
+			return DownloadState.INVALID;
 		}
 		throw new IllegalStateException("unknown torrent state");
 	}
@@ -221,7 +221,7 @@ public class BTDownloaderImpl extends AbstractCoreDownloader
 	 * tracker requests.
 	 */
 	public int getRemainingStateTime() {
-		if (getState() != DownloadStatus.WAITING_FOR_GNET_RESULTS)
+		if (getState() != DownloadState.WAITING_FOR_GNET_RESULTS)
 			return 0;
 		return Math.max(0,(int)(torrent.getNextTrackerRequestTime() - 
 				System.currentTimeMillis()) / 1000);
@@ -445,7 +445,7 @@ public class BTDownloaderImpl extends AbstractCoreDownloader
 	}
 	
 	public boolean shouldBeRestarted() {
-		return getState() == DownloadStatus.QUEUED && torrentManager.get().allowNewTorrent(); 
+		return getState() == DownloadState.QUEUED && torrentManager.get().allowNewTorrent(); 
 	}
 	
 	public boolean isAlive() {
@@ -524,11 +524,11 @@ public class BTDownloaderImpl extends AbstractCoreDownloader
         initBtMetaInfo(btMetaInfoFactory.createBTMetaInfoFromMemento(bmem.getBtMetaInfoMemento()));
     }
     
-    public void addListener(EventListener<DownloadStatusEvent> listener) {
+    public void addListener(EventListener<DownloadStateEvent> listener) {
         // TODO implement
     }
     
-    public boolean removeListener(EventListener<DownloadStatusEvent> listener) {
+    public boolean removeListener(EventListener<DownloadStateEvent> listener) {
         // TODO implement
         return false;
     }

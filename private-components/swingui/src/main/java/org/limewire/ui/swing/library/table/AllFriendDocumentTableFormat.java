@@ -11,7 +11,7 @@ public class AllFriendDocumentTableFormat <T extends RemoteFileItem> extends Rem
     static final int FROM_INDEX = 7;
     
     public AllFriendDocumentTableFormat() {
-        super(new ColumnStateInfo[] {
+        super("ALL_LIBRARY_DOCUMENT_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "ALL_LIBRARY_DOCUMENT_NAME", I18n.tr("Name"), 318, true, true), 
                 new ColumnStateInfo(TYPE_INDEX, "ALL_LIBRARY_DOCUMENT_TYPE", I18n.tr("Type"), 118, true, true),     
                 new ColumnStateInfo(EXTENSION_INDEX, "ALL_LIBRARY_DOCUMENT_EXTENSION", I18n.tr("Extension"), 42, true, true), 

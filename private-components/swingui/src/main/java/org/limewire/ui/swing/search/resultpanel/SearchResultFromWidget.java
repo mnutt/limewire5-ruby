@@ -25,7 +25,7 @@ import javax.swing.event.PopupMenuListener;
 import org.limewire.collection.MultiIterable;
 import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.ui.swing.components.LimeComboBox;
-import org.limewire.ui.swing.components.LimeComboBoxFactory;
+import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
 import org.limewire.ui.swing.search.RemoteHostActions;
 import org.limewire.util.Objects;
 
@@ -45,12 +45,16 @@ public class SearchResultFromWidget extends JPanel {
     private final boolean isClassicView;
     
     @AssistedInject
-    SearchResultFromWidget(LimeComboBoxFactory comboBoxFactory,
+    SearchResultFromWidget(ComboBoxDecorator comboBoxDecorator,
                            RemoteHostActions fromActions,
                            @Assisted boolean isClassicView) {
+        
         this.fromActions = Objects.nonNull(fromActions, "fromActions");
         this.isClassicView = isClassicView;
-        this.comboBox = comboBoxFactory.createMiniComboBox();
+        
+        comboBox = new LimeComboBox();
+        comboBoxDecorator.decorateMiniComboBox(comboBox);
+        
         this.comboBoxMenu = new JPopupMenu();
         this.comboBox.overrideMenu(this.comboBoxMenu);
         comboBoxMenu.addPopupMenuListener(new PopupMenuListener() {

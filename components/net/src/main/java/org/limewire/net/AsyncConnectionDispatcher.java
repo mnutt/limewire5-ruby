@@ -21,9 +21,10 @@ public class AsyncConnectionDispatcher extends AbstractChannelInterestReader {
     private final ConnectionDispatcher dispatcher;
     private final Socket socket;
     private final String allowedWord;
+    private final boolean allowTLS;
     private boolean finished = false;
      
-    public AsyncConnectionDispatcher(ConnectionDispatcher dispatcher, Socket socket, String allowedWord) {
+    public AsyncConnectionDispatcher(ConnectionDispatcher dispatcher, Socket socket, String allowedWord, boolean allowTLS) {
         // + 1 for whitespace
         super(dispatcher.getMaximumWordSize() + 1);
  
@@ -34,6 +35,7 @@ public class AsyncConnectionDispatcher extends AbstractChannelInterestReader {
         this.dispatcher = dispatcher;
         this.socket = socket;
         this.allowedWord = allowedWord;
+        this.allowTLS = allowTLS;
     }
     
     public void handleRead() throws IOException {
@@ -94,12 +96,11 @@ public class AsyncConnectionDispatcher extends AbstractChannelInterestReader {
      * @throws IOException if there was an error starting TLS
      */
     private void startTLS() throws IOException {
-        // FIXME check SSLUtils.isIncomingTLSEnabled()
-        if (!SSLUtils.isTLSEnabled(socket) && SSLUtils.isStartTLSCapable(socket)) {
+        if (allowTLS && !SSLUtils.isTLSEnabled(socket) && SSLUtils.isStartTLSCapable(socket)) {
             LOG.debug("Attempting to start TLS");
             buffer.flip();
             AbstractNBSocket tlsSocket = SSLUtils.startTLS(socket, buffer);
-            tlsSocket.setReadObserver(new AsyncConnectionDispatcher(dispatcher, tlsSocket, allowedWord));
+            tlsSocket.setReadObserver(new AsyncConnectionDispatcher(dispatcher, tlsSocket, allowedWord, allowTLS));
         } else {
             close();
         }

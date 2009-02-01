@@ -10,35 +10,36 @@ import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.Category;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * This class specifies the content of a table that contains
  * objects representing any kind of media.
  */
-@Singleton
 public class AllTableFormat extends ResultsTableFormat<VisualSearchResult> {
     static final int FROM_INDEX = 0;
     static final int NAME_INDEX = 1;
     static final int EXTENSION_INDEX = 2;
     static final int TYPE_INDEX = 3;
     public static final int SIZE_INDEX = 4;
+    static final int IS_SPAM_INDEX = 5;
     
     private final IconManager iconManager;
     
     @Inject
     public AllTableFormat(IconManager iconManager) {
-        super(NAME_INDEX, FROM_INDEX, new ColumnStateInfo[] {
+        super("CLASSIC_SEARCH_ALL_TABLE", NAME_INDEX, FROM_INDEX, IS_SPAM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_ALL_FROM", I18n.tr("From"), 88, true, true), 
                 new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_ALL_NAME", I18n.tr("Name"), 467, true, true),     
                 new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_ALL_EXTENSION", I18n.tr("Extension"), 95, true, true), 
                 new ColumnStateInfo(TYPE_INDEX, "CLASSIC_SEARCH_ALL_TYPE", I18n.tr("Type"), 110, true, true), 
-                new ColumnStateInfo(SIZE_INDEX, "CLASSIC_SEARCH_ALL_SIZE", I18n.tr("Size"), 83, true, true)
+                new ColumnStateInfo(SIZE_INDEX, "CLASSIC_SEARCH_ALL_SIZE", I18n.tr("Size"), 83, true, true),
+                new ColumnStateInfo(IS_SPAM_INDEX, "CLASSIC_SEARCH_ALL_IS_SPAM", "", 10, false, false)
         });
         
         this.iconManager = iconManager;
@@ -70,17 +71,22 @@ public class AllTableFormat extends ResultsTableFormat<VisualSearchResult> {
                     return I18n.tr(vsr.getCategory().getSingularName());
             case SIZE_INDEX: return vsr.getSize();
             case EXTENSION_INDEX: return vsr.getFileExtension();
+            case IS_SPAM_INDEX: return vsr;
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }
     
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.DESCENDING, FROM_INDEX),
-                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
-                new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
-                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.DESCENDING, FROM_INDEX),
+                    new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                    new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
+                    new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
     
     @Override

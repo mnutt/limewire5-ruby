@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,7 +17,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.limewire.core.api.friend.FriendEvent;
 import org.limewire.core.api.friend.FriendPresenceEvent;
-import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.core.impl.library.MockLibraryManager;
 import org.limewire.core.impl.xmpp.MockXMPPConnection;
 import org.limewire.listener.EventListener;
@@ -39,13 +39,12 @@ public class ChatPanelHarness {
                 final MockLibraryManager libraryManager = new MockLibraryManager();
                 EventListenerList<FriendPresenceEvent> presenceSupport = new EventListenerList<FriendPresenceEvent>();
                 final EventListenerList<FriendEvent> friendSupport = new EventListenerList<FriendEvent>();
-                final EventListenerList<FeatureEvent> featureSupport = new EventListenerList<FeatureEvent>();
                 ChatFriendListPane friendsPane = new ChatFriendListPane(icons, null, presenceSupport);
                 ChatPanel chatPanel = new ChatPanel(new ConversationPaneFactory() {
                     @Override
                     public ConversationPane create(MessageWriter writer, ChatFriend chatFriend, String loggedInID) {
-                        return new ConversationPane(writer, chatFriend, loggedInID, libraryManager, new IconManagerStub(), null, null, null, friendSupport, null, featureSupport,
-                                new IconLibraryImpl());
+                        return new ConversationPane(writer, chatFriend, loggedInID, libraryManager, new IconManagerStub(), null, null, null, null,
+                                new IconLibraryImpl(), new ScheduledThreadPoolExecutor(1));
                     }
                 }, icons, friendsPane, new ChatTopPanel());
                 

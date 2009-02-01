@@ -10,7 +10,7 @@ public class MockFriend implements Friend {
     
     private String localID;
     private boolean anonymous;
-
+    private String name;
     public MockFriend() {
         this(null);
     }
@@ -22,26 +22,27 @@ public class MockFriend implements Friend {
     public MockFriend(String localID, boolean anonymous) {
         this.localID = localID;
         this.anonymous = anonymous;
+        this.name = localID;
     }
     
     @Override
     public String getId() {
-        return null;
+        return localID;
     }
 
     @Override
     public String getName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return name;
     }
 
     @Override
     public String getRenderName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return getName();
     }
 
     @Override
     public void setName(String name) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.name = name;
     }
 
     @Override
@@ -71,6 +72,6 @@ public class MockFriend implements Friend {
 
     @Override
     public String getFirstName() {
-        return null;
+        return name;
     }
 }

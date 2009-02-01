@@ -8,6 +8,7 @@ import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.FileUtils;
@@ -30,12 +31,12 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int EXTENSION_INDEX = 11;
     static final int DESCRIPTION_INDEX = 12;
     
-    public RemoteAudioTableFormat(ColumnStateInfo[] columnInfo) {
-        super(columnInfo);
+    public RemoteAudioTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo) {
+        super(sortID, sortedColumn, isAscending, columnInfo);
     }
     
     public RemoteAudioTableFormat() {
-        super(new ColumnStateInfo[] {
+        super("REMOTE_LIBRARY_AUDIO_TABLE", ARTIST_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_AUDIO_TITLE", I18n.tr("Name"), 278, true, true),     
                 new ColumnStateInfo(ARTIST_INDEX, "REMOTE_LIBRARY_AUDIO_ARTIST", I18n.tr("Artist"), 120, true, true), 
                 new ColumnStateInfo(ALBUM_INDEX, "REMOTE_LIBRARY_AUDIO_ALBUM", I18n.tr("Album"), 161, true, true), 
@@ -74,11 +75,15 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
     
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.ASCENDING, ARTIST_INDEX),
-                new SortKey(SortOrder.ASCENDING, ALBUM_INDEX),
-                new SortKey(SortOrder.ASCENDING, TRACK_INDEX),
-                new SortKey(SortOrder.ASCENDING, NAME_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.ASCENDING, ARTIST_INDEX),
+                    new SortKey(SortOrder.ASCENDING, ALBUM_INDEX),
+                    new SortKey(SortOrder.ASCENDING, TRACK_INDEX),
+                    new SortKey(SortOrder.ASCENDING, NAME_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
 
     @Override

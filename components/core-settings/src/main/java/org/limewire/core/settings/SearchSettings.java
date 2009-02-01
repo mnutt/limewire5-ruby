@@ -252,12 +252,42 @@ public final class SearchSettings extends LimeProps {
 	 */
 	public static final BooleanSetting OOB_ENABLED =
 		FACTORY.createBooleanSetting("OOB_ENABLED", true);
+    
+    /**
+     * Setting for whether to force OOB searching to be enabled
+     * (for testing purposes).
+     */
+    public static final BooleanSetting FORCE_OOB =
+        FACTORY.createBooleanSetting("FORCE_OOB", false);
 
+    /**
+     * Setting for whether old-style OOB searching is enabled.
+     */
+    public static final ProbabilisticBooleanSetting DISABLE_OOB_V2 =
+        FACTORY.createRemoteProbabilisticBooleanSetting("DISABLE_OOB_V2",
+                0f, "SearchSettings.DisableOOBV2", 0f, 1f);
+    
+    /**
+     * Minimum success rate for OOB proxying (percentage).
+     */
+    public static final IntSetting OOB_SUCCESS_RATE_GREAT =
+        FACTORY.createRemoteIntSetting("OOB_SUCCESS_RATE_GREAT",
+                80, "SearchSettings.OOBSuccessRateGreat", 0, 100);
+    
+    /**
+     * Minimum success rate for OOB querying (percentage).
+     */
+    public static final IntSetting OOB_SUCCESS_RATE_GOOD =
+        FACTORY.createRemoteIntSetting("OOB_SUCCESS_RATE_GOOD",
+                60, "SearchSettings.OOBSuccessRateGood", 0, 100);
 
-    public static final ProbabilisticBooleanSetting DISABLE_OOB_V2
-        = FACTORY.createRemoteProbabilisticBooleanSetting("DISABLE_OOB_V2",
-                0f, "SearchSettings.DisableOOBV2",0f,1f);
-
+    /**
+     * Minimum success rate for attempting OOB occasionally (percentage).
+     */
+    public static final IntSetting OOB_SUCCESS_RATE_TERRIBLE =
+        FACTORY.createRemoteIntSetting("OOB_SUCCESS_RATE_TERRIBLE",
+                40, "SearchSettings.OOBSuccessRateTerrible", 0, 100);
+    
     /**
      * Setting for the characters that are not allowed in search strings
      */

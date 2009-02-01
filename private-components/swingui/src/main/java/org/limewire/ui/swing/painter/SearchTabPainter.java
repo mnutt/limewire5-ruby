@@ -8,12 +8,14 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
-import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.util.PaintUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 
-public class SearchTabPainter extends AbstractPainter<JXPanel> {
+/**
+ * Draws the search tab shape within a given bounds.
+ */
+public class SearchTabPainter<X> extends AbstractPainter<X> {
     
     private final Paint topBevelBackground;
     private final Paint topBevelBorder;
@@ -48,7 +50,6 @@ public class SearchTabPainter extends AbstractPainter<JXPanel> {
         this.topBevelBorder = topBevelBorder;
         this.raiseBottomClip = raiseBottomClip;
         
-        
         this.background = background;
     }
   
@@ -70,7 +71,7 @@ public class SearchTabPainter extends AbstractPainter<JXPanel> {
     }
     
     @Override
-    protected void doPaint(Graphics2D g, JXPanel object, int width, int height) {
+    protected void doPaint(Graphics2D g, X object, int width, int height) {
         
         cacheTabArea(width, height);
 

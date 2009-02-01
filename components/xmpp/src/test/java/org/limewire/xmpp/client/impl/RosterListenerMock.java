@@ -67,7 +67,7 @@ public class RosterListenerMock implements EventListener<RosterEvent> {
                         }
                         if(!contains(roster.get(id), presence.getJID())) {
                             roster.get(id).add(presence);
-                            presence.getUser().setIncomingChatListener(listener);
+                            presence.getUser().setChatListenerIfNecessary(listener);
                             System.out.println("user " + presence.getJID() + " (" + name + ") available");
                         } else {
                             replace(roster.get(id), presence);

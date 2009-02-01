@@ -29,7 +29,7 @@ import org.limewire.ui.swing.options.actions.ApplyOptionAction;
 import org.limewire.ui.swing.options.actions.CancelOptionAction;
 import org.limewire.ui.swing.options.actions.HelpAction;
 import org.limewire.ui.swing.options.actions.TabAction;
-import org.limewire.ui.swing.painter.BarPainterFactory;
+import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.OSUtils;
@@ -108,7 +108,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         this.remoteOptionPanel = remoteOptionPanel;
         this.advancedOptionPanel = advancedOptionPanel;
 
-        if (!OSUtils.isAnyMac()) {
+        if (!OSUtils.isMacOSX()) {
             setSize(700, 656);
             setPreferredSize(getSize());
         } else {
@@ -143,7 +143,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     }
     
     private void createComponents(BarPainterFactory barPainterFactory) {
-        setLayout(new MigLayout("gap 0, insets 0 0 0 0, fill", "fill", "[63!][fill][40!, fill]"));
+        setLayout(new MigLayout("gap 0, insets 0 0 0 0, fill", "fill", "[][fill][40!, fill]"));
         
         cardLayout = new CardLayout();
         cardPanel = new JPanel();

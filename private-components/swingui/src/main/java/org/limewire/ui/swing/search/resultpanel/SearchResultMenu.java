@@ -18,9 +18,15 @@ import org.limewire.ui.swing.search.model.VisualSearchResult;
  */
 public class SearchResultMenu extends JPopupMenu {
 
+    public enum ViewType {
+        List,
+        Table
+    }
+    
     public SearchResultMenu(final DownloadHandler downloadHandler,
         final List<VisualSearchResult> selectedItems,
-        final PropertiesFactory<VisualSearchResult> propertiesFactory) {
+        final PropertiesFactory<VisualSearchResult> propertiesFactory,
+        ViewType viewType) {
 
         final VisualSearchResult firstItem = selectedItems.get(0);
         
@@ -33,7 +39,7 @@ public class SearchResultMenu extends JPopupMenu {
             }
         }
         
-        boolean showHideSimilarFileVisible = selectedItems.size() == 1 && firstItem.getSimilarResults().size() > 0;
+        boolean showHideSimilarFileVisible = selectedItems.size() == 1 && firstItem.getSimilarResults().size() > 0 && viewType == ViewType.List;
         boolean showHideSimilarFileEnabled = selectedItems.size() == 1 && firstItem.getDownloadState() == BasicDownloadState.NOT_STARTED;
         boolean viewFileInfoEnabled = selectedItems.size() == 1;
         

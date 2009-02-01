@@ -23,14 +23,12 @@ public class DownloadTable extends AbstractDownloadTable {
     private DownloadTableModel model;
 
     @AssistedInject
-	public DownloadTable(DownloadTableCellFactory tableCellFactory, DownloadActionHandlerFactory downloadActionHandlerFactory, 
+	public DownloadTable(DownloadTableCellFactory tableCellFactory, DownloadActionHandler actionHandler, 
 	        @Assisted EventList<DownloadItem> downloadItems) {	
         
 
         GuiUtils.assignResources(this);
-        
-        DownloadActionHandler actionHandler = downloadActionHandlerFactory.create(downloadItems);
-        
+                
         initialise(downloadItems, actionHandler);
         
         setStripeHighlighterEnabled(false);

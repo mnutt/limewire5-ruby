@@ -13,7 +13,7 @@ import org.limewire.core.settings.SpeedConstants;
 
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.RemoteFileDesc;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.messages.vendor.ContentResponse;
 
 /**
@@ -507,7 +507,7 @@ public class DownloadTest extends DownloadTestCase {
         Downloader downloader = downloadServices.download(rfds,false,null);
         waitForBusy(downloader);
         assertEquals("Downloader did not go to busy after getting ranges",
-                DownloadStatus.BUSY, downloader.getState());
+                DownloadState.BUSY, downloader.getState());
     }
     
     /** Tests what happens if the content authority says no. 

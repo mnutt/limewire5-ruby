@@ -66,7 +66,7 @@ public class MockDownloadItem implements DownloadItem {
 		return currentSize;
 	}
 
-	private void setCurrentSize(long newSize) {
+	public void setCurrentSize(long newSize) {
 		double oldSize = this.currentSize;
 		this.currentSize = newSize > getTotalSize() ? getTotalSize() : newSize;
 		if (currentSize == getTotalSize()) {

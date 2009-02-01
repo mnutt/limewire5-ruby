@@ -62,16 +62,15 @@ public class DefaultErrorCatcher {
 	 * Determines if the message can be ignored.
 	 */
 	private boolean isIgnorable(Throwable bug, String msg) {
-	    // ignore all overflows & out of memory errors,
+	    // ignore all overflows,
 	    // since they'll give us absolutely no debugging information
 	    if(bug instanceof StackOverflowError)
 	        return true;
-//	    if(bug instanceof OutOfMemoryError)
-//	        return true;
 	        
         // no bug?  kinda impossible, but shouldn't report.
-	    if(msg == null)
+	    if(msg == null) {
 	        return true;
+	    }
 	        
         // frickin' repaint manager stinks.
         if(msg.indexOf("javax.swing.RepaintManager") != -1)
@@ -116,28 +115,6 @@ public class DefaultErrorCatcher {
                 return true;
             if(msg.indexOf("disposed component") != -1)
                 return true;
-            
-//            if (msg.indexOf("javax.swing.JComponent.repaint") != -1
-//                    && msg.indexOf("com.limegroup.gnutella.gui.FileChooserHandler.getSaveAsFile") != -1) {
-//                return true;
-//            }
-//            
-//            if (msg.indexOf("javax.swing.JComponent.repaint") != -1
-//                    && msg.indexOf("com.limegroup.gnutella.gui.FileChooserHandler.getInput") != -1) {
-//                return true;
-//            }
-        }
-        
-        if (bug instanceof IndexOutOfBoundsException) {
-//            if (msg.indexOf("Invalid index") != -1
-//                    && msg.indexOf("com.limegroup.gnutella.gui.FileChooserHandler.getSaveAsFile") != -1) {
-//                return true;
-//            }
-//            
-//            if (msg.indexOf("Invalid index") != -1
-//                    && msg.indexOf("com.limegroup.gnutella.gui.FileChooserHandler.getInput") != -1) {
-//                return true;
-//            }
         }
         
         // various InternalErrors we can ignore.
@@ -148,41 +125,25 @@ public class DefaultErrorCatcher {
 	    
 	    // if we're not somewhere in the bug, ignore it.
 	    // no need for us to debug sun's internal errors.
-	    if(msg.indexOf("com.limegroup.gnutella") == -1 && msg.indexOf("org.limewire") == -1)
+	    if(msg.indexOf("com.limegroup.gnutella") == -1 && msg.indexOf("org.limewire") == -1) {
 	        return true;
-	        
-        // we intercept calls in various places -- check if the only
-        // com.limegroup.gnutella is from an intecepted call.
-//        if(intercepts(msg, "com.limegroup.gnutella.tables.MouseEventConsumptionChecker"))
-//            return true;
-//        if(intercepts(msg, "com.limegroup.gnutella.gui.tables.LimeJTable.processMouseEvent"))
-//            return true;
+	    }
+	    
+	    StackTraceElement[] stack = bug.getStackTrace();
+	    if(stack != null) {
+	        // Internal errors with Swing's FilePane -- we can't do anything about it
+	        if(bug instanceof IndexOutOfBoundsException && stack.length > 2) {
+	            if(stack[0].getClassName().equals("javax.swing.DefaultRowSorter") && stack[1].getClassName().equals("sun.swing.FilePane$SortableListModel")) {
+	                return true;
+	            }
+	        }
+	        if(bug instanceof NullPointerException && stack.length > 2) {
+	            if(stack[0].getClassName().equals("javax.swing.JComponent") && stack[1].getClassName().equals("sun.swing.FilePane$2")) {
+	                return true;
+	            }
+	        }	        
+	    }
 	        
         return false;
     }
-    
-    /**
-     * Determines if the given string is the only place where 'com.limegroup.gnutella' exists.
-     */
-//    private boolean intercepts(String msg, String inter) {
-//        int i = msg.indexOf(inter);
-//        // not intercepted at all?
-//        if(i == -1)
-//            return false;
-//            
-//        // something before it?
-//        if(msg.lastIndexOf("com.limegroup.gnutella", i) != -1 && msg.lastIndexOf("org.limewire", i) != -1)
-//            return false;
-//            
-//        i += inter.length();
-//        if(i >= msg.length())
-//            return false;
-//            
-//        // something after it?
-//        if(msg.indexOf("com.limegroup.gnutella", i) != -1 && msg.lastIndexOf("org.limewire", i) != -1)
-//            return false;
-//            
-//        // yup, it's the only com.limegroup.gnutella in there.
-//        return true;
-//    }   
 }

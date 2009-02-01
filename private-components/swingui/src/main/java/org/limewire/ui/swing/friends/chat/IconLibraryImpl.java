@@ -24,9 +24,7 @@ class IconLibraryImpl implements IconLibrary {
     @Resource private Icon library;
     @Resource private Icon sharing;
     @Resource private Icon closeChat;
-    @Resource private Icon minimizeNormal;
-    @Resource private Icon minimizeOver;
-    @Resource private Icon minimizeDown;
+    @Resource private Icon offline;
     
     public IconLibraryImpl() {
         GuiUtils.assignResources(this);
@@ -77,19 +75,9 @@ class IconLibraryImpl implements IconLibrary {
     public Icon getCloseChat() {
         return closeChat;
     }
-
+    
     @Override
-    public Icon getMinimizeDown() {
-        return minimizeDown;
-    }
-
-    @Override
-    public Icon getMinimizeNormal() {
-        return minimizeNormal;
-    }
-
-    @Override
-    public Icon getMinimizeOver() {
-        return minimizeOver;
+    public Icon getOffline() {
+        return offline;
     }
 }

@@ -46,17 +46,12 @@ import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.MediaType;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
-
 
 /**
  * Constructs the file type sharing panel to be used in the options
  *  menu and setup manager.  Includes external interface for saving
  *  and reloading settings.  
  */
-
-@Singleton
 public final class FileTypeOptionPanelManager {
 
     private static final int MAX_EXT_LENGTH = 7;
@@ -135,7 +130,8 @@ public final class FileTypeOptionPanelManager {
         return this.mainContainer;
     }
    
-    void initCore() {        
+    void initCore() {
+        
         Collection<String> selectedExts = CollectionUtils.flatten(libraryData.getExtensionsPerCategory().values());
         Collection<String> allExts = new TreeSet<String>();
         removableExts = new HashSet<String>();
@@ -188,8 +184,10 @@ public final class FileTypeOptionPanelManager {
 
     
     public void buildUI() {
-        
-        if (this.panels.isEmpty()) return;
+       
+        if (this.panels.isEmpty()) {
+            return;
+        }
         
         this.mainContainer = new JPanel(new BorderLayout());        
         this.mediaLayout   = new CardLayout();

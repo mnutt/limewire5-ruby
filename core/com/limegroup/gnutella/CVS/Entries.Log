@@ -2,6 +2,7 @@ A D/antivirus////
 A D/caas////
 A D/encryption////
 A D/image////
+A D/interceptor////
 A D/mail////
 A D/message////
 A D/plugin////
@@ -13,12 +14,14 @@ A D/snippet////
 A D/store////
 A D/tests////
 A D/torrent////
+A D/udp////
 A D/upelection////
 A D/websearch////
 A D/xmpp////
 R D/xmpp////
 R D/websearch////
 R D/upelection////
+R D/udp////
 R D/torrent////
 R D/tests////
 R D/store////
@@ -30,7 +33,9 @@ R D/plugins////
 R D/plugin////
 R D/message////
 R D/mail////
+R D/interceptor////
 R D/image////
 R D/encryption////
+R D/chat////
 R D/caas////
 R D/antivirus////

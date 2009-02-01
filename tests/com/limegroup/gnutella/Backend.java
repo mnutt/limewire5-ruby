@@ -20,7 +20,10 @@ import org.limewire.service.ErrorCallback;
 import org.limewire.service.ErrorService;
 import org.limewire.util.TestUtils;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.stubs.ActivityCallbackStub;
@@ -329,6 +332,11 @@ public class Backend extends com.limegroup.gnutella.util.LimeTestCase {
             new Backend(port);
         }
     }
+    
+    @Inject private ConnectionServices connectionServices;
+    @Inject private FileManager fileManager;
+    @Inject private LifecycleManager lifecycleManager;
+    @Inject private NetworkManager networkManager;
 
     /**
      * Constructs and launches a new <tt>Backend</tt>.
@@ -341,8 +349,6 @@ public class Backend extends com.limegroup.gnutella.util.LimeTestCase {
        
         System.getProperties().setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
         
-        
-        LimeWireCore limeWireCore = null;
         int shutdownPort = (port == BACKEND_PORT ? SHUTDOWN_PORT
                 : port == REJECT_PORT ? SHUTDOWN_REJECT_PORT
                         : port == LEAF_PORT ? SHUTDOWN_LEAF_PORT : -1);
@@ -354,29 +360,32 @@ public class Backend extends com.limegroup.gnutella.util.LimeTestCase {
 
             preSetUp();
             setStandardSettings(port);
-            limeWireCore = Guice.createInjector(Stage.PRODUCTION,
-                                                new LimeWireCoreModule(ActivityCallbackStub.class))
-                                .getInstance(LimeWireCore.class);
-            limeWireCore.getLifecycleManager().start();
-            populateSharedDirectory(limeWireCore.getFileManager());
+            Guice.createInjector(Stage.PRODUCTION, new LimeWireCoreModule(ActivityCallbackStub.class), new AbstractModule() {
+                @Override
+                protected void configure() {
+                    requestInjection(Backend.this);
+                }
+            });
+            lifecycleManager.start();
+            populateSharedDirectory(fileManager);
             if (!reject)
-                limeWireCore.getConnectionServices().connect();
+                connectionServices.connect();
 
             try {
                 // sleep to let the file manager initialize
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
             }
-            if (limeWireCore.getNetworkManager().getPort() != port) {
+            if (networkManager.getPort() != port) {
                 throw new IOException("Opened wrong port (wanted: " + port + ", was: "
-                        + limeWireCore.getNetworkManager().getPort() + ")");
+                        + networkManager.getPort() + ")");
             }
 
             waitForShutdown(shutdownSocket);
-            doShutdown(limeWireCore, reject, "");
+            doShutdown(lifecycleManager, reject, "");
         } catch (Exception ex) {
             ErrorService.error(ex);
-            doShutdown(limeWireCore, reject, "Exception thrown by backend shutdown monitor");
+            doShutdown(lifecycleManager, reject, "Exception thrown by backend shutdown monitor");
         } finally {
             try {
                 if (shutdownSocket != null)
@@ -460,9 +469,9 @@ public class Backend extends com.limegroup.gnutella.util.LimeTestCase {
     /**
      * Notifies <tt>RouterService</tt> that the backend should be shut down.
      */
-    private void doShutdown(LimeWireCore limeWireCore, boolean reject, String msg) {
-        if(limeWireCore != null)
-            limeWireCore.getLifecycleManager().shutdown();
+    private void doShutdown(LifecycleManager lifecycleManager, boolean reject, String msg) {
+        if(lifecycleManager != null)
+            lifecycleManager.shutdown();
         System.exit(0);
     }
 

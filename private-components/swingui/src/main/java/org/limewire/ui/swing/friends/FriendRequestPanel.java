@@ -15,7 +15,7 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.MultiLineLabel;
-import org.limewire.ui.swing.painter.BarPainterFactory;
+import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.util.BackgroundExecutorService;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -32,7 +32,7 @@ public class FriendRequestPanel extends JXPanel {
     
     @Inject 
     public FriendRequestPanel(BarPainterFactory barPainterFactory) {
-        setLayout(new MigLayout("nocache, gap 0, insets 0, fill", "10[]2", "2[]2[]2[]2"));
+        setLayout(new MigLayout("gap 0, insets 0, fill", "10[]2", "2[]2[]2[]2"));
         setBackgroundPainter(barPainterFactory.createFriendsBarPainter());
         setOpaque(false);
 

@@ -13,4 +13,6 @@ public interface DaapManager {
     public void stop();
     
     public void disconnectAll();
+
+    void start() throws IOException;
 }

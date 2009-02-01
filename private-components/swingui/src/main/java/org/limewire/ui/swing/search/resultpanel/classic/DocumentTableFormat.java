@@ -11,6 +11,7 @@ import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 
@@ -27,16 +28,18 @@ public class DocumentTableFormat extends ResultsTableFormat<VisualSearchResult> 
     static final int DATE_INDEX = 5;
     static final int AUTHOR_INDEX = 6;
     static final int DESCRIPTION_INDEX = 7;
+    static final int IS_SPAM_INDEX = 8;
     
     public DocumentTableFormat() {
-        super(NAME_INDEX, FROM_INDEX, new ColumnStateInfo[] {
+        super("CLASSIC_SEARCH_DOCUMENT_TABLE", NAME_INDEX, FROM_INDEX, IS_SPAM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_DOCUMENT_FROM", I18n.tr("From"), 88, true, true), 
                 new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_DOCUMENT_NAME", I18n.tr("Name"), 493, true, true), 
                 new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_DOCUMENT_EXTENSION", I18n.tr("Extension"), 83, true, true), 
                 new ColumnStateInfo(DATE_INDEX, "CLASSIC_SEARCH_DOCUMENT_DATE", I18n.tr("Date Created"), 104, true, true), 
                 new ColumnStateInfo(SIZE_INDEX, "CLASSIC_SEARCH_DOCUMENT_SIZE", I18n.tr("Size"), 92, true, true), 
                 new ColumnStateInfo(AUTHOR_INDEX, "CLASSIC_SEARCH_DOCUMENT_AUTHOR", I18n.tr("Author"), 80, false, true), 
-                new ColumnStateInfo(DESCRIPTION_INDEX, "CLASSIC_SEARCH_DOCUMENT_DESCRIPTION", I18n.tr("Description"), 80, false, true)
+                new ColumnStateInfo(DESCRIPTION_INDEX, "CLASSIC_SEARCH_DOCUMENT_DESCRIPTION", I18n.tr("Description"), 80, false, true),
+                new ColumnStateInfo(IS_SPAM_INDEX, "CLASSIC_SEARCH_DOCUMENT_IS_SPAM", "", 10, false, false)
         });
     }
  
@@ -62,17 +65,22 @@ public class DocumentTableFormat extends ResultsTableFormat<VisualSearchResult> 
             case EXTENSION_INDEX: return vsr.getFileExtension();
             case AUTHOR_INDEX: return vsr.getProperty(FilePropertyKey.AUTHOR);
             case DESCRIPTION_INDEX: return "";
+            case IS_SPAM_INDEX: return vsr;
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }
     
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.DESCENDING, FROM_INDEX),
-                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
-                new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
-                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.DESCENDING, FROM_INDEX),
+                    new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                    new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
+                    new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
     
     @Override

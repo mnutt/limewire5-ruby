@@ -34,7 +34,7 @@ import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.DownloadServices;
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
@@ -496,19 +496,19 @@ public abstract class DownloadTestCase extends LimeTestCase {
         }
 
         if (state == CORRUPT)
-            assertEquals("unexpected state", DownloadStatus.CORRUPT_FILE, managedDownloader
+            assertEquals("unexpected state", DownloadState.CORRUPT_FILE, managedDownloader
                     .getState());
         else if (state == INVALID)
-            assertEquals("unexpected state", DownloadStatus.INVALID, managedDownloader.getState());
+            assertEquals("unexpected state", DownloadState.INVALID, managedDownloader.getState());
         else if (state == COMPLETE)
-            assertEquals("unexpected state", DownloadStatus.COMPLETE, managedDownloader.getState());
+            assertEquals("unexpected state", DownloadState.COMPLETE, managedDownloader.getState());
         else
             fail("bad expectation: " + state);
     }
 
     protected void waitForBusy(Downloader downloader) {
         for (int i = 0; i < 12; i++) { //wait 12 seconds
-            if (downloader.getState() == DownloadStatus.BUSY)
+            if (downloader.getState() == DownloadState.BUSY)
                 return;
             try {
                 Thread.sleep(1000);// try again after a second

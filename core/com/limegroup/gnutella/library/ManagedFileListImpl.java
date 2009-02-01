@@ -793,20 +793,18 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
      * @param rev - current  version of LimeXMLDocs being used
      * @param oldFileDesc the old FileDesc this is replacing
      */
-    private ListeningFuture<FileDesc> add(File f, 
+    private ListeningFuture<FileDesc> add(File file, 
             final List<? extends LimeXMLDocument> metadata,
             final int rev,
             final FileDesc oldFileDesc) {
-        LOG.debugf("Attempting to load file: {0}", f);
+        LOG.debugf("Attempting to load file: {0}", file);
         
         // Make sure capitals are resolved properly, etc.
-        final File file;
         try {
-            File canonicalFile = FileUtils.getCanonicalFile(f);
-            file = new File(canonicalFile.getPath().intern());
+            file = FileUtils.getCanonicalFile(file);
         } catch (IOException e) {
-            LOG.debugf("Not adding {0} because canonicalize failed", f);
-            FileListChangedEvent event = dispatchFailure(f, oldFileDesc);
+            LOG.debugf("Not adding {0} because canonicalize failed", file);
+            FileListChangedEvent event = dispatchFailure(file, oldFileDesc);
             return new SimpleFuture<FileDesc>(new FileListChangeFailedException(event, FileListChangeFailedException.Reason.CANT_CANONICALIZE));
         }
         
@@ -838,8 +836,9 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
             FileListChangedEvent event = dispatchFailure(file, oldFileDesc);
             return new SimpleFuture<FileDesc>(new FileListChangeFailedException(event, FileListChangeFailedException.Reason.PROGRAMS_NOT_MANAGEABLE));
         }
-
-        getLibraryData().addManagedFile(file, explicitAdd);
+        
+        final File interned = new File(file.getPath().intern());
+        getLibraryData().addManagedFile(interned, explicitAdd);
 
         boolean failed = false;
         rwLock.writeLock().lock();
@@ -852,15 +851,15 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
         }
         
         if(failed) {
-            LOG.debugf("Not adding {0} because revisions changed while loading", file);
-            FileListChangedEvent event = dispatchFailure(file, oldFileDesc);
+            LOG.debugf("Not adding {0} because revisions changed while loading", interned);
+            FileListChangedEvent event = dispatchFailure(interned, oldFileDesc);
             return new SimpleFuture<FileDesc>(new FileListChangeFailedException(event, FileListChangeFailedException.Reason.REVISIONS_CHANGED));
         } else {
             final PendingFuture task = new PendingFuture();
-            ListeningFuture<Set<URN>> urnFuture = urnCache.calculateAndCacheUrns(file);
+            ListeningFuture<Set<URN>> urnFuture = urnCache.calculateAndCacheUrns(interned);
             rwLock.writeLock().lock();
             try {
-                fileToUrnFuture.put(file, urnFuture);
+                fileToUrnFuture.put(interned, urnFuture);
             } finally {
                 rwLock.writeLock().unlock();
             }
@@ -871,7 +870,7 @@ class ManagedFileListImpl implements ManagedFileList, FileList {
                     if(event.getException() != null) {
                         ExceptionUtils.reportOrReturn(event.getException());
                     }
-                    finishLoadingFileDesc(file, event, metadata, rev, oldFileDesc, task);
+                    finishLoadingFileDesc(interned, event, metadata, rev, oldFileDesc, task);
                 }
             });
             return task;

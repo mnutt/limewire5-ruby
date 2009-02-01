@@ -28,8 +28,8 @@ import org.mozilla.xpcom.XPCOMException;
 
 import com.limegroup.bittorrent.SimpleBandwidthTracker;
 import com.limegroup.gnutella.InsufficientDataException;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.Downloader.DownloadState;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.mozilla.MozillaDownload;
 
 /**
@@ -55,9 +55,9 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
 
     private final LimeMozillaDownloadManagerListener manager;
 
-    private final EventListenerList<DownloadStatusEvent> listeners;
+    private final EventListenerList<DownloadStateEvent> listeners;
 
-    private final BlockingQueue<DownloadStatusEvent> statusEvents;
+    private final BlockingQueue<DownloadStateEvent> statusEvents;
 
     private final ScheduledExecutorService backgroundExecutor;
 
@@ -66,10 +66,10 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
         this.manager = Objects.nonNull(manager, "manager");
         this.backgroundExecutor = Objects.nonNull(backgroundExecutor, "backgroundExecutor");
         Objects.nonNull(download, "download");
-        this.listeners = new EventListenerList<DownloadStatusEvent>();
+        this.listeners = new EventListenerList<DownloadStateEvent>();
         this.downloadId = download.getId();
         this.state = new AtomicInteger();
-        this.statusEvents = new LinkedBlockingQueue<DownloadStatusEvent>();
+        this.statusEvents = new LinkedBlockingQueue<DownloadStateEvent>();
         changeState(state);
         this.totalProgress = new AtomicLong();
         this.down = new SimpleBandwidthTracker();
@@ -88,14 +88,14 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
     private synchronized void changeState(short state) {
         if (state != this.state.get()) {
             this.state.set(state);
-            DownloadStatus downloadStatus = getDownloadStatus();
-            DownloadStatusEvent downloadStatusEvent = new DownloadStatusEvent(null, downloadStatus);
+            DownloadState downloadStatus = getDownloadStatus();
+            DownloadStateEvent downloadStatusEvent = new DownloadStateEvent(null, downloadStatus);
             statusEvents.add(downloadStatusEvent);
             backgroundExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     synchronized (listeners) {
-                        DownloadStatusEvent event = statusEvents.poll();
+                        DownloadStateEvent event = statusEvents.poll();
                         if (event != null) {
                             listeners.broadcast(event);
                         }
@@ -198,30 +198,30 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
     }
 
     @Override
-    public synchronized DownloadStatus getDownloadStatus() {
+    public synchronized DownloadState getDownloadStatus() {
         switch (state.get()) {
         case nsIDownloadManager.DOWNLOAD_SCANNING:
-            return DownloadStatus.RESUMING;
+            return DownloadState.RESUMING;
         case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
-            return DownloadStatus.DOWNLOADING;
+            return DownloadState.DOWNLOADING;
         case nsIDownloadManager.DOWNLOAD_FINISHED:
-            return DownloadStatus.COMPLETE;
+            return DownloadState.COMPLETE;
         case nsIDownloadManager.DOWNLOAD_QUEUED:
-            return DownloadStatus.QUEUED;
+            return DownloadState.QUEUED;
         case nsIDownloadManager.DOWNLOAD_PAUSED:
-            return DownloadStatus.PAUSED;
+            return DownloadState.PAUSED;
         case nsIDownloadManager.DOWNLOAD_NOTSTARTED:
-            return DownloadStatus.PAUSED;
+            return DownloadState.PAUSED;
         case nsIDownloadManager.DOWNLOAD_CANCELED:
-            return DownloadStatus.ABORTED;
+            return DownloadState.ABORTED;
         case nsIDownloadManager.DOWNLOAD_BLOCKED_PARENTAL:
-            return DownloadStatus.INVALID;
+            return DownloadState.INVALID;
         case nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY:
-            return DownloadStatus.INVALID;
+            return DownloadState.INVALID;
         case nsIDownloadManager.DOWNLOAD_DIRTY:
-            return DownloadStatus.INVALID;
+            return DownloadState.INVALID;
         case nsIDownloadManager.DOWNLOAD_FAILED:
-            return DownloadStatus.INVALID;
+            return DownloadState.INVALID;
         }
 
         throw new IllegalStateException("unknown mozilla state");
@@ -335,12 +335,12 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
     }
 
     @Override
-    public void addListener(EventListener<DownloadStatusEvent> listener) {
+    public void addListener(EventListener<DownloadStateEvent> listener) {
         listeners.addListener(listener);
     }
 
     @Override
-    public boolean removeListener(EventListener<DownloadStatusEvent> listener) {
+    public boolean removeListener(EventListener<DownloadStateEvent> listener) {
         return listeners.removeListener(listener);
     }
 
@@ -352,9 +352,9 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
 
     @Override
     public synchronized boolean isCancelled() {
-        DownloadStatus downloadStatus = getDownloadStatus();
-        boolean cancelled = downloadStatus == DownloadStatus.ABORTED
-                || downloadStatus == DownloadStatus.INVALID;
+        DownloadState downloadStatus = getDownloadStatus();
+        boolean cancelled = downloadStatus == DownloadState.ABORTED
+                || downloadStatus == DownloadState.INVALID;
         return cancelled;
     }
 

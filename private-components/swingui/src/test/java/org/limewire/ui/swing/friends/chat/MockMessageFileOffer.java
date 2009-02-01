@@ -40,7 +40,7 @@ public class MockMessageFileOffer implements MessageFileOffer {
 
     @Override
     public String format() {
-        return "Message with file offer: " + fileOffer.getName();
+        return fileOffer.getName();
     }
 
     @Override

@@ -21,7 +21,8 @@ import org.limewire.core.settings.LibrarySettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.Disposable;
-import org.limewire.ui.swing.components.LimeHeaderBarFactory;
+import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
+import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
 import org.limewire.ui.swing.dnd.GhostDragGlassPane;
 import org.limewire.ui.swing.dnd.GhostDropTargetListener;
 import org.limewire.ui.swing.dnd.LocalFileListTransferHandler;
@@ -53,10 +54,11 @@ abstract class AbstractFriendLibraryPanel extends LibraryPanel {
                     LibraryTableFactory tableFactory,
                     DownloadListManager downloadListManager,
                     LibraryManager libraryManager,
-                    LimeHeaderBarFactory headerBarFactory,
+                    HeaderBarDecorator headerBarFactory,
                     GhostDragGlassPane ghostPane,
-                    LibraryNavigator libraryNavigator) {        
-        super(headerBarFactory);
+                    LibraryNavigator libraryNavigator,
+                    TextFieldDecorator textFieldDecorator) {        
+        super(headerBarFactory, textFieldDecorator);
         this.friend = friend;
         this.categoryIconManager = categoryIconManager;
         this.tableFactory = tableFactory;

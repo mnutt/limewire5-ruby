@@ -31,7 +31,7 @@ import com.limegroup.gnutella.AssertFailure;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.PushEndpoint;
 import com.limegroup.gnutella.RemoteFileDesc;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.altlocs.AlternateLocation;
 import com.limegroup.gnutella.http.ProblemReadingHeaderException;
 import com.limegroup.gnutella.tigertree.HashTree;
@@ -227,7 +227,7 @@ public class DownloadWorker {
     private DirectConnector _connectObserver;
 
     /** The current state of the non-blocking download. */
-    private final DownloadState _currentState;
+    private final DownloadHttpRequestState _currentState;
 
     /**
      * Whether or not the worker is involved in a stealing operation (as either
@@ -262,7 +262,7 @@ public class DownloadWorker {
         _commonOutFile = vf;
         this.statsTracker = statsTracker;
         this.TLSManager = TLSManager;
-        _currentState = new DownloadState();
+        _currentState = new DownloadHttpRequestState();
 
         // if we'll be debugging, we want to distinguish the different workers
         if (LOG.isDebugEnabled()) {
@@ -327,36 +327,36 @@ public class DownloadWorker {
         }
 
         switch (_currentState.getCurrentState()) {
-        case DownloadState.DOWNLOADING:
+        case DOWNLOADING:
             releaseRanges();
-        case DownloadState.QUEUED:
-        case DownloadState.BEGIN:
+        case QUEUED:
+        case BEGIN:
             _currentState.setHttp11(_rfd.isHTTP11());
-            _currentState.setState(DownloadState.REQUESTING_THEX);
+            _currentState.setState(DownloadHttpRequestState.State.REQUESTING_THEX);
             if (requestTHEXIfNeeded())
                 break; // wait for callback
 
-        case DownloadState.REQUESTING_THEX:
-            _currentState.setState(DownloadState.DOWNLOADING_THEX);
+        case REQUESTING_THEX:
+            _currentState.setState(DownloadHttpRequestState.State.DOWNLOADING_THEX);
             if (downloadThexIfNeeded())
                 break;
 
-        case DownloadState.DOWNLOADING_THEX:
-            _currentState.setState(DownloadState.CONSUMING_BODY);
+        case DOWNLOADING_THEX:
+            _currentState.setState(DownloadHttpRequestState.State.CONSUMING_BODY);
             if (consumeBodyIfNeeded())
                 break; // wait for callback
 
-        case DownloadState.CONSUMING_BODY:
+        case CONSUMING_BODY:
             _downloader.forgetRanges();
             if (status == null || !status.isQueued()) {
-                _currentState.setState(DownloadState.REQUESTING_HTTP);
+                _currentState.setState(DownloadHttpRequestState.State.REQUESTING_HTTP);
                 if (!assignAndRequest()) { // no data
                     finishHttpLoop();
                 }
                 break; // wait for callback (or exit)
             }
 
-        case DownloadState.REQUESTING_HTTP:
+        case REQUESTING_HTTP:
             httpRequestFinished(status);
             break;
         default:
@@ -434,7 +434,7 @@ public class DownloadWorker {
                 _manager.removeQueuedWorker(this);
 
             if (status.isPartialData()) {
-                _currentState.setState(DownloadState.BEGIN);
+                _currentState.setState(DownloadHttpRequestState.State.BEGIN);
                 incrementState(null);
             } else {
                 assert (status.isQueued() || status.isConnected());
@@ -442,7 +442,7 @@ public class DownloadWorker {
                         .isQueued() ? -1 : status.getQueuePosition());
 
                 if (status.isConnected()) {
-                    _currentState.setState(DownloadState.DOWNLOADING);
+                    _currentState.setState(DownloadHttpRequestState.State.DOWNLOADING);
                     beginDownload();
                 } else if (!queued) { // If we were told not to queue.
                     finishHttpLoop();
@@ -639,7 +639,7 @@ public class DownloadWorker {
             }
 
             LOG.debug("Queueing");
-            _currentState.setState(DownloadState.QUEUED);
+            _currentState.setState(DownloadHttpRequestState.State.QUEUED);
         }
 
         backgroundExecutor.schedule(new Runnable() {
@@ -684,21 +684,21 @@ public class DownloadWorker {
         }
 
         synchronized (_manager) {
-            DownloadStatus state = _manager.getState();
+            DownloadState state = _manager.getState();
             // If we're just increasing parallelism, stay in DOWNLOADING
             // state. Otherwise the following call is needed to restart
             // the timer.
             if (_manager.getNumDownloaders() == 0
-                    && state != DownloadStatus.COMPLETE
-                    && state != DownloadStatus.ABORTED
-                    && state != DownloadStatus.GAVE_UP
-                    && state != DownloadStatus.DISK_PROBLEM
-                    && state != DownloadStatus.CORRUPT_FILE
-                    && state != DownloadStatus.HASHING
-                    && state != DownloadStatus.SAVING) {
+                    && state != DownloadState.COMPLETE
+                    && state != DownloadState.ABORTED
+                    && state != DownloadState.GAVE_UP
+                    && state != DownloadState.DISK_PROBLEM
+                    && state != DownloadState.CORRUPT_FILE
+                    && state != DownloadState.HASHING
+                    && state != DownloadState.SAVING) {
                 if (_interrupted.get())
                     return; // we were signalled to stop.
-                _manager.setState(DownloadStatus.CONNECTING);
+                _manager.setState(DownloadState.CONNECTING);
             }
         }
 
@@ -1420,7 +1420,7 @@ public class DownloadWorker {
                         || _interrupted.get())
                     return ConnectionStatus.getNoData(); // we were signalled
                                                             // to stop.
-                _manager.setState(DownloadStatus.REMOTE_QUEUED);
+                _manager.setState(DownloadState.REMOTE_QUEUED);
             }
             rfdContext.resetFailedCount();
             return ConnectionStatus.getQueued(position, pollTime);
@@ -1452,7 +1452,7 @@ public class DownloadWorker {
 
         boolean finishLoop;
         synchronized (_currentState) {
-            finishLoop = _currentState.getCurrentState() == DownloadState.QUEUED;
+            finishLoop = _currentState.getCurrentState() == DownloadHttpRequestState.State.QUEUED;
         }
         if (finishLoop)
             finishHttpLoop();

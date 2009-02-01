@@ -32,16 +32,17 @@ import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.DropDownListAutoCompleteControl;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeComboBox;
-import org.limewire.ui.swing.components.LimeComboBoxFactory;
-import org.limewire.ui.swing.components.LimePromptTextField;
+import org.limewire.ui.swing.components.PromptTextField;
+import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
+import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SwingUtils;
-import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.util.I18NConvert;
+import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -57,7 +58,7 @@ public class SearchBar extends JXPanel {
     @Resource private Color searchBorder;
     
     private final LimeComboBox comboBox;
-    private final LimePromptTextField searchField;
+    private final PromptTextField searchField;
     private final IconButton searchButton;
     
     private final HistoryAndFriendAutoCompleter autoCompleter;
@@ -70,10 +71,11 @@ public class SearchBar extends JXPanel {
     
     
     @Inject
-    public SearchBar(LimeComboBoxFactory comboBoxFactory, 
+    public SearchBar(ComboBoxDecorator comboBoxDecorator, 
             final FriendAutoCompleters friendLibraries,
             @Named("searchHistory") AutoCompleteDictionary searchHistory,
-            CategoryIconManager categoryIconManager) {
+            CategoryIconManager categoryIconManager,
+            TextFieldDecorator textFieldDecorator) {
         super(new MigLayout("ins 0, gapx 0, gapy 0"));
     
         GuiUtils.assignResources(this);
@@ -111,10 +113,12 @@ public class SearchBar extends JXPanel {
         
         programAction = progAction;
         
-        comboBox = comboBoxFactory.createLightFullComboBox(typeActions);
+        comboBox = new LimeComboBox(typeActions);
+        comboBoxDecorator.decorateLightFullComboBox(comboBox);
         comboBox.setName("SearchBar.comboBox");
                 
-        searchField = new LimePromptTextField(I18n.tr("Search"), AccentType.BUBBLE, searchBorder);
+        searchField = new PromptTextField(I18n.tr("Search"));
+        textFieldDecorator.decoratePromptField(searchField, AccentType.BUBBLE, searchBorder);
         searchField.setName("SearchBar.searchField");
         searchField.setDocument(new SearchFieldDocument());
         

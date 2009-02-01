@@ -324,7 +324,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * Manages writing stuff to disk, remember what's leased, what's verified,
      * what is valid, etc........
      */
-    protected VerifyingFile commonOutFile;
+    protected volatile VerifyingFile commonOutFile;
     
     /** A list of pushing hosts. */
     private volatile PushList pushes;
@@ -332,7 +332,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     ///////////////////////// Variables for GUI Display  /////////////////
     /** The current state.  One of Downloader.CONNECTING, Downloader.ERROR,
       *  etc.   Should be modified only through setState. */
-    private DownloadStatus state = DownloadStatus.INITIALIZING;
+    private DownloadState state = DownloadState.INITIALIZING;
     /** The system time that we expect to LEAVE the current state, or
      *  Integer.MAX_VALUE if we don't know. Should be modified only through
      *  setState. */
@@ -425,8 +425,8 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     
     private long contentLength = -1;
     
-    private final EventListenerList<DownloadStatusEvent> listeners = 
-        new EventListenerList<DownloadStatusEvent>(); 
+    private final EventListenerList<DownloadStateEvent> listeners = 
+        new EventListenerList<DownloadStateEvent>(); 
     
     protected final DownloadManager downloadManager;
     protected final FileManager fileManager;
@@ -561,7 +561,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * @see com.limegroup.gnutella.downloader.ManagedDownloader#initialize()
      */
     public void initialize() {
-        setState(DownloadStatus.INITIALIZING);
+        setState(DownloadState.INITIALIZING);
         
         // Every setter needs the lock.
         synchronized(this) {
@@ -591,7 +591,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                     setSha1Urn(rfd.getSHA1Urn());
             }
         }        
-        setState(DownloadStatus.QUEUED);
+        setState(DownloadState.QUEUED);
         
 		if (getSha1Urn() != null) 
 		    altLocManager.addListener(getSha1Urn(),this);
@@ -614,12 +614,12 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             initializeIncompleteFile();
             initializeVerifyingFile();
         }catch(IOException bad) {
-            setState(DownloadStatus.DISK_PROBLEM);
+            setState(DownloadState.DISK_PROBLEM);
             reportDiskProblem(bad);
             return;
         }
         
-        setState(DownloadStatus.QUEUED);
+        setState(DownloadState.QUEUED);
     }
     
     private void reportDiskProblem(IOException cause) {
@@ -667,13 +667,13 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                     receivedNewSources = false;
                     // reset tried hosts count
                     triedHosts = 0;
-                    DownloadStatus status = performDownload();
+                    DownloadState status = performDownload();
                     completeDownload(status);
                 } catch(Throwable t) {
                     // if any unhandled errors occurred, remove this
                     // download completely and message the error.
                     ManagedDownloaderImpl.this.stop(false);
-                    setState(DownloadStatus.ABORTED);
+                    setState(DownloadState.ABORTED);
                     downloadManager.remove(ManagedDownloaderImpl.this, true);
                     
                     ErrorService.error(t);
@@ -691,7 +691,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * This essentially pumps the state of the download to different
      * areas, depending on what is required or what has already occurred.
      */
-    private void completeDownload(DownloadStatus status) {
+    private void completeDownload(DownloadState status) {
         boolean complete;
         boolean clearingNeeded = false;
         int waitTime = 0;
@@ -711,11 +711,11 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             case GAVE_UP:
                 if(invalidated) {
                     clearingNeeded = true;
-                    setState(DownloadStatus.INVALID);
+                    setState(DownloadState.INVALID);
                 } else if(stopped) {
-                    setState(DownloadStatus.ABORTED);
+                    setState(DownloadState.ABORTED);
                 } else if(paused) {
-                    setState(DownloadStatus.PAUSED);
+                    setState(DownloadState.PAUSED);
                 } else {
                     setState(status); // BUSY or GAVE_UP
                 }
@@ -762,7 +762,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             ; // all done.
             
         // if this is paused, nothing else to do also.
-        } else if(getState() == DownloadStatus.PAUSED) {
+        } else if(getState() == DownloadState.PAUSED) {
             ; // all done for now.
             
         // Try iterative GUESSing...
@@ -779,16 +779,16 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             boolean requery = false;
             synchronized(this) {
                 // If busy, try waiting for that busy host.
-                if (getState() == DownloadStatus.BUSY) {
-                    setState(DownloadStatus.BUSY, waitTime);
+                if (getState() == DownloadState.BUSY) {
+                    setState(DownloadState.BUSY, waitTime);
 
                 // If we sent a query recently, then we don't want to send another,
                 // nor do we want to give up.  Just continue waiting for results
                 // from that query.
                 } else if(requeryManager.isWaitingForResults()) {
                     switch(requeryManager.getLastQueryType()) {
-                    case DHT: setState(DownloadStatus.QUERYING_DHT, requeryManager.getTimeLeftInQuery()); break;
-                    case GNUTELLA: setState(DownloadStatus.WAITING_FOR_GNET_RESULTS, requeryManager.getTimeLeftInQuery()); break;
+                    case DHT: setState(DownloadState.QUERYING_DHT, requeryManager.getTimeLeftInQuery()); break;
+                    case GNUTELLA: setState(DownloadState.WAITING_FOR_GNET_RESULTS, requeryManager.getTimeLeftInQuery()); break;
                     default: 
                         throw new IllegalStateException("Not any query type!");
                     }
@@ -799,11 +799,11 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
 
                 // If we can send a query after we activate, wait for the user.
                 } else if(requeryManager.canSendQueryAfterActivate()) {
-                    setState(DownloadStatus.WAITING_FOR_USER);
+                    setState(DownloadState.WAITING_FOR_USER);
 
                 // Otherwise, there's nothing we can do, give up.
                 } else {
-                    setState(DownloadStatus.GAVE_UP);
+                    setState(DownloadState.GAVE_UP);
 
                 }
             }
@@ -835,27 +835,27 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             // but we're still inactive, then we queue ourselves
             // and wait till we get restarted.
             if(getRemainingStateTime() <= 0 || hasNewSources())
-                setState(DownloadStatus.QUEUED);
+                setState(DownloadState.QUEUED);
             break;
         case QUERYING_DHT:
         case WAITING_FOR_GNET_RESULTS:
             // If we have new sources but are still inactive,
             // then queue ourselves and wait to restart.
             if(hasNewSources())
-                setState(DownloadStatus.QUEUED);
+                setState(DownloadState.QUEUED);
             // Otherwise, if we've ran out of time waiting for results,
             // give up.  If another requery can be sent, the GAVE_UP
             // pump will trigger it to start.
             else if(requeryManager.getTimeLeftInQuery() <= 0)
-                setState(DownloadStatus.GAVE_UP);
+                setState(DownloadState.GAVE_UP);
             break;
         case WAITING_FOR_USER:
             if (hasNewSources() || requeryManager.canSendQueryNow())
-                setState(DownloadStatus.QUEUED);
+                setState(DownloadState.QUEUED);
             break;
         case GAVE_UP:
         	if (hasNewSources() || requeryManager.canSendQueryAfterActivate()) 
-        		setState(DownloadStatus.QUEUED);
+        		setState(DownloadState.QUEUED);
         case QUEUED:
         case PAUSED:
             // If we're waiting for the user to do something,
@@ -880,7 +880,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         if(guessLocs.isEmpty())
             return false;
 
-        setState(DownloadStatus.ITERATIVE_GUESSING, GUESS_WAIT_TIME);
+        setState(DownloadState.ITERATIVE_GUESSING, GUESS_WAIT_TIME);
         triedLocatingSources = true;
 
         //TODO: should we increment a stat to get a sense of
@@ -1423,11 +1423,11 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * @see com.limegroup.gnutella.downloader.ManagedDownloader#shouldBeRestarted()
      */
     public boolean shouldBeRestarted() {
-        DownloadStatus status = getState();
+        DownloadState status = getState();
         return hasNewSources() || 
         (getRemainingStateTime() <= 0 
-                && status != DownloadStatus.WAITING_FOR_GNET_RESULTS &&
-                status != DownloadStatus.QUERYING_DHT);
+                && status != DownloadState.WAITING_FOR_GNET_RESULTS &&
+                status != DownloadState.QUERYING_DHT);
     }
     
     /* (non-Javadoc)
@@ -1487,7 +1487,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             paused = true;
             // if we're already inactive, mark us as paused immediately.
             if(isInactive())
-                setState(DownloadStatus.PAUSED);
+                setState(DownloadState.PAUSED);
         }
     }
     
@@ -1502,8 +1502,8 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * @see com.limegroup.gnutella.downloader.ManagedDownloader#isPausable()
      */
     public boolean isPausable() {
-        DownloadStatus state = getState();
-    	return !isPaused() && !isCompleted() && state != DownloadStatus.SAVING && state != DownloadStatus.HASHING;
+        DownloadState state = getState();
+    	return !isPaused() && !isCompleted() && state != DownloadState.SAVING && state != DownloadState.HASHING;
     }
     
     /* (non-Javadoc)
@@ -1511,14 +1511,14 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      */
     public boolean isResumable() {
     	// inactive but not queued
-    	return isInactive() && state != DownloadStatus.QUEUED;
+    	return isInactive() && state != DownloadState.QUEUED;
     }
     
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.downloader.ManagedDownloader#isLaunchable()
      */
     public boolean isLaunchable() {
-    	return state == DownloadStatus.COMPLETE || amountForPreview() > 0;
+    	return state == DownloadState.COMPLETE || amountForPreview() > 0;
     }
     
     /**
@@ -1688,7 +1688,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
 
         // if we were waiting for the user to start us,
         // then try to send the requery.
-        if(getState() == DownloadStatus.WAITING_FOR_USER) {
+        if(getState() == DownloadState.WAITING_FOR_USER) {
             requeryManager.activate();
         }
         
@@ -1703,7 +1703,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         }
             
         // queue ourselves so we'll try and become active immediately
-        setState(DownloadStatus.QUEUED);
+        setState(DownloadState.QUEUED);
         
         return true;
     }
@@ -1715,7 +1715,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         if(incompleteFile == null)
             return null;
             
-        if(state == DownloadStatus.COMPLETE)
+        if(state == DownloadState.COMPLETE)
             return getSaveFile();
         else
             return incompleteFile;
@@ -1746,14 +1746,14 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         
         //a) Special case for saved corrupt fragments.  We don't worry about
         //removing holes.
-        if (state==DownloadStatus.CORRUPT_FILE) 
+        if (state==DownloadState.CORRUPT_FILE) 
             return corruptFile; //may be null
         //b) If the file is being downloaded, create *copy* of first
         //block of incomplete file.  The copy is needed because some
         //programs, notably Windows Media Player, attempt to grab
         //exclusive file locks.  If the download hasn't started, the
         //incomplete file may not even exist--not a problem.
-        else if (state!=DownloadStatus.COMPLETE) {
+        else if (state!=DownloadState.COMPLETE) {
             File file=new File(incompleteFile.getParent(),
                                IncompleteFileManager.PREVIEW_PREFIX
                                    +incompleteFile.getName());
@@ -1813,15 +1813,15 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * of moving file from incomplete directory to save directory and adding
      * file to the library.  Called from dloadManagerThread.  
      */
-    protected DownloadStatus performDownload() {
+    protected DownloadState performDownload() {
         if(checkHosts()) {//files is global
-            setState(DownloadStatus.GAVE_UP);
-            return DownloadStatus.GAVE_UP;
+            setState(DownloadState.GAVE_UP);
+            return DownloadState.GAVE_UP;
         }
 
         // 1. initialize the download
-        DownloadStatus status = initializeDownload();
-        if ( status == DownloadStatus.CONNECTING) {
+        DownloadState status = initializeDownload();
+        if ( status == DownloadState.CONNECTING) {
             try {
                 //2. Do the download
                 try {
@@ -1832,7 +1832,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                 }
                 
                 // 4. if all went well, save
-                if (status == DownloadStatus.COMPLETE) 
+                if (status == DownloadState.COMPLETE) 
                     status = verifyAndSave();
                 else if(LOG.isDebugEnabled())
                     LOG.debug("stopping early with status: " + status); 
@@ -1843,13 +1843,13 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                 if (!stopped && !paused)
                     ErrorService.error(e);
                 else
-                    status = DownloadStatus.GAVE_UP;
+                    status = DownloadState.GAVE_UP;
                 
                 // if we were stopped due to corrupt download, cleanup
                 if (corruptState == CORRUPT_STOP_STATE) {
                     // TODO is this really what cleanupCorrupt expects?
                     cleanupCorrupt(incompleteFile, getSaveFile().getName());
-                    status = DownloadStatus.CORRUPT_FILE;
+                    status = DownloadState.CORRUPT_FILE;
                 }
             }
         }
@@ -1865,11 +1865,11 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * @return GAVE_UP if we had no sources, DISK_PROBLEM if such occurred, 
      * CONNECTING if we're ready to connect
      */
-    protected DownloadStatus initializeDownload() {
+    protected DownloadState initializeDownload() {
         
         synchronized (this) {
             if (cachedRFDs.size()==0 && !ranker.hasMore()) 
-                return DownloadStatus.GAVE_UP;
+                return DownloadState.GAVE_UP;
         }
         
         try {
@@ -1878,7 +1878,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             openVerifyingFile();
         } catch (IOException iox) {
             reportDiskProblem(iox);
-            return DownloadStatus.DISK_PROBLEM;
+            return DownloadState.DISK_PROBLEM;
         }
 
         // Create a new validAlts for this sha1.
@@ -1889,18 +1889,18 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         // load up the ranker with the hosts we know about
         initializeRanker();
         
-        return DownloadStatus.CONNECTING;
+        return DownloadState.CONNECTING;
     }
     
     /**
      * Verifies the completed file against the SHA1 hash and saves it.  If
      * there is corruption, it asks the user whether to discard or keep the file 
-     * @return {@link DownloadStatus#COMPLETE} if all went fine, 
-     * {@link DownloadStatus#DISK_PROBLEM} if not.
+     * @return {@link DownloadState#COMPLETE} if all went fine, 
+     * {@link DownloadState#DISK_PROBLEM} if not.
      * @throws InterruptedException if we get interrupted while waiting for user
      * response.
      */
-    private DownloadStatus verifyAndSave() throws InterruptedException {
+    private DownloadState verifyAndSave() throws InterruptedException {
         
         // Find out the hash of the file and verify that its the same
         // as our hash.
@@ -1908,7 +1908,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         if (corruptState == CORRUPT_STOP_STATE) {
             // TODO is this what cleanup Corrupt expects?
             cleanupCorrupt(incompleteFile, getSaveFile().getName());
-            return DownloadStatus.CORRUPT_FILE;
+            return DownloadState.CORRUPT_FILE;
         }
         
         // Save the file to disk.
@@ -1969,7 +1969,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         URN fileHash=null;
         try {
             // let the user know we're hashing the file
-            setState(DownloadStatus.HASHING);
+            setState(DownloadState.HASHING);
             fileHash = URN.createSHA1Urn(incompleteFile);
         }
         catch(IOException ignored) {}
@@ -2019,21 +2019,21 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     /**
      * Saves the file to disk.
      */
-    protected DownloadStatus saveFile(URN fileHash){
+    protected DownloadState saveFile(URN fileHash){
         // let the user know we're saving the file...
-        setState(DownloadStatus.SAVING);
+        setState(DownloadState.SAVING);
         File saveFile = getSaveFile();
         try {
             saveFile = getSuggestedSaveLocation(saveFile, incompleteFile);
             // Make sure we can write into the complete file's directory.
             if (!FileUtils.setWriteable(saveFile.getParentFile())) {
                 reportDiskProblem("could not set file writeable " + getSaveFile().getParentFile());
-                return DownloadStatus.DISK_PROBLEM;
+                return DownloadState.DISK_PROBLEM;
             }
             if (!saveFile.equals(getSaveFile()))
                 setSaveFile(saveFile.getParentFile(), saveFile.getName(), true);
         } catch (IOException e) {
-            return DownloadStatus.DISK_PROBLEM;
+            return DownloadState.DISK_PROBLEM;
         }
 
         //Delete target.  If target doesn't exist, this will fail silently.
@@ -2056,7 +2056,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         if (!success) {
             reportDiskProblem("forceRename failed "+incompleteFile+
                     " -> "+ saveFile);
-            return DownloadStatus.DISK_PROBLEM;
+            return DownloadState.DISK_PROBLEM;
         }
             
         //Add file to library.
@@ -2070,7 +2070,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         // determine where and how to share the file
         shareSavedFile(saveFile);
         
-		return DownloadStatus.COMPLETE;
+		return DownloadState.COMPLETE;
     }
     
     /**
@@ -2198,7 +2198,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         if(!_workers.contains(worker))
             throw new IllegalStateException("attempting to start invalid worker: " + worker);
         
-        setState(DownloadStatus.DOWNLOADING);
+        setState(DownloadState.DOWNLOADING);
         addActiveWorker(worker);
         chatList.addHost(worker.getDownloader());
         browseList.addHost(worker.getDownloader());
@@ -2289,7 +2289,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      *  a corruption was detected and they chose to kill and discard the
      *  download.  Calls to resume() do not result in InterruptedException.
      */
-    private DownloadStatus fireDownloadWorkers() throws InterruptedException {
+    private DownloadState fireDownloadWorkers() throws InterruptedException {
         LOG.trace("MANAGER: entered fireDownloadWorkers");
 
         //While there is still an unfinished region of the file...
@@ -2312,7 +2312,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                 }
                 stop(false);
                 reportDiskProblem(dio);
-                return DownloadStatus.DISK_PROBLEM;
+                return DownloadState.DISK_PROBLEM;
             }
             
           //  LOG.debug("Finished waiting for pending");
@@ -2323,7 +2323,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                 killAllWorkers();
                 
                 LOG.trace("MANAGER: terminating because of completion");
-                return DownloadStatus.COMPLETE;
+                return DownloadState.COMPLETE;
             }
             
             synchronized(this) { 
@@ -2335,10 +2335,10 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                     
                     if ( ranker.calculateWaitTime() > 0) {
                         LOG.trace("MANAGER: terminating with busy");
-                        return DownloadStatus.BUSY;
+                        return DownloadState.BUSY;
                     } else {
                         LOG.trace("MANAGER: terminating w/o hope");
-                        return DownloadStatus.GAVE_UP;
+                        return DownloadState.GAVE_UP;
                     }
                 }
                 
@@ -2575,7 +2575,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
 
     /////////////////////////////Display Variables////////////////////////////
 
-    public void setState(DownloadStatus newState) {
+    public void setState(DownloadState newState) {
         setState(newState, Long.MAX_VALUE);
     }
 
@@ -2586,8 +2586,8 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * @param time the time we expect to state in this state, in 
      *  milliseconds. 
      */
-    void setState(DownloadStatus newState, long time) {
-        DownloadStatus oldState = null;
+    void setState(DownloadState newState, long time) {
+        DownloadState oldState = null;
         synchronized (this) {
             oldState = this.state;
             this.state=newState;
@@ -2603,7 +2603,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * 
      * @return true if the state changed, false otherwise
      */
-    synchronized boolean setStateIfExistingStateIs(DownloadStatus newState, DownloadStatus oldState) {
+    synchronized boolean setStateIfExistingStateIs(DownloadState newState, DownloadState oldState) {
         if(getState() == oldState) {
             setState(newState);
             return true;
@@ -2622,7 +2622,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.downloader.ManagedDownloader#getState()
      */
-    public synchronized DownloadStatus getState() {
+    public synchronized DownloadState getState() {
         return state;
     }
 
@@ -2673,9 +2673,9 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     public long getAmountRead() {
         VerifyingFile ourFile;
         synchronized(this) {
-            if ( state == DownloadStatus.CORRUPT_FILE )
+            if ( state == DownloadState.CORRUPT_FILE )
                 return corruptFileBytes;
-            else if ( state == DownloadStatus.HASHING ) {
+            else if ( state == DownloadState.HASHING ) {
                 if ( incompleteFile == null )
                     return 0;
                 else
@@ -2903,7 +2903,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         if ( active.size() > 0 ) {
             HTTPDownloader dl = active.get(0).getDownloader();
             return dl.getVendor();
-        } else if (getState() == DownloadStatus.REMOTE_QUEUED) {
+        } else if (getState() == DownloadState.REMOTE_QUEUED) {
             return queuedVendor;
         } else {
             return "";
@@ -3052,10 +3052,10 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         public void lookupFinished(QueryType queryType) {
             switch (queryType) {
             case DHT:
-                setStateIfExistingStateIs(DownloadStatus.GAVE_UP, DownloadStatus.QUERYING_DHT);
+                setStateIfExistingStateIs(DownloadState.GAVE_UP, DownloadState.QUERYING_DHT);
                 break;
             case GNUTELLA:
-                setState(DownloadStatus.GAVE_UP);
+                setState(DownloadState.GAVE_UP);
                 break;
             default:
                 throw new IllegalStateException("invalid type: " + queryType);
@@ -3066,7 +3066,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         public void lookupPending(QueryType queryType, int length) {
             switch (queryType) {
             case GNUTELLA:
-                setState(DownloadStatus.WAITING_FOR_CONNECTIONS, length);
+                setState(DownloadState.WAITING_FOR_CONNECTIONS, length);
                 break;
             default:
                 throw new IllegalStateException("invalid type: " + queryType);
@@ -3077,10 +3077,10 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         public void lookupStarted(QueryType queryType, long length) {
             switch(queryType) {
             case DHT:
-                setState(DownloadStatus.QUERYING_DHT, length);
+                setState(DownloadState.QUERYING_DHT, length);
                 break;
             case GNUTELLA:
-                setState(DownloadStatus.WAITING_FOR_GNET_RESULTS, length);
+                setState(DownloadState.WAITING_FOR_GNET_RESULTS, length);
                 break;
             default:
                 throw new IllegalStateException("invalid type: " + queryType);
@@ -3165,19 +3165,19 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     /**
      * Fires status event in background executro thread. 
      */
-    private void fireEventLater(final DownloadStatus status) {
+    private void fireEventLater(final DownloadState status) {
         backgroundExecutor.execute(new Runnable() {
             public void run() {
-                listeners.broadcast(new DownloadStatusEvent(ManagedDownloaderImpl.this, status));
+                listeners.broadcast(new DownloadStateEvent(ManagedDownloaderImpl.this, status));
             }
         });
     }
 
-    public void addListener(EventListener<DownloadStatusEvent> listener) {
+    public void addListener(EventListener<DownloadStateEvent> listener) {
         listeners.addListener(listener);
     }
 
-    public boolean removeListener(EventListener<DownloadStatusEvent> listener) {
+    public boolean removeListener(EventListener<DownloadStateEvent> listener) {
         return listeners.removeListener(listener);
     }
 

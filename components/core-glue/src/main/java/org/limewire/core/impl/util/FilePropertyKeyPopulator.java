@@ -34,7 +34,7 @@ public class FilePropertyKeyPopulator {
             }
 
             Long bitrate, length;
-            Integer quality;
+            Long quality;
             switch(category) {
             case AUDIO:
                 bitrate = CommonUtils.parseLongNoException(doc.getValue(LimeXMLNames.AUDIO_BITRATE));
@@ -101,27 +101,27 @@ public class FilePropertyKeyPopulator {
      * 
      * null - unscored 1 - poor 2 - good 3 - excellent
      */
-    private static Integer toAudioQualityScore(String fileExtension, Long fileSize, Long bitrate,
+    private static Long toAudioQualityScore(String fileExtension, Long fileSize, Long bitrate,
             Long length) {
-        Integer quality = null;
+        Long quality = null;
         if ("wav".equalsIgnoreCase(fileExtension) || "flac".equalsIgnoreCase(fileExtension)) {
-            quality = 3;
+            quality = 3L;
         } else if (bitrate != null) {
             if ("mp3".equalsIgnoreCase(fileExtension)) {
                 if (bitrate < 96) {
-                    quality = 1;
+                    quality = 1L;
                 } else if (bitrate < 192) {
-                    quality = 2;
+                    quality = 2L;
                 } else {
-                    quality = 3;
+                    quality = 3L;
                 }
             } else if ("wma".equalsIgnoreCase(fileExtension)) {
                 if (bitrate < 64) {
-                    quality = 1;
+                    quality = 1L;
                 } else if (bitrate < 128) {
-                    quality = 2;
+                    quality = 2L;
                 } else {
-                    quality = 3;
+                    quality = 3L;
                 }
             } else if ("aac".equalsIgnoreCase(fileExtension)
                     || "m4a".equalsIgnoreCase(fileExtension)
@@ -130,32 +130,32 @@ public class FilePropertyKeyPopulator {
                     || "m4v".equalsIgnoreCase(fileExtension)
                     || "mp4".equalsIgnoreCase(fileExtension)) {
                 if (bitrate < 64) {
-                    quality = 1;
+                    quality = 1L;
                 } else if (bitrate < 128) {
-                    quality = 2;
+                    quality = 2L;
                 } else {
-                    quality = 3;
+                    quality = 3L;
                 }
             } else if ("ogg".equalsIgnoreCase(fileExtension)
                     || "ogv".equalsIgnoreCase(fileExtension)
                     || "oga".equalsIgnoreCase(fileExtension)
                     || "ogx".equalsIgnoreCase(fileExtension)) {
                 if (bitrate < 48) {
-                    quality = 1;
+                    quality = 1L;
                 } else if (bitrate < 96) {
-                    quality = 2;
+                    quality = 2L;
                 } else {
-                    quality = 3;
+                    quality = 3L;
                 }
             } else if (length != null && length < 30) {
-                quality = 1;
+                quality = 1L;
             } else if (fileSize != null) {
                 if (fileSize < (1 * 1024 * 1024)) {
-                    quality = 1;
+                    quality = 1L;
                 } else if (fileSize < (3 * 1024 * 1024)) {
-                    quality = 2;
+                    quality = 2L;
                 } else {
-                    quality = 3;
+                    quality = 3L;
                 }
             }
         }
@@ -172,27 +172,27 @@ public class FilePropertyKeyPopulator {
      * 
      * null - unscored 1 - poor 2 - good 3 - excellent
      */
-    private static Integer toVideoQualityScore(String fileExtension, Long fileSize, Long bitrate,
+    private static Long toVideoQualityScore(String fileExtension, Long fileSize, Long bitrate,
             Long length, Long height, Long width) {
-        Integer quality = null;
+        Long quality = null;
 
         if ("mpg".equalsIgnoreCase(fileExtension) && height != null && width != null) {
             if ((height * width) < (352 * 240)) {
-                quality = 1;
+                quality = 1L;
             } else if ((height * width) < (352 * 480)) {
-                quality = 2;
+                quality = 2L;
             } else {
-                quality = 3;
+                quality = 3L;
             }
         } else if (length != null && length < 60) {
-            quality = 1;
+            quality = 1L;
         } else if (fileSize != null) {
             if (fileSize < (5 * 1024 * 1024)) {
-                quality = 1;
+                quality = 1L;
             } else if (fileSize < (100 * 1024 * 1024)) {
-                quality = 2;
+                quality = 2L;
             } else {
-                quality = 3;
+                quality = 3L;
             }
         }
         return quality;

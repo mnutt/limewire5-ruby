@@ -15,7 +15,7 @@ import org.limewire.util.OSUtils;
 public class MacOSXUtils {
     
     static {
-        if (OSUtils.isMacOSX105()) {
+        if (OSUtils.isMacOSX()) {
             try {
                 System.loadLibrary("MacOSXUtils");
             } catch (UnsatisfiedLinkError err) {

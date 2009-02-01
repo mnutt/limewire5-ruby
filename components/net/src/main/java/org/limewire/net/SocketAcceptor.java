@@ -113,9 +113,8 @@ public class SocketAcceptor {
 
             // dispatch asynchronously if possible
             if (client instanceof NIOMultiplexor) {
-                ((NIOMultiplexor) client)
-                        .setReadObserver(new AsyncConnectionDispatcher(
-                                dispatcher, client, null));
+                // TODO: This always allows TLS right now -- should conform to NetworkManager.isIncomingTLSEnabled
+                ((NIOMultiplexor) client).setReadObserver(new AsyncConnectionDispatcher(dispatcher, client, null, true));
             } else {
                 ThreadExecutor.startThread(new BlockingConnectionDispatcher(
                         dispatcher, client, null),

@@ -61,7 +61,7 @@ public class QueryUtils {
             String currToken = st.nextToken().toLowerCase();
             if(!allowNumbers) {
                 try {                
-                    Double.valueOf(currToken); //NFE if number
+                    Double.parseDouble(currToken); //NFE if number
                     continue;
                 } catch (NumberFormatException normalWord) {}
             }

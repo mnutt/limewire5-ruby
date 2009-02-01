@@ -12,34 +12,42 @@ import org.limewire.listener.EventListener;
 import org.limewire.util.Objects;
 
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 
 /**
  * Listens for the completion of downloads, adding completed downloads to the
  * DownloadSettings.RECENT_DOWNLOADS list.
  */
-public class RecentDownloadListener implements EventListener<DownloadStatusEvent> {
-    private static final int MAX_TRACKED_DOWNLOADS = 10;
+public class RecentDownloadListener implements EventListener<DownloadStateEvent> {
+    private static final int DEFAULT_MAX_TRACKED_DOWNLOADS = 10;
 
     private final Downloader downloader;
+    private final int maxTrackedDownloads; 
 
-    public RecentDownloadListener(Downloader downloader) {
+    public RecentDownloadListener(Downloader downloader, int maxTrackedDownloads) {
+        assert maxTrackedDownloads > 0;
         this.downloader = Objects.nonNull(downloader, "downloader");
-        if (downloader.getState() == DownloadStatus.COMPLETE) {
+        this.maxTrackedDownloads = maxTrackedDownloads;
+        
+        if (downloader.getState() == DownloadState.COMPLETE) {
             if (downloader instanceof CoreDownloader) {
-                handleEvent(new DownloadStatusEvent((CoreDownloader) downloader,
-                        DownloadStatus.COMPLETE));
+                handleEvent(new DownloadStateEvent((CoreDownloader) downloader,
+                        DownloadState.COMPLETE));
             }
         }
     }
+    
+    public RecentDownloadListener(Downloader downloader) {
+        this(downloader, DEFAULT_MAX_TRACKED_DOWNLOADS);
+    }
 
     @Override
-    public void handleEvent(DownloadStatusEvent event) {
+    public void handleEvent(DownloadStateEvent event) {
         // TODO don't do anything for torrent downloads?
-        DownloadStatus downloadStatus = event.getType();
-        if (DownloadStatus.COMPLETE == downloadStatus) {
+        DownloadState downloadStatus = event.getType();
+        if (DownloadState.COMPLETE == downloadStatus) {
             File saveFile = downloader.getSaveFile();
             if (saveFile != null) {
                 if (DownloadSettings.REMEMBER_RECENT_DOWNLOADS.getValue()) {
@@ -50,7 +58,7 @@ public class RecentDownloadListener implements EventListener<DownloadStatusEvent
                         }
                         files.add(saveFile);
                         Collections.sort(files, new FileDateLeastToMostRecentComparator());
-                        while(files.size() > MAX_TRACKED_DOWNLOADS) {
+                        while(files.size() > maxTrackedDownloads) {
                             files.remove(0);
                         }
                         DownloadSettings.RECENT_DOWNLOADS.setValue(new HashSet<File>(files));

@@ -54,12 +54,17 @@ class KeyStoreProviderImpl implements KeyStoreProvider {
     }
 
     public KeyStore getKeyStore() throws IOException {
-        if (isValid(keyStore))
-            return keyStore;
+        KeyStore ks = keyStore;
+        
+        if (isValid(ks)) {
+            return ks;
+        }
+        
         // Not cached, try to load into memory from disk...
         try {
-            keyStore = getKeyStoreFromDisk();
-            return keyStore;
+            ks = getKeyStoreFromDisk();
+            keyStore = ks;
+            return ks;
         } catch (IOException ex) {
             // Failed to load from disk, ignore and try to pull from network...
             LOG.debug("IOException trying to load keystore from disk.", ex);
@@ -69,11 +74,12 @@ class KeyStoreProviderImpl implements KeyStoreProvider {
         // disk.
         OutputStream out = null;
         try {
-            keyStore = getKeyStoreFromNetwork();
+            ks = getKeyStoreFromNetwork();
+            keyStore = ks;
             keyStoreLocation.getParentFile().mkdirs();
             out = new FileOutputStream(keyStoreLocation);
-            keyStore.store(out, keyStorePassword);
-            return keyStore;
+            ks.store(out, keyStorePassword);
+            return ks;
         } catch (KeyStoreException ex) {
             throw IOUtils.getIOException("KeyStoreException while saving keystore: ", ex);
         } catch (NoSuchAlgorithmException ex) {
@@ -81,8 +87,7 @@ class KeyStoreProviderImpl implements KeyStoreProvider {
         } catch (CertificateException ex) {
             throw IOUtils.getIOException("CertificateException while saving keystore: ", ex);
         } finally {
-            if (out != null)
-                out.close();
+            IOUtils.close(out);
         }
     }
 
@@ -147,8 +152,7 @@ class KeyStoreProviderImpl implements KeyStoreProvider {
         } catch (CertificateException ex) {
             throw IOUtils.getIOException("CertificateException while parsing keystore: ", ex);
         } finally {
-            if (in != null)
-                in.close();
+            IOUtils.close(in);
         }
     }
 

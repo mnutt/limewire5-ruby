@@ -186,7 +186,9 @@ public class NetworkManagerImpl implements NetworkManager {
      * @see com.limegroup.gnutella.NetworkManager#isOOBCapable()
      */
     public boolean isOOBCapable() {
-        return isGUESSCapable() && outOfBandStatistics.isSuccessRateGood()&&
+        if(SearchSettings.FORCE_OOB.getValue())
+            return true;
+        return isGUESSCapable() && outOfBandStatistics.isSuccessRateGood() &&
                !networkInstanceUtils.isPrivate() &&
                SearchSettings.OOB_ENABLED.getValue() &&
                acceptor.get().isAddressExternal() && isIpPortValid();

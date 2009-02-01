@@ -12,7 +12,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JLabel;
-import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
@@ -27,7 +26,8 @@ import org.limewire.core.api.upload.UploadState;
 import org.limewire.core.api.upload.UploadItem.BrowseType;
 import org.limewire.core.api.upload.UploadItem.UploadItemType;
 import org.limewire.ui.swing.components.IconButton;
-import org.limewire.ui.swing.components.LimeProgressBarFactory;
+import org.limewire.ui.swing.components.LimeProgressBar;
+import org.limewire.ui.swing.components.decorators.ProgressBarDecorator;
 import org.limewire.ui.swing.table.TableRendererEditor;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -45,7 +45,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
     private JXButton cancelButton;
     private JXHyperlink removeLink;
     private UploadItem editItem;
-    private JProgressBar progressBar;
+    private LimeProgressBar progressBar;
     private JLabel timeLabel;
     
     @Resource
@@ -60,7 +60,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
     @Resource private Icon p2pBrowseHostIcon;
     
 
-    public UploadTableRendererEditor(CategoryIconManager categoryIconManager, LimeProgressBarFactory progressBarFactory){
+    public UploadTableRendererEditor(CategoryIconManager categoryIconManager, ProgressBarDecorator progressBarFactory){
         GuiUtils.assignResources(this);
         setLayout(new MigLayout("fill, ins 0 0 0 0 , gap 0! 0!, novisualpadding"));
         this.categoryIconManager = categoryIconManager;
@@ -112,7 +112,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
         return this;
     }
     
-    private void initializeComponents(LimeProgressBarFactory progressBarFactory){
+    private void initializeComponents(ProgressBarDecorator progressBarDecorator){
         
       //string parameter ensures proper sizing
         nameLabel = new JLabel("NAME");
@@ -136,7 +136,8 @@ public class UploadTableRendererEditor extends TableRendererEditor {
         timeLabel = new JLabel("TIME");
         timeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         
-        progressBar = progressBarFactory.create();
+        progressBar = new LimeProgressBar();
+        progressBarDecorator.decoratePlain(progressBar);
         Dimension size = new Dimension(400, 16);
         progressBar.setPreferredSize(size);
         progressBar.setMinimumSize(size);

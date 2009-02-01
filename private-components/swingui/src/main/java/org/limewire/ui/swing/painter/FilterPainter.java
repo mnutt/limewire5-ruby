@@ -17,10 +17,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
 import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.painter.CompoundPainter;
-import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.painter.RectanglePainter;
-import org.limewire.ui.swing.components.LimePromptTextField;
+import org.limewire.ui.swing.components.PromptTextField;
 import org.limewire.ui.swing.util.GuiUtils;
 
 /**
@@ -30,7 +28,7 @@ import org.limewire.ui.swing.util.GuiUtils;
  * text in the field.
  * 
  * <p>FilterPainter is installed on an instance of LimePromptTextField by 
- * calling the static method <code>decorate(LimePromptTextField)</code>.</p>
+ * calling the method <code>install(LimePromptTextField)</code>.</p>
  */
 public class FilterPainter<T> extends RectanglePainter<T> 
     implements DocumentListener {
@@ -39,23 +37,25 @@ public class FilterPainter<T> extends RectanglePainter<T>
     @Resource private Icon activeResetIcon;
     @Resource private Icon inactiveResetIcon;
     
-    private final Cursor defaultCursor;
     private final MouseAdapter resetListener;
     
+    private Cursor defaultCursor;
     private Icon resetIcon;
     private boolean showIcon;
 
     /**
-     * Constructs a FilterPainter.
+     * Constructs a FilterPainter with the specified arc width and arc height.
      */
-    private FilterPainter(Cursor defaultCursor) {
+    public FilterPainter(int arcWidth, int arcHeight) {
         GuiUtils.assignResources(this);
         
-        this.defaultCursor = defaultCursor;
         this.resetListener = new ResetMouseListener();
         
         // Set painter properties.
+        setRounded(true);
         setFillPaint(Color.WHITE);
+        setRoundWidth(arcWidth);
+        setRoundHeight(arcHeight);
         setInsets(new Insets(2,2,2,2));
         setBorderPaint(null);
         setFillVertical(true);
@@ -66,41 +66,22 @@ public class FilterPainter<T> extends RectanglePainter<T>
     }
     
     /**
-     * Installs a new instance of FilterPainter on the specified text field, 
-     * and returns the text field. 
+     * Installs this painter on the specified text field. 
      */
-    public static LimePromptTextField decorate(LimePromptTextField textField) {
-        // Create filter painter.
-        FilterPainter<JTextField> filterPainter = new FilterPainter<JTextField>(textField.getCursor());
-
-        // Create border painter, and adjust for rounded corners.
-        Painter<JTextField> borderPainter = textField.createBorderPainter();
-        if (borderPainter instanceof BorderPainter) {
-            filterPainter.setRounded(true);
-            filterPainter.setRoundWidth(((BorderPainter) borderPainter).getArcWidth());
-            filterPainter.setRoundHeight(((BorderPainter) borderPainter).getArcHeight());
-        }
+    public void install(PromptTextField textField) {
+        // Set default cursor.
+        defaultCursor = textField.getCursor();
         
-        // Create compound painter using area and border painters.
-        CompoundPainter<JTextField> painter = new CompoundPainter<JTextField>();
-        painter.setPainters(filterPainter, borderPainter);
-        painter.setCacheable(true);
-        
-        // Set background painter on text field.
-        textField.setBackgroundPainter(painter);
-
         // Set border to increase right margin.
         textField.setBorder(BorderFactory.createEmptyBorder(2, 10, 2, 
-                12 + filterPainter.resetIcon.getIconWidth()));
+                12 + resetIcon.getIconWidth()));
         
         // Install mouse listener.
-        textField.addMouseListener(filterPainter.resetListener);
-        textField.addMouseMotionListener(filterPainter.resetListener);
+        textField.addMouseListener(resetListener);
+        textField.addMouseMotionListener(resetListener);
         
         // Install document listener to update fill color.
-        textField.getDocument().addDocumentListener(filterPainter);
-        
-        return textField;
+        textField.getDocument().addDocumentListener(this);
     }
     
     @Override

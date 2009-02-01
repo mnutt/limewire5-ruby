@@ -11,6 +11,7 @@ import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 
@@ -29,7 +30,7 @@ public class SharedDocumentTableFormat<T extends LocalFileItem> extends Abstract
     private final LocalFileList localFileList;
     
     public SharedDocumentTableFormat(LocalFileList localFileList) {
-        super(ACTION_INDEX, new ColumnStateInfo[] {
+        super(ACTION_INDEX, "SHARED_LIBRARY_DOCUMENT_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(ACTION_INDEX, "SHARED_LIBRARY_DOCUMENT_ACTION", I18n.tr("Sharing"), 61, true, false),
                 new ColumnStateInfo(NAME_INDEX, "SHARED_LIBRARY_DOCUMENT_NAME", "Name", 493, true, true), 
                 new ColumnStateInfo(TYPE_INDEX, "SHARED_LIBRARY_DOCUMENT_TYPE", I18n.tr("Type"), 180, true, true),     
@@ -68,10 +69,14 @@ public class SharedDocumentTableFormat<T extends LocalFileItem> extends Abstract
 
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
-                new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
-                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                    new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
+                    new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
 
     @Override

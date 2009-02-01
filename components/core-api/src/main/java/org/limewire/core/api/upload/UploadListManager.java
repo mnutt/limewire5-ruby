@@ -45,5 +45,8 @@ public interface UploadListManager {
      * Clears all completed uploads from the list
      */
     public void clearFinished();
+
+    /**Removes item from list*/
+    void remove(UploadItem item);
     
 }

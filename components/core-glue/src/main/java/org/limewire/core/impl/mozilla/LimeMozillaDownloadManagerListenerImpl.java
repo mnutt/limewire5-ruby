@@ -31,7 +31,7 @@ import com.limegroup.gnutella.DownloadManager;
  * adding listeners for those downloads which need them.
  */
 @Singleton
-public class LimeMozillaDownloadManagerListenerImpl implements
+class LimeMozillaDownloadManagerListenerImpl implements
         org.limewire.core.api.mozilla.LimeMozillaDownloadManagerListener,
         nsIDownloadProgressListener {
 

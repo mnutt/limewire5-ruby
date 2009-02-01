@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EventObject;
@@ -39,6 +38,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
+import org.limewire.collection.SortedList;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.I18n;
 
@@ -185,8 +185,6 @@ public class CheckBoxList<E> extends BoxPanel {
         this(elements, provider, SELECT_FIRST_ON);
     }
     
-    
-    
     /**
      * Convenience wrapper for {@link #setElements(Object[], boolean)
      * setObjects(Object[], true)}.
@@ -194,10 +192,7 @@ public class CheckBoxList<E> extends BoxPanel {
     public void setElements(Collection<E> elements) {
         setElements(elements, true);
     }
-    
-    
-    
-    
+  
     /**
      * Wrapper for setElements.
      */
@@ -214,7 +209,7 @@ public class CheckBoxList<E> extends BoxPanel {
      * Sets the element list.
      */
     public void setElements(Collection<E> elements, Collection<E> notCheckedElements) {
-        this.items = new ArrayList<E>(elements);
+        this.items = new SortedList<E>(elements);
         
         Object[][] rowData = new Object[elements.size()][1];        
         for ( int i=0 ; i<elements.size() ; i++ )

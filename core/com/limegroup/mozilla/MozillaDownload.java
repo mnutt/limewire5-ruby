@@ -5,8 +5,8 @@ import java.io.File;
 import org.limewire.listener.EventListener;
 
 import com.limegroup.gnutella.BandwidthTracker;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.Downloader.DownloadState;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 
 /**
  * Interface to allow access into the state of the nsIDownloadListener.
@@ -66,7 +66,7 @@ public interface MozillaDownload extends BandwidthTracker {
     /**
      * Returns the download status for this download.
      */
-    DownloadStatus getDownloadStatus();
+    DownloadState getDownloadStatus();
 
     /**
      * Cancels the current download.
@@ -91,12 +91,12 @@ public interface MozillaDownload extends BandwidthTracker {
     /**
      * Adds listener for this download.
      */
-    void addListener(EventListener<DownloadStatusEvent> listener);
+    void addListener(EventListener<DownloadStateEvent> listener);
 
     /**
      * Removes listener from this download.
      */
-    boolean removeListener(EventListener<DownloadStatusEvent> listener);
+    boolean removeListener(EventListener<DownloadStateEvent> listener);
 
     /**
      * Returns indicator that the download is queued.

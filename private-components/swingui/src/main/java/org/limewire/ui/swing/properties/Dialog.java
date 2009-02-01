@@ -13,9 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -55,7 +57,7 @@ public abstract class Dialog extends LimeJDialog {
     private static final String TITLE = "Title";
     private static final String HASH = "Hash";
     protected final JLabel icon = new JLabel();
-    protected final JLabel heading = newLabel();
+    protected final JEditorPane heading = new JEditorPane();
     protected final JLabel filename = newLabel();
     protected final JLabel fileSize = new JLabel();
     protected final JLabel metadata = newLabel();
@@ -74,7 +76,7 @@ public abstract class Dialog extends LimeJDialog {
     protected final JComboBox platform = new JComboBox();
     protected final JTextField company = new JTextField();
     protected final DefaultTableModel readOnlyInfoModel = new ReadOnlyTableModel();
-    protected final JLabel fileLocation = newLabel();
+    protected final JEditorPane fileLocation = new JEditorPane();
     protected final HyperlinkButton locateOnDisk;
     protected final HyperlinkButton locateInLibrary;
     protected final HyperlinkButton copyToClipboard;
@@ -112,6 +114,9 @@ public abstract class Dialog extends LimeJDialog {
         setFont(smallFont, metadata, copyToClipboard, moreFileInfo, locateOnDisk, locateInLibrary,
                 title, genre, unEditableGenre, rating, year, description, artist, album, track, author, platform,
                 company, fileLocation);
+        decorateEditorPane(heading);
+        decorateEditorPane(fileLocation);
+        
         //Use the same border that a textfield uses - JTextAreas by default are not given a border
         //This makes the look consistent with JTextField
         descriptionScrollPane.setBorder(artist.getBorder());
@@ -122,7 +127,7 @@ public abstract class Dialog extends LimeJDialog {
         buttons.add(new JButton(new CancelAction()));
         mainPanel.add(buttons, "alignx right, cell 1 4");
         
-        overview = newPanel(new MigLayout("fillx", "[][]push[]", "[top]3[top]"));
+        overview = newPanel(new MigLayout("gap 0, fillx", "[][grow]push[]", "[top]2[top]"));
 
         JPanel linksPanel = new JPanel(new BorderLayout());
         linksPanel.setOpaque(false);
@@ -130,7 +135,7 @@ public abstract class Dialog extends LimeJDialog {
         linksPanel.add(moreFileInfo, BorderLayout.SOUTH);
         
         overview.add(icon, "spany");
-        overview.add(heading, "grow");
+        overview.add(heading, "growx");
         overview.add(linksPanel, "spany, wrap");
         overview.add(metadata, "cell 1 1");
 
@@ -164,6 +169,13 @@ public abstract class Dialog extends LimeJDialog {
         }
     }
 
+    private void decorateEditorPane(JEditorPane editor) {
+        editor.setOpaque(false);
+        editor.setBorder(BorderFactory.createEmptyBorder());
+        editor.setEditable(false);
+        editor.setPreferredSize(new Dimension(100,20));
+    }
+    
     private JLabel newLabel() {
         //Creating a JLabel that wraps all text in HTML so that multiline word
         //wrapping will behave correctly.  The JXLabel.setMultiline() causes the
@@ -335,7 +347,7 @@ public abstract class Dialog extends LimeJDialog {
     }
 
     private void configureVideoDetailsLayout() {
-        details.setLayout(new MigLayout("fillx, nocache", "[20%!][20%!][]", "[][][][][][]"));
+        details.setLayout(new MigLayout("fillx", "[20%!][20%!][]", "[][][][][][]"));
         details.add(newSmallLabel(TITLE), "wrap");
         details.add(title, "span, growx, wrap");
         details.add(newSmallLabel(GENRE));
@@ -352,7 +364,7 @@ public abstract class Dialog extends LimeJDialog {
     }
     
     private void configureAudioDetailsLayout() {
-        details.setLayout(new MigLayout("fillx, nocache", "[50%!][20%!]0[10%][10%]", "[][][][][][]"));
+        details.setLayout(new MigLayout("fillx", "[50%!][20%!]0[10%][10%]", "[][][][][][]"));
         details.add(newSmallLabel(TITLE));
         details.add(newSmallLabel(ARTIST), "wrap");
         details.add(title, "growx");
@@ -383,7 +395,7 @@ public abstract class Dialog extends LimeJDialog {
     }
     
     private void configureProgramDetailsLayout() {
-        details.setLayout(new MigLayout("fillx, nocache", "[30%!][]", "[][][][][][]"));
+        details.setLayout(new MigLayout("fillx", "[30%!][]", "[][][][][][]"));
         details.add(newSmallLabel(TITLE), "wrap");
         details.add(title, "span, growx, wrap");
         details.add(newSmallLabel(PLATFORM));

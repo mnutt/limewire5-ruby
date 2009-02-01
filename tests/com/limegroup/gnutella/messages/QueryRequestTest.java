@@ -1119,7 +1119,7 @@ public final class QueryRequestTest extends LimeTestCase {
             assertFalse(query.desiresImages());
             assertEquals(OSUtils.isWindows(), 
                          query.desiresWindowsPrograms());
-            assertEquals(OSUtils.isLinux() || OSUtils.isAnyMac(),
+            assertEquals(OSUtils.isLinux() || OSUtils.isMacOSX(),
                          query.desiresLinuxOSXPrograms());
         }
 

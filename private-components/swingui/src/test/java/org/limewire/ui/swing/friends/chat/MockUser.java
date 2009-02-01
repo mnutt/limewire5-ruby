@@ -69,7 +69,7 @@ public class MockUser implements User {
     }
 
     @Override
-    public void setIncomingChatListener(IncomingChatListener listener) {
+    public void setChatListenerIfNecessary(IncomingChatListener listener) {
         // TODO Auto-generated method stub
     }
 

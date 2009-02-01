@@ -1,5 +1,9 @@
 package org.limewire.ui.swing.search;
 
+import static org.limewire.ui.swing.util.I18n.tr;
+import static org.limewire.util.Objects.compareToNull;
+import static org.limewire.util.Objects.compareToNullIgnoreCase;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -19,9 +23,10 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
@@ -31,33 +36,30 @@ import org.limewire.core.api.search.SearchCategory;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.components.LimeComboBox;
-import org.limewire.ui.swing.components.LimeComboBox.SelectionListener;
-import org.limewire.ui.swing.components.LimeComboBoxFactory;
-import org.limewire.ui.swing.components.LimeHeaderBarFactory;
-import org.limewire.ui.swing.components.LimePromptTextField;
 import org.limewire.ui.swing.components.Disposable;
-import org.limewire.ui.swing.painter.FilterPainter;
+import org.limewire.ui.swing.components.LimeComboBox;
+import org.limewire.ui.swing.components.PromptTextField;
+import org.limewire.ui.swing.components.LimeComboBox.SelectionListener;
+import org.limewire.ui.swing.components.decorators.ButtonDecorator;
+import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
+import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
+import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
+import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.painter.ButtonBackgroundPainter.DrawMode;
 import org.limewire.ui.swing.search.model.SimilarResultsGroupingComparator;
 import org.limewire.ui.swing.search.model.SimilarResultsGroupingDelegateComparator;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.settings.SwingUiSettings;
-import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.GuiUtils;
-import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.util.CommonUtils;
-import static org.limewire.util.Objects.compareToNull;
-import static org.limewire.util.Objects.compareToNullIgnoreCase;
-
-import com.google.inject.Inject;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.TextFilterator;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
-import net.miginfocom.swing.MigLayout;
+
+import com.google.inject.Inject;
 
 /**
  * This class manages the UI components for filtering and sorting
@@ -96,8 +98,7 @@ public class SortAndFilterPanel implements Disposable {
     private final LimeComboBox sortCombo;
     
     private final JLabel sortLabel = new JLabel(tr("Sort by:"));
-    private final JTextField filterBox = FilterPainter.decorate(
-            new LimePromptTextField(tr("Refine results...")));
+    private final PromptTextField filterBox = new PromptTextField(tr("Refine results..."));
     private final JXButton listViewToggleButton = new JXButton();
     private final JXButton tableViewToggleButton = new JXButton();
     
@@ -114,18 +115,21 @@ public class SortAndFilterPanel implements Disposable {
     private SettingListener viewTypeListener;
 
     @Inject
-    SortAndFilterPanel(LimeComboBoxFactory comboBoxFactory,
-            ButtonDecorator buttonDecorator, LimeHeaderBarFactory headerBarFactory) {
+    SortAndFilterPanel(ComboBoxDecorator comboBoxDecorator, TextFieldDecorator textFieldDecorator, 
+            ButtonDecorator buttonDecorator, HeaderBarDecorator headerBarFactory) {
         
         GuiUtils.assignResources(this);
         
         this.buttonDecorator = buttonDecorator;
         
+        textFieldDecorator.decorateClearablePromptField(filterBox, AccentType.SHADOW);
+        
         this.populateActionList();
         
         sortLabel.setFont(sortLabelFont);
         sortLabel.setForeground(Color.WHITE);
-        sortCombo = comboBoxFactory.createDarkFullComboBox();
+        sortCombo = new LimeComboBox();
+        comboBoxDecorator.decorateDarkFullComboBox(sortCombo);
         
         sizeSortCombo();
 

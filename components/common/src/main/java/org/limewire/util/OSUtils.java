@@ -57,11 +57,6 @@ public class OSUtils {
      * Variable for whether or not we're on Mac OS X.
      */
     private static boolean _isMacOSX;
-
-    /**
-     * Variable for whether or not we're on Mac OS X 10.5 (Leopard)
-     */
-    private static boolean _isMacOSX105;
     
     /** 
      * Variable for whether or not we're on Linux.
@@ -93,7 +88,6 @@ public class OSUtils {
     	_isLinux = false;
     	_isOS2 = false;
     	_isMacOSX = false;
-    	_isMacOSX105 = false;
     
     	String os = System.getProperty("os.name").toLowerCase(Locale.US);
     
@@ -123,9 +117,6 @@ public class OSUtils {
     	if(os.startsWith("mac os")) {
     		if(os.endsWith("x")) {
     			_isMacOSX = true;
-    			
-    			if (System.getProperty("os.version").startsWith("10.5"))
-    			    _isMacOSX105 = true;
     		}
     	}
     }    
@@ -214,14 +205,6 @@ public class OSUtils {
     public static boolean isSocketChallengedWindows() {
         return isWindowsVista() || isWindowsXP();
     }
-    
-    /**
-     * @return true if the application is running on a windows 
-     * that supports native theme.
-     */
-    public static boolean isNativeThemeWindows() {
-        return isWindowsVista() || isWindowsXP();
-    }    
 
     /**
      * Returns whether or not the OS is OS/2.
@@ -240,26 +223,6 @@ public class OSUtils {
      *         <tt>false</tt> otherwise
      */
     public static boolean isMacOSX() {
-    	return _isMacOSX;
-    }
-
-    /**
-     * Returns whether or not the OS version of Mac OS X is 10.5.x.
-     *  
-     * @return <tt>true</tt> if the application is running on Mac OS X 10.5.x,
-     *         <tt>false</tt> otherwise
-     */
-    public static boolean isMacOSX105() {
-        return _isMacOSX105;
-    }
-    
-    /** 
-     * Returns whether or not the OS is any Mac OS.
-     *
-     * @return <tt>true</tt> if the application is running on Mac OSX
-     *  or any previous mac version, <tt>false</tt> otherwise
-     */
-    public static boolean isAnyMac() {
     	return _isMacOSX;
     }
 

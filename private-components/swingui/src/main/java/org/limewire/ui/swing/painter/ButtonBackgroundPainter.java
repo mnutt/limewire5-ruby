@@ -110,6 +110,8 @@ public abstract class ButtonBackgroundPainter extends AbstractPainter<JXButton> 
      *   Examples :     
      * 
      *       ( LEFT_ROUNDED |   | UNROUNDED |   | RIGHT_ROUNDED ) 
+     *       
+     *                         ( FULLY_ROUNDED )
      */
     
     public enum DrawMode {

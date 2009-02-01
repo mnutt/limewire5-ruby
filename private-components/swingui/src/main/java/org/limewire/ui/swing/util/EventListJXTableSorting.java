@@ -124,6 +124,10 @@ public class EventListJXTableSorting {
         /** the active sort columns */
         private final List<SortKey> sortKeys = new ArrayList<SortKey>(MAX_SORT_COLUMNS);
         private final List<SortKey> sortKeysReadOnly = Collections.unmodifiableList(sortKeys);
+        
+        /** active sort columns that do not contain any preSort columns */
+        private final List<SortKey> nonHiddenSortKeys = new ArrayList<SortKey>(MAX_SORT_COLUMNS);
+        private final List<SortKey> nonHiddenKeysReadOnly = Collections.unmodifiableList(nonHiddenSortKeys);
 
         /** {@inheritDoc} */
         public void toggleSortOrder(int columnIndex) {
@@ -232,6 +236,12 @@ public class EventListJXTableSorting {
             if(sortKeys == null) sortKeys = Collections.emptyList();
 
             this.sortKeys.clear();
+            this.nonHiddenSortKeys.clear();
+            if(tableSortFormat != null && tableSortFormat.getPreSortColumns() != null 
+            	&& tableSortFormat.getPreSortColumns().size() > 0) {
+                this.sortKeys.addAll(tableSortFormat.getPreSortColumns());
+            }
+            this.nonHiddenSortKeys.addAll(sortKeys);
             this.sortKeys.addAll(sortKeys);
 
             // rebuild the SortedList's comparator
@@ -279,14 +289,16 @@ public class EventListJXTableSorting {
             // If the tableFormat is an AdvancedTableFormat, use the table column comparators
             // found in the AdvancedTableFormat for sorting.
             if(tableFormat instanceof AdvancedTableFormat) {
-                return new TableColumnComparator(tableFormat, modelIndex, ((AdvancedTableFormat)tableFormat).getColumnComparator(modelIndex));
+                return new EventListColumnComparator(tableFormat, modelIndex, ((AdvancedTableFormat)tableFormat).getColumnComparator(modelIndex));
             } else 
                 return new TableColumnComparator(tableFormat, modelIndex);
         }
 
         /** {@inheritDoc} */
         public List<? extends SortKey> getSortKeys() {
-            return sortKeysReadOnly;
+            // return the sort keys which do not contain preSort columns. This ensures
+            // the correct table header is used when displaying sort to the user.
+            return nonHiddenKeysReadOnly;
         }
 
         /** {@inheritDoc} */

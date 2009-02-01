@@ -4,7 +4,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -12,6 +17,10 @@ import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumn;
 
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.FilterPipeline;
+import org.jdesktop.swingx.decorator.SortController;
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.limewire.ui.swing.settings.TablesHandler;
 
@@ -80,7 +89,39 @@ public class ColumnStateHandler implements TableColumnModelListener, MouseListen
     public void columnSelectionChanged(ListSelectionEvent e) {}
 
     @Override
-    public void mouseClicked(MouseEvent e) {}
+    public void mouseClicked(MouseEvent e) {
+        if(SwingUtilities.isLeftMouseButton(e)) {
+            TableColumn column = table.getSortedColumn();
+            if(column != null) {
+                SortOrder sortOrder = getSortOrder(table, column.getModelIndex());
+                setSortedColumn(column.getModelIndex(), sortOrder.isAscending());
+            }
+        }
+    }
+    
+    private SortOrder getSortOrder(JXTable table, int modelColumn) {
+        FilterPipeline filters = table.getFilters();
+        if (filters == null) {
+            return SortOrder.UNSORTED;
+        }
+        
+        SortController sortController = filters.getSortController();
+        if (sortController == null) {
+            return SortOrder.UNSORTED;
+        }
+        
+        List<? extends SortKey> sortKeys = sortController.getSortKeys();
+        if (sortKeys == null) {
+            return SortOrder.UNSORTED;
+        }
+        
+        SortKey firstKey = SortKey.getFirstSortingKey(sortKeys);
+        if ((firstKey != null) && (firstKey.getColumn() == modelColumn)) {
+            return firstKey.getSortOrder();
+        } else {
+            return SortOrder.UNSORTED;
+        }
+    }
 
     @Override
     public void mouseEntered(MouseEvent e) {}
@@ -131,22 +172,53 @@ public class ColumnStateHandler implements TableColumnModelListener, MouseListen
         }
     }
     
+    /**
+     * Sets the column order of the table based on the preffered index of each column.
+     * Because table.getColumnModel.move is not stable. Meaning moving an item to index 2 might 
+     * move the item already there to the left, or maybe to the right. We have to jump through a few
+     * hoops to make it stable.
+     * First we make a list ordering all columns in the reverse preffered order, then move each item
+     * from where it currently is in the column model to the zero index. Since items cannot be moved to
+     * the left of the zero index this makes the move stable, and places the items in the proper
+     * preffered index order.
+     */
     public void setupColumnOrder() {
         stopListening();
-
+        List<TableColumn> columns = new ArrayList<TableColumn>();
         for(int i = 0; i < table.getColumnCount(); i++) {
-            TableColumnExt column = table.getColumnExt(i); 
-            ColumnStateInfo info = format.getColumnInfo(column.getModelIndex());
-            if(i != info.getPreferredViewIndex()) {
-                if(info.getPreferredViewIndex() >= 0 && info.getPreferredViewIndex() < table.getColumnCount()) {
-                    table.getColumnModel().moveColumn(i, info.getPreferredViewIndex());
-                }
+            TableColumn tableColumn = table.getColumn(i);
+            columns.add(tableColumn);
+        }
+        Collections.sort(columns, new Comparator<TableColumn> () {
+           @Override
+            public int compare(TableColumn o1, TableColumn o2) {
+                ColumnStateInfo info1 = format.getColumnInfo(o1.getModelIndex());
+                ColumnStateInfo info2 = format.getColumnInfo(o2.getModelIndex());
+                Integer prefferedIndex1 = info1.getPreferredViewIndex();
+                Integer prefferedIndex2 = info2.getPreferredViewIndex();
+                return prefferedIndex1.compareTo(prefferedIndex2) * -1;
+            } 
+        });
+        
+        for(TableColumn tableColumn : columns) {
+            int currentIndex = getCurrentIndex(tableColumn);
+            if(currentIndex > 0 && currentIndex < table.getColumnCount()) {
+                table.getColumnModel().moveColumn(currentIndex, 0);
             }
         }
-
+       
         startListening();
     }
     
+    private int getCurrentIndex(TableColumn tableColumn) {
+        for(int i = 0; i < table.getColumnCount(); i++) {
+            if(table.getColumn(i) == tableColumn) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void setupColumnVisibility() {
         stopListening();
 
@@ -168,6 +240,11 @@ public class ColumnStateHandler implements TableColumnModelListener, MouseListen
     
     private void setWidth(ColumnStateInfo column, int width) {
         TablesHandler.getWidth(column.getId(), column.getDefaultWidth()).setValue(width);
+    }
+    
+    private void setSortedColumn(int sortedColumn, boolean sortOrder) {
+        TablesHandler.getSortedColumn(format.getSortOrderID(), format.getSortedColumn()).setValue(sortedColumn);
+        TablesHandler.getSortedOrder(format.getSortOrderID(), format.getSortOrder()).setValue(sortOrder);
     }
 
     @Override

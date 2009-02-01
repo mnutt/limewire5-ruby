@@ -36,7 +36,7 @@ import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.connection.BlockingConnection;
-import com.limegroup.gnutella.downloader.DownloadStatusEvent;
+import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.downloader.TestFile;
 import com.limegroup.gnutella.downloader.TestUploader;
@@ -614,9 +614,9 @@ public class ServerSideWhatIsNewTest
         });
         final CountDownLatch downloadedLatch = new CountDownLatch(1);
         final Downloader downloader = downloadServices.download(new RemoteFileDesc[] { rfd }, false, new GUID(guid));
-        downloader.addListener(new EventListener<DownloadStatusEvent>() {
+        downloader.addListener(new EventListener<DownloadStateEvent>() {
             @Override
-            public void handleEvent(DownloadStatusEvent event) {
+            public void handleEvent(DownloadStateEvent event) {
                 if(event.getSource().isCompleted()) {
                     downloadedLatch.countDown();
                 }
@@ -694,9 +694,9 @@ public class ServerSideWhatIsNewTest
 
         final CountDownLatch downloadLatch = new CountDownLatch(1);
         Downloader downloader = downloadServices.download(rfds, false, new GUID(guid));
-        downloader.addListener(new EventListener<DownloadStatusEvent>() {
+        downloader.addListener(new EventListener<DownloadStateEvent>() {
             @Override
-            public void handleEvent(DownloadStatusEvent event) {
+            public void handleEvent(DownloadStateEvent event) {
                 if(event.getSource().isCompleted()) {
                     downloadLatch.countDown();
                 }

@@ -247,7 +247,7 @@ public class SystemOptionPanel extends OptionPanel {
             buttonGroup.add(minimizeButton);
             buttonGroup.add(exitButton);
 
-            if(OSUtils.isWindows() || OSUtils.isAnyMac())
+            if(OSUtils.isWindows() || OSUtils.isMacOSX())
                 add(runAtStartupCheckBox, "split, gapleft 5, wrap");
 
             if (trayNotifier.supportsSystemTray()) {

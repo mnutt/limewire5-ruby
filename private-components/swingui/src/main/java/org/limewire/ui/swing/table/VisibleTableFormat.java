@@ -15,4 +15,13 @@ public interface VisibleTableFormat<T> extends TableFormat<T>{
     
     /** Returns the column state info for this column*/
     ColumnStateInfo getColumnInfo(int columnModelIndex);
+    
+    /** Returns the default sort column*/
+    int getSortedColumn();
+    
+    /** Returns the default sort ordering on sort column*/
+    boolean getSortOrder();
+    
+    /** Returns the order id for sort information on this table*/
+    String getSortOrderID();
 }

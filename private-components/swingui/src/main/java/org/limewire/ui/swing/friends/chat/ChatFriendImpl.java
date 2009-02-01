@@ -14,16 +14,12 @@ import org.limewire.xmpp.api.client.MessageWriter;
 import org.limewire.xmpp.api.client.Presence;
 import org.limewire.xmpp.api.client.Presence.Mode;
 import org.limewire.xmpp.api.client.User;
-import org.limewire.xmpp.api.client.IncomingChatListener;
-import org.limewire.logging.Log;
-import org.limewire.logging.LogFactory;
 
 /**
  * @author Mario Aquino, Object Computing, Inc.
  *
  */
 public class ChatFriendImpl extends AbstractBean implements ChatFriend {
-    private static final Log LOG = LogFactory.getLog(ChatFriendImpl.class);
 
     private boolean chatting;
     private boolean activeConversation;
@@ -33,21 +29,10 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
     private long chatStartTime;
     private boolean hasUnviewedMessages;
 
-    ChatFriendImpl(final Presence presence, final String localId) {
+    ChatFriendImpl(final Presence presence) {
         this.user = presence.getUser();
         this.status = presence.getStatus();
         this.mode = presence.getMode();
-        this.user.setIncomingChatListener(new IncomingChatListener() {
-            public MessageReader incomingChat(MessageWriter writer) {
-                LOG.debugf("{0} is typing a message", presence.getJID());
-                MessageWriter writerWrapper = new MessageWriterImpl(localId, ChatFriendImpl.this, writer);
-                ConversationSelectedEvent event = new ConversationSelectedEvent(ChatFriendImpl.this, writerWrapper, false);
-                event.publish();
-                //Hang out until a responder has processed this event
-                event.await();
-                return new MessageReaderImpl(ChatFriendImpl.this);
-            }
-        });
     }
 
     @Override

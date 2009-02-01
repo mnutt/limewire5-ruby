@@ -30,7 +30,7 @@ import org.limewire.ui.swing.util.GuiUtils;
  */
 final class BasicNotifier implements TrayNotifier {
 
-    private @Resource Icon limeIcon;
+    private @Resource Icon notificationIcon;
 
     private WindowManager windowManager = new WindowManager();
 
@@ -86,7 +86,7 @@ final class BasicNotifier implements TrayNotifier {
         }
 
         public synchronized void createWindow(Notification notification) {
-            Icon icon = notification.getIcon() != null ? notification.getIcon() : limeIcon;
+            Icon icon = notification.getIcon() != null ? notification.getIcon() : notificationIcon;
             NotificationWindow notificationWindow = new NotificationWindow(icon, notification);
             notificationWindow.addListener(this);
             notificationWindow.setLocation(getNewWindowLocation(notificationWindow, -1

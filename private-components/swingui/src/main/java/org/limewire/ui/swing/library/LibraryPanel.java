@@ -9,10 +9,11 @@ import org.limewire.core.settings.LibrarySettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.Disposable;
-import org.limewire.ui.swing.components.LimeHeaderBar;
-import org.limewire.ui.swing.components.LimeHeaderBarFactory;
-import org.limewire.ui.swing.components.LimePromptTextField;
-import org.limewire.ui.swing.painter.FilterPainter;
+import org.limewire.ui.swing.components.HeaderBar;
+import org.limewire.ui.swing.components.PromptTextField;
+import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
+import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
+import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.FilterList;
@@ -21,19 +22,22 @@ import ca.odell.glazedlists.event.ListEventListener;
 
 class LibraryPanel extends AbstractFileListPanel {
 
-    public LibraryPanel(LimeHeaderBarFactory headerBarFactory) {
-        super(headerBarFactory);
+    public LibraryPanel(HeaderBarDecorator headerBarFactory, TextFieldDecorator textFieldDecorator) {
+        super(headerBarFactory, textFieldDecorator);
     }
     
     @Override
-    protected LimeHeaderBar createHeaderBar(LimeHeaderBarFactory headerBarFactory) {
-        return headerBarFactory.createBasic();
+    protected HeaderBar createHeaderBar(HeaderBarDecorator headerBarDecorator) {
+        HeaderBar bar = new HeaderBar();
+        headerBarDecorator.decorateBasic(bar);
+        return bar;
     }
     
     @Override
-    protected LimePromptTextField createFilterField(String prompt) {
-        // Create filter field and install painter.
-        return FilterPainter.decorate(new LimePromptTextField(prompt));
+    protected PromptTextField createFilterField(TextFieldDecorator decorator, String prompt) {
+        PromptTextField field = new PromptTextField(prompt);
+        decorator.decorateClearablePromptField(field, AccentType.SHADOW);
+        return field;
     }
     
     @Override

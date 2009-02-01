@@ -29,7 +29,7 @@ import com.google.inject.name.Named;
 import com.limegroup.gnutella.DownloadServices;
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.RemoteFileDesc;
-import com.limegroup.gnutella.Downloader.DownloadStatus;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.lws.server.LWSManager;
 import com.limegroup.gnutella.lws.server.LWSManagerCommandResponseHandlerWithCallback;
 import com.limegroup.gnutella.lws.server.LWSUtil;
@@ -94,7 +94,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
         /**
          * @see Downloader#getState()
          */        
-        DownloadStatus getState();
+        DownloadState getState();
 
         /**
          * @see Downloader#isCompleted()
@@ -137,7 +137,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
             return d.getContentLength();
         }
 
-        public DownloadStatus getState() {
+        public DownloadState getState() {
             return d.getState();
         }
 
@@ -158,7 +158,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
         
         private final long amountRead;
         private final long contentLength;
-        private final DownloadStatus state;
+        private final DownloadState state;
         
         LightWeightDownloaderInterface(DownloaderInterface d) {
             amountRead = d.getAmountRead();
@@ -178,7 +178,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
             return contentLength;
         }
 
-        public DownloadStatus getState() {
+        public DownloadState getState() {
             return state;
         }
 
@@ -662,82 +662,82 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
     }     
     
     /**
-     * Returns a printable version of a {@link DownloadStatus}.
+     * Returns a printable version of a {@link DownloadState}.
      * 
      * @param s status in question
-     * @return a printable version of a {@link DownloadStatus}.
+     * @return a printable version of a {@link DownloadState}.
      */
-    private static String downloadStatusToString(DownloadStatus s) {
-        if (s == DownloadStatus.INITIALIZING) {
+    private static String downloadStatusToString(DownloadState s) {
+        if (s == DownloadState.INITIALIZING) {
             return "Initializing";
         }
-        if (s == DownloadStatus.QUEUED) {
+        if (s == DownloadState.QUEUED) {
             return "Queued";
         }
-        if (s == DownloadStatus.CONNECTING) {
+        if (s == DownloadState.CONNECTING) {
             return "Connecting";
         }
-        if (s == DownloadStatus.DOWNLOADING) {
+        if (s == DownloadState.DOWNLOADING) {
             return "Downloading";
         }
-        if (s == DownloadStatus.BUSY) {
+        if (s == DownloadState.BUSY) {
             return "Busy";
         }
-        if (s == DownloadStatus.COMPLETE) {
+        if (s == DownloadState.COMPLETE) {
             return "Complete";
         }
-        if (s == DownloadStatus.ABORTED) {
+        if (s == DownloadState.ABORTED) {
             return "Aborted";
         }
-        if (s == DownloadStatus.GAVE_UP) {
+        if (s == DownloadState.GAVE_UP) {
             return "Gave up";
         }
-        if (s == DownloadStatus.DISK_PROBLEM) {
+        if (s == DownloadState.DISK_PROBLEM) {
             return "Disk problem";
         }
-        if (s == DownloadStatus.WAITING_FOR_GNET_RESULTS) {
+        if (s == DownloadState.WAITING_FOR_GNET_RESULTS) {
             return "Waiting for gnet results";
         }
-        if (s == DownloadStatus.CORRUPT_FILE) {
+        if (s == DownloadState.CORRUPT_FILE) {
             return "Corrupt_FILE";
         }
-        if (s == DownloadStatus.REMOTE_QUEUED) {
+        if (s == DownloadState.REMOTE_QUEUED) {
             return "Remote_QUEUED";
         }
-        if (s == DownloadStatus.HASHING) {
+        if (s == DownloadState.HASHING) {
             return "Hashing";
         }
-        if (s == DownloadStatus.SAVING) {
+        if (s == DownloadState.SAVING) {
             return "Saving";
         }
-        if (s == DownloadStatus.WAITING_FOR_USER) {
+        if (s == DownloadState.WAITING_FOR_USER) {
             return "Waiting for user";
         }
-        if (s == DownloadStatus.WAITING_FOR_CONNECTIONS) {
+        if (s == DownloadState.WAITING_FOR_CONNECTIONS) {
             return "Waiting for connections";
         }
-        if (s == DownloadStatus.ITERATIVE_GUESSING) {
+        if (s == DownloadState.ITERATIVE_GUESSING) {
             return "Iterative guessing";
         }
-        if (s == DownloadStatus.QUERYING_DHT) {
+        if (s == DownloadState.QUERYING_DHT) {
             return "Querying DHT";
         }
-        if (s == DownloadStatus.IDENTIFY_CORRUPTION) {
+        if (s == DownloadState.IDENTIFY_CORRUPTION) {
             return "Identify corruption";
         }
-        if (s == DownloadStatus.RECOVERY_FAILED) {
+        if (s == DownloadState.RECOVERY_FAILED) {
             return "Recovery failed";
         }
-        if (s == DownloadStatus.PAUSED) {
+        if (s == DownloadState.PAUSED) {
             return "Paused";
         }
-        if (s == DownloadStatus.INVALID) {
+        if (s == DownloadState.INVALID) {
             return "Invalid";
         }
-        if (s == DownloadStatus.RESUMING) {
+        if (s == DownloadState.RESUMING) {
             return "Resuming";
         }
-        if (s == DownloadStatus.FETCHING) {
+        if (s == DownloadState.FETCHING) {
             return "Fetching";
         }
         return null;
@@ -816,7 +816,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
         recordProgress(res, d.getAmountRead(), d.getContentLength(), d.getState(), id);
     }
     
-    private void recordProgress(StringBuffer res, long read, long total, DownloadStatus state, String id) {
+    private void recordProgress(StringBuffer res, long read, long total, DownloadState state, String id) {
         String ratio = String.valueOf((float)read / (float)total);
         String status = downloadStatusToString(state);
         String progressBarID = downloaderIDs2progressBarIDs.get(id);

@@ -14,9 +14,9 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JWindow;
 
+import org.limewire.ui.swing.components.decorators.ProgressBarDecorator;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SwingUtils;
 
@@ -37,7 +37,7 @@ public class SplashWindow {
     private final JLabel textLabel;
     
     /** The progressbar. */
-    private final JProgressBar progressBar;
+    private final LimeProgressBar progressBar;
 
     /**  Constant handle to the label that represents the splash image. */
     private final JLabel splashLabel;
@@ -59,10 +59,12 @@ public class SplashWindow {
         textLabel.setFont(new Font("Dialog", Font.PLAIN, 12));
         textLabel.setForeground(Color.WHITE);
         
+        progressBar = new LimeProgressBar();
+        
         if (isPro) {
-            progressBar = LimeProgressBarFactory.createSplashProgressBarPro();
+            ProgressBarDecorator.decorateStaticPro(progressBar);
         } else {
-            progressBar = LimeProgressBarFactory.createSplashProgressBar();
+            ProgressBarDecorator.decorateStaticBasic(progressBar);
         }
         
         int width = progressBar.getPreferredSize().width;

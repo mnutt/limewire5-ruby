@@ -4,6 +4,7 @@ import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -15,8 +16,13 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.jdesktop.application.Resource;
+import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.friend.Friend;
+import org.limewire.ui.swing.painter.GreenMessagePainter;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.util.OSUtils;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Inject;
@@ -47,6 +53,9 @@ public class GhostDragGlassPane extends JPanel {
     @Inject
     public GhostDragGlassPane() {
         setOpaque(false);
+        if(OSUtils.isMacOSX()) {
+            alpha = 1.0f;
+        }
         
         dragPanel = new DragPanel();
         dragPanel.setSize(new Dimension(200,60));
@@ -137,16 +146,23 @@ public class GhostDragGlassPane extends JPanel {
      * way of displaying this component while it is being 
      * moved.
      */
-    private class DragPanel extends JPanel {
+    private class DragPanel extends JXPanel {
+        @Resource
+        private Font dragLabelFont;
+        @Resource
+        private Color dragLabelColor;
+        
         private JLabel label;
         
         public DragPanel() {
-            setBorder(BorderFactory.createMatteBorder(2,2,2,2, Color.BLACK));
-
-            setBackground(Color.WHITE);
+            GuiUtils.assignResources(this);
+            
+            setBackgroundPainter(new GreenMessagePainter<JXPanel>());
             
             setLayout(new BorderLayout());
             label = new JLabel("");
+            label.setFont(dragLabelFont);
+            label.setForeground(dragLabelColor);
             label.setSize(new Dimension(200,40));
             label.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
             

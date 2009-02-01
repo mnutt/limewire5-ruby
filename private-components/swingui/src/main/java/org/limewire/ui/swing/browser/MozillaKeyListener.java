@@ -38,7 +38,7 @@ class MozillaKeyListener extends KeyAdapter {
         if (e instanceof MozillaKeyEvent) {
             MozillaKeyEvent mozKeyEvent = (MozillaKeyEvent) e;
 
-            boolean altDown = OSUtils.isAnyMac() ? 
+            boolean altDown = OSUtils.isMacOSX() ? 
                     mozKeyEvent.isMetaDown() : mozKeyEvent.isAltDown();
 
             boolean rightPressed = altDown && mozKeyEvent.getKeyCode() == KeyEvent.VK_RIGHT;

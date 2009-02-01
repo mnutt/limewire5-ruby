@@ -35,9 +35,7 @@ public class SystemUtils {
                     System.loadLibrary("SystemUtilitiesA");
                 }
             } else if (OSUtils.isMacOSX()) {
-                if(OSUtils.isMacOSX105()) {
-                    System.loadLibrary("SystemUtilities");
-                }
+                System.loadLibrary("SystemUtilities");
             }
             
             canLoad = true;

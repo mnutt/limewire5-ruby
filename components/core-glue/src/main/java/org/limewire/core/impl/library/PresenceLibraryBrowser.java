@@ -109,6 +109,7 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
 
                             @Override
                             protected void itemRemoved(PresenceLibrary item, int idx, EventList<PresenceLibrary> source) {
+                                // TODO: This should cancel the browse, if it was in action.
                                 librariesToBrowse.remove(item);
                             }
 
@@ -138,6 +139,9 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
         } else {
             address = null;
         }
+        
+        // TODO: We need to capture the Browse and call stop on it when the library is removed,
+        //       otherwise the browse can be lingering in the background.
         browse.start(new BrowseListener() {
             public void handleBrowseResult(SearchResult searchResult) {
                 LOG.debugf("browse result: {0}, {1}", searchResult.getUrn(), searchResult.getSize());

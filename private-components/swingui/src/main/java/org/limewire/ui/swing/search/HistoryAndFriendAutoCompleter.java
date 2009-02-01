@@ -3,6 +3,7 @@ package org.limewire.ui.swing.search;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +22,7 @@ import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.jdesktop.application.Resource;
 import org.limewire.collection.AutoCompleteDictionary;
 import org.limewire.collection.StringTrieSet;
 import org.limewire.ui.swing.components.AutoCompleter;
@@ -28,9 +30,14 @@ import org.limewire.ui.swing.components.CollectionBackedListModel;
 import org.limewire.ui.swing.components.ExtendedCompoundBorder;
 import org.limewire.ui.swing.components.SideLineBorder;
 import org.limewire.ui.swing.util.FontUtils;
+import org.limewire.ui.swing.util.GuiUtils;
+import org.limewire.ui.swing.util.I18n;
 
 /** An autocompleter that shows its suggestions in a list and can have new suggestions added. */
 public class HistoryAndFriendAutoCompleter implements AutoCompleter {
+    
+    @Resource private Color selectionBackground;
+    @Resource private Font font;
     
     private final JPanel entryPanel;
     
@@ -48,15 +55,19 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
     }
     
     public HistoryAndFriendAutoCompleter(AutoCompleteDictionary dictionary) {
+        
+        GuiUtils.assignResources(this);
+        
         this.suggestionDictionary = dictionary;
         
         entryPanel = new JPanel(new MigLayout("insets 0, gap 0, fill"));
-        entryPanel.setBorder(UIManager.getBorder("List.border"));
+        entryPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         entryPanel.setBackground(UIManager.getColor("List.background"));
         
         entryList = new AutoCompleteList();
         
         JScrollPane entryScrollPane = new JScrollPane(entryList);
+        entryScrollPane.setBorder(BorderFactory.createEmptyBorder());
         entryScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         entryScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         entryPanel.add(entryScrollPane, "grow");
@@ -148,6 +159,9 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
             setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             setFocusable(false);
             setCellRenderer(new Renderer());
+            setFont(font);
+            setSelectionBackground(selectionBackground);
+            setSelectionForeground(Color.BLACK);
         }
         
         // override to return true always, to enforce '...' added
@@ -212,18 +226,18 @@ public class HistoryAndFriendAutoCompleter implements AutoCompleter {
         private final JPanel firstSuggestionPanel;
         private final DefaultListCellRenderer firstSuggestionLabel;
         private final JLabel firstSuggestionTitle;
-        private final Border firstSuggestionBorder = new SideLineBorder(Color.BLACK, SideLineBorder.Side.TOP);
+        private final Border firstSuggestionBorder = new SideLineBorder(Color.GRAY, SideLineBorder.Side.TOP);
         
         public Renderer() {
             compoundBorder = new ExtendedCompoundBorder(BorderFactory.createEmptyBorder(), BorderFactory.createEmptyBorder(0, 2, 0, 2));
             
             firstSuggestionPanel = new JPanel();
-            firstSuggestionPanel.setLayout(new MigLayout("nocache, fill, gap 0, insets 0"));
+            firstSuggestionPanel.setLayout(new MigLayout("fill, gap 0, insets 0"));
             firstSuggestionPanel.setBorder(compoundBorder);
             
             firstSuggestionLabel = new DefaultListCellRenderer();
             firstSuggestionTitle = new DefaultListCellRenderer();
-            firstSuggestionTitle.setText("Friend Suggestions");
+            firstSuggestionTitle.setText(I18n.tr("Friend Suggestions"));
             FontUtils.changeSize(firstSuggestionTitle, -1);
             firstSuggestionTitle.setForeground(Color.GRAY);
             

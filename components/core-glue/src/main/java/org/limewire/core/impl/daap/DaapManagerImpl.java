@@ -41,4 +41,9 @@ public class DaapManagerImpl implements DaapManager {
     public void updateService() throws IOException {
         daapManager.updateService();
     }
+
+    @Override
+    public void start() throws IOException {
+        daapManager.start();
+    }
 }

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -41,6 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.OverlayLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
@@ -105,6 +107,7 @@ import org.limewire.xmpp.api.client.XMPPException;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.name.Named;
+import com.google.inject.Inject;
 
 /**
  *
@@ -135,6 +138,12 @@ public class ConversationPane extends JPanel implements Displayable {
     private final ResultDownloader downloader;
     private final RemoteFileItemFactory remoteFileItemFactory;
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+
+    private ListenerSupport<FriendEvent> friendSupport;
+    private ListenerSupport<FeatureEvent> featureSupport;
+    private EventListener<FeatureEvent> featureListener;
+    private EventListener<FriendEvent> friendListener;
+    
     @Resource(key="ChatConversation.toolbarTopColor") private Color toolbarTopColor;
     @Resource(key="ChatConversation.toolbarBottomColor") private Color toolbarBottomColor;
     @Resource(key="ChatConversation.toolbarBorderColor") private Color toolbarBorderColor;
@@ -143,14 +152,13 @@ public class ConversationPane extends JPanel implements Displayable {
     private final JScrollPane conversationScroll;
     private final JPanel chatWrapper;
     
-    
     @AssistedInject
     public ConversationPane(@Assisted MessageWriter writer, final @Assisted ChatFriend chatFriend, @Assisted String loggedInID,
                             ShareListManager libraryManager, IconManager iconManager, LibraryNavigator libraryNavigator,
                             ResultDownloader downloader, RemoteFileItemFactory remoteFileItemFactory,
-                            @Named("available") ListenerSupport<FriendEvent> friendSupport,
                             SaveLocationExceptionHandler saveLocationExceptionHandler,
-                            ListenerSupport<FeatureEvent> featureSupport, IconLibrary iconLibrary) {
+                            IconLibrary iconLibrary,
+                            @Named("backgroundExecutor")ScheduledExecutorService schedExecService) {
         this.writer = writer;
         this.chatFriend = chatFriend;
         this.remoteFileItemFactory = remoteFileItemFactory;
@@ -175,7 +183,7 @@ public class ConversationPane extends JPanel implements Displayable {
         HTMLEditorKit editorKit = (HTMLEditorKit) editor.getEditorKit();
         editorKit.setAutoFormSubmission(false);
 
-        conversationScroll = new JScrollPane(editor, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        conversationScroll = new JScrollPane(editor, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         conversationScroll.setOpaque(false);
         conversationScroll.setBorder(BorderFactory.createEmptyBorder());
         
@@ -188,19 +196,23 @@ public class ConversationPane extends JPanel implements Displayable {
         });
         closeConversation.setIcon(iconLibrary.getEndChat());
         
-        // TODO: This should be done with a custom layout or 
-        //        a mix of overlay layout, border layout, and mig layout.
-        //        Mig layout may also have this functionality on its own.
-        //        This is a proof on concept / temp bug fix.
         chatWrapper = new JPanel();
-        chatWrapper.setLayout(null);
+        chatWrapper.setLayout(new OverlayLayout(chatWrapper));
+        
+        JPanel closePanel = new JPanel();
+        closePanel.setLayout(null);
+        closePanel.setOpaque(false);
         final Rectangle closeBounds = new Rectangle(268,5,6,6);
         final Rectangle closeBoundsSlider = new Rectangle(250,5,6,6);
         closeConversation.setBounds(closeBounds);
-        conversationScroll.setBounds(0,0, 278,171);
+        closePanel.add(closeConversation);
         
-        chatWrapper.add(closeConversation);
-        chatWrapper.add(conversationScroll);
+        JPanel conversationPanel = new JPanel(new BorderLayout());
+        conversationPanel.setOpaque(false);
+        conversationPanel.add(conversationScroll, BorderLayout.CENTER);
+        
+        chatWrapper.add(closePanel);
+        chatWrapper.add(conversationPanel);
         
         conversationScroll.getVerticalScrollBar().addComponentListener(new ComponentListener() {
             @Override
@@ -219,12 +231,15 @@ public class ConversationPane extends JPanel implements Displayable {
             }
         });
         
-        conversationScroll.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+        AdjustmentListener adjustmentListener = new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 chatWrapper.repaint();
             }
-        });
+        };
+        
+        conversationScroll.getVerticalScrollBar().addAdjustmentListener(adjustmentListener);
+        conversationScroll.getHorizontalScrollBar().addAdjustmentListener(adjustmentListener);
         
         add(chatWrapper, BorderLayout.CENTER);
 
@@ -233,22 +248,21 @@ public class ConversationPane extends JPanel implements Displayable {
         FriendShareDropTarget friendShare = new FriendShareDropTarget(editor, libraryManager.getOrCreateFriendShareList(chatFriend.getFriend()));
         editor.setDropTarget(friendShare.getDropTarget());
 
-        add(footerPanel(writer, chatFriend), BorderLayout.SOUTH);
+        add(footerPanel(writer, chatFriend, schedExecService), BorderLayout.SOUTH);
 
         setBackground(DEFAULT_BACKGROUND);
 
         EventAnnotationProcessor.subscribe(this);
-        friendSupport.addListener(new EventListener<FriendEvent>() {
-            @Override
-            @SwingEDTEvent
-            public void handleEvent(FriendEvent event) {
-                if(event.getSource().getId().equals(friendId)) {
-                    handleFriendEvent(event);
-                }
-            }
-        });
+    }
 
-        featureSupport.addListener(new EventListener<FeatureEvent>() {
+    
+    @Inject
+    public void register(@Named("available")ListenerSupport<FriendEvent> friendSupport,
+                         ListenerSupport<FeatureEvent> featureSupport) {
+        this.friendSupport = friendSupport;
+        this.featureSupport = featureSupport;
+
+        featureListener = new EventListener<FeatureEvent>() {
             @Override
             @SwingEDTEvent
             public void handleEvent(FeatureEvent event) {
@@ -256,7 +270,19 @@ public class ConversationPane extends JPanel implements Displayable {
                     handleFeatureUpdate(event);
                 }
             }
-        });
+        };
+
+        friendListener = new EventListener<FriendEvent>() {
+            @Override
+            @SwingEDTEvent
+            public void handleEvent(FriendEvent event) {
+                if (event.getSource().getId().equals(friendId)) {
+                    handleFriendEvent(event);
+                }
+            }
+        };
+        friendSupport.addListener(friendListener);
+        featureSupport.addListener(featureListener);
     }
 
     @RuntimeTopicEventSubscriber(methodName="getMessageReceivedTopicName")
@@ -291,6 +317,7 @@ public class ConversationPane extends JPanel implements Displayable {
     private void handleFriendEvent(FriendEvent event) {
         switch(event.getType()) {
         case ADDED:
+            currentChatState = ChatState.active;
             displayMessages(false);
             inputPanel.getInputComponent().setEnabled(true);
             break;
@@ -320,12 +347,13 @@ public class ConversationPane extends JPanel implements Displayable {
         } catch (XMPPException e) {
             LOG.error("Could not set chat state while closing the conversation", e);
         }
-
-        // TODO: remove listeners
     }
 
     public void destroy() {
         EventAnnotationProcessor.unsubscribe(this);
+        featureSupport.removeListener(featureListener);
+        friendSupport.removeListener(friendListener);
+        inputPanel.destroy();
     }
 
     public String getMessageReceivedTopicName() {
@@ -357,6 +385,13 @@ public class ConversationPane extends JPanel implements Displayable {
                 @Override
                 public void run() {
                     verticalScrollBar.setValue(scrollValue);
+                }
+            });
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    verticalScrollBar.setValue(verticalScrollBar.getMaximum());
                 }
             });
         }
@@ -399,7 +434,8 @@ public class ConversationPane extends JPanel implements Displayable {
         }
     }
 
-    private JPanel footerPanel(MessageWriter writer, ChatFriend chatFriend) {
+    private JPanel footerPanel(MessageWriter writer, ChatFriend chatFriend,
+                               ScheduledExecutorService schedExecService) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BACKGROUND_COLOR);
         
@@ -421,7 +457,7 @@ public class ConversationPane extends JPanel implements Displayable {
         toolbar.add(downloadlink);
         toolbar.add(sharelink);
 
-        inputPanel = new ResizingInputPanel(writer);
+        inputPanel = new ResizingInputPanel(writer, schedExecService);
         inputPanel.setBorder(BorderFactory.createEmptyBorder());
         panel.add(toolbar, BorderLayout.NORTH);
         panel.add(inputPanel, BorderLayout.CENTER);

@@ -15,10 +15,11 @@ import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.Disposable;
-import org.limewire.ui.swing.components.LimeHeaderBarFactory;
 import org.limewire.ui.swing.components.Line;
+import org.limewire.ui.swing.components.decorators.ButtonDecorator;
+import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
+import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
 import org.limewire.ui.swing.dnd.LocalFileListTransferHandler;
-import org.limewire.ui.swing.util.ButtonDecorator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
@@ -47,9 +48,10 @@ public class EmptyLibraryPanel extends LibraryPanel {
             @Assisted FriendLibraryMediator mediator, 
             @Assisted Disposable messageComponent,
             @Assisted JComponent component,
-            LimeHeaderBarFactory headerBarFactory,
-            ButtonDecorator buttonDecorator) {
-        super(headerBarFactory);
+            HeaderBarDecorator headerBarFactory,
+            ButtonDecorator buttonDecorator,
+            TextFieldDecorator textFieldDecorator) {
+        super(headerBarFactory, textFieldDecorator);
   
         GuiUtils.assignResources(this);
         

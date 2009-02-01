@@ -34,6 +34,8 @@ public final class TablesHandler extends LimeWireSettings {
     private static final String WIDTH = "_WIDTH";
     private static final String ORDER = "_ORDER";
     private static final String VISBL = "_VISIBLE";
+    private static final String SORTED_COLUMN = "_SORTED";
+    private static final String SORT_ORDER = "_SORT_ORDER";
 
    /**
     * The list of settings.  The Key is the name of the setting,
@@ -65,6 +67,21 @@ public final class TablesHandler extends LimeWireSettings {
         return getSetting(id + VISBL, def);
     }
 
+    /**
+     * Returns the IntSetting for the column that was last sorted.
+     */
+    public static IntSetting getSortedColumn(String id, int def) {
+        return getSetting(id + SORTED_COLUMN, def);
+    }
+    
+    /**
+     * Returns true if the column was in ascending order, false if
+     * it was in descending order.
+     */
+    public static BooleanSetting getSortedOrder(String id, boolean def) {
+        return getSetting(id + SORT_ORDER, def);
+    }
+    
     /**
      * Returns the setting stored within SETS for the specified setting.
      * If none exists, one is created.

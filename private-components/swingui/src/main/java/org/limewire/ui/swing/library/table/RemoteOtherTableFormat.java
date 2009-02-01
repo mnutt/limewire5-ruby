@@ -7,6 +7,7 @@ import java.util.List;
 import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.library.RemoteFileItem;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.FileUtils;
@@ -20,12 +21,12 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int EXTENSION_INDEX = 2;
     static final int SIZE_INDEX = 3;
     
-    public RemoteOtherTableFormat(ColumnStateInfo[] columnInfo) {
-        super(columnInfo);
+    public RemoteOtherTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo) {
+        super(sortID, sortedColumn, isAscending, columnInfo);
     }
     
     public RemoteOtherTableFormat() {
-        super(new ColumnStateInfo[] {
+        super("REMOTE_LIBRARY_OTHER_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_OTHER_NAME", I18n.tr("Name"), 417, true, true),     
                 new ColumnStateInfo(TYPE_INDEX, "REMOTE_LIBRARY_OTHER_TYPE", I18n.tr("Type"), 170, true, true), 
                 new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_OTHER_EXTENSION", I18n.tr("Extension"), 78, true, true), 
@@ -46,10 +47,14 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
 
     @Override
     public List<SortKey> getDefaultSortKeys() {
-        return Arrays.asList(
-                new SortKey(SortOrder.ASCENDING, NAME_INDEX),
-                new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
-                new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        if(TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue() == getSortedColumn() &&
+                TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == getSortOrder())
+            return Arrays.asList(
+                    new SortKey(SortOrder.ASCENDING, NAME_INDEX),
+                    new SortKey(SortOrder.ASCENDING, TYPE_INDEX),
+                    new SortKey(SortOrder.ASCENDING, SIZE_INDEX));
+        else
+            return super.getDefaultSortKeys();
     }
 
     @Override

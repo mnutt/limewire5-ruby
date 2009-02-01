@@ -1029,9 +1029,11 @@ public abstract class MessageRouterImpl implements MessageRouter {
         AddressSecurityToken key = new AddressSecurityToken(address, port, MACCalculatorRepositoryManager.get());
         
         // respond with Pong with QK, as GUESS requires....
-        PingReply reply = 
-            pingReplyFactory.createQueryKeyReply(pr.getGUID(), (byte)1, key);
-        udpService.send(reply, addr.getAddress(), addr.getPort());
+        if (networkManager.isIpPortValid()) {
+            PingReply reply = 
+                pingReplyFactory.createQueryKeyReply(pr.getGUID(), (byte)1, key);
+            udpService.send(reply, addr.getAddress(), addr.getPort());
+        }
     }
 
 

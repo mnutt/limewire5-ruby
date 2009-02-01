@@ -725,7 +725,7 @@ public class AcceptorImpl implements ConnectionAcceptor, SocketProcessor, Accept
 
             // Dispatch asynchronously if possible.
             if (client instanceof NIOMultiplexor) {// supports non-blocking reads
-                ((NIOMultiplexor) client).setReadObserver(new AsyncConnectionDispatcher(connectionDispatcher.get(), client, allowedProtocol));
+                ((NIOMultiplexor) client).setReadObserver(new AsyncConnectionDispatcher(connectionDispatcher.get(), client, allowedProtocol, networkManager.isIncomingTLSEnabled()));
             } else {
                 ThreadExecutor.startThread(new BlockingConnectionDispatcher(connectionDispatcher
                         .get(), client, allowedProtocol), "ConnectionDispatchRunner");

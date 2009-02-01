@@ -40,6 +40,7 @@ class FancyTabMoreButton extends LimeComboBox {
         overrideMenu(menu);
         MoreListener listener = new MoreListener(tabs);
         menu.addPopupMenuListener(listener);
+        setFocusable(false);
     }
     
     private JComponent createMenuItemFor(

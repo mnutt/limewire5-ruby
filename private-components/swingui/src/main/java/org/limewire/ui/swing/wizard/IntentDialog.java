@@ -58,14 +58,14 @@ public class IntentDialog extends LimeJDialog {
     private final MultiLineLabel bodyLabel;
     private final JLabel agreeLabel;
     private final JButton copyrightButton;
-    private final JButton agreementButton;
+    private final JButton licenseButton;
     private final JButton privacyButton;
     private final JLabel languageLabel;
     private final JXButton agreeButton;
     private final JXButton exitButton;
     
     private final String copyrightURL = "http://www.limewire.com/learnmore/copyright";
-    private final String agreementURL = "http://www.limewire.com/learnmore/agreement";
+    private final String licenseURL = "http://www.limewire.com/learnmore/agreement";
     private final String privacyURL = "http://www.limewire.com/learnmore/privacy";
     
     private final Action urlAction = new AbstractAction(){
@@ -73,8 +73,8 @@ public class IntentDialog extends LimeJDialog {
         public void actionPerformed(ActionEvent e) {
             if(e.getSource().equals(copyrightButton))
                 NativeLaunchUtils.openURL(copyrightURL);
-            else if(e.getSource().equals(agreementButton))
-                NativeLaunchUtils.openURL(agreementURL);
+            else if(e.getSource().equals(licenseButton))
+                NativeLaunchUtils.openURL(licenseURL);
             else if(e.getSource().equals(privacyButton))
                 NativeLaunchUtils.openURL(privacyURL);
         }
@@ -108,11 +108,11 @@ public class IntentDialog extends LimeJDialog {
         copyrightButton.setFont(smallFont);
         FontUtils.underline(copyrightButton);
         copyrightButton.setForeground(new Color(0x2152a6));
-        agreementButton = new HyperlinkButton(urlAction);
-        agreementButton.setFocusPainted(false);
-        agreementButton.setFont(smallFont);
-        FontUtils.underline(agreementButton);
-        agreementButton.setForeground(new Color(0x2152a6));
+        licenseButton = new HyperlinkButton(urlAction);
+        licenseButton.setFocusPainted(false);
+        licenseButton.setFont(smallFont);
+        FontUtils.underline(licenseButton);
+        licenseButton.setForeground(new Color(0x2152a6));
         privacyButton = new HyperlinkButton(urlAction);
         privacyButton.setFocusPainted(false);
         privacyButton.setFont(smallFont);
@@ -152,7 +152,7 @@ public class IntentDialog extends LimeJDialog {
         headerBar.add(headingLabel, "grow, wrap");
         panel.add(bodyLabel, "gapleft " + indent + ", gaptop 10, wrap");
         panel.add(copyrightButton, "gapleft " + indent +  ", gaptop 20, wrap");
-        panel.add(agreementButton, "gapleft " + indent +  ", wrap");
+        panel.add(licenseButton, "gapleft " + indent +  ", wrap");
         panel.add(privacyButton, "gapleft " + indent +  ", wrap");
         panel.add(agreeLabel, "gapleft " + indent +  ", gaptop 40, wrap");
 
@@ -291,8 +291,8 @@ public class IntentDialog extends LimeJDialog {
         headingLabel.setText(heading);
         bodyLabel.setText(bodyText1);
         copyrightButton.setText(copyText);
-        agreementButton.setText(privacyText);
-        privacyButton.setText(licenseText);
+        licenseButton.setText(licenseText);
+        privacyButton.setText(privacyText);
         agreeLabel.setText(agreementText);
         languageLabel.setText(languageText);
         exitButton.setAction(exitAction);

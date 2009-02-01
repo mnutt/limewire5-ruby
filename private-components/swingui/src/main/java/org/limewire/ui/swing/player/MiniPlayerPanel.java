@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -23,8 +24,11 @@ import org.limewire.player.api.AudioPlayerEvent;
 import org.limewire.player.api.AudioPlayerListener;
 import org.limewire.player.api.AudioSource;
 import org.limewire.player.api.PlayerState;
+import org.limewire.setting.evt.SettingEvent;
+import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.MarqueeButton;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.CommonUtils;
@@ -91,6 +95,18 @@ public class MiniPlayerPanel extends JPanel {
      
         setMaximumSize(getPreferredSize());
         player.addAudioPlayerListener(new PlayerListener());
+        
+        //hide the player if setting is disabled
+        SwingUiSettings.PLAYER_ENABLED.addSettingListener(new SettingListener(){
+            @Override
+            public void settingChanged(SettingEvent evt) {
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run() {
+                        MiniPlayerPanel.this.setVisible(false);
+                    }
+                });
+            }
+        });
     }
 
     private class ShowPlayerListener implements ActionListener {
@@ -149,7 +165,9 @@ public class MiniPlayerPanel extends JPanel {
         @Override
         public void songOpened(Map<String, Object> properties) {
             //Show MiniPlayer when song is opened
-            setVisible(true);
+            if(!isVisible())
+                setVisible(true);
+            
             title = (String) properties.get("title");
             artist = (String) properties.get("author");
             

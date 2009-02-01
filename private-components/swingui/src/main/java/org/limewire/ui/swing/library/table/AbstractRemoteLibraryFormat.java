@@ -1,9 +1,15 @@
 package org.limewire.ui.swing.library.table;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
+import org.jdesktop.swingx.decorator.SortKey;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.RemoteFileItem;
+import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.AbstractColumnStateFormat;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 
@@ -12,8 +18,16 @@ import org.limewire.ui.swing.table.ColumnStateInfo;
  */
 public abstract class AbstractRemoteLibraryFormat<T extends FileItem> extends AbstractColumnStateFormat<T> implements LibraryTableFormat<T>{
     
-    public AbstractRemoteLibraryFormat(ColumnStateInfo... columnInfo) {
+    private final String sortID;
+    private final int sortedColumn;
+    private final boolean isAscending;
+    
+    public AbstractRemoteLibraryFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo... columnInfo) {
         super(columnInfo);
+    
+        this.sortID = sortID;
+        this.sortedColumn = sortedColumn;
+        this.isAscending = isAscending;
     }
     
     public int getActionColumn() {
@@ -33,6 +47,34 @@ public abstract class AbstractRemoteLibraryFormat<T extends FileItem> extends Ab
     @Override
     public Class getColumnClass(int column) {
         return String.class;
+    }
+            
+    @Override
+    public List<SortKey> getPreSortColumns() {
+        return Collections.emptyList();
+    }
+    
+    @Override
+    public boolean getSortOrder() {
+        return isAscending;
+    }
+
+    @Override
+    public String getSortOrderID() {
+        return sortID;
+    }
+
+    @Override
+    public int getSortedColumn() {
+        return sortedColumn;
+    }
+    
+    @Override
+    public List<SortKey> getDefaultSortKeys() {
+        return Arrays.asList(
+                new SortKey(((TablesHandler.getSortedOrder(getSortOrderID(), getSortOrder()).getValue() == true) ?
+                    SortOrder.ASCENDING : SortOrder.DESCENDING ),
+                    TablesHandler.getSortedColumn(getSortOrderID(), getSortedColumn()).getValue()));
     }
     
     @Override

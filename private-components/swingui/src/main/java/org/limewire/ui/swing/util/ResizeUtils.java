@@ -49,6 +49,21 @@ public class ResizeUtils {
     }
     
     /**
+     * Attempts to set sane maximum and minimum size values for a component
+     *  without modifying preferred and set size.  Minimally invasive and
+     *  usually leaves things in a state where the component width grows with contents.
+     */
+    public static void looseForceHeight(Component comp, int height) {
+        comp.setMinimumSize(new Dimension(10, height));
+        comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+    }
+    
+    public static void looseForceWidth(Component comp, int width) {
+        comp.setMinimumSize(new Dimension(width, 10));
+        comp.setMaximumSize(new Dimension(width, Integer.MAX_VALUE));
+    }
+    
+    /**
      * Updates the size of the button to match either the explicit text of the
      * button, or the largest item in the menu.
      */

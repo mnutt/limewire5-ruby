@@ -25,10 +25,7 @@
 	</target>
     
     <target name="compile" depends="initialize, lw-core.compile">
-        <!-- Currently no tests - using compile-src in the meantime.-->
-    	<!--<do.compile component="core-glue"/>-->
-    	<do.compile-src component="core-glue"/>
-    	<mkdir dir="${build.limewire.components.core-glue.tests}"/>
+    	<do.compile component="core-glue"/>
     </target>
 	
 	<target name="compile-src" depends="initialize, lw-core.compile">
@@ -40,8 +37,7 @@
 	</target>
 	
 	<target name="compile-tests" depends="initialize">
-	    <!--<do.compile-tests component="core-glue"/>-->
-	    <mkdir dir="${build.limewire.components.core-glue.tests}"/>
+	    <do.compile-tests component="core-glue"/>
 	</target>
 	
 	<target name="clean-tests" depends="initialize">
