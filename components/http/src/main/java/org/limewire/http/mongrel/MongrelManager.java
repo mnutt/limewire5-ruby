@@ -6,5 +6,8 @@ public interface MongrelManager {
     boolean isAsyncStop();
     String getServiceName();
     String getStatus();
+    void setStatus(String status);
     void restart();
+    void loadMongrel();
+    void mapPort();
 }

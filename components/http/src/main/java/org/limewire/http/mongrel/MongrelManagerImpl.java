@@ -33,7 +33,7 @@ public class MongrelManagerImpl implements MongrelManager {
         this.upnpManager = upnpManager;
         this.networkManager = networkManager;
         
-        this.serverThread = new MongrelThread();
+        this.serverThread = new MongrelThread(this);
     }
     
     @Override
@@ -43,13 +43,13 @@ public class MongrelManagerImpl implements MongrelManager {
     
     @Override
     public void start() {
-        System.out.println(this.serverThread.getState().toString());
         if(!this.isServerRunning()) {
             this.serverThread.start();
+            setStatus("started");
         }
     }
     
-    private void loadMongrel() {
+    public void loadMongrel() {
         try {
             String usablePath = null;
             String[] loadPaths = {
@@ -65,17 +65,18 @@ public class MongrelManagerImpl implements MongrelManager {
                 }
             };
             if(usablePath != null) {
-                // rubyEvaluator.eval(usablePath);
-                setStatus("started");
+                rubyEvaluator.eval(usablePath);
             } else {
                 throw new FileNotFoundException();
             }
         } catch(FileNotFoundException exception) {
             System.out.println("couldn't find mongrel start script.");
+        } catch(ScriptException exception) {
+            exception.getCause().printStackTrace();
         }
     }
     
-    private void mapPort() {
+    public void mapPort() {
         boolean natted = upnpManager.get().isNATPresent();
         boolean validPort = NetworkUtils.isValidPort(_port);
         boolean forcedIP = ConnectionSettings.FORCE_IP_ADDRESS.getValue() &&
@@ -91,6 +92,8 @@ public class MongrelManagerImpl implements MongrelManager {
     }
 
     public void stop() {
+        System.out.println(this.isServerRunning());
+        System.out.println(this.getStatus());
         if(this.isServerRunning()) {
             System.out.println("interrupted");
             this.setStatus("stopped");
@@ -106,14 +109,14 @@ public class MongrelManagerImpl implements MongrelManager {
     }
     
     public Boolean isServerRunning() {
-        return this.status == "started" || this.status == "starting";
+        return this.getStatus() == "started" || this.getStatus() == "starting";
     }
     
-    public String getStatus() {
+    public synchronized String getStatus() {
         return this.status;
     }
     
-    public void setStatus(String status) {
+    public synchronized void setStatus(String status) {
         System.out.println("setting status to " + status);
         this.status = status;
     }
@@ -124,26 +127,37 @@ public class MongrelManagerImpl implements MongrelManager {
     }
 
     
-    public class MongrelThread extends Thread {
+    public class MongrelThread implements Runnable {
         private Boolean finished = false;
+        private Thread t;
+        private MongrelManager mongrelManager;
+        
+        public MongrelThread(MongrelManager mongrelManager) {
+            this.mongrelManager = mongrelManager;
+            t = new Thread(this);
+        }
+        
+        public void start() {
+            t.start();
+        }
         
         @Override
         public void run() {
             System.out.println("Starting mongrel...");
-            setStatus("starting");
+            this.mongrelManager.setStatus("starting");
 
             // Try to port forward incoming traffic to our server via UPnP
-            mapPort();
+            mongrelManager.mapPort();
 
-            loadMongrel();
+            mongrelManager.loadMongrel();
             
-            //while(this.finished != true) {
-            //    try {
-            //    Thread.currentThread().sleep(1000);
-            //    System.out.println("looping...");
-            //    } catch(InterruptedException exception) {
-            //    }
-           // }
+            while(this.finished != true) {
+                try {
+                Thread.currentThread().sleep(1000);
+                System.out.println("looping..." + mongrelManager.getStatus());
+                } catch(InterruptedException exception) {
+                }
+            }
         }
         
         public void shutdown() {
