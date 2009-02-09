@@ -12,6 +12,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.limewire.http.mongrel.MongrelManager;
+import org.limewire.http.mongrel.MongrelGlue;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -33,8 +34,8 @@ public class RemoteOptionPanel extends OptionPanel {
     @Resource private Font font;
 
     @Inject
-    public RemoteOptionPanel(MongrelManager mongrelManager) {
-        this.mongrelManager = mongrelManager;
+    public RemoteOptionPanel(MongrelGlue mongrelGlue) {
+        this.mongrelManager = mongrelGlue.getMongrelManager();
         
         GuiUtils.assignResources(this);
 

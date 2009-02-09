@@ -16,6 +16,10 @@ class MongrelGlue {
         this.mongrelManager = mongrelManager;
     }
     
+    public MongrelManager getMongrelManager() {
+        return this.mongrelManager;
+    }
+    
     @Inject
     @SuppressWarnings({"unused", "UnusedDeclaration"})
     private void register(org.limewire.lifecycle.ServiceRegistry registry) {

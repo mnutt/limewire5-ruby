@@ -10,19 +10,20 @@ import org.limewire.io.NetworkUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.UPnPManager;
 import com.limegroup.scripting.RubyEvaluator;
 
-public class MongrelManagerImpl implements MongrelManager {
+@Singleton
+public 
+class MongrelManagerImpl implements MongrelManager {
 
     private RubyEvaluator rubyEvaluator;
     private final Provider<UPnPManager> upnpManager;
     private NetworkManager networkManager;
-    
-    private MongrelThread serverThread = null;
-        
+            
     private int _port = 4422;
     private String status = "stopped";
     
@@ -33,7 +34,7 @@ public class MongrelManagerImpl implements MongrelManager {
         this.upnpManager = upnpManager;
         this.networkManager = networkManager;
         
-        this.serverThread = new MongrelThread(this);
+        
     }
     
     @Override
@@ -44,12 +45,19 @@ public class MongrelManagerImpl implements MongrelManager {
     @Override
     public void start() {
         if(!this.isServerRunning()) {
-            this.serverThread.start();
+            System.out.println("Starting mongrel...");
+            setStatus("starting");
+
+            // Try to port forward incoming traffic to our server via UPnP
+            mapPort();
+
+            loadMongrel();
             setStatus("started");
         }
     }
     
     public void loadMongrel() {
+        System.out.println("Release the hounds!");
         try {
             String usablePath = null;
             String[] loadPaths = {
@@ -92,12 +100,8 @@ public class MongrelManagerImpl implements MongrelManager {
     }
 
     public void stop() {
-        System.out.println(this.isServerRunning());
-        System.out.println(this.getStatus());
         if(this.isServerRunning()) {
-            System.out.println("interrupted");
-            this.setStatus("stopped");
-            this.serverThread.shutdown();
+            this.setStatus("stopping");
         }
     }
     
@@ -124,44 +128,5 @@ public class MongrelManagerImpl implements MongrelManager {
     @Override
     public boolean isAsyncStop() {
         return true;
-    }
-
-    
-    public class MongrelThread implements Runnable {
-        private Boolean finished = false;
-        private Thread t;
-        private MongrelManager mongrelManager;
-        
-        public MongrelThread(MongrelManager mongrelManager) {
-            this.mongrelManager = mongrelManager;
-            t = new Thread(this);
-        }
-        
-        public void start() {
-            t.start();
-        }
-        
-        @Override
-        public void run() {
-            System.out.println("Starting mongrel...");
-            this.mongrelManager.setStatus("starting");
-
-            // Try to port forward incoming traffic to our server via UPnP
-            mongrelManager.mapPort();
-
-            mongrelManager.loadMongrel();
-            
-            while(this.finished != true) {
-                try {
-                Thread.currentThread().sleep(1000);
-                System.out.println("looping..." + mongrelManager.getStatus());
-                } catch(InterruptedException exception) {
-                }
-            }
-        }
-        
-        public void shutdown() {
-            this.finished = true;
-        }
     }
 }
