@@ -24,6 +24,29 @@ public class FriendsFirstSourceRanker extends AbstractSourceRanker {
     }
     
     @Override
+    public void stop() {
+        legacyRanker.stop();
+        pingRanker.stop();
+    }
+    
+    @Override
+    protected void clearState() {
+        legacyRanker.clearState();
+        pingRanker.clearState();
+    }
+    
+    @Override
+    public void setMeshHandler(MeshHandler handler) {
+        legacyRanker.setMeshHandler(handler);
+        pingRanker.setMeshHandler(handler);
+    }
+    
+    @Override
+    public MeshHandler getMeshHandler() {
+        return pingRanker.getMeshHandler();
+    }
+
+    @Override
     public boolean addToPool(Collection<? extends RemoteFileDescContext> hosts) {
         boolean added = false;
         for (RemoteFileDescContext rfdContext : hosts) {

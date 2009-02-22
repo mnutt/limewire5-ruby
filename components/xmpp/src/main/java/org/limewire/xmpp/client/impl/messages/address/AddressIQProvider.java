@@ -23,6 +23,7 @@ public class AddressIQProvider implements IQProvider {
             return new AddressIQ(parser, factory);
         } catch (InvalidIQException ie) {
             LOG.debug("invalid iq", ie);
+            // throwing would close connection
             return null;
         }
     }

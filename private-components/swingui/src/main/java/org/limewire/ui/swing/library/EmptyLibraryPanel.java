@@ -65,7 +65,8 @@ public class EmptyLibraryPanel extends LibraryPanel {
         getHeaderPanel().setText(I18n.tr("Download from {0}", getFullPanelName()));
         setTransferHandler(new LocalFileListTransferHandler(friendFileList));
         
-        enableFilterBox(false);
+        // TODO: Filter box should not be added in the first place
+        removeFilterBox();
     }
     
     protected String getFullPanelName() {

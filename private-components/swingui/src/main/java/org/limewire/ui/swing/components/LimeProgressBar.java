@@ -9,39 +9,64 @@ import javax.swing.JProgressBar;
 import org.jdesktop.swingx.painter.AbstractPainter;
 
 /**
- * Progress bar that uses painters.
+ * A wrapper for JProgressBar that can accept a foreground and background painter
+ *  The background painter is responsible for painting the basic component with
+ *  no progress and any borders, the foreground painter paints the current progress.
  * 
- * This component implements a lazy caching update model.  
- *  If cached changing the model will not fire repaints.
+ * NOTE: This component implements a lazy caching update model.  
+ *  Directly changing the model will not fire repaints. setValue()
+ *  and setEnabled() will clear the cache if the components
+ *  state is changed.
  */
 public class LimeProgressBar extends JProgressBar {
 
+    /**
+     * If false caching will be disabled on incoming painters.
+     *  Only use this temporarily until the caching model
+     *  is upgraded to account for the desired changes. 
+     */
     private static final boolean CACHING_SUPPORTED = true;
     
     private AbstractPainter<JProgressBar> foregroundPainter;
     private AbstractPainter<JComponent> backgroundPainter;
-    
-	private boolean isHidden = false;
-	 
+    	
+    /**
+     * Creates an unskinned instance with the default l&f and 
+     *  properties used by JProgressBar.
+     */
 	public LimeProgressBar() {
 	}
 	
+	/**
+	 * Creates an unskinned instance with a minimum and maximum value. 
+	 */
 	public LimeProgressBar(int min, int max) {
 	    super(min, max);        
     }
 
+    /**
+     * Sets a painter for painting the progress portion.
+     *  
+     * Both background and foreground painter must be set to have an effect.
+     */
     public void setForegroundPainter(AbstractPainter<JProgressBar> painter) {
 	    this.foregroundPainter = painter;
-	    painter.setCacheable(true);
+	    painter.setCacheable(hasCacheSupport());
 	}
 	
+    /**
+     * Sets the painter that will be used to draw the components background
+     *  and border.
+     *
+     * Both background and foreground painter must be set to have an effect.
+     */
 	public void setBackgroundPainter(AbstractPainter<JComponent> painter) {
         this.backgroundPainter = painter;
     }
 
 	/**
 	 * Note: This component implements a lazy caching update model.  
-     *        If cached changing the model will not fire repaints.
+     *        Changing the model directly will not fire repaints.
 	 */
 	public boolean hasCacheSupport() {
 	    return CACHING_SUPPORTED;
@@ -70,19 +95,9 @@ public class LimeProgressBar extends JProgressBar {
 	    if (foregroundPainter == null || backgroundPainter == null) {
 	        super.paintComponent(g);
 	    }
-	    else if (!isHidden) {
+	    else {
 	        backgroundPainter.paint((Graphics2D) g, this, this.getWidth(), this.getHeight());
 	        foregroundPainter.paint((Graphics2D) g, this, this.getWidth(), this.getHeight());
 		}
 	}
-	
-	/**
-	 * Hides progress bar but maintains size and position in layout.
-	 * 
-	 * @param isHidden true to hide progress bar
-	 */
-	public void setHidden(boolean isHidden){
-		this.isHidden = isHidden;
-	}
-
 }

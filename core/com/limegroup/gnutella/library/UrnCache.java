@@ -318,7 +318,7 @@ public final class UrnCache {
                 if(LOG.isDebugEnabled())
                     LOG.debug("Hashing file: " + file);
                 try {
-                    urns = URN.createSHA1AndTTRootUrns(file);
+                    urns = URN.generateUrnsFromFile(file);
                     addUrns(file, urns);
                 } catch(IOException ignored) {
                     LOG.warn("Unable to calculate URNs", ignored);

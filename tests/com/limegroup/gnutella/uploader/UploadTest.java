@@ -46,7 +46,6 @@ import org.limewire.core.settings.UltrapeerSettings;
 import org.limewire.core.settings.UploadSettings;
 import org.limewire.http.httpclient.HttpClientUtils;
 import org.limewire.http.httpclient.LimeHttpClient;
-import org.limewire.io.LocalSocketAddressProvider;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.EventListener;
 import org.limewire.net.ConnectionDispatcher;
@@ -54,7 +53,6 @@ import org.limewire.util.CommonUtils;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Stage;
@@ -150,12 +148,7 @@ public class UploadTest extends LimeTestCase {
         doSettings();
 
         // initialize services
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(LocalSocketAddressProvider.class).to(LocalSocketAddressProviderStub.class);
-            }
-        });
+        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, LocalSocketAddressProviderStub.STUB_MODULE);
         
         startServices();
         File testDir = TestUtils.getResourceFile(testDirName);
@@ -204,6 +197,9 @@ public class UploadTest extends LimeTestCase {
     public void tearDown() throws Exception {
         stopServices();
         LimeTestUtils.waitForNIO();
+        injector = null;
+        fileManager = null;
+        uploadManager = null;
     }
 
     private void doSettings() throws UnknownHostException {
@@ -253,6 +249,8 @@ public class UploadTest extends LimeTestCase {
         Acceptor acceptor = injector.getInstance(Acceptor.class);
         acceptor.setListeningPort(0);
         acceptor.shutdown();
+        
+        uploadManager.stop();
     }    
     
     public void testHTTP10Download() throws Exception {
@@ -1008,7 +1006,7 @@ public class UploadTest extends LimeTestCase {
             } else {
                 result = null;
             }
-            assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ" + System.getProperty("line.separator"), result);
+            assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n", result);
         } finally {
             HttpClientUtils.releaseConnection(response);
         }

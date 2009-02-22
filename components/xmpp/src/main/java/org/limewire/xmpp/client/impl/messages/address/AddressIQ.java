@@ -1,7 +1,6 @@
 package org.limewire.xmpp.client.impl.messages.address;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jivesoftware.smack.packet.IQ;
@@ -41,7 +40,8 @@ public class AddressIQ extends IQ {
                         }
                     }
                 }
-            } else if (eventType == XmlPullParser.END_TAG) {
+            } 
+            if (eventType == XmlPullParser.END_TAG) {
                 if(parser.getName().equals("address")) {
                     break;
                 }
@@ -64,19 +64,17 @@ public class AddressIQ extends IQ {
     }
 
     public String getChildElementXML() {        
-        String pushEndpoint = "<address xmlns=\"jabber:iq:lw-address\">";        
+        StringBuilder pushEndpoint = new StringBuilder("<address xmlns=\"jabber:iq:lw-address\">");        
         if(address != null) {
             try {
                 AddressSerializer addressSerializer = factory.getSerializer(address.getClass());
-                pushEndpoint += "<" + addressSerializer.getAddressType();
-                pushEndpoint += " value=\"" + new String(Base64.encodeBase64(addressSerializer.serialize(address)), "UTF-8") + "\"/>";
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
+                pushEndpoint.append("<" + addressSerializer.getAddressType());
+                pushEndpoint.append(" value=\"").append(StringUtils.toUTF8String(Base64.encodeBase64(addressSerializer.serialize(address)))).append("\"/>");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        pushEndpoint += "</address>";
-        return pushEndpoint;
+        pushEndpoint.append("</address>");
+        return pushEndpoint.toString();
     }    
 }

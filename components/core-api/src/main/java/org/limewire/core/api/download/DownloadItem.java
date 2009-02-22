@@ -113,4 +113,9 @@ public interface DownloadItem extends PropertiableFile {
      * This call may block while the file is created.
      */
     File getLaunchableFile();
+    
+    /**
+     * Sets the destination path and file name for the download.
+     */
+    void setSaveFile(File saveFile, boolean overwrite) throws SaveLocationException; 
 }

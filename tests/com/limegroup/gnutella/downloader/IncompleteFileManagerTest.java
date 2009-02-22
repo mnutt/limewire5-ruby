@@ -54,7 +54,7 @@ public class IncompleteFileManagerTest extends LimeTestCase {
            if (urn!=null) 
                urns.add(URN.createSHA1Urn(urn));
            return injector.getInstance(RemoteFileDescFactory.class).createRemoteFileDesc(new ConnectableImpl("18.239.0.144", 6346, false), 13l, name, size, new byte[16],
-                56, false, 4, true, null, urns, false, "", -1);
+                56, 4, true, null, urns, false, "", -1);
        } catch (IOException e) {
            fail("Invalid URN", e);
            return null;

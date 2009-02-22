@@ -5,10 +5,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpException;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.io.InvalidDataException;
+import org.limewire.listener.EventMulticaster;
 import org.limewire.net.SocketsManager;
 
 import com.google.inject.Inject;
@@ -60,6 +63,8 @@ import com.limegroup.gnutella.util.QueryUtils;
  * download.  
  */
 class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownloader {
+    
+    private static final Log LOG = LogFactory.getLog(MagnetDownloaderImpl.class);
         
 	private MagnetOptions magnet;
 
@@ -97,13 +102,14 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
             ScheduledExecutorService backgroundExecutor, Provider<MessageRouter> messageRouter,
             Provider<HashTreeCache> tigerTreeCache, ApplicationServices applicationServices,
             RemoteFileDescFactory remoteFileDescFactory, Provider<PushList> pushListProvider,
-            SocketsManager socketsManager) {
+            SocketsManager socketsManager, 
+            @Named("downloadStateMulticaster") EventMulticaster<DownloadStateEvent> downloadStateMulticaster) {
         super(saveLocationManager, downloadManager, fileManager, incompleteFileManager,
                 downloadCallback, networkManager, alternateLocationFactory, requeryManagerFactory,
                 queryRequestFactory, onDemandUnicaster, downloadWorkerFactory, altLocManager,
                 contentManager, sourceRankerFactory, urnCache, 
                 verifyingFileFactory, diskController, ipFilter, backgroundExecutor, messageRouter,
-                tigerTreeCache, applicationServices, remoteFileDescFactory, pushListProvider, socketsManager);
+                tigerTreeCache, applicationServices, remoteFileDescFactory, pushListProvider, socketsManager, downloadStateMulticaster);
     }
     
     @Override
@@ -138,6 +144,9 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
      */
     @Override
     protected DownloadState initializeDownload() {
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("Initializing magnet download for: " + magnet);
+        }
         
         // ask ranker since the alt loc manager might have added extra alt locs
         // which were added to the ranker then
@@ -158,10 +167,15 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
 				    fileSize = rfd.getSize();
 					initPropertiesMap(rfd);
 					addDownloadForced(rfd, true);
-				} catch (IOException badRFD) {} 
-                  catch (HttpException e) {} 
-                  catch (URISyntaxException e) {} 
-                  catch (InterruptedException e) {}
+				} catch (IOException e) {
+				    LOG.warn("error", e);
+				} catch (HttpException e) {
+				    LOG.warn("error", e);
+				} catch (URISyntaxException e) {
+				    LOG.warn("error", e);
+				} catch (InterruptedException e) {
+				    LOG.warn("error", e);
+				}
             }
         
 			// if all locations included in the magnet URI fail we can't do much

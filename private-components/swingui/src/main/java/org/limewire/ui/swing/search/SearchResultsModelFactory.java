@@ -17,8 +17,12 @@ import ca.odell.glazedlists.EventList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+/**
+ * Implements a factory for creating the search results data model.
+ */
 @Singleton
 public class SearchResultsModelFactory {
+    
     private final SpamManager spamManager;
 
     private final SimilarResultsDetectorFactory similarResultsDetectorFactory;
@@ -29,6 +33,10 @@ public class SearchResultsModelFactory {
 
     private final PropertiableHeadings propertiableHeadings;
 
+    /**
+     * Constructs a SearchResultsModelFactory with the specified factories,
+     * managers, and property values.
+     */
     @Inject
     public SearchResultsModelFactory(SimilarResultsDetectorFactory similarResultsDetectorFactory,
             SpamManager spamManager, LibraryManager libraryManager,
@@ -40,30 +48,39 @@ public class SearchResultsModelFactory {
         this.propertiableHeadings = propertiableHeadings;
     }
 
+    /**
+     * Creates a new instance of SearchResultsModel.
+     */
     public SearchResultsModel createSearchResultsModel() {
+        // Create search result model.
         SearchResultsModel searchResultsModel = new BasicSearchResultsModel(propertiableHeadings);
 
+        // Get list of visual search results.
         EventList<VisualSearchResult> visualSearchResults = searchResultsModel
                 .getGroupedSearchResults();
 
+        // Create detector to find similar results.
         SimilarResultsDetector similarResultsDetector = similarResultsDetectorFactory
                 .newSimilarResultsDetector();
 
-        // AlreadyDownloaded listener needs to be added to the list
-        // before the grouping listener because the grouping listener uses
-        // values set by the AlreadyDownloaded listener
-        AlreadyDownloadedListEventListener alreadyDownloadedListEventListener = new AlreadyDownloadedListEventListener(
-                libraryManager, downloadListManager);
+        // Add list listener for results already downloaded or being downloaded. 
+        // AlreadyDownloaded listener needs to be added to the list before the
+        // grouping listener because the grouping listener uses values set by 
+        // the AlreadyDownloaded listener.
+        AlreadyDownloadedListEventListener alreadyDownloadedListEventListener = 
+                new AlreadyDownloadedListEventListener(libraryManager, downloadListManager);
         visualSearchResults.addListEventListener(alreadyDownloadedListEventListener);
 
+        // Add list listener to group similar results.
         if (SwingUiSettings.GROUP_SIMILAR_RESULTS_ENABLED.getValue()) {
-            GroupingListEventListener groupingListEventListener = new GroupingListEventListener(
-                    similarResultsDetector);
+            GroupingListEventListener groupingListEventListener = 
+                new GroupingListEventListener(similarResultsDetector);
             visualSearchResults.addListEventListener(groupingListEventListener);
         }
 
-        SpamListEventListener spamListEventListener = new SpamListEventListener(spamManager,
-                similarResultsDetector);
+        // Add list listener to handle spam results.
+        SpamListEventListener spamListEventListener = new SpamListEventListener(
+                spamManager, similarResultsDetector);
         visualSearchResults.addListEventListener(spamListEventListener);
 
         return searchResultsModel;

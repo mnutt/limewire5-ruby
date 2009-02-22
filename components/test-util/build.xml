@@ -15,6 +15,7 @@
 			<src-classpath>
 				<pathelement location="${limewire.lib.jars}/tests/junit.jar"/>
 				<pathelement location="${limewire.lib.jars}/guice-snapshot.jar"/>
+    	    			<fileset dir="${limewire.tests.jars}" includes="jmock/*.jar"/>
 			</src-classpath>
         </do.setup-properties>
     </target>

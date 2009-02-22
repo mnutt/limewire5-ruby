@@ -829,7 +829,7 @@ public class ChatFriendListPane extends JPanel {
                 return;
             }
             
-            item.setText(I18n.tr("View Files"));
+            item.setText(I18n.tr("Browse Files"));
         }
 
         @Override
@@ -868,7 +868,7 @@ public class ChatFriendListPane extends JPanel {
     
     private class CloseChat extends AbstractContextAction {
         public CloseChat(FriendContext context) {
-            super(I18n.tr("Close chat"), context);
+            super(I18n.tr("Close conversation"), context);
         }
 
         @Override

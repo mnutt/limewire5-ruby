@@ -5,16 +5,12 @@ import java.io.File;
 import javax.swing.JOptionPane;
 
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.magnet.MagnetLink;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.ui.swing.components.FocusJOptionPane;
-import org.limewire.ui.swing.downloads.MainDownloadPanel;
-import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.nav.SimpleNavSelectable;
 import org.limewire.ui.swing.search.DefaultSearchInfo;
 import org.limewire.ui.swing.search.SearchHandler;
 
@@ -24,19 +20,16 @@ import com.google.inject.Singleton;
 @Singleton
 public class MagnetHandler {
 
-    private final Navigator navigator;
-
     private final DownloadListManager downloadListManager;
 
     private final SearchHandler searchHandler;
 
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
-
+    
     @Inject
     public MagnetHandler(Navigator navigator, SearchHandler searchHandler,
             DownloadListManager downloadListManager,
             SaveLocationExceptionHandler saveLocationExceptionHandler) {
-        this.navigator = navigator;
         this.downloadListManager = downloadListManager;
         this.searchHandler = searchHandler;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
@@ -73,11 +66,8 @@ public class MagnetHandler {
             saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
                 @Override
                 public void download(File saveFile, boolean overwrite) throws SaveLocationException {
-
-                    DownloadItem item = downloadListManager
+                    downloadListManager
                             .addDownload(magnet, saveFile, overwrite);
-                    navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME).select(
-                            SimpleNavSelectable.create(item));
                 }
             }, e1, true);
         }

@@ -60,19 +60,19 @@ class SearchManagerImpl implements SearchManager {
         }
         
         @Override
-        public void searchStopped() {
+        public void searchStopped(Search search) {
+            // Do nothing
+        }        
+        @Override
+        public void handleSponsoredResults(Search search, List<SponsoredResult> sponsoredResult) {
             // Do nothing
         }
         @Override
-        public void handleSponsoredResults(List<SponsoredResult> sponsoredResult) {
-            // Do nothing
-        }
-        @Override
-        public void handleSearchResult(SearchResult searchResult) {
+        public void handleSearchResult(Search search, SearchResult searchResult) {
             this.searchResults.add(searchResult);
         }
         @Override
-        public void searchStarted() {
+        public void searchStarted(Search search) {
             // Do nothing
         }
     }

@@ -119,11 +119,12 @@ public class SameNATAddressResolver implements AddressResolver, RegisteringEvent
      * mark it as resolved.
      */
     @Override
-    public void resolve(Address addr, AddressResolutionObserver observer) {
+    public <T extends AddressResolutionObserver> T resolve(Address addr, T observer) {
         FirewalledAddress address = (FirewalledAddress)addr;
         assert isBehindThisNAT(address) : "not behind same NAT: " + address;
         LOG.debugf("resolved remote address {0} to {1}", address, address.getPrivateAddress());
         observer.resolved(address.getPrivateAddress());
+        return observer;
     }
 
 }

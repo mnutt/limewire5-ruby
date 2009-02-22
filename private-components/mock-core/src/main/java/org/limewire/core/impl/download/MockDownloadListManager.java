@@ -142,7 +142,7 @@ public class MockDownloadListManager implements DownloadListManager {
     }
 
     @Override
-    public DownloadItem addTorrentDownload(File file, File saveFile, boolean overwrite)
+    public DownloadItem addTorrentDownload(File file, boolean overwrite)
             throws SaveLocationException {
         return null;
     }

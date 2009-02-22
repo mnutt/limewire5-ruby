@@ -154,7 +154,7 @@ public class ShapeDialog extends JXPanel implements Resizable {
                             setVisible(false);
                         }
 
-                    } else if (event.getID() == KeyEvent.KEY_TYPED) {
+                    } else if (event.getID() == KeyEvent.KEY_PRESSED) {
                         KeyEvent e = (KeyEvent) event;
 
                         if (e.getKeyChar() == KeyEvent.VK_ESCAPE) {

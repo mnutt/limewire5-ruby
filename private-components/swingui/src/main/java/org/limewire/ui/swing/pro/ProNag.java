@@ -23,7 +23,7 @@ import org.limewire.ui.swing.util.NativeLaunchUtils;
 import com.google.inject.Inject;
 
 /** A nag to go to LimeWire PRO. */ 
-public class ProNag extends JXPanel implements Resizable {
+class ProNag extends JXPanel implements Resizable {
     
     private final Application application;
     private final ProStatusPanel proStatusPanel;

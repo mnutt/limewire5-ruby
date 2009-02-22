@@ -1,23 +1,23 @@
 /LibraryFileList.java/1.3/Wed Nov  5 21:05:43 2008//
-/LocalFileList.java/1.7/Result of merge//
-/FileItem.java/1.20/Fri Jan 16 05:07:08 2009//
-/FileList.java/1.11/Sat Jan  3 19:33:54 2009//
-/FileTransferable.java/1.3/Sat Jan  3 19:33:54 2009//
-/FriendFileList.java/1.6/Fri Jan 16 05:07:08 2009//
-/FriendLibrary.java/1.4/Sat Jan  3 19:33:54 2009//
-/FriendShareListEvent.java/1.2/Sat Jan  3 19:33:54 2009//
-/GnutellaFileList.java/1.2/Sat Jan  3 19:33:54 2009//
-/LibraryData.java/1.10/Fri Jan 16 05:07:08 2009//
-/LibraryManager.java/1.16/Sat Jan  3 19:33:54 2009//
-/LibraryState.java/1.1/Sat Jan  3 19:33:54 2009//
-/LocalFileItem.java/1.15/Fri Jan 16 05:07:08 2009//
-/MagnetLinkFactory.java/1.1/Sat Jan  3 19:33:54 2009//
-/MetaDataException.java/1.1/Fri Jan 23 23:25:02 2009//
-/MetaDataManager.java/1.3/Sun Feb  1 00:45:55 2009//
-/PresenceLibrary.java/1.4/Sat Jan  3 19:33:54 2009//
-/PropertiableFile.java/1.4/Fri Jan 16 05:07:08 2009//
-/RemoteFileItem.java/1.2/Sat Jan  3 19:33:54 2009//
-/RemoteFileList.java/1.5/Sat Jan  3 19:33:54 2009//
-/RemoteLibraryManager.java/1.7/Sat Jan  3 19:33:54 2009//
-/ShareListManager.java/1.8/Sat Jan  3 19:33:54 2009//
+/FileItem.java/1.20/Sat Feb 21 05:27:34 2009//
+/FileList.java/1.11/Sat Feb 21 05:27:34 2009//
+/FileTransferable.java/1.3/Sat Feb 21 05:27:34 2009//
+/FriendFileList.java/1.6/Sat Feb 21 05:27:34 2009//
+/FriendLibrary.java/1.4/Sat Feb 21 05:27:34 2009//
+/FriendShareListEvent.java/1.2/Sat Feb 21 05:27:34 2009//
+/GnutellaFileList.java/1.2/Sat Feb 21 05:27:34 2009//
+/LibraryData.java/1.10/Sat Feb 21 05:27:34 2009//
+/LibraryManager.java/1.16/Sat Feb 21 05:27:34 2009//
+/LibraryState.java/1.1/Sat Feb 21 05:27:34 2009//
+/LocalFileItem.java/1.15/Sat Feb 21 05:27:34 2009//
+/LocalFileList.java/1.8/Result of merge//
+/MagnetLinkFactory.java/1.1/Sat Feb 21 05:27:34 2009//
+/MetaDataException.java/1.1/Sat Feb 21 05:27:34 2009//
+/MetaDataManager.java/1.3/Sat Feb 21 05:27:34 2009//
+/PresenceLibrary.java/1.4/Sat Feb 21 05:27:34 2009//
+/PropertiableFile.java/1.4/Sat Feb 21 05:27:34 2009//
+/RemoteFileItem.java/1.2/Sat Feb 21 05:27:34 2009//
+/RemoteFileList.java/1.5/Sat Feb 21 05:27:34 2009//
+/RemoteLibraryManager.java/1.7/Sat Feb 21 05:27:34 2009//
+/ShareListManager.java/1.8/Sat Feb 21 05:27:34 2009//
 D

@@ -2,8 +2,8 @@ package org.limewire.friend.impl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendEvent;
@@ -27,7 +27,8 @@ class FriendListListeners {
     private final EventBroadcaster<FriendEvent> knownBroadcaster;
     private final EventBroadcaster<FriendEvent> availableBroadcaster;
     private final EventBroadcaster<FriendPresenceEvent> friendPresenceBroadcaster;
-    private final Map<String, Friend> knownFriends = new ConcurrentHashMap<String, Friend>();
+    private final ConcurrentMap<String, Friend> knownFriends = new ConcurrentHashMap<String, Friend>();
+    private final PresenceListener presenceListener = new PresenceListener();
     
     @Inject
     FriendListListeners(@Named("known") EventBroadcaster<FriendEvent> knownBroadcaster,
@@ -43,12 +44,23 @@ class FriendListListeners {
         rosterListeners.addListener(new EventListener<RosterEvent>() {
             @Override
             public void handleEvent(RosterEvent event) {
+                User user = event.getSource();
+
                 switch(event.getType()) {
                 case USER_ADDED:
-                    addKnownFriend(event.getSource());
+                    if (user.isSubscribed()) {
+                        addKnownFriend(user);
+                    }
+                    break;
+                case USER_UPDATED:
+                    if (user.isSubscribed()) {
+                        addKnownFriend(user);
+                    } else {
+                        removeKnownFriend(user, true);
+                    }
                     break;
                 case USER_DELETED:
-                    removeKnownFriend(event.getSource(), true);
+                    removeKnownFriend(user, true);
                     break;
                 }
             }
@@ -68,39 +80,20 @@ class FriendListListeners {
         });
     }
     
-    private void addKnownFriend(User user) {        
-        user.addPresenceListener(new EventListener<PresenceEvent>() {
-            @Override
-            public void handleEvent(PresenceEvent event) {
-                switch(event.getSource().getType()) {
-                case available:
-                    switch(event.getType()) {
-                    case PRESENCE_NEW:
-                        addPresence(event.getSource());
-                        break;
-                    case PRESENCE_UPDATE:
-                        updatePresence(event.getSource());
-                        break;
-                    }
-                    break;
-                case unavailable:
-                    removePresence(event.getSource());
-                    break;
-                }
-            }
-        });
-        
-        knownFriends.put(user.getId(), user);        
-        knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.ADDED));
+    private void addKnownFriend(User user) {
+        if (knownFriends.putIfAbsent(user.getId(), user) == null) {
+            user.addPresenceListener(presenceListener);
+            knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.ADDED));
+        }
     }
     
     private void removeKnownFriend(User user, boolean delete) {
-        knownFriends.remove(user.getId());
-        
-        if(delete) {
-            knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.DELETE));
+        if (knownFriends.remove(user.getId()) != null) {
+            if(delete) {
+                knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.DELETE));
+            }
+            knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.REMOVED));
         }
-        knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.REMOVED));
     }
     
     private void updatePresence(Presence presence) {
@@ -125,4 +118,24 @@ class FriendListListeners {
         return Collections.unmodifiableCollection(knownFriends.values());        
     }
 
+    private class PresenceListener implements EventListener<PresenceEvent> {
+        @Override
+        public void handleEvent(PresenceEvent event) {
+            switch (event.getSource().getType()) {
+                case available:
+                    switch (event.getType()) {
+                        case PRESENCE_NEW:
+                            addPresence(event.getSource());
+                            break;
+                        case PRESENCE_UPDATE:
+                            updatePresence(event.getSource());
+                            break;
+                    }
+                    break;
+                case unavailable:
+                    removePresence(event.getSource());
+                    break;
+            }
+        }
+    }
 }

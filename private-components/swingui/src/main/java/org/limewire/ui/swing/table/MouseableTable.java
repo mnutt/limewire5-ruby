@@ -181,7 +181,7 @@ public class MouseableTable extends StripedJXTable {
                         }
 					}
 					
-					if (isCellEditable(row, col)) {					    
+					if (isCellEditable(row, col)) { // TODO include check for isEditing()
                         TableCellEditor editor = getCellEditor(row, col);
                         if (editor != null) {
                             // force update editor colors

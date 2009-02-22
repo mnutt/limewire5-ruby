@@ -102,7 +102,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
     }
     
     public void update(DownloadItem item) {
-        updateComponent(this, item);
+        updateComponent(item);
     }
 
     private void initComponents() {
@@ -327,115 +327,115 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         fullPanel.add(fullTimeLabel, gbc);    
     }
     
-    private void updateMin(DownloadTableCellImpl editor, DownloadItem item) {
+    private void updateMin(DownloadItem item) {
         
-        editor.minTitleLabel.setText(item.getTitle());
+        minTitleLabel.setText(item.getTitle());
         
         switch (item.getState()) {
         
         
         case ERROR :
 
-            editor.minIconLabel.setIcon(warningIcon);
-            editor.minStatusLabel.setForeground(errorLabelColour);
-            editor.minStatusLabel.setFont(statusFontPlainMin);
+            minIconLabel.setIcon(warningIcon);
+            minStatusLabel.setForeground(errorLabelColour);
+            minStatusLabel.setFont(statusFontPlainMin);
             
             break;
         
         case STALLED :
             
-            //editor.minIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
-            editor.minIconLabel.setIcon(warningIcon);
-            editor.minStatusLabel.setForeground(warningLabelColour);
-            editor.minStatusLabel.setFont(statusFontPlainMin);
+            //minIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
+            minIconLabel.setIcon(warningIcon);
+            minStatusLabel.setForeground(warningLabelColour);
+            minStatusLabel.setFont(statusFontPlainMin);
             
             break;
             
         case FINISHING :
         case DONE :
             
-            editor.minIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
-            editor.minStatusLabel.setForeground(finishedLabelColour);
-            editor.minStatusLabel.setFont(statusFontPlainMin);
+            minIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
+            minStatusLabel.setForeground(finishedLabelColour);
+            minStatusLabel.setFont(statusFontPlainMin);
             
             break;
             
         default :
-            editor.minIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));     
-            editor.minStatusLabel.setForeground(statusLabelColour);
-            editor.minStatusLabel.setFont(statusFontPlainMin);
+            minIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));     
+            minStatusLabel.setForeground(statusLabelColour);
+            minStatusLabel.setFont(statusFontPlainMin);
             
         }
         
-        editor.minStatusLabel.setText(getMessage(item));        
+        minStatusLabel.setText(getMessage(item));        
         
-        updateButtonsMin(editor, item);      
+        updateButtonsMin(item);      
     }
     
     
     
-    private void updateFull(DownloadTableCellImpl editor, DownloadItem item) {
+    private void updateFull(DownloadItem item) {
         
-        editor.fullIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
-        editor.fullTitleLabel.setText(item.getTitle());
-        editor.fullTimeLabel.setForeground(statusLabelColour);
-        editor.fullTimeLabel.setFont(statusFontPlainFull);
+        fullIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
+        fullTitleLabel.setText(item.getTitle());
+        fullTimeLabel.setForeground(statusLabelColour);
+        fullTimeLabel.setFont(statusFontPlainFull);
         
         if (item.getTotalSize() != 0) {
-            editor.fullProgressBar.setValue((int)(100 * item.getCurrentSize()/item.getTotalSize()));
+            fullProgressBar.setValue((int)(100 * item.getCurrentSize()/item.getTotalSize()));
         }
         else {
-            editor.fullProgressBar.setValue(0);
+            fullProgressBar.setValue(0);
         }
 
-        editor.fullProgressBar.setEnabled(item.getState() != DownloadState.PAUSED);
+        fullProgressBar.setEnabled(item.getState() != DownloadState.PAUSED);
         
-        editor.fullStatusLabel.setText(getMessage(item));
+        fullStatusLabel.setText(getMessage(item));
         
         if (item.getRemainingDownloadTime() > Long.MAX_VALUE-1000) {
-            editor.fullTimeLabel.setVisible(false);
+            fullTimeLabel.setVisible(false);
         }
         else {
-            editor.fullTimeLabel.setText(I18n.tr("{0} left", CommonUtils.seconds2time(item.getRemainingDownloadTime())));
-            editor.fullTimeLabel.setVisible(item.getState() == DownloadState.DOWNLOADING);
+            fullTimeLabel.setText(I18n.tr("{0} left", CommonUtils.seconds2time(item.getRemainingDownloadTime())));
+            fullTimeLabel.setVisible(item.getState() == DownloadState.DOWNLOADING);
         }
                  
-        updateButtonsFull(editor, item);      
+        updateButtonsFull(item);      
     }
     
 
-    private void updateButtonsMin(DownloadTableCellImpl editor, DownloadItem item) {
+    private void updateButtonsMin(DownloadItem item) {
         DownloadState state = item.getState();
-        editor.minButtonPanel.updateButtons(state);
+        minButtonPanel.updateButtons(state);
         
         switch (state) {
         
             case ERROR :
-                editor.minLinkButton.setVisible(true);
-                editor.minLinkButton.setActionCommand(DownloadActionHandler.LINK_COMMAND);
+                minLinkButton.setVisible(true);
+                minLinkButton.setActionCommand(DownloadActionHandler.LINK_COMMAND);
                 //underline hidden  & color changed till link is active
-                editor.minLinkButton.setText(I18n.tr(item.getErrorState().getMessage()));
-               //  editor.minLinkButton.setText("<html><u>" + I18n.tr(item.getErrorState().getMessage()) + "</u></html>");
+                minLinkButton.setText(I18n.tr(item.getErrorState().getMessage()));
+               //  minLinkButton.setText("<html><u>" + I18n.tr(item.getErrorState().getMessage()) + "</u></html>");
                 // TODO remove color and rollover settings once error link is active
-                editor.minLinkButton.setRolloverEnabled(false);
-                editor.minLinkButton.setForeground(errorLabelColour);
-                editor.minLinkButton.setClickedColor(errorLabelColour);
+                minLinkButton.setRolloverEnabled(false);
+                minLinkButton.setForeground(errorLabelColour);
+                minLinkButton.setClickedColor(errorLabelColour);
                 break;
                 
             case STALLED :
 
-                editor.minLinkButton.setVisible(true);
-                editor.minLinkButton.setActionCommand(DownloadActionHandler.TRY_AGAIN_COMMAND);
-                editor.minLinkButton.setText("<html><u>Try Again</u></html>");
+                minLinkButton.setVisible(true);
+                minLinkButton.setActionCommand(DownloadActionHandler.TRY_AGAIN_COMMAND);
+                minLinkButton.setText("<html><u>Try Again</u></html>");
                 // TODO remove color and rollover settings once error link is active
-                editor.minLinkButton.setForeground(linkColour);
-                editor.minLinkButton.setClickedColor(linkColour);
-                editor.minLinkButton.setRolloverEnabled(true);
+                minLinkButton.setForeground(linkColour);
+                minLinkButton.setClickedColor(linkColour);
+                minLinkButton.setRolloverEnabled(true);
 
                 break;
                 
             default:
-                editor.minLinkButton.setVisible(false);
+                minLinkButton.setVisible(false);
         }
 
         launchButton.setVisible(item.isLaunchable() && item.getState() == DownloadState.DONE);
@@ -444,13 +444,13 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         removeLinkSpacer.setVisible(cancelLink.isVisible());
     }
     
-    private void updateButtonsFull(DownloadTableCellImpl editor, DownloadItem item) {
+    private void updateButtonsFull(DownloadItem item) {
         DownloadState state = item.getState();
         
-        editor.fullButtonPanel.updateButtons(state);
+        fullButtonPanel.updateButtons(state);
     }
 
-    private void updateComponent(DownloadTableCellImpl editor, DownloadItem item){
+    private void updateComponent(DownloadItem item){
         if(item == null) { // can be null because of accessibility calls.
             return;
         }
@@ -458,12 +458,12 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         switch(item.getState()) {
             case DOWNLOADING:
             case PAUSED:
-                editor.statusViewLayout.show(this, FULL_LAYOUT);
-                updateFull(editor, item);
+                statusViewLayout.show(this, FULL_LAYOUT);
+                updateFull(item);
                 break;
             default:
-                editor.statusViewLayout.show(this, MIN_LAYOUT);
-                updateMin(editor, item);
+                statusViewLayout.show(this, MIN_LAYOUT);
+                updateMin(item);
         }
     }
     

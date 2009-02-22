@@ -880,8 +880,6 @@ public final class MessageRouterImplTest extends LimeTestCase {
         context.assertIsSatisfied();
         
         //try requesting other IPP too -- this should not change anything
-        hostCatcher.clear();
-        
         final GUID guid = new GUID();
         final PingRequest pingRequest = context.mock(PingRequest.class);
         

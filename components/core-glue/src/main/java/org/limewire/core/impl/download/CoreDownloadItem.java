@@ -13,6 +13,7 @@ import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.impl.URNImpl;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
 import org.limewire.io.Address;
@@ -333,6 +334,25 @@ class CoreDownloadItem implements DownloadItem {
     @Override
     public String getFileName() {
         return downloader.getSaveFile().getName();
+    }
+    
+    @Override
+    public void setSaveFile(File saveFile, boolean overwrite) throws SaveLocationException {
+        File saveDir = null;
+        String fileName = null;
+
+        // Determine save directory and file name.
+        if (saveFile != null) {
+            if (saveFile.isDirectory()) {
+                saveDir = saveFile;
+            } else {
+                saveDir = saveFile.getParentFile();
+                fileName = saveFile.getName();
+            }
+        }
+        
+        // Update save directory and file name.
+        downloader.setSaveFile(saveDir, fileName, overwrite);
     }
 
     @Override

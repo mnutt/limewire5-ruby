@@ -32,8 +32,6 @@ public interface HostDetails {
 
     String getVendor();
 
-    boolean isChatEnabled();
-
     boolean isBrowseHostEnabled();
 
     /**

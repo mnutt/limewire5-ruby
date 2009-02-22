@@ -454,7 +454,7 @@ public final class Initializer {
         SwingUtils.invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                splashRef.set(new SplashWindow(splashImage, isPro, Locale.getDefault(), 4));
+                splashRef.set(new SplashWindow(splashImage, isPro, LocaleUtils.getCurrentLocale(), 4));
                 if(!isStartup) {
                     splashRef.get().begin();
                     stopwatch.resetAndLog("begin splash window");
@@ -494,10 +494,18 @@ public final class Initializer {
         // Not pretty but Mozilla initialization errors should not crash the
         // program
         if (LimeMozillaInitializer.shouldInitialize()) {
+            // See LWC-2860 for why we change Turkish -> English.
+            // If MozSwing ever fixes this for us, we can remove this workaround.
+            Locale locale = Locale.getDefault();
+            if(locale.getLanguage().equals("tr")) {
+                Locale.setDefault(Locale.ENGLISH);
+            }
             try {
                 LimeMozillaInitializer.initialize();
                 mozillaOverrides.get().overrideMozillaDefaults();
             } catch (Exception e) {
+                // If it failed, don't keep the wrong locale active.
+                Locale.setDefault(locale);
                 LOG.error("Mozilla initialization failed");
             }
             

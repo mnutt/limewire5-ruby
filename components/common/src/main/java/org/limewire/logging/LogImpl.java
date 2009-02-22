@@ -86,6 +86,13 @@ public class LogImpl implements Log {
         delegate.warn(arg0);
     }
 
+    @Override
+    public void debugf(Throwable t, String message, Object... args) {
+        if (delegate.isDebugEnabled()) {
+            delegate.debug(MessageFormat.format(message, args), t);
+        }
+    }
+
     public void debugf(String message, Object... args) {
         if (delegate.isDebugEnabled()) {
             delegate.debug(MessageFormat.format(message, args));
@@ -107,6 +114,13 @@ public class LogImpl implements Log {
     public void debugf(String message, Object arg1, Object arg2, Object arg3) {
         if (delegate.isDebugEnabled()) {
             delegate.debug(MessageFormat.format(message, arg1, arg2, arg3));
+        }
+    }
+
+    @Override
+    public void infof(Throwable t, String message, Object... args) {
+        if (delegate.isInfoEnabled()) {
+            delegate.info(MessageFormat.format(message, args), t);
         }
     }
 
@@ -134,6 +148,13 @@ public class LogImpl implements Log {
         }
     }
 
+    @Override
+    public void tracef(Throwable t, String message, Object... args) {
+        if (delegate.isTraceEnabled()) {
+            delegate.trace(MessageFormat.format(message, args), t);
+        }
+    }
+
     public void tracef(String message, Object... args) {
         if (delegate.isTraceEnabled()) {
             delegate.trace(MessageFormat.format(message, args));
@@ -155,6 +176,13 @@ public class LogImpl implements Log {
     public void tracef(String message, Object arg1, Object arg2, Object arg3) {
         if (delegate.isTraceEnabled()) {
             delegate.trace(MessageFormat.format(message, arg1, arg2, arg3));
+        }
+    }
+
+    @Override
+    public void warnf(Throwable t, String message, Object... args) {
+        if (delegate.isWarnEnabled()) {
+            delegate.warn(MessageFormat.format(message, args), t);
         }
     }
 

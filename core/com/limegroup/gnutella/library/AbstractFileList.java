@@ -382,18 +382,16 @@ abstract class AbstractFileList implements SharedFileList {
     protected void updateFileDescs(FileDesc oldFileDesc, FileDesc newFileDesc) {     
         boolean failed = false;
         boolean success = false;
-        rwLock.writeLock().lock();
-        try {
-            if (removeFileDescImpl(oldFileDesc)) {
-                if(addFileDescImpl(newFileDesc)) {
-                    success = true;
-                } else {
-                    failed = true;
-                }
-            } // else nothing to remove -- neither success nor failure
-        } finally {
-            rwLock.writeLock().unlock();
-        }
+        
+        // Unfortunately cannot lock between these, since rm & add can be overridden
+        // and the overridden methods cannot be expected to be OK with locks.
+        if (removeFileDescImpl(oldFileDesc)) {
+            if(addFileDescImpl(newFileDesc)) {
+                success = true;
+            } else {
+                failed = true;
+            }
+        } // else nothing to remove -- neither success nor failure
         
         if(success) {
             fireChangeEvent(oldFileDesc, newFileDesc);

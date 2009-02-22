@@ -79,7 +79,7 @@ public class QueryRequestStub implements QueryRequest {
     }
 
     public int getMinSpeed() {
-        return 0;
+        return SPECIAL_MINSPEED_MASK;
     }
 
     public byte[] getPayload() {

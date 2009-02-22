@@ -65,8 +65,6 @@ public abstract class AbstractUploader implements Uploader {
 
     private boolean firstReply;
 
-    private boolean chatEnabled;
-
     private boolean browseHostEnabled;
 
     /**
@@ -93,7 +91,7 @@ public abstract class AbstractUploader implements Uploader {
     
     private final TcpBandwidthStatistics tcpBandwidthStatistics;
     
-    private Exception previousStateSetter = null;
+//    private Exception previousStateSetter = null;
 
     public AbstractUploader(String fileName, HTTPUploadSession session, TcpBandwidthStatistics tcpBandwidthStatistics) {
         this.session = session;
@@ -140,12 +138,12 @@ public abstract class AbstractUploader implements Uploader {
     public void setState(UploadStatus state) {
         if (this.state == state) {
             IllegalStateException ise = new IllegalStateException();
-            ise.initCause(previousStateSetter);
+//            ise.initCause(previousStateSetter);
             throw ise;
         }
         this.lastTransferState = this.state;
         this.state = state;
-        this.previousStateSetter = new Exception();
+//        this.previousStateSetter = new Exception();
     }
 
     /**
@@ -228,10 +226,6 @@ public abstract class AbstractUploader implements Uploader {
 
     public String getHost() {
         return (host != null) ? host : session.getHost();
-    }
-
-    public boolean isChatEnabled() {
-        return chatEnabled;
     }
 
     public boolean isBrowseHostEnabled() {
@@ -319,13 +313,6 @@ public abstract class AbstractUploader implements Uploader {
      */
     public void setBrowseHostEnabled(boolean browseHostEnabled) {
         this.browseHostEnabled = browseHostEnabled;
-    }
-
-    /**
-     * Sets the flag returned by {@link #isChatEnabled()}.
-     */
-    public void setChatEnabled(boolean chatEnabled) {
-        this.chatEnabled = chatEnabled;
     }
 
     /**

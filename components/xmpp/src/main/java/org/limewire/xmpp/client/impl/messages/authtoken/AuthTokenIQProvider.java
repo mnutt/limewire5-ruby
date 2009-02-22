@@ -17,6 +17,7 @@ public class AuthTokenIQProvider implements IQProvider {
             return new AuthTokenIQ(parser);
         } catch (InvalidIQException ie) {
             LOG.debug("invalid iq", ie);
+            // throwing would close connection
             return null;
         }
     }

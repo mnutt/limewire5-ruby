@@ -126,5 +126,10 @@ class BEDictionary extends BEAbstractCollection<Map<String, Object>> {
                 return Token.TERMINATOR;
             return super.getResult();
         }
+
+        @Override
+        public int getType() {
+            return INTERNAL;
+        }
     }
 }

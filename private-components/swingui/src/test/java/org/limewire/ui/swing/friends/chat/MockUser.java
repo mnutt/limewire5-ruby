@@ -64,6 +64,11 @@ public class MockUser implements User {
     }
 
     @Override
+    public boolean isSubscribed() {
+        return true;
+    }
+
+    @Override
     public MessageWriter createChat(MessageReader reader) {
         return null;
     }

@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
@@ -187,7 +188,7 @@ public final class FileChooser {
                                 boolean allowMultiSelect,
                                 final FileFilter filter) {
             if(!OSUtils.isMacOSX()) {
-                JFileChooser fileChooser = getDirectoryChooser(titleKey, approveKey, directory, mode, filter);
+                JFileChooser fileChooser = getDirectoryChooser(titleKey, approveKey, directory, mode, filter, false);
                 fileChooser.setMultiSelectionEnabled(allowMultiSelect);
                 boolean dispose = false;
                 if(parent == null) {
@@ -266,40 +267,45 @@ public final class FileChooser {
      * Returns a new <tt>JFileChooser</tt> instance for selecting directories
      * and with internationalized strings for the caption and the selection
      * button.
-     * 
+     *
+     * @param titleKey dialog title
      * @param approveKey can be <code>null</code>
      * @param directory can be <code>null</code>
+     * @param mode file selection mode
      * @param filter can be <code>null</code>
+     * @param promptToOverwrite true if Save dialog prompts user to overwrite
      * @return a new <tt>JFileChooser</tt> instance for selecting directories.
      */
     private static JFileChooser getDirectoryChooser(String titleKey,
-            String approveKey, File directory, int mode, FileFilter filter) {
+            String approveKey, File directory, int mode, FileFilter filter, 
+            boolean promptToOverwrite) {
+        
         JFileChooser chooser = null;
         if (directory == null)
             directory = getLastInputDirectory();
         
 
         if(directory == null) {
-            chooser = new JFileChooser();
+            chooser = createFileChooser(null, promptToOverwrite);
         } else {
             try {
-                chooser = new JFileChooser(directory);
+                chooser = createFileChooser(directory, promptToOverwrite);
             } catch (NullPointerException e) {
                 // Workaround for JRE bug 4711700. A NullPointer is thrown
                 // sometimes on the first construction under XP look and feel,
                 // but construction succeeds on successive attempts.
                 try {
-                    chooser = new JFileChooser(directory);
+                    chooser = createFileChooser(directory, promptToOverwrite);
                 } catch (NullPointerException npe) {
                     // ok, now we use the metal file chooser, takes a long time to load
                     // but the user can still use the program
                     UIManager.getDefaults().put("FileChooserUI", "javax.swing.plaf.metal.MetalFileChooserUI");
-                    chooser = new JFileChooser(directory);
+                    chooser = createFileChooser(directory, promptToOverwrite);
                 }
             } catch (ArrayIndexOutOfBoundsException ie) {
                 // workaround for Windows XP, not sure if second try succeeds
                 // then
-                chooser = new JFileChooser(directory);
+                chooser = createFileChooser(directory, promptToOverwrite);
             } catch (RuntimeException re) {
                 // see: LWC-2690
                 // happens only on windows, try again and if it still happening
@@ -307,12 +313,12 @@ public final class FileChooser {
                 if (re.getCause() instanceof IOException && OSUtils.isWindows()) {
                     // but construction succeeds on successive attempts.
                     try {
-                        chooser = new JFileChooser(directory);
+                        chooser = createFileChooser(directory, promptToOverwrite);
                     } catch (RuntimeException r) {
                         // ok, now we use the metal file chooser, takes a long time to load
                         // but the user can still use the program
                         UIManager.getDefaults().put("FileChooserUI", "javax.swing.plaf.metal.MetalFileChooserUI");
-                        chooser = new JFileChooser(directory);
+                        chooser = createFileChooser(directory, promptToOverwrite);
                     }
                 } else {
                     // rethrow if other OS or exception type
@@ -345,11 +351,22 @@ public final class FileChooser {
             chooser.setApproveButtonText(approveButtonText);
         }
         return chooser;
-    }    
+    }
+    
+    /**
+     * Creates a new file chooser with the specified current directory and
+     * <code>promptToOverwrite</code> behavior.
+     */
+    private static JFileChooser createFileChooser(File currentDirectory, boolean promptToOverwrite) {
+        LimeFileChooser fileChooser = new LimeFileChooser(currentDirectory);
+        fileChooser.setPromptToOverwrite(promptToOverwrite);
+        return fileChooser;
+    }
 
     /**
      * Opens a dialog asking the user to choose a file which is used for
-     * saving to.
+     * saving to.  If an existing file is selected, the user is automatically
+     * prompted to overwrite the file or cancel the selection.
      * 
      * @param parent the parent component the dialog is centered on
      * @param titleKey the key for the locale-specific string to use for the
@@ -364,7 +381,8 @@ public final class FileChooser {
     
     /**
      * Opens a dialog asking the user to choose a file which is used for
-     * saving to.
+     * saving to.  If an existing file is selected, the user is automatically
+     * prompted to overwrite the file or cancel the selection.
      * 
      * @param parent the parent component the dialog is centered on
      * @param titleKey the key for the locale-specific string to use for the
@@ -408,12 +426,86 @@ public final class FileChooser {
             
         } else {
             JFileChooser chooser = getDirectoryChooser(titleKey, null, null, 
-                    JFileChooser.FILES_ONLY, filter);
+                    JFileChooser.FILES_ONLY, filter, true);
             chooser.setSelectedFile(suggestedFile);
             int ret = chooser.showSaveDialog(parent);
             File file = chooser.getSelectedFile();
             setLastInputDirectory(file);
             return (ret != JFileChooser.APPROVE_OPTION) ? null : file;
+        }
+    }
+
+    /**
+     * An extension of JFileChooser that implements an option for file 
+     * validation.  When the Save dialog is displayed, the chooser may prompt 
+     * the user to overwrite an existing file.
+     */
+    private static class LimeFileChooser extends JFileChooser {
+        
+        private boolean promptToOverwrite = false;
+
+        /**
+         * Constructs a LimeFileChooser using the user's default directory.
+         */
+        public LimeFileChooser() {
+            super();
+        }
+        
+        /**
+         * Constructs a LimeFileChooser using the specified current directory.
+         */
+        public LimeFileChooser(File currentDirectory) {
+            super(currentDirectory);
+        }
+
+        /**
+         * Overrides the superclass method to validate the selected file before
+         * approving the selection.
+         */
+        @Override
+        public void approveSelection() {
+            // Validate selection based on dialog type.
+            switch (getDialogType()) {
+            case SAVE_DIALOG:
+                if (promptToOverwrite) {
+                    File selectedFile = getSelectedFile();
+                    if ((selectedFile != null) && selectedFile.exists()) {
+                        // Prompt user to overwrite existing file.
+                        int answer = FocusJOptionPane.showConfirmDialog(this,
+                                selectedFile.getPath() + "\n" +
+                                I18n.tr("File already exists.  Do you want to replace it?"), 
+                                getDialogTitle(), JOptionPane.YES_NO_OPTION, 
+                                JOptionPane.WARNING_MESSAGE);
+
+                        // Exit if answer is not yes.
+                        if (answer != JOptionPane.YES_OPTION) {
+                            return;
+                        }
+                    }
+                }
+                
+            default:
+                break;
+            }
+            
+            // Call superclass method to close dialog and return value.
+            super.approveSelection();
+        }
+
+        /**
+         * Returns an indicator that determines whether the Save dialog prompts
+         * the user to overwrite an existing file.
+         */
+        public boolean isPromptToOverwrite() {
+            return promptToOverwrite;
+        }
+        
+        /**
+         * Sets an indicator that determines whether the Save dialog prompts
+         * the user to overwrite an existing file.
+         */
+        public void setPromptToOverwrite(boolean promptToOverwrite) {
+            this.promptToOverwrite = promptToOverwrite;
         }
     }
 }

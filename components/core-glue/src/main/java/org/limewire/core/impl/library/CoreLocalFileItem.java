@@ -14,6 +14,7 @@ import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.impl.URNImpl;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
+import org.limewire.util.FileUtils;
 import org.limewire.xmpp.api.client.FileMetaData;
 
 import com.google.inject.assistedinject.Assisted;
@@ -90,7 +91,7 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
 
     @Override
     public String getName() {
-        return fileDesc.getFileName();
+        return FileUtils.getFilenameNoExtension(fileDesc.getFileName());
     }
 
     @Override
@@ -194,13 +195,7 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
             data.put(Element.index, Long.toString(index));
         }
 
-        public Map<String, String> getMetaData() {
-            // TODO
-            return null; // To change body of implemented methods use File |
-            // Settings | File Templates.
-        }
-
-        public Set<String> getURNsAsString() {
+        public Set<String> getUrns() {
             StringTokenizer st = new StringTokenizer(data.get(Element.urns), " ");
             Set<String> set = new HashSet<String>();
             while (st.hasMoreElements()) {
@@ -316,10 +311,10 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
      */
     public void reloadProperties() {
         synchronized (this) {
-            Map<FilePropertyKey, Object> reloadedMap = Collections
-                    .synchronizedMap(new HashMap<FilePropertyKey, Object>());
+            Map<FilePropertyKey, Object> reloadedMap = Collections.synchronizedMap(new HashMap<FilePropertyKey, Object>());
             FilePropertyKeyPopulator.populateProperties(fileDesc.getFileName(), fileDesc.getFileSize(), 
                     getCreationTime(), reloadedMap, doc);
+            reloadedMap.put(FilePropertyKey.LOCATION, getFile().getParent());
             propertiesMap = reloadedMap;
         }
     }

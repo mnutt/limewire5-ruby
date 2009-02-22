@@ -24,5 +24,6 @@ public class FriendAutoCompletersImplTest extends BaseTestCase {
         for(SearchCategory searchCategory : SearchCategory.values()) {
             assertNotNull(friendAutoCompletersImpl.getDictionary(searchCategory));
         }
+        context.assertIsSatisfied();
     }
 }

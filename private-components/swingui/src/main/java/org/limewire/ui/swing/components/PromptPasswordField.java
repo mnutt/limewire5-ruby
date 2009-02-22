@@ -11,23 +11,38 @@ import javax.swing.JTextField;
 
 import org.jdesktop.swingx.painter.Painter;
 
+/**
+ * A standard JPasswordField that can be skinned and can take a prompt message to 
+ *  show when the text field is empty of user input.
+ */
 public class PromptPasswordField extends JPasswordField implements FocusListener {
     
     private String promptText;
     
     private Painter<JTextField> backgroundPainter;
     private Painter<JTextField> promptPainter;
-    
+   
+    /**
+     * Creates a default instance of the text box with 
+     *  no skin and no prompt message.
+     */
     public PromptPasswordField() {
         this.init();
     }
-    
   
+    /**
+     * Creates a default skinless instance using the given 
+     *  prompt message.
+     */
     public PromptPasswordField(String promptText) {
         this.setPromptText(promptText);        
         this.init();
     }
 
+    /**
+     * Creates a default skinless instance using the given 
+     *  prompt message and initial number of columns.
+     */
     public PromptPasswordField(String promptText, int columns) {
         this.promptText = promptText;
         this.setColumns(columns);        
@@ -43,15 +58,21 @@ public class PromptPasswordField extends JPasswordField implements FocusListener
         this.setPreferredSize(this.getMinimumSize());
     }
     
-    
+    /**
+     * Sets the prompt message to be used when there is no 
+     *  user input in the field.
+     */
     public void setPromptText(String text){
         this.promptText = text;
     }
     
+    /**
+     * Returns the prompt message to be used when there is no 
+     *  user input in the field.
+     */
     public String getPromptText() {
         return this.promptText;
     }
-    
     
     /**
      * Repaints this component when focus is gained
@@ -111,5 +132,4 @@ public class PromptPasswordField extends JPasswordField implements FocusListener
         }
 
     }
-    
-}
+ }

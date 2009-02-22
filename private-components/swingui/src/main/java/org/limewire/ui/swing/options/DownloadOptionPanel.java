@@ -13,6 +13,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.iTunesSettings;
+import org.limewire.setting.FileSetting;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.LabelTextField;
 import org.limewire.ui.swing.options.actions.BrowseDirectoryAction;
@@ -20,6 +21,7 @@ import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.SaveDirectoryHandler;
+import org.limewire.util.MediaType;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
@@ -73,11 +75,13 @@ public class DownloadOptionPanel extends OptionPanel {
         clearDownloadsCheckBox.setSelected(SharingSettings.CLEAR_DOWNLOAD.getValue());
     }
     
+    /**
+     * Defines the Saving sub-panel in the Download options container.
+     */
     private class SavingPanel extends OptionPanel {
         
         private String currentSaveDirectory;
         
-
         private LabelTextField downloadSaveTextField;
         private JButton browseSaveLocationButton;
         private JCheckBox autoRenameDuplicateFilesCheckBox;
@@ -129,6 +133,7 @@ public class DownloadOptionPanel extends OptionPanel {
                             throw new IOException();
                     }
                     SharingSettings.setSaveDirectory(saveDir);
+                    updateMediaSaveDirectories(currentSaveDirectory, save);
                     currentSaveDirectory = save;
                 } catch(Exception ioe) {
                     FocusJOptionPane.showMessageDialog(DownloadOptionPanel.this, 
@@ -145,6 +150,34 @@ public class DownloadOptionPanel extends OptionPanel {
                 iTunesSettings.ITUNES_SUPPORT_ENABLED.setValue(addToITunesCheckBox.isSelected());
             }
             return false;
+        }
+        
+        /**
+         * Updates the save location for all media types.
+         */
+        private void updateMediaSaveDirectories(String oldSaveDir, String newSaveDir) {
+            updateMediaSaveDirectory(MediaType.getAudioMediaType(), oldSaveDir, newSaveDir);
+            updateMediaSaveDirectory(MediaType.getVideoMediaType(), oldSaveDir, newSaveDir);
+            updateMediaSaveDirectory(MediaType.getImageMediaType(), oldSaveDir, newSaveDir);
+            updateMediaSaveDirectory(MediaType.getDocumentMediaType(), oldSaveDir, newSaveDir);
+            updateMediaSaveDirectory(MediaType.getProgramMediaType(), oldSaveDir, newSaveDir);
+            updateMediaSaveDirectory(MediaType.getOtherMediaType(), oldSaveDir, newSaveDir);
+        }
+        
+        /**
+         * Update the save location for the specified media type.  If the media
+         * save location is equal to the old or new default location, then the
+         * media setting is reverted to the default setting.
+         */
+        private void updateMediaSaveDirectory(MediaType mediaType, 
+                String oldSaveDir, String newSaveDir) {
+            FileSetting mediaSetting = SharingSettings.getFileSettingForMediaType(mediaType);
+            if (!mediaSetting.isDefault()) {
+                String mediaSaveDir = mediaSetting.getValue().getAbsolutePath();
+                if (oldSaveDir.equals(mediaSaveDir) || newSaveDir.equals(mediaSaveDir)) {
+                    mediaSetting.revertToDefault();
+                }
+            }
         }
 
         @Override

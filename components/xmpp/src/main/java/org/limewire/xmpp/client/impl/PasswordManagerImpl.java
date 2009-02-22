@@ -5,16 +5,20 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.util.prefs.Preferences;
 
-import org.limewire.xmpp.api.client.PasswordManager;
 import org.limewire.security.certificate.CipherProvider;
+import org.limewire.xmpp.api.client.PasswordManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+/**
+ * Stores passwords under a usernames in {@link Preferences} and also
+ * allows for deletion and retrieval of passwords.
+ */
 @Singleton
 public class PasswordManagerImpl implements PasswordManager {
 
-    private static final String PREFERENCES_NODE = "/limewire/xmpp/auth";
+    static final String PREFERENCES_NODE = "/limewire/xmpp/auth";
 
     private CipherProvider cipherProvider;
 
@@ -25,8 +29,8 @@ public class PasswordManagerImpl implements PasswordManager {
 
     @Override
     public String loadPassword(String userName) throws IOException {
-        if (userName == null || userName.equals("")) {
-            throw new IllegalArgumentException("User Name cannot be null or empty String");
+        if (userName == null || userName.isEmpty()) {
+            throw new IllegalArgumentException("userName cannot be null or empty");
         }
 
         String encryptedPassword = loadEncryptedPassword(userName);
@@ -44,8 +48,11 @@ public class PasswordManagerImpl implements PasswordManager {
 
     @Override
     public void storePassword(String userName, String rawPassword) throws IOException {
-        if (rawPassword == null || rawPassword.equals("")) {
-            throw new IllegalArgumentException("Password cannot be null or empty String");
+        if (userName == null || userName.isEmpty()) {
+            throw new IllegalArgumentException("username cannot be null or empty");
+        }
+        if (rawPassword == null || rawPassword.isEmpty()) {
+            throw new IllegalArgumentException("password cannot be null or empty");
         }
 
         Preferences prefs = getPreferences();
@@ -62,6 +69,9 @@ public class PasswordManagerImpl implements PasswordManager {
 
     @Override
     public void removePassword(String userName) {
+        if (userName == null || userName.isEmpty()) {
+            throw new IllegalArgumentException("userName must not be null or empty");
+        }
         Preferences prefs = getPreferences();
         prefs.remove(userName);
     }

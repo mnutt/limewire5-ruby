@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -36,6 +37,7 @@ import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.search.Search;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
 import org.limewire.ui.swing.nav.Navigator;
@@ -62,6 +64,7 @@ import org.limewire.ui.swing.table.VisibleTableFormat;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.EventListJXTableSorting;
 import org.limewire.ui.swing.util.GuiUtils;
+import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
@@ -73,14 +76,18 @@ import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swing.EventTableModel;
 
+/**
+ * Base class containing the search results tables for a single category.  
+ * BaseResultPanel contains both the List view and Table view components. 
+ */
 public abstract class BaseResultPanel extends JXPanel implements DownloadHandler {
     
     private static final int MAX_DISPLAYED_RESULT_SIZE = 500;
-    private final ListViewTableEditorRendererFactory listViewTableEditorRendererFactory;
-    private final Log LOG = LogFactory.getLog(BaseResultPanel.class);
-    
     private static final int TABLE_ROW_HEIGHT = 23;
     private static final int ROW_HEIGHT = 56;
+
+    private final ListViewTableEditorRendererFactory listViewTableEditorRendererFactory;
+    private final Log LOG = LogFactory.getLog(BaseResultPanel.class);
     
     private final CardLayout layout = new CardLayout();
     private final EventList<VisualSearchResult> baseEventList;
@@ -93,7 +100,7 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
     private final Map<VisualSearchResult, RowDisplayResult> vsrToRowDisplayResultMap = 
         new HashMap<VisualSearchResult, RowDisplayResult>();
     
-    private Scrollable visibileComponent;
+    private Scrollable visibleComponent;
     
     private final SearchResultFromWidgetFactory factory;
     private IconManager iconManager;
@@ -103,6 +110,9 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
     private final LibraryNavigator libraryNavigator;
     private final LibraryManager libraryManager;
 
+    /**
+     * Constructs a BaseResultPanel with the specified components.
+     */
     BaseResultPanel(ListViewTableEditorRendererFactory listViewTableEditorRendererFactory,
             EventList<VisualSearchResult> eventList,
             ResultsTableFormat<VisualSearchResult> tableFormat,
@@ -139,7 +149,11 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         setViewType(SearchViewType.LIST);
     }
     
-    private void configureList(final EventList<VisualSearchResult> eventList, RowSelectionPreserver preserver, final Navigator navigator, 
+    /**
+     * Configures the List view for search results.
+     */
+    private void configureList(final EventList<VisualSearchResult> eventList, 
+            RowSelectionPreserver preserver, final Navigator navigator, 
             final SearchInfo searchInfo, final PropertiesFactory<VisualSearchResult> properties, 
             final ListViewRowHeightRule rowHeightRule) {
         
@@ -256,6 +270,10 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         resultsList.addMouseListener(new ResultDownloaderAdaptor());
     }
     
+    /**
+     * Creates a filtered list of visible results using the specified list of 
+     * search results.
+     */
     private EventList<VisualSearchResult> newVisibleFilterList(
             EventList<VisualSearchResult> eventList) {
         return GlazedListsFactory.filterList(eventList, new Matcher<VisualSearchResult>() {
@@ -268,6 +286,9 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         });
     }
 
+    /**
+     * Configures the Table view for search results.
+     */
     private void configureTable(EventList<VisualSearchResult> eventList,
         final ResultsTableFormat<VisualSearchResult> tableFormat, Navigator navigator,
         PropertiesFactory<VisualSearchResult> properties) {
@@ -291,6 +312,10 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         resultsTable.addHighlighter(new ColorHighlighter(new DownloadedHighlightPredicate(sortedList), null, tableColors.getDisabledForegroundColor(), null, tableColors.getDisabledForegroundColor()));
     }
 
+    /**
+     * Initializes cell renderers in the Table view column model based on 
+     * column types provided by the specified table format. 
+     */
     protected void setupCellRenderers(final ResultsTableFormat<VisualSearchResult> tableFormat) {
         CalendarRenderer calendarRenderer = new CalendarRenderer();
         IconLabelRenderer iconLabelRenderer = new IconLabelRenderer(iconManager, categoryIconManager, downloadListManager, libraryManager);
@@ -314,19 +339,33 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
         }
     }
 
+    /**
+     * Assigns the specified cell renderer to the specified column in the 
+     * Table view column model.   
+     */
     protected void setCellRenderer(int column, TableCellRenderer cellRenderer) {
         TableColumnModel tcm = resultsTable.getColumnModel();
         TableColumn tc = tcm.getColumn(column);
         tc.setCellRenderer(cellRenderer);
     }
     
+    /**
+     * Assigns the specified cell editor to the specified column in the 
+     * Table view column model.   
+     */
     protected void setCellEditor(int column, TableCellEditor editor) {
         TableColumnModel tcm = resultsTable.getColumnModel();
         TableColumn tc = tcm.getColumn(column);
         tc.setCellEditor(editor);
     }
 
+    @Override
     public void download(final VisualSearchResult vsr) {
+        download(vsr, null);
+    }
+
+    @Override
+    public void download(final VisualSearchResult vsr, File saveFile) {
         try {
             // execute the download preprocessors
             for (DownloadPreprocessor preprocessor : downloadPreprocessors) {
@@ -336,18 +375,33 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
                     return;
                 }
             }
+
+            // Add download to manager.  If save file is specified, then set
+            // overwrite to true because the user has already confirmed it.
+            DownloadItem di = (saveFile == null) ?
+                    downloadListManager.addDownload(search, vsr.getCoreSearchResults()) :
+                    downloadListManager.addDownload(search, vsr.getCoreSearchResults(), saveFile, true);
             
-            DownloadItem di = downloadListManager.addDownload(
-                search, vsr.getCoreSearchResults());
+            // Add listener, and initialize download state.
             di.addPropertyChangeListener(new DownloadItemPropertyListener(vsr));
-             
             vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
+            
         } catch (final SaveLocationException sle) {
-            if(sle.getErrorCode()  == SaveLocationException.LocationCode.FILE_ALREADY_DOWNLOADING) {
+            if (sle.getErrorCode() == SaveLocationException.LocationCode.FILE_ALREADY_DOWNLOADING) {
                 DownloadItem downloadItem = downloadListManager.getDownloadItem(vsr.getUrn());
-                if(downloadItem != null) {
+                if (downloadItem != null) {
                     downloadItem.addPropertyChangeListener(new DownloadItemPropertyListener(vsr));
                     vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
+                    if (saveFile != null) {
+                        try {
+                            // Update save file in DownloadItem.
+                            downloadItem.setSaveFile(saveFile, true);
+                        } catch (SaveLocationException ex) {
+                            FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), 
+                                    I18n.tr("Unable to relocate downloading file {0}", ex.getMessage()), 
+                                    I18n.tr("Download"), JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    }
                 }
             } else {
                 saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
@@ -361,6 +415,42 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
                 }, sle, true);
             }
         }
+    }
+
+    /**
+     * Returns the list of visual search results.
+     */
+    public EventList<VisualSearchResult> getResultsEventList() {
+        return baseEventList;
+    }
+
+    /**
+     * Changes whether the list view or table view is displayed.
+     * @param mode LIST or TABLE
+     */
+    public void setViewType(SearchViewType mode) {
+        layout.show(this, mode.name());
+        switch(mode) {
+        case LIST: this.visibleComponent = resultsList; break;
+        case TABLE: this.visibleComponent = resultsTable; break;
+        default: throw new IllegalStateException("unsupported mode: " + mode);
+        }
+    }
+
+    /**
+     * Returns the header component for the scroll pane.  The method returns
+     * null if no header is displayed.
+     */
+    public Component getScrollPaneHeader() {
+        return visibleComponent == resultsTable ?
+            resultsTable.getTableHeader() : null;
+    }
+
+    /**
+     * Returns the results view component currently being displayed. 
+     */
+    public Scrollable getScrollable() {
+        return visibleComponent;
     }
     
     /**
@@ -377,24 +467,11 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
             return result.isSpam();
         }       
     }
-    
-    public EventList<VisualSearchResult> getResultsEventList() {
-        return baseEventList;
-    }
 
     /**
-     * Changes whether the list view or table view is displayed.
-     * @param mode LIST or TABLE
+     * List view listener to handle mouse click event on search result.  When
+     * a result is double-clicked, then downloading is initiated.   
      */
-    public void setViewType(SearchViewType mode) {
-        layout.show(this, mode.name());
-        switch(mode) {
-        case LIST: this.visibileComponent = resultsList; break;
-        case TABLE: this.visibileComponent = resultsTable; break;
-        default: throw new IllegalStateException("unsupported mode: " + mode);
-        }
-    }
-
     private class ResultDownloaderAdaptor extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -408,16 +485,10 @@ public abstract class BaseResultPanel extends JXPanel implements DownloadHandler
             }
         }
     }
-
-    public Component getScrollPaneHeader() {
-        return visibileComponent == resultsTable ?
-            resultsTable.getTableHeader() : null;
-    }
-
-    public Scrollable getScrollable() {
-        return visibileComponent;
-    }
-    
+ 
+    /**
+     * Table component to display search results in a vertical list.
+     */
     public static class ListViewTable extends ConfigurableTable<VisualSearchResult> {
         @Resource private Color similarResultParentBackgroundColor;        
         private boolean ignoreRepaints;

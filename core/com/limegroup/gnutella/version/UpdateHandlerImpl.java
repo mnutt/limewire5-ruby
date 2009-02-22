@@ -707,8 +707,8 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     private RemoteFileDesc rfd(ReplyHandler rh, DownloadInformation info) {
         Set<URN> urns = new UrnSet(info.getUpdateURN());
         return remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl(rh.getInetSocketAddress(), rh instanceof Connectable ? ((Connectable)rh).isTLSCapable() : false), Integer.MAX_VALUE,
-                info.getUpdateFileName(), info.getSize(), rh.getClientGUID(), 0, false, 2, false, null, urns,
-                false, "LIME", -1);
+                info.getUpdateFileName(), info.getSize(), rh.getClientGUID(), 0, 2, false, null, urns, false,
+                "LIME", -1);
                         
     }
     

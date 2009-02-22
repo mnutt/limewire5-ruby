@@ -116,6 +116,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
     @Resource private Font itemFont; 
     @Resource private Color fontColor; 
     @Resource private int panelHeight;
+    @Resource private int panelWidth;
     @Resource private int nameLabelWidth;
     @Resource private Font showAllFont;
     @Resource private Color borderTopGradient;
@@ -131,8 +132,8 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 
     
     @Inject
-	public DownloadSummaryPanel(DownloadListManager downloadListManager, DownloadMediator downloadMediator, MainDownloadPanel mainDownloadPanel, 
-	        Navigator navigator, ProgressBarDecorator progressBarDecorator, BarPainterFactory barPainterFactory, SaveLocationExceptionHandler saveLocationExceptionHandler,
+	public DownloadSummaryPanel(DownloadMediator downloadMediator, MainDownloadPanel mainDownloadPanel, 
+	        Navigator navigator, ProgressBarDecorator progressBarDecorator, BarPainterFactory barPainterFactory,
 	        DownloadActionHandler actionHandler, TrayNotifier notifier) {
         
 	    this.navigator = navigator;        
@@ -143,16 +144,11 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
         
         GuiUtils.assignResources(this);        
         
-        setTransferHandler(new DownloadableTransferHandler(downloadListManager, saveLocationExceptionHandler));	    
-        
         setBackgroundPainter(barPainterFactory.createDownloadSummaryBarPainter());                
 
 		createBorderGradients();
         
         navigator.createNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME, mainDownloadPanel);	
-
-        // handle individual completed downloads
-        downloadListManager.addPropertyChangeListener(this);
 
         chokeList = GlazedListsFactory.rangeList(allList);
 		chokeList.setHeadRange(0, NUMBER_DISPLAYED);
@@ -229,9 +225,9 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
             @Override
             public void columnAdded(TableColumnModelEvent e) {
                 int columnIndex = e.getToIndex();
-                table.getColumnModel().getColumn(columnIndex).setWidth(225);
-                table.getColumnModel().getColumn(columnIndex).setMaxWidth(225);
-                table.getColumnModel().getColumn(columnIndex).setMinWidth(225);
+                table.getColumnModel().getColumn(columnIndex).setWidth(panelWidth);
+                table.getColumnModel().getColumn(columnIndex).setMaxWidth(panelWidth);
+                table.getColumnModel().getColumn(columnIndex).setMinWidth(panelWidth);
                 table.getColumnModel().getColumn(columnIndex).setCellEditor(editor);
             }
 
@@ -301,6 +297,40 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 		
 		setVisibility(false);
 	}
+    
+    @Inject
+    public void register(DownloadListManager downloadListManager, SaveLocationExceptionHandler saveLocationExceptionHandler) {
+        setTransferHandler(new DownloadableTransferHandler(downloadListManager, saveLocationExceptionHandler));
+        
+        // handle individual completed downloads
+        downloadListManager.addPropertyChangeListener(this);
+        
+        downloadListManager.getDownloads().addListEventListener(new ListEventListener<DownloadItem>() {
+            @Override
+            public void listChanged(ListEvent<DownloadItem> listChanges) {
+              //only show the notification messages if the tray downloads are forced to be invisible
+                if(forceInvisible) {
+                    while(listChanges.nextBlock()) {
+                        if(listChanges.getType() == ListEvent.INSERT){
+                            int index = listChanges.getIndex();
+                            final DownloadItem downloadItem = listChanges.getSourceList().get(index);
+                            SwingUtils.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    notifier.showMessage(new Notification(I18n.tr("Download Started"), downloadItem.getFileName(), new AbstractAction(I18n.tr("Show")) {
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME).select();
+                                        }
+                                    }));
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        });
+    }
     
     private void createBorderGradients() {
         firstBorderGradient = new GradientPaint(0, 1, borderTopGradient, 0, panelHeight - 1, borderBottomGradient);
@@ -438,6 +468,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 	    @Resource private Icon resumeIcon;
 	    @Resource private Icon resumeIconHover;
 	    @Resource private Icon resumeIconDown;
+	    @Resource private int progressBarWidth;
 
 		public DownloadSummaryPanelRendererEditor() {
 			GuiUtils.assignResources(this);
@@ -457,7 +488,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 			progressBar = new LimeProgressBar(0, 100);
 			progressBarDecorator.decoratePlain(progressBar);
 			
-			Dimension size = new Dimension(173, 8);
+			Dimension size = new Dimension(progressBarWidth, 8);
             progressBar.setPreferredSize(size);
             progressBar.setMaximumSize(size);
             progressBar.setMinimumSize(size);
@@ -501,20 +532,20 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
         private void addComponents() {
             setLayout(new MigLayout("fill, ins 0 0 0 0, nogrid, gap 0! 0!, novisualpadding"));
             
-            add(nameLabel, "bottom, left, gapleft 15, gapright 15, gaptop 10, wrap");
-            add(progressBar, "top, left,gapleft 15, gapright 2, gaptop 2, hidemode 3");     //6
-            add(statusLabel, "top, left, gapleft 15, gapright 2, gaptop 3, hidemode 3");    //6
+            add(nameLabel, "bottom, left, gapleft 4, gapright 4, gaptop 10, wrap");
+            add(progressBar, "top, left,gapleft 4, gapright 2, gaptop 2, hidemode 3");     //6
+            add(statusLabel, "top, left, gapleft 4, gapright 2, gaptop 3, hidemode 3");    //6
             for(JButton button : linkButtons){
-                add(button, "top, hidemode 3, gaptop 3, gapright 15");          //6
+                add(button, "top, hidemode 3, gaptop 3, gapright 4");          //6
             }            
 
             for(JButton button : buttons){
-                add(button, "top, hidemode 3, gaptop 0, gapright 15");          //4
+                add(button, "top, hidemode 3, gaptop 0, gapright 4");          //4
             }
            // force line wrap
             add(new JLabel(), "wrap");
             
-            add(timeLabel, "top, left, gapleft 15, pad -5 0 0 0");          //4
+            add(timeLabel, "top, left, gapleft 4, pad -5 0 0 0");          //4
         }
 
 

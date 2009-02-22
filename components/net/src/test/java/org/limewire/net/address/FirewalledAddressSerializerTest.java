@@ -1,5 +1,7 @@
 package org.limewire.net.address;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -10,7 +12,9 @@ import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GGEP;
 import org.limewire.io.GUID;
+import org.limewire.io.IOUtils;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.TestUtils;
 
 public class FirewalledAddressSerializerTest extends BaseTestCase {
 
@@ -63,6 +67,32 @@ public class FirewalledAddressSerializerTest extends BaseTestCase {
         
         assertEquals(guid.bytes(), ggep.getBytes("GU"));
         assertEquals(1, ggep.getInt("FW"));
+    }
+    
+    public void testDeserializeFromBytes() throws IOException {
+        File serializedAddressFile = TestUtils.getResourceInPackage("firewalled_address.txt", FirewalledAddressSerializerTest.class);
+        byte [] serialzedAddress = IOUtils.readFully(new FileInputStream(serializedAddressFile));
+        Object address = serializer.deserialize(serialzedAddress);
+        assertInstanceof(FirewalledAddress.class, address);
+        FirewalledAddress firewalledAddress = (FirewalledAddress)address;
+        
+        GUID guid = new GUID("8D342E7D874A0AB26B0A4E3627C76F00");
+        Set<Connectable> proxies = new LinkedHashSet<Connectable>();
+        Connectable proxy1 = new ConnectableImpl("127.0.0.1", 10, true);
+        Connectable proxy2 = new ConnectableImpl("129.0.0.1", 15, false);
+        proxies.add(proxy1);
+        proxies.add(proxy2);
+        FirewalledAddress expectedAddress = new FirewalledAddress(proxy1, proxy2, guid, proxies, 1);
+        assertEquals(expectedAddress, firewalledAddress);
+    }
+    
+    public void testDeserializeFromString() {
+        try {
+            serializer.deserialize("192.168.1.1");
+            fail();
+        } catch (IOException e) {
+            // expected result
+        }
     }
     
     public void testDeserializeNotEnoughData() {

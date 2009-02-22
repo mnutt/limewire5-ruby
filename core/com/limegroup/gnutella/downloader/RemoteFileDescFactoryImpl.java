@@ -12,10 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.protocol.HTTP;
 import org.limewire.http.httpclient.LimeHttpClient;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
@@ -105,9 +107,8 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
                 rfd.getSize(), // filesize
                 pe.getClientGUID(),
                 rfd.getSpeed(), // speed
-                false, // chat capable
                 rfd.getQuality(), // quality
-                false, // browse hostable
+                false,  // browse hostable
                 rfd.getXMLDocument(), // xml doc
                 rfd.getUrns(), // urns
                 false, // reply to MCast
@@ -139,11 +140,10 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
 
     @Override
     public RemoteFileDesc createRemoteFileDesc(Address address, long index, String filename,
-            long size, byte[] clientGUID, int speed, boolean chat, int quality, boolean browseHost,
-            LimeXMLDocument xmlDoc, Set<? extends URN> urns, boolean replyToMulticast,
-            String vendor, long createTime) {
-        return createRemoteFileDesc(address, index, filename, size, clientGUID, speed, chat, quality, browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime,
-                !urns.isEmpty());
+            long size, byte[] clientGUID, int speed, int quality, boolean browseHost, LimeXMLDocument xmlDoc,
+            Set<? extends URN> urns, boolean replyToMulticast, String vendor,
+            long createTime) {
+        return createRemoteFileDesc(address, index, filename, size, clientGUID, speed, quality, browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime, !urns.isEmpty());
     }
 
     private RemoteFileDesc createRemoteFileDesc(String host, int port, long index, String filename,
@@ -181,9 +181,9 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
             urns = Collections.emptySet();
         boolean http11 = !urns.isEmpty();
 
-        return new RemoteFileDescImpl(address, index, filename, size, clientGUID, speed, chat,
-                quality, browseHost, xmlDoc, urns, replyToMulticast, vendor, 
-                createTime, http11, addressFactory);
+        return new RemoteFileDescImpl(address, index, filename, size, clientGUID, speed, quality,
+                browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime, 
+                http11, addressFactory);
     }
 
     public RemoteFileDesc createUrlRemoteFileDesc(Address address, String filename,
@@ -225,13 +225,24 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
                 throw new IOException("Got " + response.getStatusLine().getStatusCode()
                         + " instead of 200 for URL: " + uri);
 
-            long length = -1;
-            if (response.getEntity() != null) {
-                length = response.getEntity().getContentLength();
+            // Head requests are not going to have an entity, so we cannot
+            // get the content length by looking at the entity.
+            // Instead, we have to parse the header.
+            Header contentLength = response.getFirstHeader(HTTP.CONTENT_LEN);
+            if(contentLength != null) {
+                try {
+                    long len = Long.parseLong(contentLength.getValue());
+                    if(len < 0) {
+                        throw new IOException("Invalid length: " + len);
+                    } else {
+                        return len;
+                    }
+                } catch(NumberFormatException nfe) {
+                    throw new IOException("can't parse content length", nfe);
+                }
+            } else {
+                throw new IOException("no content length header");
             }
-            if (length < 0)
-                throw new IOException("No content length");
-            return length;
         } finally {
             client.releaseConnection(response);
         }
@@ -245,11 +256,10 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
                 return deserializer.createRemoteFileDesc(remoteHostMemento.getAddress(addressFactory, pushEndpointFactory), remoteHostMemento.getIndex(), 
                         remoteHostMemento.getFileName(),
                         remoteHostMemento.getSize(), remoteHostMemento.getClientGuid(),
-                        remoteHostMemento.getSpeed(), remoteHostMemento.isChat(), remoteHostMemento
-                        .getQuality(), remoteHostMemento.isBrowseHost(),
-                        xml(remoteHostMemento.getXml()), remoteHostMemento.getUrns(),
-                        remoteHostMemento.isReplyToMulticast(), 
-                        remoteHostMemento.getVendor(), -1L);
+                        remoteHostMemento.getSpeed(), remoteHostMemento
+                        .getQuality(), xml(remoteHostMemento.getXml()),
+                        remoteHostMemento.getUrns(), remoteHostMemento.getVendor(),
+                        -1L);
             }
             if (remoteHostMemento.getCustomUrl() != null) {
                 return createUrlRemoteFileDesc(remoteHostMemento.getAddress(addressFactory, pushEndpointFactory),
@@ -260,11 +270,11 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
                 return createRemoteFileDesc(remoteHostMemento.getAddress(addressFactory, pushEndpointFactory), remoteHostMemento.getIndex(), 
                         remoteHostMemento.getFileName(),
                         remoteHostMemento.getSize(), remoteHostMemento.getClientGuid(),
-                        remoteHostMemento.getSpeed(), remoteHostMemento.isChat(), remoteHostMemento
-                        .getQuality(), remoteHostMemento.isBrowseHost(),
-                        xml(remoteHostMemento.getXml()), remoteHostMemento.getUrns(),
-                        remoteHostMemento.isReplyToMulticast(), 
-                        remoteHostMemento.getVendor(), -1L);
+                        remoteHostMemento.getSpeed(), remoteHostMemento
+                        .getQuality(), remoteHostMemento.isBrowseHost(), xml(remoteHostMemento.getXml()),
+                        remoteHostMemento.getUrns(), remoteHostMemento.isReplyToMulticast(),
+                        remoteHostMemento.getVendor(), 
+                        -1L);
             }
         } catch (SAXException e) {
             throw new InvalidDataException(e);
@@ -285,16 +295,16 @@ class RemoteFileDescFactoryImpl implements RemoteFileDescFactory {
 
     @Override
     public RemoteFileDesc createRemoteFileDesc(Address address, long index, String filename,
-            long size, byte[] clientGUID, int speed, boolean chat, int quality, boolean browseHost,
-            LimeXMLDocument xmlDoc, Set<? extends URN> urns, boolean replyToMulticast,
-            String vendor, long createTime, boolean http1) {
+            long size, byte[] clientGUID, int speed, int quality, boolean browseHost, LimeXMLDocument xmlDoc,
+            Set<? extends URN> urns, boolean replyToMulticast, String vendor,
+            long createTime, boolean http1) {
         for (RemoteFileDescCreator creator : creators) {
             if (creator.canCreateFor(address)) {
-                return creator.create(address, index, filename, size, clientGUID, speed, chat, quality, browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime, http1);
+                return creator.create(address, index, filename, size, clientGUID, speed, quality, browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime, http1);
             }
         }
-        return new RemoteFileDescImpl(address, index, filename, size, clientGUID, speed, chat, quality,
-                browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime, http1, addressFactory);
+        return new RemoteFileDescImpl(address, index, filename, size, clientGUID, speed, quality, browseHost,
+                xmlDoc, urns, replyToMulticast, vendor, createTime, http1, addressFactory);
     }
 
     @Override

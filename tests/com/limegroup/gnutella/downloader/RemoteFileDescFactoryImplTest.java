@@ -41,10 +41,10 @@ public class RemoteFileDescFactoryImplTest extends BaseTestCase {
         context.checking(new Expectations() {{
             one(creator).canCreateFor(address);
             will(returnValue(true));
-            one(creator).create(address, 1, "hello", 2, clientGuid, 1, true, 1, true, null, URN.NO_URN_SET, false, "vendor", -1, false);
+            one(creator).create(address, 1, "hello", 2, clientGuid, 1, 1, true, null, URN.NO_URN_SET, false, "vendor", -1, false);
             will(returnValue(null));
         }});
-        RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(address, 1, "hello", 2, clientGuid, 1, true, 1, true, null, URN.NO_URN_SET, false, "vendor", -1, false);
+        RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(address, 1, "hello", 2, clientGuid, 1, 1, true, null, URN.NO_URN_SET, false, "vendor", -1, false);
         assertNull(rfd);
         context.assertIsSatisfied();
     }

@@ -10,7 +10,6 @@ import org.limewire.setting.FileArraySetting;
 import org.limewire.setting.FileSetting;
 import org.limewire.setting.IntSetting;
 import org.limewire.setting.StringArraySetting;
-import org.limewire.setting.StringSetSetting;
 import org.limewire.setting.StringSetting;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.OSUtils;
@@ -222,21 +221,11 @@ public final class SwingUiSettings extends LimeProps {
      */
     public static final BooleanSetting START_REMOTE_ON_LAUNCH =
         FACTORY.createBooleanSetting("START_REMOTE_ON_LAUNCH", false);
-    
-    /**
-     * Out-of-the-box list of well known jabber servers
-     */
-    public static final StringSetSetting XMPP_SERVERS =
-        FACTORY.createStringSetSetting("XMPP_SERVERS",
-                "false,true,gmail.com,Gmail;" +
-                "false,false,livejournal.com,LiveJournal;" +
-        "");
 
-    /**
-     * User-defined custom jabber server
-     */
-    public static final StringSetting USER_DEFINED_XMPP_SERVER =
-        (StringSetting)FACTORY.createStringSetting("XMPP_SERVER", "").setPrivate(true);
+    /** User-defined custom jabber server */
+    public static final StringSetting USER_DEFINED_JABBER_SERVICENAME =
+        (StringSetting)FACTORY.createStringSetting("CUSTOM_JABBER_SERVICENAME", "").setPrivate(true);
+
 
     public static final StringSetting XMPP_AUTO_LOGIN =
     (StringSetting)FACTORY.createStringSetting("XMPP_AUTO_LOGIN", "").setPrivate(true);

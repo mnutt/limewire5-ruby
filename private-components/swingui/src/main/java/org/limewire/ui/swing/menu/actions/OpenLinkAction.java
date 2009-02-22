@@ -8,17 +8,12 @@ import java.net.URI;
 import javax.swing.JOptionPane;
 
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.magnet.MagnetFactory;
 import org.limewire.core.api.magnet.MagnetLink;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.FocusJOptionPane;
-import org.limewire.ui.swing.downloads.MainDownloadPanel;
-import org.limewire.ui.swing.nav.NavCategory;
-import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.nav.SimpleNavSelectable;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.MagnetHandler;
@@ -32,24 +27,19 @@ import com.google.inject.Inject;
  */
 public class OpenLinkAction extends AbstractAction {
 
-    private final Navigator navigator;
-
     private final DownloadListManager downloadListManager;
 
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
 
     private final MagnetFactory magnetFactory;
 
-
     private final MagnetHandler magnetHandler;
 
     @Inject
-    public OpenLinkAction(Navigator navigator,
-            DownloadListManager downloadListManager,
+    public OpenLinkAction(DownloadListManager downloadListManager,
             SaveLocationExceptionHandler saveLocationExceptionHandler, MagnetFactory magnetFactory,
             MagnetHandler magnetHandler) {
         super(I18n.tr("Open &Link..."));
-        this.navigator = navigator;
         this.downloadListManager = downloadListManager;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         this.magnetFactory = magnetFactory;
@@ -89,18 +79,14 @@ public class OpenLinkAction extends AbstractAction {
             private void downloadTorrent(final DownloadListManager downloadListManager,
                     final SaveLocationExceptionHandler saveLocationExceptionHandler, final URI uri) {
                 try {
-                    DownloadItem item = downloadListManager.addTorrentDownload(uri, false);
-                    navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME).select(
-                            SimpleNavSelectable.create(item));
+                    downloadListManager.addTorrentDownload(uri, false);
                 } catch (SaveLocationException sle) {
                     saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
                         @Override
                         public void download(File saveFile, boolean overwrite)
                                 throws SaveLocationException {
-                            DownloadItem item = downloadListManager.addTorrentDownload(uri,
+                            downloadListManager.addTorrentDownload(uri,
                                     overwrite);
-                            navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME)
-                                    .select(SimpleNavSelectable.create(item));
                         }
                     }, sle, false);
                 }

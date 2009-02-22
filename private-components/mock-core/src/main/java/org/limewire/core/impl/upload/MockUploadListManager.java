@@ -99,5 +99,4 @@ public class MockUploadListManager implements UploadListManager {
     public void remove(UploadItem item) {
         threadSafeUploadItems.remove(item);
     }
-
 }

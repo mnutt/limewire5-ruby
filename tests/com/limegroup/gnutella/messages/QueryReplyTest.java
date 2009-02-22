@@ -299,8 +299,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         vendor=qr.getVendor();
         assertEquals(vendor, "LLME", vendor);
         assertFalse(qr.getNeedsPush());
-
-        assertFalse(qr.getSupportsChat());
     }
     
     public void testNetworkNoCommonData() throws Exception {
@@ -423,7 +421,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertTrue(qr.getIsBusy());
         assertTrue(qr.getIsMeasuredSpeed());
         assertTrue(qr.getHadSuccessfulUpload());
-        assertFalse(qr.getSupportsChat());
     }
     
     public void testNetworkQHDBusyPushBitsDefinedAndUnset() throws Exception {
@@ -452,7 +449,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getIsMeasuredSpeed());
         assertFalse(qr.getHadSuccessfulUpload());
-        assertFalse("LiME!=LIME when looking at private area", qr.getSupportsChat());
     }
     
     public void testCreateQHDFromScratch() throws Exception {
@@ -481,7 +477,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertTrue(qr.getIsBusy());
         assertTrue(qr.getHadSuccessfulUpload());
         assertFalse(qr.getIsMeasuredSpeed());
-        assertTrue(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertTrue(!qr.isReplyToMulticastQuery());
     }
@@ -504,7 +499,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getHadSuccessfulUpload());
         assertTrue(qr.getIsMeasuredSpeed());
-        assertFalse(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertFalse(qr.isReplyToMulticastQuery());
         assertFalse(qr.isTLSCapable());
@@ -532,7 +526,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getHadSuccessfulUpload());
         assertTrue(qr.getIsMeasuredSpeed());
-        assertFalse(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertFalse(qr.isReplyToMulticastQuery());
         assertFalse(qr.isTLSCapable());
@@ -556,7 +549,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getHadSuccessfulUpload());
         assertTrue(qr.getIsMeasuredSpeed());
-        assertFalse(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertFalse(qr.isReplyToMulticastQuery());
         assertTrue(qr.isTLSCapable());
@@ -584,7 +576,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getHadSuccessfulUpload());
         assertTrue(qr.getIsMeasuredSpeed());
-        assertFalse(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertFalse(qr.isReplyToMulticastQuery());
         assertTrue(qr.isTLSCapable());
@@ -610,7 +601,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getHadSuccessfulUpload());
         assertTrue(qr.getIsMeasuredSpeed());
-        assertFalse(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertFalse(qr.isReplyToMulticastQuery());
         assertFalse(qr.isTLSCapable());
@@ -641,7 +631,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getHadSuccessfulUpload());
         assertTrue(qr.getIsMeasuredSpeed());
-        assertFalse(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertFalse(qr.isReplyToMulticastQuery());
         assertFalse(qr.isTLSCapable());
@@ -673,7 +662,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getHadSuccessfulUpload());
         assertTrue(qr.getIsMeasuredSpeed());
-        assertFalse(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertFalse(qr.isReplyToMulticastQuery());
         assertTrue(qr.getSupportsFWTransfer());
@@ -705,7 +693,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertFalse(qr.getIsBusy());
         assertFalse(qr.getHadSuccessfulUpload());
         assertTrue(qr.getIsMeasuredSpeed());
-        assertFalse(qr.getSupportsChat());
         assertTrue(qr.getSupportsBrowseHost());
         assertFalse(qr.isReplyToMulticastQuery());
         assertTrue(qr.getSupportsFWTransfer());
@@ -1792,8 +1779,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         assertEquals(0,replaced.getPushProxies().size());
         // not multicast either
         assertFalse(replaced.isFakeMulticast());
-        // still support chat since that's in the QHD area
-        assertTrue(replaced.getSupportsChat());
     }
     
     public void testPatchGGEPWithReturnPath() throws Exception {
@@ -1988,31 +1973,6 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
 
     }
     
-    public void testMassageIsChatEnabled() throws UnknownHostException, BadPacketException {
-        QueryReplyFactory queryReplyFactory = injector.getInstance(QueryReplyFactory.class);
-        ResponseFactory responseFactory = injector.getInstance(ResponseFactory.class);
-        Response r = responseFactory.createResponse(0, 1, "test", UrnHelper.SHA1);
-
-        QueryReply queryReply = getQueryReplyWithChatEnabledInputs(queryReplyFactory, r, false, false);
-        assertEquals(false, queryReply.getSupportsChat());
-
-        queryReply = getQueryReplyWithChatEnabledInputs(queryReplyFactory, r, false, true);
-        assertEquals(false, queryReply.getSupportsChat());
-
-        queryReply = getQueryReplyWithChatEnabledInputs(queryReplyFactory, r, true, false);
-        assertEquals(true, queryReply.getSupportsChat());
-
-        queryReply = getQueryReplyWithChatEnabledInputs(queryReplyFactory, r, true, true);
-        assertEquals(false, queryReply.getSupportsChat());
-    }
-
-    private QueryReply getQueryReplyWithChatEnabledInputs(QueryReplyFactory queryReplyFactory, Response r, boolean supportsChat, boolean isFirewalled) throws UnknownHostException, BadPacketException {
-        // needsPush is a shorthand for isFirewalled, if isMulticast = false
-        return queryReplyFactory.createQueryReply(GUID.makeGuid(), (byte)1, 1459,
-                InetAddress.getLocalHost().getAddress(), 30945L, new Response[] { r }, GUID.makeGuid(), new byte[0], isFirewalled, false,
-                false, false, supportsChat, false, false, IpPort.EMPTY_SET, _token);
-    }
-
     public void testMassageGetSpeed() throws UnknownHostException, BadPacketException {
         QueryReplyFactory queryReplyFactory = injector.getInstance(QueryReplyFactory.class);
         ResponseFactory responseFactory = injector.getInstance(ResponseFactory.class);

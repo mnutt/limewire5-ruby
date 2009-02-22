@@ -28,7 +28,7 @@ import com.limegroup.gnutella.uploader.UploadType;
 
 class CoreUploadItem implements UploadItem {
 
-    private Uploader uploader;
+    private final Uploader uploader;
 
     private final PropertyChangeSupport support = new SwingSafePropertyChangeSupport(this);
     
@@ -60,9 +60,6 @@ class CoreUploadItem implements UploadItem {
 
     @Override
     public UploadState getState() {
-        
-       
-        
         switch (uploader.getState()) {
         case CANCELLED:
             return UploadState.CANCELED;
@@ -116,9 +113,11 @@ class CoreUploadItem implements UploadItem {
         return result;
     }
 
+    /**
+     * Tests if the Uploaders from construction are equal
+     */
     @Override
     public boolean equals(Object obj) {
-        // equal if Uploaders are equal
         if (this == obj)
             return true;
         if (obj == null)
@@ -203,9 +202,9 @@ class CoreUploadItem implements UploadItem {
     
     @Override
     public long getRemainingUploadTime() {
-        double remaining = (getFileSize() - getTotalAmountUploaded()) / 1024.0;
         float speed = getUploadSpeed();
         if (speed > 0) {
+            double remaining = (getFileSize() - getTotalAmountUploaded()) / 1024.0;
             return (long) (remaining / speed);
         } else {
             return UNKNOWN_TIME;
@@ -229,7 +228,7 @@ class CoreUploadItem implements UploadItem {
         case UNAVAILABLE_RANGE:
             return UploadErrorState.FILE_ERROR;       
         }
-        throw new IllegalStateException("Non-error UploaderState: " + uploader.getState());
+        return UploadErrorState.NO_ERROR;
     }
 
     @Override

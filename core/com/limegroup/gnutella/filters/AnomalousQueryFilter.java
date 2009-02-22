@@ -25,8 +25,9 @@ public class AnomalousQueryFilter implements SpamFilter {
     private static final Log LOG =
         LogFactory.getLog(AnomalousQueryFilter.class);
 
-    private static final int PREFIXES_TO_COUNT = 100;
-    private static final double MAX_FRACTION_PER_PREFIX = 0.25;
+    // Package access for testing
+    static final int PREFIXES_TO_COUNT = 100;
+    static final double MAX_FRACTION_PER_PREFIX = 0.25;
     
     private int total = 0;
     private final LinkedHashMap<Integer, Integer> prefixCounts =

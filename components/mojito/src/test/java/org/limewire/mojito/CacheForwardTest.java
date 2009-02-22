@@ -46,6 +46,7 @@ import org.limewire.mojito.result.Result;
 import org.limewire.mojito.result.StoreResult;
 import org.limewire.mojito.routing.Contact;
 import org.limewire.mojito.routing.Version;
+import org.limewire.mojito.settings.BucketRefresherSettings;
 import org.limewire.mojito.settings.DatabaseSettings;
 import org.limewire.mojito.settings.KademliaSettings;
 import org.limewire.mojito.settings.RouteTableSettings;
@@ -139,8 +140,10 @@ public class CacheForwardTest extends MojitoTestCase {
     public void testCacheForward() throws Exception {
         
         final long waitForNodes = 1000; // ms
+        final long BUCKET_REFRESH = 1 * 1000;
 
         //ContextSettings.SEND_SHUTDOWN_MESSAGE.setValue(false);
+        BucketRefresherSettings.BUCKET_REFRESHER_PING_NEAREST.setValue(BUCKET_REFRESH);
         DatabaseSettings.DELETE_VALUE_IF_FURTHEST_NODE.setValue(false);
         int k = KademliaSettings.REPLICATION_PARAMETER.getValue();
         
@@ -169,6 +172,9 @@ public class CacheForwardTest extends MojitoTestCase {
             
             first.bootstrap(new InetSocketAddress("localhost", PORT+1)).get();
             
+            // give everybody a chance to check if their neigbours are alive
+            // see LWC-2778
+            Thread.sleep(2 * BUCKET_REFRESH);
             
             // Sort all KUIDs by XOR distance and use the Node as 
             // creator that's furthest away from the value ID so

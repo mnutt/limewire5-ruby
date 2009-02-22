@@ -241,7 +241,6 @@ public class HTTPDownloader implements BandwidthTracker {
     private Set<PushAltLoc> _writtenBadPushLocs;
 
     
-	private boolean _chatEnabled = false; // for now
     private boolean _browseEnabled = false; // also for now
     private String _server = "";
     
@@ -325,7 +324,6 @@ public class HTTPDownloader implements BandwidthTracker {
 		_index = _rfd.getIndex();
 		_guid = _rfd.getClientGUID();
 		_amountToRead = 0;
-		_chatEnabled = _rfd.isChatEnabled();
         _browseEnabled = _rfd.isBrowseHostEnabled();
         _locationsReceived = new HashSet<RemoteFileDesc>();
         _goodLocs = new HashSet<DirectAltLoc>();
@@ -1354,9 +1352,7 @@ public class HTTPDownloader implements BandwidthTracker {
             }
             // ignore the version for now.
 
-            if (protocol.equals(HTTPConstants.CHAT_PROTOCOL))
-                _chatEnabled = true;
-            else if (protocol.equals(HTTPConstants.BROWSE_PROTOCOL))
+            if (protocol.equals(HTTPConstants.BROWSE_PROTOCOL))
                 _browseEnabled = true;
             else if (protocol.equals(HTTPConstants.PUSH_LOCS))
             	_wantsFalts=true;
@@ -1721,9 +1717,6 @@ public class HTTPDownloader implements BandwidthTracker {
      * 
      * @param stop a byte index into the file, using 0 to N-1 notation.  */
     public InetAddress getInetAddress() {return _socket.getInetAddress();}
-	public boolean chatEnabled() {
-		return _chatEnabled;
-	}
 
 	public boolean browseEnabled() {
 		return _browseEnabled;

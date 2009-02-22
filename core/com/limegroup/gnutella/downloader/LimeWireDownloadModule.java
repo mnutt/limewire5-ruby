@@ -1,6 +1,16 @@
 package com.limegroup.gnutella.downloader;
 
+import java.util.Comparator;
+
+import org.limewire.concurrent.ExecutorsHelper;
+import org.limewire.listener.AsynchronousMulticaster;
+import org.limewire.listener.EventMulticaster;
+
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.limegroup.bittorrent.BTDownloader;
 import com.limegroup.bittorrent.BTDownloaderImpl;
@@ -40,6 +50,11 @@ public class LimeWireDownloadModule extends AbstractModule {
         bind(OldDownloadConverter.class).to(OldDownloadConverterImpl.class);
         bind(DownloadSerializeSettings.class).annotatedWith(Names.named("oldDownloadSettings")).to(OldDownloadSettings.class);
         bind(DownloadStatsTracker.class).to(DownloadStatsTrackerImpl.class);
+        bind(new TypeLiteral<Comparator<RemoteFileDescContext>>(){}).to(PingedRemoteFileDescComparator.class);
+    }
+    
+    @Provides @Singleton @Named("downloadStateMulticaster") EventMulticaster<DownloadStateEvent> multicaster() {
+        return new AsynchronousMulticaster<DownloadStateEvent>(ExecutorsHelper.newProcessingQueue("DownloadStateMulticaster"));
     }
 
 }

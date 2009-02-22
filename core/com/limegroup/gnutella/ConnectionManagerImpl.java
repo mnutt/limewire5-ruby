@@ -1929,6 +1929,9 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
             mc.initialize(fetcher);
         } catch(IOException e) {
             cleanupBrokenFetchedConnection(mc);
+            if(LOG.isInfoEnabled())
+                LOG.info("Exception initializing connection to " +
+                        mc.getAddress() + ":" + mc.getPort(), e);
         }
     }
     
@@ -2100,6 +2103,9 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
             c.initialize(observer);
         } catch(IOException e) {
             cleanupBrokenExternallyGeneratedConnection(c);
+            if(LOG.isInfoEnabled())
+                LOG.info("Exception initializing connection to " +
+                        c.getAddress() + ":" + c.getPort(), e);
             throw e;
         }
     }

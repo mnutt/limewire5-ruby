@@ -78,6 +78,8 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
         assertEquals(quality, map.get(FilePropertyKey.QUALITY));
+        
+        context.assertIsSatisfied();
     }
     
     public void testVideoFilePopulation() throws Exception {
@@ -148,6 +150,8 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
         assertEquals(quality, map.get(FilePropertyKey.QUALITY));
+        
+        context.assertIsSatisfied();
     }
     
     public void testImageFilePopulation() throws Exception {
@@ -184,6 +188,8 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
+        
+        context.assertIsSatisfied();
     }
     
     public void testDocumentFilePopulation() throws Exception {
@@ -220,6 +226,8 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
+        
+        context.assertIsSatisfied();
     }
     
     public void testProgramFilePopulation() throws Exception {
@@ -256,6 +264,8 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
+        
+        context.assertIsSatisfied();
     }
 
 }

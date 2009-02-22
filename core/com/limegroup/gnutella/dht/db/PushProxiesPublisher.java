@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.core.settings.DHTSettings;
+import org.limewire.inspection.InspectionHistogram;
+import org.limewire.inspection.InspectionPoint;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPortSet;
 import org.limewire.mojito.KUID;
@@ -56,6 +58,9 @@ public class PushProxiesPublisher implements DHTEventListener {
     private volatile ScheduledFuture publishingFuture;
 
     private final DHTManager dhtManager;
+    
+    @InspectionPoint("push-proxies-publish-reason")
+    private final InspectionHistogram<String> publishReasons = new InspectionHistogram<String>();
     
     /**
      * @param dhtManager just needed to hold a lock on it when sending queries
@@ -128,7 +133,11 @@ public class PushProxiesPublisher implements DHTEventListener {
     }
     
     private boolean needsToBeRepublished() {
-        return System.currentTimeMillis() - lastPublishTime >= DatabaseSettings.VALUE_REPUBLISH_INTERVAL.getValue();
+        boolean needsRepublish = System.currentTimeMillis() - lastPublishTime >= DatabaseSettings.VALUE_REPUBLISH_INTERVAL.getValue();
+        if (needsRepublish) {
+            publishReasons.count("time");
+        }
+        return needsRepublish;
     }
 
     /**
@@ -146,13 +155,18 @@ public class PushProxiesPublisher implements DHTEventListener {
         }
         // publish if fwt capabilities have changed
         if (lastSeenValue.getFwtVersion() != lastPublishedValue.getFwtVersion()) {
+            publishReasons.count("fwt");
             return true;
         }
         // value has changed, if only one or less proxies are still the same
         // we republish
         IpPortSet old = new IpPortSet(lastPublishedValue.getPushProxies());
         old.retainAll(lastSeenValue.getPushProxies());
-        return old.size() < 2;
+        boolean differentProxies = old.size() < 2;
+        if (differentProxies) {
+            publishReasons.count("proxies");
+        }
+        return differentProxies;
     }
     
     /**

@@ -24,6 +24,7 @@ public enum FilePropertyKey {
     TRACK_NUMBER,
     ALBUM,
     WIDTH,
+    LOCATION,
     YEAR;
     
     private final static Collection<FilePropertyKey> indexableKeys = new HashSet<FilePropertyKey>(); 

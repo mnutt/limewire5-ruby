@@ -24,6 +24,7 @@ public class FileMenu extends MnemonicMenu {
         // TODO fberger comment out
         // super(I18n.tr("&File"));
         super(I18n.tr("File"));
+        
         add(openFileAction);
         add(openLinkAction);
         add(recentDownloadsMenu);

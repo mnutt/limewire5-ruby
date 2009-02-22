@@ -117,7 +117,7 @@ public final class DaapManager {
                     try {
                         DaapManager.this.start();
                     } catch (IOException err) {
-                        MessageService.showError(I18nMarker.marktr("LimeWire was unable to start the Digital Audio Access Protocol Service (for sharing files in iTunes). This feature will be turned off. You can turn it back on in options, under iTunes -> Sharing."));
+                        MessageService.showError(I18nMarker.marktr("LimeWire was unable to start the Digital Audio Access Protocol Service (for sharing files in iTunes). This feature will be turned off. You can turn it back on in options, under Advanced -> Files -> iTunes."));
                         DaapSettings.DAAP_ENABLED.setValue(false);
                     }
                 }

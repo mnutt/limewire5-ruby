@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.core.settings.SharingSettings;
+import org.limewire.listener.EventMulticaster;
 import org.limewire.net.SocketsManager;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.FileUtils;
@@ -19,7 +20,6 @@ import com.google.inject.name.Named;
 import com.limegroup.gnutella.ApplicationServices;
 import com.limegroup.gnutella.DownloadCallback;
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.RemoteFileDesc;
@@ -66,14 +66,15 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
              IPFilter ipFilter, @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
             Provider<MessageRouter> messageRouter, Provider<HashTreeCache> tigerTreeCache,
             ApplicationServices applicationServices, RemoteFileDescFactory remoteFileDescFactory, 
-            Provider<PushList> pushListProvider, SocketsManager socketsManager, MetaDataFactory metaDataFactory) {
+            Provider<PushList> pushListProvider, SocketsManager socketsManager, MetaDataFactory metaDataFactory, 
+            @Named("downloadStateMulticaster") EventMulticaster<DownloadStateEvent> downloadStateMulticaster) {
         super(saveLocationManager, downloadManager, fileManager, incompleteFileManager,
                 downloadCallback, networkManager, alternateLocationFactory, requeryManagerFactory,
                 queryRequestFactory, onDemandUnicaster, downloadWorkerFactory, altLocManager,
                 contentManager, sourceRankerFactory, urnCache, 
                 verifyingFileFactory, diskController, ipFilter, backgroundExecutor, messageRouter,
                 tigerTreeCache, applicationServices, remoteFileDescFactory, pushListProvider,
-                socketsManager);
+                socketsManager, downloadStateMulticaster);
         this.metaDataFactory = metaDataFactory;
     }
 
@@ -115,22 +116,6 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
         if (getContentLength() != -1) {
             super.initializeIncompleteFile();
         }
-    }
-
-    /**
-     * Can never chat with LWS, return immediately
-     */
-    @Override
-    public Endpoint getChatEnabledHost() {
-        return null;
-    }
-
-    /**
-     * Can never chat with LWS, always return false
-     */
-    @Override
-    public boolean hasChatEnabledHost() {
-        return false;
     }
 
     /**

@@ -20,6 +20,7 @@
 package org.limewire.mojito.handler;
 
 import java.net.SocketAddress;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -211,6 +212,9 @@ public class DefaultMessageHandler {
                 
                 Operation op = getOperation(node, existing, primaryKey);
                 
+                if (LOG.isDebugEnabled())
+                    LOG.debug("node: " + node + "existing: " + existing + "operation: " + op);
+                
                 if (op.equals(Operation.FORWARD)) {
                     Map<KUID, DHTValueEntity> bag = database.get(primaryKey);
                     valuesToForward.addAll(bag.values());
@@ -275,6 +279,10 @@ public class DefaultMessageHandler {
                 routeTable.select(valueId, k, SelectMode.ALL));
         Contact closest = nodes.get(0);
         Contact furthest = nodes.get(nodes.size()-1);
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(MessageFormat.format("node: {0}, existing: {1}, close nodes: {2}", node, existing, nodes));
+        }
         
 //        StringBuilder sb = new StringBuilder();
 //        sb.append("ME: "+context.getLocalNode()+"\n");

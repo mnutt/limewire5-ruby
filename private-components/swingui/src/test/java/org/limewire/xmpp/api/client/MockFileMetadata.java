@@ -1,7 +1,6 @@
 package org.limewire.xmpp.api.client;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -38,12 +37,6 @@ public class MockFileMetadata implements FileMetaData {
     }
 
     @Override
-    public Map<String, String> getMetaData() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public String getName() {
         return name;
     }
@@ -55,7 +48,7 @@ public class MockFileMetadata implements FileMetaData {
     }
 
     @Override
-    public Set<String> getURNsAsString() {
+    public Set<String> getUrns() {
         // TODO Auto-generated method stub
         return null;
     }

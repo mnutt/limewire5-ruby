@@ -92,7 +92,7 @@ public class ConnectableImpl implements Connectable {
         }
         if (obj instanceof Connectable) {
             Connectable connectable = (Connectable)obj;
-            return getAddress().equals(connectable.getAddress()) 
+            return getInetAddress().equals(connectable.getInetAddress())
             && getPort() == connectable.getPort() 
             && isTLSCapable() == connectable.isTLSCapable();
         }

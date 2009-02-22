@@ -22,7 +22,7 @@ public class RecentDownloadListenerTest extends BaseTestCase {
     }
 
     /**
-     * Testing that downloaders with null save fiels do not have their values
+     * Testing that downloaders with null save files do not have their values
      * added to the RecentDownloads setting.
      */
     public void testNullFileNotAdded() {
@@ -41,6 +41,7 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         assertEquals(0, DownloadSettings.RECENT_DOWNLOADS.length());
         new RecentDownloadListener(downloader);
         assertEquals(0, DownloadSettings.RECENT_DOWNLOADS.length());
+        context.assertIsSatisfied();
     }
 
     /**
@@ -51,19 +52,17 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         DownloadSettings.RECENT_DOWNLOADS.clear();
         Mockery context = new Mockery();
         final Downloader downloader = context.mock(CoreDownloader.class);
-        final File saveFile = new File("testIncomplete1File");
         context.checking(new Expectations() {
             {
                 one(downloader).getState();
                 will(returnValue(DownloadState.ABORTED));
-                one(downloader).getSaveFile();
-                will(returnValue(saveFile));
             }
         });
 
         assertEquals(0, DownloadSettings.RECENT_DOWNLOADS.length());
         new RecentDownloadListener(downloader);
         assertEquals(0, DownloadSettings.RECENT_DOWNLOADS.length());
+        context.assertIsSatisfied();
     }
 
     /**
@@ -89,6 +88,7 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         assertEquals(1, DownloadSettings.RECENT_DOWNLOADS.length());
         assertEquals(saveFile.getName(), DownloadSettings.RECENT_DOWNLOADS.getValue().iterator()
                 .next().getName());
+        context.assertIsSatisfied();
     }
 
     /**
@@ -124,9 +124,10 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         assertEquals(2, DownloadSettings.RECENT_DOWNLOADS.length());
         
         List<File> list = new ArrayList<File>(DownloadSettings.RECENT_DOWNLOADS.getValue());
-        Collections.sort(list, new FileDateLeastToMostRecentComparator());
-        assertEquals(saveFile2.getName(), list.get(0).getName());
-        assertEquals(saveFile1.getName(), list.get(1).getName());
+        Collections.sort(list, new SortByFileNameComparator());
+        assertEquals(saveFile1.getName(), list.get(0).getName());
+        assertEquals(saveFile2.getName(), list.get(1).getName());
+        context.assertIsSatisfied();
     }
     
     /**
@@ -140,7 +141,6 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         final File saveFile1 = new File("testComplete2Files_1");
         final Downloader downloader2 = context.mock(CoreDownloader.class);
         final File saveFile2 = new File("testComplete2Files_2");
-
         context.checking(new Expectations() {
             {
                 one(downloader1).getState();
@@ -163,15 +163,16 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         assertEquals(1, DownloadSettings.RECENT_DOWNLOADS.length());
         assertEquals(saveFile2.getName(), DownloadSettings.RECENT_DOWNLOADS.getValue().iterator()
                 .next().getName());
+        context.assertIsSatisfied();
     }
     
     /**
-     * Orders files from least to most recent.
+     * Orders files by name.
      */
-    private class FileDateLeastToMostRecentComparator implements Comparator<File> {
+    private class SortByFileNameComparator implements Comparator<File> {
         @Override
         public int compare(File o1, File o2) {
-            return Long.valueOf(o1.lastModified()).compareTo(Long.valueOf(o2.lastModified()));
+            return o1.getName().compareTo(o2.getName());
         }
     }
 }

@@ -11,16 +11,16 @@ import junit.framework.Test;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
+import org.limewire.listener.EventListenerList;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.nio.observer.IOErrorObserver;
-import org.limewire.rudp.RUDPContext;
 import org.limewire.rudp.UDPConnectionProcessor;
 import org.limewire.rudp.UDPSelectorProvider;
+import org.limewire.rudp.UDPSocketChannel;
 import org.limewire.rudp.UDPSocketChannelConnectionEvent;
 import org.limewire.rudp.messages.RUDPMessage;
 import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.util.PrivilegedAccessor;
-import org.limewire.listener.EventListenerList;
 
 import com.google.inject.Injector;
 import com.google.inject.Stage;
@@ -111,7 +111,7 @@ public class RUDPIntegrationTest extends LimeTestCase {
     }
     
     public void testPacketsSentToMultiplexorAndGoesToProcessor() throws Exception {
-        StubUDPConnectionProcessor stub = new StubUDPConnectionProcessor(selectorProvider.getContext());
+        StubUDPConnectionProcessor stub = new StubUDPConnectionProcessor(selectorProvider);
         SelectableChannel channel = createUDPSocketChannel(stub);
         assertEquals(0, stub.id);
         // This is done only to allow the multiplexor to learn about the processor.
@@ -184,14 +184,21 @@ public class RUDPIntegrationTest extends LimeTestCase {
         }
     }
     
+    private static class StubUDPSocketChannel extends UDPSocketChannel {
+        StubUDPSocketChannel(UDPSelectorProvider provider) {
+            super(provider, provider.getContext(), Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>());
+        }
+    }    
+    
     private class StubUDPConnectionProcessor extends UDPConnectionProcessor implements MessageObserver {
         private volatile byte id;
         private volatile InetSocketAddress addr;
         private volatile RUDPMessage lastMessage;
         private volatile boolean isConnecting;
         
-        StubUDPConnectionProcessor(RUDPContext context) {
-            super(null, context, Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>());
+        StubUDPConnectionProcessor(UDPSelectorProvider provider) {
+            super(new StubUDPSocketChannel(provider), provider.getContext(),
+                    Role.UNDEFINED, new EventListenerList<UDPSocketChannelConnectionEvent>());
         }
         
         @Override

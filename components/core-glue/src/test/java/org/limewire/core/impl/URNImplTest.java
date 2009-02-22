@@ -25,12 +25,15 @@ public class URNImplTest extends BaseTestCase {
         URNImpl urnImpl2 = new URNImpl(urn2);
         URNImpl urnImpl3 = new URNImpl(urn3);
 
-        assertTrue(urnImpl1.equals(urnImpl2));
-        assertTrue(urnImpl2.equals(urnImpl1));
-        assertFalse(urnImpl1.equals(urnImpl3));
-        assertFalse(urnImpl2.equals(urnImpl3));
-        assertFalse(urnImpl3.equals(urnImpl1));
-        assertFalse(urnImpl3.equals(urnImpl2));
+        assertEquals(urnImpl1, urnImpl2);
+        assertEquals(urnImpl2, urnImpl1);
+        assertNotEquals(urnImpl1, urnImpl3);
+        assertNotEquals(urnImpl2, urnImpl3);
+        assertNotEquals(urnImpl3, urnImpl1);
+        assertNotEquals(urnImpl3, urnImpl2);
+        assertNotEquals(urnImpl1, "test");
+        assertNotEquals(urnImpl2, "test");
+        assertNotEquals(urnImpl3, "test");
 
         assertEquals(urnImpl1.hashCode(), urnImpl2.hashCode());
         

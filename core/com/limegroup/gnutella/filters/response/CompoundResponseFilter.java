@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.messages.QueryReply;
 
@@ -20,8 +23,10 @@ import com.limegroup.gnutella.messages.QueryReply;
  */
 class CompoundResponseFilter implements ResponseFilter {
     
-    private final List<ResponseFilter> blackListFilters;
+    private static final Log LOG =
+        LogFactory.getLog(CompoundResponseFilter.class);
     
+    private final List<ResponseFilter> blackListFilters;    
     private final List<ResponseFilter> whiteListFilters;
     
     CompoundResponseFilter(Collection<? extends ResponseFilter> blackListFilters, Collection<? extends ResponseFilter> whiteListFilters) {
@@ -35,12 +40,19 @@ class CompoundResponseFilter implements ResponseFilter {
             if(!blackFilter.allow(qr, response)) {
                 for (ResponseFilter whiteFilter : whiteListFilters) {
                     if (whiteFilter.allow(qr, response)) {
+                        if(LOG.isTraceEnabled())
+                            LOG.trace("Response whitelisted by " +
+                                    whiteFilter.getClass().getSimpleName());
                         return true;
                     }
                 }
+                if(LOG.isTraceEnabled())
+                    LOG.trace("Response blacklisted by " +
+                            blackFilter.getClass().getSimpleName());
                 return false;
             }
         }
+        LOG.trace("Response not blacklisted or whitelisted");
         return true;
     }
 

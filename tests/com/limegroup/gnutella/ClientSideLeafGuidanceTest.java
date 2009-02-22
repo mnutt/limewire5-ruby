@@ -353,8 +353,8 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
             injector.getInstance(RemoteFileDescFactory.class); 
         RemoteFileDesc rfd = rfdFactory.createRemoteFileDesc(
                 new ConnectableImpl("127.0.0.1", 6355, false),
-                1, query, size, DataUtils.EMPTY_GUID, 3, false,
-                3, false, null, URN.NO_URN_SET, false, "ALT", 0l);
+                1, query, size, DataUtils.EMPTY_GUID, 3, 3,
+                false, null, URN.NO_URN_SET, false, "ALT", 0l);
         spamManager.handleUserMarkedSpam(new RemoteFileDesc[]{rfd});
         assertTrue(rfd.isSpam());
 

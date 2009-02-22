@@ -28,7 +28,6 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.Downloader.DownloadState;
-import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.downloader.TestFile;
 import com.limegroup.gnutella.downloader.TestUploader;
@@ -88,8 +87,6 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
 
     private MessageRouter messageRouter;
 
-    private AlternateLocationFactory alternateLocationFactory;
-
     private MessageFactory messageFactory;
 
     private PingReplyFactory pingReplyFactory;
@@ -135,7 +132,6 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
         downloadServices = injector.getInstance(DownloadServices.class);
         messageRouter = injector.getInstance(MessageRouter.class);
-        alternateLocationFactory = injector.getInstance(AlternateLocationFactory.class);
         messageFactory = injector.getInstance(MessageFactory.class);
         pingReplyFactory = injector.getInstance(PingReplyFactory.class);
         onDemandUnicaster = injector.getInstance(OnDemandUnicaster.class);
@@ -637,7 +633,7 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         }
 
         // create a test uploader and send back that response
-        TestUploader uploader = new TestUploader(alternateLocationFactory, networkManagerStub);
+        TestUploader uploader = new TestUploader(networkManagerStub);
         uploader.start("whatever", UPLOADER_PORT, false);
         uploader.setBusy(true);
         RemoteFileDesc rfd = makeRFD("GLIQY64M7FSXBSQEZY37FIM5QQSA2OUJ");
@@ -753,7 +749,7 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         }
 
         // create a test uploader and send back that response
-        TestUploader uploader = new TestUploader(alternateLocationFactory, networkManagerStub);
+        TestUploader uploader = new TestUploader(networkManagerStub);
         uploader.start("whatever", UPLOADER_PORT, false);
         uploader.setBusy(true);
         URN urn = TestFile.hash();
@@ -870,7 +866,7 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         callback.clearGUID();
 
         // create a new Uploader to service the download
-        TestUploader uploader2 = new TestUploader(alternateLocationFactory, networkManagerStub);
+        TestUploader uploader2 = new TestUploader(networkManagerStub);
         uploader2.start("whatever", UPLOADER_PORT+1, false);
         uploader2.setRate(100);
 
@@ -937,7 +933,7 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         }
 
         // create a test uploader and send back that response
-        TestUploader uploader = new TestUploader(alternateLocationFactory, networkManagerStub);
+        TestUploader uploader = new TestUploader(networkManagerStub);
         uploader.start("whatever", UPLOADER_PORT, false);
         uploader.setBusy(true);
         URN urn = URN.createSHA1Urn("urn:sha1:GLIQY64M7FSXBSQEZY37FIM5QQSA2OUJ");
@@ -1074,12 +1070,12 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         }
 
         // create a test uploader and send back that response
-        TestUploader uploader = new TestUploader(alternateLocationFactory, networkManagerStub);
+        TestUploader uploader = new TestUploader(networkManagerStub);
         uploader.start("whatever", UPLOADER_PORT, false);
         uploader.setBusy(true);
         RemoteFileDesc rfd = makeRFD("GLIQY64M7FSXBSQEZY37FIM5QQSA2OUJ");
         
-        TestUploader uploader2 = new TestUploader(alternateLocationFactory, networkManagerStub);
+        TestUploader uploader2 = new TestUploader(networkManagerStub);
         uploader2.start("whatever", UPLOADER_PORT*2, false);
         uploader2.setBusy(true);
         RemoteFileDesc rfd2 = makeRFD("GLIQY64M7FSXBSQEZY37FIM5QQSASUSH");
@@ -1201,7 +1197,7 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         }
 
         // create a test uploader and send back that response
-        TestUploader uploader = new TestUploader(alternateLocationFactory, networkManagerStub);
+        TestUploader uploader = new TestUploader(networkManagerStub);
         uploader.start("whatever", UPLOADER_PORT, false);
         uploader.setBusy(true);
         RemoteFileDesc rfd = makeRFD("GLIQY64M7FSXBSQEZY37FIM5QQSA2OUJ");
@@ -1350,7 +1346,7 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         Set<URN> urns = new HashSet<URN>();
         urns.add(urn);
         return injector.getInstance(RemoteFileDescFactory.class).createRemoteFileDesc(new ConnectableImpl("127.0.0.1", port, false), 1, "whatever", 10, GUID.makeGuid(), 1,
-                false, 3, false, null, urns, false, "LIME", -1);
+                3, false, null, urns, false, "LIME", -1);
     }
     
     private RemoteFileDesc makeRFD(String sha1) throws Exception {

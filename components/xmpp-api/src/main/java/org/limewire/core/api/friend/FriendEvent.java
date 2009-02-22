@@ -1,8 +1,8 @@
 package org.limewire.core.api.friend;
 
-import org.limewire.listener.DefaultEvent;
+import org.limewire.listener.DefaultSourceTypeEvent;
 
-public class FriendEvent extends DefaultEvent<Friend, FriendEvent.Type> {
+public class FriendEvent extends DefaultSourceTypeEvent<Friend, FriendEvent.Type> {
     
     public static enum Type {
         /** The Friend was added. */

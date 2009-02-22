@@ -3,33 +3,22 @@ package org.limewire.xmpp.client.impl;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
-import org.limewire.common.LimeWireCommonModule;
 import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.friend.feature.features.AuthTokenFeature;
 import org.limewire.core.api.friend.feature.features.FileOfferFeature;
 import org.limewire.core.api.friend.feature.features.FileOfferer;
 import org.limewire.core.api.friend.feature.features.LimewireFeature;
-import org.limewire.http.auth.LimeWireHttpAuthModule;
 import org.limewire.inject.AbstractModule;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
-import org.limewire.io.NetworkInstanceUtils;
-import org.limewire.io.SimpleNetworkInstanceUtils;
-import org.limewire.lifecycle.ServiceRegistry;
-import org.limewire.listener.ListenerSupport;
-import org.limewire.net.EmptyProxySettings;
-import org.limewire.net.EmptySocketBindingSettings;
-import org.limewire.net.LimeWireNetModule;
-import org.limewire.net.ProxySettings;
-import org.limewire.net.SocketBindingSettings;
 import org.limewire.net.address.AddressEvent;
-import org.limewire.util.BaseTestCase;
 import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.xmpp.api.client.MessageWriter;
 import org.limewire.xmpp.api.client.Presence;
@@ -38,29 +27,20 @@ import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 import org.limewire.xmpp.api.client.XMPPException;
 import org.limewire.xmpp.client.impl.messages.FileMetaDataImpl;
+import org.limewire.xmpp.client.impl.messages.FileMetaDataImpl.Element;
 import org.xmlpull.v1.XmlPullParserException;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Stage;
-import com.google.inject.TypeLiteral;
 
-public class XMPPServiceTest extends BaseTestCase {
+public class XMPPServiceTest extends XmppBaseTestCase {
 
     private static final String USERNAME_1 = "automatedtestfriend1@gmail.com";
     private static final String USERNAME_2 = "automatedtestfriend2@gmail.com";
     private static final String PASSWORD_1 = "automatedtestfriend123";
     private static final String PASSWORD_2 = "automatedtestfriend234";
-    private static final String SERVICE = "gmail.com";
 
-    private static final int SLEEP = 5000; // Milliseconds
-
-    private ServiceRegistry registry;
-    private XMPPServiceImpl service;
     private RosterListenerMock aliceRosterListener;
     private RosterListenerMock bobRosterListener;
-    private AddressEventTestBroadcaster addressEventBroadcaster;
     private FileOfferHandlerMock fileOfferHandler;
     private XMPPAddressRegistry addressRegistry;
 
@@ -70,13 +50,7 @@ public class XMPPServiceTest extends BaseTestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        Injector injector = createInjector(getModules());
         addressRegistry = injector.getInstance(XMPPAddressRegistry.class);
-        registry = injector.getInstance(ServiceRegistry.class);
-        registry.initialize();
-        registry.start();
-        service = injector.getInstance(XMPPServiceImpl.class);
-        service.setMultipleConnectionsAllowed(true);
         aliceRosterListener = new RosterListenerMock();
         bobRosterListener = new RosterListenerMock();
         XMPPConnectionConfiguration alice = new XMPPConnectionConfigurationMock(USERNAME_1, PASSWORD_1,
@@ -86,42 +60,28 @@ public class XMPPServiceTest extends BaseTestCase {
         service.login(alice);
         service.login(bob);
         // Allow login, roster, presence, library messages to be sent, received
-        Thread.sleep(SLEEP); // TODO wait()/notify()
-        assertEquals("another automatedtestfriend2 presence has been detected, test cannnot run", 1, aliceRosterListener.countPresences(USERNAME_2));
-        assertEquals("another automatedtestfriend1 presence has been detected, test cannnot run", 1, bobRosterListener.countPresences(USERNAME_1));
-    }
-
-    protected Injector createInjector(Module... modules) {
-        return Guice.createInjector(Stage.PRODUCTION, modules);
-    }
-
-    private Module [] getModules() {
-        List<Module> modules = new ArrayList<Module>();
-        modules.add(new LimeWireCommonModule());
-        modules.add(new LimeWireHttpAuthModule());
-        modules.addAll(getServiceModules());
-        return modules.toArray(new Module[modules.size()]);
+        Thread.sleep(SLEEP * 2); // TODO wait()/notify()
+        assertEquals(1, aliceRosterListener.countPresences(USERNAME_2));
+        assertEquals(1, bobRosterListener.countPresences(USERNAME_1));
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        registry.stop();
-        // Allow logout messages to be sent, received before next test
-        Thread.sleep(SLEEP);
+        assertEquals(0, aliceRosterListener.getRosterSize());
+        assertEquals(0, bobRosterListener.getRosterSize());
     }
 
     protected List<Module> getServiceModules() {
-        Module xmppModule = new LimeWireXMPPTestModule();
-        addressEventBroadcaster = new AddressEventTestBroadcaster();
+        List<Module> defaultServiceModules = super.getServiceModules();
+        List<Module> serviceModules = new ArrayList<Module>();
         fileOfferHandler = new FileOfferHandlerMock();
-        Module m = new AbstractModule() {
+        serviceModules.add(new AbstractModule() {
             protected void configure() {
-                bind(new TypeLiteral<ListenerSupport<AddressEvent>>(){}).toInstance(addressEventBroadcaster);
                 bind(FileOfferHandlerMock.class).toInstance(fileOfferHandler);
-                bind(XMPPConnectionListenerMock.class);
             }
-        };
-        return Arrays.asList(xmppModule, m, new LimeWireNetTestModule());
+        });        
+        serviceModules.addAll(defaultServiceModules);
+        return serviceModules;
     }
 
     /**
@@ -218,7 +178,7 @@ public class XMPPServiceTest extends BaseTestCase {
     /**
      * Tests that friends receive one another's status updates
      */
-    public void testStatusChanges() throws InterruptedException, UnknownHostException {
+    public void testStatusChanges() throws InterruptedException, UnknownHostException, XMPPException {
         assertEquals(1, aliceRosterListener.getRosterSize());
         assertEquals(USERNAME_2, aliceRosterListener.getFirstRosterEntry());
         assertEquals(1, aliceRosterListener.countPresences(USERNAME_2));
@@ -237,7 +197,7 @@ public class XMPPServiceTest extends BaseTestCase {
             }
         }
 
-        Thread.sleep(SLEEP); 
+        Thread.sleep(SLEEP);
 
         buddy2 = aliceRosterListener.getFirstPresence(USERNAME_2);
         assertEquals(Presence.Type.available, buddy2.getType());
@@ -272,7 +232,7 @@ public class XMPPServiceTest extends BaseTestCase {
     /**
      * Tests that friends receive one another's file offers
      */
-    public void testOfferFile() throws InterruptedException, IOException, XmlPullParserException {
+    public void testOfferFile() throws InterruptedException, IOException, XmlPullParserException, XMPPException {
 
         addressEventBroadcaster.listeners.broadcast(new AddressEvent(new ConnectableImpl("199.199.199.199", 2048, true),
                 Address.EventType.ADDRESS_CHANGED));
@@ -280,12 +240,15 @@ public class XMPPServiceTest extends BaseTestCase {
         Thread.sleep(SLEEP);
 
         Presence automatedtestfriend2 = aliceRosterListener.getFirstPresence(USERNAME_2);
-        FileMetaDataImpl metaData = new FileMetaDataImpl();
-        metaData.setId(new Random().nextInt() + "");
-        metaData.setName("a_cool_file.txt");
-        metaData.setSize(1000);
-        metaData.setCreateTime(new Date());
-        metaData.setDescription("cool file");
+        Map<Element, String> data = new EnumMap<Element, String>(Element.class);
+        data.put(Element.id, new Random().nextInt() + "");
+        data.put(Element.name, "a_cool_file.txt");
+        data.put(Element.size, 1000 + "");
+        data.put(Element.createTime, Long.toString(new Date().getTime()));
+        data.put(Element.description, "cool file");
+        data.put(Element.urns, "urn:sha1:PLSTHIPQGSSZTS5FJUPAKUZWUGYQYPFB");
+        data.put(Element.index, "455");
+        FileMetaDataImpl metaData = new FileMetaDataImpl(data);
         FileOfferFeature feature = (FileOfferFeature)automatedtestfriend2.getFeature(FileOfferFeature.ID);
         assertNotNull(feature);
         FileOfferer fileOfferer = feature.getFeature();
@@ -447,15 +410,5 @@ public class XMPPServiceTest extends BaseTestCase {
         assertEquals(3, receivedByBob2.size()); // One extra message received
         assertEquals("Only Bob2 should get this", receivedByBob2.get(2));
         assertEquals(3,receivedByBob.size()); // Other presence is unaffected
-    }
-
-    class LimeWireNetTestModule extends LimeWireNetModule {
-        @Override
-        protected void configure() {
-            super.configure();
-            bind(ProxySettings.class).to(EmptyProxySettings.class);
-            bind(SocketBindingSettings.class).to(EmptySocketBindingSettings.class);
-            bind(NetworkInstanceUtils.class).to(SimpleNetworkInstanceUtils.class);
-        }
     }
 }

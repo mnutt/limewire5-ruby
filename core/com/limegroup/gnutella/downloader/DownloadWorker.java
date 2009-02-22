@@ -1,7 +1,6 @@
 package com.limegroup.gnutella.downloader;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.NoSuchElementException;
@@ -392,7 +391,9 @@ public class DownloadWorker {
      * Handles a failure of an RFD.
      */
     private void handleRFDFailure() {
-        LOG.debug("rfd failure", new Exception());
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("rfd failure", new Exception());
+        }
         rfdContext.incrementFailedCount();
         LOG.debug("handling rfd failure for "+_rfd+" with count now "+ rfdContext.getFailedCount());
         // if this RFD had a failure, try it again.
@@ -761,8 +762,7 @@ public class DownloadWorker {
                         + type + " to: " + _rfd);
             _connectObserver = observer;
             try {
-                Socket socket = socketsManager.connect(
-                        new InetSocketAddress(connectable.getAddress(), connectable.getPort()),
+                Socket socket = socketsManager.connect(connectable.getInetSocketAddress(),
                         NORMAL_CONNECT_TIME, observer, type);
                 if (!observer.isShutdown())
                     observer.setSocket(socket);

@@ -198,8 +198,8 @@ public class HeadTest extends LimeTestCase {
         assertEquals(complete,fileManager.getGnutellaFileList().getFileDesc(_haveFull));
         
         
-        blankRFD = new RemoteFileDescContext(remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.1.1.1", 1, false), 1, "file", 1, new byte[16], 1, false,
-                -1, false, null, URN.NO_URN_SET, false, null, -1));
+        blankRFD = new RemoteFileDescContext(remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.1.1.1", 1, false), 1, "file", 1, new byte[16], 1, -1,
+                false, null, URN.NO_URN_SET, false, null, -1));
         assertFalse(blankRFD.isBusy());
         assertFalse(blankRFD.isPartialSource());
         assertFalse(blankRFD.isReplyToMulticast());
@@ -629,8 +629,8 @@ public class HeadTest extends LimeTestCase {
 		assertNotEmpty(pong1.getPushLocs());
 		
 		RemoteFileDesc dummy = 
-		    remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", 6346, false), 10, "asdf", 10, GUID.makeGuid(), 10, true, 2,
-                true, null, UrnHelper.URN_SETS[1], false, "", -1);
+		    remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", 6346, false), 10, "asdf", 10, GUID.makeGuid(), 10, 2, true,
+                null, UrnHelper.URN_SETS[1], false, "", -1);
 		
 		Set received = pong1.getAllLocsRFD(dummy, remoteFileDescFactory);
 		assertEquals(1,received.size());
@@ -686,8 +686,8 @@ public class HeadTest extends LimeTestCase {
         assertEquals("2.3.4.5", nonTLS.getAddress());
         
         RemoteFileDesc dummy = 
-            remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", 6346, false), 10, "asdf", 10, GUID.makeGuid(), 10, true, 2,
-                true, null, UrnHelper.URN_SETS[1], false, "", -1);
+            remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", 6346, false), 10, "asdf", 10, GUID.makeGuid(), 10, 2, true,
+                null, UrnHelper.URN_SETS[1], false, "", -1);
         
         Set<RemoteFileDesc> rfds = pong.getAllLocsRFD(dummy, remoteFileDescFactory);
         assertEquals(1, rfds.size());
@@ -731,8 +731,8 @@ public class HeadTest extends LimeTestCase {
         }
         
         RemoteFileDesc dummy = 
-            remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", 6346, false), 10, "asdf", 10, GUID.makeGuid(), 10, true, 2,
-                true, null, UrnHelper.URN_SETS[1], false, "", -1);
+            remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", 6346, false), 10, "asdf", 10, GUID.makeGuid(), 10, 2, true,
+                null, UrnHelper.URN_SETS[1], false, "", -1);
         
         Set rfds = pong.getAllLocsRFD(dummy, remoteFileDescFactory);
         assertEquals(1, rfds.size());
@@ -765,8 +765,8 @@ public class HeadTest extends LimeTestCase {
 		assertNotEmpty(pong.getAltLocs());
 		assertNotEmpty(pong.getPushLocs());
 		
-		RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.2.3.4", 1, false), 1, "filename", 1, null, 1, false, 1,
-                false, null, URN.NO_URN_SET, false, "", 1);
+		RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.2.3.4", 1, false), 1, "filename", 1, null, 1, 1, false,
+                null, URN.NO_URN_SET, false, "", 1);
 		
 		Set rfds = pong.getAllLocsRFD(rfd, remoteFileDescFactory);
 		

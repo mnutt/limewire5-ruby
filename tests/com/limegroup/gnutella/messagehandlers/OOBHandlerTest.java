@@ -272,12 +272,12 @@ public class OOBHandlerTest extends BaseTestCase {
         }
     }
 
-    public void testMessagesWithDifferentTokenAreDiscardedForDisabledOOBV2() throws Exception {
+    public void testMessagesWithInvalidTokenAreDiscardedForDisabledOOBV2() throws Exception {
         SearchSettings.DISABLE_OOB_V2.setBoolean(true);
         testMessagesWithDifferentTokenAreHandled(true);
     }
     
-    public void testMessagesWithDifferentTokenAreAcceptedForEnabeldOOBV2() throws Exception {
+    public void testMessagesWithInvalidTokenAreDiscardedForEnabledOOBV2() throws Exception {
         SearchSettings.DISABLE_OOB_V2.setBoolean(false);
         testMessagesWithDifferentTokenAreHandled(false);
     }
@@ -302,13 +302,7 @@ public class OOBHandlerTest extends BaseTestCase {
         
         router.reply = null;
         handler.handleMessage(reply, null, replyHandler);
-        
-        if (disableOOBV2) {
-            assertNotSame(reply, router.reply);
-        }
-        else {
-            assertSame(reply, router.reply);
-        }
+        assertNull(router.reply);
     }
 
     
@@ -355,7 +349,7 @@ public class OOBHandlerTest extends BaseTestCase {
         assertSame(reply, router.reply);
     }
 
-    public void testSessionsExpireBecauseOfAliveQuery() throws Exception {
+    public void testResultsIgnoredWhenSessionIsFull() throws Exception {
         // a host claims to have 10 results
         ReplyNumberVendorMessage rnvm = factory.create(g, 10);
         router.numToRequest = 10;
@@ -364,39 +358,53 @@ public class OOBHandlerTest extends BaseTestCase {
         // double check we sent back an ack
         SecurityToken token = assertACKSent(replyHandler, 10);
 
+        // send some results
         router.reply = null;
-
-        // send reply, only then session objects are created
         QueryReply reply = getReplyWithResults(g.bytes(), 5,
                 address.getAddress(), token);
         handler.handleMessage(reply, null, replyHandler);
         assertNotNull(router.reply);
 
+        // and some more
         router.reply = null;
         reply = getReplyWithResults(g.bytes(), 5,
                 address.getAddress(), token, 5);
         handler.handleMessage(reply, null, replyHandler);
         assertNotNull(router.reply);
 
-        // the next ones should be ignored since there is a full session for
-        // them
+        // further results should be ignored since the session is full
         router.reply = null;
         reply = getReplyWithResults(g.bytes(), 5,
                 address.getAddress(), token, 10);
         handler.handleMessage(reply, null, replyHandler);
         assertNull(router.reply);
+    }
+    
+    public void testResultsIgnoredWhenQueryIsDead() throws Exception {
+        // a host claims to have 10 results
+        ReplyNumberVendorMessage rnvm = factory.create(g, 10);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler);
 
-        // session is cleared by signaling that there is no query alive for it
-        // anymore
-        router.isAlive = false;
-        handler.run();
+        // double check we sent back an ack
+        SecurityToken token = assertACKSent(replyHandler, 10);
 
-        // message is accepted again since we pretend there is an alive query
-        // for it
-        router.isAlive = true;
+        // send some results
+        router.reply = null;
+        QueryReply reply = getReplyWithResults(g.bytes(), 5,
+                address.getAddress(), token);
         handler.handleMessage(reply, null, replyHandler);
-        assertSame(reply, router.reply);
+        assertNotNull(router.reply);
 
+        // eventually the query dies
+        router.isAlive = false;
+        
+        // further results should be ignored since the query is dead
+        router.reply = null;
+        reply = getReplyWithResults(g.bytes(), 5,
+                address.getAddress(), token, 5);
+        handler.handleMessage(reply, null, replyHandler);
+        assertNull(router.reply);
     }
 
     public void testQueryIsAliveOverridesSessionTimeout()
@@ -693,6 +701,109 @@ public class OOBHandlerTest extends BaseTestCase {
         assertEquals(replyHandler.getInetAddress().getAddress(), handled.getIPBytes());
     }
     
+    /**
+     * Tests that if two RNVMs are received from the same address but
+     * different ports, the address is ignored 
+     */
+    public void testMultiplePortsCauseAddressToBeIgnored() throws Exception {
+        InetAddress addr1 = InetAddress.getByName("1.2.3.4");
+        InetAddress addr2 = InetAddress.getByName("2.3.4.5");
+        int port1 = 1234, port2 = 2345;
+        
+        // RNVM from addr1:port1 should be acked
+        ReplyNumberVendorMessage rnvm = factory.create(g, 10);
+        replyHandler = new MyReplyHandler(addr1, port1);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler);
+        assertACKSent(replyHandler, 10);
+        
+        // RNVM from addr1:port2 should be ignored
+        rnvm = factory.create(g, 10);
+        replyHandler = new MyReplyHandler(addr1, port2);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler);
+        assertNull(replyHandler.m);
+        
+        // RNVM from addr1:port1 should now be ignored as well
+        rnvm = factory.create(g, 10);
+        replyHandler = new MyReplyHandler(addr1, port1);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler);
+        assertNull(replyHandler.m);
+        
+        // RNVM from addr2:port2 should be acked
+        rnvm = factory.create(g, 10);
+        replyHandler = new MyReplyHandler(addr2, port2);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler);
+        assertACKSent(replyHandler, 10);
+    }
+    
+    /**
+     * Tests that if too many results are received from an address,
+     * subsequent RNVMs from that address are ignored
+     */
+    public void testTooManyResultsCauseAddressToBeIgnored() throws Exception {
+        InetAddress addr1 = InetAddress.getByName("1.2.3.4");
+        InetAddress addr2 = InetAddress.getByName("2.3.4.5");
+        int port1 = 1234, port2 = 2345;
+        MyReplyHandler replyHandler1 = new MyReplyHandler(addr1, port1);
+        MyReplyHandler replyHandler2 = new MyReplyHandler(addr2, port2);
+        
+        // RNVM from addr1 should be acked
+        ReplyNumberVendorMessage rnvm = factory.create(g, 10);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler1);
+        SecurityToken token1 = assertACKSent(replyHandler1, 10);
+        
+        // RNVM from addr2 should be acked
+        rnvm = factory.create(g, 10);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler2);
+        SecurityToken token2 = assertACKSent(replyHandler2, 10);
+        
+        // Replies from addr1 should be routed
+        QueryReply reply = getReplyWithResults(g.bytes(), 10, addr1.getAddress(), token1);
+        router.reply = null;
+        handler.handleMessage(reply, null, replyHandler1);
+        assertNotNull(router.reply);
+        
+        // Replies from addr2 should be routed
+        reply = getReplyWithResults(g.bytes(), 10, addr2.getAddress(), token2);
+        router.reply = null;
+        handler.handleMessage(reply, null, replyHandler2);
+        assertNotNull(router.reply);
+        
+        // Too many replies from addr2 should be ignored
+        reply = getReplyWithResults(g.bytes(), 1, addr2.getAddress(), token2, 10);
+        router.reply = null;
+        handler.handleMessage(reply, null, replyHandler2);
+        assertNull(router.reply);
+        
+        // New query
+        g = new GUID(GUID.makeGuid());
+        replyHandler1.m = null;
+        replyHandler2.m = null;
+        
+        // RNVM from addr1 should be acked
+        rnvm = factory.create(g, 10);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler1);
+        token1 = assertACKSent(replyHandler1, 10);
+        
+        // RNVM from addr2 should be ignored
+        rnvm = factory.create(g, 10);
+        router.numToRequest = 10;
+        handler.handleMessage(rnvm, null, replyHandler2);
+        assertNull(replyHandler2.m);
+        
+        // Replies from addr1 should be routed
+        reply = getReplyWithResults(g.bytes(), 10, addr1.getAddress(), token1);
+        router.reply = null;
+        handler.handleMessage(reply, null, replyHandler1);
+        assertNotNull(router.reply);
+    }
+    
     private static SecurityToken assertACKSent(MyReplyHandler rhandler,
             int numExpected) {
         assertNotNull(rhandler.m);
@@ -738,15 +849,11 @@ public class OOBHandlerTest extends BaseTestCase {
 
     private static class MyMessageRouter implements MessageRouter {
         volatile QueryReply reply;
-
         volatile int numToRequest;
-
         volatile long timeToExpire;
-
         volatile boolean isAlive = true;
 
         private ReplyNumberVendorMessage bypassedReply;
-
         private QueryReply bypassedQueryReply;
 
         public int getNumOOBToRequest(ReplyNumberVendorMessage reply) {
@@ -929,14 +1036,27 @@ public class OOBHandlerTest extends BaseTestCase {
     
     private static class MyReplyHandler extends ReplyHandlerStub {
         volatile Message m;
-
         final InetAddress addr;
-
         final int port;
 
         MyReplyHandler(InetAddress addr, int port) {
             this.addr = addr;
             this.port = port;
+        }
+        
+        @Override
+        public InetAddress getInetAddress() {
+            return addr;
+        }
+        
+        @Override
+        public String getAddress() {
+            return addr.getHostAddress();
+        }
+        
+        @Override
+        public int getPort() {
+            return port;
         }
 
         @Override

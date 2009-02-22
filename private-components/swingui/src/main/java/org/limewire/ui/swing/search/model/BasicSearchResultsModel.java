@@ -20,6 +20,10 @@ import ca.odell.glazedlists.GroupingList;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.FunctionList.AdvancedFunction;
 
+/**
+ * The default implementation of SearchResultsModel containing the results for
+ * a search.
+ */
 public class BasicSearchResultsModel implements SearchResultsModel {
     private final Log LOG = LogFactory.getLog(getClass());
 
@@ -31,12 +35,23 @@ public class BasicSearchResultsModel implements SearchResultsModel {
 
     private FunctionList<List<SearchResult>, VisualSearchResult> groupedUrnResults;
 
+    /**
+     * Constructs a BasicSearchResultsModel with the specified property values.
+     */
     public BasicSearchResultsModel(PropertiableHeadings propertiableHeadings) {
+        // Create list of all search results.
         allSearchResults = new BasicEventList<SearchResult>();
+        
+        // Create list of search results grouped by URN.
         GroupingList<SearchResult> groupingListUrns = GlazedListsFactory.groupingList(
                 allSearchResults, new UrnComparator());
+        
+        // Create list of visual search results where each element represents
+        // a single group.
         groupedUrnResults = GlazedListsFactory.functionList(
                 groupingListUrns, new SearchResultGrouper(resultCount, propertiableHeadings));
+        
+        // Create observable list that fires an event when results are modified.
         observableList = GlazedListsFactory.observableElementList(groupedUrnResults,
                 GlazedLists.beanConnector(VisualSearchResult.class));
     }
@@ -75,6 +90,9 @@ public class BasicSearchResultsModel implements SearchResultsModel {
         allSearchResults.remove(result);
     }
 
+    /**
+     * A comparator used to group search results by URN.
+     */
     private static class UrnComparator implements Comparator<SearchResult> {
         @Override
         public int compare(SearchResult o1, SearchResult o2) {
@@ -82,6 +100,10 @@ public class BasicSearchResultsModel implements SearchResultsModel {
         }
     }
 
+    /**
+     * A GlazedList function used to transform a group of search results into
+     * a single VisualSearchResult.
+     */
     private static class SearchResultGrouper implements
             AdvancedFunction<List<SearchResult>, VisualSearchResult> {
         private final AtomicInteger resultCount;

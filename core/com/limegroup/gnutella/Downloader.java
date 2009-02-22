@@ -186,21 +186,6 @@ public interface Downloader extends BandwidthTracker, ListenerSupport<DownloadSt
     public String getVendor();
 	
 	/**
-	 * Returns a chat-enabled <tt>Endpoint</tt> instance for this
-	 * <tt>Downloader</tt>.
-	 */
-	public Endpoint getChatEnabledHost();
-
-	/**
-	 * Returns whether or not there is a chat-enabled host available for
-	 * this <tt>Downloader</tt>.
-	 *
-	 * @return <tt>true</tt> if there is a chat-enabled host for this 
-	 *  <tt>Downloader</tt>, <tt>false</tt> otherwise
-	 */
-	public boolean hasChatEnabledHost();
-	
-	/**
 	 * @return if this downloader can be launched.
 	 */
 	public boolean isLaunchable();

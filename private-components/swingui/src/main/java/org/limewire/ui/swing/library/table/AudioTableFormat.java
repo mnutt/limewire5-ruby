@@ -36,7 +36,8 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
     static final int HIT_INDEX = 13;
     static final int UPLOADS_INDEX = 14;
     static final int UPLOAD_ATTEMPTS_INDEX = 15;
-    static final int ACTION_INDEX = 16;
+    static final int PATH_INDEX = 16;
+    static final int ACTION_INDEX = 17;
     
     public AudioTableFormat() {
         super(ACTION_INDEX, "LIBRARY_AUDIO_TABLE", ARTIST_INDEX, true, new ColumnStateInfo[] {
@@ -55,7 +56,8 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
                 new ColumnStateInfo(DESCRIPTION_INDEX, "LIBRARY_AUDIO_DESCRIPTION", I18n.tr("Description"), 100, false, true), 
                 new ColumnStateInfo(HIT_INDEX, "LIBRARY_AUDIO_HITS", I18n.tr("Hits"), 100, false, true), 
                 new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_AUDIO_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
-                new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_AUDIO_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true), 
+                new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_AUDIO_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true),
+                new ColumnStateInfo(PATH_INDEX, "LIBRARY_AUDIO_PATH", I18n.tr("Location"), 200, false, true),
                 new ColumnStateInfo(ACTION_INDEX, "LIBRARY_AUDIO_ACTION", I18n.tr("Sharing"), 61, true, false)
         });
     }
@@ -80,6 +82,7 @@ public class AudioTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
         case HIT_INDEX: return baseObject.getNumHits();
         case UPLOAD_ATTEMPTS_INDEX: return baseObject.getNumUploadAttempts();
         case UPLOADS_INDEX: return baseObject.getNumUploads();
+        case PATH_INDEX: return baseObject.getProperty(FilePropertyKey.LOCATION);
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

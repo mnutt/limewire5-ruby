@@ -6,42 +6,50 @@ import java.util.HashMap;
 
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
+import org.limewire.util.Objects;
+import org.limewire.xmpp.client.impl.messages.InvalidIQException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class NoSaveIQ extends IQ {
-    private Map<String, Boolean> items;
-    public NoSaveIQ(XmlPullParser parser) throws IOException, XmlPullParserException {
-        items = new HashMap<String, Boolean>();
+    
+    private final Map<String, Boolean> items = new HashMap<String, Boolean>();
+    
+    public NoSaveIQ(XmlPullParser parser) throws IOException, XmlPullParserException, InvalidIQException {
         do {
             int eventType = parser.getEventType();
             if(eventType == XmlPullParser.START_TAG) {
                 if(parser.getName().equals("query")) {
                 } else if(parser.getName().equals("item")) {
                     String jid = parser.getAttributeValue(null, "jid");
-                    Boolean value = Boolean.parseBoolean(parser.getAttributeValue(null, "value"));
-                    items.put(jid, value);
+                    if (jid == null) { 
+                        throw new InvalidIQException("no jid value");
+                    }
+                    String value = parser.getAttributeValue(null, "value");
+                    if (value == null) {
+                        throw new InvalidIQException("no value in value attribute");
+                    }
+                    items.put(jid, Boolean.valueOf(value));
                 }
             } else if(eventType == XmlPullParser.END_TAG) {
                 if(parser.getName().equals("query")) {
-                    return;
+                    break;
                 }
             }
         } while (parser.nextTag() != XmlPullParser.END_DOCUMENT);
     }
 
     public NoSaveIQ(String jid, Boolean value) {
-        items = new HashMap<String, Boolean>();
-        items.put(jid, value);
+        items.put(Objects.nonNull(jid, "jid"), Objects.nonNull(value, "value"));
     }
 
     public String getChildElementXML() {
-        String s = "<query xmlns='google:nosave'>";
+        StringBuilder s = new StringBuilder("<query xmlns='google:nosave'>");
         for(Map.Entry<String, Boolean> entry : items.entrySet()) {
-            s += "<item xmlns='google:nosave' jid='" + entry.getKey() + "' value='" + entry.getValue() + "'/>";
+            s.append("<item xmlns='google:nosave' jid='").append(entry.getKey()).append("' value='").append(entry.getValue()).append("'/>");
         }
-        s += "</query>";
-        return s;
+        s.append("</query>");
+        return s.toString();
     }
 
     public static IQProvider getIQProvider() {
@@ -51,7 +59,12 @@ public class NoSaveIQ extends IQ {
     private static class NoSaveIQProvider implements IQProvider {
 
         public IQ parseIQ(XmlPullParser parser) throws Exception {
-            return new NoSaveIQ(parser);
+            try { 
+                return new NoSaveIQ(parser);
+            } catch (InvalidIQException iie) {
+                // throwing would close connection
+                return null;
+            }
         }
     }
 }

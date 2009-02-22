@@ -18,6 +18,7 @@ import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.messages.QueryReply;
+import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.version.UpdateInformation;
 
 /**
@@ -41,7 +42,7 @@ public class ActivityCallbackStub implements ActivityCallback {
 	public void handleQueryResult(RemoteFileDesc rfd, 
 	                              QueryReply queryReply,
 	                              Set alts) {}
-    public void handleQueryString( String query ) { }    
+    public void handleQuery(QueryRequest query, String address, int port) { }    
     public void addDownload(Downloader d) { }    
     public void downloadCompleted(Downloader d) { }    
     public void addUpload(Uploader u) { }

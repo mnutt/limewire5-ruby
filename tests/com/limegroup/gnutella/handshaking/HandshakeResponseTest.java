@@ -98,7 +98,6 @@ public final class HandshakeResponseTest extends LimeTestCase {
              HandshakeResponse.createResponse(headersFactory.createUltrapeerHeaders("45.67.89.54"));
          LEAF_HEADERS =
              HandshakeResponse.createResponse(headersFactory.createLeafHeaders("45.67.89.54"));
-         hostCatcher.clear();
     }
 
     public void testLeafRejectIncoming() throws Exception {
@@ -115,7 +114,6 @@ public final class HandshakeResponseTest extends LimeTestCase {
      * header.
      */
     public void testAddXTryHeader() throws Exception {
-        hostCatcher.clear();
         assertEquals(0, hostCatcher.getNumHosts());
         List<RoutedConnection> ipPorts = new LinkedList<RoutedConnection>();
         ipPorts.add(managedConnectionFactory.createRoutedConnection("24.67.85.4", 6346));

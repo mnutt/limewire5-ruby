@@ -21,7 +21,7 @@ public interface RemoteFileDescCreator {
     boolean canCreateFor(Address address);
     
     RemoteFileDesc create(Address address, long index, String filename,
-            long size, byte[] clientGUID, int speed, boolean chat, int quality, boolean browseHost,
-            LimeXMLDocument xmlDoc, Set<? extends URN> urns, boolean replyToMulticast,
-            String vendor, long createTime, boolean http1);
+            long size, byte[] clientGUID, int speed, int quality, boolean browseHost, LimeXMLDocument xmlDoc,
+            Set<? extends URN> urns, boolean replyToMulticast, String vendor,
+            long createTime, boolean http1);
 }

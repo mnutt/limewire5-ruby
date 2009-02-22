@@ -18,7 +18,7 @@
     
     <target name="compile"
             description="Compiles all code."
-            depends="initialize, lw-components.compile-core-src, lw-components.compile-ui-src, lw-core.compile-core, lw-tests.compile-src, lw-tests.compile-tests, lw-core-glue.compile-src"/>
+            depends="initialize, lw-components.compile-core-src, lw-components.compile-ui-src, lw-core.compile-core, lw-tests.compile-src, lw-tests.compile-tests, lw-core-glue.compile-src, lw-core-glue.compile-tests"/>
     
     <target name="compile-src"
             description="Compiles all source code (not tests)."
@@ -47,7 +47,7 @@
         
     <target name="test-all"
             description="Tests all components and LimeWire tests."
-            depends="compile, lw-tests.test-all, lw-components.test-all, lw-core-glue.test-all">
+            depends="compile, lw-core-glue.test-all, lw-tests.test-all, lw-components.test-all">
         <mkdir dir="${tests.limewire.components.limewire.xml}"/>
         <do.tests2html component="limewire">
             <more-xml-locations>
@@ -121,7 +121,7 @@
             <moretestinfo>
                 <testsources refid="limewire.components.sources.tests"/>
                 <testsources dir="${limewire.components.tests.home}"/>
-                <testsources dir="${limewire.components.core-glue.home}"/>
+                <testsources dir="${limewire.components.core-glue.tests.home}"/>
                 <testresults dir="${tests.limewire.components.all.xml}" includes="TEST-*.xml"/>
                 <testresults dir="${tests.limewire.components.tests.xml}" includes="TEST-*.xml"/>
                 <testresults dir="${tests.limewire.components.core-glue.xml}" includes="TEST-*.xml"/>
@@ -149,12 +149,13 @@
     <target name="lw-gettext-extract"
              description="Extracts message keys from the source code"
              depends="init.gettext">
+    	<!-- keywords listed explicitly because trl is not part of the gettext defaults -->
         <gettext-extract keysFile="limewire.pot"
-             poDirectory="lib/messagebundles" keywords="-kgetStringResource
-             -kgetFormattedStringResource -ktrc -ktr -kmarktr -ktrn:1,2
-             -ktrl -k">
+             poDirectory="lib/messagebundles" keywords="-ktrc:1c,2
+          -ktrnc:1c,2,3 -ktr -kmarktr -ktrn:1,2 -ktrl -k">
           <fileset dir="components" includes="**/*.java"/>
           <fileset dir="core" includes="**/*.java"/>
+          <fileset dir="private-components" includes="**/*.java"/>
         </gettext-extract>
     </target>
 

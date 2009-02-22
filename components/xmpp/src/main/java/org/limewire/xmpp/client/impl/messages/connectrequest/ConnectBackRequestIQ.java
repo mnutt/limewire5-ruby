@@ -39,7 +39,7 @@ public class ConnectBackRequestIQ extends IQ {
     public static final String NAME_SPACE = "jabber:iq:lw-connect-request";
     
     /**
-     * Only constructs valid connect request iqs, otherwise throws {@link IOException}. 
+     * Only constructs valid connect request iqs, otherwise throws {@link InvalidIQException}. 
      */
     public ConnectBackRequestIQ(XmlPullParser parser) throws IOException, XmlPullParserException, InvalidIQException {
        int eventType = parser.getEventType();

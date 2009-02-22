@@ -1,9 +1,9 @@
 package org.limewire.core.api.friend.feature;
 
 import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.listener.DefaultDataEvent;
+import org.limewire.listener.DefaultDataSourceTypeEvent;
 
-public class FeatureEvent extends DefaultDataEvent<FriendPresence, FeatureEvent.Type, Feature> {
+public class FeatureEvent extends DefaultDataSourceTypeEvent<FriendPresence, FeatureEvent.Type, Feature> {
 
     public static enum Type {
         ADDED, 

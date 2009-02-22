@@ -13,7 +13,6 @@ import javax.swing.JDialog;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
-import org.limewire.concurrent.FutureEvent;
 import org.limewire.core.api.Application;
 import org.limewire.core.api.updates.UpdateEvent;
 import org.limewire.listener.EventListener;
@@ -21,14 +20,13 @@ import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
 import org.limewire.player.api.AudioPlayer;
 import org.limewire.ui.swing.components.FocusJOptionPane;
-import org.limewire.ui.swing.components.Resizable;
+import org.limewire.ui.swing.components.PanelResizer;
 import org.limewire.ui.swing.components.ShapeDialog;
 import org.limewire.ui.swing.downloads.DownloadSummaryPanel;
 import org.limewire.ui.swing.friends.chat.ChatFramePanel;
 import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.pro.ProNag;
+import org.limewire.ui.swing.pro.ProNagController;
 import org.limewire.ui.swing.search.SearchHandler;
-import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.statusbar.StatusPanel;
 import org.limewire.ui.swing.update.UpdatePanel;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -40,10 +38,8 @@ public class LimeWireSwingUI extends JPanel {
     
     private final MainPanel mainPanel;
     private final TopPanel topPanel;
-    private final ProNag proNag;
-    private final Application application;
     private final JLayeredPane layeredPane;
-    private final boolean isFirstLaunch;
+    private final ProNagController proNagController;
     
 	@Inject
     public LimeWireSwingUI(
@@ -51,14 +47,13 @@ public class LimeWireSwingUI extends JPanel {
             StatusPanel statusPanel, Navigator navigator,
             SearchHandler searchHandler, ChatFramePanel friendsPanel,
             AudioPlayer player, DownloadSummaryPanel downloadSummaryPanel,
-            Application application, ProNag proNag, ShapeDialog shapeDialog) {
+            ShapeDialog shapeDialog, ProNagController proNagController) {
     	GuiUtils.assignResources(this);
     	        
     	this.topPanel = topPanel;
     	this.mainPanel = mainPanel;
-    	this.proNag = proNag;
-    	this.application = application;
     	this.layeredPane = new JLayeredPane();
+    	this.proNagController = proNagController;
     	
     	JPanel centerPanel = new JPanel(new GridBagLayout());
         setLayout(new BorderLayout());
@@ -109,8 +104,6 @@ public class LimeWireSwingUI extends JPanel {
         layeredPane.add(shapeDialog, JLayeredPane.POPUP_LAYER);
         add(layeredPane, BorderLayout.CENTER);
         add(statusPanel, BorderLayout.SOUTH);
-        
-        isFirstLaunch = !InstallSettings.UPGRADED_TO_5.getValue();
     }
 	
 	void hideMainPanel() {
@@ -122,20 +115,7 @@ public class LimeWireSwingUI extends JPanel {
 	}
 	
 	void loadProNag() {
-        if(!application.isProVersion() && !isFirstLaunch) {
-	        proNag.loadContents().addFutureListener(new EventListener<FutureEvent<Void>>() {
-	            @Override
-	            @SwingEDTEvent
-	            public void handleEvent(FutureEvent<Void> event) {
-	                switch(event.getType()) {
-	                case SUCCESS:
-	                    layeredPane.addComponentListener(new PanelResizer(proNag));
-	                    layeredPane.add(proNag, JLayeredPane.MODAL_LAYER);
-	                    proNag.resize();
-	                }
-	            }
-	        });
-	    }
+	    proNagController.allowProNag(layeredPane);
 	}
     
     public void goHome() {
@@ -157,21 +137,6 @@ public class LimeWireSwingUI extends JPanel {
         public void componentResized(ComponentEvent e) {
             Rectangle parentBounds = e.getComponent().getBounds();
             target.setBounds(0, 0, (int)parentBounds.getWidth(), (int)parentBounds.getHeight());
-        }
-    }
-    
-    private static class PanelResizer extends ComponentAdapter {
-        private final Resizable target;
-        
-        public PanelResizer(Resizable target) {
-            this.target = target;
-        }
-        
-        @Override
-        public void componentResized(ComponentEvent e) {
-            if(target.isVisible()) {
-                target.resize();
-            }
         }
     }
     

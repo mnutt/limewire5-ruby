@@ -37,7 +37,7 @@ public class ToolsMenu extends MnemonicMenu {
     @Inject
     public ToolsMenu(final Provider<AdvancedToolsPanel> advancedProvider,
             final Navigator navigator,
-            SearchHandler searchHandler, final LibraryManager libraryManager, final UploadPanel uploadPanel) {
+            SearchHandler searchHandler, final LibraryManager libraryManager, final Provider<UploadPanel> uploadPanelProvider) {
 
         // TODO fberger
         // super(I18n.tr("&Tools"));
@@ -52,12 +52,17 @@ public class ToolsMenu extends MnemonicMenu {
                 navItem.select();
             }
         });
-        navigator.createNavItem(NavCategory.UPLOAD, UploadPanel.NAME, uploadPanel);
+        
 //        add(new AbstractAction(I18n.tr("&Uploads")) {
         add(new AbstractAction(I18n.tr("Uploads")) {
             @Override
             public void actionPerformed(ActionEvent e) {
+                
                 NavItem navItem = navigator.getNavItem(NavCategory.UPLOAD, UploadPanel.NAME);
+                if (navItem == null) {
+                    navItem = navigator.createNavItem(NavCategory.UPLOAD, UploadPanel.NAME, uploadPanelProvider.get());
+                }
+                
                 navItem.select();
             }
         });

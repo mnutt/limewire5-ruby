@@ -52,10 +52,6 @@ public class HTTPDownloaderStub extends HTTPDownloader {
     public boolean browseEnabled() {
 		return false;
 	}
-	@Override
-    public boolean chatEnabled() {
-		return false;
-	}
 	public void connectHTTP(int start, int stop, boolean supportQueueing)
 			throws IOException, TryAgainLaterException, FileNotFoundException,
 			NotSharingException, QueuedException, RangeNotAvailableException,

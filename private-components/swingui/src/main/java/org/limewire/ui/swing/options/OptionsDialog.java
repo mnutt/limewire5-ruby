@@ -276,7 +276,10 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         panel.setBackground(backgroundColor);
         panels.put(selectedItem.getId(), panel);
         cardPanel.add(panels.get(selectedItem.getId()), selectedItem.getId());
-        panel.initOptions();
+        // Library is always shown so it will always be initialized prior to being shown
+        // no need to do it now.
+        if(!selectedItem.getId().equals(LIBRARY)) 
+            panel.initOptions();
     }
     
     private class OptionsTabItemImpl implements OptionTabItem {

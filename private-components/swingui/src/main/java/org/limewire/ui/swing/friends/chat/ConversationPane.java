@@ -1,7 +1,5 @@
 package org.limewire.ui.swing.friends.chat;
 
-import static org.limewire.ui.swing.util.I18n.tr;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -50,8 +48,6 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.html.FormSubmitEvent;
 import javax.swing.text.html.HTMLEditorKit;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.concurrent.FutureEvent;
@@ -93,6 +89,7 @@ import org.limewire.ui.swing.painter.GenericBarPainter;
 import org.limewire.ui.swing.util.DNDUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.PainterUtils;
@@ -104,10 +101,12 @@ import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.xmpp.api.client.MessageWriter;
 import org.limewire.xmpp.api.client.XMPPException;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.name.Named;
-import com.google.inject.Inject;
+
+import net.miginfocom.swing.MigLayout;
 
 /**
  *
@@ -478,7 +477,7 @@ public class ConversationPane extends JPanel implements Displayable {
 
     private class DownloadFromFriendLibraryAction extends AbstractAction {
         public DownloadFromFriendLibraryAction() {
-            super(tr("<html><u>{0}</u></html>", "View Files"));
+            super(tr("<html><u>{0}</u></html>", "Browse Files"));
         }
 
         @Override
@@ -602,7 +601,8 @@ public class ConversationPane extends JPanel implements Displayable {
             public void handleEvent(FutureEvent<LocalFileItem> event) {
                if(event.getResult() != null) {
                    FriendPresence presence = chatFriend.getBestPresence();
-                   if(presence.getFeature(FileOfferFeature.ID) != null) {
+                   Feature fileOfferFeature = presence.getFeature(FileOfferFeature.ID);
+                   if(fileOfferFeature != null) {
                        // update the chat state in case the remote user has not started conversation with us
                        try {
                            writer.setChatState(ChatState.active);
@@ -613,11 +613,15 @@ public class ConversationPane extends JPanel implements Displayable {
                        // TODO: Listen for the file being added to the library &
                        //       update the MFOI based on status.
                        //       Send to offerer when File becomes FileItem.
-                       FileOfferer fileOfferer = ((FileOfferFeature)presence.getFeature(FileOfferFeature.ID)).getFeature();
+                       FileOfferer fileOfferer = ((FileOfferFeature) fileOfferFeature).getFeature();
                        FileMetaData metadata = event.getResult().toMetadata();
-                       fileOfferer.offerFile(metadata);
-                       new MessageReceivedEvent(new MessageFileOfferImpl(loggedInID, null, friendId,
+                       try {
+                           fileOfferer.offerFile(metadata);
+                           new MessageReceivedEvent(new MessageFileOfferImpl(loggedInID, null, friendId,
                                    Message.Type.Sent, metadata)).publish();
+                       } catch (XMPPException e) {
+                           LOG.debug("file offer failed", e);
+                       }
                    } else {
                        // TODO
                    }

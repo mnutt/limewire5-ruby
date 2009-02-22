@@ -14,10 +14,6 @@ import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.magnet.MagnetLink;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.MultiLineLabel;
-import org.limewire.ui.swing.downloads.MainDownloadPanel;
-import org.limewire.ui.swing.nav.NavCategory;
-import org.limewire.ui.swing.nav.NavItem;
-import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.MagnetHandler;
@@ -31,16 +27,13 @@ import com.google.inject.Singleton;
 public class GuiCallbackImpl implements GuiCallback {
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
 
-    private final Navigator navigator;
-
     private final MagnetHandler magnetHandler;
 
     @Inject
     public GuiCallbackImpl(GuiCallbackService guiCallbackService,
-            SaveLocationExceptionHandler saveLocationExceptionHandler, Navigator navigator,
+            SaveLocationExceptionHandler saveLocationExceptionHandler,
             MagnetHandler magnetHandler) {
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
-        this.navigator = navigator;
         this.magnetHandler = magnetHandler;
         guiCallbackService.setGuiCallback(this);
     }
@@ -69,18 +62,6 @@ public class GuiCallbackImpl implements GuiCallback {
             }
         });
 
-    }
-
-    @Override
-    public void showDownloads() {
-        SwingUtils.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                NavItem navItem = navigator
-                        .getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME);
-                navItem.select();
-            }
-        });
     }
 
     @Override

@@ -206,9 +206,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     
     @EventSubscriber
     public void handleChatClosed(CloseChatEvent event) {
-        if (event.getFriend().getID().equals(lastSelectedConversationFriendId)) {
-            lastSelectedConversationFriendId = null;
-        }
+        lastSelectedConversationFriendId = null;
         
         if (event.getFriend().getID().equals(mostRecentConversationFriendId)) {
             mostRecentConversationFriendId = null;

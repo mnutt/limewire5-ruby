@@ -58,7 +58,7 @@ public class LanguageUtils {
      * Returns a Locale of the current language that is being used.
      */
     public static Locale getCurrentLocale() {
-        return Locale.getDefault();
+        return LocaleUtils.getCurrentLocale();
     }
 
     /**
@@ -178,26 +178,6 @@ public class LanguageUtils {
         }
         
         return i;
-    }
-
-    /**
-     * Returns true, if <code>locale</code> is less specific than the system
-     * default locale.
-     * 
-     * @see Locale#getDefault()
-     */
-    public static boolean matchesDefaultLocale(Locale locale) {
-        Locale systemLocale = Locale.getDefault();
-        if (matchesOrIsMoreSpecific(systemLocale.getLanguage(), locale.getLanguage())
-                && matchesOrIsMoreSpecific(systemLocale.getCountry(), locale.getCountry())
-                && matchesOrIsMoreSpecific(systemLocale.getVariant(), locale.getVariant())) {
-            return true;
-        }
-        return false;
-    }
-    
-    private static boolean matchesOrIsMoreSpecific(String detailed, String generic) {
-        return generic.length() == 0 || detailed.equals(generic);
     }
     
     /**

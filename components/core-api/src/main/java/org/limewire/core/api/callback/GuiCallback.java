@@ -18,11 +18,6 @@ public interface GuiCallback {
             boolean supportsNewSaveDir);
 
     /**
-     * Shows the downloads page.
-     */
-    void showDownloads();
-
-    /**
      * Restores the application from a minimized state.
      */
     void restoreApplication();

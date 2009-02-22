@@ -6,6 +6,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
+import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
@@ -36,6 +38,7 @@ import org.limewire.core.settings.SharingSettings;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortSet;
+import org.limewire.lifecycle.ServiceScheduler;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
 import org.limewire.setting.FileSetting;
 
@@ -62,7 +65,6 @@ public class CoreDownloadListManager implements DownloadListManager {
 	private EventList<DownloadItem> swingThreadDownloadItems;
 	private final DownloadManager downloadManager;
 	private final RemoteFileDescFactory remoteFileDescFactory;
-	private final QueueTimeCalculator queueTimeCalculator;
     private final ActivityCallback activityCallback;
     private final SpamManager spamManager;
     private final ItunesDownloadListenerFactory itunesDownloadListenerFactory;
@@ -72,13 +74,12 @@ public class CoreDownloadListManager implements DownloadListManager {
     
     private static final int PERIOD = 1000;
     
-    private Map<org.limewire.core.api.URN, DownloadItem> urnMap = new HashMap<org.limewire.core.api.URN, DownloadItem>();
+    private Map<org.limewire.core.api.URN, DownloadItem> urnMap = Collections.synchronizedMap(new HashMap<org.limewire.core.api.URN, DownloadItem>());
 	
 	@Inject
 	public CoreDownloadListManager(DownloadManager downloadManager,
-            DownloadListenerList listenerList, @Named("backgroundExecutor")
-            ScheduledExecutorService backgroundExecutor,
             RemoteFileDescFactory remoteFileDescFactory, ActivityCallback activityCallback, SpamManager spamManager, ItunesDownloadListenerFactory itunesDownloadListenerFactory) {
+	    
 	    this.downloadManager = downloadManager;
 	    this.remoteFileDescFactory = remoteFileDescFactory;
 	    this.activityCallback = activityCallback;
@@ -88,19 +89,27 @@ public class CoreDownloadListManager implements DownloadListManager {
         threadSafeDownloadItems = GlazedListsFactory.threadSafeList(new BasicEventList<DownloadItem>());
 	    ObservableElementList.Connector<DownloadItem> downloadConnector = GlazedLists.beanConnector(DownloadItem.class);
 	    observableDownloadItems = GlazedListsFactory.observableElementList(threadSafeDownloadItems, downloadConnector);
-	    this.queueTimeCalculator = new QueueTimeCalculator(observableDownloadItems);
-	    listenerList.addDownloadListener(new CoreDownloadListener(threadSafeDownloadItems, queueTimeCalculator));
+	}
+	
+	@Inject 
+	void register(DownloadListenerList listenerList) {
 	    
-	  //TODO: change backgroundExecutor to listener - currently no listener for download progress
-      //hack to force tables to update
-	    Runnable command = new Runnable() {
-            @Override
-            public void run() {
-                update();
-            }
-        };
-        backgroundExecutor.scheduleAtFixedRate(command, 0, PERIOD, TimeUnit.MILLISECONDS);
+	    listenerList.addDownloadListener(new CoreDownloadListener(threadSafeDownloadItems,
+                new QueueTimeCalculator(observableDownloadItems)));
+	    
+	}
+	
+	@Inject 
+    void register(ServiceScheduler scheduler, @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor) {
 
+	      Runnable command = new Runnable() {
+              @Override
+              public void run() {
+                  update();
+              }
+          };
+     
+          scheduler.scheduleAtFixedRate("UI Download Status Monitor", command, PERIOD*2, PERIOD, TimeUnit.MILLISECONDS, backgroundExecutor);
 	}
 
     // forces refresh
@@ -116,7 +125,7 @@ public class CoreDownloadListManager implements DownloadListManager {
             observableDownloadItems.getReadWriteLock().writeLock().unlock();
         }
     }
-	
+    
 	@Override
 	public EventList<DownloadItem> getDownloads() {
 		return observableDownloadItems;
@@ -281,7 +290,11 @@ public class CoreDownloadListManager implements DownloadListManager {
             downloader.addListener(new RecentDownloadListener(downloader));
             downloader.addListener(itunesDownloadListenerFactory.createListener(downloader));
             list.add(item);
-            urnMap.put(item.getUrn(), item);
+            URN urn = item.getUrn();
+            if(urn != null) {
+                //the bittorrent File Downloader can have a null urn
+                urnMap.put(item.getUrn(), item);
+            }
         }
 
         @Override
@@ -295,9 +308,8 @@ public class CoreDownloadListManager implements DownloadListManager {
             //don't automatically remove finished downloads or downloads in error states
             if ((item.getState() != DownloadState.DONE || SharingSettings.CLEAR_DOWNLOAD.getValue()) && 
                     item.getState() != DownloadState.ERROR) {
-                list.remove(item);
+                remove(item);
             }
-            urnMap.remove(item.getUrn());
         }
         
         @Override
@@ -339,7 +351,7 @@ public class CoreDownloadListManager implements DownloadListManager {
     }
 
     @Override
-    public DownloadItem addTorrentDownload(File file, File saveFile, boolean overwrite)
+    public DownloadItem addTorrentDownload(File file, boolean overwrite)
             throws SaveLocationException {
         Downloader downloader = downloadManager.downloadTorrent(file, overwrite);
 		return (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
@@ -366,7 +378,9 @@ public class CoreDownloadListManager implements DownloadListManager {
                 }
             }
 
-            threadSafeDownloadItems.removeAll(finishedItems);
+            for(DownloadItem item : finishedItems) {
+                remove(item);
+            }
         } finally {
             threadSafeDownloadItems.getReadWriteLock().writeLock().unlock();
         }
@@ -374,6 +388,7 @@ public class CoreDownloadListManager implements DownloadListManager {
 
     @Override
     public void remove(DownloadItem item) {
+        urnMap.remove(item.getUrn());
         threadSafeDownloadItems.remove(item);
     }
 

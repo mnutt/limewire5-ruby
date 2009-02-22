@@ -1,8 +1,8 @@
 package org.limewire.xmpp.api.client;
 
-import org.limewire.listener.DefaultDataEvent;
+import org.limewire.listener.DefaultDataSourceTypeEvent;
 
-public class XMPPConnectionEvent extends DefaultDataEvent<XMPPConnection, XMPPConnectionEvent.Type, Exception> {
+public class XMPPConnectionEvent extends DefaultDataSourceTypeEvent<XMPPConnection, XMPPConnectionEvent.Type, Exception> {
 
     public static enum Type {
         CONNECTING, CONNECTED, CONNECT_FAILED, DISCONNECTED

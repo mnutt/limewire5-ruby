@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -28,20 +29,30 @@ import org.limewire.collection.IntPair;
 import org.limewire.collection.RoundRobinQueue;
 import org.limewire.concurrent.ManagedThread;
 import org.limewire.io.BandwidthThrottle;
+import org.limewire.io.GUID;
 import org.limewire.io.IP;
+import org.limewire.io.IpPort;
+import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.nio.ssl.SSLUtils;
 import org.limewire.service.ErrorService;
 import org.limewire.util.DebugRunnable;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.util.Providers;
+import com.limegroup.gnutella.ApplicationServices;
 import com.limegroup.gnutella.NetworkManager;
+import com.limegroup.gnutella.PushEndpoint;
+import com.limegroup.gnutella.PushEndpointCache;
+import com.limegroup.gnutella.PushEndpointFactoryImpl;
+import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.altlocs.AltLocUtils;
 import com.limegroup.gnutella.altlocs.AlternateLocation;
 import com.limegroup.gnutella.altlocs.AlternateLocationCollection;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
-import com.limegroup.gnutella.altlocs.PushAltLoc;
+import com.limegroup.gnutella.altlocs.AlternateLocationFactoryImpl;
+import com.limegroup.gnutella.dht.db.SearchListener;
 import com.limegroup.gnutella.filters.IPList;
 import com.limegroup.gnutella.http.FeaturesWriter;
 import com.limegroup.gnutella.http.HTTPHeaderName;
@@ -219,8 +230,6 @@ public class TestUploader {
      */
     private String _proxiesString;
 
-    private final AlternateLocationFactory alternateLocationFactory;
-
     private final NetworkManager networkManager;
     
     /**
@@ -232,11 +241,10 @@ public class TestUploader {
     
     @Inject
     public TestUploader(Injector injector) {
-        this(injector.getInstance(AlternateLocationFactory.class),injector.getInstance(NetworkManager.class));
+        this(injector.getInstance(NetworkManager.class));
     }
     
-    public TestUploader(AlternateLocationFactory alternateLocationFactory, NetworkManager networkManager) {
-        this.alternateLocationFactory = alternateLocationFactory;
+    public TestUploader(NetworkManager networkManager) {
         this.networkManager = networkManager;
         this.networkManagerStub = networkManager instanceof NetworkManagerStub ? 
                 (NetworkManagerStub) networkManager : null;
@@ -1054,11 +1062,10 @@ public class TestUploader {
 	 */
 	private void readAlternateLocations (String altHeader, final boolean good) {
         String alternateLocations=HttpTestUtils.extractHeaderValue(altHeader);
-        AltLocUtils.parseAlternateLocations(_sha1, alternateLocations, true, alternateLocationFactory, new Function<AlternateLocation, Void>() {
-            public Void apply(AlternateLocation location) {
-                if(location instanceof PushAltLoc)
-                    ((PushAltLoc)location).updateProxies(good);
-                
+        // this very purposely uses TestAlternateLocationFactory, so that it doesn't retain all
+        // the state of the rest of the code
+        AltLocUtils.parseAlternateLocations(_sha1, alternateLocations, true, new TestAlternateLocationFactory(), new Function<AlternateLocation, Void>() {
+            public Void apply(AlternateLocation location) {                
                 if (good) 
                     incomingGoodAltLocs.add(location);
                 else 
@@ -1255,5 +1262,200 @@ public class TestUploader {
     	String header = TestUploader.createHeader(name, value);
     	os.write(header.getBytes());
     }
+    
+    // a factory to create alternate locations w/o sharing any state with the rest of the program.
+    private static class TestAlternateLocationFactory implements AlternateLocationFactory {
+        
+        private final AlternateLocationFactory delegate;
+        
+        public TestAlternateLocationFactory() {
+            this.delegate = new AlternateLocationFactoryImpl(
+                    null, // network manager
+                    new PushEndpointFactoryImpl(  //push endpoint factory
+                            Providers.of((PushEndpointCache)new PECache()),
+                            null,
+                            new NIUtils()), 
+                    new AppServices(), // application services
+                    null, // connection services
+                    new NIUtils(), // network instance utils
+                    null); // ipportforself
+        }
+
+        @Override
+        public AlternateLocation create(URN urn) {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public AlternateLocation create(RemoteFileDesc rfd) throws IOException {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public AlternateLocation create(String location, URN urn, boolean tlsCapable)
+                throws IOException {
+            return delegate.create(location, urn, tlsCapable);
+        }
+
+        @Override
+        public AlternateLocation create(String location, URN urn) throws IOException {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public AlternateLocation createDirectAltLoc(IpPort ipp, URN urn) throws IOException {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public AlternateLocation createDirectDHTAltLoc(IpPort ipp, URN urn, long fileSize, byte[] ttroot)
+                throws IOException {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public AlternateLocation createPushAltLoc(PushEndpoint pe, URN urn) {
+            throw new IllegalStateException();
+        }
+        
+        private static class NIUtils implements NetworkInstanceUtils {
+
+            @Override
+            public boolean isMe(String host, int port) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public boolean isMe(byte[] address, int port) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public boolean isMe(IpPort me) {
+                return false;
+            }
+
+            @Override
+            public boolean isPrivate() {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public boolean isPrivateAddress(InetAddress address) {
+                return false;
+            }
+
+            @Override
+            public boolean isPrivateAddress(byte[] address) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public boolean isPrivateAddress(String address) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public boolean isPrivateAddress(SocketAddress address) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public boolean isValidExternalIpPort(IpPort addr) {
+                return true;
+            }
+
+            @Override
+            public boolean isVeryCloseIP(byte[] addr0, byte[] addr1) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public boolean isVeryCloseIP(InetAddress addr) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public boolean isVeryCloseIP(byte[] addr) {
+                throw new IllegalStateException();
+            }
+            
+        }
+        
+        private static class AppServices implements ApplicationServices {
+
+            @Override
+            public byte[] getMyBTGUID() {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public byte[] getMyGUID() {
+                return new byte[16];
+            }
+
+            @Override
+            public void setFullPower(boolean newValue) {
+                throw new IllegalStateException();   
+            }
+            
+        }
+        
+        private static class PECache implements PushEndpointCache {
+
+            @Override
+            public void clear() {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PushEndpoint getCached(GUID guid) {
+                return null;
+            }
+
+            @Override
+            public void overwriteProxies(byte[] guid, String httpString) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public void overwriteProxies(byte[] guid, Set<? extends IpPort> newSet) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public void removePushProxy(byte[] bytes, IpPort pushProxy) {
+                throw new IllegalStateException();            
+            }
+
+            @Override
+            public void setAddr(byte[] guid, IpPort addr) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public void setFWTVersionSupported(byte[] guid, int version) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public GUID updateProxiesFor(GUID guid, PushEndpoint pushEndpoint, boolean valid) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public void findPushEndpoint(GUID guid, SearchListener<PushEndpoint> listener) {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PushEndpoint getPushEndpoint(GUID guid) {
+                throw new IllegalStateException();
+            }
+            
+        }
+
+    }
+
     
 }

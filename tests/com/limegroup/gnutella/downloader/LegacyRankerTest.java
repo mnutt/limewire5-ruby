@@ -104,7 +104,7 @@ public class LegacyRankerTest extends LimeTestCase {
     
     private RemoteFileDescContext newRFD(String host, int speed) throws Exception {
         return toContext(remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl(host, 1, false), 0, "asdf", TestFile.length(), new byte[16],
-                speed, false, 4, false, null, URN.NO_URN_SET, false, "", -1));
+                speed, 4, false, null, URN.NO_URN_SET, false, "", -1));
     }
 
     private RemoteFileDescContext newRFDWithURN(String host, int speed) throws Exception {
@@ -117,7 +117,7 @@ public class LegacyRankerTest extends LimeTestCase {
             fail("SHA1 not created");
         }
         return toContext(remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl(host, 1, false), 0, "asdf", TestFile.length(), new byte[16],
-                speed, false, 4, false, null, set, false, "", -1));
+                speed, 4, false, null, set, false, "", -1));
     }
     
     private RemoteFileDescContext toContext(RemoteFileDesc rfd) {

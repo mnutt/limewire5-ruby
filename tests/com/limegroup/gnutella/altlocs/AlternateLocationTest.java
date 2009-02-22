@@ -102,7 +102,7 @@ public final class AlternateLocationTest extends LimeTestCase {
 			RemoteFileDesc rfd = 
 				remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", 6346, false), 10, HTTPConstants.URI_RES_N2R+
             				   UrnHelper.URNS[i].httpStringValue(), 10,
-                    GUID.makeGuid(), 10, true, 2, true, null, UrnHelper.URN_SETS[i], false, "", -1);
+                    GUID.makeGuid(), 10, 2, true, null, UrnHelper.URN_SETS[i], false, "", -1);
 
             // just make sure this doesn't throw an exception
 			AlternateLocation loc = alternateLocationFactory.create(rfd);
@@ -114,7 +114,7 @@ public final class AlternateLocationTest extends LimeTestCase {
         RemoteFileDesc rfd = 
             remoteFileDescFactory.createRemoteFileDesc(pe, 10, HTTPConstants.URI_RES_N2R+
                                UrnHelper.URNS[0].httpStringValue(), 10,
-                pe.getClientGUID(), 10, true, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
+                pe.getClientGUID(), 10, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
 
         alternateLocationFactory.create(rfd);
 
@@ -133,7 +133,7 @@ public final class AlternateLocationTest extends LimeTestCase {
         //test an rfd with push proxies
         RemoteFileDesc fwalled = remoteFileDescFactory.createRemoteFileDesc(pushEndpoint, 10, HTTPConstants.URI_RES_N2R+
                                    UrnHelper.URNS[0].httpStringValue(), 10,
-                pushEndpoint.getClientGUID(), 10, true, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
+                pushEndpoint.getClientGUID(), 10, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
         
         AlternateLocation loc = alternateLocationFactory.create(fwalled);
         
@@ -146,7 +146,7 @@ public final class AlternateLocationTest extends LimeTestCase {
         pe = pushEndpointFactory.createPushEndpoint(GUID.makeGuid(), proxies, PushEndpoint.PLAIN, 1, new IpPortImpl("1.2.3.4", 5));
         RemoteFileDesc FWTed = remoteFileDescFactory.createRemoteFileDesc(pe, 10, HTTPConstants.URI_RES_N2R+
                 UrnHelper.URNS[0].httpStringValue(), 10,
-                pe.getClientGUID(), 10, true, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
+                pe.getClientGUID(), 10, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
         
         loc = alternateLocationFactory.create(FWTed);
         
@@ -186,7 +186,7 @@ public final class AlternateLocationTest extends LimeTestCase {
         //test an rfd with push proxies
         RemoteFileDesc fwalled = remoteFileDescFactory.createRemoteFileDesc(pushEndpoint, 10, HTTPConstants.URI_RES_N2R+
                                    UrnHelper.URNS[0].httpStringValue(), 10,
-                pushEndpoint.getClientGUID(), 10, true, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
+                pushEndpoint.getClientGUID(), 10, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
         
         AlternateLocation loc = alternateLocationFactory.create(fwalled);
         
@@ -212,7 +212,7 @@ public final class AlternateLocationTest extends LimeTestCase {
         //test an rfd with push proxies
         RemoteFileDesc fwalled = remoteFileDescFactory.createRemoteFileDesc(pushEndpoint, 10, HTTPConstants.URI_RES_N2R+
                                    UrnHelper.URNS[0].httpStringValue(), 10,
-                pushEndpoint.getClientGUID(), 10, true, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
+                pushEndpoint.getClientGUID(), 10, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
 
         AlternateLocation loc = alternateLocationFactory.create(fwalled);
         

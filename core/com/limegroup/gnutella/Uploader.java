@@ -107,11 +107,6 @@ public interface Uploader extends BandwidthTracker, Connectable {
     public UploadStatus getLastTransferState();
 
 	/**
-	 * returns true if chat for the host is on, false if it is not.
-	 */
-	public boolean isChatEnabled();
-	
-	/**
 	 * returns true if browse host is enabled, false if it is not.
 	 */
 	public boolean isBrowseHostEnabled();

@@ -38,7 +38,7 @@ import org.limewire.io.IOUtils;
 import org.limewire.io.InvalidDataException;
 import org.limewire.io.PermanentAddress;
 import org.limewire.listener.EventListener;
-import org.limewire.listener.EventListenerList;
+import org.limewire.listener.EventMulticaster;
 import org.limewire.net.ConnectivityChangeEvent;
 import org.limewire.net.SocketsManager;
 import org.limewire.service.ErrorService;
@@ -52,7 +52,6 @@ import com.limegroup.gnutella.ApplicationServices;
 import com.limegroup.gnutella.BandwidthTracker;
 import com.limegroup.gnutella.DownloadCallback;
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.NetworkManager;
@@ -358,11 +357,6 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      *  no corrupt file. */
     private volatile File corruptFile;
 
-	/** The list of all chat-enabled hosts for this <tt>ManagedDownloader</tt>
-	 *  instance.
-	 */
-	private DownloadChatList chatList;
-
 	/** The list of all browsable hosts for this <tt>ManagedDownloader</tt>
 	 *  instance.
 	 */
@@ -425,8 +419,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     
     private long contentLength = -1;
     
-    private final EventListenerList<DownloadStateEvent> listeners = 
-        new EventListenerList<DownloadStateEvent>(); 
+    private final EventMulticaster<DownloadStateEvent> listeners;
     
     protected final DownloadManager downloadManager;
     protected final FileManager fileManager;
@@ -464,6 +457,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
      * You must set initial source via {@link #addInitialSources},
      * set the save file via {@link #setSaveFile(File, String, boolean)},
      * and call {@link #initialize} prior to starting this download.
+     * @param downloadStateMulticaster TODO
      */
     @Inject
     protected ManagedDownloaderImpl(SaveLocationManager saveLocationManager,
@@ -480,8 +474,10 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             ScheduledExecutorService backgroundExecutor, Provider<MessageRouter> messageRouter,
             Provider<HashTreeCache> tigerTreeCache, ApplicationServices applicationServices,
             RemoteFileDescFactory remoteFileDescFactory, Provider<PushList> pushListProvider,
-            SocketsManager socketsManager) {
+            SocketsManager socketsManager, 
+            @Named("downloadStateMulticaster") EventMulticaster<DownloadStateEvent> downloadStateMulticaster) {
         super(saveLocationManager);
+        this.listeners = downloadStateMulticaster;
         this.downloadManager = downloadManager;
         this.fileManager = fileManager;
         this.incompleteFileManager = incompleteFileManager;
@@ -569,7 +565,6 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             _activeWorkers=new LinkedList<DownloadWorker>();
             _workers=new ArrayList<DownloadWorker>();
             _queuedWorkers = new HashMap<DownloadWorker, Integer>();
-    		chatList=new DownloadChatList();
             browseList=new DownloadBrowseHostList();
             stopped=false;
             paused = false;
@@ -1304,7 +1299,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
                 }
             }
         }
-        
+            
         if(l.size() > 0) {
             return addDownloadForced(l,cache);
         } else {
@@ -1334,7 +1329,8 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
     }
     
     protected synchronized final boolean addDownloadForced(Collection<? extends RemoteFileDesc> c, boolean cache) {
-        LOG.debug("add download forced", new Exception());
+        if(LOG.isDebugEnabled())
+            LOG.debug("add download forced", new Exception());
         // create copy, argument might not be modifiable
         Set<RemoteFileDesc> copy = new HashSet<RemoteFileDesc>(c);
         // remove any rfds we're currently downloading from
@@ -2200,14 +2196,12 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         
         setState(DownloadState.DOWNLOADING);
         addActiveWorker(worker);
-        chatList.addHost(worker.getDownloader());
         browseList.addHost(worker.getDownloader());
     }
     
     public void workerFailed(DownloadWorker failed) {
         HTTPDownloader downloader = failed.getDownloader();
         if (downloader != null) {
-            chatList.removeHost(downloader);
             browseList.removeHost(downloader);
         }
     }
@@ -2594,7 +2588,7 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             this.stateTime=System.currentTimeMillis()+time;
         }
         if (oldState != newState) {
-            fireEventLater(newState);
+            listeners.broadcast(new DownloadStateEvent(ManagedDownloaderImpl.this, newState));
         }
     }
     
@@ -2716,19 +2710,6 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         return sources;
     }    
    
-	/* (non-Javadoc)
-     * @see com.limegroup.gnutella.downloader.ManagedDownloader#getChatEnabledHost()
-     */
-	public synchronized Endpoint getChatEnabledHost() {
-		return chatList.getChatEnabledHost();
-	}
-
-	/* (non-Javadoc)
-     * @see com.limegroup.gnutella.downloader.ManagedDownloader#hasChatEnabledHost()
-     */
-	public synchronized boolean hasChatEnabledHost() {
-		return chatList.hasChatEnabledHost();
-	}
 
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.downloader.ManagedDownloader#getBrowseEnabledHost()
@@ -2884,13 +2865,9 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             URN sha1 = getSha1Urn();
             URN ttroot = tree.getTreeRootUrn();
             tigerTreeCache.get().addRoot(sha1, ttroot);
-            synchronized(fileManager) {
-                List<FileDesc> fds = fileManager.getManagedFileList().getFileDescsMatching(sha1);
-                for(FileDesc fd : fds) {
-                    if (fd == null) // possible for in-network downloads
-                        return;
-                    fd.setTTRoot(ttroot);
-                }
+            List<FileDesc> fds = fileManager.getManagedFileList().getFileDescsMatching(sha1);
+            for(FileDesc fd : fds) {
+                fd.setTTRoot(ttroot);
             }
         }
     }
@@ -3162,17 +3139,6 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
         return cachedRFDs;
     }
     
-    /**
-     * Fires status event in background executro thread. 
-     */
-    private void fireEventLater(final DownloadState status) {
-        backgroundExecutor.execute(new Runnable() {
-            public void run() {
-                listeners.broadcast(new DownloadStateEvent(ManagedDownloaderImpl.this, status));
-            }
-        });
-    }
-
     public void addListener(EventListener<DownloadStateEvent> listener) {
         listeners.addListener(listener);
     }
@@ -3225,5 +3191,10 @@ class ManagedDownloaderImpl extends AbstractCoreDownloader implements AltLocList
             }
         }
         
+    }
+
+    // for tests
+    protected SourceRanker getCurrentSourceRanker() {
+        return ranker;
     }
 }

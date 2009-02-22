@@ -2,6 +2,8 @@ package org.limewire.ui.swing.options;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -27,7 +29,14 @@ import org.limewire.util.Objects;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
+/**
+ * Defines the window panel for the Download Folders dialog, which manages the
+ * save folders for individual media types.
+ */
 public class ManageSaveFoldersOptionPanel extends OptionPanel {
+
+    /** Map containing initial save directories for various media types. */
+    private Map<MediaType, String> mediaDirectoryMap = new HashMap<MediaType, String>();
     
     private LabelTextField audioTextField;
 
@@ -59,6 +68,10 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
 
     private JButton cancelButton;
 
+    /**
+     * Constructs a ManageSaveFoldersOptionPanel with the specified managers
+     * and actions.
+     */
     @AssistedInject
     public ManageSaveFoldersOptionPanel(CategoryIconManager categoryIconManager,
             @Assisted Action okAction, @Assisted CancelDialogAction cancelAction, IconManager iconManager) {
@@ -153,12 +166,19 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
     }
 
     private void applyOption(MediaType mediaType, LabelTextField textField) {
-        if(hasChanged(mediaType, textField)) {
+        if (hasChanged(mediaType, textField)) {
             FileSetting saveDirSetting = SharingSettings.getFileSettingForMediaType(mediaType);
             String newSaveDirString = textField.getText();
-            File newSaveDir = new File(newSaveDirString);
-            saveDirSetting.setValue(newSaveDir);
-         }
+            // Apply media save directory.  If the new value is equal to the
+            // default save directory, then revert the setting to the default. 
+            String saveDirString = SharingSettings.getSaveDirectory().getAbsolutePath();
+            if (!newSaveDirString.equals(saveDirString)) {
+                File newSaveDir = new File(newSaveDirString);
+                saveDirSetting.setValue(newSaveDir);
+            } else {
+                saveDirSetting.revertToDefault();
+            }
+        }
     }
     
     @Override
@@ -172,9 +192,10 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
     }
 
     private boolean hasChanged(MediaType mediaType, LabelTextField textField) {
-        FileSetting saveDirSetting = SharingSettings.getFileSettingForMediaType(mediaType);
-        File saveDir = saveDirSetting.getValue();
-        String oldSaveDirString = saveDir.getAbsolutePath();
+        // Compare text field to initial value.  We cannot compare to the 
+        // FileSetting value because it may change if the default save
+        // directory is updated.
+        String oldSaveDirString = mediaDirectoryMap.get(mediaType);
         String newSaveDirString = textField.getText();
         return !Objects.equalOrNull(oldSaveDirString, newSaveDirString);
     }
@@ -194,8 +215,14 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
         File saveDir = saveDirSetting.getValue();
         String saveDirString = saveDir.getAbsolutePath();
         textField.setText(saveDirString);
+        // Save initial value for comparison.
+        mediaDirectoryMap.put(mediaType, saveDirString);
     }
-    
+
+    /**
+     * Defines the action to revert the media directory settings to the 
+     * default save directory. 
+     */
     private class DefaultAction extends AbstractAction {
 
         public DefaultAction() {

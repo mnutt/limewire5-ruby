@@ -53,8 +53,7 @@ public class PushAltLoc extends AbstractAlternateLocation {
 		Set<URN> urnSet = new UrnSet(getSHA1Urn());
         int quality = 3;
  
-        RemoteFileDesc	ret = remoteFileDescFactory.createRemoteFileDesc(_pushAddress, 0, HTTPConstants.URI_RES_N2R+SHA1_URN, size, _pushAddress.getClientGUID(), 1000, true, quality, false, null, urnSet, false, ALT_VENDOR,
-                -1);
+        RemoteFileDesc	ret = remoteFileDescFactory.createRemoteFileDesc(_pushAddress, 0, HTTPConstants.URI_RES_N2R+SHA1_URN, size, _pushAddress.getClientGUID(), 1000, quality, false, null, urnSet, false, ALT_VENDOR, -1);
 
 		
 		return ret;

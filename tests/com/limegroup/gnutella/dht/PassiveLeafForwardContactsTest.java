@@ -28,7 +28,6 @@ import com.google.inject.Stage;
 import com.limegroup.gnutella.BlockingConnectionUtils;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.ConnectionServices;
-import com.limegroup.gnutella.HostCatcher;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NodeAssigner;
@@ -95,8 +94,6 @@ public class PassiveLeafForwardContactsTest extends LimeTestCase {
         // start an instance of LimeWire in Ultrapeer mode
         injector.getInstance(LifecycleManager.class).start();
             
-        injector.getInstance(HostCatcher.class).clear();
-
         connectionServices = injector.getInstance(ConnectionServices.class);
         connectionServices.connect();
            

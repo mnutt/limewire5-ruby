@@ -8,8 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Icon;
+
+import org.jdesktop.application.Resource;
 import org.limewire.core.api.xmpp.XMPPResourceFactory;
 import org.limewire.ui.swing.settings.SwingUiSettings;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.xmpp.api.client.PasswordManager;
 
 import com.google.inject.Inject;
@@ -24,9 +28,13 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
     
     private XMPPAccountConfiguration autoLoginConfig = null;
     
+    @Resource private Icon gmailIcon;
+    @Resource private Icon ljIcon;
+    
     @Inject
     public XMPPAccountConfigurationManagerImpl(PasswordManager passwordManager,
             XMPPResourceFactory xmppResourceFactory) {
+        GuiUtils.assignResources(this);
         this.passwordManager = passwordManager;
         configs = new HashMap<String,XMPPAccountConfiguration>();
         resource = xmppResourceFactory.getResource();
@@ -35,16 +43,10 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
     }
 
     private void loadCustomServer() {
-        String custom = SwingUiSettings.USER_DEFINED_XMPP_SERVER.getValue();
-        XMPPAccountConfiguration customConfig;
-        try {
-            customConfig = new XMPPAccountConfigurationImpl(custom, resource);
-        } catch(IllegalArgumentException ignored) {
-            // Broken or missing custom config - use the default
-            customConfig = new XMPPAccountConfigurationImpl(resource);
-        }
-        customConfig.setLabel("Jabber");
-        configs.put("Jabber", customConfig);
+        String custom = SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.getValue();
+        XMPPAccountConfigurationImpl customConfig =
+            new XMPPAccountConfigurationImpl(custom, "Jabber", resource);
+        configs.put(customConfig.getLabel(), customConfig);
         String autoLogin = SwingUiSettings.XMPP_AUTO_LOGIN.getValue();
         if(!autoLogin.equals("")) {
             int comma = autoLogin.indexOf(',');
@@ -69,15 +71,13 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
     }
 
     private void loadWellKnownServers() {
-        for(String server : SwingUiSettings.XMPP_SERVERS.getValue()) {
-            try {
-                XMPPAccountConfiguration config =
-                    new XMPPAccountConfigurationImpl(server, resource);
-                configs.put(config.getLabel(), config);
-            } catch(IllegalArgumentException ignored) {
-                // Malformed string - no soup for you!
-            }
-        }
+        XMPPAccountConfiguration gmail =
+            new XMPPAccountConfigurationImpl(true, "gmail.com", "Gmail", gmailIcon, resource);
+        XMPPAccountConfiguration livejournal =
+            new XMPPAccountConfigurationImpl(false, "livejournal.com", "LiveJournal", ljIcon, resource);
+
+        configs.put(gmail.getLabel(), gmail);
+        configs.put(livejournal.getLabel(), livejournal);
     }
 
     @Override
@@ -117,18 +117,16 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
         if(autoLoginConfig != null) {
             passwordManager.removePassword(autoLoginConfig.getUserInputLocalID());
             SwingUiSettings.XMPP_AUTO_LOGIN.setValue("");
-            SwingUiSettings.USER_DEFINED_XMPP_SERVER.setValue("");
+            SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.setValue("");
             autoLoginConfig = null;
         }
         // Store the new configuration, if there is one
         if(config != null) {
             try {
-                passwordManager.storePassword(config.getUserInputLocalID(),
-                        config.getPassword());
-                SwingUiSettings.XMPP_AUTO_LOGIN.setValue(config.getLabel() + "," +
-                        config.getUserInputLocalID());
+                passwordManager.storePassword(config.getUserInputLocalID(), config.getPassword());
+                SwingUiSettings.XMPP_AUTO_LOGIN.setValue(config.getLabel() + "," + config.getUserInputLocalID());
                 if(config.getLabel().equals("Jabber"))
-                    SwingUiSettings.USER_DEFINED_XMPP_SERVER.setValue(config.toString());
+                    SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.setValue(config.getServiceName());
                 autoLoginConfig = config;
             } catch (IllegalArgumentException ignored) {
                 // Empty username or password - no soup for you!

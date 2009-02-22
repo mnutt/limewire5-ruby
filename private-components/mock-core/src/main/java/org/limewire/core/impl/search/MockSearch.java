@@ -58,7 +58,7 @@ public class MockSearch implements Search {
     @Override
     public void start() {
         for (SearchListener listener : listeners) {
-            listener.searchStarted();
+            listener.searchStarted(this);
         }
         addResults("");
     }
@@ -66,7 +66,7 @@ public class MockSearch implements Search {
     @Override
     public void stop() {
         for (SearchListener listener : listeners) {
-            listener.searchStopped();
+            listener.searchStopped(this);
         }
     }
     
@@ -81,21 +81,21 @@ public class MockSearch implements Search {
     
     private void handleSearchResult(MockSearchResult mock) {
         for (SearchListener listener : listeners) {
-            listener.handleSearchResult(mock);
+            listener.handleSearchResult(this, mock);
         }
     }
     
     private void handleSponsoredResults(SponsoredResult... sponsoredResults) {
         List<SponsoredResult> mockList =  Arrays.asList(sponsoredResults);
         for (SearchListener listener : listeners) {
-            listener.handleSponsoredResults(mockList);
+            listener.handleSponsoredResults(this, mockList);
         }
     }
     
     @Override
     public void repeat() {
         for (SearchListener listener : listeners) {
-            listener.searchStarted();
+            listener.searchStarted(this);
         }
         addResults("rp" + repeatCount++);
     }

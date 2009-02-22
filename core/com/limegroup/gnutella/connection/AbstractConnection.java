@@ -242,7 +242,7 @@ public abstract class AbstractConnection implements Connection {
      * updated capabilities.
      */
     public void sendUpdatedCapabilities() {
-        LOG.debug("updated capabilities");
+        LOG.trace("Sending updated capabilities");
         try {
             if (getConnectionCapabilities().getHeadersRead().supportsVendorMessages() > 0)
                 send(capabilitiesVMFactory.getCapabilitiesVM());
@@ -572,6 +572,13 @@ public abstract class AbstractConnection implements Connection {
     protected void handshakeInitialized(Handshaker handshaker) {
         setHeaders(handshaker.getReadHeaders(), handshaker.getWrittenHeaders());
         connectionTime = System.currentTimeMillis();
+        
+        if(LOG.isInfoEnabled()) {
+            HandshakeResponse response = handshaker.getReadHeaders();
+            String ip = response.getProperty(HeaderNames.LISTEN_IP);
+            String agent = response.getProperty(HeaderNames.USER_AGENT);
+            LOG.info("Listen-ip " + ip + ", user agent " + agent);
+        }
 
         // Now set the soft max TTL that should be used on this connection.
         // The +1 on the soft max for "good" connections is because the message
@@ -625,8 +632,8 @@ public abstract class AbstractConnection implements Connection {
         }
         // Otherwise, if our current address is invalid, change.
         else if (!NetworkUtils.isValidAddress(networkManager.getAddress())) {
-            if (LOG.isDebugEnabled())
-                LOG.debugf("updating address {0}", ipAddressFromHeader);
+            if(LOG.isInfoEnabled())
+                LOG.info("Updating address to " + ipAddressFromHeader);
             // will auto-call addressChanged.
             // TODO store address in one place     
             acceptor.setAddress(ipAddressFromHeader);

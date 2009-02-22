@@ -13,6 +13,7 @@ import static com.limegroup.gnutella.library.FileManagerTestUtils.assertLoads;
 import static com.limegroup.gnutella.library.FileManagerTestUtils.assertSetManagedDirectories;
 import static com.limegroup.gnutella.library.FileManagerTestUtils.change;
 import static com.limegroup.gnutella.library.FileManagerTestUtils.createFakeTestFile;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.createHiddenTestFile;
 import static com.limegroup.gnutella.library.FileManagerTestUtils.createNewExtensionTestFile;
 import static com.limegroup.gnutella.library.FileManagerTestUtils.createNewNamedTestFile;
 import static com.limegroup.gnutella.library.FileManagerTestUtils.createNewTestFile;
@@ -251,6 +252,23 @@ public class ManagedFileListImplTest extends LimeTestCase {
         assertLoads(fileList);
         assertEquals(4, fileList.size());
         assertContainsFiles(CollectionUtils.listOf(fileList), f1, f2, f4, f5);
+    }
+
+    public void testIgnoreHiddenFiles() throws Exception {
+        // Create some ordinary files and add them
+        f1 = createNewTestFile(1, _scratchDir);
+        f2 = createNewTestFile(1, _scratchDir);
+        assertAdds(fileList, f1, f2);
+        assertEquals(2, fileList.size());
+
+        // Try to add a hidden file
+        f3 = createHiddenTestFile(1, _scratchDir);
+        assertAddFails("NOT_MANAGEABLE", fileList, f3);
+        assertEquals(2, fileList.size());
+        
+        assertLoads(fileList);
+        assertEquals(2, fileList.size());
+        assertContainsFiles(CollectionUtils.listOf(fileList), f1, f2);
     }
 
     public void testPausableIterator() throws Exception {

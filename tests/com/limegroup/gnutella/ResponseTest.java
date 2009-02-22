@@ -1050,8 +1050,6 @@ public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase
             will(returnValue(GUID.makeGuid()));
             one(queryReply).getSpeed();
             will(returnValue(5));
-            one(queryReply).getSupportsChat();
-            will(returnValue(true));
             one(queryReply).calculateQualityOfService();
             will(returnValue(0));
             one(queryReply).getSupportsBrowseHost();

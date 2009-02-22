@@ -73,7 +73,7 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
     private final Next next = new Next();
     private final Prev prev = new Prev();
 
-    private final PromptTextField filterField;        
+    private PromptTextField filterField;        
     
     public AbstractFileListPanel(HeaderBarDecorator headerBarFactory, TextFieldDecorator textFieldDecorator) {        
         setLayout(new MigLayout("fill, gap 0, insets 0", "[][][grow]", "[][grow]"));
@@ -90,8 +90,10 @@ abstract class AbstractFileListPanel extends JPanel implements Disposable {
         addDisposable(selectionPanel);
     }
     
-    protected void enableFilterBox(boolean value) {
-        filterField.setEnabled(value);
+    // TODO: This should not be necessary
+    protected void removeFilterBox() {
+        headerPanel.remove(filterField);
+        filterField = null;
     }
     
     protected abstract HeaderBar createHeaderBar(HeaderBarDecorator headerBarFactory);

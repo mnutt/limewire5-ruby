@@ -1,8 +1,8 @@
 package com.limegroup.gnutella.version;
 
-import org.limewire.listener.DefaultEvent;
+import org.limewire.listener.DefaultSourceTypeEvent;
 
-public class UpdateEvent extends DefaultEvent<UpdateInformation, UpdateEvent.Type> {
+public class UpdateEvent extends DefaultSourceTypeEvent<UpdateInformation, UpdateEvent.Type> {
 
     public static enum Type {
         UPDATE

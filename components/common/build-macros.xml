@@ -103,6 +103,7 @@
             <path id="build.limewire.components.@{component}.buildpath">
                 <path refid="build.limewire.components.@{component}.classpath"/>
                 <pathelement location="${build.limewire.components.@{component}.classes}"/>
+            	<pathelement location="${limewire.components.@{component}.src.resources}"/>
             </path>
             
     	    <path id="build.limewire.components.@{component}.tests.classpath">
@@ -421,8 +422,9 @@
             <taskdef resource="cloverlib.xml" classpath="${cloverjar}"/>
             <mkdir dir="${clover.limewire.components.@{component}.home}"/>
             <clover-setup initString="${clover.limewire.components.@{component}.db}">
-              <!--  <statementContext name="log" regexp="^LOG\..*"/>
-                <statementContext name="iflog" regexp="^if *\(LOG\.is.*"/> -->
+                <statementContext name="log" regexp="^LOG\..*"/>
+                <statementContext name="iflog" regexp="^if *\(LOG\.is.*"/> 
+                <methodContext name="main" regexp="public static void main\(String args\[\]\).*"/>
                 <fileset dir="@{defaultfileset}" includes="**/*.java"/>
                 <locations/>
             </clover-setup>
@@ -452,14 +454,14 @@
             <clover-report>
                 <current outfile="${clover.limewire.components.@{component}.html}"
                 		 title="LimeWire - ${clover.time}">
-	                <format type="html"/> <!-- todo: re-add filter="log,iflog,assert" -->
+	                <format type="html" filter="log,iflog,assert,main"/>
                     <testresults dir="@{defaulttestresults}" includes="TEST-*.xml"/>
                     <testsources dir="@{defaulttestsources}" includes="**/*.java"/>
                     <moretestinfo/>
                 </current>
                 <current outfile="${clover.limewire.components.@{component}.xml}"
                          title="LimeWire - ${clover.time}">
-					<format type="xml"/>  <!-- todo: re-add filter="log,iflog,assert" -->
+					<format type="xml" filter="log,iflog,assert,main"/>
                 </current>
             </clover-report>
         </sequential>

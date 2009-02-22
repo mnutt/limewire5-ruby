@@ -35,17 +35,19 @@ public class XMPPRemoteFileDescDeserializer implements RemoteFileDescDeserialize
     
     @Override
     public RemoteFileDesc createRemoteFileDesc(Address address, long index, String filename,
-            long size, byte[] clientGUID, int speed, boolean chat, int quality, boolean browseHost,
-            LimeXMLDocument xmlDoc, Set<? extends URN> urns, boolean replyToMulticast,
-            String vendor, long createTime) {
-        return new XMPPRemoteFileDesc((XMPPAddress)address, index, filename, size, clientGUID, speed, chat, quality, browseHost, xmlDoc, urns, replyToMulticast, vendor, createTime, addressFactory, addressResolver);
+            long size, byte[] clientGUID, int speed, int quality, LimeXMLDocument xmlDoc,
+            Set<? extends URN> urns, String vendor, long createTime) {
+        return new XMPPRemoteFileDesc((XMPPAddress)address, index, filename, size, clientGUID, speed, quality, xmlDoc, urns, vendor, createTime, true, addressFactory, addressResolver);
     }
 
     /**
-     * Creates a {@link XMPPRemoteFileDesc} clone of remote file desc replacing the address with <code>address</code>.
+     * Creates an XMPPRemoteFileDesc clone of a RemoteFileDesc replacing the address, XMPP vitals, and 
+     *  linking as necessary.
+     *  
+     * Not all attributes will be preserved in the promotion process.
      */
-    public RemoteFileDesc createClone(RemoteFileDesc rfd, XMPPAddress address) {
-       return new XMPPRemoteFileDesc(address, rfd.getIndex(), rfd.getFileName(), rfd.getSize(), rfd.getClientGUID(), rfd.getSpeed(), rfd.isChatEnabled(), rfd.getQuality(), rfd.isBrowseHostEnabled(), 
-               rfd.getXMLDocument(), rfd.getUrns(), rfd.isReplyToMulticast(), rfd.getVendor(), rfd.getCreationTime(), addressFactory, addressResolver); 
+    public RemoteFileDesc promoteRemoteFileDescAndExchangeAddress(RemoteFileDesc rfd, XMPPAddress address) {
+       return new XMPPRemoteFileDesc(address, rfd.getIndex(), rfd.getFileName(), rfd.getSize(), rfd.getClientGUID(), rfd.getSpeed(), rfd.getQuality(), rfd.getXMLDocument(), rfd.getUrns(), 
+               rfd.getVendor(), rfd.getCreationTime(), rfd.isHTTP11(), addressFactory, addressResolver); 
     }
 }

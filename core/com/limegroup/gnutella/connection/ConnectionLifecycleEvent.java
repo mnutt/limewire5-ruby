@@ -70,10 +70,10 @@ public class ConnectionLifecycleEvent extends EventObject {
         StringBuffer buffer = new StringBuffer("ConnectionLifecycleEvent: [event=");
         buffer.append(type);
         buffer.append(", connection=");
-        if(connection != null) {
-            buffer.append(connection.toString());
+        if(connection == null) {
+            buffer.append("null");
         } else {
-            buffer.append(", connection= null");
+            buffer.append(connection.toString());
         }
         return buffer.append("]").toString();
     }

@@ -38,7 +38,7 @@ public class RemoteFileItemFactoryImpl implements RemoteFileItemFactory {
         XMPPAddress presenceAddress = getAddressFromPresence(presence);
 
         RemoteFileDesc remoteFileDesc = createRfdFromChatResult(presenceAddress, fileMetaData);
-        RemoteFileDescAdapter remoteFileDescAdapter = new RemoteFileDescAdapter(remoteFileDescDeserializer.createClone(remoteFileDesc,
+        RemoteFileDescAdapter remoteFileDescAdapter = new RemoteFileDescAdapter(remoteFileDescDeserializer.promoteRemoteFileDescAndExchangeAddress(remoteFileDesc,
                 presenceAddress), IpPort.EMPTY_SET, presence);
         return new CoreRemoteFileItem(remoteFileDescAdapter);
     }
@@ -47,7 +47,7 @@ public class RemoteFileItemFactoryImpl implements RemoteFileItemFactory {
             throws SaveLocationException, InvalidDataException {
         byte[] clientGuid = DataUtils.EMPTY_GUID;
         
-        Set<String> urnsAsString = fileMeta.getURNsAsString();
+        Set<String> urnsAsString = fileMeta.getUrns();
         Set<URN> urns = new HashSet<URN>();
         for (String urnStr : urnsAsString) {
             try {
@@ -59,8 +59,8 @@ public class RemoteFileItemFactoryImpl implements RemoteFileItemFactory {
 
         return remoteFileDescFactory.createRemoteFileDesc(address,
                 fileMeta.getIndex(), fileMeta.getName(), fileMeta.getSize(), clientGuid,
-                0, false, 0, true, null, urns, false,
-                null, fileMeta.getCreateTime().getTime());
+                0, 0, true, null, urns, false, null,
+                fileMeta.getCreateTime().getTime());
     }
 
 

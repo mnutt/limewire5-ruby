@@ -3,6 +3,7 @@ package org.limewire.core.api.friend.feature;
 import java.net.URI;
 
 import org.limewire.util.Objects;
+import org.limewire.util.StringUtils;
 
 /**
  * Represents a custom capability that a FriendPresence supports.  A Feature is
@@ -25,5 +26,10 @@ public class Feature<T> {
 
     public URI getID() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return StringUtils.toString(this, id, feature);
     }
 }

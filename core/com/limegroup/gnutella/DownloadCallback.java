@@ -17,11 +17,6 @@ public interface DownloadCallback {
       */   
     public void downloadsComplete();
 
-	/**
-	 *  Show active downloads
-	 */
-	public void showDownloads();
-
     /**
      * Shows the user a message informing her that a file being downloaded 
      * is corrupt.

@@ -378,5 +378,13 @@ public final class ConnectionSettings extends LimeProps {
      */
     public static final IntSetting STABLE_TOTAL_MESSAGES_THRESHOLD 
         = FACTORY.createIntSetting("STABLE_TOTAL_MESSAGES_THRESHOLD", 45);
+    
+    /**
+     * The number of connections to attempt before falling back to the
+     * ultrapeer host caches and eventually the gwebcaches 
+     */
+    public static final IntSetting FAILURES_BEFORE_BOOTSTRAP
+        = FACTORY.createRemoteIntSetting("FAILURES_BEFORE_BOOTSTRAP", 20,
+                "ConnectionSettings.FailuresBeforeBootstrap", 5, 200);
 }
 

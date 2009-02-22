@@ -6,7 +6,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.util.StringUtils;
-import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.core.api.friend.feature.features.ConnectBackRequestFeature;
 import org.limewire.io.Connectable;
@@ -22,7 +21,6 @@ import org.limewire.logging.LogFactory;
 import org.limewire.net.ConnectBackRequestedEvent;
 import org.limewire.net.address.AddressEvent;
 import org.limewire.net.address.AddressFactory;
-import org.limewire.util.DebugRunnable;
 import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.api.client.ConnectBackRequestSender;
 import org.limewire.xmpp.api.client.FileOfferEvent;
@@ -30,6 +28,7 @@ import org.limewire.xmpp.api.client.FriendRequestEvent;
 import org.limewire.xmpp.api.client.JabberSettings;
 import org.limewire.xmpp.api.client.LibraryChangedEvent;
 import org.limewire.xmpp.api.client.Presence;
+import org.limewire.xmpp.api.client.Presence.Mode;
 import org.limewire.xmpp.api.client.RosterEvent;
 import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.XMPPConnection;
@@ -37,7 +36,6 @@ import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.XMPPException;
 import org.limewire.xmpp.api.client.XMPPService;
-import org.limewire.xmpp.api.client.Presence.Mode;
 import org.limewire.xmpp.client.impl.messages.connectrequest.ConnectBackRequestIQ;
 
 import com.google.inject.Inject;
@@ -48,8 +46,7 @@ import com.google.inject.Singleton;
 public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequestSender {
 
     private static final Log LOG = LogFactory.getLog(XMPPServiceImpl.class);
-    private static final int MAX_RECONNECTION_ATTEMPTS = 10;
-
+    
     private final EventBroadcaster<RosterEvent> rosterBroadcaster;
     private final EventBroadcaster<FileOfferEvent> fileOfferBroadcaster;
     private final EventBroadcaster<FriendRequestEvent> friendRequestBroadcaster;
@@ -64,7 +61,7 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
     private final ListenerSupport<AddressEvent> addressListenerSupport;
 
     // Connections that are logged in or logging in
-    private final List<XMPPConnectionImpl> connections;
+    final List<XMPPConnectionImpl> connections;
     private boolean multipleConnectionsAllowed;   
 
     @Inject
@@ -94,7 +91,7 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
 
         connections = new CopyOnWriteArrayList<XMPPConnectionImpl>();
         multipleConnectionsAllowed = false;
-        connectionBroadcaster.addListener(new ReconnectionManager());
+        connectionBroadcaster.addListener(new ReconnectionManager(this));
         // We'll install our own subscription listeners
         Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
     }
@@ -116,10 +113,18 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
             public void handleEvent(XmppActivityEvent event) {
                 switch(event.getSource()) {
                 case Idle:
-                    setMode(Mode.xa);
+                    try {
+                        setMode(Mode.xa);
+                    } catch (XMPPException e) {
+                        LOG.debugf(e, "couldn't set mode based on {0}", event);
+                    }
                     break;
                 case Active:
-                    setMode(jabberSettings.isDoNotDisturbSet() ? Mode.dnd : Mode.available);
+                    try {
+                        setMode(jabberSettings.isDoNotDisturbSet() ? Mode.dnd : Mode.available);
+                    } catch (XMPPException e) {
+                        LOG.debugf(e, "couldn't set mode based on {0}", event);
+                    }
                 }
             }
         });
@@ -152,7 +157,7 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
         return login(configuration, false);
     }
 
-    public XMPPConnection login(XMPPConnectionConfiguration configuration, boolean isReconnect) throws XMPPException {
+    XMPPConnection login(XMPPConnectionConfiguration configuration, boolean isReconnect) throws XMPPException {
         synchronized (this) {
             if(!multipleConnectionsAllowed) {
                 XMPPConnection activeConnection = getActiveConnection();
@@ -264,58 +269,19 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
         }
         ConnectBackRequestIQ connectRequest = new ConnectBackRequestIQ(address, clientGuid, supportedFWTVersion);
         connectRequest.setTo(userId);
-        connectRequest.setFrom(connection.getLocalJid());
-        LOG.debugf("sending request: {0}", connectRequest);
-        connection.sendPacket(connectRequest);
+        try {
+            connectRequest.setFrom(connection.getLocalJid());
+            LOG.debugf("sending request: {0}", connectRequest);
+            connection.sendPacket(connectRequest);
+        } catch (XMPPException e) {
+            LOG.debug("sending connect back request failed", e);
+            return false;
+        }
         return true;
     }
     
-    private class ReconnectionManager implements EventListener<XMPPConnectionEvent> {
-        
-        private volatile boolean connected;
-        
-        @Override
-        public void handleEvent(XMPPConnectionEvent event) {
-            if(event.getType() == XMPPConnectionEvent.Type.CONNECTED) {
-                connected = true;   
-            } else if(event.getType() == XMPPConnectionEvent.Type.DISCONNECTED) {
-                if(event.getData() != null && connected) {
-                    XMPPConnection connection = event.getSource();
-                    final XMPPConnectionConfiguration configuration = connection.getConfiguration();
-                    synchronized (XMPPServiceImpl.this) {
-                        connections.remove(connection);
-                    }
-                    Thread t = ThreadExecutor.newManagedThread(new DebugRunnable(new Runnable() {
-                        @Override
-                        public void run() {
-                            long sleepTime = 10000;
-                            XMPPConnection newConnection = null;
-                            for(int i = 0; i < MAX_RECONNECTION_ATTEMPTS &&
-                                    newConnection == null; i++) {
-                                try {
-                                    LOG.debugf("attempting to reconnect to {0} ..." + configuration.getServiceName());
-                                    newConnection = login(configuration, true);
-                                } catch (XMPPException e) {
-                                    // Ignored
-                                }
-                                try {
-                                    Thread.sleep(sleepTime);
-                                } catch (InterruptedException e) {
-                                    // Ignored
-                                }
-                            }
-                            LOG.debugf("giving up trying to connect to {0}" + configuration.getServiceName());
-                        }
-                    }), "xmpp-reconnection-manager");
-                    t.start();
-                }
-                connected = false;
-            }
-        }
-    }
-
     @Override
-    public void setMode(Mode mode) {
+    public void setMode(Mode mode) throws XMPPException {
         for(XMPPConnection connection : connections) {
             connection.setMode(mode);
         }

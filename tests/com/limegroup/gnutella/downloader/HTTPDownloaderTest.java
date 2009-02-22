@@ -344,7 +344,7 @@ public class HTTPDownloaderTest extends com.limegroup.gnutella.util.LimeTestCase
         setupInjector();
         int length = 1000;
         RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.2.3.4", 1, false), 1, "file", length, new byte[16], 1,
-                false, 2, false, null, URN.NO_URN_SET, false, "LIME", -1);
+                2, false, null, URN.NO_URN_SET, false, "LIME", -1);
         File f = new File("sam");
         VerifyingFile vf = verifyingFileFactory.createVerifyingFile(length);
         vf.open(f);
@@ -517,7 +517,7 @@ public class HTTPDownloaderTest extends com.limegroup.gnutella.util.LimeTestCase
         server.bind(new InetSocketAddress(0));
 
         RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("127.0.0.1", server.getLocalPort(), false), 1, "file", 1000, new byte[16], 1,
-                false, 1, false, null, UrnHelper.URN_SETS[0], false, "TEST", -1);
+                1, false, null, UrnHelper.URN_SETS[0], false, "TEST", -1);
 
         VerifyingFile vf = verifyingFileFactory.createVerifyingFile(1000);
 
@@ -559,8 +559,8 @@ public class HTTPDownloaderTest extends com.limegroup.gnutella.util.LimeTestCase
         s += "\r\n";
         SimpleReadHeaderState reader = new SimpleReadHeaderState(null, 100, 2048);
         reader.process(new ReadBufferChannel(s.getBytes()), ByteBuffer.allocate(1024));
-        RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("127.0.0.1", 1, false), 1, "file", 1000, new byte[16], 1, false, 1,
-                false, null, UrnHelper.URN_SETS[0], false, "TEST", -1);
+        RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("127.0.0.1", 1, false), 1, "file", 1000, new byte[16], 1, 1, false,
+                null, UrnHelper.URN_SETS[0], false, "TEST", -1);
         HTTPDownloader d = httpDownloaderFactory.create(null, new RemoteFileDescContext(rfd), null, false);
         PrivilegedAccessor.setValue(d, "_headerReader", reader);
         return d;

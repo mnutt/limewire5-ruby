@@ -14,6 +14,9 @@ import org.limewire.ui.swing.painter.factories.TextFieldPainterFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+/**
+ * A class used to apply the limewire look and feel to various text input components.
+ */
 @Singleton
 public class TextFieldDecorator {
     
@@ -37,21 +40,37 @@ public class TextFieldDecorator {
         field.setBorder(border);
     }
     
+    /**
+     * Applies the lw look and feel to a prompt text field, however allows the accent
+     *  and border to be overridden for allowing it to blend in and be used on non default panels.
+     */
     public void decoratePromptField(PromptTextField field, AccentType accent, Paint border) {
         field.setBackgroundPainter(painterFactory.createBasicBackgroundPainter(accent, border));
         decorateGeneralText(field);
     }
     
+    /**
+     * Applies the lw look and feel to a prompt text field, however allows the accent
+     *  to be overridden for allowing it to blend in and be used on non default panels.
+     */
     public void decoratePromptField(PromptTextField field, AccentType accent) {
         field.setBackgroundPainter(painterFactory.createBasicBackgroundPainter(accent));
         decorateGeneralText(field);
     }
    
+    /**
+     * Applies the lw look and feel to a password prompt text field, however allows the accent
+     *  and border to be overridden for allowing it to blend in and be used on non default panels.
+     */
     public void decoratePromptField(PromptPasswordField field, AccentType accent, Paint border) {
         field.setBackgroundPainter(painterFactory.createBasicBackgroundPainter(accent, border));
         decorateGeneralPassword(field);
     }
     
+    /**
+     * Applies the lw look and feel to a password prompt text field, however allows the accent
+     *  to be overridden for allowing it to blend in and be used on non default panels.
+     */
     public void decoratePromptField(PromptPasswordField field, AccentType accent) {
         field.setBackgroundPainter(painterFactory.createBasicBackgroundPainter(accent));
         decorateGeneralPassword(field);

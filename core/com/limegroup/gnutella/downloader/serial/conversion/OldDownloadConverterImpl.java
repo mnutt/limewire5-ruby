@@ -303,10 +303,9 @@ public class OldDownloadConverterImpl implements OldDownloadConverter {
             try {
                 Address address = getAddress(rfd);
                 RemoteHostMemento memento = new RemoteHostMemento(address, rfd.getFilename(), rfd
-                        .getIndex(), rfd.getClientGUID(), rfd.getSpeed(), rfd.getSize(), rfd
-                        .isChatEnabled(), rfd.getQuality(), rfd.isReplyToMulticast(), rfd
-                        .getXml(), rfd.getUrns(), rfd.isBrowseHostEnabled(),
-                        rfd.getVendor(), rfd.isHttp11(), RemoteFileDescImpl.TYPE, addressFactory);
+                        .getIndex(), rfd.getClientGUID(), rfd.getSpeed(), rfd.getSize(), rfd.getQuality(), rfd.isReplyToMulticast(), rfd
+                        .getXml(), rfd.getUrns(), rfd.isBrowseHostEnabled(), rfd.getVendor(),
+                        rfd.isHttp11(), RemoteFileDescImpl.TYPE, addressFactory);
                 if(rfd instanceof SerialUrlRemoteFileDesc)
                     memento.setCustomUrl(((SerialUrlRemoteFileDesc)rfd).getUrl());
                 mementos.add(memento);

@@ -295,6 +295,15 @@ public class FileManagerTestUtils {
         File real = createNewTestFile(1, dir);
         return new HugeFakeFile(dir, real.getName(), size);
     }
+    
+    /**
+     * Same as createNewTestFile except that it returns a subclass of File
+     * for which isHidden() always returns true.
+     */
+    public static File createHiddenTestFile(int size, File dir) throws Exception {
+        File real = createNewTestFile(size, dir);
+        return new HiddenFakeFile(dir, real.getName());
+    }
 
     private static class HugeFakeFile extends File {
         private final long length;
@@ -320,5 +329,24 @@ public class FileManagerTestUtils {
         }
     }
     
-    
+    private static class HiddenFakeFile extends File {
+        public HiddenFakeFile(File dir, String name) {
+            super(dir, name);
+        }
+        
+        @Override
+        public boolean isHidden() {
+            return true;
+        }
+        
+        @Override
+        public File getCanonicalFile() {
+            return this;
+        }
+        
+        @Override
+        public File getAbsoluteFile() {
+            return this;
+        }
+    }
 }

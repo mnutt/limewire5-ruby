@@ -10,6 +10,7 @@ import org.limewire.core.api.friend.feature.features.FileOfferFeature;
 import org.limewire.core.api.friend.feature.features.FileOfferer;
 import org.limewire.logging.LogFactory;
 import org.limewire.xmpp.api.client.FileMetaData;
+import org.limewire.xmpp.api.client.XMPPException;
 import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQ;
 
 public class FileOfferInitializer implements FeatureInitializer{
@@ -46,7 +47,7 @@ public class FileOfferInitializer implements FeatureInitializer{
             this.connection = connection;
         }
 
-        public void offerFile(FileMetaData file) {
+        public void offerFile(FileMetaData file) throws XMPPException {
             if(LOG.isInfoEnabled()) {
                 LOG.info("offering file " + file.toString() + " to " + presenceID);
             }
@@ -54,7 +55,11 @@ public class FileOfferInitializer implements FeatureInitializer{
             transferIQ.setType(IQ.Type.GET);
             transferIQ.setTo(presenceID);
             transferIQ.setPacketID(IQ.nextID());
-            connection.sendPacket(transferIQ);
+            try {
+                connection.sendPacket(transferIQ);
+            } catch (org.jivesoftware.smack.XMPPException e) {
+                throw new XMPPException(e);
+            }
         }
     }
 }

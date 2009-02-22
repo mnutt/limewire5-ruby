@@ -2,6 +2,7 @@ package org.limewire.lifecycle;
 
 public interface ServiceRegistry {
     
+    /** Registers a service to be started in when the registry starts. */
     StagedRegisterBuilder register(Service service);
     
     /** Runs initialize on all registered services. */
@@ -16,6 +17,7 @@ public interface ServiceRegistry {
     /** Starts all services within the given stage. */
     void start(Object stage);
     
+    /** Adds a listener that will be notified of changes in the registry's state. */
     void addListener(ServiceRegistryListener serviceRegistryListener);
     
 

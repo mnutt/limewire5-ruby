@@ -11,69 +11,175 @@ import org.limewire.core.api.library.PropertiableFile;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.ui.swing.nav.NavSelectable;
 
+/**
+ * Defines an interface for a displayed search result.  The displayed result
+ * may be supported by multiple sources, and may also contain an aggregation 
+ * of similar results.   
+ */
 public interface VisualSearchResult extends NavSelectable, PropertiableFile {
 
+    /**
+     * Returns a list of core SearchResult values associated with this visual 
+     * result.
+     */
     List<SearchResult> getCoreSearchResults();
 
+    /**
+     * Returns the download state for the search result. 
+     */
     BasicDownloadState getDownloadState();
-
-    String getFileExtension();
     
+    /**
+     * Sets the download state for the search result. 
+     */
+    void setDownloadState(BasicDownloadState downloadState);
+
+    /**
+     * Returns the file extension for the search result.
+     */
+    String getFileExtension();
+
+    /**
+     * Returns a map containing FilePropertyKey objects and their associated
+     * values. 
+     */
     Map<FilePropertyKey, Object> getProperties();
 
+    /**
+     * Returns the value associated with the specified FilePropertyKey as a
+     * text string.
+     */
     String getPropertyString(FilePropertyKey key);
 
+    /**
+     * Returns a Collection of sources that support the search result.  Each
+     * source is represented by a RemoteHost object. 
+     */
     Collection<RemoteHost> getSources();
     
+    /**
+     * Returns a list of similar search results.
+     */
     List<VisualSearchResult> getSimilarResults();
-    
-    VisualSearchResult getSimilarityParent();
 
+    /**
+     * Returns the size of the search result in bytes.
+     */
     long getSize();
     
-    void setDownloadState(BasicDownloadState downloadState);
-    
+    /**
+     * Returns an indicator that determines if the result is visible.
+     */
     boolean isVisible();
 
+    /**
+     * Sets an indicator that determines if the result is visible.
+     */
     void setVisible(boolean visible);
-        
+    
+    /**
+     * Adds the specified listener to the list that is notified when the 
+     * value of a bound property is changed.
+     */
     void addPropertyChangeListener(PropertyChangeListener listener);
     
+    /**
+     * Removes the specified listener from the list that is notified when the
+     * value of a bound property is changed.
+     */
     void removePropertyChangeListener(PropertyChangeListener listener);
 
+    /**
+     * Returns an indicator that determines if similar results are visible.
+     */
     boolean isChildrenVisible();
     
+    /**
+     * Sets an indicator that determines if similar results are visible.
+     */
     void setChildrenVisible(boolean childrenVisible);
     
+    /**
+     * Toggles the indicator that determines if similar results are visible.
+     */
     void toggleChildrenVisibility();
     
+    /**
+     * Returns an indicator that determines if the result is spam.
+     */
     boolean isSpam();
     
+    /**
+     * Sets an indicator that determines if the result is spam.
+     */
     void setSpam(boolean spam);
 
+    /**
+     * Adds the specified search result to the list of similar results.
+     */
     public void addSimilarSearchResult(VisualSearchResult similarResult);
 
+    /**
+     * Removes the specified search result from the list of similar results.
+     */
     public void removeSimilarSearchResult(VisualSearchResult result);
 
+    /**
+     * Returns the parent result that this result is similar to.  May be null.
+     */
+    VisualSearchResult getSimilarityParent();
+
+    /**
+     * Sets the specified result as the parent that this result is similar to.
+     */
     public void setSimilarityParent(VisualSearchResult parent);
-    
+
+    /**
+     * Returns the magnet link associated with the search result.
+     */
     public String getMagnetLink();
 
+    /**
+     * Returns the main heading for the search result.
+     */
     String getHeading();
 
+    /**
+     * Returns the sub-heading for the search result.
+     */
     String getSubHeading();
-    
+
+    /**
+     * Returns the relevance value of the search result.  
+     */
     double getRelevance();
     
-    void setShowingContextOptions(boolean showing);
-    
+    /**
+     * Returns an indicator that determines if the context options are 
+     * displayed for the search result.
+     */
     boolean isShowingContextOptions();
     
+    /**
+     * Sets an indicator that determines if the context options are 
+     * displayed for the search result.
+     */
+    void setShowingContextOptions(boolean showing);
+    
+    /**
+     * Returns an indicator that determines if the result is an existing 
+     * download.
+     */
     boolean isPreExistingDownload();
+    
+    /**
+     * Sets an indicator that determines if the result is an existing 
+     * download.
+     */
     void setPreExistingDownload(boolean preExistingDownload);
 
     /**
-     * @return true if the associated file contains a license
+     * Returns true if the associated file contains a license.
      */
     boolean isLicensed();
 

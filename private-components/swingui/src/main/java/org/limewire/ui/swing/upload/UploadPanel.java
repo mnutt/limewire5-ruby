@@ -17,6 +17,7 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadListManager;
+import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.ui.swing.action.BackAction;
 import org.limewire.ui.swing.components.HeaderBar;
 import org.limewire.ui.swing.components.IconButton;
@@ -31,9 +32,7 @@ import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 public class UploadPanel extends JXPanel{
     
     public static final String NAME = "UploadPanel";
@@ -71,6 +70,16 @@ public class UploadPanel extends JXPanel{
         
         add(header, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
+    }
+    
+    /**
+     * Start the (polling) upload monitor.  
+     * 
+     * Note: this only make sense if this panel is created on demand.
+     */
+    @Inject
+    public void register(ServiceRegistry serviceRegister) {
+        serviceRegister.start(listManager);
     }
     
     private void clearFinished() {

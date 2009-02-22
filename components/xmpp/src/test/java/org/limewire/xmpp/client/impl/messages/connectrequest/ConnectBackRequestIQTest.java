@@ -1,13 +1,11 @@
 package org.limewire.xmpp.client.impl.messages.connectrequest;
 
-import java.io.StringReader;
+import static org.limewire.xmpp.client.impl.messages.IQTestUtils.createParser;
 
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
 import org.limewire.util.BaseTestCase;
 import org.limewire.xmpp.client.impl.messages.InvalidIQException;
-import org.xmlpull.mxp1.MXParser;
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 
@@ -26,13 +24,6 @@ public class ConnectBackRequestIQTest extends BaseTestCase {
         assertEquals(connectRequest.getClientGuid(), parsedRequest.getClientGuid());
         assertEquals(connectRequest.getAddress(), parsedRequest.getAddress());
         assertEquals(connectRequest.getSupportedFWTVersion(), parsedRequest.getSupportedFWTVersion());
-    }
-    
-    private XmlPullParser createParser(String input) throws Exception {
-        XmlPullParser parser = new MXParser();
-        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
-        parser.setInput(new StringReader(input));
-        return parser;
     }
     
     public void testThrowsOnMissingAddress() throws Exception {

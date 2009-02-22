@@ -101,10 +101,6 @@ public class BTUploader implements Uploader, TorrentEventListener {
 		return UploadStatus.UPLOADING;
 	}
 
-	public boolean isChatEnabled() {
-		return false;
-	}
-
 	public boolean isBrowseHostEnabled() {
 		return false;
 	}

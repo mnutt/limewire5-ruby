@@ -15,11 +15,16 @@ import com.limegroup.gnutella.xml.SchemaFieldInfo;
 
 @Singleton
 class PropertyDictionaryImpl implements PropertyDictionary {
-    @Inject private LimeXMLSchemaRepository schemaRepository;
+    private final LimeXMLSchemaRepository schemaRepository;
     private List<String> audioGenres;
     private List<String> videoGenres;
     private List<String> videoRatings;
     private List<String> applicationPlatforms;
+    
+    @Inject
+    public PropertyDictionaryImpl(LimeXMLSchemaRepository schemaRepository) {
+        this.schemaRepository = schemaRepository;
+    }
     
     @Override
     public List<String> getAudioGenres() {

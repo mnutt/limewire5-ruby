@@ -21,6 +21,7 @@ import org.limewire.net.address.AddressEvent;
 import org.limewire.net.address.AddressFactory;
 import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.XMPPAddress;
+import org.limewire.xmpp.api.client.XMPPException;
 import org.limewire.xmpp.client.impl.XMPPAddressRegistry;
 import org.limewire.xmpp.client.impl.XMPPConnectionImpl;
 
@@ -93,7 +94,11 @@ public class AddressIQListener implements PacketListener, EventListener<AddressE
                 for(User user : connection.getUsers()) {
                     for(Map.Entry<String, FriendPresence> presenceEntry : user.getFriendPresences().entrySet()) {
                         if(presenceEntry.getValue().hasFeatures(LimewireFeature.ID)) {
-                            sendAddress(address, presenceEntry.getKey());
+                            try {
+                                sendAddress(address, presenceEntry.getKey());
+                            } catch (XMPPException e) {
+                                LOG.debugf(e, "couldn't send address to {0}", presenceEntry.getKey());
+                            }
                         }
                     }
                 }
@@ -101,7 +106,7 @@ public class AddressIQListener implements PacketListener, EventListener<AddressE
         }
     }
     
-    private void sendAddress(Address address, String jid) {
+    private void sendAddress(Address address, String jid) throws XMPPException {
         LOG.debugf("sending new address to {0}", jid);
         AddressIQ queryResult = new AddressIQ(address, factory);
         queryResult.setTo(jid);
@@ -120,7 +125,11 @@ public class AddressIQListener implements PacketListener, EventListener<AddressE
         public void initializeFeature(FriendPresence friendPresence) {
             synchronized (AddressIQListener.this) {
                 if (address != null) {
-                    sendAddress(address, friendPresence.getPresenceId());
+                    try {
+                        sendAddress(address, friendPresence.getPresenceId());
+                    } catch (XMPPException e) {
+                        LOG.debugf(e, "couldn't send address to {0}" + friendPresence.getPresenceId());
+                    }
                 }
                 if (pendingAddresses.containsKey(friendPresence.getPresenceId())) {
                     LOG.debugf("updating address on presence {0} to {1}", friendPresence.getPresenceId(), address);

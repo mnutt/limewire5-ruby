@@ -69,7 +69,7 @@ public class DirectAltLoc extends AbstractAlternateLocation {
         int quality = 3;
 		RemoteFileDesc ret = remoteFileDescFactory.createRemoteFileDesc(_node instanceof Connectable ? (Connectable)_node : new ConnectableImpl(_node, false), 
 		        0, HTTPConstants.URI_RES_N2R + SHA1_URN, size, DataUtils.EMPTY_GUID,
-                1000, true, quality, false, null, urnSet, false,  ALT_VENDOR, -1);
+                1000, quality, false, null, urnSet, false, ALT_VENDOR,  -1);
         return ret;
 	}
 	

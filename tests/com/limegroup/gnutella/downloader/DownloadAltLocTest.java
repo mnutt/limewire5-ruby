@@ -1,6 +1,5 @@
 package com.limegroup.gnutella.downloader;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -446,64 +445,6 @@ public class DownloadAltLocTest extends DownloadTestCase {
         assertGreaterThan("u3 did no work", 0, u3);
         ConnectionSettings.CONNECTION_SPEED.setValue(capacity);
     }
-    
-    public void testResumeFromPartialWithAlternateLocations() throws Exception {
-        LOG.info("-Testing alt locs from partial bootstrap resumed download");
-        
-        int capacity=ConnectionSettings.CONNECTION_SPEED.getValue();
-        ConnectionSettings.CONNECTION_SPEED.setValue(
-            SpeedConstants.MODEM_SPEED_INT);
-            
-        final int RATE=200;
-        //second half of file + 1/8 of the file
-        final int STOP_AFTER = TestFile.length()/10;
-        testUploaders[0].setRate(RATE);
-        testUploaders[0].stopAfter(STOP_AFTER);
-        testUploaders[1].setRate(RATE);
-        testUploaders[1].stopAfter(STOP_AFTER);
-        testUploaders[2].setRate(RATE);
-        final RemoteFileDesc rfd1=newRFDWithURN(PORTS[0], TestFile.hash().toString(), false);
-        final RemoteFileDesc rfd2=newRFDWithURN(PORTS[1], TestFile.hash().toString(), false);
-        final RemoteFileDesc rfd3=newRFDWithURN(PORTS[2], TestFile.hash().toString(), false);
-        AlternateLocation al1 = alternateLocationFactory.create(rfd1);
-        AlternateLocation al2 = alternateLocationFactory.create(rfd2);
-        AlternateLocation al3 = alternateLocationFactory.create(rfd3);
-        
-        IncompleteFileManager ifm = downloadManager.getIncompleteFileManager();
-        // put the hash for this into IFM.
-        File incFile = ifm.getFile(rfd1);
-        incFile.createNewFile();
-        // add the entry, so it's added to FileManager.
-        ifm.addEntry(incFile, verifyingFileFactory.createVerifyingFile(TestFile.length()), true);
-        
-        // Get the IncompleteFileDesc and add these alt locs to it.
-        FileDesc fd = fileManager.getManagedFileList().getFileDescsMatching(TestFile.hash()).get(0);
-        assertNotNull(fd);
-        assertInstanceof(IncompleteFileDesc.class, fd);
-        altLocManager.add(al1, null);
-        altLocManager.add(al2, null);
-        altLocManager.add(al3, null);
-        
-        tResume(incFile);
-
-        //Make sure there weren't too many overlapping regions.
-        int u1 = testUploaders[0].getAmountUploaded();
-        int u2 = testUploaders[1].getAmountUploaded();
-        int u3 = testUploaders[2].getAmountUploaded();
-        LOG.debug("\tu1: "+u1+"\n");
-        LOG.debug("\tu2: "+u2+"\n");
-        LOG.debug("\tu3: "+u3+"\n");
-        LOG.debug("\tTotal: "+(u1+u2+u3)+"\n");
-
-        //Note: The amount downloaded from each uploader will not 
-        //be equal, because the uploaders are started at different times.
-
-        assertEquals("u1 did wrong work", STOP_AFTER, u1);
-        assertEquals("u2 did wrong work", STOP_AFTER, u2);
-        assertGreaterThan("u3 did no work", 0, u3);
-        ConnectionSettings.CONNECTION_SPEED.setValue(capacity);
-    } 
-
 
     /**
      * Test to make sure that we read the alternate locations from the

@@ -17,6 +17,7 @@ public class ConnectBackRequestIQProvider implements IQProvider {
             return new ConnectBackRequestIQ(parser);
         } catch (InvalidIQException ie) {
             LOG.debug("invalid iq", ie);
+            // throwing would close connection
             return null;
         }
     }

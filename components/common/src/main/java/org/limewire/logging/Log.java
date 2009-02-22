@@ -10,6 +10,8 @@ public interface Log extends org.apache.commons.logging.Log {
      * Logs <code>message</code> as debug message and formats message
      * with <code>args</code> if {@link #isDebugEnabled()} is true.
      */
+    void debugf(Throwable t, String message, Object...args);
+    
     void debugf(String message, Object...args);
     
     void debugf(String message, Object args);
@@ -21,6 +23,8 @@ public interface Log extends org.apache.commons.logging.Log {
      * Logs <code>message</code> as trace message and formats message
      * with <code>args</code> if {@link #isTraceEnabled()} is true.
      */
+    void tracef(Throwable t, String message, Object...args);
+    
     void tracef(String message, Object...args);
 
     void tracef(String message, Object args);
@@ -32,6 +36,8 @@ public interface Log extends org.apache.commons.logging.Log {
      * Logs <code>message</code> as info message and formats message
      * with <code>args</code> if {@link #isInfoEnabled()} is true.
      */
+    void infof(Throwable t, String message, Object...args);
+    
     void infof(String message, Object...args);
     
     void infof(String message, Object args);
@@ -43,6 +49,8 @@ public interface Log extends org.apache.commons.logging.Log {
      * Logs <code>message</code> as warn message and formats message
      * with <code>args</code> if {@link #isWarnEnabled()} is true.
      */
+    void warnf(Throwable t, String message, Object...args);
+    
     void warnf(String message, Object...args);
     
     void warnf(String message, Object args);

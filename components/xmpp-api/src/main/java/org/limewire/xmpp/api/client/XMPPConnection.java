@@ -27,21 +27,23 @@ public interface XMPPConnection {
     /**
      * Sets a new <code>&lt;presence&gt;</code> mode (i.e., status)
      * @param mode the new mode to set
+     * 
+     * @throws XMPPException if there is an error sending the xmpp message
      */
-    public void setMode(Presence.Mode mode);
+    public void setMode(Presence.Mode mode) throws XMPPException;
 
     /**
      * Add a user to the friend list
      * @param id cannot be null
      * @param name can be null
-     * @throws XMPPException
+     * @throws XMPPException if there is an error sending the xmpp message
      */
     public void addUser(String id, String name) throws XMPPException;
     
     /**
      * Remove a user from the friend list
      * @param id cannot be null
-     * @throws XMPPException
+     * @throws XMPPException if there is an error sending the xmpp message
      */
     public void removeUser(String id) throws XMPPException;
 

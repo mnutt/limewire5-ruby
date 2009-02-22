@@ -187,7 +187,7 @@ public class DHTFutureTask<T> implements Runnable, DHTFuture<T>, Cancellable {
                 
                 // Notify the listeners on a different Thread
                 try {
-                    T value = get();
+                    T value = exchanger.get();
                     fireFutureResult(value);
                 } catch (ExecutionException e) {
                     fireExecutionException(e);
@@ -223,7 +223,7 @@ public class DHTFutureTask<T> implements Runnable, DHTFuture<T>, Cancellable {
             Runnable r = new Runnable() {
                 public void run() {
                     try {
-                        T value = get();
+                        T value = exchanger.get();
                         listener.handleFutureSuccess(value);
                     } catch (ExecutionException e) {
                         listener.handleExecutionException(e);
@@ -282,7 +282,9 @@ public class DHTFutureTask<T> implements Runnable, DHTFuture<T>, Cancellable {
      * @see java.util.concurrent.Future#get()
      */
     public T get() throws InterruptedException, ExecutionException {
-        return exchanger.get();
+        BlockingDHTFutureListener<T> listener = new BlockingDHTFutureListener<T>();
+        addDHTFutureListener(listener);
+        return listener.get();
     }
 
     /*
@@ -291,7 +293,9 @@ public class DHTFutureTask<T> implements Runnable, DHTFuture<T>, Cancellable {
      */
     public T get(long timeout, TimeUnit unit) 
             throws InterruptedException, ExecutionException, TimeoutException {
-        return exchanger.get(timeout, unit);
+        BlockingDHTFutureListener<T> listener = new BlockingDHTFutureListener<T>();
+        addDHTFutureListener(listener);
+        return listener.get(timeout, unit);
     }
     
     /**

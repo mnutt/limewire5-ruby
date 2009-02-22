@@ -30,22 +30,24 @@ class XmppPresenceLibraryAdder {
     }
 
     @Inject void register(ListenerSupport<FeatureEvent> featureSupport) {
-        featureSupport.addListener(new EventListener<FeatureEvent>() {
-            @Override
-            @BlockingEvent
-            public void handleEvent(FeatureEvent featureEvent) {
-                FriendPresence presence = featureEvent.getSource();
-                if (featureEvent.getType() == FeatureEvent.Type.ADDED) {
-                    if (presence.hasFeatures(AddressFeature.ID, AuthTokenFeature.ID)) {
-                        remoteLibraryManager.addPresenceLibrary(presence);
-                    }
-                } else if (featureEvent.getType() == FeatureEvent.Type.REMOVED) {
-                    if (!presence.hasFeatures(AddressFeature.ID, AuthTokenFeature.ID)) {
-                        remoteLibraryManager.removePresenceLibrary(presence);
-                    }
-                }
-            }
-        });
+        featureSupport.addListener(new FeatureListener());
     }
 
+    class FeatureListener implements EventListener<FeatureEvent> {
+        @Override
+        @BlockingEvent
+        public void handleEvent(FeatureEvent featureEvent) {
+            FriendPresence presence = featureEvent.getSource();
+            if (featureEvent.getType() == FeatureEvent.Type.ADDED) {
+                if (presence.hasFeatures(AddressFeature.ID, AuthTokenFeature.ID)) {
+                    remoteLibraryManager.addPresenceLibrary(presence);
+                }
+            } else if (featureEvent.getType() == FeatureEvent.Type.REMOVED) {
+                if (!presence.hasFeatures(AddressFeature.ID, AuthTokenFeature.ID)) {
+                    remoteLibraryManager.removePresenceLibrary(presence);
+                }
+            }
+        }
+    }
+    
 }

@@ -26,6 +26,10 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.util.PropertiableHeadings;
 
+/**
+ * An implementation of VisualSearchResult for displaying actual search 
+ * results. 
+ */
 class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Comparable {
     private static final Pattern FIND_HTML_MARKUP = Pattern.compile("[<][/]?[\\w =\"\\./:#\\-\\!\\&\\?]*[>]");
 
@@ -61,6 +65,10 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
     
     private boolean showingOptions;
 
+    /**
+     * Constructs a SearchResultAdapter with the specified List of core results
+     * and property values.
+     */
     public SearchResultAdapter(List<SearchResult> sourceValue, PropertiableHeadings propertiableHeadings) {
         this.coreResults = sourceValue;
         this.propertiableHeadings = propertiableHeadings;
@@ -120,10 +128,12 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
         return properties;
     }
 
+    @Override
     public Object getProperty(FilePropertyKey key) {
         return getProperties().get(key);
     }
 
+    @Override
     public String getPropertyString(FilePropertyKey key) {
         Object value = getProperty(key);
         if (value != null) {
@@ -143,8 +153,14 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
         }
     }
 
+    @Override
     public void addSimilarSearchResult(VisualSearchResult similarResult) {
         similarResults.add(similarResult);
+    }
+
+    @Override
+    public void removeSimilarSearchResult(VisualSearchResult result) {
+        similarResults.remove(result);
     }
 
     @Override
@@ -152,6 +168,7 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
         return new ArrayList<VisualSearchResult>(similarResults);
     }
 
+    @Override
     public void setSimilarityParent(VisualSearchResult parent) {
         VisualSearchResult oldParent = this.similarityParent;
         this.similarityParent = parent;
@@ -218,10 +235,6 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
     @Override
     public boolean isChildrenVisible() {
         return childrenVisible;
-    }
-
-    public void removeSimilarSearchResult(VisualSearchResult result) {
-        similarResults.remove(result);
     }
 
     @Override

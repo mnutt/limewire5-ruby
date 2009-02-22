@@ -36,10 +36,15 @@ public class I18n {
     }
 
     public static String trc(String comment, String text) {
-        String translated = i18n.trc(comment, text);
-        // if comment has not been translated, return text as fallback
-        // TODO needs to be fixed in gettext-commons
-        return translated == comment ? text : translated;
+        return i18n.trc(comment, text);
+    }
+    
+    public static String trnc(String context, String singularText, String pluralText, long number) {
+        return i18n.trnc(context, singularText, pluralText, number, number);
+    }
+    
+    public static String trnc(String context, String singularText, String pluralText, long number, Object...args) {
+        return i18n.trnc(context, singularText.replace("'", "''"), pluralText.replace("'", "''"), number, args);
     }
 
     /**

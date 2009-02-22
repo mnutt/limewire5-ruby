@@ -35,7 +35,7 @@ public interface DownloadListManager extends ResultDownloader {
     /**
      * Opens the given file and starts a downloader based on the information inside of the given file.
      */
-    public DownloadItem addTorrentDownload(File file, File saveFile, boolean overwrite) throws SaveLocationException;
+    public DownloadItem addTorrentDownload(File file, boolean overwrite) throws SaveLocationException;
 
 	/**
 	 * Return true if the downloader contains the given urn, false otherwise

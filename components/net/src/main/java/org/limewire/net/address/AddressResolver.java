@@ -23,7 +23,9 @@ public interface AddressResolver {
     /**
      * Asynchronously resolves the address to possibly several other addresses and
      * notifies <code>observer</code> of the resolved addresses.
+     * 
+     * @return the observer to allow for fluent access
      */
-    void resolve(Address address, AddressResolutionObserver observer);
+    <T extends AddressResolutionObserver> T resolve(Address address, T observer);
     
 }

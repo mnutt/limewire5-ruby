@@ -53,9 +53,14 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 /**
- * This class displays search results in a panel.
+ * This is the top-level container for the search results display.  
+ * SearchResultsPanel contains several UI components, including the category
+ * tab items, the sort and filter panel, the sponsored results, and the search
+ * results tables.
  */
 public class SearchResultsPanel extends JXPanel implements Disposable {
+    
+    /** Decorator used to set the appearance of the header bar. */
     private final HeaderBarDecorator headerBarDecorator;
     
     /**
@@ -93,6 +98,7 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
     /** The class search warning panel. */
     private ClassicSearchWarningPanel classicSearchReminderPanel;
     
+    /** Listener for changes in the view type. */
     private final SettingListener viewTypeListener;
     
     @Resource private Color tabHighlightTopGradientColor;
@@ -102,12 +108,14 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
     @Resource private Color tabSelectionTextColor;
     @Resource private Color tabSelectionBorderTopGradientColor;;
     @Resource private Color tabSelectionBorderBottomGradientColor;;
-    
 
     private boolean lifeCycleComplete = true;
 
     private boolean fullyConnected = true;
 
+    /**
+     * Constructs a SearchResultsPanel with the specified components.
+     */
     @AssistedInject
     public SearchResultsPanel(
             @Assisted SearchInfo searchInfo,
@@ -138,8 +146,8 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         this.resultsContainer = containerFactory.create(filteredList, search, searchInfo, preserver);
         
         viewTypeListener = new SettingListener() {
-           int oldSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
-           @Override
+            int oldSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
+            @Override
             public void settingChanged(SettingEvent evt) {
                SwingUtilities.invokeLater(new Runnable() {
                    @Override
@@ -185,6 +193,10 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         layoutComponents();
     }
 
+    /**
+     * Disposes of resources used by the container.  This method is called when 
+     * the search is closed.
+     */
     @Override
     public void dispose() {
         SwingUiSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
@@ -193,9 +205,9 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
     }
 
     /**
-    * Fills in the top right corner if a scrollbar appears
-    * with an empty table header
-    */
+     * Fills in the top right corner if a scrollbar appears with an empty table
+     * header.
+     */
     protected void configureEnclosingScrollPane() {
         JTableHeader th = new JTableHeader();
         th.setDefaultRenderer(new TableCellHeaderRenderer());
@@ -206,6 +218,9 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, cornerComponent);
     }
     
+    /**
+     * Adds the specified list of sponsored results to the display.
+     */
     public void addSponsoredResults(List<SponsoredResult> sponsoredResults){
         for (SponsoredResult result : sponsoredResults){
             sponsoredResultsPanel.addEntry(result);
@@ -301,6 +316,10 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         syncColumnHeader();
     }
     
+    /**
+     * Panel used as the viewport view in the scroll pane.  This contains the
+     * results table and sponsored results panel in a single, scrollable area.
+     */
     private class ScrollablePanel extends JXPanel {
         private Scrollable scrollable;
 
@@ -367,21 +386,29 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         }
     }
 
+    /**
+     * Sets an indicator to determine whether the application has finished
+     * loading, and updates the user message.
+     */
     public void setLifeCycleComplete(boolean lifeCycleComplete) {
         this.lifeCycleComplete = lifeCycleComplete;
         updateMessages();
     }
 
+    /**
+     * Sets an indicator to determine whether the application is fully 
+     * connected to the P2P network, and updates the user message.
+     */
     public void setFullyConnected(boolean fullyConnected) {
         this.fullyConnected = fullyConnected;
         updateMessages();        
     }
     
     private void updateMessages() {
-        if(!lifeCycleComplete) {
+        if (!lifeCycleComplete) {
             messageLabel.setText(I18n.tr("LimeWire will start your search right after it finishes loading."));
             messagePanel.setVisible(true);
-        } else if(!fullyConnected) {
+        } else if (!fullyConnected) {
             messageLabel.setText(I18n.tr("You might not receive many results until LimeWire finishes loading..."));
             messagePanel.setVisible(true);
         } else {

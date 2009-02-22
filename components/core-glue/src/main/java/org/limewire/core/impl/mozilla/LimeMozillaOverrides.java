@@ -51,5 +51,10 @@ public class LimeMozillaOverrides {
         downloadManagerListener.addMissingDownloads();
         downloadManagerListener.resumeDownloads();
         downloadManager.addListener(downloadManagerListener);
+        
+        // Limit the number of parallel HTTP connections
+        int max = MozillaSettings.MAX_CONNECTIONS.getValue();
+        prefService.getBranch("network.http.").setIntPref("max-connections", max);
+        prefService.getBranch("network.http.").setIntPref("max-connections-per-server", max/2);
     }
 }

@@ -31,6 +31,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.MessageListener;
@@ -55,7 +56,6 @@ import com.limegroup.gnutella.stubs.MessageRouterStub;
 import com.limegroup.gnutella.stubs.NetworkManagerStub;
 import com.limegroup.gnutella.util.LimeTestCase;
 
-
 /**
  * tests the functioning of the ping ranker, i.e. how it sends out headpings
  * and how it ranks hosts based on the returned results.
@@ -63,18 +63,19 @@ import com.limegroup.gnutella.util.LimeTestCase;
  */
 public class PingRankerTest extends LimeTestCase {
 
-    private static final Set<PushEndpoint> EMPTY_PUSH_ENDPOINT_SET = Collections.emptySet();
+    private static final Set<PushEndpoint> EMPTY_PUSH_ENDPOINT_SET =
+        Collections.emptySet();
     
     private MockPinger pinger;
     private PingRanker ranker;
-    private MessageRouterStub messageRouter;
     private NetworkManagerStub networkManager;
     private UDPReplyHandlerFactory udpReplyHandlerFactory;
     private SpamFilterFactory spamFilterFactory;
     private PushEndpointFactory pushEndpointFactory;
     private HeadPongFactory headPongFactory;
     private RemoteFileDescFactory remoteFileDescFactory;
-    private ConcurrentMap<RemoteFileDesc, RemoteFileDescContext> contexts = new ConcurrentHashMap<RemoteFileDesc, RemoteFileDescContext>(); 
+    private ConcurrentMap<RemoteFileDesc, RemoteFileDescContext> contexts =
+        new ConcurrentHashMap<RemoteFileDesc, RemoteFileDescContext>(); 
         
     public PingRankerTest(String name) {
         super(name);
@@ -96,20 +97,16 @@ public class PingRankerTest extends LimeTestCase {
                 bind(NetworkManager.class).toInstance(networkManager);
                 bind(MessageRouter.class).to(MessageRouterStub.class);
             }
-            
         };
-        
-        Injector injector = LimeTestUtils.createInjector(module);
+        Injector i = LimeTestUtils.createInjector(module);
 
-        messageRouter = (MessageRouterStub) injector.getInstance(MessageRouter.class);
-        udpReplyHandlerFactory = injector.getInstance(UDPReplyHandlerFactory.class);
-        spamFilterFactory = injector.getInstance(SpamFilterFactory.class);
-        pushEndpointFactory = injector.getInstance(PushEndpointFactory.class);
-        headPongFactory = injector.getInstance(HeadPongFactory.class);
-        pinger = (MockPinger)injector.getInstance(UDPPinger.class);
-        remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
-        
-        ranker = new PingRanker(networkManager, pinger, messageRouter, remoteFileDescFactory);
+        udpReplyHandlerFactory = i.getInstance(UDPReplyHandlerFactory.class);
+        spamFilterFactory = i.getInstance(SpamFilterFactory.class);
+        pushEndpointFactory = i.getInstance(PushEndpointFactory.class);
+        headPongFactory = i.getInstance(HeadPongFactory.class);
+        pinger = (MockPinger)i.getInstance(UDPPinger.class);
+        remoteFileDescFactory = i.getInstance(RemoteFileDescFactory.class);
+        ranker = i.getInstance(PingRanker.class);
         ranker.setMeshHandler(new MockMesh(ranker));
         DownloadSettings.WORKER_INTERVAL.setValue(-1);
         DownloadSettings.MAX_VERIFIED_HOSTS.revertToDefault();
@@ -466,6 +463,36 @@ public class PingRankerTest extends LimeTestCase {
     }
     
     /**
+     * Tests that the ranker offers hosts with low round-trip times first
+     */
+    public void testSortedByRoundTripTime() throws Exception {
+        List<RemoteFileDescContext> l = new ArrayList<RemoteFileDescContext>();
+        
+        l.add(newRFDWithURN("1.2.3.4",3));
+        l.add(newRFDWithURN("1.2.3.5",3));
+        l.add(newRFDWithURN("1.2.3.6",3));
+        ranker.addToPool(l);
+        
+        MockPong oneOneThousand = new MockPong(true,true,-1,true,false,true,null);
+        MockPong twoOneThousand = new MockPong(true,true,-1,true,false,true,null);
+        MockPong threeOneThousand = new MockPong(true,true,-1,true,false,true,null);
+        
+        Thread.sleep(1000);
+        ranker.processMessage(oneOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
+        Thread.sleep(1000);
+        ranker.processMessage(twoOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"),1, spamFilterFactory.createPersonalFilter()));
+        Thread.sleep(1000);
+        ranker.processMessage(threeOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"),1, spamFilterFactory.createPersonalFilter()));
+        
+        RemoteFileDescContext best = ranker.getBest();
+        assertEquals("1.2.3.4", ((Connectable)best.getAddress()).getAddress());
+        best = ranker.getBest();
+        assertEquals("1.2.3.5", ((Connectable)best.getAddress()).getAddress());
+        best = ranker.getBest();
+        assertEquals("1.2.3.6", ((Connectable)best.getAddress()).getAddress());        
+    }
+    
+    /**
      * Tests that the ranker passes on to other rankers all the hosts it has been
      * told or learned about.
      */
@@ -516,7 +543,7 @@ public class PingRankerTest extends LimeTestCase {
             fail("SHA1 not created");
         }
         return toContext(remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl(host, 1, false), 0, "asdf", TestFile.length(), new byte[16],
-                speed, false, 4, false, null, set, false, "", -1));
+                speed, 4, false, null, set, false, "", -1));
     }
     
     /**
@@ -545,6 +572,7 @@ public class PingRankerTest extends LimeTestCase {
      * a mock pinger.  Note that the base code will still register messsage listeners
      * but we don't care because they will never be used.
      */
+    @Singleton
     private static class MockPinger extends UDPPingerImpl {
         
         @Inject

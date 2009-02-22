@@ -27,7 +27,8 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
     static final int HIT_INDEX = 6;
     static final int UPLOADS_INDEX = 7;
     static final int UPLOAD_ATTEMPTS_INDEX = 8;
-    static final int ACTION_INDEX = 9;
+    static final int PATH_INDEX = 9;
+    static final int ACTION_INDEX = 10;
 
 	/** Icon manager used to find native file type information. */
 	private IconManager iconManager;
@@ -43,6 +44,7 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
                 new ColumnStateInfo(HIT_INDEX, "LIBRARY_DOCUMENT_HITS", I18n.tr("Hits"), 100, false, true), 
                 new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_DOCUMENT_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
                 new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_DOCUMENT_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true),
+                new ColumnStateInfo(PATH_INDEX, "LIBRARY_DOCUMENT_PATH", I18n.tr("Location"), 200, false, true),
                 new ColumnStateInfo(ACTION_INDEX, "LIBRARY_DOCUMENT_ACTION", I18n.tr("Sharing"), 61, true, false)
         });
 	    
@@ -68,6 +70,7 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
          case HIT_INDEX: return baseObject.getNumHits();
          case UPLOAD_ATTEMPTS_INDEX: return baseObject.getNumUploadAttempts();
          case UPLOADS_INDEX: return baseObject.getNumUploads();
+         case PATH_INDEX: return baseObject.getProperty(FilePropertyKey.LOCATION);
          }
          throw new IllegalArgumentException("Unknown column:" + column);
     }

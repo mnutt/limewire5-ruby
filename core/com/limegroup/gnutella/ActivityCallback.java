@@ -12,6 +12,7 @@ import org.limewire.io.IpPort;
 import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.messages.QueryReply;
+import com.limegroup.gnutella.messages.QueryRequest;
 
 /**
  *  Defines the interface of a callback to notify about asynchronous backend 
@@ -41,8 +42,10 @@ public interface ActivityCallback extends DownloadCallback
 
     /**
      * Add a query string to the monitor screen
+     * @param guid TODO
+     * @param address TODO
      */
-    public void handleQueryString( String query );
+    public void handleQuery(QueryRequest query, String address, int port);
 
     /** Add an uploader to the upload window */
     public void addUpload(Uploader u);

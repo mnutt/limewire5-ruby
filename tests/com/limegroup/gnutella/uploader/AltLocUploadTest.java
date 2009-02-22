@@ -201,6 +201,8 @@ public class AltLocUploadTest extends LimeTestCase {
         UploadSettings.MAX_PUSHES_PER_HOST.setValue(9999);
         UploadSettings.CHECK_DUPES.setValue(false);
         
+        // required so bias doesn't destroy tests
+        UploadSettings.EXPIRE_LEGACY.setValue(false);
 
         FilterSettings.FILTER_DUPLICATES.setValue(false);
 
@@ -419,7 +421,7 @@ public class AltLocUploadTest extends LimeTestCase {
            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
            assertNotNull(response.getFirstHeader("X-Alt"));
            String value = response.getFirstHeader("X-Alt").getValue();
-           assertEquals("2.2.2.2:2,1.1.1.1:1".length(), value.length());
+           assertEquals(value, "2.2.2.2:2,1.1.1.1:1".length(), value.length());
            assertTrue(value.contains("1.1.1.1:1"));
            assertTrue(value.contains("2.2.2.2:2"));
        } finally {
@@ -880,6 +882,7 @@ public class AltLocUploadTest extends LimeTestCase {
     }
 
     public void testAltsExpire() throws Exception {
+        UploadSettings.EXPIRE_LEGACY.setValue(true);
         UploadSettings.LEGACY_EXPIRATION_DAMPER.setValue((float) Math.E - 0.2f);
         // test that an altloc will expire if given out too often
         AlternateLocation al = alternateLocationFactory.create("1.1.1.1:1", hashURN);
@@ -921,6 +924,7 @@ public class AltLocUploadTest extends LimeTestCase {
         FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(new String[] { "*.*.*.*" });
         injector.getInstance(IPFilter.class).refreshHosts();
         // set the expiration values to the bare minimum
+        UploadSettings.EXPIRE_LEGACY.setValue(true);
         UploadSettings.LEGACY_BIAS.setValue(0f);
         UploadSettings.PING_BIAS.setValue(0f);
         UploadSettings.RESPONSE_BIAS.setValue(0f);
@@ -959,10 +963,6 @@ public class AltLocUploadTest extends LimeTestCase {
         drainLegacy();
         assertFalse(altLocManager
                 .hasAltlocs(al.getSHA1Urn()));
-
-        UploadSettings.LEGACY_BIAS.revertToDefault();
-        UploadSettings.PING_BIAS.revertToDefault();
-        UploadSettings.RESPONSE_BIAS.revertToDefault();
     }
 
     private void drainLegacy() throws Exception {
@@ -1088,6 +1088,10 @@ public class AltLocUploadTest extends LimeTestCase {
                 will(returnValue(Network.TCP));
                 allowing(handler).isPersonalSpam(request);
                 will(returnValue(false));
+                allowing(handler).getAddress();
+                will(returnValue(null));
+                allowing(handler).getPort();
+                will(returnValue(-1));
                 
                 ignoring(request).shouldIncludeXMLInResponse();
                 ignoring(request).getTotalLength();
@@ -1359,6 +1363,7 @@ public class AltLocUploadTest extends LimeTestCase {
     }
 
     public void testAltsDontExpire() throws Exception {
+        UploadSettings.EXPIRE_LEGACY.setValue(true);
         UploadSettings.LEGACY_EXPIRATION_DAMPER.setValue((float) Math.E / 4);
         // test that an altloc will not expire if given out less often
         AlternateLocation al = alternateLocationFactory.create("1.1.1.1:1", hashURN);

@@ -14,14 +14,15 @@ import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.SpeedConstants;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
+import org.limewire.io.IpPortImpl;
 import org.limewire.io.IpPortSet;
 import org.limewire.rudp.RUDPUtils;
 
 import com.limegroup.gnutella.PushEndpoint;
+import com.limegroup.gnutella.PushEndpointCache;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.altlocs.AlternateLocation;
 import com.limegroup.gnutella.altlocs.AlternateLocationCollection;
-import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
 import com.limegroup.gnutella.altlocs.PushAltLoc;
 import com.limegroup.gnutella.stubs.NetworkManagerStub;
 
@@ -355,7 +356,7 @@ public class DownloadPushTest extends DownloadTestCase {
         testUploaders[0].stopAfter(900000);
         testUploaders[0].setInterestedInFalts(true);
 
-        TestUploader pusher2 = new TestUploader(injector.getInstance(AlternateLocationFactory.class), uploaderNetworkManager);
+        TestUploader pusher2 = new TestUploader(uploaderNetworkManager);
         pusher2.start("firewalled pusher");
         pusher2.setRate(RATE);
         pusher2.stopAfter(200000);
@@ -366,19 +367,12 @@ public class DownloadPushTest extends DownloadTestCase {
         
         GUID guid = new GUID();
 
-        // create a set of the expected proxies and keep a ref to it
-        PushEndpoint pe = pushEndpointFactory.createPushEndpoint(guid.toHexString()
-                + ";1.2.3.4:5;6.7.8.9:10");
-
-        Set<IpPort> expectedProxies = new IpPortSet();
-        expectedProxies.addAll(pe.getProxies());
-
         // register proxies for GUID, this will add 127.0.0.2:10002 to proxies
-        PushAltLoc pushLocFWT = (PushAltLoc) alternateLocationFactory.create(guid.toHexString()
-                + ";5:4.3.2.1;127.0.0.2:" + PPORT_2, TestFile.hash());
-        pushLocFWT.updateProxies(true);
-
-        assertEquals(1, pushLocFWT.getPushAddress().getProxies().size());
+        PushEndpoint cachedPE = pushEndpointFactory.createPushEndpoint(guid.bytes(), new IpPortSet(new IpPortImpl("127.0.0.2", PPORT_2)));
+        PushEndpointCache cache = injector.getInstance(PushEndpointCache.class);
+        GUID retGuid = cache.updateProxiesFor(guid, cachedPE, true);
+        assertSame(retGuid, guid);
+        assertEquals(1, cachedPE.getProxies().size());
 
         RemoteFileDesc openRFD = newRFDWithURN(PORTS[0], false);
         RemoteFileDesc pushRFD2 = newRFDPush(guid, PPORT_2, 1, 2);
@@ -387,18 +381,16 @@ public class DownloadPushTest extends DownloadTestCase {
 
         testUDPAcceptorFactoryImpl.createTestUDPAcceptor(PPORT_2, networkManager.getPort(), savedFile.getName(), pusher2, guid, _currentTestName);
 
-        RemoteFileDesc[] now = { pushRFD2 };
-
         // start download with rfd that needs udp push request
-        ManagedDownloader download = (ManagedDownloader) downloadServices.download(now,
-                RemoteFileDesc.EMPTY_LIST, null, false);
+        ManagedDownloader download = (ManagedDownloader) downloadServices.download(
+                new RemoteFileDesc[] { pushRFD2 }, RemoteFileDesc.EMPTY_LIST, null, false);
         Thread.sleep(2000);
         LOG.debug("adding regular downloader");
         // also download from uploader1, so it gets the proxy headers from pusher2
         download.addDownload(openRFD, false);
         waitForComplete();
 
-        List alc = testUploaders[0].getIncomingGoodAltLocs();
+        List<AlternateLocation> alc = testUploaders[0].getIncomingGoodAltLocs();
         assertEquals(1, alc.size());
 
         PushAltLoc pushLoc = (PushAltLoc) alc.iterator().next();
@@ -410,9 +402,9 @@ public class DownloadPushTest extends DownloadTestCase {
         assertTrue(pushEndpoint.getFWTVersion() > 0);
         assertEquals(pushEndpoint.getPort(), FWTPort);
 
+        Set<IpPort> expectedProxies = new IpPortSet(new IpPortImpl("1.2.3.4:5"), new IpPortImpl("6.7.8.9:10"));
         assertEquals("expected: " + expectedProxies + ", actual: " + pushEndpoint.getProxies(), 
                 expectedProxies.size(), pushEndpoint.getProxies().size());
-
         assertTrue(expectedProxies.containsAll(pushEndpoint.getProxies()));
         
         assertEquals(successfulPushes + 1, ((AtomicInteger)((Map)statsTracker.inspect()).get("push connect success")).intValue());
@@ -445,12 +437,14 @@ public class DownloadPushTest extends DownloadTestCase {
 
         ManagedDownloaderImpl download = (ManagedDownloaderImpl) downloadServices.download(
                 new RemoteFileDesc[] { rfd }, RemoteFileDesc.EMPTY_LIST, null, false);
+        SourceRanker ranker = download.getCurrentSourceRanker();
+        assertTrue(ranker instanceof FriendsFirstSourceRanker);
         LOG.debug("started download");
 
         // after a while clear the ranker and add the second host.
         Thread.sleep((int) (sleep * 1.5));
-        sourceRankerFactory.getAppropriateRanker().stop();
-        sourceRankerFactory.getAppropriateRanker().setMeshHandler(download);
+        ranker.stop();
+        ranker.setMeshHandler(download);
         download.addDownload(noFile, false);
 
         LOG.debug("waiting for download to complete");
@@ -517,12 +511,15 @@ public class DownloadPushTest extends DownloadTestCase {
         assertTrue(testUploaders[0].getIncomingGoodAltLocs().contains(alternateLocationFactory.create(rfd2)));
         
         assertEquals(1,testUploaders[0].getIncomingBadAltLocs().size());
-        AlternateLocation current = testUploaders[0].getIncomingBadAltLocs().get(0);
-        
+        AlternateLocation current = testUploaders[0].getIncomingBadAltLocs().get(0);        
         assertTrue(current instanceof PushAltLoc);
         PushAltLoc pcurrent = (PushAltLoc)current;
-        assertTrue(pcurrent.getPushAddress().getProxies().isEmpty());
-        assertTrue(pcurrent.isDemoted());
+        assertEquals(guid.bytes(), pcurrent.getPushAddress().getClientGUID());
+        
+        // Now get the PE from our cache and make sure no proxies exist & its demoted.
+        PushEndpoint pe = injector.getInstance(PushEndpointCache.class).getPushEndpoint(guid);
+        assertTrue("pe: " + pe, pe.getProxies().isEmpty());
+        assertTrue("pe: " + pe, badPushLoc.isDemoted());
         
     }
 }

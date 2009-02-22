@@ -13,6 +13,7 @@ import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.messages.QueryReply;
+import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.version.UpdateInformation;
 
 /**
@@ -52,7 +53,7 @@ public class ActivityCallbackAdapter implements ActivityCallback {
         
     }
 
-    public void handleQueryString(String query) {
+    public void handleQuery(QueryRequest query, String address, int port) {
         
     }
 

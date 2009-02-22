@@ -58,7 +58,7 @@ public final class RemoteFileDescTest extends com.limegroup.gnutella.util.LimeTe
 		for(int i=0; i<invalidPorts.length; i++) {
 			try {
 			    remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", invalidPorts[i], false), 10, "test", 10,
-			            TEST_GUID, 10, false, 3, false, null, URN.NO_URN_SET, false, "", -1);
+			            TEST_GUID, 10, 3, false, null, URN.NO_URN_SET, false, "", -1);
 			    fail("rfd1 should have received an exception for invalid port");
 			} catch(IllegalArgumentException iae) {
 				// this is expected
@@ -76,7 +76,7 @@ public final class RemoteFileDescTest extends com.limegroup.gnutella.util.LimeTe
 		for(int i=0; i<validPorts.length; i++) {
 			try {
 			    remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", validPorts[i], false), 10, "test", 10,
-                        TEST_GUID, 10, false, 3, false, null, URN.NO_URN_SET, false, "", -1);
+                        TEST_GUID, 10, 3, false, null, URN.NO_URN_SET, false, "", -1);
 			} catch(IllegalArgumentException e) {
 				fail("rfd1 should not have received an exception for valid port: "+
 					 validPorts[i], e);
@@ -91,8 +91,8 @@ public final class RemoteFileDescTest extends com.limegroup.gnutella.util.LimeTe
 		Set urns = new HashSet();
 		urns.add(UrnHelper.URNS[0]);
 		RemoteFileDesc rfd =
-		    remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.test.org", 3000, false), 10, "test", 10, TEST_GUID, 10, true, 3,
-                true, null, urns, false, "", -1);
+		    remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.test.org", 3000, false), 10, "test", 10, TEST_GUID, 10, 3, true,
+                null, urns, false, "", -1);
 		String urlPath = rfd.getUrlPath();
 		assertEquals(HTTPConstants.URI_RES_N2R + UrnHelper.URNS[0].httpStringValue(), urlPath);		
 	}
@@ -118,14 +118,14 @@ public final class RemoteFileDescTest extends com.limegroup.gnutella.util.LimeTe
         //test an rfd with push proxies
 		 RemoteFileDesc fwalled = remoteFileDescFactory.createRemoteFileDesc(pe, 10, HTTPConstants.URI_RES_N2R+
                 UrnHelper.URNS[0].httpStringValue(), 10,
-                pe.getClientGUID(), 10, true, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
+                pe.getClientGUID(), 10, 2, true, null, UrnHelper.URN_SETS[0], false, "", -1);
 		 
 		 assertTrue(Arrays.equals(pe.getClientGUID(),fwalled.getClientGUID()));
 		 
 		 RemoteFileDesc nonfwalled = 
 		     remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("www.limewire.org", 6346, false), 10, HTTPConstants.URI_RES_N2R+
         				   UrnHelper.URNS[1].httpStringValue(), 10,
-                GUID.makeGuid(), 10, true, 2, true, null, UrnHelper.URN_SETS[1], false, "", -1);
+                GUID.makeGuid(), 10, 2, true, null, UrnHelper.URN_SETS[1], false, "", -1);
 		 
 		 RemoteFileDesc differentPE = remoteFileDescFactory.createRemoteFileDesc(fwalled, pe2);
 		 assertTrue(Arrays.equals(pe2.getClientGUID(),differentPE.getClientGUID()));

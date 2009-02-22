@@ -13,7 +13,15 @@ import org.limewire.util.StringUtils;
 public class LocaleUtils {
     
     private LocaleUtils() {}
+    
+    /** Returns the current locale in use. */
+    public static Locale getCurrentLocale() {
+        return new Locale(ApplicationSettings.LANGUAGE.getValue(),
+                ApplicationSettings.COUNTRY.getValue(),
+                ApplicationSettings.LOCALE_VARIANT.getValue());        
+    }
 
+    /** Sets the locale based on whats in the preferences. */
     public static void setLocaleFromPreferences() {
         if (ApplicationSettings.LANGUAGE.getValue().equals("")) {
             ApplicationSettings.LANGUAGE.setValue("en");
@@ -43,7 +51,7 @@ public class LocaleUtils {
             return;
         }
 
-        String s = Locale.getDefault().getDisplayName();
+        String s = getCurrentLocale().getDisplayName();
         if (!checkUIFonts("dialog", s)) {
             // if it couldn't display, revert the locale to english.
             ApplicationSettings.LANGUAGE.setValue("en");

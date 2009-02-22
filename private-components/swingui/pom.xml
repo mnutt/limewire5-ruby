@@ -14,15 +14,6 @@
 	<version>${limewire.version}</version>
 	<name>LimeWire Swing UI Component</name>
 	
-	<repositories>
-	    <repository>
-	      <id>xnap-commons</id>
-	      <name>XNap Commons Repository</name>
-	      <url>http://xnap-commons.sourceforge.net/repository</url>
-		  <layout>legacy</layout>
-	    </repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.limewire</groupId>
@@ -103,7 +94,7 @@
 	    <dependency>
 	      <groupId>xnap-commons</groupId>
 	      <artifactId>gettext-commons</artifactId>
-	      <version>0.9.1</version>
+	      <version>0.9.6</version>
 	    </dependency>
 	    <dependency>
       		<groupId>org.limewire</groupId>

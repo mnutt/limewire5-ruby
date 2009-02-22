@@ -11,24 +11,43 @@ import javax.swing.JTextField;
 
 import org.jdesktop.swingx.painter.Painter;
 
+/**
+ * A standard JTextField that can be skinned and can take a prompt message to 
+ *  show when the text field is empty of user input.
+ */
 public class PromptTextField extends JTextField implements FocusListener, Paintable {
     
+    /**
+     * The text to be displayed when the input field is empty.
+     */
     private String promptText;
     
     private Painter<JTextField> backgroundPainter;
     private Painter<JTextField> promptPainter;
     private Insets paintedInsets;
     
+
+    /**
+     * Creates a default instance of the text box with 
+     *  no skin and no prompt message.
+     */
     public PromptTextField() {
         this.init();
     }
     
-  
+    /**
+     * Creates a default skinless instance using the given 
+     *  prompt message.
+     */
     public PromptTextField(String promptText) {
         this.setPromptText(promptText);        
         this.init();
     }
 
+    /**
+     * Creates a default skinless instance using the given 
+     *  prompt message and initial number of columns.
+     */
     public PromptTextField(String promptText, int columns) {
         this.promptText = promptText;
         this.setColumns(columns);        
@@ -44,15 +63,21 @@ public class PromptTextField extends JTextField implements FocusListener, Painta
         this.setPreferredSize(this.getMinimumSize());
     }
     
-    
+    /**
+     * Sets the prompt message to be used when there is no 
+     *  user input in the field.
+     */
     public void setPromptText(String text){
         this.promptText = text;
     }
-    
+   
+    /**
+     * Returns the prompt message to be used when there is no 
+     *  user input in the field.
+     */
     public String getPromptText() {
         return this.promptText;
     }
-    
     
     /**
      * Repaints this component when focus is gained
@@ -125,7 +150,6 @@ public class PromptTextField extends JTextField implements FocusListener, Painta
         if (promptPainter != null && !hasFocus() && getText().isEmpty() && promptText != null) {
             promptPainter.paint((Graphics2D) g, this, getWidth(), getHeight());
         }
-
+        
     }
-    
 }

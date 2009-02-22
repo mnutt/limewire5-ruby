@@ -1,5 +1,10 @@
 package org.limewire.core.impl;
 
+import java.lang.annotation.Annotation;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+
 import org.limewire.core.api.Application;
 import org.limewire.core.api.callback.GuiCallbackService;
 import org.limewire.core.api.connection.FirewallStatusEvent;
@@ -33,9 +38,15 @@ import org.limewire.listener.EventMulticasterImpl;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.net.MockNetModule;
 import org.limewire.xmpp.activity.XmppActivityEvent;
+import org.limewire.concurrent.ScheduledListeningExecutorService;
+import org.limewire.concurrent.AbstractLazySingletonProvider;
+import org.limewire.concurrent.SimpleTimer;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
+import com.google.inject.Key;
+import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 
 public class MockModule extends AbstractModule {
     
@@ -78,7 +89,22 @@ public class MockModule extends AbstractModule {
         bind(new TypeLiteral<EventBean<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);
         bind(new TypeLiteral<EventBroadcaster<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);
         bind(new TypeLiteral<ListenerSupport<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);
+
+        Annotation execAnn = Names.named("backgroundExecutor");
+        Key<ScheduledListeningExecutorService> mainKey =
+                Key.get(ScheduledListeningExecutorService.class, execAnn);
+        bind(mainKey).toProvider(BackgroundTimerProvider.class);
+        bind(ScheduledExecutorService.class).annotatedWith(execAnn).to(mainKey);
+        bind(Executor.class).annotatedWith(execAnn).to(mainKey);
+        bind(ExecutorService.class).annotatedWith(execAnn).to(mainKey);
         
     }
 
+    @Singleton
+    private static class BackgroundTimerProvider extends AbstractLazySingletonProvider<ScheduledListeningExecutorService> {
+        @Override
+        protected ScheduledListeningExecutorService createObject() {
+            return new SimpleTimer(true);
+        }
+    }
 }

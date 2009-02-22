@@ -273,9 +273,7 @@ public class FileDescStub implements FileDesc {
     }
 
     @Override
-    public boolean setTTRoot(URN ttroot) {
-        // TODO Auto-generated method stub
-        return false;
+    public void setTTRoot(URN ttroot) {
     }
 
     @Override

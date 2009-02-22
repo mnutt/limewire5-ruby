@@ -68,6 +68,7 @@ public class DiscoInfoListener implements PacketListener, FeatureRegistry {
             if(presence != null) {
                 for(URI uri : featureInitializerMap.keySet()) {
                     if(discoverInfo.containsFeature(uri.toASCIIString())) {
+                        LOG.debugf("initializing feature {0} for {1}", uri.toASCIIString(), presence.getPresenceId());
                         featureInitializerMap.get(uri).initializeFeature(presence);
                     }
                 }

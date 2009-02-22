@@ -138,10 +138,6 @@ public interface QueryReply extends Message, SecureMessage {
     /** Returns true iff this client supports TLS. */
     public boolean isTLSCapable();
 
-    /** 
-     * Returns true iff the client supports chat.
-     */
-    public boolean getSupportsChat();
 
     /** @return true if the remote host can firewalled transfers.
      */

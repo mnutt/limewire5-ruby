@@ -140,7 +140,7 @@ public class GnutellaConnectionManagerImpl
     private void setConnectionStrength(ConnectionStrength newStrength) {
         ConnectionStrength oldStrength = currentStrength;
         currentStrength = newStrength;
-        changeSupport.firePropertyChange("strength", oldStrength, newStrength);
+        changeSupport.firePropertyChange(GnutellaConnectionManager.CONNECTION_STRENGTH, oldStrength, newStrength);
     }
     
     private ConnectionStrength calculateStrength() {

@@ -22,7 +22,7 @@ public class ItunesDownloadListenerTest extends BaseTestCase {
      * Testing that downloaders with null save files do not have their values
      * added to Itunes
      */
-    public void testNonTorrentFileNotAdded() {
+    public void testNullFileNotAdded() {
         iTunesSettings.ITUNES_SUPPORT_ENABLED.setValue(true);
         Mockery context = new Mockery();
         final Downloader downloader = context.mock(CoreDownloader.class);
@@ -38,6 +38,7 @@ public class ItunesDownloadListenerTest extends BaseTestCase {
         });
 
         new ItunesDownloadListener(downloader, itunesMediator);
+        context.assertIsSatisfied();
     }
 
     /**
@@ -54,12 +55,11 @@ public class ItunesDownloadListenerTest extends BaseTestCase {
             {
                 one(downloader).getState();
                 will(returnValue(DownloadState.ABORTED));
-                one(downloader).getSaveFile();
-                will(returnValue(new File("testDownloadNotComplete")));
             }
         });
 
         new ItunesDownloadListener(downloader, itunesMediator);
+        context.assertIsSatisfied();
     }
 
     /**
@@ -74,7 +74,7 @@ public class ItunesDownloadListenerTest extends BaseTestCase {
         context.checking(new Expectations() {
             {
                 one(downloader).getState();
-                will(returnValue(DownloadState.ABORTED));
+                will(returnValue(DownloadState.COMPLETE));
                 one(downloader).getSaveFile();
                 will(returnValue(file));
                 one(itunesMediator).addSong(file);
@@ -82,6 +82,7 @@ public class ItunesDownloadListenerTest extends BaseTestCase {
         });
 
         new ItunesDownloadListener(downloader, itunesMediator);
+        context.assertIsSatisfied();
     }
     
     /**
@@ -92,16 +93,14 @@ public class ItunesDownloadListenerTest extends BaseTestCase {
         Mockery context = new Mockery();
         final Downloader downloader = context.mock(CoreDownloader.class);
         final ItunesMediator itunesMediator = context.mock(ItunesMediator.class);
-        final File file = new File("testDownloadComplete");
         context.checking(new Expectations() {
             {
                 one(downloader).getState();
                 will(returnValue(DownloadState.ABORTED));
-                one(downloader).getSaveFile();
-                will(returnValue(file));
             }
         });
 
         new ItunesDownloadListener(downloader, itunesMediator);
+        context.assertIsSatisfied();
     }
 }

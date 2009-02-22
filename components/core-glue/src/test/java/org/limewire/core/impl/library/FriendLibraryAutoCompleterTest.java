@@ -33,6 +33,7 @@ public class FriendLibraryAutoCompleterTest extends BaseTestCase {
         } catch (UnsupportedOperationException e) {
             // expected
         }
+        context.assertIsSatisfied();
     }
 
     public void testClear() {
@@ -54,6 +55,7 @@ public class FriendLibraryAutoCompleterTest extends BaseTestCase {
         } catch (UnsupportedOperationException e) {
             // expected
         }
+        context.assertIsSatisfied();
     }
 
     public void testGetByPrefix() {
@@ -87,6 +89,7 @@ public class FriendLibraryAutoCompleterTest extends BaseTestCase {
         assertContains(result, value1);
         assertContains(result, value2);
         assertContains(result, value3);
+        context.assertIsSatisfied();
     }
 
     public void testLookup() {
@@ -117,6 +120,7 @@ public class FriendLibraryAutoCompleterTest extends BaseTestCase {
         assertNotNull(lookup);
 
         assertEquals(value2, lookup);
+        context.assertIsSatisfied();
     }
 
     public void testInterator() {
@@ -149,5 +153,6 @@ public class FriendLibraryAutoCompleterTest extends BaseTestCase {
         assertEquals(value2, iterator.next());
         assertEquals(value1, iterator.next());
         assertFalse(iterator.hasNext());
+        context.assertIsSatisfied();
     }
 }

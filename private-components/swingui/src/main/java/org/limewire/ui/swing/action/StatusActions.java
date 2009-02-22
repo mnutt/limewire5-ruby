@@ -1,6 +1,8 @@
 package org.limewire.ui.swing.action;
 
 import java.awt.event.ActionEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
@@ -10,6 +12,8 @@ import org.limewire.core.settings.XMPPSettings;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.friends.chat.IconLibrary;
@@ -17,6 +21,7 @@ import org.limewire.ui.swing.friends.login.FriendActions;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
+import org.limewire.xmpp.api.client.XMPPException;
 import org.limewire.xmpp.api.client.XMPPService;
 import org.limewire.xmpp.api.client.Presence.Mode;
 
@@ -27,10 +32,13 @@ import com.google.inject.Inject;
  * the users. These items are backed by a button group and JCheckBoxMenuItems
  */
 public class StatusActions {
+    private static final Log LOG = LogFactory.getLog(StatusActions.class);
 
-    private final JCheckBoxMenuItem available;
-
-    private final JCheckBoxMenuItem doNotDisturb;
+    private final Action availableAction;
+    private final Action doNotDisturbAction;
+    
+    private final Set<JCheckBoxMenuItem> availableItems = new HashSet<JCheckBoxMenuItem>();
+    private final Set<JCheckBoxMenuItem> doNotDisturbItems = new HashSet<JCheckBoxMenuItem>();
     
     private final XMPPService xmppService;
 
@@ -38,33 +46,40 @@ public class StatusActions {
     public StatusActions(final XMPPService xmppService, final IconLibrary iconLibrary) {
         this.xmppService = xmppService;
         
-        available = new JCheckBoxMenuItem(new AbstractAction(I18n.tr("&Available")) {
+        availableAction = new AbstractAction(I18n.tr("&Available")) {
             { 
                 putValue(Action.SMALL_ICON, iconLibrary.getAvailable());
                 setEnabled(false);
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                xmppService.setMode(Mode.available);
-                XMPPSettings.XMPP_DO_NOT_DISTURB.setValue(false);
+                try {
+                    xmppService.setMode(Mode.available);
+                    XMPPSettings.XMPP_DO_NOT_DISTURB.setValue(false);
+                } catch (XMPPException e1) {
+                    LOG.debugf(e1, "setting mode failed");
+                }
             }
-        });
+        };
 
         
-        doNotDisturb = new JCheckBoxMenuItem(new AbstractAction(I18n.tr("&Do Not Disturb")) {
+        doNotDisturbAction = new AbstractAction(I18n.tr("&Do Not Disturb")) {
             {
                 putValue(Action.SMALL_ICON, iconLibrary.getDoNotDisturb());
                 setEnabled(false);
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                xmppService.setMode(Mode.dnd);
-                XMPPSettings.XMPP_DO_NOT_DISTURB.setValue(true);
+                try {
+                    xmppService.setMode(Mode.dnd);                    
+                    XMPPSettings.XMPP_DO_NOT_DISTURB.setValue(true);
+                } catch (XMPPException e1) {
+                    LOG.debugf(e1, "setting mode failed");
+                }
             }
-        });
+        };
         
-        
-        updateSelection();
+        updateSelections();
         
         XMPPSettings.XMPP_DO_NOT_DISTURB.addSettingListener(new SettingListener() {
             @Override
@@ -72,22 +87,33 @@ public class StatusActions {
                 SwingUtils.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        updateSelection();
+                        updateSelections();
                     }
                 });
             }
         });
     }
 
-    private void updateSelection() {
+    private void updateSelections() {
         if(xmppService.isLoggedIn()) {
             boolean dndBool = XMPPSettings.XMPP_DO_NOT_DISTURB.getValue();
-            available.setSelected(!dndBool);
-            doNotDisturb.setSelected(dndBool);
+            for ( JCheckBoxMenuItem item : availableItems ) {
+                item.setSelected(!dndBool);
+            }
+            
+            for ( JCheckBoxMenuItem item : doNotDisturbItems ) {
+                item.setSelected(dndBool);
+            }
         } else {
             //do not show selections when logged out
-            available.setSelected(false);
-            doNotDisturb.setSelected(false);
+
+            for ( JCheckBoxMenuItem item : availableItems ) {
+                item.setSelected(false);
+            }
+            
+            for ( JCheckBoxMenuItem item : doNotDisturbItems ) {
+                item.setSelected(false);
+            }
         }
     }
 
@@ -100,15 +126,15 @@ public class StatusActions {
                 switch (event.getType()) {
                 case CONNECTED:
                 case CONNECTING:
-                    available.setEnabled(true);
-                    doNotDisturb.setEnabled(true);
-                    updateSelection();
+                    availableAction.setEnabled(true);
+                    doNotDisturbAction.setEnabled(true);
+                    updateSelections();
                     break;
                 case CONNECT_FAILED:
                 case DISCONNECTED:
-                    available.setEnabled(false);
-                    doNotDisturb.setEnabled(false);
-                    updateSelection();
+                    availableAction.setEnabled(false);
+                    doNotDisturbAction.setEnabled(false);
+                    updateSelections();
                     break;
                 }
             }
@@ -116,10 +142,14 @@ public class StatusActions {
     }
 
     public JMenuItem getAvailableMenuItem() {
-        return available;
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(availableAction);
+        availableItems.add(item);
+        return item;
     }
 
     public JMenuItem getDnDMenuItem() {
-        return doNotDisturb;
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(doNotDisturbAction);
+        doNotDisturbItems.add(item);
+        return item;
     }
 }

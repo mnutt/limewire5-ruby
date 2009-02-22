@@ -34,9 +34,7 @@ public class FeatureHeaderInterceptor implements HeaderInterceptor {
 
     public void process(Header header, HttpContext context)
             throws HttpException, IOException {
-        if (readChatHeader(header))
-            ;
-        else if (readContentURNHeader(header))
+        if (readContentURNHeader(header))
             ;
         else if (readQueueVersion(header))
             ;
@@ -46,26 +44,6 @@ public class FeatureHeaderInterceptor implements HeaderInterceptor {
             ;
         else if (readNodeHeader(header))
             ;
-    }
-
-    /**
-     * Read the chat portion of a header.
-     * 
-     * @return true if it had a chat header.
-     */
-    private boolean readChatHeader(Header header) throws IOException {
-        if (!HTTPHeaderName.CHAT.matches(header)) {
-            return false;
-        }
-
-        if (setHostAndPort(header.getValue())) {
-            uploader.setChatEnabled(true);
-            uploader.setBrowseHostEnabled(true);
-        } else {
-            throw new ProblemReadingHeaderException();
-        }
-        
-        return true;
     }
 
     /**
@@ -146,9 +124,7 @@ public class FeatureHeaderInterceptor implements HeaderInterceptor {
             }
             // not interested in the version ...
 
-            if (protocol.equals(HTTPConstants.CHAT_PROTOCOL))
-                uploader.setChatEnabled(true);
-            else if (protocol.equals(HTTPConstants.BROWSE_PROTOCOL))
+            if (protocol.equals(HTTPConstants.BROWSE_PROTOCOL))
                 uploader.setBrowseHostEnabled(true);
             else if (protocol.equals(HTTPConstants.QUEUE_PROTOCOL))
                 uploader.setSupportsQueueing(true);

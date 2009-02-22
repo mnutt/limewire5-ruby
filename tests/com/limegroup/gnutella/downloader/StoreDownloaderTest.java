@@ -99,10 +99,6 @@ public class StoreDownloaderTest extends LimeTestCase{
         
         assertFalse(downloader.canSendRequeryNow());
         
-        assertNull(downloader.getChatEnabledHost());
-        
-        assertFalse(downloader.hasChatEnabledHost());
-        
         assertFalse(downloader.hasBrowseEnabledHost());
         
         assertEquals(0, downloader.getNumberOfAlternateLocations());

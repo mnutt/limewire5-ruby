@@ -1,8 +1,8 @@
 package org.limewire.core.api.friend;
 
-import org.limewire.listener.DefaultEvent;
+import org.limewire.listener.DefaultSourceTypeEvent;
 
-public class FriendPresenceEvent extends DefaultEvent<FriendPresence, FriendPresenceEvent.Type> {
+public class FriendPresenceEvent extends DefaultSourceTypeEvent<FriendPresence, FriendPresenceEvent.Type> {
     
     public static enum Type {
         /** This is a new presence. */

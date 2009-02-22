@@ -67,6 +67,7 @@
         <!-- setup a special property for the buildpath of each component combined. -->
         <path id="build.limewire.components.classes.core">
             <pathelement location="${build.limewire.components.common.classes}"/>
+			<pathelement location="${limewire.components.common.src.resources}" />        	
             <pathelement location="${build.limewire.components.collection.classes}"/>
             <pathelement location="${build.limewire.components.security.classes}"/>
             <pathelement location="${build.limewire.components.io.classes}"/>

@@ -13,6 +13,7 @@ import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.io.Address;
 
 
@@ -226,6 +227,11 @@ public class MockDownloadItem implements DownloadItem {
     @Override
     public String getFileName() {
         return title;
+    }
+    
+    @Override
+    public void setSaveFile(File saveFile, boolean overwrite) throws SaveLocationException {
+        // Do nothing
     }
 
     @Override

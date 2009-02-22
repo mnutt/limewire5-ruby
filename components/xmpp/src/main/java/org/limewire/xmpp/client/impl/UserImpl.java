@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import net.jcip.annotations.GuardedBy;
+
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.RosterEntry;
@@ -31,8 +33,6 @@ import org.limewire.xmpp.api.client.Presence;
 import org.limewire.xmpp.api.client.PresenceEvent;
 import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.XMPPException;
-
-import net.jcip.annotations.GuardedBy;
 
 
 public class UserImpl implements User {
@@ -148,7 +148,11 @@ public class UserImpl implements User {
     public void setName(final String name) {
         Thread t = ThreadExecutor.newManagedThread(new DebugRunnable(new Runnable() {
             public void run() {
-                UserImpl.this.rosterEntry.get().setName(name);
+                try {
+                    UserImpl.this.rosterEntry.get().setName(name);
+                } catch (org.jivesoftware.smack.XMPPException e) {
+                    LOG.debugf("set name failed", e);
+                }
             }
         }), "set-name-thread-" + toString());
         t.start();
@@ -168,6 +172,17 @@ public class UserImpl implements User {
         }
     }
 
+    @Override
+    public boolean isSubscribed() {
+        switch(rosterEntry.get().getType()) {
+            case both:
+            case to:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     void addPresense(Presence presence) {
         if(LOG.isDebugEnabled()) {
             LOG.debugf("adding presence {0}", presence.getJID());
@@ -184,6 +199,7 @@ public class UserImpl implements User {
         }
         Collection<Feature> features = presence.getFeatures();
         for(Feature feature : features) {
+            LOG.debugf("removing feature {0} for {1}", feature, presence);
             featureRegistry.get(feature.getID()).removeFeature(presence);
         }
 
@@ -208,7 +224,7 @@ public class UserImpl implements User {
     public void addPresenceListener(EventListener<PresenceEvent> presenceListener) {
         presenceListeners.addListener(presenceListener);
         for(Presence presence : getPresences().values()) {
-            presenceListener.handleEvent(new PresenceEvent(presence, Presence.EventType.PRESENCE_UPDATE));
+            presenceListener.handleEvent(new PresenceEvent(presence, Presence.EventType.PRESENCE_NEW));
         }
     }
 

@@ -13,7 +13,6 @@ import org.limewire.listener.EventListener;
 import org.limewire.util.FileUtils;
 
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
@@ -103,11 +102,6 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     @Override
     public int getBusyHostCount() {
         return 0;
-    }
-
-    @Override
-    public Endpoint getChatEnabledHost() {
-        return null;
     }
 
     @Override
@@ -213,11 +207,6 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
 
     @Override
     public boolean hasBrowseEnabledHost() {
-        return false;
-    }
-
-    @Override
-    public boolean hasChatEnabledHost() {
         return false;
     }
 

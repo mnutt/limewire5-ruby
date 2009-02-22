@@ -257,7 +257,7 @@ public final class URN implements HTTPHeaderValue, Serializable {
 	 */
 	public static URN createSHA1Urn(File file) 
 		throws IOException, InterruptedException {
-		return createSHA1AndTTRootUrns(file).getSHA1();
+		return generateUrnsFromFile(file).getSHA1();
 	}
     
 	/**
@@ -779,6 +779,35 @@ public final class URN implements HTTPHeaderValue, Serializable {
 
 		return type.substring(0,type.indexOf(':', 4)+1); 
 	}
+	
+	public static URN createTTRootFile(File file) throws IOException, InterruptedException {
+	    MessageDigest tt = new MerkleTree(new Tiger());
+	    byte[] buffer = threadLocal.get();
+        int read;
+        InputStream fis = null;        
+        
+        try {
+            // this is purposely NOT a BufferedInputStream because we
+            // read it in the chunks that we want to.
+            fis = new FileInputStream(file);
+            while ((read=fis.read(buffer))!=-1) {
+                long start = System.nanoTime();
+                tt.update(buffer,0,read);
+                if(SystemUtils.getIdleTime() < MIN_IDLE_TIME && SharingSettings.FRIENDLY_HASHING.getValue()) {
+                    long interval = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+                    if (interval > 0) 
+                        Thread.sleep(interval * 3);
+                    else 
+                        Thread.yield();
+                }
+            }
+        } finally {
+            IOUtils.close(fis);
+        }
+
+        URN ttroot = new URN(Type.URN_NAMESPACE_ID + Type.TTROOT.getDescriptor() + Base32.encode(tt.digest()), Type.TTROOT);
+        return ttroot;
+	}
 
 	/**
 	 * Create a new SHA1 hash string for the specified file on disk.
@@ -791,10 +820,9 @@ public final class URN implements HTTPHeaderValue, Serializable {
      *  interrupted while hashing.  (This method can take a while to
      *  execute.)
 	 */
-	public static UrnSet createSHA1AndTTRootUrns(final File file) 
+	public static UrnSet generateUrnsFromFile(final File file) 
       throws IOException, InterruptedException {
 		MessageDigest md = new SHA1();
-        MessageDigest tt = new MerkleTree(new Tiger());
         byte[] buffer = threadLocal.get();
         int read;
         AtomicInteger progress = new AtomicInteger(0);
@@ -808,7 +836,6 @@ public final class URN implements HTTPHeaderValue, Serializable {
             while ((read=fis.read(buffer))!=-1) {
                 long start = System.nanoTime();
                 md.update(buffer,0,read);
-                tt.update(buffer,0,read);
                 progress.addAndGet( read );
                 if(SystemUtils.getIdleTime() < MIN_IDLE_TIME && SharingSettings.FRIENDLY_HASHING.getValue()) {
                     long interval = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
@@ -830,9 +857,7 @@ public final class URN implements HTTPHeaderValue, Serializable {
 		// insensitive)
         UrnSet ret = new UrnSet();
         URN sha1 = new URN(Type.URN_NAMESPACE_ID + Type.SHA1.getDescriptor() + Base32.encode(md.digest()), Type.SHA1);
-        URN ttroot = new URN(Type.URN_NAMESPACE_ID + Type.TTROOT.getDescriptor() + Base32.encode(tt.digest()), Type.TTROOT);
         ret.add(sha1);
-        ret.add(ttroot);
         return ret;
 	}
 

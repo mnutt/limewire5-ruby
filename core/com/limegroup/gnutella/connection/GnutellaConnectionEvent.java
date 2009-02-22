@@ -1,10 +1,10 @@
 package com.limegroup.gnutella.connection;
 
 import org.limewire.io.GUID;
-import org.limewire.listener.DefaultEvent;
+import org.limewire.listener.DefaultSourceTypeEvent;
 
 
-public class GnutellaConnectionEvent extends DefaultEvent<GnutellaConnection, GnutellaConnection.EventType> {
+public class GnutellaConnectionEvent extends DefaultSourceTypeEvent<GnutellaConnection, GnutellaConnection.EventType> {
     private final GUID guid;
 
     public GnutellaConnectionEvent(GnutellaConnection source, GnutellaConnection.EventType event, GUID guid) {

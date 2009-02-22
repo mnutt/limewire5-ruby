@@ -9,6 +9,8 @@ import ca.odell.glazedlists.EventList;
  */
 public interface GnutellaConnectionManager {
 
+    public static final String CONNECTION_STRENGTH = "strength";
+
     /**
      * Adds the specified listener to the list that is notified when a 
      * property value is changed.  

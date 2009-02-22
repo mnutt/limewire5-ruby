@@ -92,7 +92,7 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(123, rmem.getSize());
             // CHECK GUID!!!!
             assertEquals(1, rmem.getSpeed());
-            assertEquals(true, rmem.isChat());
+//            assertEquals(true, rmem.isChat()); // ignoring chat check.
             assertEquals(1, rmem.getQuality());
             assertEquals(false, rmem.isBrowseHost());
             assertEquals(null, rmem.getXml());
@@ -123,7 +123,7 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(123, rmem.getSize());
             // CHECK GUID!!!!
             assertEquals(1, rmem.getSpeed());
-            assertEquals(true, rmem.isChat());
+//            assertEquals(true, rmem.isChat()); //ignoring chat check
             assertEquals(1, rmem.getQuality());
             assertEquals(false, rmem.isBrowseHost());
             assertEquals(null, rmem.getXml());
@@ -236,7 +236,7 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(4495072L, rmem.getSize());
             // CHECK GUID!!!!
             assertEquals(960, rmem.getSpeed());
-            assertEquals(false, rmem.isChat());
+//            assertEquals(false, rmem.isChat()); //ignoring chat
             assertEquals(3, rmem.getQuality());
             assertEquals(true, rmem.isBrowseHost());
             assertEquals(null, rmem.getXml());
@@ -254,7 +254,7 @@ public class OldDownloadConverterImplTest extends LimeTestCase {
             assertEquals(4495072L, rmem2.getSize());
             // CHECK GUID!!!!
             assertEquals(2147483647, rmem2.getSpeed());
-            assertEquals(false, rmem2.isChat());
+//            assertEquals(false, rmem2.isChat()); // ignoring chat
             assertEquals(4, rmem2.getQuality());
             assertEquals(true, rmem2.isBrowseHost());
             assertEquals(null, rmem2.getXml());

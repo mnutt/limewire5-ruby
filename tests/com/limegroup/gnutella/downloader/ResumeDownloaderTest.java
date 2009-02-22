@@ -86,7 +86,7 @@ public class ResumeDownloaderTest extends LimeTestCase {
         if (hash != null)
             urns.add(hash);
         return injector.getInstance(RemoteFileDescFactory.class).createRemoteFileDesc(new ConnectableImpl("1.2.3.4", 6346, false), 13l, name, size, new byte[16],
-                56, false, 4, true, null, urns, false, "", -1);
+                56, 4, true, null, urns, false, "", -1);
     }
 
     public void testLoads32Bit() throws Exception {

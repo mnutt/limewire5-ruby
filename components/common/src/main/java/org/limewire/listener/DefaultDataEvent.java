@@ -1,43 +1,36 @@
 package org.limewire.listener;
 
-/**
- * Default class for events that can carry data in addition to a source
- * and an event type. 
- */
-public class DefaultDataEvent<S, E, D> extends DefaultEvent<S, E> {
+import org.limewire.util.Objects;
 
+public class DefaultDataEvent<D> implements DataEvent<D> {
+    
     private final D data;
-
-    public DefaultDataEvent(S source, E event, D data) {
-        super(source, event);
-        this.data = data;
+    
+    public DefaultDataEvent(D data) {
+        this.data = Objects.nonNull(data, "data");
     }
     
     public D getData() {
         return data;
     }
-    
+
     @Override
     public int hashCode() {
-        int hash = super.hashCode();
-        hash = 31 * hash + (data != null ? data.hashCode() : 0);
+        int hash = 7;
+        hash = 31 * hash + data.hashCode();
         return hash;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(!super.equals(obj)) {
-            return false;
-        }
         if(!obj.getClass().equals(getClass())) {
             return false;
         }
         return data.equals(((DefaultDataEvent)obj).getData());
     }
-    
+
     @Override
     public String toString() {
-        return super.toString() + ", data: " + data;
+        return getClass().getSimpleName() + " - data: " + data;
     }
-
 }

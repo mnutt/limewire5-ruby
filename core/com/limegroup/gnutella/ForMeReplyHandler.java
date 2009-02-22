@@ -138,15 +138,20 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
 	public void handleQueryReply(QueryReply reply, ReplyHandler handler, Address address) {
         // do not allow a faked multicast reply.
         if(reply.isFakeMulticast()) {
+            LOG.trace("Dropping fake multicast reply");
             return;
         }
         
 		// Drop if it's a reply to mcast and conditions aren't met ...
-        if( reply.isReplyToMulticastQuery() ) {
-            if( reply.isTCP() )
+        if(reply.isReplyToMulticastQuery()) {
+            if(reply.isTCP()) {
+                LOG.trace("Dropping TCP reply to multicast query");
                 return; // shouldn't be on TCP.
-            if( reply.getHops() != 1 || reply.getTTL() != 0 )
+            }
+            if(reply.getHops() != 1 || reply.getTTL() != 0) {
+                LOG.trace("Dropping multi-hop reply to multicast query");
                 return; // should only have hopped once.
+            }
         }
         
         // XML must be added to the response first, so that
@@ -155,17 +160,21 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
         boolean validResponses = addXMLToResponses(reply, limeXMLDocumentHelper);
         // responses invalid?  exit.
         if(!validResponses) {
+            LOG.trace("Dropping reply without valid responses");
             return;
         }
 
         // check for unwanted results after xml has been constructed
-        if (handler != null && handler.isPersonalSpam(reply)) {
+        if(handler != null && handler.isPersonalSpam(reply)) {
+            LOG.trace("Dropping spam reply");
             return;
         }
         
         if(reply.hasSecureData() && ApplicationSettings.USE_SECURE_RESULTS.getValue()) {
+            LOG.trace("Verifying secure reply");
             secureMessageVerifier.verify(reply, this);
         } else {
+            LOG.trace("Reply looks OK, routing it internally");
             routeQueryReplyInternal(reply, address);
         }
     }

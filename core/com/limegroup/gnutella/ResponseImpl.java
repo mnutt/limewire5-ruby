@@ -248,8 +248,8 @@ class ResponseImpl implements Response {
             return cachedRFD;
         } else {
             RemoteFileDesc rfd = remoteFileDescFactory.createRemoteFileDesc(address, getIndex(),
-                    getName(), getSize(), queryReply.getClientGUID(), queryReply.getSpeed(), queryReply.getSupportsChat(), queryReply.calculateQualityOfService(), queryReply.getSupportsBrowseHost(),
-                    getDocument(), getUrns(), queryReply.isReplyToMulticastQuery(), queryReply.getVendor(), getCreateTime());
+                    getName(), getSize(), queryReply.getClientGUID(), queryReply.getSpeed(), queryReply.calculateQualityOfService(), queryReply.getSupportsBrowseHost(), getDocument(),
+                    getUrns(), queryReply.isReplyToMulticastQuery(), queryReply.getVendor(), getCreateTime());
             cachedRFD = rfd;
             return rfd;
         }

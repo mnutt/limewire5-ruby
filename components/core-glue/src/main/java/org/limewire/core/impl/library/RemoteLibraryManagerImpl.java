@@ -14,6 +14,8 @@ import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.PresenceLibrary;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Inject;
@@ -35,8 +37,15 @@ import ca.odell.glazedlists.impl.ReadOnlyList;
 import ca.odell.glazedlists.util.concurrent.LockFactory;
 import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
 
+/**
+ * This class keeps track of all friends libraries. As friend presences are found they are 
+ * aggregated into a single friend library per friend. All RemoteFileItems found in the friend libraries
+ * are also coalesced into a single FileList.
+ */
 @Singleton
 public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
+    
+    private static final Log LOG = LogFactory.getLog(RemoteLibraryManagerImpl.class, "friend-library");
     
     private final AllFriendsLibraryImpl allFriendsList;
     private final EventList<FriendLibrary> allFriendLibraries;
@@ -127,6 +136,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     private FriendLibraryImpl getOrCreateFriendLibrary(Friend friend) {
         FriendLibraryImpl friendLibrary = findFriendLibrary(friend);
         if(friendLibrary == null) {
+            LOG.debugf("adding friend library for {0}", friend);
             friendLibrary = new FriendLibraryImpl(allFriendsList, friend, lock);
             allFriendsList.addMemberList(friendLibrary);
             friendLibrary.commit();
@@ -150,6 +160,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     }
 
     private void removeFriendLibrary(FriendLibraryImpl friendLibrary) {
+        LOG.debugf("removing friend library for {0}", friendLibrary.getFriend());
         allFriendLibraries.remove(friendLibrary);
         allFriendsList.removeMemberList(friendLibrary);
         friendLibrary.dispose();
@@ -294,6 +305,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         private PresenceLibraryImpl getOrCreatePresenceLibrary(FriendPresence presence) {
             PresenceLibraryImpl library = findPresenceLibrary(presence);
             if(library == null) {
+                LOG.debugf("adding presence library for {0}", presence);
                 library = new PresenceLibraryImpl(presence, createMemberList());
                 allPresenceLibraries.add(library);
                 addMemberList(library);
@@ -305,6 +317,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         private void removePresenceLibrary(FriendPresence presence) {
             PresenceLibraryImpl presenceLibrary = findPresenceLibrary(presence);
             if(presenceLibrary != null) {
+                LOG.debugf("removing presence library for {0}", presence);
                 allPresenceLibraries.remove(presenceLibrary);
                 presenceLibrary.dispose();
                 removeMemberList(presenceLibrary);

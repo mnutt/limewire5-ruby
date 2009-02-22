@@ -141,31 +141,31 @@ public class UploadQueueingTest extends LimeTestCase {
         
         FileDescStub descStub = new FileDescStub("abc1.txt", urn1, 0);
         rfd1 = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.1.1.1", 1, false), 0, "abc1.txt", FileDescStub.DEFAULT_SIZE,
-                new byte[16], 56, false, 3, false, null, descStub.getUrns(), false, "", -1);
+                new byte[16], 56, 3, false, null, descStub.getUrns(), false, "", -1);
         url1 = LimeTestUtils.getRelativeRequest(urn1);
         fm.getGnutellaFileList().add(descStub);
 
         descStub = new FileDescStub("abc2.txt", urn2, 1);
         rfd2 = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.1.1.2", 1, false), 1, "abc2.txt", FileDescStub.DEFAULT_SIZE,
-                new byte[16], 56, false, 3, false, null, descStub.getUrns(), false, "", -1);
+                new byte[16], 56, 3, false, null, descStub.getUrns(), false, "", -1);
        // url2 = LimeTestUtils.getRelativeRequest(urn2);
         fm.getGnutellaFileList().add(descStub);
         
         descStub = new FileDescStub("abc3.txt", urn3, 2);
         rfd3 = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.1.1.3", 1, false), 2, "abc3.txt", FileDescStub.DEFAULT_SIZE,
-                new byte[16], 56, false, 3, false, null, descStub.getUrns(), false, "", -1);
+                new byte[16], 56, 3, false, null, descStub.getUrns(), false, "", -1);
        // url3 = LimeTestUtils.getRelativeRequest(urn3);
         fm.getGnutellaFileList().add(descStub);
 
         descStub = new FileDescStub("abc4.txt", urn4, 3);
         rfd4 = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.1.1.4", 1, false), 3, "abc4.txt", FileDescStub.DEFAULT_SIZE,
-                new byte[16], 56, false, 3, false, null, descStub.getUrns(), false, "", -1);
+                new byte[16], 56, 3, false, null, descStub.getUrns(), false, "", -1);
         //url4 = LimeTestUtils.getRelativeRequest(urn4);
         fm.getGnutellaFileList().add(descStub);
 
         descStub = new FileDescStub("abc5.txt", urn5, 4);
         rfd5 = remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.1.1.5", 1, false), 4, "abc5.txt", FileDescStub.DEFAULT_SIZE,
-                new byte[16], 56, false, 3, false, null, descStub.getUrns(), false, "", -1);
+                new byte[16], 56, 3, false, null, descStub.getUrns(), false, "", -1);
        // url5 = LimeTestUtils.getRelativeRequest(urn5);
         fm.getGnutellaFileList().add(descStub);
     }

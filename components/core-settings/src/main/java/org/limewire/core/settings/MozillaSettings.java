@@ -1,5 +1,6 @@
 package org.limewire.core.settings;
 
+import org.limewire.setting.IntSetting;
 import org.limewire.setting.StringSetting;
 
 /**
@@ -18,6 +19,11 @@ public class MozillaSettings extends LimeProps {
             .createStringSetting(
                     "MOZILLA_DOWNLOAD_MIME_TYPES",
                     "application/octet-stream, application/x-msdownload, application/exe, application/x-exe, application/dos-exe, vms/exe, application/x-winexe, application/msdos-windows, application/x-msdos-program, application/x-msdos-program, application/x-unknown-application-octet-stream, application/vnd.ms-powerpoint, application/excel, application/vnd.ms-publisher, application/x-unknown-message-rfc822, application/vnd.ms-excel, application/msword, application/x-mspublisher, application/x-tar, application/zip, application/x-gzip,application/x-stuffit,application/vnd.ms-works, application/powerpoint, application/rtf, application/postscript, application/x-gtar, audio/mpeg, application/x-bittorrent");
-
-
+    
+    /**
+     * The maximum number of simultaneous Xulrunner HTTP connections
+     */
+    public static final IntSetting MAX_CONNECTIONS
+        = FACTORY.createRemoteIntSetting("MAX_CONNECTIONS", 16,
+                "MozillaSettings.MaxConnections", 2, 50);
 }

@@ -121,7 +121,6 @@ public class FileRequestHandlerTest extends LimeTestCase {
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         assertEquals(1234, uploader.getGnutellaPort());
         assertEquals("127.0.0.1", uploader.getHost());
-        assertTrue(uploader.isChatEnabled());
         assertTrue(uploader.isBrowseHostEnabled());
         assertEquals(123456, uploader.getTotalAmountUploaded());
         assertEquals(1, uploader.getUploadBegin());
@@ -131,24 +130,24 @@ public class FileRequestHandlerTest extends LimeTestCase {
         assertTrue(uploader.supportsQueueing());
     }
 
-    public void testFeatureHeaderInterceptorChat() throws Exception {
-        HTTPUploadSession session = new HTTPUploadSession(null, null, null);
-        HTTPUploader uploader = new HTTPUploader("filename", session);
-        // setting host to a value, so we don't need to specify a session
-        uploader.setHost("somehost");
-        uploader.setFileDesc(fd);
-        sessionManager.uploader = uploader;
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "");
-
-        HttpRequest request = new BasicHttpRequest("GET", LimeTestUtils.getRelativeRequest(urn1));
-        request.addHeader("Chat", "128.0.0.1:5678");
-        fileRequestHandler.handle(request, response, new BasicHttpContext(null));
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-        assertEquals(5678, uploader.getGnutellaPort());
-        assertEquals("128.0.0.1", uploader.getHost());
-        assertTrue(uploader.isChatEnabled());
-        assertTrue(uploader.isBrowseHostEnabled());
-    }
+    // chat header unused.
+//    public void testFeatureHeaderInterceptorChat() throws Exception {
+//        HTTPUploadSession session = new HTTPUploadSession(null, null, null);
+//        HTTPUploader uploader = new HTTPUploader("filename", session);
+//        // setting host to a value, so we don't need to specify a session
+//        uploader.setHost("somehost");
+//        uploader.setFileDesc(fd);
+//        sessionManager.uploader = uploader;
+//        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "");
+//
+//        HttpRequest request = new BasicHttpRequest("GET", LimeTestUtils.getRelativeRequest(urn1));
+//        request.addHeader("Chat", "128.0.0.1:5678");
+//        fileRequestHandler.handle(request, response, new BasicHttpContext(null));
+//        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+//        assertEquals(5678, uploader.getGnutellaPort());
+//        assertEquals("128.0.0.1", uploader.getHost());
+//        assertTrue(uploader.isBrowseHostEnabled());
+//    }
     
     /**
      * Tests if browse host is enabled on the uploader if the downloader sent

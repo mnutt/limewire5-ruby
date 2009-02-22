@@ -120,6 +120,7 @@ public class DaapManagerImplTest extends BaseTestCase {
             daapServer.stop();
         }
 
+        context.assertIsSatisfied();
     }
 
 }

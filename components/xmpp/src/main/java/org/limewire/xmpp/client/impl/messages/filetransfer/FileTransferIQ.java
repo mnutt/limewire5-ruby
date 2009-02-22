@@ -29,7 +29,15 @@ public class FileTransferIQ extends IQ {
             int eventType = parser.getEventType();
             if(eventType == XmlPullParser.START_TAG) {
                 if(parser.getName().equals("file-transfer")) {
-                    parsedTransferType = TransferType.valueOf(parser.getAttributeValue(null, "type"));
+                    String transferTypeValue = parser.getAttributeValue(null, "type");
+                    if (transferTypeValue == null) {
+                        throw new InvalidIQException("no transfer type specified");
+                    }
+                    try {
+                        parsedTransferType = TransferType.valueOf(transferTypeValue);
+                    } catch (IllegalArgumentException iae) {
+                        throw new InvalidIQException("unknown transfer type: " + transferTypeValue);
+                    }
                 } else if(parser.getName().equals("file")) {
                     parsedMetaData = new FileMetaDataImpl(parser);
                 }
@@ -80,6 +88,7 @@ public class FileTransferIQ extends IQ {
                 return new FileTransferIQ(parser);
             } catch (InvalidIQException ie) {
                 LOG.debug("invalid iq", ie);
+                // throwing would close connection
                 return null;
             }
         }

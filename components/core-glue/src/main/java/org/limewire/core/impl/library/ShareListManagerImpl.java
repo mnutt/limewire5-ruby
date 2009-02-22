@@ -5,10 +5,8 @@ import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
-import org.limewire.core.api.Category;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendEvent;
-import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.FileList;
 import org.limewire.core.api.library.FriendFileList;
 import org.limewire.core.api.library.FriendShareListEvent;
@@ -23,7 +21,6 @@ import org.limewire.logging.LogFactory;
 import ca.odell.glazedlists.CompositeList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
-import ca.odell.glazedlists.matchers.Matcher;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -272,27 +269,6 @@ class ShareListManagerImpl implements ShareListManager {
         @Override
         public int size() {
             return threadSafeUniqueList.size();
-        }
-    }
-    
-    public class CategoryFilter implements Matcher<FileItem>{
-        private final Category category;
-        
-        public CategoryFilter(Category category) {
-            this.category = category;
-        }
-
-        @Override
-        public boolean matches(FileItem item) {
-            if (item == null) {
-                return false;
-            }
-            
-            if (category == null) {
-                return true;
-            }
-
-            return item.getCategory().equals(category);
         }
     }
 }

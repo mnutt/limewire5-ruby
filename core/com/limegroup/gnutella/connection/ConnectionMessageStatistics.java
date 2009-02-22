@@ -6,6 +6,9 @@ package com.limegroup.gnutella.connection;
  */
 public interface ConnectionMessageStatistics {
 
+    /** Returns the number of queries received over this connection. */
+    public long getNumQueriesReceived();
+    
     /** Returns the number of query replies received over this connection. */
     public long getNumQueryReplies();
 

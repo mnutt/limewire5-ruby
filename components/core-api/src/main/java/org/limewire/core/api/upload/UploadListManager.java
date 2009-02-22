@@ -48,5 +48,4 @@ public interface UploadListManager {
 
     /**Removes item from list*/
     void remove(UploadItem item);
-    
 }

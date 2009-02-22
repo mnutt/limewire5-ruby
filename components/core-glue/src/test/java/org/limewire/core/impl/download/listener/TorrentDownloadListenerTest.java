@@ -50,6 +50,7 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
         });
 
         new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
+        context.assertIsSatisfied();
     }
 
     /**
@@ -65,12 +66,11 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
             {
                 one(downloader).getState();
                 will(returnValue(DownloadState.ABORTED));
-                one(downloader).getSaveFile();
-                will(returnValue(new File("testNonCompleteFileNotAdded")));
             }
         });
 
         new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
+        context.assertIsSatisfied();
     }
 
     /**
@@ -100,6 +100,7 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
 
         new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
         assertFalse(downloadItems.contains(downloadItem));
+        context.assertIsSatisfied();
     }
 
     /**
@@ -140,6 +141,7 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
 
         new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
         assertFalse(downloadItems.contains(downloadItem));
+        context.assertIsSatisfied();
     }
 
     /**
@@ -170,7 +172,7 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
 
         new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
         assertFalse(downloadItems.contains(downloadItem));
-
+        context.assertIsSatisfied();
     }
 
     /**
@@ -210,6 +212,7 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
 
         new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
         assertFalse(downloadItems.contains(downloadItem));
+        context.assertIsSatisfied();
     }
 
     /**

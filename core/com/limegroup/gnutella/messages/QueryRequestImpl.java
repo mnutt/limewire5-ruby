@@ -18,6 +18,8 @@ import org.limewire.core.settings.SearchSettings;
 import org.limewire.io.BadGGEPPropertyException;
 import org.limewire.io.GGEP;
 import org.limewire.io.GUID;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.security.AddressSecurityToken;
 import org.limewire.security.MACCalculatorRepositoryManager;
 import org.limewire.service.ErrorService;
@@ -47,6 +49,8 @@ import com.limegroup.gnutella.xml.SchemaNotFoundException;
  */
 public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
 
+    private static final Log LOG = LogFactory.getLog(QueryRequestImpl.class);
+    
     /**
      * The payload for the query -- includes the query string, the
      * XML query, any URNs, GGEP, etc.
@@ -155,6 +159,12 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         super(guid, Message.F_QUERY, ttl, /* hops */ (byte)0, /* length */ 0, 
               network);
         
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("Creating query request, OOB capable " +
+                    canReceiveOutOfBandReplies + ", do not proxy " +
+                    doNotProxy);
+        }
+        
         // make sure the query is normalized.
         // (this may have been normalized elsewhere, but it's okay to do it again)
         if(normalize && query != null)
@@ -210,10 +220,13 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
             // we'll hope the out-of-band reply guys will provide us all
             // necessary XML.
             
-            if (!canReceiveOutOfBandReplies) 
+            if(!canReceiveOutOfBandReplies) {
+                LOG.debug("Can't receive OOB replies, setting XML flag");
                 minSpeed |= SPECIAL_XML_MASK;
-            else if (!SearchSettings.DISABLE_OOB_V2.getBoolean())
+            } else if(!SearchSettings.DISABLE_OOB_V2.getBoolean()) {
+                LOG.debug("Setting OOBv2 flag");
                 minSpeed |= SPECIAL_OUTOFBAND_MASK;
+            }
         }
 
         MIN_SPEED = minSpeed;
@@ -296,6 +309,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
 
             // add a GGEP-block if we shouldn't proxy
             if (_doNotProxy) {
+                LOG.debug("Adding do not proxy OOB header");
                 ggepBlock.put(GGEPKeys.GGEP_HEADER_NO_PROXY);
             }
 
@@ -305,6 +319,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
 
             // mark oob query to require support of security tokens
             if (canReceiveOutOfBandReplies) {
+                LOG.debug("Adding secure OOB header");
                 _isSecurityTokenRequired = true;
                 ggepBlock.put(GGEPKeys.GGEP_HEADER_SECURE_OOB);
             }

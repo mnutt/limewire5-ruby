@@ -31,7 +31,7 @@ import org.limewire.util.BufferUtils;
  * we can make it implement InterestReadChannel & InterestWriteChannel, so
  * we don't need the additional InterestAdapter.
  */
-class UDPSocketChannel extends AbstractNBSocketChannel implements InterestReadableByteChannel,
+public class UDPSocketChannel extends AbstractNBSocketChannel implements InterestReadableByteChannel,
                                                         InterestWritableByteChannel,
                                                         ChunkReleaser {
     
@@ -69,7 +69,7 @@ class UDPSocketChannel extends AbstractNBSocketChannel implements InterestReadab
 
     private final Role role;
     
-    UDPSocketChannel(SelectorProvider provider,
+    protected UDPSocketChannel(SelectorProvider provider,
                      RUDPContext context,
                      Role role,
                      EventBroadcaster<UDPSocketChannelConnectionEvent> connectionStateEventBroadcaster) {

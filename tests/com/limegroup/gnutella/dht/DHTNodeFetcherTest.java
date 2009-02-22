@@ -192,7 +192,6 @@ public class DHTNodeFetcherTest extends DHTTestCase {
         DHTNodeFetcher nodeFetcher = dhtNodeFetcherFactory.createNodeFetcher(dhtBootstrapper);
         
         HostCatcher hostCatcher = injector.getInstance(HostCatcher.class);
-        hostCatcher.clear();
         for(int i=0; i < UDP_ACCESS.length; i++) {
             ExtendedEndpoint ep = new ExtendedEndpoint(
                     "127.0.0.1",
@@ -215,7 +214,6 @@ public class DHTNodeFetcherTest extends DHTTestCase {
         DHTNodeFetcher nodeFetcher = dhtNodeFetcherFactory.createNodeFetcher(dhtBootstrapper);
         
         HostCatcher hostCatcher = injector.getInstance(HostCatcher.class);
-        hostCatcher.clear();
         for(int i=0; i < UDP_ACCESS.length; i++) {
             ExtendedEndpoint ep = new ExtendedEndpoint(
                     "127.0.0.1",

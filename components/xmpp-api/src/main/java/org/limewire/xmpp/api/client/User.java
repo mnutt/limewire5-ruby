@@ -71,4 +71,30 @@ public interface User extends Friend {
      * the {@link Presence#getJID()}.
      */
     public Map<String, Presence> getPresences();
+
+    /**
+     * Returns whether the current login is subscribed to this user.
+     * This information is in the roster packet.
+     * 
+     * For instance, if a user sends the current login a friend
+     * add request, and the current login accepts, this method
+     * will return true.
+     *
+     * In the following roster packet, my-mutually-accepted-friend is subscribed,
+     * and friend-i-rejected-previously and friend-i-requested-but-has-not-responded
+     * are not subscribed.
+     *
+     * <iq to="limebuddytest@gmail.com/WuXLh6tmNLC3320061" id="0Qj6D-15" type="result">
+     *   <query xmlns="jabber:iq:roster">
+     *     <item jid="my-mutually-accepted-friend@gmail.com" subscription="both" name="Lime Friend">
+     *     <item jid="friend-i-rejected-previously@gmail.com" subscription="none"/>
+     *     <item jid="friend-i-requested-but-has-not-responded@gmail.com" subscription="none"/>
+     *   </query>
+     * </iq>
+     *
+     * @return true if the roster entry for this user has
+     * a subscription attriburte equal to "both" or "to"
+     * Returns false otherwise ("from" or "none")
+     */
+    public boolean isSubscribed();
 }

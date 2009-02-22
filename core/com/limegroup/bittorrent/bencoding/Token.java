@@ -26,7 +26,7 @@ import org.limewire.util.BufferUtils;
 //TODO: Write the steps to parse bencoded data.
 public abstract class Token<T> {
 
-	/** An undefined Token. */
+    /** An undefined Token. */
     protected static final int INTERNAL = -1;
     /** A number Token. */
     public static final int LONG = 0;
@@ -98,13 +98,8 @@ public abstract class Token<T> {
 
     /**
      * Finds out what kind of bencoded element this is.
-     * 
-     * @return Token.INTERNAL, the type code for the Token base class
      */
-//TODO: We could make this abstract, and eliminate Token.INTERNAL.
-    public int getType() {
-        return INTERNAL;
-    }
+    abstract public int getType();
 
     /**
      * Gets the object we made from the bencoded data we read and parsed.
@@ -130,6 +125,11 @@ public abstract class Token<T> {
         @Override
         protected boolean isDone() {
             return true; // There is no data to parse
+        }
+        
+        @Override
+        public int getType() {
+            return INTERNAL;
         }
     }
 

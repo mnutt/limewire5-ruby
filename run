@@ -17,7 +17,7 @@ fi
 CLASSPATH=
 PS=":"
 
-OPTS="-Xms32m -Xmx128m -Djava.net.preferIPV6Addresses=false -ea -da:ca.odell.glazedlists... -Djava.net.preferIPv4stack=true"
+OPTS="-Djava.net.preferIPV6Addresses=false -ea -da:ca.odell.glazedlists... -Djava.net.preferIPv4stack=true"
 
 #setup the java options & initial system-dependent classpath
 PLATFORM=`uname`

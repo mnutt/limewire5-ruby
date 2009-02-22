@@ -1,39 +1,26 @@
 package com.limegroup.gnutella.downloader;
 
 import org.limewire.core.settings.DownloadSettings;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.NetworkManager;
-import com.limegroup.gnutella.UDPPinger;
 
 @Singleton
 public class SourceRankerFactory {
     
     private final NetworkManager networkManager;
-    private final Provider<UDPPinger> udpPingerFactory;
-    private final Provider<MessageRouter> messageRouter;
-    private final RemoteFileDescFactory remoteFileDescFactory;
+    private final Provider<PingRanker> pingRanker;
     
     @Inject
     public SourceRankerFactory(NetworkManager networkManager,
-                               Provider<UDPPinger> udpPingerFactory, 
-                               Provider<MessageRouter> messageRouter,
-                               RemoteFileDescFactory remoteFileDescFactory) {
+                               Provider<PingRanker> pingRanker) {
         this.networkManager = networkManager;
-        this.udpPingerFactory = udpPingerFactory;
-        this.messageRouter = messageRouter;
-        this.remoteFileDescFactory = remoteFileDescFactory;
+        this.pingRanker = pingRanker;
     }
 
-    PingRanker createPingRanker() {
-        return new PingRanker(networkManager, udpPingerFactory.get(), messageRouter.get(), remoteFileDescFactory);
-    }
-    
     FriendsFirstSourceRanker createFriendsFirstSourceRanker() {
-        return new FriendsFirstSourceRanker(createPingRanker());
+        return new FriendsFirstSourceRanker(pingRanker.get());
     }
     
     /**

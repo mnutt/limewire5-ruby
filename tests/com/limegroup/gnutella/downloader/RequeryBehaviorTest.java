@@ -290,7 +290,7 @@ public class RequeryBehaviorTest extends LimeTestCase {
     
     private RemoteFileDesc fakeRFD() throws Exception {
         return remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("0.0.0.1", (int)(Math.random() * Short.MAX_VALUE +1000), false), 13l, "badger", 1024, new byte[16],
-                56, false, 4, true, null, new UrnSet(URN.createSHA1Urn("urn:sha1:GLSTHIPQGSSZTS5FJUPAKPZWUGYQYPFB")), false, "", -1);
+                56, 4, true, null, new UrnSet(URN.createSHA1Urn("urn:sha1:GLSTHIPQGSSZTS5FJUPAKPZWUGYQYPFB")), false, "", -1);
     }
         
     @Singleton

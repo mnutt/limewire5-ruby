@@ -35,7 +35,9 @@ public interface XMPPService {
     public boolean isLoggingIn();
     
     /**
-     * Sets the Mode for all of known the XMPP connections. 
+     * Sets the Mode for all of known the XMPP connections.
+     * 
+     * @throws XMPPException if there is an error sending the xmpp message 
      */
-    void setMode(Mode mode);
+    void setMode(Mode mode) throws XMPPException;
 }

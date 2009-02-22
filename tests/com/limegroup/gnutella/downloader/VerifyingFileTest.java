@@ -3,6 +3,7 @@ package com.limegroup.gnutella.downloader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
@@ -263,15 +264,22 @@ public class VerifyingFileTest extends LimeTestCase {
      */
     public void testDifferentRootsDiscard() throws Exception {
         IntervalSet iSet = new IntervalSet();
-        iSet.add(Range.createRange(0, 4 * VerifyingFile.DEFAULT_CHUNK_SIZE));
+        int chunkSize = 4 * VerifyingFile.DEFAULT_CHUNK_SIZE;
+        iSet.add(Range.createRange(0, chunkSize));
         vf.setHashTree(defaultHashTree);
-        Range r = vf.leaseWhite(4 * VerifyingFile.DEFAULT_CHUNK_SIZE);
-        byte [] chunk = new byte[4 * VerifyingFile.DEFAULT_CHUNK_SIZE];
-        raf.seek(r.getLow());
-        raf.readFully(chunk);
+        Range r = vf.leaseWhite(chunkSize);
+        int leasedSize = (int)r.getLength();
+        assertLeasedRightSize(r, leasedSize, chunkSize, raf.length());
+        byte [] chunk = new byte[leasedSize];
+        try {
+            raf.seek(r.getLow());
+            raf.readFully(chunk);
+        } catch(IOException iox) {
+            fail("range: " + r + ", chunksize: " + chunk.length + ", filesize: " + raf.length() + ", index: " + raf.getFilePointer(), iox);
+        }
         writeImpl((int)r.getLow(), chunk);
         vf.waitForPending(1000);
-        assertEquals(4 * VerifyingFile.DEFAULT_CHUNK_SIZE, vf.getVerifiedBlockSize());
+        assertEquals(leasedSize, vf.getVerifiedBlockSize());
         HashTree other = tigerTreeFactory.createHashTree(completeFile.length(), new ByteArrayInputStream(new byte[(int)completeFile.length()]), URN.createSHA1Urn(sha1));
         String currentRoot = vf.getHashTree().getRootHash();
         vf.setHashTree(other);
@@ -284,16 +292,23 @@ public class VerifyingFileTest extends LimeTestCase {
      */
     public void testDifferentRootsReverify() throws Exception {
         IntervalSet iSet = new IntervalSet();
-        iSet.add(Range.createRange(0, 2 * VerifyingFile.DEFAULT_CHUNK_SIZE));
+        int chunkSize = 2 * VerifyingFile.DEFAULT_CHUNK_SIZE;
+        iSet.add(Range.createRange(0, chunkSize));
         vf.setHashTree(defaultHashTree);
-        assertEquals(2 * VerifyingFile.DEFAULT_CHUNK_SIZE, defaultHashTree.getNodeSize());
-        Range r = vf.leaseWhite(2 * VerifyingFile.DEFAULT_CHUNK_SIZE);
-        byte [] chunk = new byte[2 * VerifyingFile.DEFAULT_CHUNK_SIZE];
-        raf.seek(r.getLow());
-        raf.readFully(chunk);
+        assertEquals(chunkSize, defaultHashTree.getNodeSize());
+        Range r = vf.leaseWhite(chunkSize);
+        int leasedSize = (int)r.getLength();
+        assertLeasedRightSize(r, leasedSize, chunkSize, raf.length());
+        byte [] chunk = new byte[leasedSize];
+        try {
+            raf.seek(r.getLow());
+            raf.readFully(chunk);
+        } catch(IOException iox) {
+            fail("range: " + r + ", chunksize: " + chunk.length + ", filesize: " + raf.length() + ", index: " + raf.getFilePointer(), iox);
+        }
         writeImpl((int)r.getLow(), chunk);
         vf.waitForPending(1000);
-        assertEquals(2 * VerifyingFile.DEFAULT_CHUNK_SIZE, vf.getVerifiedBlockSize());
+        assertEquals(leasedSize, vf.getVerifiedBlockSize());
         HashTree other = tigerTreeFactory.createHashTree(completeFile.length(), new ByteArrayInputStream(new byte[(int)completeFile.length()]), URN.createSHA1Urn(sha1));
         String currentRoot = vf.getHashTree().getRootHash();
         
@@ -302,7 +317,7 @@ public class VerifyingFileTest extends LimeTestCase {
             vf.setHashTree(other);
             assertNotEquals(currentRoot,vf.getHashTree().getRootHash());
             assertEquals(0, vf.getVerifiedBlockSize());
-            assertEquals(2 * VerifyingFile.DEFAULT_CHUNK_SIZE, vf.getBlockSize());
+            assertEquals(leasedSize, vf.getBlockSize());
         }
     }
     
@@ -660,5 +675,20 @@ public class VerifyingFileTest extends LimeTestCase {
         // previewable offset that will also take the second
         // verifyiable chunk
         assertEquals(chunk.length * 3 - 1, vf.getOffsetForPreview());
+    }
+    
+    /** Asserts that the leased size for the given range is the correct size for the given file & chunk size. */
+    private void assertLeasedRightSize(Range range, long leasedSize, long chunkSize, long fileSize) {
+        assertEquals(leasedSize, (int)range.getLength());
+        assertLessThanOrEquals(chunkSize, leasedSize);
+        if(leasedSize < chunkSize) {
+            // The only way the leased size should be less than the chunk size is if it chose
+            // to align on the last block in the file, and the last block is smaller than chunkSize.
+            long blockCount = fileSize / chunkSize; // rounds down (i hope!)
+            long lastBlockStart = blockCount * chunkSize;
+            assertEquals(lastBlockStart, range.getLow());
+            assertEquals(fileSize - 1, range.getHigh());
+            assertEquals(fileSize - lastBlockStart, range.getLength());
+        }
     }
 }

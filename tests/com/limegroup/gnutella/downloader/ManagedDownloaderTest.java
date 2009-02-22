@@ -552,7 +552,7 @@ public class ManagedDownloaderTest extends LimeTestCase {
             }
         }        
         return injector.getInstance(RemoteFileDescFactory.class).createRemoteFileDesc(new ConnectableImpl("127.0.0.1", PORT, false), 13l, name, 1024, new byte[16],
-                56, false, 4, true, null, urns, false, "", -1);
+                56, 4, true, null, urns, false, "", -1);
     }
     
     

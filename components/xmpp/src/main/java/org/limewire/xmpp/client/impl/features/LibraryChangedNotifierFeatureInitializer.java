@@ -1,15 +1,21 @@
 package org.limewire.xmpp.client.impl.features;
 
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.IQ;
 import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.friend.feature.FeatureInitializer;
 import org.limewire.core.api.friend.feature.FeatureRegistry;
 import org.limewire.core.api.friend.feature.features.LibraryChangedNotifier;
 import org.limewire.core.api.friend.feature.features.LibraryChangedNotifierFeature;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQ;
 
 public class LibraryChangedNotifierFeatureInitializer implements FeatureInitializer {
+
+    private static final Log LOG = LogFactory.getLog(LibraryChangedNotifierFeatureInitializer.class);
+
     private final XMPPConnection connection;
 
     public LibraryChangedNotifierFeatureInitializer(XMPPConnection connection){
@@ -48,12 +54,8 @@ public class LibraryChangedNotifierFeatureInitializer implements FeatureInitiali
                 libraryChangedIQ.setPacketID(IQ.nextID());
                 try {
                     connection.sendPacket(libraryChangedIQ);
-                } catch(IllegalStateException ise) {
-                    // This can unfortunately happen because the smack
-                    // API isn't thread-safe and the 'connected' variable
-                    // can be set & read from any thread, but isn't volatile.
-                    // So even though we're only sending if we're connected,
-                    // the variable might change out from under us.
+                } catch (XMPPException e) {
+                    LOG.debugf("library refresh failed", e);
                 }
             }
         }

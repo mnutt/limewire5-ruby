@@ -12,15 +12,10 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.FocusJOptionPane;
-import org.limewire.ui.swing.downloads.MainDownloadPanel;
-import org.limewire.ui.swing.nav.NavCategory;
-import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.nav.SimpleNavSelectable;
 import org.limewire.ui.swing.util.FileChooser;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -31,18 +26,14 @@ import com.google.inject.Inject;
 
 public class OpenFileAction extends AbstractAction {
 
-    private final Navigator navigator;
-
     private final DownloadListManager downloadListManager;
 
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
 
     @Inject
-    public OpenFileAction(Navigator navigator,
-            DownloadListManager downloadListManager,
+    public OpenFileAction(DownloadListManager downloadListManager,
             SaveLocationExceptionHandler saveLocationExceptionHandler) {
         super( I18n.tr("&Open Torrent..."));
-        this.navigator = navigator;
         this.downloadListManager = downloadListManager;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
     }
@@ -69,21 +60,16 @@ public class OpenFileAction extends AbstractAction {
             for (final File file : files) {
                 if (file.exists()) {
                     try {
-                        DownloadItem item = downloadListManager.addTorrentDownload(file, null,
+                        downloadListManager.addTorrentDownload(file, 
                                 false);
-                        navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME).select(
-                                SimpleNavSelectable.create(item));
                     } catch (SaveLocationException sle) {
                         saveLocationExceptionHandler.handleSaveLocationException(
                                 new DownloadAction() {
                                     @Override
                                     public void download(File saveFile, boolean overwrite)
                                             throws SaveLocationException {
-                                        DownloadItem item = downloadListManager.addTorrentDownload(
-                                                file, saveFile, overwrite);
-                                        navigator.getNavItem(NavCategory.DOWNLOAD,
-                                                MainDownloadPanel.NAME).select(
-                                                SimpleNavSelectable.create(item));
+                                        downloadListManager.addTorrentDownload(
+                                                file, overwrite);
                                     }
                                 }, sle, false);
                     }

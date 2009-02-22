@@ -1,8 +1,11 @@
 package com.limegroup.gnutella.downloader;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import org.limewire.listener.EventListener;
 import org.limewire.util.AssertComparisons;
 
 import com.limegroup.gnutella.Downloader;
@@ -57,17 +60,32 @@ public class DownloadTestUtils {
         AssertComparisons.assertEquals(startState, downloader.getState());
         timeout = unit.toMillis(timeout);
         // Jump out of the start state immediately.
+        StateListener stateListener = new StateListener();
+        downloader.addListener(stateListener);
         timeout = waitForStatesToEnd(downloader, pump, timeout, startState);
         if(downloader.getState() == startState) {
-            // This is an additional assertion incase start & end are the same,
-            // in which case we want to be extra certain that some middle states are involved.
-            AssertComparisons.fail("Still in start state: " + startState);
+            // If it's still in the start state, see if it ran through some states while getting there.
+            if(stateListener.states.isEmpty()) {            
+                // This is an additional assertion incase start & end are the same,
+                // in which case we want to be extra certain that some middle states are involved.
+                AssertComparisons.fail("Still in start state: " + startState);
+            } else {
+                // It had some intermediate states, let's make sure they were valid.
+                for(DownloadState state : stateListener.states) {
+                    if(!Arrays.asList(middleStates).contains(state) && state != endState) {
+                        AssertComparisons.fail("Went to unexpected state: " + state + ", expected one of: " + endState + ", or: " + Arrays.asList(middleStates));
+                    } 
+                }
+            }
         }
         
         // Then loop through the middle states.
         // (We do the first one separate to ensure that we can cycle from start -> end even if start & end are the same)
         while(timeout > 0 && downloader.getState() != endState) {
             timeout = waitForStatesToEnd(downloader, pump, timeout, middleStates);
+            if(!Arrays.asList(middleStates).contains(downloader.getState()) && downloader.getState() != endState) {
+                AssertComparisons.fail("In unexpected state: " + downloader.getState() + ", expected one of: " + endState + ", or: " + Arrays.asList(middleStates));
+            }
         } 
         
         if(downloader.getState() != endState) {
@@ -77,12 +95,23 @@ public class DownloadTestUtils {
         
     private static long waitForStatesToEnd(Downloader downloader, Runnable pump, long timeout, DownloadState... possibleStates) throws Exception {
         while(timeout > 0 && Arrays.asList(possibleStates).contains(downloader.getState())) {
+//            System.out.println("timeout: " + timeout + ", possible: " + Arrays.asList(possibleStates) + ", current: " + downloader.getState());
             long now = System.currentTimeMillis();
-            Thread.sleep(200);
+            Thread.sleep(50);
             timeout -= System.currentTimeMillis() - now;
             pump.run();
         }
+//        System.out.println("exited. timeout: " + timeout + ", possible: " + Arrays.asList(possibleStates) + ", current: " + downloader.getState());
         return timeout;
+    }
+    
+    private static class StateListener implements EventListener<DownloadStateEvent> {
+        private final List<DownloadState> states = new CopyOnWriteArrayList<DownloadState>();
+        
+        @Override
+        public void handleEvent(DownloadStateEvent event) {
+            states.add(event.getType());
+        }
     }
 
 }

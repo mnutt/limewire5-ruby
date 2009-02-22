@@ -1,6 +1,5 @@
 package com.limegroup.gnutella;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,6 +59,7 @@ import org.limewire.util.Objects;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.connection.Connection;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
@@ -125,7 +125,6 @@ import com.limegroup.gnutella.simpp.SimppManager;
 import com.limegroup.gnutella.util.LimeWireUtils;
 import com.limegroup.gnutella.version.UpdateHandler;
 
-
 /**
  * One of the three classes that make up the core of the backend.  This
  * class' job is to direct the routing of messages and to count those message
@@ -136,7 +135,7 @@ import com.limegroup.gnutella.version.UpdateHandler;
 public abstract class MessageRouterImpl implements MessageRouter {
     
     private static final Log LOG = LogFactory.getLog(MessageRouterImpl.class);
-
+        
     /**
      * Constant for the number of old connections to use when forwarding
      * traffic from old connections.
@@ -732,8 +731,8 @@ public abstract class MessageRouterImpl implements MessageRouter {
      * @see com.limegroup.gnutella.MessageRouter#handleUDPMessage(com.limegroup.gnutella.messages.Message, java.net.InetSocketAddress)
      */	
 	public void handleUDPMessage(Message msg, InetSocketAddress addr) {
-	    if (LOG.isTraceEnabled()) {
-	        LOG.debug("handling udp message: " + msg + " from: " + addr);
+	    if(LOG.isTraceEnabled()) {
+	        LOG.trace("Handling UDP message " + msg + " from " + addr);
 	    }
 	    
 	    // Increment hops and decrement TTL.
@@ -1070,14 +1069,15 @@ public abstract class MessageRouterImpl implements MessageRouter {
      * @param locallyEvaluate false if you don't want to send the query to
      * leaves and yourself, true otherwise....
      */
-    protected void handleQueryRequest(QueryRequest request,
+    public void handleQueryRequest(QueryRequest request,
 									  ReplyHandler handler, 
 									  ResultCounter counter,
                                       boolean locallyEvaluate) {
         // Apply the personal filter to decide whether the callback
         // should be informed of the query
         if (!handler.isPersonalSpam(request)) {
-            activityCallback.get().handleQueryString(request.getQuery());
+            activityCallback.get().handleQuery(request,
+                    handler.getAddress(), handler.getPort());
         }
         
 		// if it's a request from a leaf and we GUESS, send it out via GUESS --
@@ -1089,7 +1089,9 @@ public abstract class MessageRouterImpl implements MessageRouter {
         updateMessage(request, handler);
 
 		if(handler.isSupernodeClientConnection() && counter != null) {
-            if (request.desiresOutOfBandReplies()) {
+            LOG.trace("Query request from leaf");
+            if(request.desiresOutOfBandReplies()) {
+                LOG.trace("Leaf wants OOB replies");
                 // this query came from a leaf - so check if it desires OOB
                 // responses and make sure that the IP it advertises is legit -
                 // if it isn't drop away....
@@ -1098,14 +1100,19 @@ public abstract class MessageRouterImpl implements MessageRouter {
                 String remoteAddr = handler.getInetAddress().getHostAddress();
                 String myAddress = 
                     NetworkUtils.ip2string(networkManager.getAddress());
-                if (request.getReplyAddress().equals(remoteAddr))
+                if(request.getReplyAddress().equals(remoteAddr)) {
+                    LOG.trace("OOB address is leaf's address");
                     ; // continue below, everything looks good
-                else if (request.getReplyAddress().equals(myAddress) && 
-                         networkManager.isOOBCapable())
+                } else if(request.getReplyAddress().equals(myAddress) && 
+                         networkManager.isOOBCapable()) {
+                    LOG.trace("OOB address is my address");
                     // i am proxying - maybe i should check my success rate but
                     // whatever...
                     ; 
-                else return;
+                } else {
+                    LOG.trace("OOB address is wrong, dropping query");
+                    return;
+                }
             }
 
             // don't send it to leaves here -- the dynamic querier will 
@@ -1771,11 +1778,17 @@ public abstract class MessageRouterImpl implements MessageRouter {
 		(int) (Math.floor(Math.random()*(list.size()-1)));
         int limit = Math.min(max, list.size());
         final boolean wantsOOB = qr.desiresOutOfBandReplies();
+        if(wantsOOB)
+            LOG.trace("Query asks for OOB replies");
+        else
+            LOG.trace("Query does not ask for OOB replies");
         for(int i=start; i<start+limit; i++) {
 			RoutedConnection mc = list.get(i);
             QueryRequest qrToSend = qr;
-            if (wantsOOB && (mc.getConnectionCapabilities().remoteHostSupportsLeafGuidance() < 0))
+            if(wantsOOB && mc.getConnectionCapabilities().remoteHostSupportsLeafGuidance() < 0) {
+                LOG.trace("Unmarking OOB query");
                 qrToSend = queryRequestFactory.unmarkOOBQuery(qr);
+            }
             mc.originateQuery(qrToSend);
         }
     }
@@ -1937,9 +1950,11 @@ public abstract class MessageRouterImpl implements MessageRouter {
                 queryUnicaster.handleQueryReply(queryReply);
 
             } else {
+                LOG.trace("Dropping reply");
                 handler.countDroppedMessage();
             }
         } else {
+            LOG.trace("Dropping reply with no route table entry");
             handler.countDroppedMessage();
         }
     }

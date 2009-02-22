@@ -35,6 +35,8 @@ import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.LimeWireSwingUiModule;
 import org.limewire.ui.swing.browser.LimeMozillaInitializer;
 import org.limewire.ui.swing.components.LimeJFrame;
+import org.limewire.ui.swing.components.PlainCheckBoxMenuItemUI;
+import org.limewire.ui.swing.components.PlainMenuItemUI;
 import org.limewire.ui.swing.event.AboutDisplayEvent;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.event.ExitApplicationEvent;
@@ -312,6 +314,17 @@ public class AppFrame extends SingleFrameApplication {
         }
         
         initBackgrounds();
+
+        Color originalSelectionBackground  
+            = (Color) UIManager.get("MenuItem.selectionBackground");
+        
+        Color originalSelectionForeground 
+            = (Color) UIManager.get("MenuItem.selectionForeground");
+
+        if (originalSelectionForeground != null && originalSelectionBackground != null) {
+            PlainMenuItemUI.overrideDefaults(originalSelectionForeground, originalSelectionBackground);
+            PlainCheckBoxMenuItemUI.overrideDefaults(originalSelectionForeground, originalSelectionBackground);
+        }
         
         // Set default selection colours
         Color selectionBackground = new Color(0xc2e986);
@@ -319,7 +332,6 @@ public class AppFrame extends SingleFrameApplication {
         UIManager.put("PasswordField.selectionBackground", selectionBackground);
         UIManager.put("EditorPane.selectionBackground", selectionBackground);
         UIManager.put("TextArea.selectionBackground", selectionBackground);
-        UIManager.put("Menu.selectionBackground", selectionBackground);
         UIManager.put("MenuItem.selectionBackground", selectionBackground);
         UIManager.put("CheckBoxMenuItem.selectionBackground", selectionBackground);
         UIManager.put("RadioButtonMenuItem.selectionBackground", selectionBackground);
@@ -331,7 +343,6 @@ public class AppFrame extends SingleFrameApplication {
         UIManager.put("PasswordField.selectionForeground", selectionForeground);
         UIManager.put("EditorPane.selectionForeground", selectionForeground);
         UIManager.put("TextArea.selectionForeground", selectionForeground);
-        UIManager.put("Menu.selectionForeground", selectionForeground);
         UIManager.put("MenuItem.selectionForeground", selectionForeground);
         UIManager.put("CheckBoxMenuItem.selectionForeground", selectionForeground);
         UIManager.put("RadioButtonMenuItem.selectionForeground", selectionForeground);

@@ -93,8 +93,8 @@ public class RatingTableTest extends LimeTestCase {
     private RemoteFileDesc createRFD(String addr, int port, String name,
             int size) throws UnknownHostException {
         RemoteFileDesc rfd = rfdFactory.createRemoteFileDesc(new ConnectableImpl(addr, port, false), 1, name, size,
-                DataUtils.EMPTY_GUID, 3, false, 3, false, null, URN.NO_URN_SET,
-                false, "ALT", 0L);
+                DataUtils.EMPTY_GUID, 3, 3, false, null, URN.NO_URN_SET, false,
+                "ALT", 0L);
         // This would normally be called by the SearchResultHandler
         manager.calculateSpamRating(rfd);
         return rfd;

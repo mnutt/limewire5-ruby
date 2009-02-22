@@ -3,8 +3,13 @@ package com.limegroup.gnutella.tigertree;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -15,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.collection.Tuple;
 import org.limewire.concurrent.ExecutorsHelper;
+import org.limewire.concurrent.SimpleFuture;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.GenericsUtils;
@@ -26,12 +32,9 @@ import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
+import com.limegroup.gnutella.library.ManagedFileList;
 
-/**
- * @author Gregorio Roper
- * 
- * This class maps SHA1_URNs to TigerTreeCache
- */
+/** This class maps SHA1_URNs to hash trees and roots. */
 /* This is public for tests, but only the interface should be used. */
 @Singleton
 public final class HashTreeCacheImpl implements HashTreeCache {
@@ -41,161 +44,251 @@ public final class HashTreeCacheImpl implements HashTreeCache {
     /**
      * The ProcessingQueue to do the hashing.
      */
-    private final ExecutorService QUEUE = ExecutorsHelper.newProcessingQueue("TreeHashTread");
-
-    /**
-     * A root tree that is not fully constructed yet
-     */
-    private final URN BUSH = URN.INVALID;
+    private final ExecutorService QUEUE = ExecutorsHelper.newProcessingQueue("TreeHashTread"); 
     
-    /**
-     * SHA1 -> TTROOT mapping
-     */
-    private final Map<URN, URN> ROOT_MAP;
+    /** A copy of thin SHA1 -> Tiger Tree Root */
+    private final Map<URN /* sha1 */, Future<URN> /* ttroot */> SHA1_TO_ROOT_MAP = new HashMap<URN, Future<URN>>();
     
-    /**
-     * TigerTreeCache container.
-     */
-    private final Map<URN, HashTree> TREE_MAP;
+    /** TigerTreeCache container. */
+    private final Map<URN /* sha1 */, Future<HashTree>> TTREE_MAP = new HashMap<URN, Future<HashTree>>();
     
-    /**
-     * File where the Mapping SHA1->TTROOT is stored
-     */
-    private final File ROOT_CACHE_FILE =
-        new File(CommonUtils.getUserSettingsDir(), "ttroot.cache");
+    /** Where the SHA1 -> ttRoot info is stored. */
+    private final File ROOTS_FILE = new File(CommonUtils.getUserSettingsDir(), "ttroot.cache");
     
-    /**
-     * File where the Mapping TTROOT->TIGERTREE is stored
-     */
-    private final File TREE_CACHE_FILE =
-        new File(CommonUtils.getUserSettingsDir(), "ttrees.cache");
+    /** File where tiger tree data is stored. */
+    private final File DATA_FILE = new File(CommonUtils.getUserSettingsDir(), "ttdata.cache"); 
         
-    /**
-     * Whether or not data dirtied since the last time we saved.
-     */
+    /** Whether or not data dirtied since the last time we saved. */
     private volatile boolean dirty = false;
     
     private final HashTreeFactory tigerTreeFactory;
+    private final ManagedFileList managedFileList;
     
     @Inject
-    HashTreeCacheImpl(HashTreeFactory tigerTreeFactory) {
+    HashTreeCacheImpl(HashTreeFactory tigerTreeFactory, ManagedFileList managedFileList) {
         this.tigerTreeFactory = tigerTreeFactory;
+        this.managedFileList = managedFileList;
         Tuple<Map<URN, URN>, Map<URN, HashTree>> tuple = loadCaches();
-        ROOT_MAP = tuple.getFirst();
-        TREE_MAP = tuple.getSecond();
+        for(Map.Entry<URN, URN> entry : tuple.getFirst().entrySet()) {
+            SHA1_TO_ROOT_MAP.put(entry.getKey(), new SimpleFuture<URN>(entry.getValue()));
+        }        
+        for(Map.Entry<URN, HashTree> entry : tuple.getSecond().entrySet()) {
+            TTREE_MAP.put(entry.getKey(), new SimpleFuture<HashTree>(entry.getValue()));
+        }
     }
-
     
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.tigertree.HashTreeCache#getHashTreeAndWait(com.limegroup.gnutella.FileDesc, long)
-     */
-    public HashTree getHashTreeAndWait(FileDesc fd, long timeout) throws InterruptedException, TimeoutException {
+    public HashTree getHashTreeAndWait(FileDesc fd, long timeout) throws InterruptedException, TimeoutException, ExecutionException {
         if (fd instanceof IncompleteFileDesc) {
             throw new IllegalArgumentException("fd must not inherit from IncompleFileDesc");
         }
         
-        synchronized (this) {
-            URN root = ROOT_MAP.get(fd.getSHA1Urn());
-            if (root != null && root != BUSH)
-                return TREE_MAP.get(root);
-
-            ROOT_MAP.put(fd.getSHA1Urn(), BUSH);
-        }
-        
-        Future<?> future = QUEUE.submit(new HashRunner(fd));
-        try {
-            future.get(timeout, TimeUnit.MILLISECONDS);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-        
-        synchronized (this) {
-            URN root = ROOT_MAP.get(fd.getSHA1Urn());
-            if (root != null && root != BUSH)
-                return TREE_MAP.get(root);
-        }
-        
-        throw new RuntimeException("hash tree was not calculated");
+        Future<HashTree> futureTree = getOrScheduleHashTreeFuture(fd);
+        return futureTree.get(timeout, TimeUnit.MILLISECONDS);
     }
     
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.tigertree.HashTreeCache#getHashTree(com.limegroup.gnutella.FileDesc)
-     */
+    @Override
     public synchronized HashTree getHashTree(FileDesc fd) {
-        
-        URN root = ROOT_MAP.get(fd.getSHA1Urn());
-        if (root == null || root == BUSH)
+        Future<HashTree> futureTree = getOrScheduleHashTreeFuture(fd);
+        return getTreeFromFuture(fd.getSHA1Urn(), futureTree);
+    }
+    
+    private HashTree getTreeFromFuture(URN sha1, Future<HashTree> futureTree) {
+        if(futureTree.isDone()) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Future tree exists for: " + sha1 + " and is finished");
+            }
+            try {
+                return futureTree.get();
+            } catch (InterruptedException e) {
+                LOG.debug("interrupted while hashing tree", e);
+                TTREE_MAP.remove(sha1);
+            } catch (ExecutionException e) {
+                LOG.debug("error while hashing tree", e);
+                TTREE_MAP.remove(sha1);
+            } catch(CancellationException e) {
+                LOG.debug("cancelled while hashing tree", e);
+                TTREE_MAP.remove(sha1);                
+            }
             return null;
-        HashTree tree = TREE_MAP.get(root);
-        if (tree == null) {
-            ROOT_MAP.put(fd.getSHA1Urn(), BUSH);
-            QUEUE.execute(new HashRunner(fd));
+        } else {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Future tree exists for: " + sha1 + " but is not finished");
+            }
+            return null;
         }
-        return tree;
+    }
+    
+    private URN getRootFromFuture(URN sha1, Future<URN> futureRoot) {
+        if(futureRoot.isDone()) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Future root exists for: " + sha1 + " and is finished");
+            }
+            try {
+                return futureRoot.get();
+            } catch (InterruptedException e) {
+                LOG.debug("interrupted while hashing root", e);
+                SHA1_TO_ROOT_MAP.remove(sha1);
+            } catch (ExecutionException e) {
+                LOG.debug("error while hashing root", e);
+                SHA1_TO_ROOT_MAP.remove(sha1);
+            } catch(CancellationException e) {
+                LOG.debug("cancelled while hashing root", e);
+                SHA1_TO_ROOT_MAP.remove(sha1);                
+            }
+            return null;
+        } else {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Future root exists for: " + sha1 + " but is not finished");
+            }
+            return null;
+        }
+    }
+    
+    @Override
+    public synchronized URN getOrScheduleHashTreeRoot(FileDesc fd) {
+        URN sha1 = fd.getSHA1Urn();
+        Future<HashTree> futureTree = TTREE_MAP.get(sha1);
+        Future<URN> futureRoot = SHA1_TO_ROOT_MAP.get(sha1);
+        HashTree tree = futureTree == null ? null : getTreeFromFuture(sha1, futureTree);        
+        URN root = futureRoot == null ? null : getRootFromFuture(sha1, futureRoot);
+        if(tree != null) {
+            if(LOG.isDebugEnabled()) 
+                LOG.debug("Returning root from tree");
+            return tree.getTreeRootUrn();
+        } else if(root != null) {
+            if(LOG.isDebugEnabled()) 
+                LOG.debug("Returning root from future");
+            return root;
+        } else {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Scheduling: " + sha1 + " for tree root");
+            }
+            futureRoot = QUEUE.submit(new RootRunner(fd));
+            SHA1_TO_ROOT_MAP.put(sha1, futureRoot);
+            return null;
+        }
+    }
+    
+    private synchronized Future<HashTree> getOrScheduleHashTreeFuture(FileDesc fd) {
+        URN sha1 = fd.getSHA1Urn();
+        Future<HashTree> futureTree = TTREE_MAP.get(sha1);
+        if(futureTree == null) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Scheduling: " + sha1 + " for full tree");
+            }
+            // Cancel any pending root, since we're going to do the full tree.
+            Future<URN> futureRoot = SHA1_TO_ROOT_MAP.get(sha1);
+            if(futureRoot != null && !futureRoot.isDone()) {
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("Cancelling: " + sha1 + " from root schedule");
+                }
+                futureRoot.cancel(true);
+            }
+            futureTree = QUEUE.submit(new HashTreeRunner(fd));
+            TTREE_MAP.put(sha1, futureTree);
+        } 
+        
+        return futureTree;
     }
 
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.tigertree.HashTreeCache#getHashTree(com.limegroup.gnutella.URN)
-     */
+    @Override
     public synchronized HashTree getHashTree(URN sha1) {
         if (!sha1.isSHA1())
             throw new IllegalArgumentException();
-        URN root = ROOT_MAP.get(sha1);
-        if (root == null || root == BUSH)
-            return null;
         
-        return TREE_MAP.get(root);
+        Future<HashTree> futureTree = TTREE_MAP.get(sha1);
+        if(futureTree != null) {
+            return getTreeFromFuture(sha1, futureTree);
+        } else {
+            if(LOG.isDebugEnabled())
+                LOG.debug("No future tree exists for: " + sha1);
+        }
+
+        return null;
     }
     
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.tigertree.HashTreeCache#getTigerTreeRootForSha1(com.limegroup.gnutella.URN)
-     */
+    @Override
     public synchronized URN getHashTreeRootForSha1(URN sha1) {
         if (!sha1.isSHA1())
             throw new IllegalArgumentException();
-        URN root = ROOT_MAP.get(sha1);
-        if (root == BUSH)
-            root = null;
-        return root;
+        
+        HashTree tree = getHashTree(sha1);
+        if(tree != null) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Retrieving root from tree for: " + sha1);
+            }
+            return tree.getTreeRootUrn();
+        } else {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Retrieving root from root map for: " + sha1);
+            }
+            Future<URN> urnFuture = SHA1_TO_ROOT_MAP.get(sha1);
+            if(urnFuture != null) {
+                return getRootFromFuture(sha1, urnFuture);
+            } else {
+                if(LOG.isDebugEnabled())
+                    LOG.debug("No future root exists for: " + sha1);
+                return null;
+            }
+        }
     }
     
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.tigertree.HashTreeCache#purgeTree(com.limegroup.gnutella.URN)
-     */
+    @Override
     public synchronized void purgeTree(URN sha1) {
         if (!sha1.isSHA1())
             throw new IllegalArgumentException();
-        URN root = ROOT_MAP.remove(sha1);
-        if (root == null)
-            return;
-        if(TREE_MAP.remove(root) != null)
+        Future<HashTree> futureTree = TTREE_MAP.remove(sha1);
+        if(futureTree != null) {
+            futureTree.cancel(true);
             dirty = true;
+        }
     }
 
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.tigertree.HashTreeCache#addHashTree(com.limegroup.gnutella.URN, com.limegroup.gnutella.tigertree.TigerTree)
-     */
-    public synchronized void addHashTree(URN sha1, HashTree tree) {
+    @Override
+    public synchronized HashTree addHashTree(URN sha1, HashTree tree) {
+        boolean shouldAdd = hashTreeCalculated(sha1, tree);
+        if(shouldAdd) {
+            Future<HashTree> oldFuture = TTREE_MAP.put(sha1, new SimpleFuture<HashTree>(tree));
+            if(oldFuture != null) {
+                oldFuture.cancel(true);
+            }
+            return tree;
+        }
+        return null;
+    }
+    
+    private synchronized boolean hashTreeCalculated(URN sha1, HashTree tree) {
         URN root = tree.getTreeRootUrn();
         addRoot(sha1, root);
         if (tree.isGoodDepth()) {
-            ROOT_MAP.put(sha1, root);
-            TREE_MAP.put(root, tree);
+            Future<URN> futureRoot = SHA1_TO_ROOT_MAP.remove(sha1);
+            if(futureRoot != null) {
+                futureRoot.cancel(true);
+            }
+            
             dirty = true;
             if (LOG.isDebugEnabled())
                 LOG.debug("added hashtree for urn " +
                           sha1 + ";" + tree.getRootHash());
-        } else if (LOG.isDebugEnabled())
-            LOG.debug("hashtree for urn " + sha1 + " had bad depth");
+            return true;
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("hashtree for urn " + sha1 + " had bad depth");
+            }
+            return false;
+        }
     }
     
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.tigertree.HashTreeCache#addRoot(com.limegroup.gnutella.URN, com.limegroup.gnutella.URN)
-     */
+    @Override
     public synchronized void addRoot(URN sha1, URN ttroot) {
-        if (!sha1.isSHA1() || !ttroot.isTTRoot())
+        if (!sha1.isSHA1() || !ttroot.isTTRoot()) {
             throw new IllegalArgumentException();
-        dirty |= !ttroot.equals(ROOT_MAP.put(sha1,ttroot));
+        }
+        Future<URN> oldFuture = SHA1_TO_ROOT_MAP.put(sha1, new SimpleFuture<URN>(ttroot));
+        if(oldFuture != null) {
+            oldFuture.cancel(true);
+        }
+        dirty = true;
     }
     
     /**
@@ -205,8 +298,8 @@ public final class HashTreeCacheImpl implements HashTreeCache {
         Object roots;
         Object trees;
         try {
-            roots = ROOT_CACHE_FILE.exists() ? FileUtils.readObject(ROOT_CACHE_FILE) : new HashMap();
-            trees = TREE_CACHE_FILE.exists() ? FileUtils.readObject(TREE_CACHE_FILE) : new HashMap();
+            roots = ROOTS_FILE.exists() ? FileUtils.readObject(ROOTS_FILE) : new HashMap();
+            trees = DATA_FILE.exists() ? FileUtils.readObject(DATA_FILE) : new HashMap();
         } catch (Throwable t) {
             LOG.debug("Error reading from disk.", t);
             roots = new HashMap();
@@ -215,22 +308,24 @@ public final class HashTreeCacheImpl implements HashTreeCache {
 
         Map<URN,URN> rootsMap = GenericsUtils.scanForMap(roots, URN.class, URN.class, GenericsUtils.ScanMode.REMOVE);
         Map<URN,HashTree> treesMap = GenericsUtils.scanForMap(trees, URN.class, HashTree.class, GenericsUtils.ScanMode.REMOVE);
-        
-        // remove roots that don't have a sha1 mapping for them
-        // cause we can't use them.
-        treesMap.keySet().retainAll(rootsMap.values());
+                
+        // remove roots which we have a tree for, 
+        // because we don't need them
+        rootsMap.keySet().removeAll(treesMap.keySet());                
         
         // and make sure urns are the correct type
         for (Iterator<Map.Entry<URN, URN>> iter = rootsMap.entrySet().iterator();iter.hasNext();) {
             Map.Entry<URN, URN> e = iter.next();
-            if (!e.getKey().isSHA1() || !e.getValue().isTTRoot())
+            if (!e.getKey().isSHA1() || !e.getValue().isTTRoot()) {
                 iter.remove();
+            }
         }
         
         for (Iterator<URN> iter = treesMap.keySet().iterator(); iter.hasNext();) {
             URN urn = iter.next();
-            if (!urn.isTTRoot())
+            if (!urn.isSHA1()) {
                 iter.remove();
+            }
         }
         
         // Note: its ok to have roots without trees.
@@ -244,31 +339,32 @@ public final class HashTreeCacheImpl implements HashTreeCache {
      * @param map
      *            the <tt>Map</tt> to check
      */
-    private void removeOldEntries(Map<URN,URN> roots, Map <URN, HashTree> map, FileManager fileManager, DownloadManager downloadManager) {
+    private Set<URN> removeOldEntries(Map<URN,URN> roots, Map <URN, HashTree> map, FileManager fileManager, DownloadManager downloadManager) {
+        Set<URN> removed = new HashSet<URN>();
         // discard outdated info
         Iterator<URN> iter = roots.keySet().iterator();
         while (iter.hasNext()) {
             URN sha1 = iter.next();
-            if (roots.get(sha1) != BUSH) {
-                if (!fileManager.getManagedFileList().getFileDescsMatching(sha1).isEmpty())
-                    continue;
-                else if (downloadManager.getIncompleteFileManager().getFileForUrn(sha1) != null)
-                    continue;
-                else if (Math.random() > map.size() / 200)
-                    // lazily removing entries if we don't have
-                    // that many anyway. Maybe some of the files are
-                    // just temporarily unshared.
-                    continue;
+            if (!fileManager.getManagedFileList().getFileDescsMatching(sha1).isEmpty()) {
+                continue;
+            } else if (downloadManager.getIncompleteFileManager().getFileForUrn(sha1) != null) {
+                continue;
+            } else if (Math.random() > map.size() / 200) {
+                // lazily removing entries if we don't have
+                // that many anyway. Maybe some of the files are
+                // just temporarily unshared.
+                continue;
+            } else {
+                removed.add(sha1);
+                iter.remove();
+                map.remove(sha1);
+                dirty = true;
             }
-            iter.remove();
-            map.remove(roots.get(sha1));
-            dirty = true;
         }
+        return removed;
     }
 
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.tigertree.HashTreeCache#persistCache(com.limegroup.gnutella.FileManager, com.limegroup.gnutella.DownloadManager)
-     */
+    @Override
     public void persistCache(FileManager fileManager, DownloadManager downloadManager) {
         if(!dirty)
             return;
@@ -276,47 +372,83 @@ public final class HashTreeCacheImpl implements HashTreeCache {
         Map<URN,URN> roots;
         Map<URN, HashTree> trees;
         synchronized(this) {
-            trees = new HashMap<URN,HashTree>(TREE_MAP);
-            roots = new HashMap<URN,URN>(ROOT_MAP);
+            trees = new HashMap<URN,HashTree>(TTREE_MAP.size());
+            for(Map.Entry<URN, Future<HashTree>> entry : TTREE_MAP.entrySet()) {
+                if(entry.getValue().isDone()) {
+                    try {
+                        trees.put(entry.getKey(), entry.getValue().get());
+                    } catch (InterruptedException e) {
+                    } catch (ExecutionException e) {
+                    } catch (CancellationException e) {
+                    }
+                }
+            }
+            roots = new HashMap<URN,URN>(SHA1_TO_ROOT_MAP.size());
+            for(Map.Entry<URN, Future<URN>> entry : SHA1_TO_ROOT_MAP.entrySet()) {
+                if(entry.getValue().isDone()) {
+                    try {
+                        roots.put(entry.getKey(), entry.getValue().get());
+                    } catch (InterruptedException e) {
+                    } catch (ExecutionException e) {
+                    } catch (CancellationException e) {
+                    }
+                }
+            }
         }
         
-        removeOldEntries(roots, trees, fileManager, downloadManager);
-        
-        synchronized(this) {
-            TREE_MAP.clear();
-            TREE_MAP.putAll(trees);
-            ROOT_MAP.clear();
-            ROOT_MAP.putAll(roots);
+        Set<URN> removed = removeOldEntries(roots, trees, fileManager, downloadManager);
+        if(!removed.isEmpty()) {        
+            synchronized(this) {
+                SHA1_TO_ROOT_MAP.keySet().removeAll(removed);
+                TTREE_MAP.keySet().removeAll(removed);
+            }
         }
         
         try {
-            FileUtils.writeObject(ROOT_CACHE_FILE, roots);
-            FileUtils.writeObject(TREE_CACHE_FILE, trees);
+            FileUtils.writeObject(ROOTS_FILE, roots);
+            FileUtils.writeObject(DATA_FILE, trees);
             dirty = false;
         } catch (IOException e) {} 
         // this may any roots added while writing to get lost
     }
 
-    /**
-     * Simple runnable that processes the hash of a FileDesc.
-     */
-    private class HashRunner implements Runnable {
-        
+    /** Simple runnable that processes the hash of a FileDesc. */
+    private class HashTreeRunner implements Callable<HashTree> {
         private final FileDesc FD;
-
-        HashRunner(FileDesc fd) {
+        
+        HashTreeRunner(FileDesc fd) {
             FD = fd;
         }
-
-        public void run() {
-            try {
-                URN sha1 = FD.getSHA1Urn();
-                // if it was scheduled multiple times, ignore latter times.
-                if (HashTreeCacheImpl.this.getHashTree(sha1) == null) {
-                    HashTree tree = tigerTreeFactory.createHashTree(FD);
-                    addHashTree(sha1, tree);
-                }
-            } catch(IOException ignored) {}
+        
+        public HashTree call() throws IOException {
+            URN sha1 = FD.getSHA1Urn();
+            HashTree tree = tigerTreeFactory.createHashTree(FD); // BLOCKING
+            hashTreeCalculated(sha1, tree);
+            return tree;
         }
     }
+    
+    /** Simple runnable that processes the hash tree root of a FileDesc. */
+    private class RootRunner implements Callable<URN> {        
+        private final FileDesc FD;
+        
+        RootRunner(FileDesc fd) {
+            FD = fd;
+        }
+        
+        public URN call() throws IOException, InterruptedException {
+            if(managedFileList.getFileDescsMatching(FD.getSHA1Urn()).isEmpty()) {
+                throw new IOException("no FDs with SHA1 anymore.");
+            }
+            
+            URN ttRoot = URN.createTTRootFile(FD.getFile()); // BLOCKING
+            List<FileDesc> fds = managedFileList.getFileDescsMatching(FD.getSHA1Urn());
+            for(FileDesc fd : fds) {
+                fd.setTTRoot(ttRoot);
+            }
+            dirty = true;
+            return ttRoot;
+        }
+    }    
 }
+

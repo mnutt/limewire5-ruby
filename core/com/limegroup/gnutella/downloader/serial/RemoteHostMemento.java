@@ -15,6 +15,7 @@ import org.limewire.io.Address;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.net.address.AddressFactory;
 import org.limewire.net.address.AddressSerializer;
+import org.limewire.util.UnboxUtils;
 import org.limewire.util.StringUtils;
 
 import com.limegroup.gnutella.PushEndpointFactory;
@@ -29,6 +30,8 @@ public class RemoteHostMemento implements Serializable {
     
     private static final long serialVersionUID = 1452696797555431199L;
 
+    // NOTE: Never remove items, only add.  Otherwise, mementos serialized with earlier
+    // keys cannot be deserialized.
     private static enum Keys {
         HOST, PORT, FILENAME, INDEX, CLIENTGUID,
         SPEED, SIZE, CHAT, QUALITY, REPLY_TO_MULTICAST,
@@ -39,8 +42,8 @@ public class RemoteHostMemento implements Serializable {
     private final Map<Keys, Serializable> propertiesMap;
     
     public RemoteHostMemento(Address address, String filename, long index, byte[] clientGuid,
-            int speed, long size, boolean chat, int quality, boolean replyToMulticast, String xml,
-            Set<URN> urns, boolean browseHost, String vendor, boolean http1, String type, AddressFactory addressFactory) {
+            int speed, long size, int quality, boolean replyToMulticast, String xml, Set<URN> urns,
+            boolean browseHost, String vendor, boolean http1, String type, AddressFactory addressFactory) {
 
         this.propertiesMap = new HashMap<Keys, Serializable>(Keys.values().length);
 
@@ -49,7 +52,6 @@ public class RemoteHostMemento implements Serializable {
         propertiesMap.put(Keys.CLIENTGUID, clientGuid);
         propertiesMap.put(Keys.SPEED, speed);
         propertiesMap.put(Keys.SIZE, size);
-        propertiesMap.put(Keys.CHAT, chat);
         propertiesMap.put(Keys.QUALITY, quality);
         propertiesMap.put(Keys.REPLY_TO_MULTICAST, replyToMulticast);
         propertiesMap.put(Keys.XML, xml);
@@ -105,22 +107,21 @@ public class RemoteHostMemento implements Serializable {
     }
 
     public String getHost() { return (String)propertiesMap.get(Keys.HOST); }    
-    public int getPort() { return (Integer)propertiesMap.get(Keys.PORT); }
+    public int getPort() { return UnboxUtils.toInt((Integer)propertiesMap.get(Keys.PORT)); }
     public String getFileName() { return (String)propertiesMap.get(Keys.FILENAME); }
-    public long getIndex() { return (Long)propertiesMap.get(Keys.INDEX); }
+    public long getIndex() { return UnboxUtils.toLong((Long)propertiesMap.get(Keys.INDEX)); }
     public byte[] getClientGuid() { return (byte[])propertiesMap.get(Keys.CLIENTGUID); }
-    public int getSpeed() { return (Integer)propertiesMap.get(Keys.SPEED); }
-    public long getSize() { return (Long)propertiesMap.get(Keys.SIZE); }
-    public boolean isChat() { return (Boolean)propertiesMap.get(Keys.CHAT); }
-    public int getQuality() { return (Integer)propertiesMap.get(Keys.QUALITY); }
-    public boolean isReplyToMulticast() { return (Boolean)propertiesMap.get(Keys.REPLY_TO_MULTICAST); }
+    public int getSpeed() { return UnboxUtils.toInt((Integer)propertiesMap.get(Keys.SPEED)); }
+    public long getSize() { return UnboxUtils.toLong((Long)propertiesMap.get(Keys.SIZE)); }
+    public int getQuality() { return UnboxUtils.toInt((Integer)propertiesMap.get(Keys.QUALITY)); }
+    public boolean isReplyToMulticast() { return UnboxUtils.toBoolean((Boolean)propertiesMap.get(Keys.REPLY_TO_MULTICAST)); }
     public String getXml() { return (String)propertiesMap.get(Keys.XML); }
     @SuppressWarnings("unchecked")
     public Set<URN> getUrns() { return (Set<URN>)propertiesMap.get(Keys.URNS); }
-    public boolean isBrowseHost() { return (Boolean)propertiesMap.get(Keys.BH); }
+    public boolean isBrowseHost() { return UnboxUtils.toBoolean((Boolean)propertiesMap.get(Keys.BH)); }
     public String getVendor() { return (String)propertiesMap.get(Keys.VENDOR); }
-    public boolean isHttp11() { return (Boolean)propertiesMap.get(Keys.HTTP11); }
-    public boolean isTls() { return (Boolean)propertiesMap.get(Keys.TLS); }
+    public boolean isHttp11() { return UnboxUtils.toBoolean((Boolean)propertiesMap.get(Keys.HTTP11)); }
+    public boolean isTls() { return UnboxUtils.toBoolean((Boolean)propertiesMap.get(Keys.TLS)); }
     public String getPushAddr() { return (String)propertiesMap.get(Keys.PUSH_ADDR); }
     public URL getCustomUrl() { return (URL)propertiesMap.get(Keys.CUSTOM_URL); }
     

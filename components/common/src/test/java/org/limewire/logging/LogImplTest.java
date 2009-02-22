@@ -1,10 +1,10 @@
 package org.limewire.logging;
 
+import junit.framework.Test;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.limewire.util.BaseTestCase;
-
-import junit.framework.Test;
 
 public class LogImplTest extends BaseTestCase {
     
@@ -38,13 +38,15 @@ public class LogImplTest extends BaseTestCase {
             one(delegate).debug("hello, world");
             one(delegate).debug("hello");
             one(delegate).debug("hello");
+            one(delegate).debug("hello");
             one(delegate).debug("hello", exception);
         }});
         
         log.debugf("hello, {0}", "world");
+        log.debugf("hello");
         log.debug("hello");
         log.debugf("hello", "ignored");
-        log.debug("hello", exception);
+        log.debugf(exception, "hello");
         
         context.assertIsSatisfied();
     }

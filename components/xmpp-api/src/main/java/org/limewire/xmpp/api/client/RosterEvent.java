@@ -1,8 +1,8 @@
 package org.limewire.xmpp.api.client;
 
-import org.limewire.listener.DefaultEvent;
+import org.limewire.listener.DefaultSourceTypeEvent;
 
-public class RosterEvent extends DefaultEvent<User, User.EventType> {
+public class RosterEvent extends DefaultSourceTypeEvent<User, User.EventType> {
 
     public RosterEvent(User source, User.EventType event) {
         super(source, event);

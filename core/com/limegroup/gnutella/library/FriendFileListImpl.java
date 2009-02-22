@@ -14,6 +14,8 @@ import org.limewire.util.Objects;
 import org.limewire.util.StringUtils;
 
 import com.limegroup.gnutella.CategoryConverter;
+import com.limegroup.gnutella.URN;
+import com.limegroup.gnutella.tigertree.HashTreeCache;
 
 
 /**
@@ -30,12 +32,14 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
     protected final LibraryFileData data;
     
     private final Executor executor;
+    private final HashTreeCache treeCache;
 
-    public FriendFileListImpl(LibraryFileData data, ManagedFileListImpl managedList,  String id) {
+    public FriendFileListImpl(LibraryFileData data, ManagedFileListImpl managedList, String id, HashTreeCache treeCache) {
         super(managedList);
         this.id = Objects.nonNull(id, "id");
         this.data = data;
         this.executor = ExecutorsHelper.newProcessingQueue("FriendListAdder");
+        this.treeCache = treeCache;
         
         addNewAudioAlways = LibrarySettings.containsFriendShareNewAudio(id);
         addNewImagesAlways = LibrarySettings.containsFriendShareNewImages(id);
@@ -48,9 +52,29 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
         return StringUtils.toString(this);
     }
     
+    // Raise access.
     @Override
     public boolean add(FileDesc fileDesc) {
         return super.add(fileDesc);
+    }
+    
+    @Override
+    protected boolean addFileDescImpl(FileDesc fileDesc) {
+        if(super.addFileDescImpl(fileDesc)) {
+            // if no root, calculate one and propagate it.
+            if(fileDesc.getTTROOTUrn() == null) {
+                // Schedule all additions for having a hash tree root.
+                URN root = treeCache.getOrScheduleHashTreeRoot(fileDesc);
+                if(root != null) {
+                	for(FileDesc fd : managedList.getFileDescsMatching(fileDesc.getSHA1Urn())) {
+                	    fd.setTTRoot(root);
+                	}
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

@@ -43,6 +43,16 @@ public class RemoteFileDescContext {
      * The earliest time to retry this host in milliseconds since 01-01-1970
      */
     private volatile long earliestRetryTime;
+    
+    /**
+     * The time at which this host was head pinged, or 0 if not applicable
+     */
+    private volatile long pingTime = 0;
+    
+    /**
+     * The time at which this host returned a head pong, or 0 if not applicable
+     */
+    private volatile long pongTime = 0;
 
     public RemoteFileDescContext(RemoteFileDesc remoteFileDesc) {
         this.remoteFileDesc = Objects.nonNull(remoteFileDesc, "remoteFileDesc");
@@ -125,6 +135,31 @@ public class RemoteFileDescContext {
             LOG.debug("setting retry after to be [" + seconds + 
                       "] seconds for " + this);        
         earliestRetryTime = System.currentTimeMillis() + seconds*1000;
+    }
+    
+    /**
+     * Records the time at which the most recent head ping was sent
+     */
+    public void recordPingTime(long now) {
+        pingTime = now;
+    }
+    
+    /**
+     * Records the time at which the most recent head pong was received
+     */
+    public void recordPongTime(long now) {
+        pongTime = now;
+    }
+    
+    /**
+     * Returns the round-trip time if a pong has been received for the
+     * most recent head ping, otherwise returns Long.MAX_VALUE
+     */
+    public long getRoundTripTime() {
+        if(pongTime > pingTime)
+            return pongTime - pingTime;
+        else
+            return Long.MAX_VALUE;
     }
     
     /**

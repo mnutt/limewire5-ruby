@@ -138,6 +138,7 @@ public class LocalClientInfoImplTest extends BaseTestCase {
         String parsedBug = localClientInfoImpl.getParsedBug();
         assertTrue(parsedBug.contains("MyException"));
         assertFalse(localClientInfoImpl.isFatalError());
+        context.assertIsSatisfied();
     }
 
     private class MyException extends Exception {

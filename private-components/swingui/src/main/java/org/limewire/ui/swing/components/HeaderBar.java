@@ -100,6 +100,11 @@ public class HeaderBar extends JXPanel {
     }
     
     @Override
+    public void remove(Component comp) {
+        componentContainer.remove(comp);
+    }
+    
+    @Override
     public void setLayout(LayoutManager mgr) {
         if (this.componentContainer == null) {
             super.setLayout(mgr);

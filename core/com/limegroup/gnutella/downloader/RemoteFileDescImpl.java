@@ -35,7 +35,6 @@ public class RemoteFileDescImpl implements RemoteFileDesc {
 	private final long _index;
 	private final byte[] _clientGUID;
 	private final int _speed;
-	private final boolean _chatEnabled;
     private final int _quality;
     private final boolean _replyToMulticast;
     private final LimeXMLDocument _xmlDoc;
@@ -95,10 +94,9 @@ public class RemoteFileDescImpl implements RemoteFileDesc {
     private final AddressFactory addressFactory;
 
     public RemoteFileDescImpl(Address address, long index, String filename,
-            long size, byte[] clientGUID, int speed, boolean chat, int quality, boolean browseHost,
-            LimeXMLDocument xmlDoc, Set<? extends URN> urns, boolean replyToMulticast,
-            String vendor, long createTime, boolean http11,
-            AddressFactory addressFactory) {
+            long size, byte[] clientGUID, int speed, int quality, boolean browseHost, LimeXMLDocument xmlDoc,
+            Set<? extends URN> urns, boolean replyToMulticast, String vendor,
+            long createTime, boolean http11, AddressFactory addressFactory) {
         this.addressFactory = addressFactory;
         this.address = Objects.nonNull(address, "address");
         if ((speed & 0xFFFFFFFF00000000L) != 0)
@@ -115,7 +113,6 @@ public class RemoteFileDescImpl implements RemoteFileDesc {
 		_filename = filename;
         _size = size;
         _clientGUID = clientGUID;
-		_chatEnabled = chat;
         _quality = quality;
 		_browseHostEnabled = browseHost;
 		_replyToMulticast = replyToMulticast;
@@ -196,10 +193,6 @@ public class RemoteFileDescImpl implements RemoteFileDesc {
      */
     public final String getVendor() {return _vendor;}
 
-	/* (non-Javadoc)
-     * @see com.limegroup.gnutella.RemoteFileDesc#isChatEnabled()
-     */
-	public final boolean isChatEnabled() {return _chatEnabled;}
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.RemoteFileDesc#isBrowseHostEnabled()
      */
@@ -385,8 +378,8 @@ public class RemoteFileDescImpl implements RemoteFileDesc {
      */
     public RemoteHostMemento toMemento() {
         return new RemoteHostMemento(address, _filename, _index, _clientGUID, _speed,
-                _size, _chatEnabled, _quality, _replyToMulticast, xmlString(), _urns,
-                _browseHostEnabled,_vendor, _http11, TYPE, addressFactory); 
+                _size, _quality, _replyToMulticast, xmlString(), _urns, _browseHostEnabled,
+                _vendor,_http11, TYPE, addressFactory); 
     }
     
     private String xmlString() {

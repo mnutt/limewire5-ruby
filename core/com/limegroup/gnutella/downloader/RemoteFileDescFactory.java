@@ -42,15 +42,11 @@ public interface RemoteFileDescFactory {
 
     /** 
      * Constructs a new RemoteFileDescImpl with metadata.
-     *
-     * @param host the host's ip
-     * @param port the host's port
      * @param index the index of the file that the client sent
      * @param filename the name of the file
      * @param size the completed size of this file
      * @param clientGUID the unique identifier of the client
      * @param speed the speed of the connection
-     * @param chat true if the location is chattable
      * @param quality the quality of the connection, where 0 is the
      *  worst and 3 is the best.  (This is the same system as in the
      *  GUI but on a 0 to N-1 scale.)
@@ -59,31 +55,29 @@ public interface RemoteFileDescFactory {
      * @param xmlDoc the <tt>LimeXMLDocument</tt> for the response
      * @param urns the <tt>Set</tt> of <tt>URN</tt>s for the file
      * @param replyToMulticast true if its from a reply to a multicast query
-     * @param firewalled true if the host is firewalled
      * @param vendor the vendor of the remote host
-     * @param proxies the push proxies for this host
      * @param createTime the network-wide creation time of this file
+     * @param host the host's ip
+     * @param port the host's port
+     * @param firewalled true if the host is firewalled
+     * @param proxies the push proxies for this host
      * @param tlsCapable true if the remote host supports TLS
+     *
      * @throws <tt>IllegalArgumentException</tt> if any of the arguments are
      *  not valid
      * @throws <tt>NullPointerException</tt> if the host argument is 
      *  <tt>null</tt> or if the file name is <tt>null</tt>
      */
     public RemoteFileDesc createRemoteFileDesc(Address address, long index, String filename,
-            long size, byte[] clientGUID, int speed, boolean chat, int quality, boolean browseHost,
-            LimeXMLDocument xmlDoc, Set<? extends URN> urns, boolean replyToMulticast, String vendor,
-            long createTime);
+            long size, byte[] clientGUID, int speed, int quality, boolean browseHost, LimeXMLDocument xmlDoc,
+            Set<? extends URN> urns, boolean replyToMulticast, String vendor, long createTime);
     
     /** 
      * Constructs a new RemoteFileDescImpl with metadata.
-     *
-     * @param host the host's ip
-     * @param port the host's port
      * @param index the index of the file that the client sent
      * @param filename the name of the file
      * @param clientGUID the unique identifier of the client
      * @param speed the speed of the connection
-     * @param chat true if the location is chattable
      * @param quality the quality of the connection, where 0 is the
      *  worst and 3 is the best.  (This is the same system as in the
      *  GUI but on a 0 to N-1 scale.)
@@ -92,17 +86,20 @@ public interface RemoteFileDescFactory {
      * @param xmlDoc the <tt>LimeXMLDocument</tt> for the response
      * @param urns the <tt>Set</tt> of <tt>URN</tt>s for the file
      * @param replyToMulticast true if its from a reply to a multicast query
+     * @param host the host's ip
+     * @param port the host's port
      * @param tlsCapable true if the host supports a TLS connection
      * @param xmlDocs the array of XML documents pertaining to this file
+     *
      * @throws <tt>IllegalArgumentException</tt> if any of the arguments are
      *  not valid
      * @throws <tt>NullPointerException</tt> if the host argument is 
      *  <tt>null</tt> or if the file name is <tt>null</tt>
      */
     public RemoteFileDesc createRemoteFileDesc(Address address, long index, String filename,
-            long size, byte[] clientGUID, int speed, boolean chat, int quality, boolean browseHost,
-            LimeXMLDocument xmlDoc, Set<? extends URN> urns, boolean replyToMulticast, String vendor,
-            long createTime, boolean http1);
+            long size, byte[] clientGUID, int speed, int quality, boolean browseHost, LimeXMLDocument xmlDoc,
+            Set<? extends URN> urns, boolean replyToMulticast, String vendor, long createTime,
+            boolean http1);
 
     /**
      * Constructs a URLRemoteFileDesc, looking up the size from the URL if no size is known.<p>

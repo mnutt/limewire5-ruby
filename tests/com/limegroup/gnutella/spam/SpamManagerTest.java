@@ -375,7 +375,7 @@ public class SpamManagerTest extends LimeTestCase {
         urns.add(urn);
         RemoteFileDesc rfd =
                 remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl(addr, port, false), 1, name, size,
-                DataUtils.EMPTY_GUID, 3, false, 3, false, doc, urns, false, "ALT", 0l);
+                DataUtils.EMPTY_GUID, 3, 3, false, doc, urns, false, "ALT", 0l);
         // This would normally be called by the SearchResultHandler
         manager.calculateSpamRating(rfd);
         return rfd;    

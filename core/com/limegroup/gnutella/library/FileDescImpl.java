@@ -153,7 +153,7 @@ public class FileDescImpl implements FileDesc {
         assert _size >= 0 && _size <= MAX_FILE_SIZE : "invalid size "+_size+" of file "+FILE;
         _modTime = FILE.lastModified();
         URNS = Collections.unmodifiableSet(Objects.nonNull(urns, "urns"));
-		SHA1_URN = extractSHA1();
+		SHA1_URN = UrnSet.getSha1(URNS);
 		if(SHA1_URN == null)
 			throw new IllegalArgumentException("no SHA1 URN");
 
@@ -200,19 +200,6 @@ public class FileDescImpl implements FileDesc {
 		return _modTime;
 	}
 
-	/**
-	 * Extracts the SHA1 URN from the set of urns.
-	 */
-	private URN extractSHA1() {
-        for(URN urn : URNS) {
-            if(urn.isSHA1())
-                return urn;
-        }
-
-		// this should never happen!!
-        return null;
-    }
-
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#getTTROOTUrn()
      */
@@ -243,16 +230,17 @@ public class FileDescImpl implements FileDesc {
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#setTTRoot(com.limegroup.gnutella.URN)
      */
-    public boolean setTTRoot(URN ttroot) {
-        boolean ret = !getUrns().contains(ttroot);
-        UrnSet s = new UrnSet();
-        s.add(SHA1_URN);
-        s.add(ttroot);
-        URNS = Collections.unmodifiableSet(s);
-        if(multicaster != null) {
-            multicaster.handleEvent(new FileDescChangeEvent(this, FileDescChangeEvent.Type.URNS_CHANGED));
+    public void setTTRoot(URN ttroot) {
+        boolean contained = getUrns().contains(ttroot);
+        if(!contained) {
+            UrnSet s = new UrnSet();
+            s.add(SHA1_URN);
+            s.add(ttroot);
+            URNS = Collections.unmodifiableSet(s);
+            if(multicaster != null) {
+                multicaster.handleEvent(new FileDescChangeEvent(this, FileDescChangeEvent.Type.URNS_CHANGED, ttroot));
+            }
         }
-        return ret;
     }
     
 	/* (non-Javadoc)

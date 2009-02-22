@@ -109,7 +109,7 @@ public final class QueryUnicaster implements Service {
     private long _lastPingTime = 0;
 
 	/** 
-     * Variable for how many test pings have been sent out to determine 
+     * How many test pings have been sent out to determine 
 	 * whether or not we can accept incoming connections.
 	 */
 	private int _testUDPPingsSent = 0;
@@ -165,7 +165,6 @@ public final class QueryUnicaster implements Service {
         return _queries.size();
     }
 
-
     /** 
      * Returns a List of unicast Endpoints.  These Endpoints are the NEWEST 
      * we've seen.
@@ -173,14 +172,12 @@ public final class QueryUnicaster implements Service {
     public List<GUESSEndpoint> getUnicastEndpoints() {
         List<GUESSEndpoint> retList = new ArrayList<GUESSEndpoint>();
         synchronized (_queryHosts) {
-            LOG.debug("QueryUnicaster.getUnicastEndpoints(): obtained lock.");
             int size = _queryHosts.size();
             if (size > 0) {
                 int max = (size > 10 ? 10 : size);
                 for (int i = 0; i < max; i++)
                     retList.add(_queryHosts.get(i));
             }
-            LOG.debug("QueryUnicaster.getUnicastEndpoints(): releasing lock.");
         }
         return retList;
     }
@@ -215,7 +212,8 @@ public final class QueryUnicaster implements Service {
             _querier.start();
             
             QueryKeyExpirer expirer = new QueryKeyExpirer();
-            backgroundExecutor.scheduleWithFixedDelay(expirer, 0, 3 * ONE_HOUR, TimeUnit.MILLISECONDS);// every 3 hours
+            backgroundExecutor.scheduleWithFixedDelay(expirer, 0, 3 * ONE_HOUR,
+                    TimeUnit.MILLISECONDS); // Expire query keys every 3 hours
 
             _initialized = true;
         }
@@ -227,10 +225,10 @@ public final class QueryUnicaster implements Service {
     
     public void initialize() {
     }
+    
     public void stop() {
     }
     
-
     /** 
      * The main work to be done.
      * If there are queries, get a unicast enabled UP, and send each Query to
@@ -291,7 +289,6 @@ public final class QueryUnicaster implements Service {
             catch (InterruptedException ignored) {}
         }
     }
-
  
     /** 
      * A quick purging of query GUIDS from the _queries Map.  The
@@ -305,20 +302,17 @@ public final class QueryUnicaster implements Service {
         }
     }
 
-
     private void waitForQueries() throws InterruptedException {
-        LOG.debug("QueryUnicaster.waitForQueries(): waiting for Queries.");
+        LOG.trace("Waiting for queries");
         synchronized (_queries) {
             if (_queries.isEmpty()) {
                 // i'll be notifed when stuff is added...
                 _queries.wait();
 			}
         }
-        if(LOG.isDebugEnabled())
-            LOG.debug("QueryUnicaster.waitForQueries(): numQueries = " + 
-                      _queries.size());
+        if(LOG.isTraceEnabled())
+            LOG.trace("Got " + _queries.size() + " queries");
     }
-
 
     /** 
      * @return true if the query was added (maybe false if it existed).
@@ -326,7 +320,7 @@ public final class QueryUnicaster implements Service {
      * @param reference The originating connection.  OK if NULL.
      */
     public boolean addQuery(QueryRequest query, ReplyHandler reference) {
-        LOG.debug("QueryUnicaster.addQuery(): entered.");
+        LOG.trace("Adding query");
         boolean added = false;
         GUID guid = new GUID(query.getGUID());
         // first map the QueryBundle using the guid....
@@ -352,8 +346,6 @@ public final class QueryUnicaster implements Service {
             }
             guids.add(guid);
         }
-        if(LOG.isDebugEnabled())
-            LOG.debug("QueryUnicaster.addQuery(): returning " + added);
         return added;
     }
 
@@ -374,42 +366,41 @@ public final class QueryUnicaster implements Service {
 	 */
 	private void addUnicastEndpoint(GUESSEndpoint endpoint) {
 		synchronized (_queryHosts) {
-			LOG.debug("QueryUnicaster.addUnicastEndpoint(): obtained lock.");
-			if (_queryHosts.size() == MAX_ENDPOINTS)
-				_queryHosts.removeLast(); // evict a old guy...
+			if (_queryHosts.size() == MAX_ENDPOINTS) {
+                LOG.trace("Evicting old unicast host to make room");
+				_queryHosts.removeLast();
+            }
+            LOG.trace("Adding new unicast host");
 			_queryHosts.addFirst(endpoint);
 			_queryHosts.notify();
+            // Consider sending a test ping
 			if(udpService.get().isListening() &&
-			   !networkManager.isGUESSCapable() &&
-			   (_testUDPPingsSent < 10) &&
-               !(ConnectionSettings.LOCAL_IS_PRIVATE.getValue() && 
-                 NetworkUtils.isCloseIP(networkManager.getAddress(),
-                                        endpoint.getInetAddress().getAddress())) ) {
+			        !networkManager.isGUESSCapable() &&
+			        _testUDPPingsSent < 10 &&
+			        !(ConnectionSettings.LOCAL_IS_PRIVATE.getValue() && 
+			                NetworkUtils.isCloseIP(networkManager.getAddress(),
+			                        endpoint.getInetAddress().getAddress()))) {
+                LOG.info("Sending a UDP test ping");
                 byte[] guid = udpService.get().getSolicitedGUID().bytes();
 				PingRequest pr = 
 				    pingRequestFactory.createPingRequest(guid, (byte)1, (byte)0);
                 udpService.get().send(pr, endpoint.getInetAddress(), endpoint.getPort());
 				_testUDPPingsSent++;
 			}
-			LOG.debug("QueryUnicaster.addUnicastEndpoint(): released lock.");
 		}
 	}
-
 
     /** 
      * Returns whether or not the Endpoint refers to me!  True if it doesn't,
      * false if it does (NOT not me == me).
      */
     private boolean notMe(InetAddress address, int port) {
-        boolean retVal = true;
-
-        if ((port == networkManager.getPort()) &&
-				 Arrays.equals(address.getAddress(), 
-				         networkManager.getAddress())) {			
-			retVal = false;
-		}
-
-        return retVal;
+        if((port == networkManager.getPort()) &&
+                Arrays.equals(address.getAddress(), 
+                        networkManager.getAddress())) {			
+            return false;
+        }
+        return true;
     }
 
     /** 
@@ -417,7 +408,7 @@ public final class QueryUnicaster implements Service {
      * Use this if a leaf connection dies and you want to stop the query.
      */
     void purgeQuery(ReplyHandler reference) {
-        LOG.debug("QueryUnicaster.purgeQuery(RH): entered.");
+        LOG.trace("Purging query by ReplyHandler");
         if (reference == null)
             return;
         synchronized (_querySets) {
@@ -427,7 +418,6 @@ public final class QueryUnicaster implements Service {
             for(GUID guid : guids)
                 purgeQuery(guid);
         }
-        LOG.debug("QueryUnicaster.purgeQuery(RH): returning.");
     }
 
     /** 
@@ -435,11 +425,9 @@ public final class QueryUnicaster implements Service {
      * dies and you want to stop the query.
      */
     void purgeQuery(GUID queryGUID) {
-        LOG.debug("QueryUnicaster.purgeQuery(GUID): entered.");
+        LOG.trace("Purging query by GUID");
         _qGuidsToRemove.add(queryGUID);
-        LOG.debug("QueryUnicaster.purgeQuery(GUID): returning.");
     }
-
 
     /** Feed me QRs so I can keep track of stuff.
      */
@@ -454,23 +442,20 @@ public final class QueryUnicaster implements Service {
     public void handleQueryKeyPong(PingReply pr) {
         Objects.nonNull(pr, "pong");
         AddressSecurityToken qk = pr.getQueryKey();
-        if(qk == null)
-            throw new IllegalArgumentException("no key in pong");
-        
+        Objects.nonNull(qk, "query key");
         InetAddress address = pr.getInetAddress();
-
         int port = pr.getPort();
         GUESSEndpoint endpoint = new GUESSEndpoint(address, port);
         _queryKeys.put(endpoint, new QueryKeyBundle(qk));
         addUnicastEndpoint(endpoint);
     }
 
-
     /** 
      * Add results to a query so we can invalidate it when enough results are
      * received.
      */
     private void addResults(GUID queryGUID, int numResultsToAdd) {
+        LOG.trace("Adding results to query");
         synchronized (_queries) {
             QueryBundle qb = _queries.get(queryGUID);
             if (qb != null) {// add results if possible...
@@ -478,40 +463,39 @@ public final class QueryUnicaster implements Service {
                 
                 //  This code moved from queryLoop() since that ftn. blocks before
                 //      removing stale queries, when out of hosts to query.
-                if( qb._numResults>QueryBundle.MAX_RESULTS ) {
-                    synchronized( _qGuidsToRemove ) {
+                if(qb._numResults > QueryBundle.MAX_RESULTS) {
+                    LOG.trace("Query has enough results, removing");
+                    synchronized(_qGuidsToRemove) {
                         _qGuidsToRemove.add(new GUID(qb._qr.getGUID()));
                         purgeGuidsInternal();
                         _qGuidsToRemove.clear();                        
                     }
                 }
-
             }
-            
         }
     }
 
     /** May block if no hosts exist.
      */
     private GUESSEndpoint getUnicastHost() throws InterruptedException {
-        LOG.debug("QueryUnicaster.getUnicastHost(): waiting for hosts.");
+        LOG.trace("Waiting for hosts");
         synchronized (_queryHosts) {
-            LOG.debug("QueryUnicaster.getUnicastHost(): obtained lock.");
             while (_queryHosts.isEmpty()) {
-                if ((System.currentTimeMillis() - _lastPingTime) >
-                    20000) { // don't sent too many pings..
+                // don't sent too many pings
+                if (System.currentTimeMillis() - _lastPingTime > 20000) {
                     // first send a Ping, hopefully we'll get some pongs....
                     byte ttl = ConnectionSettings.TTL.getValue();
                     PingRequest pr = pingRequestFactory.createPingRequest(ttl);
+                    LOG.info("Broadcasting a ping");
                     messageRouter.get().broadcastPingRequest(pr);
                     _lastPingTime = System.currentTimeMillis();
                 }
-
 				// now wait, what else can we do?
 				_queryHosts.wait();
             }
-            LOG.debug("QueryUnicaster.getUnicastHost(): got a host, let go lock!");
         }
+        if(LOG.isTraceEnabled())
+            LOG.trace("Got " + _queryHosts.size() + " hosts");
 
         if (_queryHosts.size() < MIN_ENDPOINTS) {
             // send a ping to the guy you are popping if cache too small
@@ -519,6 +503,7 @@ public final class QueryUnicaster implements Service {
             // if i haven't pinged him 'recently', then ping him...
             synchronized (_pingList) {
                 if (!_pingList.contains(toReturn)) {
+                    LOG.trace("Pinging unicast host before removing");
                     PingRequest pr = pingRequestFactory.createPingRequest((byte)1);
                     InetAddress ip = toReturn.getInetAddress();
                     udpService.get().send(pr, ip, toReturn.getPort());
@@ -533,7 +518,7 @@ public final class QueryUnicaster implements Service {
     /** removes all Unicast Endpoints, reset associated members
      */
     void resetUnicastEndpointsAndQueries() {
-        LOG.debug("Resetting unicast endpoints.");        
+        LOG.trace("Resetting unicast hosts and queries");        
         synchronized (_queries) {
             _queries.clear();
             _queries.notifyAll();
@@ -556,7 +541,6 @@ public final class QueryUnicaster implements Service {
 
         _lastPingTime=0;        
         _testUDPPingsSent=0;
-        
     }
 
 
@@ -581,7 +565,6 @@ public final class QueryUnicaster implements Service {
 		}
     }
 
-    
     private static class QueryKeyBundle {
         public static final long QUERY_KEY_LIFETIME = 2 * ONE_HOUR; // 2 hours
         
@@ -597,8 +580,7 @@ public final class QueryUnicaster implements Service {
          *  should be expired.
          */
         public boolean shouldExpire() {
-            if ((System.currentTimeMillis() - _birthTime) >= 
-                QUERY_KEY_LIFETIME)
+            if (System.currentTimeMillis() - _birthTime >= QUERY_KEY_LIFETIME)
                 return true;
             return false;
         }
@@ -610,7 +592,6 @@ public final class QueryUnicaster implements Service {
         }
     }
 
-
     /**
      * Schedule this class to run every so often and rid the Map of Bundles that
      * are stale.
@@ -618,8 +599,8 @@ public final class QueryUnicaster implements Service {
     private class QueryKeyExpirer implements Runnable {
         public void run() {
             synchronized (_queryKeys) {
-                for(Iterator<QueryKeyBundle> iter = _queryKeys.values().iterator();
-                    iter.hasNext(); ) {
+                Iterator<QueryKeyBundle> iter = _queryKeys.values().iterator();
+                while(iter.hasNext()) {
                     if(iter.next().shouldExpire())
                         iter.remove();
                 }

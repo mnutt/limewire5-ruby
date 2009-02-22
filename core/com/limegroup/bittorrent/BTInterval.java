@@ -24,11 +24,6 @@ public class BTInterval extends LongInterval {
 		this(other.getLow(), other.getHigh(), id);
 	}
 
-	public BTInterval(long singleton, int id) {
-		super(singleton);
-		blockId = id;
-	}
-	
 	public int getId() {
 		return blockId;
 	}

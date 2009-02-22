@@ -6,6 +6,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.http.auth.Credentials;
+import org.limewire.util.Objects;
 
 import com.google.inject.Singleton;
 
@@ -39,6 +40,7 @@ public class AuthenticatorRegistryImpl implements Authenticator, AuthenticatorRe
     }
 
     public void register(Authenticator authenticator) {
+        Objects.nonNull(authenticator, "Authenticator");
         lock.writeLock().lock();
         try {
             authenticators.add(authenticator);

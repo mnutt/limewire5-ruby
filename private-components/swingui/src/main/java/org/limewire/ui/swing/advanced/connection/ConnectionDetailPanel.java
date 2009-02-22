@@ -41,7 +41,7 @@ public class ConnectionDetailPanel extends JPanel {
     private Action removeConnectionAction = new RemoveConnectionAction(I18n.tr("Remove"));
     
     /** Action to view files on host. */
-    private Action viewLibraryAction = new ViewLibraryAction(I18n.tr("View Files"));
+    private Action viewLibraryAction = new ViewLibraryAction(I18n.tr("Browse Files"));
 
     private JScrollPane scrollPane = new JScrollPane();
     private ConnectionTable connectionTable = new ConnectionTable();

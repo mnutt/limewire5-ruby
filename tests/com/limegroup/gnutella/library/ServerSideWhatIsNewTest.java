@@ -601,8 +601,8 @@ public class ServerSideWhatIsNewTest
         Set<URN> urns = new HashSet<URN>();
         urns.add(TestFile.hash());
         RemoteFileDesc rfd = injector.getInstance(RemoteFileDescFactory.class)
-                .createRemoteFileDesc(new ConnectableImpl("127.0.0.1", UPLOADER_PORT, false), 1, "whatever.txt", TestFile.length(), guid, 1, false, 3,
-                        false, null, urns, false, "LIME", -1);
+                .createRemoteFileDesc(new ConnectableImpl("127.0.0.1", UPLOADER_PORT, false), 1, "whatever.txt", TestFile.length(), guid, 1, 3, false,
+                        null, urns, false, "LIME", -1);
         
         int sharedBefore = fileManager.getGnutellaFileList().size();
         final CountDownLatch shareLatch = new CountDownLatch(1);
@@ -666,7 +666,7 @@ public class ServerSideWhatIsNewTest
             Set<URN> urns = new HashSet<URN>();
             urns.add(TestFile.hash());
             rfds[i] = injector.getInstance(RemoteFileDescFactory.class).createRemoteFileDesc(new ConnectableImpl("127.0.0.1", UPLOADER_PORT+i, false), 1, "anita.txt",
-                    TestFile.length(), guid, 1, false, 3, false, null, urns, false, "LIME", -1);
+                    TestFile.length(), guid, 1, 3, false, null, urns, false, "LIME", -1);
         }
 
 

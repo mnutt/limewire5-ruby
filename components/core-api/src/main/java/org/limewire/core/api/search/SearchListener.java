@@ -4,14 +4,19 @@ import java.util.List;
 
 import org.limewire.core.api.search.sponsored.SponsoredResult;
 
+/** A listener for a search. */
 public interface SearchListener {
     
-    void handleSearchResult(SearchResult searchResult);
+    /** Notification a new search result is received for the search. */
+    void handleSearchResult(Search search, SearchResult searchResult);
     
-    void searchStarted();
+    /** Notification the search has started. */
+    void searchStarted(Search search);
     
-    void searchStopped();
+    /** Notification the search has stopped. */
+    void searchStopped(Search search);
     
-    void handleSponsoredResults(List<SponsoredResult> sponsoredResults);
+    /** Notification that sponsored results have been received for the search. */
+    void handleSponsoredResults(Search search, List<SponsoredResult> sponsoredResults);
 
 }

@@ -459,7 +459,7 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             }
 
             @Override
-            public void handleQueryString(String query) {
+            public void handleQuery(QueryRequest query, String address, int port) {
                 
             }
 
@@ -514,10 +514,6 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
 
             @Override
             public void downloadCompleted(Downloader d) {
-            }
-
-            @Override
-            public void showDownloads() {
             }
 
             @Override

@@ -11,6 +11,9 @@ import com.limegroup.gnutella.library.FileManager;
  * Also maintains a mapping between SHA1 URNs and their associated tree.
  */
 public interface HashTreeCache {
+    
+    /** Caches the root for the file desc, calculating it if necessary. */
+    public URN getOrScheduleHashTreeRoot(FileDesc fd);
 
     /**
      * If HashTree wasn't found, schedule file for hashing
@@ -42,15 +45,16 @@ public interface HashTreeCache {
     public void purgeTree(URN sha1);
 
     /**
-     * add a hashtree to the internal list if the tree depth is sufficient
+     * add a hashtree to the internal list if the tree depth is sufficient, null otherwise
      * 
      * @param sha1
      *            the SHA1- <tt>URN</tt> of a file
      * @param tree
      *            the <tt>HashTree</tt>
      */
-    public void addHashTree(URN sha1, HashTree tree);
+    public HashTree addHashTree(URN sha1, HashTree tree);
 
+    /** Marks the ttroot as the root for that sha1. */
     public void addRoot(URN sha1, URN ttroot);
 
     /**

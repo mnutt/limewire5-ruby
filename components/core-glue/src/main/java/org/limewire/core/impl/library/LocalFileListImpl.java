@@ -27,8 +27,6 @@ import com.limegroup.gnutella.library.FileListChangedEvent;
 
 abstract class LocalFileListImpl implements LocalFileList {
     
-    private static final String FILE_ITEM_PROPERTY = "limewire.fileitem";
-    
     protected final EventList<LocalFileItem> baseList;
     protected final TransformedList<LocalFileItem, LocalFileItem> threadSafeList;
     protected final TransformedList<LocalFileItem, LocalFileItem> readOnlyList;
