@@ -25,7 +25,7 @@ public class MP3DataEditor extends AudioDataEditor {
     @Override
     protected Tag updateTag(Tag tag, AudioFile audioFile) throws FieldDataInvalidException {
         if( tag instanceof AbstractID3v2Tag) {
-            tag.set(tag.createTagField(TagFieldKey.COPYRIGHT, audioData.getLicense()));
+            // tag.set(tag.createTagField(TagFieldKey.COPYRIGHT, audioData.getLicense())); // jaudiotagger removed field?
         }
         return super.updateTag(tag, audioFile);
     }

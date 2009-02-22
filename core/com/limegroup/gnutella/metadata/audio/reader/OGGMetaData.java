@@ -12,7 +12,7 @@ public class OGGMetaData extends AudioDataReader {
     protected void readTag(AudioMetaData audioData, AudioFile audioFile, Tag tag) {
         if(tag != null ) {
             super.readTag(audioData, audioFile, tag);
-            audioData.setLicense(tag.getFirst(TagFieldKey.COPYRIGHT));
+            // audioData.setLicense(tag.getFirst(TagFieldKey.COPYRIGHT)); // jaudiotagger removed the field?
         }
     }
     

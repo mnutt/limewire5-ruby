@@ -28,7 +28,7 @@ public class OGGDataEditor extends AudioDataEditor {
     @Override
     protected Tag createTag(AudioFile audioFile) {
         if( audioFile.getTag() == null )
-            return new VorbisCommentTag();
+            return VorbisCommentTag.createNewTag();
         return audioFile.getTag();
     }
 

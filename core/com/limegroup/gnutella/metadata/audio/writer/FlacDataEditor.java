@@ -16,7 +16,7 @@ public class FlacDataEditor extends AudioDataEditor {
     @Override
     protected Tag createTag(AudioFile audioFile) {
         if( audioFile.getTag() == null )
-            return new FlacTag(new VorbisCommentTag(), null);
+            return new FlacTag(VorbisCommentTag.createNewTag(), null);
         return audioFile.getTag();
     }
 
