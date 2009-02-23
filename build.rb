@@ -1,6 +1,9 @@
 #!/bin/env ruby
 
+require 'fileutils'
+
 RELEASE_BASE = "deploy/releases"
+FileUtils.mkdir_p(RELEASE_BASE)
 
 # Set the release dir
 puts "Creating the release dir..."
@@ -14,9 +17,9 @@ puts "Release created in #{release_dir}"
 # Add the portable LimeWire skeleton
 puts "Adding the portable LimeWire skeleton..."
 if File.exist?("skeleton/LimeWire.zip")
-  `unzip -d #{release_dir} deploy/LimeWire.zip`
+  `unzip -d #{release_dir} skeleton/LimeWire.zip`
 elsif File.exist?("skeleton/LimeWire")
-  `cp -R deploy/LimeWire #{release_dir}/`
+  `cp -R skeleton/LimeWire #{release_dir}/`
 else
   puts "LimeWire Portable skeleton not found.  Get it from http://wiki.limewire.org/... and put it in ./deploy/ directory"
   exit(1)
