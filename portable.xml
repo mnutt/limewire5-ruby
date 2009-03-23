@@ -47,8 +47,6 @@
 			target="1.6">
 
 			<!-- Compile the code in these folders, each has a tree of .java files in it -->
-			<src path="core"/>
-
 			<src path="private-components/integrated-ui/src/main/java"/>
 			<src path="private-components/mock-core/src/main/java"/>
 			<src path="private-components/swingui/src/main/java"/>
