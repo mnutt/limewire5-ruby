@@ -126,17 +126,29 @@ public class CoreUploadListManager implements UploadListener, UploadListManager 
     public void uploadAdded(Uploader uploader) {
         if (!uploader.getUploadType().isInternal()) {
             UploadItem item = new CoreUploadItem(uploader);
-            uploadItems.add(item);
+            threadSafeUploadItems.add(item);
             item.addPropertyChangeListener(new UploadPropertyListener(item));
         }
     }
 
+ // This is called when uploads complete - should be renamed?
     @Override
     public void uploadRemoved(Uploader uploader) {
-        UploadItem item = new CoreUploadItem(uploader);
-        // This is called when uploads complete.  Remove if auto-clear is enabled.
-        if ((item.getState() == UploadState.DONE || item.getState() == UploadState.BROWSE_HOST_DONE) && SharingSettings.CLEAR_UPLOAD.getValue()) {
-            uploadItems.remove(item);
+        CoreUploadItem item = new CoreUploadItem(uploader);
+        //alert item that it really is finished so that getState() will be correct
+        item.finish();
+         
+        if (item.getState() == UploadState.DONE || item.getState() == UploadState.BROWSE_HOST_DONE || item.getState() == UploadState.UNABLE_TO_UPLOAD) {
+            if (SharingSettings.CLEAR_UPLOAD.getValue()) {
+                //Remove if auto-clear is enabled.
+                threadSafeUploadItems.remove(item);
+            } else {
+                //make sure upload state is correct and UI is informed of state change
+                int i = threadSafeUploadItems.indexOf(item);
+                if (i>-1) {
+                    ((CoreUploadItem)threadSafeUploadItems.get(i)).finish();
+                } 
+            }
         }
     }
     
@@ -168,7 +180,7 @@ public class CoreUploadListManager implements UploadListener, UploadListManager 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (item.getState() == UploadState.CANCELED) {
-                uploadItems.remove(item);
+                remove(item);
             }
         }
     }

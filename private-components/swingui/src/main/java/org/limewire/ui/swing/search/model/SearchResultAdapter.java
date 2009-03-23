@@ -25,6 +25,7 @@ import org.limewire.core.api.search.SearchResult;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.util.PropertiableHeadings;
+import org.limewire.util.StringUtils;
 
 /**
  * An implementation of VisualSearchResult for displaying actual search 
@@ -154,6 +155,26 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
     }
 
     @Override
+    public String getNameProperty(boolean useAudioArtist) {
+        // Get name and title values.
+        String name = getPropertyString(FilePropertyKey.NAME);
+        String title = getPropertyString(FilePropertyKey.TITLE);
+        
+        // For audio files, use non-blank title, prefixed by non-blank artist.
+        if (getCategory().equals(Category.AUDIO) && !StringUtils.isEmpty(title)) {
+            String artist = getPropertyString(FilePropertyKey.AUTHOR);
+            if (useAudioArtist && !StringUtils.isEmpty(artist)) {
+                name = artist + " - " + title;
+            } else {
+                name = title;
+            }
+        }
+        
+        // Return result.
+        return name;
+    }
+    
+    @Override
     public void addSimilarSearchResult(VisualSearchResult similarResult) {
         similarResults.add(similarResult);
     }
@@ -197,6 +218,9 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
 
     @Override
     public void setDownloadState(BasicDownloadState downloadState) {
+        // If the download was aborted, recalculate the spam score
+        if(downloadState == BasicDownloadState.NOT_STARTED)
+            recalculateSpam();
         BasicDownloadState oldDownloadState = this.downloadState;
         this.downloadState = downloadState;
         firePropertyChange("downloadState", oldDownloadState, downloadState);
@@ -240,7 +264,10 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
     @Override
     public boolean isSpam() {
         if (spamCache == null) {
-            spamCache = getSpamBoolean(coreResults.get(0).isSpam());
+            boolean spam = false;
+            for (SearchResult result : coreResults)
+                spam |= result.isSpam();
+            spamCache = getSpamBoolean(spam);
         }
         return spamCache.booleanValue();
     }
@@ -254,6 +281,13 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
         boolean oldSpam = isSpam();
         spamCache = getSpamBoolean(spam);
         firePropertyChange("spam", oldSpam, spam);
+    }
+    
+    private void recalculateSpam() {
+        boolean oldSpam = isSpam();
+        spamCache = null;
+        boolean newSpam = isSpam();
+        firePropertyChange("spam", oldSpam, newSpam);
     }
 
     @Override

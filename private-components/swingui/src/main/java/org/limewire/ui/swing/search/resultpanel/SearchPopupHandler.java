@@ -13,13 +13,13 @@ import org.limewire.ui.swing.table.TablePopupHandler;
 public class SearchPopupHandler implements TablePopupHandler {
 
     private final ConfigurableTable<VisualSearchResult> configTable;
-    private final BaseResultPanel baseResultPanel;
+    private final DownloadHandler downloadHandler;
     private final PropertiesFactory<VisualSearchResult> properties;
 
     public SearchPopupHandler(ConfigurableTable<VisualSearchResult> configTable,
-            BaseResultPanel baseResultPanel, PropertiesFactory<VisualSearchResult> properties) {
+            DownloadHandler downloadHandler, PropertiesFactory<VisualSearchResult> properties) {
         this.configTable = configTable;
-        this.baseResultPanel = baseResultPanel;
+        this.downloadHandler = downloadHandler;
         this.properties = properties;
     }
 
@@ -51,7 +51,7 @@ public class SearchPopupHandler implements TablePopupHandler {
             }
         }
 
-        SearchResultMenu searchResultMenu = new SearchResultMenu(baseResultPanel, selectedItems,
+        SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, selectedItems,
                 properties, SearchResultMenu.ViewType.Table);
         searchResultMenu.show(component, x, y);
     }

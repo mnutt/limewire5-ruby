@@ -12,12 +12,13 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import junit.framework.Test;
 
-import org.limewire.nio.LimeTestUtils;
 import org.limewire.nio.NIODispatcher;
+import org.limewire.nio.NIOTestUtils;
 import org.limewire.nio.channel.ChannelReadObserver;
 import org.limewire.nio.channel.InterestReadableByteChannel;
 import org.limewire.nio.channel.WriteBufferChannel;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 public class TLSNIOSocketTest extends BaseTestCase {
     
@@ -42,19 +43,19 @@ public class TLSNIOSocketTest extends BaseTestCase {
         Socket accepted = server.accept();
         
         OutputStream clientOut = socket.getOutputStream();
-        clientOut.write("TEST TEST\r\n".getBytes());
-        clientOut.write("\r\n".getBytes());        
+        clientOut.write(StringUtils.toAsciiBytes("TEST TEST\r\n"));
+        clientOut.write(StringUtils.toAsciiBytes("\r\n"));        
         byte[] serverB = new byte[1000];
         int serverRead = accepted.getInputStream().read(serverB);
         assertEquals(13, serverRead);
-        assertEquals("TEST TEST\r\n\r\n", new String(serverB, 0, 13));
+        assertEquals("TEST TEST\r\n\r\n", StringUtils.getASCIIString(serverB, 0, 13));
         
-        accepted.getOutputStream().write("HELLO THIS IS A TEST!".getBytes());        
+        accepted.getOutputStream().write(StringUtils.toAsciiBytes("HELLO THIS IS A TEST!"));        
         InputStream clientIn = socket.getInputStream();
         byte[] clientB = new byte[2048];
         int clientRead = clientIn.read(clientB);
         assertEquals(21, clientRead);
-        assertEquals("HELLO THIS IS A TEST!", new String(clientB, 0, 21));
+        assertEquals("HELLO THIS IS A TEST!", StringUtils.getASCIIString(clientB, 0, 21));
         
         socket.close();
         accepted.close();
@@ -76,20 +77,20 @@ public class TLSNIOSocketTest extends BaseTestCase {
         WriteBufferChannel clientOut = new WriteBufferChannel();
         socket.setWriteObserver(clientOut);
         NIODispatcher.instance().getScheduledExecutorService().submit(new Runnable() {public void run() {}}).get(); //wait for write to set 
-        clientOut.setBuffer(ByteBuffer.wrap("TEST TEST\r\n\r\n".getBytes()));
+        clientOut.setBuffer(ByteBuffer.wrap(StringUtils.toAsciiBytes("TEST TEST\r\n\r\n")));
         byte[] serverB = new byte[1000];
         int serverRead = accepted.getInputStream().read(serverB);
         assertEquals(13, serverRead);
-        assertEquals("TEST TEST\r\n\r\n", new String(serverB, 0, 13));
+        assertEquals("TEST TEST\r\n\r\n", StringUtils.getASCIIString(serverB, 0, 13));
         
-        accepted.getOutputStream().write("HELLO THIS IS A TEST!".getBytes());
+        accepted.getOutputStream().write(StringUtils.toAsciiBytes("HELLO THIS IS A TEST!"));
         
         ReadTester reader = new ReadTester();
         socket.setReadObserver(reader);
         Thread.sleep(500);
         ByteBuffer read = reader.getRead();
         assertEquals(21, read.limit());
-        assertEquals("HELLO THIS IS A TEST!", new String(read.array(), 0, 21));
+        assertEquals("HELLO THIS IS A TEST!", StringUtils.getASCIIString(read.array(), 0, 21));
         
         socket.close();
         accepted.close();
@@ -109,35 +110,35 @@ public class TLSNIOSocketTest extends BaseTestCase {
         Socket accepted = server.accept();
         
         OutputStream clientOutB = socket.getOutputStream();
-        clientOutB.write("TEST TEST\r\n".getBytes());
+        clientOutB.write(StringUtils.toAsciiBytes("TEST TEST\r\n"));
         clientOutB.write("\r\n".getBytes());        
         byte[] serverB = new byte[16];
         int serverRead = accepted.getInputStream().read(serverB);
         assertEquals(13, serverRead);
-        assertEquals("TEST TEST\r\n\r\n", new String(serverB, 0, 13));
+        assertEquals("TEST TEST\r\n\r\n", StringUtils.getASCIIString(serverB, 0, 13));
         
-        accepted.getOutputStream().write("HELLO THIS IS A TEST!".getBytes());        
+        accepted.getOutputStream().write(StringUtils.toAsciiBytes("HELLO THIS IS A TEST!"));        
         InputStream clientInB = socket.getInputStream();
         byte[] clientReadB = new byte[15];
         int clientRead = clientInB.read(clientReadB);
         assertEquals(15, clientRead);
-        assertEquals("HELLO THIS IS A", new String(clientReadB, 0, 15));
+        assertEquals("HELLO THIS IS A", StringUtils.getASCIIString(clientReadB, 0, 15));
         
         WriteBufferChannel clientOutNB = new WriteBufferChannel();
         socket.setWriteObserver(clientOutNB);
         NIODispatcher.instance().getScheduledExecutorService().submit(new Runnable() {public void run() {}}).get(); //wait for write to set
-        clientOutNB.setBuffer(ByteBuffer.wrap("MORE TEST\r\n".getBytes()));
+        clientOutNB.setBuffer(ByteBuffer.wrap(StringUtils.toAsciiBytes("MORE TEST\r\n")));
         serverB = new byte[16];
         serverRead = accepted.getInputStream().read(serverB);
         assertEquals(11, serverRead);
-        assertEquals("MORE TEST\r\n", new String(serverB, 0, 11));
+        assertEquals("MORE TEST\r\n", StringUtils.getASCIIString(serverB, 0, 11));
                 
         ReadTester reader = new ReadTester();
         socket.setReadObserver(reader);
         Thread.sleep(500);
         ByteBuffer read = reader.getRead();
         assertEquals(6, read.limit());
-        assertEquals(" TEST!", new String(read.array(), 0, 6));
+        assertEquals(" TEST!", StringUtils.getASCIIString(read.array(), 0, 6));
         
         socket.close();
         accepted.close();
@@ -196,11 +197,11 @@ public class TLSNIOSocketTest extends BaseTestCase {
         TLSNIOSocket socket = new TLSNIOSocket("127.0.0.1", 9999);        
         Socket accepted = server.accept();        
         OutputStream output = socket.getOutputStream();
-        output.write("Bugfinder".getBytes());
+        output.write(StringUtils.toAsciiBytes("Bugfinder"));
         // IMPORTANT: do not tell accepted to read here, otherwise
         // handshaking could finish before we shutdown output.
         accepted.shutdownOutput();        
-        LimeTestUtils.waitForNIO();
+        NIOTestUtils.waitForNIO();
         assertTrue(socket.isClosed());
         accepted.close();
         server.close();

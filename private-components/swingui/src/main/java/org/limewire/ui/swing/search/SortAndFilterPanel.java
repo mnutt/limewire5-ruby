@@ -1,8 +1,6 @@
 package org.limewire.ui.swing.search;
 
 import static org.limewire.ui.swing.util.I18n.tr;
-import static org.limewire.util.Objects.compareToNull;
-import static org.limewire.util.Objects.compareToNullIgnoreCase;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -12,8 +10,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +27,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
-import org.limewire.collection.glazedlists.GlazedListsFactory;
-import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
@@ -46,20 +41,18 @@ import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
 import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.painter.ButtonBackgroundPainter.DrawMode;
-import org.limewire.ui.swing.search.model.SimilarResultsGroupingComparator;
-import org.limewire.ui.swing.search.model.SimilarResultsGroupingDelegateComparator;
+import org.limewire.ui.swing.search.model.SearchResultsModel;
+import org.limewire.ui.swing.search.model.SortOption;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
+import org.limewire.ui.swing.search.model.VisualSearchResultTextFilterator;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.util.CommonUtils;
 
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.TextFilterator;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
-import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * This class manages the UI components for filtering and sorting
@@ -70,25 +63,15 @@ import com.google.inject.Inject;
 public class SortAndFilterPanel implements Disposable {
 
     private final ButtonDecorator buttonDecorator;
+
+    /** Search results data model. */
+    private final SearchResultsModel searchResultsModel;
     
-    private final String COMPANY = tr("Company");
-    private final String PLATFORM = tr("Platform");
-    private final String TYPE = tr("Type");
-    private final String DATE_CREATED = tr("Date created");
-    private final String QUALITY = tr("Quality");
-    private final String YEAR = tr("Year");
-    private final String FILE_EXTENSION = tr("File extension");
-    private final String TITLE = tr("Title");
-    private final String LENGTH = tr("Length");
-    private final String ALBUM = tr("Album");
-    private final String ARTIST = tr("Artist");
-    private final String SIZE_LOW_TO_HIGH = tr("Size (low to high)");
-    private final String SIZE_HIGH_TO_LOW = tr("Size (high to low)");
-    private final String CATEGORY = tr("Category");
-    private final String NAME = tr("Name");
-    private final String RELEVANCE_ITEM = tr("Relevance");
+    /** Support class used to preserve row selection. */
+    private final RowSelectionPreserver preserver;
     
-    private final HashMap<String,Action> actions = new HashMap<String,Action>(); 
+    /** Map of sort options and actions. */ 
+    private final Map<SortOption, Action> actionMap = new EnumMap<SortOption, Action>(SortOption.class); 
 
     @Resource private Icon listViewIcon;
     @Resource private Icon tableViewIcon;
@@ -102,54 +85,70 @@ public class SortAndFilterPanel implements Disposable {
     private final JXButton listViewToggleButton = new JXButton();
     private final JXButton tableViewToggleButton = new JXButton();
     
-    private String sortBy;
-
-    private VisualSearchResultTextFilterator filterator =
-        new VisualSearchResultTextFilterator();
-    
-    private MatcherEditor<VisualSearchResult> editor =
-        new TextComponentMatcherEditor<VisualSearchResult>(
-            filterBox, filterator, true); // true for "live"
+    private SortOption sortBy;
     
     private boolean repopulatingCombo;
     private SettingListener viewTypeListener;
 
-    @Inject
-    SortAndFilterPanel(ComboBoxDecorator comboBoxDecorator, TextFieldDecorator textFieldDecorator, 
+    /**
+     * Constructs a SortAndFilterPanel with the specified search results data
+     * model, row selection preserver, and UI decorators.
+     */
+    @AssistedInject
+    SortAndFilterPanel(
+            @Assisted SearchResultsModel searchResultsModel,
+            @Assisted RowSelectionPreserver preserver,
+            ComboBoxDecorator comboBoxDecorator, TextFieldDecorator textFieldDecorator, 
             ButtonDecorator buttonDecorator, HeaderBarDecorator headerBarFactory) {
         
         GuiUtils.assignResources(this);
         
         this.buttonDecorator = buttonDecorator;
+        this.searchResultsModel = searchResultsModel;
+        this.preserver = preserver;
         
         textFieldDecorator.decorateClearablePromptField(filterBox, AccentType.SHADOW);
         
-        this.populateActionList();
+        // Initialize sort actions.
+        populateActionList();
         
+        // Initialize sort components.
         sortLabel.setFont(sortLabelFont);
         sortLabel.setForeground(Color.WHITE);
+        
         sortCombo = new LimeComboBox();
         comboBoxDecorator.decorateDarkFullComboBox(sortCombo);
-        
         sizeSortCombo();
 
+        // Initialize components to select view type.
         listViewToggleButton.setModel(new JToggleButton.ToggleButtonModel());
         tableViewToggleButton.setModel(new JToggleButton.ToggleButtonModel());
         setSearchCategory(SearchCategory.ALL);
         configureViewButtons();
+        
+        // Initialize sorting and filtering.
+        configureSortFilter();
     }
 
+    /**
+     * Removes listeners to external resources. 
+     */
     @Override
     public void dispose() {
         SwingUiSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
     }
 
+    /**
+     * Updates the size of the sort combobox based on the display length of the
+     * current sort options.
+     */
     private void sizeSortCombo() {
         int widestActionText = 0;
         FontMetrics sortFontMetrics = sortCombo.getFontMetrics(sortCombo.getFont());
         
-        for(String action : actions.keySet()) {
-            widestActionText = Math.max(widestActionText, sortFontMetrics.stringWidth(action));
+        for (SortOption sortOption : actionMap.keySet()) {
+            widestActionText = Math.max(widestActionText, 
+                    sortFontMetrics.stringWidth(getDisplayName(sortOption)));
         }
         
         //Width of text plus padding for the whitespace around the text and the drop down icon
@@ -159,36 +158,19 @@ public class SortAndFilterPanel implements Disposable {
         sortCombo.setMaximumSize(sortComboDimensions);
     }
 
+    /**
+     * Initializes the collection of sort actions. 
+     */
     private void populateActionList() {
-        this.actions.put(COMPANY,createAction(COMPANY));
-        this.actions.put(PLATFORM,createAction(PLATFORM));
-        this.actions.put(TYPE,createAction(TYPE));
-        this.actions.put(DATE_CREATED,createAction(DATE_CREATED));
-        this.actions.put(QUALITY,createAction(QUALITY));
-        this.actions.put(YEAR,createAction(YEAR));
-        this.actions.put(FILE_EXTENSION,createAction(FILE_EXTENSION));
-        this.actions.put(TITLE,createAction(TITLE));
-        this.actions.put(LENGTH,createAction(LENGTH));
-        this.actions.put(ALBUM,createAction(ALBUM));
-        this.actions.put(ARTIST,createAction(ARTIST));
-        this.actions.put(SIZE_LOW_TO_HIGH,createAction(SIZE_LOW_TO_HIGH));
-        this.actions.put(SIZE_HIGH_TO_LOW,createAction(SIZE_HIGH_TO_LOW));
-        this.actions.put(CATEGORY,createAction(CATEGORY));
-        this.actions.put(NAME,createAction(NAME));
-        this.actions.put(RELEVANCE_ITEM,createAction(RELEVANCE_ITEM));
+        for (SortOption sortOption : SortOption.values()) {
+            actionMap.put(sortOption, new SortAction(sortOption));
+        }
     }
 
-    private Action createAction(String name) {
-        return new AbstractAction(name) {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-
-            }
-        };
-    }
-
+    /**
+     * Configures the UI components used to select the view type.
+     */
     private void configureViewButtons() {
-        final SortAndFilterPanel outerThis = this;
 
         buttonDecorator.decorateDarkFullImageButton(listViewToggleButton, DrawMode.LEFT_ROUNDED);
         listViewToggleButton.setIcon(listViewIcon);
@@ -201,7 +183,7 @@ public class SortAndFilterPanel implements Disposable {
             public void itemStateChanged(ItemEvent event) {
                 if (event.getStateChange() == ItemEvent.SELECTED) {
                     SwingUiSettings.SEARCH_VIEW_TYPE_ID.setValue(SearchViewType.LIST.getId());
-                    selectListView(outerThis);
+                    selectListView();
                 }
             }
         });
@@ -218,7 +200,7 @@ public class SortAndFilterPanel implements Disposable {
                 if (event.getStateChange() == ItemEvent.SELECTED) {
                     SwingUiSettings.SEARCH_VIEW_TYPE_ID.setValue(SearchViewType.TABLE.getId());
                     SwingUiSettings.SHOW_CLASSIC_REMINDER.setValue(false);
-                    selectTableView(outerThis);
+                    selectTableView();
                 }
             }
         });
@@ -230,7 +212,7 @@ public class SortAndFilterPanel implements Disposable {
                     public void run() {
                         int newViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
                         SearchViewType newSearchViewType = SearchViewType.forId(newViewTypeId);
-                        updateView(outerThis, newSearchViewType);                        
+                        updateView(newSearchViewType);                        
                     }
                 });
             }
@@ -243,257 +225,79 @@ public class SortAndFilterPanel implements Disposable {
         int viewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
         SearchViewType searchViewType = SearchViewType.forId(viewTypeId);
         
-        updateView(outerThis, searchViewType);
+        updateView(searchViewType);
     }
 
-    private void updateView(final SortAndFilterPanel outerThis,
-            SearchViewType newSearchViewType) {
+    /**
+     * Updates the UI components based on the specified view type.
+     */
+    private void updateView(SearchViewType newSearchViewType) {
         switch (newSearchViewType) {
         case LIST:
-            selectListView(outerThis);
+            selectListView();
             break;
         case TABLE:
-            selectTableView(outerThis);
+            selectTableView();
             break;
         }
     }
     
-    private void selectListView(final SortAndFilterPanel outerThis) {
+    /**
+     * Updates the UI components when the List view is selected. 
+     */
+    private void selectListView() {
         tableViewToggleButton.setSelected(false);
         listViewToggleButton.setSelected(true);
         sortLabel.setVisible(true);
         sortCombo.setVisible(true);
     }
 
-    private void selectTableView(final SortAndFilterPanel outerThis) {
+    /**
+     * Updates the UI components when the Table view is selected. 
+     */
+    private void selectTableView() {
         tableViewToggleButton.setSelected(true);
         listViewToggleButton.setSelected(false);
         sortLabel.setVisible(false);
         sortCombo.setVisible(false);
     }
 
-    public EventList<VisualSearchResult> getFilteredAndSortedList(
-        EventList<VisualSearchResult> simpleList, final RowSelectionPreserver preserver) {
-        // Created a SortedList that doesn't have a Comparator yet.
-        final SortedList<VisualSearchResult> sortedList =
-            GlazedListsFactory.sortedList(simpleList, getRelevanceComparator());
-
-        EventList<VisualSearchResult> filteredList =
-            GlazedListsFactory.filterList(sortedList, editor);
+    /**
+     * Configures the sort and filter components to work with the data model 
+     * and selection preserver.
+     */
+    private void configureSortFilter() {
+        // Create text filter with "live" filtering.
+        MatcherEditor<VisualSearchResult> editor =
+            new TextComponentMatcherEditor<VisualSearchResult>(
+                filterBox, new VisualSearchResultTextFilterator(), true);
         
+        // Initialize sort option and filter in data model.
+        searchResultsModel.setSortOption(SortOption.getDefault());
+        searchResultsModel.setFilterEditor(editor);
+        
+        // Install combobox listener to update sort order.
         SelectionListener listener = new SelectionListener() {
             @Override
             public void selectionChanged(Action action) {
-                String item = (String)action.getValue(Action.NAME);
-                if (!repopulatingCombo && !item.equals(sortBy)) { // changing sort order
-                    Comparator<VisualSearchResult> comparator =getComparator(item);
+                SortOption option = ((SortAction) action).getSortOption();
+                if (!repopulatingCombo && !option.equals(sortBy)) { // changing sort order
                     preserver.beforeUpdateEvent();
-                    sortedList.setComparator(comparator);
+                    searchResultsModel.setSortOption(option);
                     preserver.afterUpdateEvent();
-                    sortBy = item;
+                    sortBy = option;
                 }
             }
         };
         sortCombo.addSelectionListener(listener);
         
         // Trigger the initial sort.
-        sortCombo.setSelectedAction(actions.get(RELEVANCE_ITEM));
-
-        return filteredList;
-    }
-
-    private static Comparator<VisualSearchResult> getDateComparator(final FilePropertyKey key,
-            final boolean ascending) {
-        return new Comparator<VisualSearchResult>() {
-            @Override
-            public int compare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                Long v1 = (Long) vsr1.getProperty(key);
-                Long v2 = (Long) vsr2.getProperty(key);
-                return compareNullCheck(v1, v2, ascending, true);
-            }
-        };
-    }
-
-    private static Comparator<VisualSearchResult> getLongComparator(final FilePropertyKey key,
-            final boolean ascending) {
-        return new Comparator<VisualSearchResult>() {
-            @Override
-            public int compare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                String v1 = vsr1.getPropertyString(key);
-                String v2 = vsr2.getPropertyString(key);
-                Long l1 = CommonUtils.parseLongNoException(v1);
-                Long l2 = CommonUtils.parseLongNoException(v2);
-                return compareNullCheck(l1, l2, ascending, true);
-            }
-        };
-    }
-
-    private static Comparator<VisualSearchResult> getStringComparator(final FilePropertyKey key,
-            final boolean ascending) {
-        return new Comparator<VisualSearchResult>() {
-            @Override
-            public int compare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                String v1 = (String) vsr1.getProperty(key);
-                String v2 = (String) vsr2.getProperty(key);
-                return compareNullCheck(v1, v2, ascending, false);
-            }
-        };
-    }
-
-    private static Comparator<VisualSearchResult> getNameComparator(final boolean ascending) {
-        return new Comparator<VisualSearchResult>() {
-            @Override
-            public int compare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                String v1 = vsr1.getHeading();
-                String v2 = vsr2.getHeading();
-                return ascending ? compareToNullIgnoreCase(v1, v2, false)
-                        : compareToNullIgnoreCase(v2, v1, false);
-            }
-        };
-    }
-
-    @SuppressWarnings("unchecked")
-    private static SimilarResultsGroupingComparator getStringPropertyPlusNameComparator(
-            final FilePropertyKey FilePropertyKey, final boolean ascending) {
-        return new SimilarResultsGroupingDelegateComparator(getStringComparator(FilePropertyKey, ascending), getNameComparator(ascending));
+        sortCombo.setSelectedAction(actionMap.get(SortOption.getDefault()));
     }
     
-    @SuppressWarnings("unchecked")
-    private SimilarResultsGroupingDelegateComparator getRelevanceComparator() {
-        return new SimilarResultsGroupingDelegateComparator(new Comparator<VisualSearchResult>() {
-            @Override
-            public int compare(VisualSearchResult o1, VisualSearchResult o2) {
-                //descending
-                return compareToNull(o2.getRelevance(), o1.getRelevance(), false);
-            }
-        }, getNameComparator(true));
-    }
-
-    @SuppressWarnings("unchecked")
-    private SimilarResultsGroupingComparator getComparator(String item) {
-
-        if (ALBUM.equals(item)) {
-            return getStringPropertyPlusNameComparator(FilePropertyKey.ALBUM, true);
-        }
-
-        if (ARTIST.equals(item)) {
-            return getStringPropertyPlusNameComparator(FilePropertyKey.AUTHOR, true);
-        }
-
-        if (COMPANY.equals(item)) {
-            return getStringPropertyPlusNameComparator(FilePropertyKey.COMPANY, true);
-        }
-
-        if (DATE_CREATED.equals(item)) {
-            return new SimilarResultsGroupingDelegateComparator(getDateComparator(FilePropertyKey.DATE_CREATED, false), getNameComparator(true)); 
-        }
-
-        if (FILE_EXTENSION.equals(item) || TYPE.equals(item)) {
-            return new SimilarResultsGroupingComparator() {
-                private Comparator<VisualSearchResult> nameComparator = getNameComparator(true);
-
-                @Override
-                public int doCompare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                    int compare = compareToNull(vsr1.getFileExtension(), vsr2.getFileExtension());
-                    if (compare == 0) {
-                        compare = nameComparator.compare(vsr1, vsr2);
-                    }
-                    return compare;
-                }
-            };
-        }
-
-        if (CATEGORY.equals(item)) {
-            return new SimilarResultsGroupingComparator() {
-                private Comparator<VisualSearchResult> nameComparator = getNameComparator(true);
-
-                @Override
-                public int doCompare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                    int compare = compareToNull(vsr1.getCategory(), vsr2.getCategory());
-                    if (compare == 0) {
-                        compare = nameComparator.compare(vsr1, vsr2);
-                    }
-                    return compare;
-                }
-            };
-        }
-
-        if (LENGTH.equals(item)) {
-            return new SimilarResultsGroupingDelegateComparator(getLongComparator(FilePropertyKey.LENGTH, false), getNameComparator(true));
-        }
-
-        if (NAME.equals(item) || TITLE.equals(item)) {
-            return new SimilarResultsGroupingDelegateComparator(getNameComparator(true));
-        }
-
-        if (PLATFORM.equals(item)) {
-            return getStringPropertyPlusNameComparator(FilePropertyKey.COMPANY, true);
-        }
-
-        if (QUALITY.equals(item)) {
-            return new SimilarResultsGroupingDelegateComparator(getLongComparator(FilePropertyKey.QUALITY, false), getNameComparator(true));
-        }
-
-        if (RELEVANCE_ITEM.equals(item)) {
-            return getRelevanceComparator();
-        }
-
-        if (SIZE_HIGH_TO_LOW.equals(item)) {
-            return new SimilarResultsGroupingComparator() {
-                private Comparator<VisualSearchResult> nameComparator = getNameComparator(true);
-
-                @Override
-                public int doCompare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                    int compare = compareToNull(vsr2.getSize(), vsr1.getSize(), false);
-                    if (compare == 0) {
-                        compare = nameComparator.compare(vsr1, vsr2);
-                    }
-                    return compare;
-                }
-            };
-        }
-
-        if (SIZE_LOW_TO_HIGH.equals(item)) {
-            return new SimilarResultsGroupingComparator() {
-                private Comparator<VisualSearchResult> nameComparator = getNameComparator(true);
-
-                @Override
-                public int doCompare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                    int compare = compareToNull(vsr1.getSize(), vsr2.getSize(), false);
-                    if (compare == 0) {
-                        compare = nameComparator.compare(vsr1, vsr2);
-                    }
-                    return compare;
-                }
-            };
-        }
-
-        if (YEAR.equals(item)) {
-            return new SimilarResultsGroupingComparator() {
-                private Comparator<VisualSearchResult> nameComparator = getNameComparator(true);
-
-                private Comparator<VisualSearchResult> propertyComparator = getLongComparator(
-                        FilePropertyKey.YEAR, true);
-
-                @Override
-                public int doCompare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                    int compare = propertyComparator.compare(vsr1, vsr2);
-                    if (compare == 0) {
-                        compare = nameComparator.compare(vsr1, vsr2);
-                    }
-                    return compare;
-                }
-            };
-        }
-
-        throw new IllegalArgumentException("unknown item " +  item);
-    }
-
-    private static int compareNullCheck(Comparable c1, Comparable c2, boolean ascending,
-            boolean nullsFirst) {
-        return ascending ? compareToNull(c1, c2, nullsFirst) : compareToNull(c2, c1, nullsFirst);
-    }
-    
+    /**
+     * Adds the sorting and filtering components to the specified panel.
+     */
     public void layoutComponents(JPanel panel) {
         panel.setLayout(new MigLayout("insets 0, filly, gapx 0", "push[][][][][]"));
         
@@ -504,6 +308,9 @@ public class SortAndFilterPanel implements Disposable {
         panel.add(tableViewToggleButton, "gapafter 10");
     }
 
+    /**
+     * Clears the filter text field.
+     */
     public void clearFilterBox() {
         filterBox.setText("");
     }
@@ -522,61 +329,22 @@ public class SortAndFilterPanel implements Disposable {
         }
     }
 
+    /**
+     * Sets the search category, and updates the sort combobox with the 
+     * appropriate list of sort selections.
+     */
     public void setSearchCategory(SearchCategory category) {
         Action currentItem = sortCombo.getSelectedAction();
         repopulatingCombo = true;
         sortCombo.removeAllActions();
-        String[] items = null;
-
-        switch (category) {
-            case ALL:
-                items = new String[] {
-                    RELEVANCE_ITEM, NAME, CATEGORY,
-                    SIZE_HIGH_TO_LOW, SIZE_LOW_TO_HIGH
-                };
-                break;
-            case AUDIO:
-                items = new String[] {
-                    RELEVANCE_ITEM, NAME, ARTIST, ALBUM, LENGTH,
-                    QUALITY
-                };
-                break;
-            case VIDEO:
-                items = new String[] {
-                    RELEVANCE_ITEM, TITLE, FILE_EXTENSION, LENGTH,
-                    YEAR, QUALITY
-                };
-                break;
-            case IMAGE:
-                items = new String[] {
-                    RELEVANCE_ITEM, NAME, FILE_EXTENSION,
-                    DATE_CREATED
-                };
-                break;
-            case DOCUMENT:
-                items = new String[] {
-                    RELEVANCE_ITEM, NAME, TITLE, TYPE,
-                    SIZE_LOW_TO_HIGH, DATE_CREATED
-                };
-                break;
-            case PROGRAM:
-                items = new String[] {
-                    RELEVANCE_ITEM, NAME, SIZE_LOW_TO_HIGH,
-                    PLATFORM, COMPANY
-                };
-                break;
-            default:
-                items = new String[] {
-                    RELEVANCE_ITEM, NAME, TYPE,
-                    SIZE_HIGH_TO_LOW, SIZE_LOW_TO_HIGH
-                };
-                break;
-        }
-
-        List<Action> actionList = new LinkedList<Action>();
         
-        for (String item : items) {
-            actionList.add(this.actions.get(item));
+        // Get sort options for category.
+        SortOption[] options = SortOption.getSortOptions(category);
+
+        // Create list of sort actions.
+        List<Action> actionList = new LinkedList<Action>();
+        for (SortOption option : options) {
+            actionList.add(actionMap.get(option));
         }
         
         sortCombo.addActions(actionList);
@@ -587,26 +355,50 @@ public class SortAndFilterPanel implements Disposable {
 
         sortCombo.setSelectedAction(currentItem);
     }
-    
-    
-    private static class VisualSearchResultTextFilterator
-        implements TextFilterator<VisualSearchResult> {
+
+    /**
+     * Returns the display name for the specified SortOption.
+     */
+    private String getDisplayName(SortOption sortOption) {
+        switch (sortOption) {
+        case COMPANY: return tr("Company");
+        case PLATFORM: return tr("Platform");
+        case TYPE: return tr("Type");
+        case DATE_CREATED: return tr("Date created");
+        case QUALITY: return tr("Quality");
+        case YEAR: return tr("Year");
+        case FILE_EXTENSION: return tr("File extension");
+        case TITLE: return tr("Title");
+        case LENGTH: return tr("Length");
+        case ALBUM: return tr("Album");
+        case ARTIST: return tr("Artist");
+        case SIZE_LOW_TO_HIGH: return tr("Size (low to high)");
+        case SIZE_HIGH_TO_LOW: return tr("Size (high to low)");
+        case CATEGORY: return tr("Category");
+        case NAME: return tr("Name");
+        case RELEVANCE_ITEM: return tr("Relevance");
+        default: return sortOption.name();
+        }
+    }
+
+    /**
+     * An Action implementation for a sort option.
+     */
+    private class SortAction extends AbstractAction {
+        private final SortOption sortOption;
         
+        public SortAction(SortOption sortOption) {
+            super(getDisplayName(sortOption));
+            this.sortOption = sortOption;
+        }
+
         @Override
-        public void getFilterStrings(
-                List<String> list, VisualSearchResult vsr) {
-            list.add(vsr.getFileExtension());
-            Map<FilePropertyKey, Object> props = vsr.getProperties();
-            for (FilePropertyKey key : props.keySet()) {
-                
-                if (!FilePropertyKey.getIndexableKeys().contains(key))  
-                    continue;
-             
-                String value = vsr.getPropertyString(key);
-                if(value != null) {
-                    list.add(value);
-                }
-            }
+        public void actionPerformed(ActionEvent e) {
+            // Do nothing.
+        }
+
+        public SortOption getSortOption() {
+            return sortOption;
         }
     }
 }

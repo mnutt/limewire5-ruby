@@ -324,6 +324,22 @@ public class StringUtilsTest extends BaseTestCase {
         assertEquals("mimimi", StringUtils.replace("mamama", "ma", "mi"));
     }
     
+    public void testIsAsciiOnly() {
+        assertTrue(StringUtils.isAsciiOnly("abcdefghijklmnopqrstuvwxyz"));
+        assertFalse(StringUtils.isAsciiOnly("\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0\u30d5\u30a1\u30a4\u30eb\u30b7\u30b9\u30c6\u30e0"));
+        assertFalse(StringUtils.isAsciiOnly("\u30e0"));
+        for (char c = 0; c <= Byte.MAX_VALUE; c++) {
+            // ensure msb is not set
+            assertEquals(0, (c & 0xF0) >> 7);
+            assertTrue(StringUtils.isAsciiOnly(new String(new char[] { c })));
+        }
+        for (int i = -1; i >= Byte.MIN_VALUE; i--) {
+            // ensure msb is set
+            assertEquals(1, (i & 0xF0) >> 7);
+            assertFalse(StringUtils.isAsciiOnly(new String(new char[] { (char)i })));
+        }
+    }
+    
     private static class AllFields {
         String a = "a";
         int i = Integer.MAX_VALUE;

@@ -19,8 +19,8 @@ class FriendAvailabilityComparator implements Comparator<ChatFriend> {
 
     @Override
     public int compare(ChatFriend a, ChatFriend b) {
-        boolean a_chatting = a.isChatting() || a.isReceivingUnviewedMessages();
-        boolean b_chatting = b.isChatting() || b.isReceivingUnviewedMessages();
+        boolean a_chatting = a.isChatting() || a.hasReceivedUnviewedMessages();
+        boolean b_chatting = b.isChatting() || b.hasReceivedUnviewedMessages();
         
         if(a_chatting && b_chatting) {
             return new Long(a.getChatStartTime()).compareTo(new Long(b.getChatStartTime()));

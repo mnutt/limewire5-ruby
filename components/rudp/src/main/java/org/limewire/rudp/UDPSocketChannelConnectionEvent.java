@@ -1,9 +1,9 @@
 package org.limewire.rudp;
 
-import org.limewire.listener.DefaultSourceTypeEvent;
+import org.limewire.listener.DefaultDataTypeEvent;
 
-public class UDPSocketChannelConnectionEvent extends DefaultSourceTypeEvent<UDPSocketChannel, ConnectionState> {
-    public UDPSocketChannelConnectionEvent(UDPSocketChannel source, ConnectionState event) {
-        super(source, event);
+public class UDPSocketChannelConnectionEvent extends DefaultDataTypeEvent<UDPSocketChannel, ConnectionState> {
+    public UDPSocketChannelConnectionEvent(UDPSocketChannel data, ConnectionState event) {
+        super(data, event);
     }
 }

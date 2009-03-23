@@ -30,7 +30,6 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
-import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.sponsored.SponsoredResult;
 import org.limewire.setting.evt.SettingEvent;
@@ -40,14 +39,12 @@ import org.limewire.ui.swing.components.FancyTab;
 import org.limewire.ui.swing.components.FancyTabList;
 import org.limewire.ui.swing.components.HeaderBar;
 import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
-import org.limewire.ui.swing.search.model.VisualSearchResult;
+import org.limewire.ui.swing.search.model.SearchResultsModel;
 import org.limewire.ui.swing.search.resultpanel.BaseResultPanel.ListViewTable;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.table.TableCellHeaderRenderer;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-
-import ca.odell.glazedlists.EventList;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -58,7 +55,7 @@ import com.google.inject.assistedinject.AssistedInject;
  * tab items, the sort and filter panel, the sponsored results, and the search
  * results tables.
  */
-public class SearchResultsPanel extends JXPanel implements Disposable {
+public class SearchResultsPanel extends JXPanel implements SponsoredResultsView, Disposable {
     
     /** Decorator used to set the appearance of the header bar. */
     private final HeaderBarDecorator headerBarDecorator;
@@ -101,6 +98,9 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
     /** Listener for changes in the view type. */
     private final SettingListener viewTypeListener;
     
+    /** Search results data model. */
+    private final SearchResultsModel searchResultsModel;
+    
     @Resource private Color tabHighlightTopGradientColor;
     @Resource private Color tabHighlightBottomGradientColor;
     @Resource private Color tabSelectionTopGradientColor;
@@ -118,32 +118,32 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
      */
     @AssistedInject
     public SearchResultsPanel(
-            @Assisted SearchInfo searchInfo,
-            @Assisted final EventList<VisualSearchResult> eventList,
-            @Assisted Search search,
+            @Assisted SearchResultsModel searchResultsModel,
             ResultsContainerFactory containerFactory,
+            SortAndFilterPanelFactory sortAndFilterFactory,
             SearchTabItemsFactory searchTabItemsFactory,
             SponsoredResultsPanel sponsoredResultsPanel,
-            final SortAndFilterPanel sortAndFilterPanel,
             RowSelectionPreserver preserver,
             HeaderBarDecorator headerBarDecorator) {        
 
         GuiUtils.assignResources(this);
         
+        this.searchResultsModel = searchResultsModel;
         this.headerBarDecorator = headerBarDecorator; 
         
         this.sponsoredResultsPanel = sponsoredResultsPanel;
-        sponsoredResultsPanel.setVisible(false);
-        this.sortAndFilterPanel = sortAndFilterPanel;
-        this.scrollPane = new JScrollPane();
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        this.scrollablePanel = new ScrollablePanel();
-        configureEnclosingScrollPane();
-
-        final EventList<VisualSearchResult> filteredList =
-            sortAndFilterPanel.getFilteredAndSortedList(eventList, preserver);
+        this.sponsoredResultsPanel.setVisible(false);
         
-        this.resultsContainer = containerFactory.create(filteredList, search, searchInfo, preserver);
+        // Create sort and filter components.
+        this.sortAndFilterPanel = sortAndFilterFactory.create(searchResultsModel, preserver);
+        
+        scrollPane = new JScrollPane();
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollablePanel = new ScrollablePanel();
+        configureEnclosingScrollPane();
+        
+        // Create results container with tables.
+        this.resultsContainer = containerFactory.create(searchResultsModel, preserver);
         
         viewTypeListener = new SettingListener() {
             int oldSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
@@ -176,7 +176,9 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
             }
         };
         
-        searchTabItems = searchTabItemsFactory.create(searchInfo.getSearchCategory(), eventList);
+        searchTabItems = searchTabItemsFactory.create(
+                searchResultsModel.getSearchCategory(), 
+                searchResultsModel.getObservableSearchResults());
         searchTabItems.addSearchTabListener(listener);
 
         for (Map.Entry<SearchCategory, Action> entry : searchTabItems.getResultCountActions()) {
@@ -202,6 +204,7 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         SwingUiSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
         sortAndFilterPanel.dispose();
         classicSearchReminderPanel.dispose();
+        searchResultsModel.dispose();
     }
 
     /**
@@ -221,6 +224,7 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
     /**
      * Adds the specified list of sponsored results to the display.
      */
+    @Override
     public void addSponsoredResults(List<SponsoredResult> sponsoredResults){
         for (SponsoredResult result : sponsoredResults){
             sponsoredResultsPanel.addEntry(result);
@@ -232,6 +236,10 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         }
     }
     
+    /**
+     * Updates the column header component in the scroll pane.  This depends on
+     * the current results view and whether the sponsored results are visible. 
+     */
     private void syncColumnHeader() {
         Component resultHeader = resultsContainer.getScrollPaneHeader();
         if (resultHeader == null) {
@@ -270,7 +278,11 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         
         scrollPane.validate();
     }
-        
+    
+    /**
+     * Initializes the components and adds them to the container.  Called by
+     * the constructor.  
+     */
     private void layoutComponents() {
         MigLayout layout = new MigLayout("hidemode 2, insets 0 0 0 0, gap 0!", 
         		                "[grow]", "[][][][grow]");
@@ -311,6 +323,9 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         syncScrollPieces();
     }
 
+    /**
+     * Updates the view components in the scroll pane. 
+     */
     private void syncScrollPieces() {
         scrollablePanel.setScrollable(resultsContainer.getScrollable());
         syncColumnHeader();
@@ -404,6 +419,9 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         updateMessages();        
     }
     
+    /**
+     * Updates the user message based on the current state of the application. 
+     */
     private void updateMessages() {
         if (!lifeCycleComplete) {
             messageLabel.setText(I18n.tr("LimeWire will start your search right after it finishes loading."));
@@ -416,6 +434,9 @@ public class SearchResultsPanel extends JXPanel implements Disposable {
         }
     }
     
+    /**
+     * Creates a Painter used to render the selected category tab.
+     */
     private AbstractPainter<FancyTab> createTabSelectionPainter() {
         RectanglePainter<FancyTab> painter = new RectanglePainter<FancyTab>();
         

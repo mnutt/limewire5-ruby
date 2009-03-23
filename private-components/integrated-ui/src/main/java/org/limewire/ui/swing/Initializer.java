@@ -468,9 +468,9 @@ public final class Initializer {
         }
     }
     
-    /** Initializes any early UI tasks, such as HTML loading & the Bug Manager. 
-     * @param mozillaOverrides 
-     * @param mozillaOverrides */
+    /**
+     * Initializes any early UI tasks, such as HTML loading & the Bug Manager.
+     */
     private void initializeEarlyUI() {
         // Load up the HTML engine.
         splashRef.get().setStatusText(I18n.tr("Muddling Mint..."));        //html engine

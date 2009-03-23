@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import org.limewire.service.ErrorService;
 import org.limewire.util.ByteUtils;
 import org.limewire.util.NameValue;
+import org.limewire.util.StringUtils;
 
 
 
@@ -136,7 +137,7 @@ public class GGEP {
             currIndex++;
             String extensionHeader = null;
             try {
-                extensionHeader = new String(messageBytes, currIndex,
+                extensionHeader = StringUtils.getASCIIString(messageBytes, currIndex,
                                              headerLen);
             } catch (StringIndexOutOfBoundsException inputIsMalformed) {
                 throw new BadGGEPBlockException();
@@ -341,6 +342,7 @@ public class GGEP {
         throws IOException {
 
         // 1. WRITE THE HEADER FLAGS
+        byte[] headerBytes = StringUtils.toAsciiBytes(header);
         int flags = 0x00;
         if (isLast)
             flags |= 0x80;
@@ -348,11 +350,11 @@ public class GGEP {
             flags |= 0x40;
         if (isCompressed)
             flags |= 0x20;
-        flags |= header.getBytes().length;
+        flags |= headerBytes.length;
         out.write(flags);
 
         // 2. WRITE THE HEADER
-        out.write(header.getBytes());
+        out.write(headerBytes);
 
         // 3. WRITE THE DATA LEN
         // possibly 3 bytes
@@ -641,11 +643,14 @@ public class GGEP {
     }
 
     private void validateKey(String key) throws IllegalArgumentException {
-        byte[] bytes=key.getBytes();
+        if (!StringUtils.isAsciiOnly(key)) {
+            throw new IllegalArgumentException("key is not ascii only: " + key);
+        }
+        byte[] bytes = StringUtils.toAsciiBytes(key);
         if ( key.equals("")
             || (bytes.length > MAX_KEY_SIZE_IN_BYTES)
             || containsNull(bytes))
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("invalid key: " + key);
     }
 
     private void validateValue(byte[] value, String key) throws IllegalArgumentException {

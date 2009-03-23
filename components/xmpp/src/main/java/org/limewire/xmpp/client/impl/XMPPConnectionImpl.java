@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionCreationListener;
@@ -18,6 +17,8 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.ChatStateManager;
+import org.limewire.concurrent.ListeningExecutorService;
+import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListenerList;
@@ -69,18 +70,15 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
     private final EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster;
     private final XMPPAddressRegistry xmppAddressRegistry;
     private final ListenerSupport<AddressEvent> addressListenerSupport;
+    private final ListeningExecutorService executorService;
 
     private final EventListenerList<RosterEvent> rosterListeners;
     private final Map<String, UserImpl> users;
     private final SmackConnectionListener smackConnectionListener;
+    private final AtomicBoolean loggedIn = new AtomicBoolean(false);
     private final AtomicBoolean loggingIn = new AtomicBoolean(false);
 
     private volatile org.jivesoftware.smack.XMPPConnection connection;
-    /**
-     * read locking when calling methods on <code>connection</code>
-     * write locking when setting the value of <code>connection</code>
-     */
-    private final ReadWriteLock connectionLock;
     private volatile DiscoInfoListener discoInfoListener;
 
     XMPPConnectionImpl(XMPPConnectionConfiguration configuration,
@@ -93,7 +91,8 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                        EventMulticaster<FeatureEvent> featureSupport,
                        EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster,
                        XMPPAddressRegistry xmppAddressRegistry, 
-                       ListenerSupport<AddressEvent> addressListenerSupport) {
+                       ListenerSupport<AddressEvent> addressListenerSupport,
+                       ListeningExecutorService executorService) {
         this.configuration = configuration;
         this.fileOfferBroadcaster = fileOfferBroadcaster;
         this.friendRequestBroadcaster = friendRequestBroadcaster;
@@ -105,8 +104,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         this.connectRequestEventBroadcaster = connectRequestEventBroadcaster;
         this.xmppAddressRegistry = xmppAddressRegistry;
         this.addressListenerSupport = addressListenerSupport;
-
-        connectionLock = new ReentrantReadWriteLock();
+        this.executorService = executorService;
         rosterListeners = new EventListenerList<RosterEvent>();
         // FIXME: this is only used by tests
         if(configuration.getRosterListener() != null) {
@@ -122,16 +120,25 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
     public String toString() {
         return org.limewire.util.StringUtils.toString(this, configuration, connection);
     }
+    
+    public ListeningFuture<Void> setMode(final Presence.Mode mode) {
+        return executorService.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                setModeImpl(mode);
+                return null;
+            }
+        });   
+    }    
 
-    public void setMode(Presence.Mode mode) throws XMPPException {
-        connectionLock.readLock().lock();
-        try {
-            checkLoggedIn();
-            connection.sendPacket(getPresenceForMode(mode));
-        } catch (org.jivesoftware.smack.XMPPException e) {
-            throw new XMPPException(e);
-        } finally {
-            connectionLock.readLock().unlock();
+    void setModeImpl(Presence.Mode mode) throws XMPPException {
+        synchronized (this) {
+            try {
+                checkLoggedIn();
+                connection.sendPacket(getPresenceForMode(mode));
+            } catch (org.jivesoftware.smack.XMPPException e) {
+                throw new XMPPException(e);
+            } 
         }
     }
 
@@ -146,34 +153,46 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         return configuration;
     }
 
-    public void login() throws XMPPException {        
-        connectionLock.writeLock().lock();        
-        try {
-            connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECTING));        
-            loggingIn.set(true);
-            org.jivesoftware.smack.XMPPConnection.addConnectionCreationListener(smackConnectionListener);
-            org.jivesoftware.smack.XMPPConnection.DEBUG_ENABLED = configuration.isDebugEnabled();
-            ConnectionConfiguration connectionConfig = ConnectionConfigurationFactory.getConnectionConfigurationFromDNS(configuration);
-            connection = new org.jivesoftware.smack.XMPPConnection(connectionConfig);
-            connection.addRosterListener(new RosterListenerImpl());
-            LOG.infof("connecting to {0} at {1}:{2} ...", connectionConfig.getServiceName(), connectionConfig.getHost(), connectionConfig.getPort());
-            connection.connect();
-            LOG.infof("connected.");
-            LOG.infof("logging in {0} with resource: {1} ...", configuration.getUserInputLocalID(), configuration.getResource());
-            connection.login(configuration.getUserInputLocalID(), configuration.getPassword(), configuration.getResource());
-            LOG.infof("logged in.");
-            connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECTED));
-        } catch (org.jivesoftware.smack.XMPPException e) {
-            connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECT_FAILED, e));
-            if(connection != null && connection.isConnected()) {
-                connection.disconnect();
+    @Override
+    public ListeningFuture<Void> login() {
+        return executorService.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                loginImpl();
+                return null;
             }
-            org.jivesoftware.smack.XMPPConnection.removeConnectionCreationListener(smackConnectionListener);
-            connection = null;
-            throw new XMPPException(e);
-        } finally {
-            loggingIn.set(false);
-            connectionLock.writeLock().unlock();
+        });   
+    }
+
+    void loginImpl() throws XMPPException {
+        synchronized (this) {
+            try {
+                connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECTING));        
+                loggingIn.set(true);
+                org.jivesoftware.smack.XMPPConnection.addConnectionCreationListener(smackConnectionListener);
+                org.jivesoftware.smack.XMPPConnection.DEBUG_ENABLED = configuration.isDebugEnabled();
+                ConnectionConfiguration connectionConfig = ConnectionConfigurationFactory.getConnectionConfigurationFromDNS(configuration);
+                connection = new org.jivesoftware.smack.XMPPConnection(connectionConfig);
+                connection.addRosterListener(new RosterListenerImpl());
+                LOG.infof("connecting to {0} at {1}:{2} ...", connectionConfig.getServiceName(), connectionConfig.getHost(), connectionConfig.getPort());
+                connection.connect();
+                LOG.infof("connected.");
+                LOG.infof("logging in {0} with resource: {1} ...", configuration.getUserInputLocalID(), configuration.getResource());
+                connection.login(configuration.getUserInputLocalID(), configuration.getPassword(), configuration.getResource());
+                LOG.infof("logged in.");
+                loggedIn.set(true);
+                connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECTED));
+            } catch (org.jivesoftware.smack.XMPPException e) {
+                connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECT_FAILED, e));
+                if(connection != null && connection.isConnected()) {
+                    connection.disconnect();
+                }
+                org.jivesoftware.smack.XMPPConnection.removeConnectionCreationListener(smackConnectionListener);
+                connection = null;
+                throw new XMPPException(e);
+            } finally {
+                loggingIn.set(false);
+            }
         }
     }
 
@@ -182,10 +201,21 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         return loggingIn.get();
     }
 
-    public void logout() {
-        connectionLock.writeLock().lock();
-        try {
+    @Override
+    public ListeningFuture<Void> logout() {
+        return executorService.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                logoutImpl();
+                return null;
+            }
+        }); 
+    }
+
+    void logoutImpl() {
+        synchronized (this) {
             if(isLoggedIn()) {
+                loggedIn.set(false);
                 LOG.infof("disconnecting from {0} at {1}:{2} ...", connection.getServiceName(), connection.getHost(), connection.getPort());
                 connection.disconnect();
                 synchronized (users) {
@@ -194,81 +224,75 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                 XMPPConnection.removeConnectionCreationListener(smackConnectionListener);
                 connection = null;
                 LOG.info("disconnected.");
-            }
-        } finally {
-            connectionLock.writeLock().unlock();
-        }
-    }
-
-    public boolean isLoggedIn() {
-        connectionLock.readLock().lock();
-        try {
-            return connection != null && connection.isAuthenticated();
-        } finally {
-            connectionLock.readLock().unlock();
+            } 
         }
     }
     
+    public boolean isLoggedIn() {
+        return loggedIn.get();
+    }
+    
     private void checkLoggedIn() throws XMPPException {
-        connectionLock.readLock().lock();
-        try {
+        synchronized (this) {
             if(!isLoggedIn()) {
                 throw new XMPPException("not connected");
             }
-        } finally {
-            connectionLock.readLock().unlock();
         }
     }
 
     private class RosterListenerImpl implements org.jivesoftware.smack.RosterListener {
 
         public void entriesAdded(Collection<String> addedIds) {
-            connectionLock.readLock().lock();
             try {
-                if(isLoggedIn()) {
+                synchronized (XMPPConnectionImpl.this) {
+                    checkLoggedIn();
                     synchronized (users) {
                         Roster roster = connection.getRoster();
-                        for(String id : addedIds) {
-                            RosterEntry rosterEntry = roster.getEntry(id);
-                            UserImpl user = new UserImpl(id, rosterEntry, configuration, connection, discoInfoListener);
-                            LOG.debugf("user {0} added", user);
-                            users.put(id, user);
-                            rosterListeners.broadcast(new RosterEvent(user, User.EventType.USER_ADDED));
+                        if(roster != null) {
+                            for(String id : addedIds) {
+                                RosterEntry rosterEntry = roster.getEntry(id);
+                                UserImpl user = new UserImpl(id, rosterEntry, configuration, connection, discoInfoListener);
+                                LOG.debugf("user {0} added", user);
+                                users.put(id, user);
+                                rosterListeners.broadcast(new RosterEvent(user, RosterEvent.Type.USER_ADDED));
+                            }
                         }
                     }
                 }
             } catch (org.jivesoftware.smack.XMPPException e) {
                 LOG.debugf(e, "error getting roster");    
-            } finally {
-                connectionLock.readLock().unlock();
+            } catch (XMPPException e) {
+                LOG.debugf(e, "error getting roster");    
             }
         }
 
         public void entriesUpdated(Collection<String> updatedIds) {
-            connectionLock.readLock().lock();
             try {
-                if(isLoggedIn()) {
-                    synchronized (users) {
-                        for(String id : updatedIds) {
-                            Roster roster = connection.getRoster();
-                            RosterEntry rosterEntry = roster.getEntry(id);
-                            UserImpl user = users.get(id);
-                            if(user == null) {
-                                // should never happen ?
-                                user = new UserImpl(id, rosterEntry, configuration, connection, discoInfoListener);
-                                users.put(id, user);
-                            } else {
-                                user.setRosterEntry(rosterEntry);
+                synchronized (XMPPConnectionImpl.this) {
+                    checkLoggedIn();
+                    synchronized (users) {                 
+                        Roster roster = connection.getRoster();
+                        if(roster != null) {
+                            for(String id : updatedIds) {
+                                RosterEntry rosterEntry = roster.getEntry(id);
+                                UserImpl user = users.get(id);
+                                if(user == null) {
+                                    // should never happen ?
+                                    user = new UserImpl(id, rosterEntry, configuration, connection, discoInfoListener);
+                                    users.put(id, user);
+                                } else {
+                                    user.setRosterEntry(rosterEntry);
+                                }
+                                LOG.debugf("user {0} updated", user);
+                                rosterListeners.broadcast(new RosterEvent(user, RosterEvent.Type.USER_UPDATED));
                             }
-                            LOG.debugf("user {0} updated", user);
-                            rosterListeners.broadcast(new RosterEvent(user, User.EventType.USER_UPDATED));
                         }
                     }
                 }
             } catch (org.jivesoftware.smack.XMPPException e) {
                 LOG.debugf(e, "error getting roster");    
-            } finally {
-                connectionLock.readLock().unlock();
+            } catch (XMPPException e) {
+                LOG.debugf(e, "error getting roster");    
             }
         }
 
@@ -278,7 +302,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                     User user = users.remove(id);
                     if(user != null) {
                         LOG.debugf("user {0} removed", user);
-                        rosterListeners.broadcast(new RosterEvent(user, User.EventType.USER_DELETED));
+                        rosterListeners.broadcast(new RosterEvent(user, RosterEvent.Type.USER_DELETED));
                     }
                 }
             }
@@ -335,45 +359,65 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
             user.updatePresence(currentPresence);
         }
     }
-    
 
-    public void addUser(String id, String name) throws XMPPException {
-        connectionLock.readLock().lock();
-        try {
-            checkLoggedIn();
-            Roster roster = connection.getRoster();
-            if(roster != null) {
-                // TODO smack enhancement
-                // TODO to support notifications when
-                // TODO the Roster is created
-                roster.createEntry(id, name, null);
+
+    @Override
+    public ListeningFuture<Void> addUser(final String id, final String name) {
+        return executorService.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                addUserImpl(id, name);
+                return null;
             }
-        } catch (org.jivesoftware.smack.XMPPException e) {
-            throw new XMPPException(e);
-        } finally {
-            connectionLock.readLock().unlock();
+        }); 
+    }
+
+    void addUserImpl(String id, String name) throws XMPPException {
+        synchronized (this) {
+            try {
+                checkLoggedIn();
+                Roster roster = connection.getRoster();
+                if(roster != null) {
+                    // TODO smack enhancement
+                    // TODO to support notifications when
+                    // TODO the Roster is created
+                    roster.createEntry(id, name, null);
+                }
+            } catch (org.jivesoftware.smack.XMPPException e) {
+                throw new XMPPException(e);
+            } 
         }
     }
-    
-    public void removeUser(String id) throws XMPPException {
-        connectionLock.readLock().lock();
-        try {
-            checkLoggedIn();
-            Roster roster = connection.getRoster();
-            if(roster != null) {
-                // TODO smack enhancement
-                // TODO to support notifications when
-                // TODO the Roster is created
 
-                RosterEntry entry = roster.getEntry(id);
-                if(entry!= null) {
-                    roster.removeEntry(entry);    
-                }
+    @Override
+    public ListeningFuture<Void> removeUser(final String id) {
+        return executorService.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                removeUserImpl(id);
+                return null;
             }
-        } catch (org.jivesoftware.smack.XMPPException e) {
-            throw new XMPPException(e);
-        } finally {
-            connectionLock.readLock().unlock();
+        }); 
+    }
+
+    private void removeUserImpl(String id) throws XMPPException {
+        synchronized (this) {
+            try {
+                checkLoggedIn();
+                Roster roster = connection.getRoster();
+                if(roster != null) {
+                    // TODO smack enhancement
+                    // TODO to support notifications when
+                    // TODO the Roster is created
+    
+                    RosterEntry entry = roster.getEntry(id);
+                    if(entry!= null) {
+                        roster.removeEntry(entry);    
+                    }
+                }
+            } catch (org.jivesoftware.smack.XMPPException e) {
+                throw new XMPPException(e);
+            }
         }
     }
 
@@ -392,24 +436,20 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
     }
 
     public void sendPacket(Packet packet) throws XMPPException {
-        connectionLock.readLock().lock(); 
-        try {
-            checkLoggedIn();
-            connection.sendPacket(packet);
-        } catch (org.jivesoftware.smack.XMPPException e) {
-            throw new XMPPException(e);
-        } finally {
-            connectionLock.readLock().unlock();
+        synchronized (this) {
+            try {
+                checkLoggedIn();
+                connection.sendPacket(packet);
+            } catch (org.jivesoftware.smack.XMPPException e) {
+                throw new XMPPException(e);
+            } 
         }
     }
 
     public String getLocalJid() throws XMPPException {
-        connectionLock.readLock().lock();
-        try {
+        synchronized (this) {
             checkLoggedIn();
             return connection.getUser();
-        } finally {
-            connectionLock.readLock().unlock();
         }
     }
     

@@ -10,12 +10,6 @@ import org.limewire.listener.EventListener;
  */
 public interface User extends Friend {
 
-    public enum EventType {
-        USER_ADDED,
-        USER_UPDATED,
-        USER_DELETED
-    }
-
     /**
      * Allows the xmpp service user to register a listener for presence changes of this user
      * @param presenceListener

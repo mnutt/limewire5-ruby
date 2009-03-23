@@ -13,6 +13,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.settings.DaapSettings;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.io.NetworkUtils;
@@ -32,8 +33,8 @@ public class DaapManagerImplTest extends BaseTestCase {
 
     /**
      * This is a basic test for the daap server. It starts the server, checks to
-     * make sure that the server can be connected to, then the server is
-     * stopped and checked to make sure that no more connections can be made.
+     * make sure that the server can be connected to, then the server is stopped
+     * and checked to make sure that no more connections can be made.
      */
     @SuppressWarnings("unchecked")
     public void testStartingDaapServerConnectingToItAndStopping() throws Exception {
@@ -116,10 +117,115 @@ public class DaapManagerImplTest extends BaseTestCase {
                 } catch (IOException e) {
                 }
             }
-            
+
             daapServer.stop();
         }
 
+        context.assertIsSatisfied();
+    }
+
+    public void testDisconnectionAll() throws Exception {
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
+
+        final DaapManager daapManager = context.mock(DaapManager.class);
+
+        DaapManagerImpl daapManagerImpl = new DaapManagerImpl(daapManager);
+
+        context.checking(new Expectations() {
+            {
+                one(daapManager).disconnectAll();
+            }
+        });
+
+        daapManagerImpl.disconnectAll();
+        context.assertIsSatisfied();
+    }
+
+    public void testStart() throws Exception {
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
+
+        final DaapManager daapManager = context.mock(DaapManager.class);
+
+        DaapManagerImpl daapManagerImpl = new DaapManagerImpl(daapManager);
+
+        context.checking(new Expectations() {
+            {
+                one(daapManager).start();
+            }
+        });
+
+        daapManagerImpl.start();
+        context.assertIsSatisfied();
+    }
+
+    public void testStop() throws Exception {
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
+
+        final DaapManager daapManager = context.mock(DaapManager.class);
+
+        DaapManagerImpl daapManagerImpl = new DaapManagerImpl(daapManager);
+
+        context.checking(new Expectations() {
+            {
+                one(daapManager).stop();
+            }
+        });
+
+        daapManagerImpl.stop();
+        context.assertIsSatisfied();
+    }
+
+    public void testRestart() throws Exception {
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
+
+        final DaapManager daapManager = context.mock(DaapManager.class);
+
+        DaapManagerImpl daapManagerImpl = new DaapManagerImpl(daapManager);
+
+        context.checking(new Expectations() {
+            {
+                one(daapManager).restart();
+            }
+        });
+
+        daapManagerImpl.restart();
+        context.assertIsSatisfied();
+    }
+
+    public void testUpdateService() throws Exception {
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
+
+        final DaapManager daapManager = context.mock(DaapManager.class);
+
+        DaapManagerImpl daapManagerImpl = new DaapManagerImpl(daapManager);
+
+        context.checking(new Expectations() {
+            {
+                one(daapManager).updateService();
+            }
+        });
+
+        daapManagerImpl.updateService();
         context.assertIsSatisfied();
     }
 

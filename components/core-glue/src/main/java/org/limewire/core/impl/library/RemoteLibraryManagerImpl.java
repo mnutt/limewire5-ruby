@@ -3,7 +3,11 @@ package org.limewire.core.impl.library;
 import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.friend.Friend;
@@ -14,6 +18,9 @@ import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.PresenceLibrary;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
+import org.limewire.inspection.Inspectable;
+import org.limewire.inspection.InspectableContainer;
+import org.limewire.inspection.InspectionPoint;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.util.StringUtils;
@@ -55,6 +62,29 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     
     private static final RemoteFileComparator COMPARATOR = new RemoteFileComparator();
 
+    @SuppressWarnings("unused")
+    @InspectableContainer
+    private class LazyInspectableContainer {
+        @InspectionPoint("remote libraries")
+        private final Inspectable inspectable = new Inspectable() {
+            @Override
+            public Object inspect() {
+                Map<String, Object> data = new HashMap<String, Object>();
+                readOnlyFriendLibraries.getReadWriteLock().readLock().lock();
+                try {
+                    List<Integer> sizes = new ArrayList<Integer>(readOnlyFriendLibraries.size());
+                    for (FriendLibrary friendLibrary : readOnlyFriendLibraries) {
+                        sizes.add(friendLibrary.size());
+                    }
+                    data.put("sizes", sizes);
+                } finally {
+                    readOnlyFriendLibraries.getReadWriteLock().readLock().unlock();
+                }
+                return data;
+            }
+        };
+    }
+    
     @Inject
     public RemoteLibraryManagerImpl() {
         Connector<FriendLibrary> connector = GlazedLists.beanConnector(FriendLibrary.class);

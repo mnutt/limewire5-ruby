@@ -1,9 +1,12 @@
 package org.limewire.core.impl.support;
 
+import java.util.Map;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.limewire.core.api.support.SessionInfo;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.VersionUtils;
 
 public class LocalClientInfoImplTest extends BaseTestCase {
 
@@ -48,7 +51,6 @@ public class LocalClientInfoImplTest extends BaseTestCase {
         final boolean isSuprtNode = true;
         final boolean isUdpPortStable = false;
         final String uploadSlotManagerInfo = "UploadSlotManagerInfo";
-
 
         Mockery context = new Mockery();
         final SessionInfo sessionInfo = context.mock(SessionInfo.class);
@@ -138,6 +140,38 @@ public class LocalClientInfoImplTest extends BaseTestCase {
         String parsedBug = localClientInfoImpl.getParsedBug();
         assertTrue(parsedBug.contains("MyException"));
         assertFalse(localClientInfoImpl.isFatalError());
+
+        Map.Entry[] entries = localClientInfoImpl.getPostRequestParams();
+        assertEquals(VersionUtils.getJavaVersion(), entries[1].getValue());
+        String shortParamList = localClientInfoImpl.getShortParamList();
+        assertTrue(shortParamList.contains(LocalAbstractInfo.JAVA_VERSION + "="
+                + VersionUtils.getJavaVersion()));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.ACCEPTED_INCOMING + "="
+                + acceptedIncomingConnection));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.ACTIVE_DOWNLOADS + "="
+                + numActiveDownloads));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.ACTIVE_UPLOADS + "="
+                + numActiveUploads));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.BB_BYTE_SIZE + "="
+                + byteBufferCacheSize));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.CAN_DO_FWT + "="
+                + canDoFWT));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.OLD_CONNECTIONS + "="
+                + numOldConnections));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.WAITING_DOWNLOADERS + "="
+                + numWaitingDownloads));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.WAITING_SOCKETS + "="
+                + numWaitingSockets));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.ULTRAPEER + "="
+                + isSuprtNode));
+        assertTrue(shortParamList.contains(LocalAbstractInfo.AVG_SELECT_TIME + "="
+                + selectStats[2]));
+
+        String bugReport = localClientInfoImpl.toBugReport();
+        assertNotNull(bugReport);
+        
+        assertTrue(bugReport.contains("Number of Ultrapeer -> Ultrapeer Connections: " + numUltrapeertoUltraPeerConnections));
+        
         context.assertIsSatisfied();
     }
 

@@ -6,6 +6,7 @@ import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.ui.swing.library.sharing.SharingTarget;
+import org.limewire.ui.swing.util.BackgroundExecutorService;
 
 public class MultiFileShareModel implements LibraryShareModel {
     private final LocalFileItem[] fileItems;
@@ -22,19 +23,30 @@ public class MultiFileShareModel implements LibraryShareModel {
     }   
     
     @Override
-    public void shareFriend(SharingTarget friend) {
-        for (LocalFileItem item : fileItems) {
-            if (friend.isGnutellaNetwork()) {
-                gnutellaList.addFile(item.getFile());
-            } else {
-                shareListManager.getOrCreateFriendShareList(friend.getFriend()).addFile(
+    public void shareFriend(final SharingTarget friend) {
+    	//perform actual sharing on background thread.
+        BackgroundExecutorService.execute(new Runnable(){
+            public void run() {
+                for (LocalFileItem item : fileItems) {
+                   if (friend.isGnutellaNetwork()) {
+                       gnutellaList.addFile(item.getFile());
+                   } else {
+                       shareListManager.getOrCreateFriendShareList(friend.getFriend()).addFile(
                         item.getFile());
-            }
-        }
+                   }
+                }
+           }
+        });
     }
     
     @Override
-    public void unshareFriend(SharingTarget friend) {
+    public void unshareFriend(final SharingTarget friend) {
+    //TODO: this should probably throw an exception
+    //   see MultiFileUnshareModel.shareFriend, but don't want
+    //   to break anything on the bugfix that may be using this.
+    	//perform actual unsharing on background thread
+        BackgroundExecutorService.execute(new Runnable(){
+            public void run() {
         for (LocalFileItem item : fileItems) {
             if (friend.isGnutellaNetwork()) {
                 gnutellaList.removeFile(item.getFile());
@@ -44,6 +56,8 @@ public class MultiFileShareModel implements LibraryShareModel {
                         item.getFile());
             }
         }
+    }
+        });
     }
 
     
@@ -68,6 +82,9 @@ public class MultiFileShareModel implements LibraryShareModel {
  
     @Override
     public boolean isShared(SharingTarget friend) {
+        //this is purposefully left unimplemented for performance purposes.
+        //the user experience is poor when multiple files are selected and
+        //have to be checked against all friends
         return false;
     }
 

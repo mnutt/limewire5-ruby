@@ -17,4 +17,8 @@ public class LibraryTableModel<T extends FileItem>  extends EventTableModel<T> {
     public T getFileItem(int index) {
         return libraryItems.get(index);
     }
+    
+    public EventList<T> getAllItems() {
+        return libraryItems;
+    }
 }

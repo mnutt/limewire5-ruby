@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -44,7 +45,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
     private JLabel iconLabel;
     private JXButton cancelButton;
     private JXHyperlink removeLink;
-    private UploadItem editItem;
+    private WeakReference<UploadItem> editItemReference;
     private LimeProgressBar progressBar;
     private JLabel timeLabel;
     
@@ -77,7 +78,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
         Action cancelAction = new AbstractAction(I18n.tr("Cancel")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-               actionHandler.performAction(cancelButton.getActionCommand(), editItem);
+               actionHandler.performAction(cancelButton.getActionCommand(), editItemReference.get());
                cancelCellEditing();
             }
         };
@@ -89,7 +90,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
         Action removeAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               actionHandler.performAction(removeLink.getActionCommand(), editItem);
+               actionHandler.performAction(removeLink.getActionCommand(), editItemReference.get());
                cancelCellEditing();
             }
         };
@@ -107,8 +108,8 @@ public class UploadTableRendererEditor extends TableRendererEditor {
     @Override
     public Component doTableCellEditorComponent(JTable table, Object value, boolean isSelected,
             int row, int column) {
-        editItem = (UploadItem)value;
-        update(editItem);
+        editItemReference = new WeakReference<UploadItem>((UploadItem)value);
+        update(editItemReference.get());
         return this;
     }
     
@@ -155,6 +156,10 @@ public class UploadTableRendererEditor extends TableRendererEditor {
     }
     
     private void update(UploadItem item){
+        if (item == null) {
+            return;
+        }
+        
         nameLabel.setVisible(!isBrowseHost(item));
         if (nameLabel.isVisible()) {
             nameLabel.setText(item.getFileName());

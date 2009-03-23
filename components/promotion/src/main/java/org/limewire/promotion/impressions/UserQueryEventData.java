@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.limewire.util.ByteUtils;
+import org.limewire.util.StringUtils;
 
 /**
  * This is the data sent to the server. It includes a String query, and binary
@@ -48,7 +49,7 @@ public class UserQueryEventData {
         int length = 1 + 4 + 8;
         for (Impression imp : impressions) {
             length += 1;
-            length += imp.getBinderUniqueName().length();
+            length += StringUtils.toAsciiBytes(imp.getBinderUniqueName()).length;
             length += 8;
             length += 8;
         }
@@ -60,10 +61,10 @@ public class UserQueryEventData {
                 bytes, inc.getAndAdd(8), 8);
         for (int i = 0; i < impressions.size(); i++) {
             Impression imp = impressions.get(i);
-            String binderName = imp.getBinderUniqueName();
-            bytes[inc.getAndAdd(1)] = (byte) (0xff & binderName.length());
-            System.arraycopy(binderName.getBytes(), 0, bytes, inc.getAndAdd(binderName.length()),
-                    binderName.length());
+            byte[] binderName = StringUtils.toAsciiBytes(imp.getBinderUniqueName());
+            bytes[inc.getAndAdd(1)] = (byte) (0xff & binderName.length);
+            System.arraycopy(binderName, 0, bytes, inc.getAndAdd(binderName.length),
+                    binderName.length);
             System.arraycopy(ByteUtils.long2bytes(imp.getPromoUniqueID(), 8), 0, bytes,
                     inc.getAndAdd(8), 8);
             System.arraycopy(ByteUtils.long2bytes(imp.getTimeShown().getTime(), 8), 0, bytes,

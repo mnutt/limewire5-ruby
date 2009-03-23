@@ -55,7 +55,7 @@ class FriendStatusPanel {
         ChatButtonPainter chatButtonPainter = new ChatButtonPainter(chatButton, iconLibrary);
         chatButton.setBackgroundPainter(chatButtonPainter);
         
-        chatButton.setIcon(iconLibrary.getChatting());
+        chatButton.setIcon(iconLibrary.getChatButton());
         chatButton.setHorizontalAlignment(AbstractButton.LEFT);
         
         chatButton.setFocusPainted(false);
@@ -157,7 +157,7 @@ class FriendStatusPanel {
             boolean hasUnseenMessages = unseenMessageSenderCount > 0;
             String buttonText = hasUnseenMessages ? I18n.tr("Chat ({0})", unseenMessageSenderCount) : I18n.tr("Chat");
             button.setText(buttonText);
-            button.setIcon(hasUnseenMessages ? iconLibrary.getUnviewedMessages() : iconLibrary.getChatting());
+            button.setIcon(hasUnseenMessages ? iconLibrary.getUnviewedMessages() : iconLibrary.getChatButton());
             button.repaint();
         }
             

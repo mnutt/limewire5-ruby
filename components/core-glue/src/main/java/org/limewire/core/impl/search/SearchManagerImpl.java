@@ -2,10 +2,12 @@ package org.limewire.core.impl.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
@@ -98,6 +100,12 @@ class SearchManagerImpl implements SearchManager {
         @Override
         public SearchType getSearchType() {
             return SearchType.KEYWORD;
+        }
+
+        @Override
+        public Map<FilePropertyKey, String> getAdvancedDetails() {
+            // TODO Auto-generated method stub
+            return null;
         }   
     }
     

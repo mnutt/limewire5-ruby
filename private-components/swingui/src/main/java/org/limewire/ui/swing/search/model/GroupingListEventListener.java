@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.limewire.ui.swing.search.model;
 
 import org.limewire.logging.Log;
@@ -10,11 +7,20 @@ import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
-public class GroupingListEventListener implements ListEventListener<VisualSearchResult> {
+/**
+ * A listener to handle updates to the list of visual search results.  This
+ * listener applies a SimilarResultsDetector to each VisualSearchResult to
+ * allow similar results to be grouped.
+ */
+class GroupingListEventListener implements ListEventListener<VisualSearchResult> {
     private final Log LOG = LogFactory.getLog(getClass());
 
     private final SimilarResultsDetector similarResultsDetector;
 
+    /**
+     * Constructs a GroupingListEventListener with the specified similar 
+     * results detector.
+     */
     public GroupingListEventListener(SimilarResultsDetector similarResultsDetector) {
         this.similarResultsDetector = similarResultsDetector;
     }

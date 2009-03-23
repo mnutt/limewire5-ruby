@@ -23,9 +23,7 @@ public class AddFileAction extends AbstractAction {
 
     @Inject
     public AddFileAction(LibraryManager libraryManager) {
-        // TODO fberger
-        //super(I18n.tr("Add F&ile to Library..."));
-        super(I18n.tr("Add File to Library..."));
+        super(I18n.tr("Add F&ile to Library..."));
         this.libraryManager = libraryManager;
     }
 

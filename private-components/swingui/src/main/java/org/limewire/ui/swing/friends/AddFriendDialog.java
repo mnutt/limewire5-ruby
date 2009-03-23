@@ -1,7 +1,5 @@
 package org.limewire.ui.swing.friends;
 
-import static org.limewire.ui.swing.util.I18n.tr;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -14,14 +12,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.LimeJDialog;
-import org.limewire.ui.swing.util.BackgroundExecutorService;
+import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.util.Objects;
 import org.limewire.xmpp.api.client.XMPPConnection;
-import org.limewire.xmpp.api.client.XMPPException;
+
+import net.miginfocom.swing.MigLayout;
 
 /**
  * Displays a dialog for adding a friend to the roster of an XMPP account.
@@ -62,14 +59,7 @@ public class AddFriendDialog extends LimeJDialog {
                 final String nickname = nick;
                 setVisible(false);
                 dispose();
-                BackgroundExecutorService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            connection.addUser(username, nickname);
-                        } catch(XMPPException ignored) {}
-                    }
-                });
+                connection.addUser(username, nickname);
             }
         };
 

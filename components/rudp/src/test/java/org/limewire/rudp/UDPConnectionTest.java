@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -15,6 +16,7 @@ import junit.framework.Test;
 
 import org.limewire.concurrent.ManagedThread;
 import org.limewire.io.IOUtils;
+import org.limewire.listener.EventListenerList;
 import org.limewire.nio.AbstractNBSocket;
 import org.limewire.nio.NBSocket;
 import org.limewire.nio.NIODispatcher;
@@ -23,7 +25,7 @@ import org.limewire.rudp.messages.RUDPMessageFactory;
 import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import org.limewire.util.BaseTestCase;
-import org.limewire.listener.EventListenerList;
+import org.limewire.util.StringUtils;
 
 /**
  * Put full UDPConnection system through various tests.
@@ -233,7 +235,7 @@ public final class UDPConnectionTest extends BaseTestCase {
         
         // Output on the first connection
         OutputStream ostream = uconn1.getOutputStream();
-        ostream.write("GET FOO BAR BLECK\r\nSecond Line\r\n".getBytes());
+        ostream.write(StringUtils.toAsciiBytes("GET FOO BAR BLECK\r\nSecond Line\r\n"));
         //uconn1.close();
 
         // Read to end and one extra on second stream
@@ -254,12 +256,12 @@ public final class UDPConnectionTest extends BaseTestCase {
 
         // Output on the first connection
         OutputStream ostream = uconn1.getOutputStream();
-        ostream.write((line1 + "\r\n" + line2 + "\r\n").getBytes());
+        ostream.write(StringUtils.toAsciiBytes(line1 + "\r\n" + line2 + "\r\n"));
 
         // Read to end and one extra on second stream
         InputStream istream = uconn2.getInputStream();
         uconn2.setSoTimeout(TIMEOUT);
-        BufferedReader br = new BufferedReader(new InputStreamReader(istream));
+        BufferedReader br = new BufferedReader(new InputStreamReader(istream, Charset.forName("US-ASCII")));
         String line = br.readLine();
         assertEquals(line1, line);
     }

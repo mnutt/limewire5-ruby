@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.SwingUtilities;
+import javax.swing.JPopupMenu;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -19,9 +19,8 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.collection.AutoCompleteDictionary;
+import org.limewire.core.api.library.FriendAutoCompleterFactory;
 import org.limewire.core.api.search.SearchCategory;
-import org.limewire.core.api.search.friend.FriendAutoCompleters;
-import org.limewire.core.settings.LibrarySettings;
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
@@ -30,12 +29,17 @@ import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.DropDownListAutoCompleteControl;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeComboBox;
 import org.limewire.ui.swing.components.PromptTextField;
 import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
 import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
+import org.limewire.ui.swing.nav.NavCategory;
+import org.limewire.ui.swing.nav.NavItem;
+import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
+import org.limewire.ui.swing.search.advanced.AdvancedSearchPanel;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -62,31 +66,31 @@ public class SearchBar extends JXPanel {
     private final IconButton searchButton;
     
     private final HistoryAndFriendAutoCompleter autoCompleter;
-    private final FriendAutoCompleters friendLibraries;
+    private final FriendAutoCompleterFactory friendAutoCompleterFactory;
     private final AutoCompleteDictionary searchHistory;
-    
-    private final Action programAction;
+    private final Navigator navigator;
     
     private SearchCategory categoryToSearch; 
     
     
     @Inject
     public SearchBar(ComboBoxDecorator comboBoxDecorator, 
-            final FriendAutoCompleters friendLibraries,
+            final FriendAutoCompleterFactory friendAutoCompleterFactory,
             @Named("searchHistory") AutoCompleteDictionary searchHistory,
             CategoryIconManager categoryIconManager,
-            TextFieldDecorator textFieldDecorator) {
+            TextFieldDecorator textFieldDecorator,
+            Navigator navigator) {
         super(new MigLayout("ins 0, gapx 0, gapy 0"));
     
         GuiUtils.assignResources(this);
-
+        
+        this.friendAutoCompleterFactory = friendAutoCompleterFactory;
+        this.navigator = navigator;
         this.searchHistory = searchHistory;
-        this.friendLibraries = friendLibraries;
         this.autoCompleter = new HistoryAndFriendAutoCompleter();
         this.categoryToSearch = SearchCategory.forId(SwingUiSettings.DEFAULT_SEARCH_CATEGORY_ID.getValue());
         
         Action actionToSelect = null;
-        Action progAction = null;
         
         List<Action> typeActions = new LinkedList<Action>();
         for (SearchCategory cat : SearchCategory.values()) {
@@ -99,11 +103,6 @@ public class SearchBar extends JXPanel {
                 icon = categoryIconManager.getIcon(cat.getCategory());                
             }
             Action action = new CatagoryAction(cat, icon);
-            if (cat == SearchCategory.PROGRAM) {
-                progAction = action;
-                continue;
-            }
-
             if (cat == this.categoryToSearch) {
                 actionToSelect = action;
             }
@@ -111,11 +110,10 @@ public class SearchBar extends JXPanel {
             typeActions.add(action);
         }
         
-        programAction = progAction;
-        
         comboBox = new LimeComboBox(typeActions);
         comboBoxDecorator.decorateLightFullComboBox(comboBox);
         comboBox.setName("SearchBar.comboBox");
+        addAdvancedSearch(comboBox);
                 
         searchField = new PromptTextField(I18n.tr("Search"));
         textFieldDecorator.decoratePromptField(searchField, AccentType.BUBBLE, searchBorder);
@@ -127,8 +125,6 @@ public class SearchBar extends JXPanel {
         searchButton.setName("SearchBar.searchButton");
         searchButton.setFocusPainted(false);
         searchButton.setToolTipText(I18n.tr("Search P2P Network"));
-        
-        configureProgramCategory();
         
         final DropDownListAutoCompleteControl autoCompleteControl = DropDownListAutoCompleteControl.install(this.searchField, autoCompleter);
         autoCompleteControl.setAutoComplete(true);
@@ -157,29 +153,37 @@ public class SearchBar extends JXPanel {
         
         autoCompleter.setSuggestionsShown(SwingUiSettings.SHOW_FRIEND_SUGGESTIONS.getValue());
         if (actionToSelect != null) {
-            autoCompleter.setSuggestionDictionary(friendLibraries.getDictionary(categoryToSearch));
+            autoCompleter.setSuggestionDictionary(friendAutoCompleterFactory.getDictionary(categoryToSearch));
             comboBox.setSelectedAction(actionToSelect);
         } else {
-            autoCompleter.setSuggestionDictionary(friendLibraries.getDictionary(SearchCategory.ALL));
+            autoCompleter.setSuggestionDictionary(friendAutoCompleterFactory.getDictionary(SearchCategory.ALL));
         }
         
         setOpaque(false);
         add(comboBox);
         add(searchField, "gap 5");
         add(searchButton, "gap 5");
-
-        LibrarySettings.ALLOW_PROGRAMS.addSettingListener(new SettingListener() {            
-            @Override
-            public void settingChanged(SettingEvent evt) {
-                SwingUtilities.invokeLater(new Runnable(){
-                    public void run() {
-                        configureProgramCategory();                        
-                    }
-                });
-            }            
-        });
     }
     
+    private void addAdvancedSearch(LimeComboBox comboBox) {
+        comboBox.addMenuCreationListener(new LimeComboBox.MenuCreationListener() {
+            @Override
+            public void menuCreated(LimeComboBox comboBox, final JPopupMenu menu) {
+                menu.addSeparator();
+                menu.add(new HyperlinkButton(new AbstractAction(I18n.tr("Advanced Search")) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        NavItem item = navigator.getNavItem(NavCategory.LIMEWIRE, AdvancedSearchPanel.NAME);
+                        if(item != null) {
+                            item.select();
+                            menu.setVisible(false);
+                        }
+                    }
+                }));
+            }
+        });
+    }
+
     /**
      * Performs additional Guice injection tasks.  This method adds a listener
      * to handle XMPP connection events.
@@ -200,14 +204,6 @@ public class SearchBar extends JXPanel {
                 }
             }
         });
-    }
-    
-    private void configureProgramCategory() {
-        if (!LibrarySettings.ALLOW_PROGRAMS.getValue()) {
-            comboBox.removeAction(this.programAction);
-        } else {
-            comboBox.addAction(this.programAction);
-        }
     }
     
     public boolean requestSearchFocus() {
@@ -258,7 +254,7 @@ public class SearchBar extends JXPanel {
         @Override
         public void actionPerformed(ActionEvent arg0) {
             categoryToSearch = category;            
-            autoCompleter.setSuggestionDictionary(friendLibraries.getDictionary(category));
+            autoCompleter.setSuggestionDictionary(friendAutoCompleterFactory.getDictionary(category));
         }
     }
 

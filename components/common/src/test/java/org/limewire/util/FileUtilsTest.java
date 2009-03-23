@@ -286,7 +286,9 @@ public final class FileUtilsTest extends BaseTestCase {
         File file = FileUtils.getJarFromClasspath("org/apache/commons/logging/Log.class");
         assertNotNull(file);
         assertTrue(file.exists());
-        assertEquals("commons-logging.jar", file.getName());
+        // there might be version numbers between commons-logging & .jar, so ignore them.
+        assertTrue(file.getName(), file.getName().startsWith("commons-logging"));        
+        assertTrue(file.getName(), file.getName().endsWith(".jar"));
     }
 
     public void testGetJarFromClasspathClassLoader() throws Exception {
@@ -295,7 +297,9 @@ public final class FileUtilsTest extends BaseTestCase {
         File file = FileUtils.getJarFromClasspath(classLoader, "org/apache/commons/logging/Log.class");
         assertNotNull(file);
         assertTrue(file.exists());
-        assertEquals("commons-logging.jar", file.getName());
+        // there might be version numbers between commons-logging & .jar, so ignore them.
+        assertTrue(file.getName(), file.getName().startsWith("commons-logging"));        
+        assertTrue(file.getName(), file.getName().endsWith(".jar"));
         
         try {
             FileUtils.getJarFromClasspath(null, "org/apache/commons/logging/Log.class");

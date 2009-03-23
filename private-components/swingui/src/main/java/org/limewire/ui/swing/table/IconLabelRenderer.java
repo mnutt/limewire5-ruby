@@ -14,7 +14,6 @@ import javax.swing.table.TableCellRenderer;
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.Category;
-import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.LibraryManager;
@@ -25,7 +24,6 @@ import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
-import org.limewire.util.StringUtils;
 
 /**
  * Renders a table cell with a string and the system icon representing that
@@ -37,6 +35,7 @@ public class IconLabelRenderer extends JXPanel implements TableCellRenderer {
     private final CategoryIconManager categoryIconManager;
     private final DownloadListManager downloadListManager;
     private final LibraryManager libraryManager;
+    private final boolean showAudioArtist;
     
     private final JLabel label;
     @Resource private Icon spamIcon;
@@ -46,11 +45,20 @@ public class IconLabelRenderer extends JXPanel implements TableCellRenderer {
     @Resource private Font font;
     
     public IconLabelRenderer(IconManager iconManager, CategoryIconManager categoryIconManager, DownloadListManager downloadListManager, LibraryManager libraryManager) {
+        this(iconManager, categoryIconManager, downloadListManager, libraryManager, false);
+    }
+    
+    public IconLabelRenderer(IconManager iconManager, 
+            CategoryIconManager categoryIconManager, 
+            DownloadListManager downloadListManager, 
+            LibraryManager libraryManager, 
+            boolean showAudioArtist) {
         super(new BorderLayout());
         this.iconManager = iconManager;
         this.categoryIconManager = categoryIconManager;
         this.downloadListManager = downloadListManager;
         this.libraryManager = libraryManager;
+        this.showAudioArtist = showAudioArtist;
         
         GuiUtils.assignResources(this);
         
@@ -99,11 +107,7 @@ public class IconLabelRenderer extends JXPanel implements TableCellRenderer {
             
             VisualSearchResult vsr = (VisualSearchResult)value;
             
-            String name = vsr.getPropertyString(FilePropertyKey.NAME);
-            String title = vsr.getPropertyString(FilePropertyKey.TITLE);
-            if(vsr.getCategory().equals(Category.AUDIO) && !StringUtils.isEmpty(title)) {
-                name = title;
-            }
+            String name = vsr.getNameProperty(showAudioArtist);
             label.setText(name);
             label.setIcon(getIcon(vsr));
 

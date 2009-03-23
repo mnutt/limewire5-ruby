@@ -1,33 +1,24 @@
 package org.limewire.core.api.download;
 
 public enum DownloadState {
-	//(cancellable, pausable, resumable, searchAgainable)
-	DONE(false, false, false, false), 
-	CONNECTING(true, true, false, false), 
-	DOWNLOADING(true, true, false, false), 
-	PAUSED(true, false, true, false), 
-	FINISHING(true, false, false, false), 
-    LOCAL_QUEUED(true, true, false, false), 
-    REMOTE_QUEUED(true, true, false, false), 
-	CANCELLED(false, false, false, false), 
-	STALLED(true, false, false, true), 
-	ERROR(true, false, false, false);
+	DONE( false, false), 
+	CONNECTING( true, false), 
+	DOWNLOADING( true, false), 
+	PAUSED( false, true), 
+	FINISHING( false, false), 
+    LOCAL_QUEUED( true, false), 
+    REMOTE_QUEUED( true, false), 
+	CANCELLED( false, false), 
+	STALLED( false, false),
+	TRYING_AGAIN( true, false),
+	ERROR( false, false);
 
-	private boolean cancellable;
-	private boolean pausable;
-	private boolean resumable;
-	private boolean searchAgainable;
+	private final boolean pausable;
+	private final boolean resumable;
 
-	DownloadState(boolean cancellable, boolean pausable, boolean resumable,
-			boolean searchAgainable) {
-		this.cancellable = cancellable;
+	DownloadState(boolean pausable, boolean resumable) {
 		this.pausable = pausable;
 		this.resumable = resumable;
-		this.searchAgainable = searchAgainable;
-	}
-
-	public boolean isCancellable() {
-		return cancellable;
 	}
 
 	public boolean isPausable() {
@@ -36,9 +27,5 @@ public enum DownloadState {
 
 	public boolean isResumable() {
 		return resumable;
-	}
-
-	public boolean isSearchAgainable() {
-		return searchAgainable;
 	}
 }

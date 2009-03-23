@@ -23,9 +23,7 @@ public class AddFolderAction extends AbstractAction {
 
     @Inject
     public AddFolderAction(LibraryManager libraryManager) {
-        // TODO fberger
-        // super(I18n.tr("Add &Folder to Library..."));
-        super(I18n.tr("Add Folder to Library..."));
+        super(I18n.tr("Add &Folder to Library..."));
         this.libraryManager = libraryManager;
     }
 

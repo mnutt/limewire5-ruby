@@ -1,7 +1,6 @@
 package org.limewire.ui.swing.library.manager;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,9 +23,6 @@ public interface LibraryManagerItem {
     
     /** Returns the item that is this' parent. */
     LibraryManagerItem getParent();
-
-    /** Returns all Files that are subfolders but not listed as children. */
-    Collection<? extends File> getExcludedChildren();
 
     /** Adds the given child to the list of items to manage. */
     int addChild(LibraryManagerItem child);

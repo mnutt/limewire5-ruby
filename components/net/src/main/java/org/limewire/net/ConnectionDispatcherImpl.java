@@ -13,6 +13,7 @@ import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.io.IOUtils;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.io.NetworkUtils;
+import org.limewire.util.StringUtils;
 
 import com.google.inject.Inject;
 
@@ -45,9 +46,19 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
     	}
     }
 
+    private boolean areAscii(String...words) {
+        for (String word : words) {
+            if (!StringUtils.isAsciiOnly(word)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     public void addConnectionAcceptor(ConnectionAcceptor acceptor,
     		boolean localOnly,
     		String... words) {
+        assert areAscii(words) : "not all ascii: " + Arrays.asList(words);
     	Delegator d = new Delegator(acceptor, localOnly, acceptor.isBlocking());
     	synchronized(protocols) {
     		for (int i = 0; i < words.length; i++) {

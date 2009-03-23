@@ -152,6 +152,7 @@ public abstract class AbstractStatistic implements Statistic {
 		}
 	}
     
+	@Override
     public Object inspect() {
         Map<String,Object> ret = new HashMap<String,Object>();
         ret.put("current",_current);

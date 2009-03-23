@@ -16,15 +16,16 @@ public class UpdateListener implements EventListener<UpdateEvent> {
     
     @Inject
     public UpdateListener(UpdateHandler updateHandler, EventBroadcaster<org.limewire.core.api.updates.UpdateEvent> listeners) {
-        updateHandler.addListener(this);
         this.uiListeners = listeners;
+        updateHandler.addListener(this);
     }
     
     @Override
     public void handleEvent(UpdateEvent event) {
-        UpdateInformation info = new UpdateInformationImpl(event.getSource().getButton1Text(),
-                event.getSource().getButton2Text(), event.getSource().getUpdateCommand(),
-                event.getSource().getUpdateText(), event.getSource().getUpdateTitle(), event.getSource().getUpdateURL());
+        com.limegroup.gnutella.version.UpdateInformation eventData = event.getData();
+        UpdateInformation info = new UpdateInformationImpl(eventData.getButton1Text(),
+                eventData.getButton2Text(), eventData.getUpdateCommand(),
+                eventData.getUpdateText(), eventData.getUpdateTitle(), eventData.getUpdateURL());
 
         uiListeners.broadcast(new org.limewire.core.api.updates.UpdateEvent(info, org.limewire.core.api.updates.UpdateEvent.Type.UPDATE));
     }

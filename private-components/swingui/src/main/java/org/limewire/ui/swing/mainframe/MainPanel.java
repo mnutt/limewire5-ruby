@@ -27,12 +27,16 @@ public class MainPanel extends JPanel {
     private static final Log LOG = LogFactory.getLog(MainPanel.class);
     
     private final Map<String, JComponent> keyToComponents = new HashMap<String, JComponent>();
-
-    private final CardLayout cardLayout;
+    private final CardLayout cardLayout;    
+    private final Navigator navigator;
+    
+    private final String TEMP_CARD = "temporaryComponentCard";    
+    private JComponent temporaryPanel;
     
     @Inject
     public MainPanel(Navigator navigator) {   
-        cardLayout = new CardLayout();
+        this.cardLayout = new CardLayout();
+        this.navigator = navigator;
         setLayout(cardLayout);
 
         this.addComponentListener(new ComponentListener(){
@@ -68,6 +72,10 @@ public class MainPanel extends JPanel {
                     NavSelectable selectable, JComponent panel) {
                 LOG.debugf("Selected item {0}", navItem);
                 if (navItem != null) {
+                    if(temporaryPanel != null) {
+                        remove(temporaryPanel);
+                        temporaryPanel = null;                        
+                    }
                     cardLayout.show(MainPanel.this, asString(navItem));
                     if (selectable != null && panel instanceof NavComponent) {
                         NavComponent navComponent = (NavComponent) panel;
@@ -79,6 +87,14 @@ public class MainPanel extends JPanel {
             @Override public void categoryAdded(NavCategory category) {}
             @Override public void categoryRemoved(NavCategory category) {}
         });
+    }
+    
+    /** Shows a panel temporarily.  As soon as another panel is shown, this panel is erased. */
+    public void showTemporaryPanel(JComponent panel) {
+        navigator.showNothing();
+        temporaryPanel = panel;
+        add(TEMP_CARD, temporaryPanel);
+        cardLayout.show(MainPanel.this, TEMP_CARD);
     }
     
     private String asString(Object key) {

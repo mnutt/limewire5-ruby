@@ -3,14 +3,6 @@
 LW_ROOT_FOLDER=`dirname $0`
 cd "$LW_ROOT_FOLDER"
 
-## If the new Main isn't there, use the old UI.
-if [ ! -f private-components/integrated-ui/src/main/java/org/limewire/ui/swing/Main.java ]; then
-  echo "Running LimeWire 4.x UI..."
-  cd gui
-  ./run
-  exit 0
-fi
-
 ### Run script for LimeWire.
 ### Builds a classpath for all jars & components.
 
@@ -45,8 +37,6 @@ case ${PLATFORM} in
         exit 1;
     ;;
 esac
-
-CLASSPATH="${CLASSPATH}${PS}core"
 
 #add all the jars.
 for JAR in $(find lib/jars -maxdepth 1 -name "*.jar"); do 

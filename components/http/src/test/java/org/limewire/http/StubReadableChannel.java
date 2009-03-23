@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 
 import org.limewire.nio.channel.InterestReadableByteChannel;
 import org.limewire.util.BufferUtils;
+import org.limewire.util.StringUtils;
 
 public class StubReadableChannel implements InterestReadableByteChannel {
 
@@ -21,7 +22,7 @@ public class StubReadableChannel implements InterestReadableByteChannel {
     }
 
     public StubReadableChannel(String data) {
-        this(data.getBytes());
+        this(StringUtils.toUTF8Bytes(data));
     }
 
     public StubReadableChannel() {

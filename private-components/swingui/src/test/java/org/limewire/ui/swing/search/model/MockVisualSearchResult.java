@@ -21,6 +21,7 @@ public class MockVisualSearchResult implements VisualSearchResult {
     private VisualSearchResult similarityParent;
     private boolean spam;
     private HashMap<FilePropertyKey, Object> properties = new HashMap<FilePropertyKey, Object>();
+    private double relevance = 0;
     
     public MockVisualSearchResult(String name) {
         this.name = name;
@@ -64,7 +65,7 @@ public class MockVisualSearchResult implements VisualSearchResult {
         if(key == FilePropertyKey.NAME) {
             return name; 
         } else {
-            return null;
+            return getProperties().get(key);
         }
     }
 
@@ -72,6 +73,11 @@ public class MockVisualSearchResult implements VisualSearchResult {
     public String getPropertyString(FilePropertyKey key) {
         Object val = getProperties().get(key);
         return val == null ? null : val.toString();
+    }
+    
+    @Override
+    public String getNameProperty(boolean useAudioArtist) {
+        return name;
     }
     
     public void setSimilarResults(List<VisualSearchResult> similarResults) {
@@ -200,7 +206,11 @@ public class MockVisualSearchResult implements VisualSearchResult {
 
     @Override
     public double getRelevance() {
-        return 0;
+        return relevance;
+    }
+    
+    public void setRelevance(double relevance) {
+        this.relevance = relevance;
     }
 
     @Override
@@ -219,6 +229,7 @@ public class MockVisualSearchResult implements VisualSearchResult {
         
     }
 
+    @Override
     public boolean isLicensed() {
         return false;
     }

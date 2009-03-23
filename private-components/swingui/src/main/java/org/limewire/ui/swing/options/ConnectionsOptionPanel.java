@@ -138,7 +138,7 @@ public class ConnectionsOptionPanel extends OptionPanel {
             if(isBroadband) {
                 return SpeedConstants.CABLE_SPEED_INT;
             } else {
-                return SpeedConstants.MAX_SPEED_INT;
+                return SpeedConstants.MODEM_SPEED_INT;
             }
         }
     }

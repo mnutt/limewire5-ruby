@@ -15,6 +15,7 @@ import com.google.inject.Singleton;
 class IconLibraryImpl implements IconLibrary {
     @Resource private Icon available;
     @Resource private Icon away;
+    @Resource private Icon chatButton;
     @Resource private Icon chatting;
     @Resource private Icon incomingChat;
     @Resource private Icon endChat;
@@ -36,6 +37,10 @@ class IconLibraryImpl implements IconLibrary {
 
     public Icon getAway() {
         return away;
+    }
+    
+    public Icon getChatButton() {
+        return chatButton;
     }
     
     public Icon getChatting() {

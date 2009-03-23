@@ -22,6 +22,7 @@ import org.limewire.mojito.routing.RouteTable;
 import org.limewire.mojito.routing.Vendor;
 import org.limewire.mojito.routing.Version;
 import org.limewire.mojito.routing.impl.RouteTableImpl;
+import org.limewire.util.StringUtils;
 
 public class SerializeTest extends MojitoTestCase {
     
@@ -86,7 +87,7 @@ public class SerializeTest extends MojitoTestCase {
             KUID primaryKey = KUID.createRandomID();
             
             DHTValueEntity entity = DHTValueEntity.createFromRemote(node, node, primaryKey, 
-                    new DHTValueImpl(DHTValueType.TEST, Version.ZERO, "Hello World".getBytes()));
+                    new DHTValueImpl(DHTValueType.TEST, Version.ZERO, StringUtils.toUTF8Bytes("Hello World")));
             
             database1.store(entity);
         }

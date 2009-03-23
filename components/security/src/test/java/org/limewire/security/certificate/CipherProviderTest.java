@@ -16,6 +16,7 @@ import org.limewire.security.LimeWireSecurityModule;
 import org.limewire.security.certificate.CipherProvider.CipherType;
 import org.limewire.security.certificate.CipherProvider.SignatureType;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -33,7 +34,7 @@ public class CipherProviderTest extends BaseTestCase {
     }
 
     public void testEncyptDecryptCycleRSA() throws NoSuchAlgorithmException, IOException {
-        byte[] plaintext = "I'm a test.".getBytes();
+        byte[] plaintext = StringUtils.toAsciiBytes("I'm a test.");
 
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(1024);
@@ -47,14 +48,14 @@ public class CipherProviderTest extends BaseTestCase {
     }
 
     public void testEncyptDecryptCycleAES() throws NoSuchAlgorithmException, IOException {
-        byte[] plaintext = ("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. "
+        byte[] plaintext = StringUtils.toAsciiBytes("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. "
                 + "Pellentesque posuere, metus nonummy molestie dictum, ligula eros nonummy "
                 + "pede, sit amet bibendum risus risus eget turpis. Nam porttitor ultrices "
                 + "enim. Quisque ut nibh non tortor vestibulum dapibus. Fusce risus. Morbi "
                 + "molestie egestas lacus. Morbi bibendum. Maecenas bibendum, risus at aliquam "
                 + "vehicula, pede magna bibendum risus, at viverra sem est eget elit. Donec id "
                 + "nisl non lacus semper lobortis. Mauris non nibh. Curabitur non mauris. Maecenas "
-                + "sit amet leo placerat enim placerat gravida.").getBytes();
+                + "sit amet leo placerat enim placerat gravida.");
 
         KeyGenerator kgen = KeyGenerator.getInstance("AES");
         kgen.init(128); // 192 and 256 bits may not be available
@@ -67,14 +68,14 @@ public class CipherProviderTest extends BaseTestCase {
     }
 
     public void testSignVerifyCycleRSA() throws NoSuchAlgorithmException, IOException {
-        byte[] plaintext = ("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. "
+        byte[] plaintext = StringUtils.toAsciiBytes("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. "
                 + "Pellentesque posuere, metus nonummy molestie dictum, ligula eros nonummy "
                 + "pede, sit amet bibendum risus risus eget turpis. Nam porttitor ultrices "
                 + "enim. Quisque ut nibh non tortor vestibulum dapibus. Fusce risus. Morbi "
                 + "molestie egestas lacus. Morbi bibendum. Maecenas bibendum, risus at aliquam "
                 + "vehicula, pede magna bibendum risus, at viverra sem est eget elit. Donec id "
                 + "nisl non lacus semper lobortis. Mauris non nibh. Curabitur non mauris. Maecenas "
-                + "sit amet leo placerat enim placerat gravida.").getBytes();
+                + "sit amet leo placerat enim placerat gravida.");
 
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(1024);

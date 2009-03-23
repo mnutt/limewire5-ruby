@@ -14,6 +14,7 @@ import org.limewire.nio.NIOSocket;
 import org.limewire.nio.ProtocolBandwidthTracker;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.BufferUtils;
+import org.limewire.util.StringUtils;
 
 public class SSLUtilsTest extends BaseTestCase {
     
@@ -60,7 +61,7 @@ public class SSLUtilsTest extends BaseTestCase {
         ss.bind(new InetSocketAddress("localhost", 0));
         
         Socket tls = new TLSSocketFactory().createSocket("localhost", ss.getLocalPort());
-        tls.getOutputStream().write("OUTPUT".getBytes());
+        tls.getOutputStream().write(StringUtils.toAsciiBytes("OUTPUT"));
         
         Socket accepted = ss.accept();
         assertFalse(SSLUtils.isTLSEnabled(accepted));
@@ -68,11 +69,12 @@ public class SSLUtilsTest extends BaseTestCase {
         byte[] read = new byte[100];
         int amt = accepted.getInputStream().read(read);
         assertGreaterThan(0, amt);
-        assertNotEquals("OUTPUT", new String(read, 0, amt));
+        assertNotEquals("OUTPUT", StringUtils.getASCIIString(read, 0, amt));
         Socket converted = SSLUtils.startTLS(accepted, ByteBuffer.wrap(read, 0, amt));
         amt = converted.getInputStream().read(read);
+        // length of string works, since ascii encoding ensures 1-1 mapping between chars and bytes
         assertEquals("OUTPUT".length(), amt);
-        assertEquals("OUTPUT", new String(read, 0, amt));
+        assertEquals("OUTPUT", StringUtils.getASCIIString(read, 0, amt));
         
         converted.close();
         accepted.close();
@@ -100,8 +102,8 @@ public class SSLUtilsTest extends BaseTestCase {
         assertNotSame(outTracker, SSLUtils.EmptyTracker.instance());
         assertNotSame(inTracker, SSLUtils.EmptyTracker.instance());
         
-        outgoing.getOutputStream().write("THIS IS OUTPUT".getBytes());
-        incoming.getOutputStream().write("INCOMING OUTPUT".getBytes());
+        outgoing.getOutputStream().write(StringUtils.toAsciiBytes("THIS IS OUTPUT"));
+        incoming.getOutputStream().write(StringUtils.toAsciiBytes("INCOMING OUTPUT"));
         byte[] outRead = new byte[100];
         byte[] inRead = new byte[100];
         int outAmt = outgoing.getInputStream().read(outRead);

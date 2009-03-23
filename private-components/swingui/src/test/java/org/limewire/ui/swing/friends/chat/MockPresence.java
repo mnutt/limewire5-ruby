@@ -13,12 +13,14 @@ public class MockPresence implements Presence {
     private final User user;
     private Mode mode;
     private String jid;
+    private int priority;
     
     MockPresence(User user, Mode mode, String status, String jid) {
         this.user = user;
         this.mode = mode;
         this.status = status;
         this.jid = jid;
+        this.priority = 0;
     }
 
     public User getUser() {
@@ -42,7 +44,12 @@ public class MockPresence implements Presence {
     @Override
     public int getPriority() {
         // TODO Auto-generated method stub
-        return 0;
+        return priority;
+    }
+
+    // package private for unit tests
+    void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public void setStatus(String status) {

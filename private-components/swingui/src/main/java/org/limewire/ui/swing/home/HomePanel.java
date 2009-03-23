@@ -15,7 +15,7 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.Application;
 import org.limewire.ui.swing.browser.Browser;
 import org.limewire.ui.swing.browser.BrowserUtils;
-import org.limewire.ui.swing.browser.TargetedUrlAction;
+import org.limewire.ui.swing.browser.UriAction;
 import org.limewire.ui.swing.components.HTMLPane;
 import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
@@ -63,18 +63,20 @@ public class HomePanel extends JXPanel {
                 }
             });
             
-            BrowserUtils.addTargetedUrlAction("_lwHome", new TargetedUrlAction() {
+            BrowserUtils.addTargetedUrlAction("_lwHome", new UriAction() {
                 @Override
-                public void targettedUrlClicked(final TargetedUrl targetedUrl) {
+                public boolean uriClicked(final TargetedUri targetedUrl) {
                     SwingUtils.invokeLater(new Runnable() {
                         @Override
                         public void run() {
                             navigator.getNavItem(NavCategory.LIMEWIRE, NAME).select();
-                            load(targetedUrl.getUrl());
+                            load(targetedUrl.getUri());
                         }
                     });
+                    return true;
                 }
             });
+            
             browser = new Browser(VisibilityMode.FORCED_HIDDEN, VisibilityMode.FORCED_HIDDEN, VisibilityMode.DEFAULT);
             fallbackBrowser = null;
             add(browser, gbc);

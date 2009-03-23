@@ -22,6 +22,8 @@ import org.limewire.core.api.library.LibraryData;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.HorizonalCheckBoxListPanel;
 import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.library.manager.ExcludedFolderCollectionManager;
+import org.limewire.ui.swing.library.manager.ExcludedFolderCollectionManagerImpl;
 import org.limewire.ui.swing.library.manager.LibraryManagerItemImpl;
 import org.limewire.ui.swing.library.manager.LibraryManagerModel;
 import org.limewire.ui.swing.library.manager.LibraryTreeTableContainer;
@@ -63,6 +65,8 @@ public class SetupPage2 extends WizardPage {
     private final JXButton addFolderButton;
     
     private final HorizonalCheckBoxListPanel<Category> checkBoxes;
+
+    private final ExcludedFolderCollectionManager excludedFolders = new ExcludedFolderCollectionManagerImpl();
         
     public SetupPage2(SetupComponentDecorator decorator, IconManager iconManager, LibraryData libraryData) {
         this(decorator, iconManager, libraryData, false);
@@ -94,7 +98,7 @@ public class SetupPage2 extends WizardPage {
         addFolderButton = new JXButton(new AddDirectoryAction(SetupPage2.this));
         decorator.decoratePlainButton(addFolderButton);
         
-        treeTableContainer = new LibraryTreeTableContainer(iconManager, libraryData);
+        treeTableContainer = new LibraryTreeTableContainer(iconManager, libraryData, excludedFolders);
         initManualPanel();
         setTreeTableVisiable(false);
                 
@@ -161,10 +165,11 @@ public class SetupPage2 extends WizardPage {
         RootLibraryManagerItem root = new RootLibraryManagerItem(AutoDirectoryManageConfig.getDefaultManagedDirectories(libraryData));
        
         for ( File file : AutoDirectoryManageConfig.getDefaultManagedDirectories(libraryData) ) {
-            root.addChild(new LibraryManagerItemImpl(root, libraryData, file, false));
+            root.addChild(new LibraryManagerItemImpl(root, libraryData, excludedFolders, file));
         }
         
-        treeTableContainer.getTable().setTreeTableModel(new LibraryManagerModel(root));
+        excludedFolders.setExcludedFolders(libraryData.getDirectoriesToExcludeFromManaging());
+        treeTableContainer.getTable().setTreeTableModel(new LibraryManagerModel(root, excludedFolders));
     }
 
     @Override

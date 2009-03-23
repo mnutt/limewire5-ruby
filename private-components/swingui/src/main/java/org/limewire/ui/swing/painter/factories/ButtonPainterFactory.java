@@ -6,10 +6,12 @@ import org.jdesktop.application.Resource;
 import org.limewire.ui.swing.painter.ButtonBackgroundPainter;
 import org.limewire.ui.swing.painter.ButtonForegroundPainter;
 import org.limewire.ui.swing.painter.DarkButtonBackgroundPainter;
+import org.limewire.ui.swing.painter.GreenButtonBackgroundPainter;
 import org.limewire.ui.swing.painter.LightButtonBackgroundPainter;
 import org.limewire.ui.swing.painter.PopupButtonBackgroundPainter;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.painter.ButtonBackgroundPainter.DrawMode;
+import org.limewire.ui.swing.painter.ButtonForegroundPainter.FontTransform;
 import org.limewire.ui.swing.util.GuiUtils;
 
 import com.google.inject.Inject;
@@ -31,6 +33,17 @@ public class ButtonPainterFactory {
     @Resource private Color darkFullDownTextForeground;
     @Resource private Color darkFullDisabledTextForeground;
     
+    @Resource private int miniArcWidth;
+    @Resource private int miniArcHeight;
+    @Resource private Color miniBackgroundPressed;
+    @Resource private Color miniBackgroundRollover;
+    
+    @Resource private int linkArcWidth;
+    @Resource private int linkArcHeight;
+    @Resource private Color linkBackgroundPressed;
+    @Resource private Color linkBackgroundRollover;
+    @Resource private Color linkDownTextForeground;
+    
     @Inject
     ButtonPainterFactory() {
         GuiUtils.assignResources(this);
@@ -45,10 +58,19 @@ public class ButtonPainterFactory {
     }
     
     /**
+     * Creates the foreground painter for pop up button style used
+     *  in the link like combo boxes. 
+     */
+    public ButtonForegroundPainter createLinkButtonForegroundPainter() {
+        return new ButtonForegroundPainter(null, linkDownTextForeground, null,
+                FontTransform.NO_CHANGE, FontTransform.REMOVE_UNDERLINE, FontTransform.NO_CHANGE);
+    }
+    
+    /**
      * Creates light styled foreground painter. 
      */
     public ButtonForegroundPainter createLightFullButtonForegroundPainter() {
-        return new ButtonForegroundPainter(null, null, null);
+        return new ButtonForegroundPainter();
     }
     
     /**
@@ -67,9 +89,21 @@ public class ButtonPainterFactory {
      *  action can be made.
      */
     public PopupButtonBackgroundPainter createMiniButtonBackgroundPainter() {
-        return new PopupButtonBackgroundPainter();
+        return new PopupButtonBackgroundPainter(miniBackgroundPressed,
+                miniBackgroundRollover, miniArcWidth, miniArcHeight);
     }
 
+    /**
+     * Creates the default background painter for the buttons used for link
+     *  like combo boxes. At this time these buttons have no background painted until a
+     *  mouse over event.  When the mouse is over they pop out to indicate an 
+     *  action can be made.
+     */
+    public PopupButtonBackgroundPainter createLinkButtonBackgroundPainter() {
+        return new PopupButtonBackgroundPainter(linkBackgroundPressed, 
+                linkBackgroundRollover, linkArcWidth, linkArcHeight);
+    }
+    
     /**
      * Creates a background painter for buttons with the lighter colour scheme.
      *  These are usually placed on components with generally lighter colouring
@@ -77,6 +111,15 @@ public class ButtonPainterFactory {
      */
     public ButtonBackgroundPainter createLightFullButtonBackgroundPainter() {
         return new LightButtonBackgroundPainter();
+    }
+    
+    /**
+     * Creates a background painter for buttons with the green colour scheme.
+     *  These are usually placed on components with generally lighter colouring
+     *  that the dark buttons.
+     */
+    public ButtonBackgroundPainter createGreenFullButtonBackgroundPainter() {
+        return new GreenButtonBackgroundPainter();
     }
     
     /**

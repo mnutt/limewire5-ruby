@@ -149,7 +149,7 @@ public class LimeWireSwingUI extends JPanel {
             @Override
             @SwingEDTEvent
             public void handleEvent(UpdateEvent event) {
-                UpdatePanel updatePanel = new UpdatePanel(event.getSource(), application);
+                UpdatePanel updatePanel = new UpdatePanel(event.getData(), application);
                 JDialog dialog = FocusJOptionPane.createDialog(I18n.tr("New Version Available!"), null, updatePanel);
                 dialog.setLocationRelativeTo(GuiUtils.getMainFrame());
                 dialog.getRootPane().setDefaultButton(updatePanel.getDefaultButton());

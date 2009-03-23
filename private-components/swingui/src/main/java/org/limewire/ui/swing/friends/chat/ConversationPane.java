@@ -19,14 +19,12 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -36,27 +34,18 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.OverlayLayout;
 import javax.swing.SwingUtilities;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.html.FormSubmitEvent;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.concurrent.FutureEvent;
 import org.limewire.concurrent.ListeningFuture;
-import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.DownloadItem;
-import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.api.download.ResultDownloader;
-import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.friend.FriendEvent;
 import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.friend.feature.Feature;
@@ -66,10 +55,7 @@ import org.limewire.core.api.friend.feature.features.FileOfferer;
 import org.limewire.core.api.friend.feature.features.LimewireFeature;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.ShareListManager;
-import org.limewire.core.api.xmpp.RemoteFileItemFactory;
-import org.limewire.io.InvalidDataException;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
@@ -78,7 +64,6 @@ import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.action.CopyAction;
 import org.limewire.ui.swing.action.CopyAllAction;
 import org.limewire.ui.swing.action.PopupUtil;
-import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
@@ -88,18 +73,16 @@ import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.painter.GenericBarPainter;
 import org.limewire.ui.swing.util.DNDUtils;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.ui.swing.util.I18n;
 import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.ui.swing.util.IconManager;
-import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.ui.swing.util.ResizeUtils;
-import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 import org.limewire.util.FileUtils;
 import org.limewire.xmpp.api.client.ChatState;
 import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.xmpp.api.client.MessageWriter;
 import org.limewire.xmpp.api.client.XMPPException;
+import org.limewire.xmpp.api.client.User;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -111,7 +94,7 @@ import net.miginfocom.swing.MigLayout;
 /**
  *
  */
-public class ConversationPane extends JPanel implements Displayable {
+public class ConversationPane extends JPanel implements Displayable, Conversation {
     private static final int PADDING = 5;
     private static final Log LOG = LogFactory.getLog(ConversationPane.class);
     private static final Color DEFAULT_BACKGROUND = new Color(224, 224, 224);
@@ -134,9 +117,6 @@ public class ConversationPane extends JPanel implements Displayable {
     private HyperlinkButton sharelink;
     private ResizingInputPanel inputPanel;
     private ChatState currentChatState;
-    private final ResultDownloader downloader;
-    private final RemoteFileItemFactory remoteFileItemFactory;
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
 
     private ListenerSupport<FriendEvent> friendSupport;
     private ListenerSupport<FeatureEvent> featureSupport;
@@ -154,21 +134,16 @@ public class ConversationPane extends JPanel implements Displayable {
     @AssistedInject
     public ConversationPane(@Assisted MessageWriter writer, final @Assisted ChatFriend chatFriend, @Assisted String loggedInID,
                             ShareListManager libraryManager, IconManager iconManager, LibraryNavigator libraryNavigator,
-                            ResultDownloader downloader, RemoteFileItemFactory remoteFileItemFactory,
-                            SaveLocationExceptionHandler saveLocationExceptionHandler,
-                            IconLibrary iconLibrary,
+                            IconLibrary iconLibrary, ChatHyperlinkListenerFactory chatHyperlinkListenerFactory,
                             @Named("backgroundExecutor")ScheduledExecutorService schedExecService) {
         this.writer = writer;
         this.chatFriend = chatFriend;
-        this.remoteFileItemFactory = remoteFileItemFactory;
         this.conversationName = chatFriend.getName();
         this.friendId = chatFriend.getID();
         this.loggedInID = loggedInID;
         this.shareListManager = libraryManager;
         this.iconManager = iconManager;
         this.libraryNavigator = libraryNavigator;
-        this.downloader = downloader;
-        this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         
         GuiUtils.assignResources(this);
 
@@ -177,7 +152,6 @@ public class ConversationPane extends JPanel implements Displayable {
         editor = new JEditorPane();
         editor.setEditable(false);
         editor.setContentType("text/html");
-        editor.addHyperlinkListener(new HyperlinkListener());
         editor.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
         HTMLEditorKit editorKit = (HTMLEditorKit) editor.getEditorKit();
         editorKit.setAutoFormSubmission(false);
@@ -244,13 +218,14 @@ public class ConversationPane extends JPanel implements Displayable {
 
         PopupUtil.addPopupMenus(editor, new CopyAction(editor), new CopyAllAction());
 
-        FriendShareDropTarget friendShare = new FriendShareDropTarget(editor, libraryManager.getOrCreateFriendShareList(chatFriend.getFriend()));
+        FriendShareDropTarget friendShare = new FriendShareDropTarget(editor, libraryManager.getOrCreateFriendShareList(chatFriend.getUser()));
         editor.setDropTarget(friendShare.getDropTarget());
 
         add(footerPanel(writer, chatFriend, schedExecService), BorderLayout.SOUTH);
 
         setBackground(DEFAULT_BACKGROUND);
 
+        editor.addHyperlinkListener(chatHyperlinkListenerFactory.create(this));
         EventAnnotationProcessor.subscribe(this);
     }
 
@@ -275,7 +250,7 @@ public class ConversationPane extends JPanel implements Displayable {
             @Override
             @SwingEDTEvent
             public void handleEvent(FriendEvent event) {
-                if (event.getSource().getId().equals(friendId)) {
+                if (event.getData().getId().equals(friendId)) {
                     handleFriendEvent(event);
                 }
             }
@@ -363,8 +338,16 @@ public class ConversationPane extends JPanel implements Displayable {
         return ChatStateEvent.buildTopic(friendId);
     }
 
-    private void displayMessages() {
+    public void displayMessages() {
         displayMessages(false);
+    }
+
+    public ChatFriend getChatFriend() {
+        return chatFriend;
+    }
+
+    public Map<String, MessageFileOffer> getFileOfferMessages() {
+        return Collections.unmodifiableMap(new HashMap<String, MessageFileOffer>(idToMessageWithFileOffer));
     }
 
     private void displayMessages(boolean friendSignedOff) {
@@ -462,7 +445,7 @@ public class ConversationPane extends JPanel implements Displayable {
         panel.add(inputPanel, BorderLayout.CENTER);
 
         JTextComponent inputComponent = inputPanel.getInputComponent();
-        FriendShareDropTarget friendShare = new FriendShareDropTarget(inputComponent, shareListManager.getOrCreateFriendShareList(chatFriend.getFriend()));
+        FriendShareDropTarget friendShare = new FriendShareDropTarget(inputComponent, shareListManager.getOrCreateFriendShareList(chatFriend.getUser()));
         inputComponent.setDropTarget(friendShare.getDropTarget());
 
         return panel;
@@ -477,158 +460,89 @@ public class ConversationPane extends JPanel implements Displayable {
 
     private class DownloadFromFriendLibraryAction extends AbstractAction {
         public DownloadFromFriendLibraryAction() {
-            super(tr("<html><u>{0}</u></html>", "Browse Files"));
+            super("<html><u>" + tr("Browse Files") + "</u></html>");
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            libraryNavigator.selectFriendLibrary(chatFriend.getFriend());
+            libraryNavigator.selectFriendLibrary(chatFriend.getUser());
         }
     }
 
     private class ShareAction extends AbstractAction {
         public ShareAction() {
-            super(tr("<html><u>{0}</u></html>", "Share"));
+            super("<html><u>" + tr("What I'm Sharing") + "</u></html>");
         }
         
         @Override
         public void actionPerformed(ActionEvent e) {
-            libraryNavigator.selectFriendShareList(chatFriend.getFriend());
+            libraryNavigator.selectFriendShareList(chatFriend.getUser());
         }
     }
 
-    private class HyperlinkListener implements javax.swing.event.HyperlinkListener {
-
-        @Override
-        public void hyperlinkUpdate(HyperlinkEvent e) {
-            if (e instanceof FormSubmitEvent) {
-                FormSubmitEvent event = (FormSubmitEvent) e;
-                //Just pushed the download the file button...
-                LOG.debugf("File offer download requested. FileId: {0}", event.getData());
-
-                DownloadItem dl;
-                MessageFileOffer msgWithfileOffer = null;
-                RemoteFileItem file = null;
-                try {
-                    String dataStr = event.getData();
-                    String fileIdEncoded = dataStr.substring(dataStr.indexOf("=")+1).trim();
-                    String fileId = URLDecoder.decode(fileIdEncoded, "UTF-8");
-                    msgWithfileOffer = idToMessageWithFileOffer.get(fileId);
-
-                    file = remoteFileItemFactory.create(chatFriend.getBestPresence(),
-                           msgWithfileOffer.getFileOffer());
-                    // TODO: what if offered file not in map for any reason?
-                    //       Also, when would we remove items from the map?
-                   dl = downloader.addDownload(file);
-                   // Track download states by adding listeners to dl item
-                   addPropertyListener(dl, msgWithfileOffer);
-                } catch(SaveLocationException sle) {
-                    final RemoteFileItem remoteFileItem = file;
-                    final MessageFileOffer messageFileOffer = msgWithfileOffer;
-                    saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
-                        @Override
-                        public void download(File saveFile, boolean overwrite)
-                                throws SaveLocationException {
-                            DownloadItem dl = downloader.addDownload(remoteFileItem, saveFile, overwrite);
-                            addPropertyListener(dl, messageFileOffer);
-                        }
-                    }, sle, true); 
-                } catch (InvalidDataException ide) {
-                    // this means the FileMetaData we received isn't well-formed.
-                    LOG.error("Unable to access remote file", ide);
-                    FocusJOptionPane.showMessageDialog(ConversationPane.this, 
-                            I18n.tr("Unable to access remote file"), 
-                            I18n.tr("Hyperlink"), JOptionPane.WARNING_MESSAGE);
-                } catch(UnsupportedEncodingException uee) {
-                    throw new RuntimeException(uee); // impossible
-                }
-
-               
-
-            } else if (EventType.ACTIVATED == e.getEventType()) {
-                if (ChatDocumentBuilder.LIBRARY_LINK.equals(e.getDescription())) {
-                    LOG.debugf("Opening a view to {0}'s library", chatFriend.getName());
-                    libraryNavigator.selectFriendLibrary(chatFriend.getFriend());
-
-                } else if (ChatDocumentBuilder.MY_LIBRARY_LINK.equals(e.getDescription())) {
-                    LOG.debugf("Opening a view to my library");
-                    libraryNavigator.selectLibrary();
-                } else {
-                    String linkDescription = e.getDescription();
-                    LOG.debugf("Hyperlink clicked: {0}", linkDescription);
-                    if (linkDescription.startsWith("magnet")) {
-                        //TODO: Need to do something with magnet links
-
-                    } else {
-                        NativeLaunchUtils.openURL(e.getURL().toString());
-                    }
-                }
-            }
-        }
-
-        private void addPropertyListener(DownloadItem dl, final MessageFileOffer msgWithfileOffer) {
-            dl.addPropertyChangeListener(new PropertyChangeListener() {
-                   public void propertyChange(PropertyChangeEvent evt) {
-                       if ("state".equals(evt.getPropertyName())) {
-                           DownloadState state = (DownloadState) evt.getNewValue();
-                           msgWithfileOffer.setDownloadState(state);
-                           displayMessages();
-                       }
-                   }
-               });
-        }
-    }
-    
-    public void offerFolder(File folder, ListeningFuture<List<ListeningFuture<LocalFileItem>>> future) {
+    public void offerFolder(ListeningFuture<List<ListeningFuture<LocalFileItem>>> future) {
         // TODO: Change this to show event immediately & update as status changes.
         future.addFutureListener(new EventListener<FutureEvent<List<ListeningFuture<LocalFileItem>>>>() {
             @Override
             public void handleEvent(FutureEvent<List<ListeningFuture<LocalFileItem>>> event) {
                 if(event.getResult() != null) {
                     for(ListeningFuture<LocalFileItem> future : event.getResult()) {
-                        offerFile(null, future);
+                        offerFile(future);
                     }
                 }
             }
         });
     }
 
-    public void offerFile(File file, ListeningFuture<LocalFileItem> future) {
+    public void offerFile(ListeningFuture<LocalFileItem> future) {
         // TODO: Change this to show event immediately & update as status changes.
         future.addFutureListener(new EventListener<FutureEvent<LocalFileItem>>() {
             @SwingEDTEvent
             @Override
             public void handleEvent(FutureEvent<LocalFileItem> event) {
                if(event.getResult() != null) {
-                   FriendPresence presence = chatFriend.getBestPresence();
-                   Feature fileOfferFeature = presence.getFeature(FileOfferFeature.ID);
-                   if(fileOfferFeature != null) {
-                       // update the chat state in case the remote user has not started conversation with us
-                       try {
-                           writer.setChatState(ChatState.active);
-                       } catch (XMPPException e) {
-                           LOG.error("Unable to set chat state prior to file offer", e);
-                       }
+                   FileMetaData metadata = event.getResult().toMetadata();
+                   boolean sentFileOffer = false;
 
-                       // TODO: Listen for the file being added to the library &
-                       //       update the MFOI based on status.
-                       //       Send to offerer when File becomes FileItem.
-                       FileOfferer fileOfferer = ((FileOfferFeature) fileOfferFeature).getFeature();
-                       FileMetaData metadata = event.getResult().toMetadata();
-                       try {
-                           fileOfferer.offerFile(metadata);
-                           new MessageReceivedEvent(new MessageFileOfferImpl(loggedInID, null, friendId,
-                                   Message.Type.Sent, metadata)).publish();
-                       } catch (XMPPException e) {
-                           LOG.debug("file offer failed", e);
-                       }
+                   // if active presence exists, send file offer to it,
+                   // otherwise broadcast to every presence with FileOfferFeature.ID feature
+                   User chatUser = chatFriend.getUser();
+                   FriendPresence activePresence = chatUser.getActivePresence();
+                   if ((activePresence != null) && activePresence.hasFeatures(FileOfferFeature.ID)) {
+                        sentFileOffer = performFileOffer(metadata, activePresence);
                    } else {
-                       // TODO
+                       for (FriendPresence presence : chatUser.getFriendPresences().values()) {
+                            sentFileOffer |= performFileOffer(metadata, presence);
+                       }
+                   }
+
+                   MessageFileOffer fileOfferMessage =
+                           new MessageFileOfferImpl(loggedInID, friendId, Message.Type.Sent, metadata, null);
+
+                   if (sentFileOffer) {
+                        new MessageReceivedEvent(fileOfferMessage).publish();
+                   } else {
+                       // TODO: Devise how to handle file offer sending failures, using tooltip perhaps?
                    }
                }
-            } 
+            }
+
+            private boolean performFileOffer(FileMetaData metadata, FriendPresence presence) {
+                Feature fileOfferFeature = presence.getFeature(FileOfferFeature.ID);
+                boolean fileOfferSent = false;
+                if (fileOfferFeature != null) {
+                    try {
+                        writer.setChatState(ChatState.active);
+                        FileOfferer fileOfferer = ((FileOfferFeature) fileOfferFeature).getFeature();
+                        fileOfferer.offerFile(metadata);
+                        fileOfferSent = true;
+                    } catch (XMPPException e) {
+                        LOG.debug("File offer failed", e);
+                    }
+                }
+                return fileOfferSent;
+            }
         });
-        
     }
     
     private class FriendShareDropTarget implements DropTargetListener {
@@ -682,9 +596,9 @@ public class ConversationPane extends JPanel implements Displayable {
                     for(File file : droppedFiles) {
                         if(file != null) {
                             if(file.isDirectory()) {
-                                acceptedFolder(file, currentModel.addFolder(file));
+                                acceptedFolder(currentModel.addFolder(file));
                             } else {
-                                acceptedFile(file, currentModel.addFile(file));
+                                acceptedFile(currentModel.addFile(file));
                             }
                         }
                     }
@@ -702,12 +616,12 @@ public class ConversationPane extends JPanel implements Displayable {
         public void dropActionChanged(DropTargetDragEvent dtde) {
         }
         
-        protected void acceptedFile(File file, ListeningFuture<LocalFileItem> future) {
-            offerFile(file, future);
+        protected void acceptedFile(ListeningFuture<LocalFileItem> future) {
+            offerFile(future);
         }
         
-        protected void acceptedFolder(File folder, ListeningFuture<List<ListeningFuture<LocalFileItem>>> future) {
-            offerFolder(folder, future);
+        protected void acceptedFolder(ListeningFuture<List<ListeningFuture<LocalFileItem>>> future) {
+            offerFolder(future);
         }
     }
 }

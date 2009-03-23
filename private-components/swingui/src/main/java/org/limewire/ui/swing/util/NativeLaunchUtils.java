@@ -9,17 +9,13 @@ import java.net.URI;
 import java.util.Locale;
 
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
+import org.limewire.concurrent.ManagedThread;
 import org.limewire.core.api.Category;
-import org.limewire.core.settings.URLHandlerSettings;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.components.FocusJOptionPane;
-import org.limewire.util.MediaType;
 import org.limewire.util.OSUtils;
-import org.limewire.util.QuotedStringTokenizer;
-import org.limewire.util.StringUtils;
 import org.limewire.util.SystemUtils;
 
 
@@ -104,8 +100,7 @@ public final class NativeLaunchUtils {
                 } else if (OSUtils.isMacOSX()) {
                     openURLMac(url);
                 } else {
-                    // Other OS
-                    launchFileOther(url);
+                    openURLLinux(url);
                 }
             } catch (IOException iox) {
                 logException(I18n.tr("Unable to open URL"), I18n.tr("Open URL"), iox);
@@ -114,6 +109,16 @@ public final class NativeLaunchUtils {
     }
 
 	/**
+	 * Trys to open the url with the default browser on linux, passing it the specified
+     * url.
+     * 
+	 * @param url the url to open in the browser
+	 */
+	private static Process openURLLinux(String url) throws IOException {
+	    return exec("xdg-open", url);
+    }
+
+    /**
 	 * Opens the default web browser on windows, passing it the specified
 	 * url.
 	 *
@@ -172,65 +177,87 @@ public final class NativeLaunchUtils {
 	 * .bat, .sys, or .com extensions, diplaying an error if one of the file is
 	 * of one of these types.
 	 * 
+	 * This is run on its own thread to prevent ui calls from blocking.
+	 *
 	 * @param file the file to launch
 	 * @return an object for accessing the launch process; null, if the process
 	 *         can be represented (e.g. the file was launched through a native
 	 *         call)
 	 */
-	private static void launchFile(File file) {
-	    try {
-	        launchFileImpl(file);
-        } catch (LaunchException lex) {
-            logException(I18n.tr("Unable to open file: {0}", file.getName()),
-                    I18n.tr("Open File"), lex);
-        } catch (IOException iox) {
-            logException(I18n.tr("Unable to open file: {0}", file.getName()),
-                    I18n.tr("Open File"), iox);
-        } catch (SecurityException ex) {
-            logException(I18n.tr("Unable to open file: {0}", file.getName()),
-                    I18n.tr("Open File"), ex);
-        }
+	private static void launchFile(final File file) {
+	    ManagedThread managedThread = new ManagedThread( new Runnable() {
+	    @Override
+	        public void run() {
+        	    try {
+        	        launchFileImpl(file);
+                } catch (LaunchException lex) {
+                    logException(I18n.tr("Unable to open file: {0}", file.getName()),
+                            I18n.tr("Open File"), lex);
+                } catch (IOException iox) {
+                    logException(I18n.tr("Unable to open file: {0}", file.getName()),
+                            I18n.tr("Open File"), iox);
+                } catch (SecurityException ex) {
+                    logException(I18n.tr("Unable to open file: {0}", file.getName()),
+                            I18n.tr("Open File"), ex);
+                }
+    	    }
+	    });
+	    managedThread.start();
+	    
     }
 	
 	private static void launchFileImpl(File file) throws IOException, SecurityException {
 		String path = file.getCanonicalPath();
 		String extCheckString = path.toLowerCase(Locale.US);
 
-        // expand pmf files before display
-//        if (extCheckString.endsWith(".pmf")) {
-//            file = PackagedMediaFileUtils.preparePMFFile(file.toString());
-//            // don't launch an invalid file
-//            if (file == null) {
-//            	throw new IOException("Invalid file");
-//            }
-//
-//            path = file.getCanonicalPath();
-//            extCheckString = path.toLowerCase(Locale.US);
-//        }
 	     if(!extCheckString.endsWith(".exe") &&
 	                !extCheckString.endsWith(".vbs") &&
 	                !extCheckString.endsWith(".lnk") &&
 	                !extCheckString.endsWith(".bat") &&
 	                !extCheckString.endsWith(".sys") &&
 	                !extCheckString.endsWith(".com")) {
-    		try {
-    		    Desktop.getDesktop().open(file);
-    		} catch (Throwable t) {
-    	   
-                     if (OSUtils.isWindows()) {
-                         launchFileWindows(path);
-                     } else if (OSUtils.isMacOSX()) {
-                         launchFileMacOSX(path);
-                     } else {
-                         // Other OS, use helper apps
-                         launchFileOther(path);
-                     }
-                            
-    		}
+	         
+	         if(OSUtils.isLinux()) {
+	             //Desktop.open is not working well under linux
+	             //it converts the path to a uri and many programs are not supporting it properly
+	             int exitCode = -1;
+	             try {
+    	             Process process = launchFileLinux(path);
+    	             exitCode = process.waitFor();
+	             } catch(Exception e) {
+	                 //exceptions can be thrown when launcher does not exist
+	                 exitCode = -1;
+	             }
+	             
+	             if(exitCode != 0) {
+	                 //a non-zero exit value means there was an error opening the file
+	                 //failing back to Desktop.open
+	                 openFile(file);
+	             }
+	         } else {
+	             //Using Desktop.open for windows and mac
+	             openFile(file);
+	         }
 	     } else {
              throw new SecurityException();
          }
 	}
+
+    private static void openFile(File file) throws IOException {
+        String path = file.getCanonicalPath();
+         try {
+             Desktop.getDesktop().open(file);
+         } catch(Throwable t) {
+             //failing over to native implementations when Desktop.open fails.
+             if (OSUtils.isWindows()) {
+                 launchFileWindows(path);
+             } else if (OSUtils.isMacOSX()) {
+                 launchFileMacOSX(path);
+             } else {
+                 launchFileLinux(path);
+             }
+         }
+    }
 
     /**
      * Launches the Explorer/Finder and highlights the file.
@@ -298,6 +325,18 @@ public final class NativeLaunchUtils {
         return command;
     }
 
+	/**
+	 * Launches the given file on Linux.
+	 *
+	 * @param path the path of the file to launch
+	 *
+	 * @return Process which was used to open the file. In this case the xdg-open. 
+	 * The actual file will be opened in another process.
+	 */
+	 private static Process launchFileLinux(String path) throws IOException {
+	        return exec("xdg-open", path);
+	 }
+	 
     /**
 	 * Launches the given file on Windows.
 	 *
@@ -375,35 +414,6 @@ public final class NativeLaunchUtils {
 		} 
 	}
     
-    
-	/**
-	 * Attempts to launch the given file.
-	 *
-	 * @throws IOException  if the call to Runtime.exec throws an IOException
-	 *                      or if the Process created by the Runtime.exec call
-	 *                      throws an InterruptedException
-	 */
-	private static Process launchFileOther(String path) throws IOException {
-	    String handler;
-	    if (MediaType.getAudioMediaType().matches(path)) {
-	    	handler = URLHandlerSettings.AUDIO_PLAYER.getValue();
-	    } else if (MediaType.getVideoMediaType().matches(path)) {
-	    	handler = URLHandlerSettings.VIDEO_PLAYER.getValue();
-	    } else if (MediaType.getImageMediaType().matches(path)) {
-	    	handler = URLHandlerSettings.IMAGE_VIEWER.getValue();
-	    } else {
-	    	handler = URLHandlerSettings.BROWSER.getValue();
-	    }
-
-	    QuotedStringTokenizer tok = new QuotedStringTokenizer(handler);
-	    String[] strs = new String[tok.countTokens()];
-	    for (int i = 0; i < strs.length; i++) {
-	    	strs[i] = StringUtils.replace(tok.nextToken(), "$URL$", path);
-	    }
-
-	    return exec(strs);
-    }
-	
 	private static Process exec(String... commands) throws LaunchException {
 	    ProcessBuilder pb = new ProcessBuilder(commands);
 	    try {
@@ -417,16 +427,18 @@ public final class NativeLaunchUtils {
      * Logs the specified exception, and displays the specified user message
      * if the current thread is the UI thread.
      */
-    private static void logException(String userMessage, String title, Exception ex) {
+    private static void logException(final String userMessage, final String title, Exception ex) {
         // Report exception to logger.
         LOG.error(userMessage, ex);
         
-        // Display user message only on UI thread.  Failed calls from 
-        // background threads are not displayed to the user.
-        if (SwingUtilities.isEventDispatchThread()) {
-            FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(),
-                userMessage, title, JOptionPane.INFORMATION_MESSAGE);
-        }
+        // Display user message
+        SwingUtils.invokeLater( new Runnable() {
+            @Override
+            public void run() {
+                FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(),
+                        userMessage, title, JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
     }
 	
 	public static class LaunchException extends IOException {

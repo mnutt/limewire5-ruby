@@ -1,5 +1,6 @@
 package org.limewire.core.impl.library;
 
+import org.limewire.core.api.library.FriendAutoCompleterFactory;
 import org.limewire.core.api.library.FriendShareListEvent;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.MagnetLinkFactory;
@@ -28,6 +29,7 @@ public class MockLibraryModule extends AbstractModule {
         bind(new TypeLiteral<EventListener<FriendShareListEvent>>(){}).toInstance(friendShareListMulticaster);
         bind(new TypeLiteral<ListenerSupport<FriendShareListEvent>>(){}).toInstance(friendShareListMulticaster);
         bind(MetaDataManager.class).to(MockMetaDataManager.class);
+        bind(FriendAutoCompleterFactory.class).to(MockFriendAutoCompleterFactory.class);
     }
 
 }

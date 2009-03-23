@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.net.ProxySettings.ProxyType;
 import org.limewire.nio.NBSocket;
 import org.limewire.nio.NBSocketFactory;
@@ -19,6 +21,9 @@ import com.google.inject.Singleton;
 @Singleton
 class SimpleSocketController implements SocketController {    
 
+    private final static Log LOG =
+        LogFactory.getLog(SimpleSocketController.class);
+    
     /** The possibly null address to bind to. */
     private InetSocketAddress lastBindAddr;
     
@@ -81,10 +86,21 @@ class SimpleSocketController implements SocketController {
         NBSocket socket = factory.createSocket();
         bindSocket(socket, localAddr);
         
-        if(observer == null)
+        if(observer == null) {
+            if(LOG.isDebugEnabled()) {
+                String ipp = addr.getAddress().getHostAddress() +
+                    ":" + addr.getPort();
+                LOG.debug("Connecting to " + ipp + " (blocking)");
+            }
             socket.connect(addr, timeout); // blocking
-        else
+        } else {
+            if(LOG.isDebugEnabled()) {
+                String ipp = addr.getAddress().getHostAddress() +
+                    ":" + addr.getPort();
+                LOG.debug("Connecting to " + ipp + " (non-blocking)");
+            }
             socket.connect(addr, timeout, observer); // non-blocking
+        }
         
         return socket;
     }

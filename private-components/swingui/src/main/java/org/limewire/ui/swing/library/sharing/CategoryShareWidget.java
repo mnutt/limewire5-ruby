@@ -5,6 +5,7 @@ import java.awt.Component;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.ui.swing.components.ShapeDialog;
+import org.limewire.ui.swing.friends.login.FriendActions;
 import org.limewire.ui.swing.library.sharing.model.CategoryShareModel;
 import org.limewire.ui.swing.util.I18n;
 
@@ -16,9 +17,9 @@ public class CategoryShareWidget implements ShareWidget<Category> {
     private Category category;
     private ShareListManager shareListManager;
     
-    public CategoryShareWidget(ShareListManager shareListManager, ThreadSafeList<SharingTarget> allFriends, ShapeDialog shapeDialog){
+    public CategoryShareWidget(ShareListManager shareListManager, ThreadSafeList<SharingTarget> allFriends, ShapeDialog shapeDialog, FriendActions friendActions){
         this.shareListManager = shareListManager;
-        sharePanel = new LibrarySharePanel(allFriends, shapeDialog);
+        sharePanel = new LibrarySharePanel(allFriends, shapeDialog, friendActions);
     }
     
     @Override

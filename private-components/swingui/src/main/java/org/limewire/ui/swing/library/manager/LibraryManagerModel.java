@@ -4,11 +4,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
+import org.limewire.util.FileUtils;
 
 public class LibraryManagerModel extends AbstractTreeTableModel {
 
@@ -17,8 +19,11 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
     
     private static final int COLUMN_COUNT = 2;
     
-    public LibraryManagerModel(RootLibraryManagerItem item) {
+    private ExcludedFolderCollectionManager excludedSubfolders;
+    
+    public LibraryManagerModel(RootLibraryManagerItem item, ExcludedFolderCollectionManager excludedSubfolders) {
         super(item);
+        this.excludedSubfolders = excludedSubfolders;
     }
     
     @Override
@@ -51,11 +56,20 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
         return path.toArray(new LibraryManagerItem[0]);
     }
     
+    /**
+     * Adds the child to the parent. This does not handle cleaning up the exclusion
+     * list, only modifies what is shown in the UI. 
+     */
     public void addChild(LibraryManagerItem child, LibraryManagerItem parent) {
         int idx = parent.addChild(child);
         modelSupport.fireChildAdded(new TreePath(getPathToRoot(parent)), idx, child);
     }
     
+    /**
+     * Removes the child from it's parent. This does not handle cleaning up
+     * the exclusion list, only modifies what is shown in the UI. It is the
+     * responsibility of the caller to cleanup any artifacts in the exclusion list.
+     */
     public void removeChild(LibraryManagerItem item) {
         LibraryManagerItem parent = item.getParent();
         if (parent == null) {
@@ -64,6 +78,87 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
 
         int index = parent.removeChild(item);
         modelSupport.fireChildRemoved(new TreePath(getPathToRoot(parent)), index, item);
+    }
+    
+    /**
+     * Removes this item from the tree. If the item is a root, the item is not
+     * added to the excluded folder list. If the item is not a root, the item
+     * gets added to the exclusion list. All the children of this item
+     * that are also excluded are removed from the exclusion list.
+     */
+    public void excludeChild(LibraryManagerItem item) {
+        boolean isRootChild = getRootChildrenAsFiles().contains(item.getFile());
+        removeChild(item);        
+        if (!isRootChild) {
+            //top level managed folders should not be added to exclude list
+            excludeFolder(item.getFile());   
+        }        
+        unexcludeUnmanagedSubfolders(item.getFile());
+    }
+    
+    /**
+     * When adding a item. If any descendant of this item
+     * is excluded, remove those children from the
+     * exclusion list.
+     */
+    public void unexcludeAllSubfolders(File parent) {
+        for(Iterator<File> iter = excludedSubfolders.getExcludedFolders().iterator(); iter.hasNext(); ) {
+            File child = iter.next();
+            if(FileUtils.isAncestor(parent, child))
+                iter.remove();
+        }
+    }
+    
+    /**
+     * Unexcludes all subfolders with no intermediate managed folder. When a folder
+     * is removed from being managed, will remove all the children of that folder 
+     * that are excluded unless that excluded folder is a child of a managed folder.
+     * 
+     * A(managed) |-B
+     *            |-C (Excluded)
+     *   
+     *   Removing the node A will remove C from the exclusion list
+     *   
+     * A(managed) |-B
+     *            |-C (Excluded)
+     *              |- D (managed)
+     *                 |- E (Excluded)
+     *  
+     *    Removing the node A will remove C from the exclusion list
+     *    but will not remove E from the exclusion list since D is
+     *    explicitly managed and D is the parent of E
+     */    
+    private void unexcludeUnmanagedSubfolders(File parent){
+        for(Iterator<File> iter = excludedSubfolders.getExcludedFolders().iterator(); iter.hasNext(); ) {
+            File child = iter.next();
+            if(shouldRemoveFromExcludeList(child, parent))
+                iter.remove();
+        } 
+    }
+    
+    /**Adds folder to list of excluded subfolders. */
+    private void excludeFolder(File folder) { 
+        excludedSubfolders.exclude(folder);     
+    }
+       
+    /**
+     * @return true if child is a subfolder of ancestor and there is no intermediate managed folder.  
+     */
+    private boolean shouldRemoveFromExcludeList(File child, File ancestor) {
+        Collection<File> roots = getRootChildrenAsFiles();        
+        
+        child = child.getParentFile();        
+        
+        while (child != null) {
+            if (child.equals(ancestor)) {
+                return true;
+            } else if (roots.contains(child)) {
+                return false; // there is an intermediate managed folder
+            }
+            child = child.getParentFile();
+        }
+        
+        return false;
     }
     
     @Override
@@ -132,29 +227,22 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
         return -1;
     }
     
+    /**
+     * Returns a list of all the root folders
+     */
     public Collection<File> getRootChildrenAsFiles() {
         Collection<File> manageRecursively = new HashSet<File>();
-        List<LibraryManagerItem> children = getRoot().getChildren();
-        for(LibraryManagerItem child : children) {
+        for(LibraryManagerItem child : getRoot().getChildren()) {
             manageRecursively.add(child.getFile());
         }
         return manageRecursively;
     }
     
+    /**
+     * Returns list of excluded directories
+     */
     public Collection<File> getAllExcludedSubfolders() {
-        Collection<File> excludes = new HashSet<File>();
-        List<LibraryManagerItem> children = getRoot().getChildren();
-        for(LibraryManagerItem child : children) {
-            addExclusions(child, excludes);
-        }
-        return excludes;
-    }
-        
-    private void addExclusions(LibraryManagerItem item, Collection<File> excludes) {
-        excludes.addAll(item.getExcludedChildren());
-        for(LibraryManagerItem child : item.getChildren()) {
-            addExclusions(child, excludes);
-        }
+        return excludedSubfolders.getExcludedFolders();
     }
 
     public void setRootChildren(List<LibraryManagerItem> children) {
@@ -165,6 +253,6 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
         for(LibraryManagerItem child : children) {
             addChild(child, getRoot());
         }
-        
     }    
+
 }

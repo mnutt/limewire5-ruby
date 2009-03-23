@@ -315,18 +315,6 @@ public class SharingSettings extends LimeProps {
 		FACTORY.createBooleanSetting("SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES", true);
     
     /**
-     * Whether or not to auto-share .torrent files.
-     */
-    public static final BooleanSetting SHARE_TORRENT_META_FILES =
-        FACTORY.createBooleanSetting("SHARE_TORRENT_META_FILES_2", true);
-    
-    /**
-     * Whether or not to show .torrent directory in Library.
-     */
-    public static final BooleanSetting SHOW_TORRENT_META_FILES =
-        FACTORY.createBooleanSetting("SHOW_TORRENT_META_FILES", false); 
-    
-    /**
      * Sets the probability (expressed as a percentage) that an incoming
      * freeloader will be accepted.   For example, if allowed==50, an incoming
      * connection has a 50-50 chance being accepted.  If allowed==100, all

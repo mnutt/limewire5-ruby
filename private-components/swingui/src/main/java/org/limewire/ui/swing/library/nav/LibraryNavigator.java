@@ -6,6 +6,7 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.friend.Friend;
+import org.limewire.ui.swing.library.Catalog;
 
 /** Controls navigation of you & your friends libraries. */
 public interface LibraryNavigator {
@@ -28,11 +29,17 @@ public interface LibraryNavigator {
     /** Selects the library without any specific file being selected. */
     void selectLibrary();
     
-    /** Returns the file item before the one passed in your library. */
-    File getPreviousInLibrary(File file, Category category);
+    /** Returns the previous file in the active catalog. */
+    File getPreviousInLibrary(File file);
     
-    /** Returns the file item after the one passed in your library. */
-    File getNextInLibrary(File file, Category category);
+    /** Returns the next file in the active catalog. */
+    File getNextInLibrary(File file);
+    
+    /**
+     * Sets the active catalog in the library.  This method is called when
+     * file playing is started in the media player.
+     */
+    void setActiveCatalog(Catalog catalog);
     
     /**
      * Returns the selected friend in the library. 

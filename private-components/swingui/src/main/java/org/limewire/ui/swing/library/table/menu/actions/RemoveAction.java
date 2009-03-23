@@ -1,10 +1,12 @@
 package org.limewire.ui.swing.library.table.menu.actions;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.player.PlayerUtils;
 import org.limewire.ui.swing.util.I18n;
 
 /**
@@ -22,7 +24,11 @@ public class RemoveAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        File currentSong = PlayerUtils.getCurrentSongFile();
         for (LocalFileItem fileItem : fileItemArray) {
+            if(fileItem.getFile().equals(currentSong)){
+                PlayerUtils.stop();
+            }
             if (!fileItem.isIncomplete()) {
                 libraryManager.getLibraryManagedList().removeFile(fileItem.getFile());
             }

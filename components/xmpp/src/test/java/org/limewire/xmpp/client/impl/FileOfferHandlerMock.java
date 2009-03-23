@@ -22,6 +22,6 @@ public class FileOfferHandlerMock implements RegisteringEventListener<FileOfferE
     }
 
     public void handleEvent(FileOfferEvent event) {
-        offers.add(event.getSource().getFile());
+        offers.add(event.getData().getFile());
     }
 }

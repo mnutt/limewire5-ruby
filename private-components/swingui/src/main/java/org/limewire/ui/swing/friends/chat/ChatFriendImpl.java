@@ -1,12 +1,10 @@
 package org.limewire.ui.swing.friends.chat;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 
 import org.jdesktop.beans.AbstractBean;
-import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.feature.features.LimewireFeature;
 import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.xmpp.api.client.MessageReader;
@@ -36,7 +34,7 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
     }
 
     @Override
-    public Friend getFriend() {
+    public User getUser() {
         return user;
     }
     
@@ -50,8 +48,7 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
         return mode;
     }
     
-    @Override
-    public void setMode(Mode mode) {
+    void setMode(Mode mode) {
         Mode oldMode = getMode();
         this.mode = mode;
         firePropertyChange("mode", oldMode, mode);
@@ -67,8 +64,7 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
         return status;
     }
     
-    @Override
-    public void setStatus(String status) {
+    void setStatus(String status) {
         String oldStatus = getStatus();
         this.status = status;
         firePropertyChange("status", oldStatus, status);
@@ -104,7 +100,9 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
 
     @Override
     public void update() {
-        Presence presence = getBestPresence();
+        // If there's an available presence, set to "Available"
+        // If no available presence, use highest priority presence.
+        Presence presence = getPresenceForModeAndStatus();
         if (presence != null) {
             setStatus(presence.getStatus());
             setMode(presence.getMode());
@@ -150,36 +148,35 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
     }
 
     @Override
-    public boolean isReceivingUnviewedMessages() {
+    public boolean hasReceivedUnviewedMessages() {
         return hasUnviewedMessages;
     }
 
     @Override
-    public void setReceivingUnviewedMessages(boolean hasMessages) {
+    public void setReceivedUnviewedMessages(boolean hasMessages) {
         boolean oldHasUnviewedMessages = hasUnviewedMessages;
         hasUnviewedMessages = hasMessages;
         firePropertyChange("receivingUnviewedMessages", oldHasUnviewedMessages, hasMessages);
     }
 
-    @Override
-    public Presence getBestPresence() {
-        if (user.hasActivePresence()) {
-            return user.getActivePresence();
-        }
-        return getHighestPriorityPresence();
-    }
-
-    private Presence getHighestPriorityPresence() {
-        Collection<Presence> values = this.user.getPresences().values();
-        ArrayList<Presence> presences = new ArrayList<Presence>(values);
-        Collections.sort(presences, new PresenceSorter());
-        return presences.size() == 0 ? null : presences.get(0);
+    private Presence getPresenceForModeAndStatus() {
+        ArrayList<Presence> presences = new ArrayList<Presence>(user.getPresences().values());
+        Collections.sort(presences, new ModeAndPriorityPresenceComparator());
+        return presences.size() == 0 ? null : presences.get(presences.size()-1);
     }
     
-    private static class PresenceSorter implements Comparator<Presence> {
+    private static class ModeAndPriorityPresenceComparator implements Comparator<Presence> {
         @Override
         public int compare(Presence o1, Presence o2) {
-            return new Integer(o1.getPriority()).compareTo(new Integer(o2.getPriority()));
+            if (!o1.getMode().equals(o2.getMode())) {
+                if (o1.getMode() == Presence.Mode.available) {
+                    return 1;
+                } else if (o2.getMode() == Presence.Mode.available) {
+                    return -1;
+                }
+            }
+
+            return Integer.valueOf(o1.getPriority()).compareTo(o2.getPriority());
         }
     }
 }

@@ -4,3 +4,7 @@ all
 bin
 eclipse
 target
+out.txt
+clover
+junit
+testData

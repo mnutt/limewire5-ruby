@@ -114,9 +114,9 @@ public class SearchResultFromWidget extends JPanel {
     }
 
     private Action getSharingAction(final RemoteHost person) {
-        return new AbstractAction(tr("Share")) {
+        return new AbstractAction(tr("What I'm Sharing")) {
             {
-                putValue(SINGULAR_ACTION_NAME, tr("Share With {0}", person.getFriendPresence().getFriend().getRenderName()));
+                putValue(SINGULAR_ACTION_NAME, tr("What I'm Sharing with {0}", person.getFriendPresence().getFriend().getRenderName()));
             }
         
             @Override
@@ -130,7 +130,7 @@ public class SearchResultFromWidget extends JPanel {
         this.setLayout(new BorderLayout());
         this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
 
-        add(this.comboBox, BorderLayout.EAST);
+        add(this.comboBox, BorderLayout.WEST);
     }
 
     

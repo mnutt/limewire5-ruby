@@ -12,5 +12,12 @@ public interface MessageWriter {
      */
     public void writeMessage(String message) throws XMPPException;
 
+    /**
+     * If necessary, sends a message indicating the new
+     * chat state
+     *
+     * @param chatState
+     * @throws XMPPException
+     */
     public void setChatState(ChatState chatState) throws XMPPException;
 }

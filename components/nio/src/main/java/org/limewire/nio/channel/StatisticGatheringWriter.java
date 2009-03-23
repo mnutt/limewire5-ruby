@@ -6,11 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.limewire.collection.Buffer;
+import org.limewire.inspection.Inspectable;
 import org.limewire.nio.observer.WriteObserver;
 import org.limewire.util.ByteUtils;
 
 /** A simple writer that maintains statistics about how much was written. */
-public class StatisticGatheringWriter extends AbstractChannelInterestWriter {
+public class StatisticGatheringWriter extends AbstractChannelInterestWriter implements Inspectable {
 
     private final static long NANO_START = System.nanoTime();
     private static final int HISTORY = 50;
@@ -50,6 +51,7 @@ public class StatisticGatheringWriter extends AbstractChannelInterestWriter {
         super.interestWrite(observer, status);
     }
     
+    @Override
     public Object inspect() {
         Map<String,Object> ret = new HashMap<String,Object>();
         ret.put("ver",1);

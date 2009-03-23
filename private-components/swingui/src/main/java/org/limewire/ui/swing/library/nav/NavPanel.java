@@ -66,6 +66,7 @@ public class NavPanel extends JXPanel {
     
     private final RemoteLibraryManager remoteLibraryManager;
     private final FriendLibraryMediator libraryPanel;
+    private final LibraryNavigator libraryNavigator;
     
     private final Friend friend;
     private FriendLibrary friendLibrary;
@@ -89,6 +90,7 @@ public class NavPanel extends JXPanel {
              @Assisted Friend friend,
              @Assisted FriendLibraryMediator libraryPanel,
             RemoteLibraryManager remoteLibraryManager,
+            LibraryNavigator libraryNavigator,
             Provider<ChatAction> chatActionProvider) {
         super(new MigLayout("insets 0, gap 0, fill"));
         
@@ -101,6 +103,7 @@ public class NavPanel extends JXPanel {
         this.friend = friend;           
         this.libraryPanel = libraryPanel;
         this.remoteLibraryManager = remoteLibraryManager;        
+        this.libraryNavigator = libraryNavigator;
         
         selectedPainter = new GenericBarPainter<JXPanel>(new GradientPaint(0,0, selectedBackgroundGradientTop,
                 0,1, selectedBackgroundGradientBottom));
@@ -351,10 +354,6 @@ public class NavPanel extends JXPanel {
         action.actionPerformed(null);
     }
     
-    public void showSharingCard() {
-        libraryPanel.showSharingCard();
-    }
-    
     public void showLibraryCard() {
         libraryPanel.showLibraryCard();
     }
@@ -377,11 +376,10 @@ public class NavPanel extends JXPanel {
         @Override
         public void handlePopupMouseEvent(MouseEvent e) {
             JPopupMenu menu = new JPopupMenu();
-            menu.add(new JMenuItem(new AbstractAction(I18n.tr("Share")) {
+            menu.add(new JMenuItem(new AbstractAction(I18n.tr("What I'm Sharing")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    select();
-                    showSharingCard();
+                    libraryNavigator.selectFriendShareList(friend);
                 }                
             }));
             

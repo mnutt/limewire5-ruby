@@ -2,6 +2,7 @@ package org.limewire.ui.swing.friends.chat;
 
 import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.core.api.friend.FriendPresence;
 import static org.limewire.ui.swing.util.I18n.tr;
 
 /**
@@ -14,20 +15,29 @@ public class MessageFileOfferImpl extends AbstractMessageImpl implements Message
 
     private final FileMetaData fileMetadata;
     private DownloadState downloadState;
+    private FriendPresence sourcePresence;
 
 
-    public MessageFileOfferImpl(String senderName, String friendName, String friendId, Type type, FileMetaData fileMetadata) {
-        super(senderName, friendName, friendId, type);
+    public MessageFileOfferImpl(String senderName, String friendId, Type type, FileMetaData fileMetadata, FriendPresence sourcePresence) {
+        super(senderName, friendId, type);
         this.fileMetadata = fileMetadata;
         this.downloadState = null;
+        this.sourcePresence = sourcePresence;
     }
 
+    @Override
     public FileMetaData getFileOffer() {
         return fileMetadata;
     }
 
+    @Override
     public void setDownloadState(DownloadState downloadState) {
         this.downloadState = downloadState;
+    }
+
+    @Override
+    public FriendPresence getPresence() {
+        return sourcePresence;
     }
 
     public String toString() {
@@ -35,7 +45,8 @@ public class MessageFileOfferImpl extends AbstractMessageImpl implements Message
         String fileOffer = fileMetadata.getName();
         return fileOffer + "(" + state + ")";
     }
-    
+
+    @Override
     public String format() {
         boolean isIncoming = (getType() == Message.Type.Received);
         return isIncoming ? formatIncoming() : formatOutgoing();
@@ -66,27 +77,32 @@ public class MessageFileOfferImpl extends AbstractMessageImpl implements Message
                     + DOWNLOAD_FROM_LIBRARY;
 
         if (downloadState == null) {
+            // dl has not started yet...
             fileOfferFormatted = defaultFileOfferFormatted;
         } else {
 
             switch (downloadState) {
                 case REMOTE_QUEUED:
                 case LOCAL_QUEUED:
+                case TRYING_AGAIN:
                 case CONNECTING:
                 case PAUSED:
                 case FINISHING:
                 case DOWNLOADING:
                     fileOfferFormatted = fileOfferReceived +
-                        formatButtonText(tr("Downloading"), false) +
+                        formatButtonText(tr("Downloading {0}", fileMetadata.getName()), false) +
                                 DOWNLOAD_FROM_LIBRARY;
-
                     break;
+
                 case CANCELLED:
+                    fileOfferFormatted = defaultFileOfferFormatted + "<br/><br/>" +
+                            tr("Download cancelled.  Click button to retry");
+                    break;
+
                 case STALLED:
                 case ERROR:
-                    fileOfferFormatted = fileOfferReceived +
-                        formatButtonText(tr("Download {0}", fileMetadata.getName()), true) +
-                                DOWNLOAD_FROM_LIBRARY;
+                    fileOfferFormatted = defaultFileOfferFormatted + "<br/><br/>" +
+                            tr("Error downloading file.  Click button to retry");
                     break;
                 case DONE:
                     fileOfferFormatted = fileOfferReceived +

@@ -16,6 +16,7 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXList;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
+import org.limewire.ui.swing.library.SelectAllable;
 import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -31,7 +32,7 @@ import ca.odell.glazedlists.swing.EventSelectionModel;
  *  to right space before wrapping to a new line. Spaces between the
  *  images are injected with the inset values list below.
  */
-public class ImageList extends JXList implements Disposable{
+public class ImageList extends JXList implements Disposable, SelectAllable<LocalFileItem> {
 
     @Resource
     private Color backgroundListcolor;
@@ -76,8 +77,19 @@ public class ImageList extends JXList implements Disposable{
     }
     
     /** Returns a copy of all selected items. */
+    @Override
     public List<LocalFileItem> getSelectedItems() {
         return new ArrayList<LocalFileItem>(listSelection);
+    }
+    
+    @Override
+    public List<LocalFileItem> getAllItems() {
+        return new ArrayList<LocalFileItem>( ((ImageListModel)getModel()).getFileList().getSwingModel());
+    }
+
+    @Override
+    public void selectAll() {
+        getSelectionModel().setSelectionInterval(0, getModel().getSize()-1);
     }
 
     @Override

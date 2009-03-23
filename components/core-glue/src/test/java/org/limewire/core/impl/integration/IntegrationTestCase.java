@@ -25,6 +25,7 @@ import com.limegroup.gnutella.LimeCoreGlue;
 /**
  * Should be used when the test case requires to change settings.
  */
+// TODO: All the root dir stuff is broken & needs to be fixed.
 public abstract class IntegrationTestCase extends BaseTestCase implements ErrorCallback {
     
     protected static File _baseDir;

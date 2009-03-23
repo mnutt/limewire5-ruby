@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -29,11 +28,11 @@ import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.ui.swing.components.Disposable;
-import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.Line;
 import org.limewire.ui.swing.images.ImageCellRenderer;
 import org.limewire.ui.swing.images.ImageList;
 import org.limewire.ui.swing.images.ImageListModel;
+import org.limewire.ui.swing.library.SelectAllable;
 import org.limewire.ui.swing.library.table.Configurable;
 import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.table.TableRendererEditor;
@@ -47,7 +46,7 @@ import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
-public class LibraryImageSubPanel extends JPanel implements ListEventListener<LocalFileItem>, Disposable {
+public class LibraryImageSubPanel extends JPanel implements ListEventListener<LocalFileItem>, Disposable, SelectAllable<LocalFileItem> {
     
     @Resource
     private Color lineColor;
@@ -68,9 +67,10 @@ public class LibraryImageSubPanel extends JPanel implements ListEventListener<Lo
 
     private EventList<LocalFileItem> currentEventList;
     
-    private HyperlinkButton shareFolderButton;
+    private LibraryImageFolderComboBox shareFolderButton;
     
-    public LibraryImageSubPanel(final File parentFolder, EventList<LocalFileItem> eventList, LocalFileList fileList) {       
+    public LibraryImageSubPanel(final File parentFolder, EventList<LocalFileItem> eventList, LocalFileList fileList,
+            LibraryImageFolderComboBox comboBox) {       
         GuiUtils.assignResources(this); 
         
         setBackground(backgroundColor);
@@ -90,7 +90,9 @@ public class LibraryImageSubPanel extends JPanel implements ListEventListener<Lo
         FontUtils.setSize(headerLabel, mainLabelFontSize);
         FontUtils.bold(headerLabel);
        
-        shareFolderButton = new HyperlinkButton(I18n.tr("share folder"));
+        shareFolderButton = comboBox;
+        shareFolderButton.setText(I18n.tr("share folder"));
+        
         
         // black separator
         Line line = Line.createHorizontalLine(lineColor, lineSize);
@@ -125,10 +127,6 @@ public class LibraryImageSubPanel extends JPanel implements ListEventListener<Lo
         imageList.setPopupHandler(popupHandler);
     }
     
-    public void addShareFolderButtonAction(ActionListener listener){
-        shareFolderButton.addActionListener(listener);
-    }
-    
     public void setImageEditor(TableRendererEditor editor) {
         new MouseReaction(imageList, editor);
         layer.getGlassPane().add(editor);
@@ -142,8 +140,19 @@ public class LibraryImageSubPanel extends JPanel implements ListEventListener<Lo
         return (ImageListModel)imageList.getModel();
     }
     
+    @Override
     public List<LocalFileItem> getSelectedItems(){
         return new ArrayList<LocalFileItem>(imageList.getListSelection());
+    }
+    
+    @Override
+    public List<LocalFileItem> getAllItems() {
+        return new ArrayList<LocalFileItem>(imageList.getAllItems());
+    }
+    
+    @Override
+    public void selectAll() {
+        imageList.selectAll();
     }
     
     public void setSelectedIndex(int index) {

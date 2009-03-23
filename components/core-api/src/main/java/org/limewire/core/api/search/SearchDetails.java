@@ -1,5 +1,9 @@
 package org.limewire.core.api.search;
 
+import java.util.Map;
+
+import org.limewire.core.api.FilePropertyKey;
+
 /**
  * Details about how the search should be constructed.
  */
@@ -15,5 +19,10 @@ public interface SearchDetails {
     
     /** The kind of search. */
     public SearchType getSearchType();
+    
+    /** The advanced search map. */
+    public Map<FilePropertyKey, String> getAdvancedDetails();
+    
+    
 
 }

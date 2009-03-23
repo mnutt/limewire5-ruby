@@ -17,7 +17,7 @@ class ChatDocumentBuilder {
 
     private static final String LINE_BREAK = "<br/>";
 
-    static String TOP = 
+    final static String TOP = 
         "<html>" +
             "<head>" +
                 "<style>" +
@@ -39,7 +39,7 @@ class ChatDocumentBuilder {
             "</head>" +
             "<body>";
     
-    static String BOTTOM = 
+    final static String BOTTOM = 
         "</body>" +
         "</html>";
     

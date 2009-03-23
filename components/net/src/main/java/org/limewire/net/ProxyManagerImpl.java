@@ -31,6 +31,7 @@ import org.limewire.nio.statemachine.ReadState;
 import org.limewire.nio.statemachine.SimpleReadState;
 import org.limewire.nio.statemachine.SimpleWriteState;
 import org.limewire.util.BufferUtils;
+import org.limewire.util.StringUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -121,7 +122,8 @@ class ProxyManagerImpl implements ProxyManager {
         
         boolean auth = proxySettings.isProxyAuthenticationRequired();
         String authName = proxySettings.getProxyUsername();
-        byte[] authData = auth ? authName.getBytes() : new byte[0];
+        // couldn't find specs about username encoding, but username is most likely ascii,
+        byte[] authData = auth ? StringUtils.toAsciiBytes(authName) : new byte[0];
         ByteBuffer outgoing = ByteBuffer.allocate(2 + portBytes.length + hostBytes.length + authData.length + 1);
         outgoing.put((byte)0x04);
         outgoing.put((byte)0x01);
@@ -182,15 +184,17 @@ class ProxyManagerImpl implements ProxyManager {
 		String username = proxySettings.getProxyUsername();
 		if(username == null)
 		    username = "";
+		byte[] usernameBytes = StringUtils.toAsciiBytes(username);
 		String password = proxySettings.getProxyPassword();
 		if(password == null)
 		    password = "";
-        outgoing = ByteBuffer.allocate(1 + 1 + username.length() + 1 + password.length());
+		byte[] passwordBytes = StringUtils.toAsciiBytes(password);
+        outgoing = ByteBuffer.allocate(1 + 1 + usernameBytes.length + 1 + passwordBytes.length);
         outgoing.put((byte)0x01);
-        outgoing.put((byte)username.length());
-        outgoing.put(username.getBytes());
-        outgoing.put((byte)password.length());
-        outgoing.put(password.getBytes());
+        outgoing.put((byte)usernameBytes.length);
+        outgoing.put(usernameBytes);
+        outgoing.put((byte)passwordBytes.length);
+        outgoing.put(passwordBytes);
         outgoing.flip();
         states.add(new PossibleIOState(authSwitch, new SimpleWriteState(outgoing)));
         states.add(new PossibleIOState(authSwitch, new SimpleReadState(2) {
@@ -263,7 +267,7 @@ class ProxyManagerImpl implements ProxyManager {
         List<IOState> states = new LinkedList<IOState>();
         
 		String connectString = "CONNECT " + addr.getAddress().getHostAddress() + ":" + addr.getPort() + " HTTP/1.0\r\n\r\n";
-        ByteBuffer outgoing = ByteBuffer.wrap(connectString.getBytes());
+        ByteBuffer outgoing = ByteBuffer.wrap(StringUtils.toAsciiBytes(connectString));
         states.add(new SimpleWriteState(outgoing));
         
         // Reads until it encounters \r\n

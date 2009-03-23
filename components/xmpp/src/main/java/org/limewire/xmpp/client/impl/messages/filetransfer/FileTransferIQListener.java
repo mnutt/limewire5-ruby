@@ -8,7 +8,6 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.util.StringUtils;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.xmpp.api.client.FileOffer;
 import org.limewire.xmpp.api.client.FileOfferEvent;
@@ -51,8 +50,8 @@ public class FileTransferIQListener implements PacketListener {
             LOG.debug("handling file transfer get " + packet.getPacketID());
         }
         // TODO async?
-        String userID = StringUtils.parseBareAddress(packet.getFrom());
-        fileOfferBroadcaster.broadcast(new FileOfferEvent(new FileOffer(packet.getFileMetaData(), userID), FileOffer.EventType.OFFER));
+        String fromJid = packet.getFrom();
+        fileOfferBroadcaster.broadcast(new FileOfferEvent(new FileOffer(packet.getFileMetaData(), fromJid), FileOfferEvent.Type.OFFER));
         // TODO send acceptance or rejection;
         // TODO only needed for user feedback
     }

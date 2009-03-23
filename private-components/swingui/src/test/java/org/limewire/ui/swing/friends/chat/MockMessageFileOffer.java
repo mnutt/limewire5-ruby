@@ -1,12 +1,10 @@
 package org.limewire.ui.swing.friends.chat;
 
-import org.limewire.ui.swing.friends.chat.ChatFriend;
-import org.limewire.ui.swing.friends.chat.MessageFileOffer;
 import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.core.api.friend.FriendPresence;
 
 public class MockMessageFileOffer implements MessageFileOffer {
-    private final String friendName;
     private final String friendID;
     private final String senderName;
     private final Type type;
@@ -15,17 +13,11 @@ public class MockMessageFileOffer implements MessageFileOffer {
 
     public MockMessageFileOffer(ChatFriend chatFriend, long messageTimeMillis, String senderName,
             Type type, FileMetaData fileOffer) {
-        this.friendName = chatFriend.getName();
         this.friendID = chatFriend.getID();
         this.messageTimeMillis = messageTimeMillis;
         this.senderName = senderName;
         this.type = type;
         this.fileOffer = fileOffer;
-    }
-
-    @Override
-    public String getFriendName() {
-        return friendName;
     }
 
     @Override
@@ -61,6 +53,11 @@ public class MockMessageFileOffer implements MessageFileOffer {
     @Override
     public void setDownloadState(DownloadState downloadState) {
         // TBD when we wish to test with download states
+    }
+
+    @Override
+    public FriendPresence getPresence() {
+        return null;
     }
 }
 

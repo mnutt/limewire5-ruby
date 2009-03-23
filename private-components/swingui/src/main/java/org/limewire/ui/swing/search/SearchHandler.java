@@ -4,5 +4,5 @@ package org.limewire.ui.swing.search;
 public interface SearchHandler {
 
     /** Performs the search & displays it in the UI. */
-    void doSearch(SearchInfo info);
+    boolean doSearch(SearchInfo info);
 }

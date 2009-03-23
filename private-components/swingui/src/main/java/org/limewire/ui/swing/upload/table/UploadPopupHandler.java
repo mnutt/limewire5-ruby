@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.ref.WeakReference;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -33,7 +34,7 @@ public class UploadPopupHandler implements TablePopupHandler {
 
     private MenuListener menuListener;
     
-    private UploadItem uploadItem;
+    private WeakReference<UploadItem> uploadItemReference;
 
 
     private UploadTable table;
@@ -87,7 +88,7 @@ public class UploadPopupHandler implements TablePopupHandler {
     @Override
     public void maybeShowPopup(Component component, int x, int y) {
         popupRow = getPopupRow(x, y);
-        uploadItem = table.getUploadItem(popupRow);
+        UploadItem uploadItem = table.getUploadItem(popupRow);
         
         popupMenu.removeAll();
         UploadState state = uploadItem.getState();
@@ -115,6 +116,8 @@ public class UploadPopupHandler implements TablePopupHandler {
         }
         
         popupMenu.show(component, x, y);
+        
+        uploadItemReference = new WeakReference<UploadItem>(uploadItem);
     }
     
     protected int getPopupRow(int x, int y){
@@ -125,7 +128,10 @@ public class UploadPopupHandler implements TablePopupHandler {
     private class MenuListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            actionHandler.performAction(e.getActionCommand(), uploadItem);
+            UploadItem uploadItem = uploadItemReference.get();
+            if (uploadItem != null) {
+                actionHandler.performAction(e.getActionCommand(), uploadItem);
+            }
             //must cancel editing
             Component comp = table.getEditorComponent();
             if(comp!=null && comp instanceof TableCellEditor){

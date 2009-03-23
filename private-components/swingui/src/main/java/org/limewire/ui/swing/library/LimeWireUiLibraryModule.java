@@ -9,6 +9,8 @@ import org.limewire.ui.swing.library.table.LibraryTableFactory;
 import org.limewire.ui.swing.library.table.LibraryTableFactoryImpl;
 import org.limewire.ui.swing.library.table.ShareTableRendererEditor;
 import org.limewire.ui.swing.library.table.ShareTableRendererEditorFactory;
+import org.limewire.ui.swing.library.table.menu.actions.SharingActionFactory;
+import org.limewire.ui.swing.library.table.menu.actions.SharingActionFactoryImpl;
 import org.limewire.ui.swing.properties.PropertiesFactory;
 
 import com.google.inject.AbstractModule;
@@ -27,9 +29,8 @@ public class LimeWireUiLibraryModule extends AbstractModule {
                 FactoryProvider.newFactory(EmptyLibraryFactory.class, EmptyLibraryPanel.class));
         bind(FriendLibraryMediatorFactory.class).toProvider(
                 FactoryProvider.newFactory(FriendLibraryMediatorFactory.class, FriendLibraryMediator.class));
-        bind(FriendSharingPanelFactory.class).toProvider(
-                FactoryProvider.newFactory(FriendSharingPanelFactory.class, FriendSharingPanel.class));
         bind(LibraryTableFactory.class).to(LibraryTableFactoryImpl.class);
+        bind(SharingActionFactory.class).to(SharingActionFactoryImpl.class);
         bind(LibraryImageSubPanelFactory.class).to(LibraryImageSubPanelFactoryImpl.class);
         
         bind(new TypeLiteral<PropertiesFactory<LocalFileItem>>(){}).to(LocalFileItemPropertiesFactory.class);

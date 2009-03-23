@@ -53,6 +53,10 @@ public class LimeComboBox extends JXButton {
     private final List<SelectionListener> selectionListeners 
         = new ArrayList<SelectionListener>();
     
+    /** Listeners that will be notified when the menu is recreated. */
+    private final List<MenuCreationListener> menuCreationListeners
+        = new ArrayList<MenuCreationListener>();
+    
     /** True if you've supplied a custom menu via {@link #overrideMenu(JPopupMenu)} */
     private boolean customMenu = false;
     
@@ -110,7 +114,7 @@ public class LimeComboBox extends JXButton {
         item.setBorder(BorderFactory.createEmptyBorder(0,1,0,0));
         return item;
     }
-    
+
     /**
      * A helper method for creating menu items painted in the default style of an 
      *  overridden menu.
@@ -140,6 +144,15 @@ public class LimeComboBox extends JXButton {
         if (menu == null) {
             createPopupMenu();
         }
+    }
+    
+    /**
+     * Returns the current popup menu. The menu is only the currently active
+     * menu. If any methods are called that require the combobox to rebuild the
+     * menu, any modifications made to this menu will be lost.
+     */
+    public JPopupMenu getPopupMenu() {
+        return menu;
     }
     
     /** 
@@ -193,13 +206,14 @@ public class LimeComboBox extends JXButton {
     /** 
      * Selects the specific action.
      * 
-     * This method has no effect if the popupmenu is overriden. 
+     * This method has no effect if the popupmenu is overriden, unless
+     * the menu has been pre-seeded with actions that correspond to the
+     * popup menu.
      */
     public void setSelectedAction(Action action) {        
         // Make sure the selected action is in the list
         if (actions.contains(action)) {
-            selectedAction = action;     
-            menuDirty = true;
+            selectedAction = action;
         }        
     }
     
@@ -228,6 +242,24 @@ public class LimeComboBox extends JXButton {
         }
     }
 
+    /** Manually triggers a resize of the component. 
+      *
+      *  Should be avoided but can be used after drastic changes to font size/border after
+      *  the component is layed out.
+      */
+    public void forceResize() {
+        ResizeUtils.updateSize(this, actions);
+    }
+    
+    // TODO: Resize model must be redone so this is not necessary
+    @Override
+    public void setFont(Font f) {
+        super.setFont(f);
+        menuDirty = true;
+        ResizeUtils.updateSize(this, actions);
+    }
+    
+
     /** Sets the cursor that will be shown when the button is hovered-over. */
     public void setMouseOverCursor(Cursor cursor) {
         mouseOverCursor = cursor;
@@ -241,6 +273,15 @@ public class LimeComboBox extends JXButton {
     public void addSelectionListener(SelectionListener listener) {
         selectionListeners.add(listener);
     }
+    
+    /**
+     * Adds a listener to be notified when the popup menu is rebuilt.
+     * 
+     * This method has no effect if the popupmenu is overriden. 
+     */
+    public void addMenuCreationListener(MenuCreationListener listener) {
+        menuCreationListeners.add(listener);
+    }    
     
     @Override 
     public void setModel(final ButtonModel delegate) {
@@ -308,14 +349,7 @@ public class LimeComboBox extends JXButton {
     public boolean isOpaque() {
         return false;
     }
-    
-    
-    @Override
-    public void setFont(Font f) {
-        super.setFont(f);
-        ResizeUtils.updateSize(this, actions);
-    }
-    
+       
     /**
      * Sets whether or not clicking the combobox forces the menu to display.
      * Normally clicking it would cause a visible menu to disappear.
@@ -377,10 +411,7 @@ public class LimeComboBox extends JXButton {
                 selectedAction = action;
                 selectedComponent = (JComponent)label.getParent();
                 selectedLabel = label;
-                // Fire the parent listeners
-                for (SelectionListener listener : selectionListeners) {
-                    listener.selectionChanged(action);
-                }
+			    fireChangeEvent(action);
                 repaint();
                 menu.setVisible(false);
             }
@@ -471,6 +502,17 @@ public class LimeComboBox extends JXButton {
         if (getText() == null) {
             menu.add(Box.createHorizontalStrut(getWidth()-4));
         }   
+        
+        for(MenuCreationListener listener : menuCreationListeners) {
+            listener.menuCreated(this, menu);
+        }
+    }
+    
+    protected void fireChangeEvent(Action action) {
+        // Fire the parent listeners
+        for (SelectionListener listener : selectionListeners) {
+            listener.selectionChanged(action);
+        }
     }
     
     private void initMenu() {        
@@ -498,9 +540,13 @@ public class LimeComboBox extends JXButton {
         });
     }
     
+    /** A listener that's notified when the combobox rebuilds its JPopupMenu. */
+    public static interface MenuCreationListener {
+        public void menuCreated(LimeComboBox comboBox, JPopupMenu menu);
+    }
 
     /** A listener that's notified when the selection in the combobox changes. */
-    public interface SelectionListener {
+    public static interface SelectionListener {
         /** Notification that the given action is now selected. */
         public void selectionChanged(Action item);
     }

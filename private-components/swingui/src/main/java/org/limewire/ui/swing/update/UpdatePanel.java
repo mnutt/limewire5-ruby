@@ -45,7 +45,7 @@ public class UpdatePanel extends JPanel {
      * recalculate where the text should start based on the current width of the 
      * component and this percentage value
      */
-    private static final float textPercentShift = .275f;
+    private static final float textPercentShift = .375f;
     
     @Resource
     private Icon backgroundIcon;
@@ -219,7 +219,7 @@ public class UpdatePanel extends JPanel {
 
         public void componentResized(ComponentEvent e) {
             int labelStartPos = (int) (c.getWidth() * textPercentShift);
-            c.setMargin(new Insets(0,labelStartPos,0,0));
+            c.setMargin(new Insets(24, labelStartPos, 0, 0));
         }       
     }
 }

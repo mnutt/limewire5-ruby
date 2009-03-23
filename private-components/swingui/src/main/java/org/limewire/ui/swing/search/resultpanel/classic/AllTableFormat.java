@@ -3,6 +3,7 @@ package org.limewire.ui.swing.search.resultpanel.classic;
 import java.awt.Component;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.jdesktop.swingx.decorator.SortKey;
@@ -101,5 +102,14 @@ public class AllTableFormat extends ResultsTableFormat<VisualSearchResult> {
         default:
             return Collections.emptyList();
         }
+    }
+ 
+    /**
+     * Overrides superclass method to return a Name comparator that utilizes
+     * the Artist and Title for audio files.
+     */
+    @Override
+    public Comparator getNameComparator() {
+        return new NameComparator(true);
     }
 }

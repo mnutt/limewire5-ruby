@@ -3,6 +3,7 @@ package org.limewire.ui.swing.library.table;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.IconManager;
 
 /**
  * Table format for the Document Table for All Friends table
@@ -10,7 +11,7 @@ import org.limewire.ui.swing.util.I18n;
 public class AllFriendDocumentTableFormat <T extends RemoteFileItem> extends RemoteDocumentTableFormat<T> {
     static final int FROM_INDEX = 7;
     
-    public AllFriendDocumentTableFormat() {
+    public AllFriendDocumentTableFormat(IconManager iconManager) {
         super("ALL_LIBRARY_DOCUMENT_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "ALL_LIBRARY_DOCUMENT_NAME", I18n.tr("Name"), 318, true, true), 
                 new ColumnStateInfo(TYPE_INDEX, "ALL_LIBRARY_DOCUMENT_TYPE", I18n.tr("Type"), 118, true, true),     
@@ -20,7 +21,7 @@ public class AllFriendDocumentTableFormat <T extends RemoteFileItem> extends Rem
                 new ColumnStateInfo(AUTHOR_INDEX, "ALL_LIBRARY_DOCUMENT_AUTHOR", I18n.tr("Author"), 120, false, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "ALL_LIBRARY_DOCUMENT_DESCRIPTION", I18n.tr("Description"), 120, false, false),
                 new ColumnStateInfo(FROM_INDEX, "ALL_LIBRARY_DOCUMENT_FROM", I18n.tr("From"), 32, true, true)
-        });
+        }, iconManager);
     }
     
     @Override

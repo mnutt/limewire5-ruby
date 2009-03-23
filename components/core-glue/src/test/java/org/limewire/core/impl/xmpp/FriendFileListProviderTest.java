@@ -87,4 +87,32 @@ public class FriendFileListProviderTest extends BaseTestCase {
         
         context.assertIsSatisfied();
     }
+    
+    
+    public void testGetFileListsWithBadCredentials() {
+        HttpContext httpContext = new BasicHttpContext();
+        try {
+            friendFileListProvider.getFileLists(null, httpContext);
+            fail("Did not throw exception for attempt without user.");
+        } catch (HttpException e) {
+            // Expected
+        }
+        
+        try {
+            friendFileListProvider.getFileLists("tester@test", httpContext);
+            fail("Did not throw exception for attempt without an AuthState.");
+        } catch (HttpException e) {
+            // Expected
+        }
+        
+        ServerAuthState authState = new ServerAuthState();
+        httpContext.setAttribute(ServerAuthState.AUTH_STATE, authState);
+        
+        try {
+            friendFileListProvider.getFileLists("tester@test", httpContext);
+            fail("Did not throw exception for attempt without credentials.");
+        } catch (HttpException e) {
+            // Expected 
+        }
+    }
 }

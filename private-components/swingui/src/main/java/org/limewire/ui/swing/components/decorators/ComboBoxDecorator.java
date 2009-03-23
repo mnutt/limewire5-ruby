@@ -88,6 +88,18 @@ public class ComboBoxDecorator {
         box.setPressedIcon(miniDownIcon);
         box.setBorder(BorderFactory.createEmptyBorder(2,6,3,15));
         
+        tryInstallHandCursor(box);
+    }
+    
+    public void decorateLinkComboBox(JXButton box) {
+        buttonDecorator.decorateLinkButton(box);
+        box.setIcon(miniRegIcon);
+        box.setBorder(BorderFactory.createEmptyBorder(2,6,3,15));
+        
+        tryInstallHandCursor(box);
+    }
+    
+    private void tryInstallHandCursor(JXButton box) {
         if (box instanceof LimeComboBox) {
             ((LimeComboBox)box).setMouseOverCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }

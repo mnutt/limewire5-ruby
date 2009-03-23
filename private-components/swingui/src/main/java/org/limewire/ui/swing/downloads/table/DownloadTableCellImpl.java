@@ -180,7 +180,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         //FontUtils.bold(launchButton);
         FontUtils.underline(launchButton); 
         
-        removeLinkSpacer = new JLabel(I18n.tr("- "));
+        removeLinkSpacer = new JLabel("- ");
         removeLinkSpacer.setMinimumSize(new Dimension(0,cancelLink.getPreferredSize().height));
         removeLinkSpacer.setFont(statusFontPlainMin);
         removeLinkSpacer.setForeground(errorLabelColour);
@@ -408,8 +408,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         DownloadState state = item.getState();
         minButtonPanel.updateButtons(state);
         
-        switch (state) {
-        
+        switch (state) {        
             case ERROR :
                 minLinkButton.setVisible(true);
                 minLinkButton.setActionCommand(DownloadActionHandler.LINK_COMMAND);
@@ -423,15 +422,17 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
                 break;
                 
             case STALLED :
-
                 minLinkButton.setVisible(true);
                 minLinkButton.setActionCommand(DownloadActionHandler.TRY_AGAIN_COMMAND);
-                minLinkButton.setText("<html><u>Try Again</u></html>");
+                if(item.isSearchAgainEnabled()) {
+                    minLinkButton.setText("<html><u>" + I18n.tr("Search Again") + "</u></html>");
+                } else {
+                    minLinkButton.setText("<html><u>" + I18n.tr("Try Again") + "</u></html>");
+                }
                 // TODO remove color and rollover settings once error link is active
                 minLinkButton.setForeground(linkColour);
                 minLinkButton.setClickedColor(linkColour);
                 minLinkButton.setRolloverEnabled(true);
-
                 break;
                 
             default:
@@ -506,6 +507,8 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
                     GuiUtils.toUnitbytes(item.getTotalSize()),
                     GuiUtils.rate2speed(item.getDownloadSpeed()), 
                     item.getDownloadSourceCount());
+        case TRYING_AGAIN:
+            return getTryAgainMessage(item.getRemainingTimeInState());
         case STALLED:
             return I18n.tr("Stalled - {0} of {1} ({2}%). - ", 
                     GuiUtils.toUnitbytes(item.getCurrentSize()),
@@ -520,18 +523,26 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
                     GuiUtils.toUnitbytes(item.getCurrentSize()), GuiUtils.toUnitbytes(item.getTotalSize()),
                     item.getPercentComplete());
         case LOCAL_QUEUED:
-            return getQueueTimeMessage(item.getRemainingQueueTime());
+            return getQueueTimeMessage(item.getRemainingTimeInState());
         case REMOTE_QUEUED:
-            if(item.getQueuePosition() == -1 || item.getQueuePosition() == Integer.MAX_VALUE){
-                return getQueueTimeMessage(item.getRemainingQueueTime());
+            if(item.getRemoteQueuePosition() == -1 || item.getRemoteQueuePosition() == Integer.MAX_VALUE){
+                return getQueueTimeMessage(item.getRemainingTimeInState());
             }
             return I18n.trn("Waiting - Next in line",
                     "Waiting - {0} in line",
-                    item.getQueuePosition(), item.getQueuePosition());
+                    item.getRemoteQueuePosition(), item.getRemoteQueuePosition());
         default:
             return null;
         }
         
+    }
+    
+    private String getTryAgainMessage(long tryingAgainTime) {
+        if(tryingAgainTime == DownloadItem.UNKNOWN_TIME){
+            return I18n.tr("Searching for people with this file...");                
+        } else {
+            return I18n.tr("Searching for people with this file... ({0} left)", CommonUtils.seconds2time(tryingAgainTime));
+        }
     }
     
     private String getQueueTimeMessage(long queueTime){

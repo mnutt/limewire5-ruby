@@ -10,16 +10,19 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.EventObject;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -67,7 +70,6 @@ import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
-import org.limewire.util.OSUtils;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -127,7 +129,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     private final HeadingFontWidthResolver headingFontWidthResolver = new HeadingFontWidthResolver();
     private final IconManager iconManager;
     private SearchResultFromWidget fromWidget;
-    private JLabel itemIconLabel;
+    private JButton itemIconButton;
     private IconButton similarButton = new IconButton();
     private IconButton propertiesButton = new IconButton();
     private JEditorPane heading = new JEditorPane();
@@ -139,9 +141,6 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     private VisualSearchResult vsr;
     private JTable table;
     private JComponent similarResultIndentation;
-    private JPanel indentablePanel;
-    private JPanel leftPanel;
-    private JPanel fromPanel;
     private JPanel lastRowPanel;
     private final JPanel emptyPanel = new JPanel();
     private JXPanel searchResultTextPanel;
@@ -149,7 +148,12 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     private JLabel lastRowMessage;
 
     private DownloadHandler downloadHandler;
-
+    
+    /**
+     * cached width used for text truncation
+     */
+    private int textPanelWidth;
+    
     @AssistedInject
     ListViewTableEditorRenderer(
             CategoryIconManager categoryIconManager,
@@ -159,7 +163,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         final @Assisted DownloadHandler downloadHandler,
         SearchHeadingDocumentBuilder headingBuilder,
         ListViewRowHeightRule rowHeightRule,
-        final PropertiesFactory<VisualSearchResult> properties,
+        PropertiesFactory<VisualSearchResult> propertiesFactory,
         final @Assisted ListViewDisplayedRowsLimit displayLimit,
         LibraryNavigator libraryNavigator,
         SearchResultTruncator truncator, IconManager iconManager) {
@@ -173,8 +177,36 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         this.truncator = truncator;
         this.iconManager = iconManager;
         this.downloadHandler = downloadHandler;
+        
         GuiUtils.assignResources(this);
 
+        
+        fromWidget = fromWidgetFactory.create(false);
+       
+        makePanel(navigator, libraryNavigator, propertiesFactory);       
+
+        setupButtons(propertiesFactory);
+        
+        layoutEditorComponent();
+    }
+    
+
+    private void makePanel(Navigator navigator, LibraryNavigator libraryNavigator, PropertiesFactory<VisualSearchResult> propertiesFactory) {
+        initializeComponents();
+        makeIndentation();
+        setupListeners(navigator, libraryNavigator, propertiesFactory);
+
+        lastRowPanel = new JPanel(new MigLayout("insets 10 30 0 0", "[]", "[]"));
+        lastRowPanel.setOpaque(false);
+        lastRowMessage = new JLabel();
+        lastRowMessage.setFont(surplusRowLimitFont);
+        lastRowMessage.setForeground(surplusRowLimitColor);
+        lastRowPanel.add(lastRowMessage);
+        emptyPanel.setOpaque(false);
+    }
+
+
+    private void setupButtons(final PropertiesFactory<VisualSearchResult> propertiesFactory){
         similarButton.setFocusable(false);
         similarButton.setIcon(similarHiddenIcon);
         similarButton.setPressedIcon(similarHiddenPressedIcon);
@@ -186,22 +218,16 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         propertiesButton.setPressedIcon(propertiesPressedIcon);
         propertiesButton.setRolloverIcon(propertiesHoverIcon);
         
-        fromWidget = fromWidgetFactory.create(false);
-       
-        makePanel(navigator, libraryNavigator, properties);
-        
-        editorComponent = new JXPanel(new BorderLayout());
-        
-        itemIconLabel.addMouseListener(new MouseAdapter() {
+        itemIconButton.addActionListener(new ActionListener() {
             @Override
-            public void mousePressed(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e) && isDownloadEligible(vsr)) {
+            public void actionPerformed(ActionEvent e) {
+                if (isDownloadEligible(vsr)) {
                     downloadHandler.download(vsr);
                     table.editingStopped(new ChangeEvent(table));
                 }
             }
-        });
-
+        });   
+        
         similarButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 vsr.toggleChildrenVisibility();
@@ -226,53 +252,43 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             }
         });
         
-        
         propertiesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                properties.newProperties().showProperties(vsr);
+                propertiesFactory.newProperties().showProperties(vsr);
             }
         });
         
-        MousePopupListener popupListener = new MousePopupListener() {
-            @Override
-            public void handlePopupMouseEvent(MouseEvent e) {
-                final VisualSearchResult result = vsr; 
-                SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), properties, SearchResultMenu.ViewType.List);
-                searchResultMenu.addPopupMenuListener(new PopupMenuListener() {
-                    @Override
-                    public void popupMenuCanceled(PopupMenuEvent e) {
-                        result.setShowingContextOptions(false);
-                    }
-
-                    @Override
-                    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                        result.setShowingContextOptions(false);
-                        table.editingStopped(new ChangeEvent(this));
-                    }
-
-                    @Override
-                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                        result.setShowingContextOptions(true);
-                    }
-                });
-                searchResultMenu.show(editorComponent, e.getX()+3, e.getY()+3);
-            }
-        };
-        
-        editorComponent.addMouseListener(popupListener);
-        itemIconLabel.addMouseListener(popupListener);
-        heading.addMouseListener(popupListener);
     }
     
-    @Override
-    public boolean shouldSelectCell(EventObject anEvent) {
-        return false;
+    private void layoutEditorComponent(){
+        searchResultTextPanel.setLayout(new MigLayout("nogrid, ins 0 0 0 0, gap 0! 0!, novisualpadding"));
+        searchResultTextPanel.setOpaque(false);
+        searchResultTextPanel.add(heading, "top left, shrinkprio 200, growx, wmax pref, hidemode 3, wrap");
+        searchResultTextPanel.add(subheadingLabel, "top left, shrinkprio 200, growx, hidemode 3, wrap");
+        searchResultTextPanel.add(metadataLabel, "top left, shrinkprio 200, hidemode 3");
+
+        editorComponent.setLayout(new MigLayout("ins 0 0 0 0, gap 0! 0!, novisualpadding"));
+        editorComponent.add(similarResultIndentation, "growy, hidemode 3, shrinkprio 0");
+        editorComponent.add(itemIconButton, "top left, gaptop 6, gapleft 4, shrinkprio 0");
+        editorComponent.add(searchResultTextPanel, "top left, gapleft 4, growy, growx, shrinkprio 200, growprio 200, push");
+        editorComponent.add(downloadSourceCount, "gapbottom 3, gapright 2, shrinkprio 0");
+        editorComponent.add(new JLabel(dividerIcon), "shrinkprio 0");
+        //TODO: better number for wmin
+        editorComponent.add(fromWidget, "wmin 90, left, shrinkprio 0");
+        //Tweaked the width of the icon because display gets clipped otherwise
+        editorComponent.add(similarButton, "gapright 4, hidemode 0, hmax 25, wmax 27, shrinkprio 0");
+        editorComponent.add(propertiesButton, "gapright 4, hmax 25, wmax 27, shrinkprio 0");
     }
 
     @Override
-    public Object getCellEditorValue() {
-        return vsr;
+    public Component getTableCellRendererComponent(
+        JTable table, Object value,
+        boolean isSelected, boolean hasFocus,
+        int row, int column) {
+
+        return getTableCellEditorComponent(
+            table, value, isSelected, row, column);
     }
 
     @Override
@@ -285,112 +301,191 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         editorComponent.setBackground(table.getBackground());
         
         if (value == null) {
-            editorComponent.removeAll();
-            editorComponent.add(emptyPanel, BorderLayout.CENTER);
-            return editorComponent;
+            return emptyPanel;
         }
                 
         LOG.debugf("row: {0} shouldIndent: {1}", row, vsr.getSimilarityParent() != null);
         
-        editorComponent.removeAll();
-        JPanel panel = null;
         if (row == displayLimit.getLastDisplayedRow()) {
             lastRowMessage.setText(tr("Not showing {0} results", 
                     (displayLimit.getTotalResultsReturned() - displayLimit.getLastDisplayedRow())));
-            panel = col == 0 ? lastRowPanel : emptyPanel;
-        } else {
-            populatePanel((VisualSearchResult) value, col);
-            panel = col == 0 ? leftPanel : fromPanel;
-            
-            if (col == 1) {
-                propertiesButton.setIcon(vsr.isChildrenVisible() ? propertiesSimilarShownIcon : propertiesIcon);
-                similarButton.setIcon(vsr.isChildrenVisible() ? similarShownIcon : similarHiddenIcon);
-            }
-        }
+          return lastRowPanel;
+        } 
 
-        editorComponent.add(panel, BorderLayout.CENTER);
-
+        update(vsr);
         return editorComponent;
-    }
+    }  
 
-    public Component getTableCellRendererComponent(
-        JTable table, Object value,
-        boolean isSelected, boolean hasFocus,
-        int row, int column) {
 
-        return getTableCellEditorComponent(
-            table, value, isSelected, row, column);
+
+    private void update(VisualSearchResult vsr) {
+        fromWidget.setPeople(vsr.getSources());
+
+        propertiesButton.setIcon(vsr.isChildrenVisible() ? propertiesSimilarShownIcon : propertiesIcon);
+
+        similarButton.setVisible(vsr.getSimilarResults().size() > 0);
+        similarButton.setIcon(vsr.isChildrenVisible() ? similarShownIcon : similarHiddenIcon);
+
+        similarResultIndentation.setVisible(vsr.getSimilarityParent() != null);
+
+        itemIconButton.setIcon(getIcon(vsr));
+        itemIconButton.setCursor(getIconCursor(vsr));
+
+        RowDisplayResult result = rowHeightRule.getDisplayResult(vsr, searchText);
+
+        setLabelVisibility(result.getConfig());
+
+        populateHeading(result, vsr.getDownloadState());
+        populateSubheading(result);
+        populateMetadata(result);
     }
     
-    private JPanel makeFromPanel() {
-        JXPanel panel = new JXPanel(new MigLayout("", "0[][][]8[]", "5[]")) {
+    private Icon getIcon(VisualSearchResult vsr) {
+        if (vsr.isSpam()) {
+            return spamIcon;
+        } 
+        switch (vsr.getDownloadState()) {
+        case DOWNLOADING:
+            return downloadingIcon;
+        case DOWNLOADED:
+        case LIBRARY:
+            return libraryIcon;
+        }
+        return categoryIconManager.getIcon(vsr, iconManager);
+    }
+
+    private Cursor getIconCursor(VisualSearchResult vsr) {
+        boolean useDefaultCursor = !isDownloadEligible(vsr);
+        return Cursor.getPredefinedCursor(useDefaultCursor ? Cursor.DEFAULT_CURSOR : Cursor.HAND_CURSOR);
+    }
+    
+    private void setLabelVisibility(RowDisplayConfig config) {
+        switch(config) {
+        case HeadingOnly:
+            subheadingLabel.setVisible(false);
+            metadataLabel.setVisible(false);
+            break;
+        case HeadingAndSubheading:
+            subheadingLabel.setVisible(true);
+            metadataLabel.setVisible(false);
+            break;
+        case HeadingAndMetadata:
+            subheadingLabel.setVisible(false);
+            metadataLabel.setVisible(true);
+            break;
+        case HeadingSubHeadingAndMetadata:
+            subheadingLabel.setVisible(true);
+            metadataLabel.setVisible(true);
+        }
+    }
+    
+    private void populateHeading(final RowDisplayResult result, BasicDownloadState downloadState) {
+        //the visible rect width is always 0 for renderers so getVisibleRect() won't work here
+        //Width is zero the first time editorpane is rendered - use a wide default (roughly width of left column)
+        int width = textPanelWidth == 0 ? LEFT_COLUMN_WIDTH : textPanelWidth;
+        //Make the width seem a little smaller than usual to trigger a more hungry truncation
+        //otherwise the JEditorPane word-wrapping logic kicks in and the edge word just disappears
+        final int fudgeFactorPixelWidth = width - 10;
+        SearchHeading searchHeading = new SearchHeading() {
             @Override
-            public void setBackground(Color color) {
-                super.setBackground(color);
-                for (Component component : getComponents()) {
-                    component.setBackground(color);
-                }
+            public String getText() {
+                String headingText = result.getHeading();
+                String truncatedHeading = truncator.truncateHeading(headingText, fudgeFactorPixelWidth, headingFontWidthResolver);
+                handleHeadingTooltip(headingText, truncatedHeading);
+                return truncatedHeading;
+            }
+
+            /**
+             * Sets a tooltip for the heading field only if the text has been truncated. 
+             */
+            private void handleHeadingTooltip(String headingText, String truncatedHeading) {
+                String toolTipText = HTML + headingText + CLOSING_HTML_TAG;
+                editorComponent.setToolTipText(toolTipText);
+                heading.setToolTipText(toolTipText);
+            }
+
+            @Override
+            public String getText(String adjoiningFragment) {
+                int adjoiningTextPixelWidth = headingFontWidthResolver.getPixelWidth(adjoiningFragment);
+                String headingText = result.getHeading();
+                String truncatedHeading = truncator.truncateHeading(headingText, 
+                        fudgeFactorPixelWidth - adjoiningTextPixelWidth, headingFontWidthResolver);
+                handleHeadingTooltip(headingText, truncatedHeading);
+                return truncatedHeading;
             }
         };
 
-        panel.setOpaque(false);
-        panel.add(new JLabel(dividerIcon));
-        panel.add(fromWidget, "push");
-        //Tweaked the width of the icon because display gets clipped otherwise
-        panel.add(similarButton, "hmax 25, wmax 27");
-        panel.add(propertiesButton, "hmax 25, wmax 27");
-
-        return panel;
+        this.heading.setText(headingBuilder.getHeadingDocument(searchHeading, downloadState, result.isSpam()));
+        this.downloadSourceCount.setText(Integer.toString(vsr.getSources().size()));
     }
 
-    private Component makeLeftPanel(final Navigator navigator, final LibraryNavigator libraryNavigator) {
-        itemIconLabel = new JLabel();
-        itemIconLabel.setOpaque(false);
+
+    private void populateSubheading(RowDisplayResult result) {
+        subheadingLabel.setText(result.getSubheading());
+    }
+        
+    
+    private void populateMetadata(RowDisplayResult result) {
+        metadataLabel.setText(null);
+        RowDisplayConfig config = result.getConfig();
+        if (config != HeadingSubHeadingAndMetadata && config != RowDisplayConfig.HeadingAndMetadata) { 
+            return;
+        }
+        
+        PropertyMatch pm = result.getMetadata();
+        
+        if (pm != null) {
+            String html = pm.getHighlightedValue();
+            // Insert the following: the key, a colon and a space after the html start tag, then the closing tags.
+            html = html.replace(HTML, "").replace(CLOSING_HTML_TAG, "");
+            html = HTML + pm.getKey() + ":" + html + CLOSING_HTML_TAG;
+            metadataLabel.setText(html);
+        }
+    }
+
+    
+
+    private boolean isDownloadEligible(VisualSearchResult vsr) {
+        return !vsr.isSpam() && vsr.getDownloadState() == BasicDownloadState.NOT_STARTED;
+    }
+
+    
+    private void initializeComponents() {
+        searchResultTextPanel = new JXPanel(){
+            public void paint(Graphics g){
+                super.paint(g);
+              //the visible rect width is always 0 for renderers so we cache the width here
+                textPanelWidth = getSize().width;
+            }
+        };
+        
+        editorComponent = new JXPanel();
+        
+        itemIconButton = new IconButton();
         
         heading.setContentType("text/html");
         heading.setEditable(false);
         heading.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
         heading.setOpaque(false);
-        
-        heading.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                populateHeading(rowHeightRule.getDisplayResult(vsr, searchText), vsr.getDownloadState(), true);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                populateHeading(rowHeightRule.getDisplayResult(vsr, searchText), vsr.getDownloadState(), false);
-            }
-        });
+        heading.setFocusable(false);
 
         subheadingLabel.setForeground(subHeadingLabelColor);
         subheadingLabel.setFont(subHeadingFont);
-        
+
         metadataLabel.setForeground(metadataLabelColor);
         metadataLabel.setFont(metadataFont);
-        
+
         downloadSourceCount.setForeground(downloadSourceCountColor);
         downloadSourceCount.setFont(downloadSourceCountFont);
-        
-        JXPanel itemIconPanel = new JXPanel(new MigLayout("insets 7 0 0 5", "0[]", "0[]0"));
-        itemIconPanel.setOpaque(false);
-        itemIconPanel.add(itemIconLabel);
+    }
 
-        searchResultTextPanel = new JXPanel(new MigLayout("fill, insets 0", "0[fill]", "[]0[]0[]"));
-        searchResultTextPanel.setOpaque(false);
-        searchResultTextPanel.add(heading, "wrap, growx");
-        searchResultTextPanel.add(subheadingLabel, "wrap");
-        searchResultTextPanel.add(metadataLabel);
+    private void makeIndentation() {
+        similarResultIndentation = new JPanel(new BorderLayout());
+        similarResultIndentation.add(new JLabel(similarResultsIcon), BorderLayout.CENTER);
+        similarResultIndentation.setBackground(similarResultsBackgroundColor);
+    }
 
-        JXPanel panel = new JXPanel(new MigLayout("fill, insets 0 0 0 0", "5[][fill][]5", "0[]0"));
-        panel.setOpaque(false);
-
-        panel.add(itemIconPanel);
-        panel.add(searchResultTextPanel, "push");
-        panel.add(downloadSourceCount, "gapbottom 3");
-        
+    private void setupListeners(final Navigator navigator, final LibraryNavigator libraryNavigator, final PropertiesFactory<VisualSearchResult> propertiesFactory) {
         heading.addHyperlinkListener(new HyperlinkListener() {
 
             @Override
@@ -409,85 +504,66 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
                 }
             }
         });
-
-        return panel;
-    }
-
-    private Cursor getIconCursor(VisualSearchResult vsr) {
-        boolean useDefaultCursor = !isDownloadEligible(vsr);
-        return Cursor.getPredefinedCursor(useDefaultCursor ? Cursor.DEFAULT_CURSOR : Cursor.HAND_CURSOR);
-    }
-
-    private boolean isDownloadEligible(VisualSearchResult vsr) {
-        return !vsr.isSpam() && vsr.getDownloadState() == BasicDownloadState.NOT_STARTED;
-    }
-
-    private void makePanel(Navigator navigator, LibraryNavigator libraryNavigator, PropertiesFactory<VisualSearchResult> properties) {
-        leftPanel = makeIndentablePanel(makeLeftPanel(navigator, libraryNavigator));
-
-        fromPanel = makeFromPanel();
-
-        lastRowPanel = new JPanel(new MigLayout("insets 10 30 0 0", "[]", "[]"));
-        lastRowPanel.setOpaque(false);
-        lastRowMessage = new JLabel();
-        lastRowMessage.setFont(surplusRowLimitFont);
-        lastRowMessage.setForeground(surplusRowLimitColor);
-        lastRowPanel.add(lastRowMessage);
-        emptyPanel.setOpaque(false);
-    }
-
-    private JPanel makeIndentablePanel(Component component) {
-        indentablePanel = new JPanel(new BorderLayout());
-        indentablePanel.setOpaque(false);
-        similarResultIndentation = new JPanel(new BorderLayout());
-        similarResultIndentation.add(new JLabel(similarResultsIcon), BorderLayout.CENTER);
-        indentablePanel.add(component, BorderLayout.CENTER);
-        return indentablePanel;
-    }
-
-    private void populateFrom(VisualSearchResult vsr) {
-        fromWidget.setPeople(vsr.getSources());
-    }
-
-    private void populateHeading(final RowDisplayResult result, BasicDownloadState downloadState, boolean isMouseOver) {
-        int width = heading.getVisibleRect().width;
-        //Width is zero the first time editorpane is rendered - use a wide default (roughly width of left column)
-        width = width == 0 ? LEFT_COLUMN_WIDTH : width;
-        //Make the visible rect seem a little smaller than usual to trigger a more hungry truncation
-        //otherwise the JEditorPane word-wrapping logic kicks in and the edge word just disappears
-        final int fudgeFactorPixelWidth = width - 10;
-        SearchHeading searchHeading = new SearchHeading() {
+        
+        Component[] listenerComponents = new Component[]{editorComponent, heading, subheadingLabel, metadataLabel, 
+                similarResultIndentation, searchResultTextPanel, downloadSourceCount, itemIconButton};
+       
+        MousePopupListener popupListener = new MousePopupListener() {
             @Override
-            public String getText() {
-                String headingText = result.getHeading();
-                String truncatedHeading = truncator.truncateHeading(headingText, fudgeFactorPixelWidth, headingFontWidthResolver);
-                handleHeadingTooltip(headingText, truncatedHeading);
-                return truncatedHeading;
-            }
+            public void handlePopupMouseEvent(MouseEvent e) {
+                final VisualSearchResult result = vsr; 
+                SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), propertiesFactory, SearchResultMenu.ViewType.List);
+                searchResultMenu.addPopupMenuListener(new PopupMenuListener() {
+                    @Override
+                    public void popupMenuCanceled(PopupMenuEvent e) {
+                        result.setShowingContextOptions(false);
+                    }
 
-            /**
-             * Sets a tooltip for the heading field only if the text has been truncated. 
-             */
-            private void handleHeadingTooltip(String headingText, String truncatedHeading) {
-                String tooltipText = HTML + headingText + CLOSING_HTML_TAG;
-                heading.setToolTipText(tooltipText);
-                editorComponent.setToolTipText(tooltipText);
-            }
+                    @Override
+                    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                        result.setShowingContextOptions(false);
+                        table.editingStopped(new ChangeEvent(this));
+                    }
 
-            @Override
-            public String getText(String adjoiningFragment) {
-                int adjoiningTextPixelWidth = headingFontWidthResolver.getPixelWidth(adjoiningFragment);
-                String headingText = result.getHeading();
-                String truncatedHeading = truncator.truncateHeading(headingText, 
-                        fudgeFactorPixelWidth - adjoiningTextPixelWidth, headingFontWidthResolver);
-                handleHeadingTooltip(headingText, truncatedHeading);
-                return truncatedHeading;
+                    @Override
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                        result.setShowingContextOptions(true);
+                    }
+                });
+                searchResultMenu.show(e.getComponent(), e.getX()+3, e.getY()+3);
             }
         };
-
-        this.heading.setText(headingBuilder.getHeadingDocument(searchHeading, downloadState, result.isSpam()));
-        this.downloadSourceCount.setText(Integer.toString(vsr.getSources().size()));
+    
+        addMouseListener(popupListener, listenerComponents);   
+        
+        MouseListener downloaderAdaptor = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (vsr != null && e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {  
+                    downloadHandler.download(vsr);
+                }
+            }
+        };
+        addMouseListener(downloaderAdaptor, listenerComponents);   
+        
+    //    editorComponent.addMouseListener(downloaderAdaptor);
     }
+    
+    private void addMouseListener(MouseListener listener, Component... components) {    
+        for (Component c : components){
+            c.addMouseListener(listener);
+        }
+    }
+        
+    @Override
+    public boolean shouldSelectCell(EventObject anEvent) {
+        return false;
+    }
+
+    @Override
+    public Object getCellEditorValue() {
+        return vsr;
+    }    
     
     private class HeadingFontWidthResolver implements FontWidthResolver {
         private static final String EMPTY_STRING = "";
@@ -505,93 +581,5 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             return fontMetrics.stringWidth(text);
         }
     }
-    
-    private void populateOther(RowDisplayResult result) {
-        metadataLabel.setText("");
-        RowDisplayConfig config = result.getConfig();
-        if (config != HeadingSubHeadingAndMetadata && config != RowDisplayConfig.HeadingAndMetadata) { 
-            return;
-        }
-        
-        PropertyMatch pm = result.getMetadata();
-        
-        if (pm != null) {
-            String html = pm.getHighlightedValue();
-            // Insert the following: the key, a colon and a space after the html start tag, then the closing tags.
-            html = html.replace(HTML, "").replace(CLOSING_HTML_TAG, "");
-            html = HTML + pm.getKey() + ":" + html + CLOSING_HTML_TAG;
-            metadataLabel.setText(html);
-        }
-    }
-
-    private void populatePanel(VisualSearchResult vsr, int column) {
-        if (vsr == null) return;
-        
-        if (column == 0) {
-            if (vsr.getSimilarityParent() != null) {
-                indentablePanel.add(similarResultIndentation, BorderLayout.WEST);
-                similarResultIndentation.setBackground(similarResultsBackgroundColor);
-            } else {
-                indentablePanel.remove(similarResultIndentation);
-            }
-            
-            itemIconLabel.setIcon(getIcon(vsr));
-            itemIconLabel.setCursor(getIconCursor(vsr));
-
-            RowDisplayResult result = rowHeightRule.getDisplayResult(vsr, searchText);
-            
-            organizeSearchResultLayout(result.getConfig());
-            
-            populateHeading(result, vsr.getDownloadState(), false);
-            populateSubheading(result);
-            populateOther(result);
-            
-        } else if (column == 1) {
-            similarButton.setVisible(vsr.getSimilarResults().size() > 0);
-            populateFrom(vsr);
-        }
-    }
-
-    private Icon getIcon(VisualSearchResult vsr) {
-        if (vsr.isSpam()) {
-            return spamIcon;
-        } 
-        switch (vsr.getDownloadState()) {
-        case DOWNLOADING:
-            return downloadingIcon;
-        case DOWNLOADED:
-        case LIBRARY:
-            return libraryIcon;
-        }
-        return categoryIconManager.getIcon(vsr, iconManager);
-    }
-
-    private void organizeSearchResultLayout(RowDisplayConfig config) {
-        String labelPadding = OSUtils.isMacOSX() ? "" : "pad -6 4 0 0,";
-        switch(config) {
-        case HeadingOnly:
-            searchResultTextPanel.remove(subheadingLabel);
-            searchResultTextPanel.remove(metadataLabel);
-            break;
-        case HeadingAndSubheading:
-            searchResultTextPanel.add(subheadingLabel, labelPadding + "cell 0 1");
-            searchResultTextPanel.remove(metadataLabel);
-            break;
-        case HeadingAndMetadata:
-            searchResultTextPanel.remove(subheadingLabel);
-            searchResultTextPanel.add(metadataLabel, labelPadding + "cell 0 1");
-            break;
-        case HeadingSubHeadingAndMetadata:
-            searchResultTextPanel.add(subheadingLabel, (OSUtils.isMacOSX() ? "" : "pad -3 4 0 0,") + "cell 0 1, wrap");
-            searchResultTextPanel.add(metadataLabel, (OSUtils.isMacOSX() ? "" : "pad 0 4 0 0, gapbottom 3,") + "cell 0 2");
-        }
-    }
-
-    /**
-     * Returns a value to indicate whether the subheading was decorated to highlight
-     * parts of the content that match search terms
-     */
-    private void populateSubheading(RowDisplayResult result) {
-        subheadingLabel.setText(result.getSubheading());
-    }
+ 
 }

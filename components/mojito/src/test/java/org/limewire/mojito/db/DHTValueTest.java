@@ -36,6 +36,7 @@ import org.limewire.mojito.routing.Version;
 import org.limewire.mojito.settings.KademliaSettings;
 import org.limewire.mojito.util.DatabaseUtils;
 import org.limewire.mojito.util.MojitoUtils;
+import org.limewire.util.StringUtils;
 
 public class DHTValueTest extends MojitoTestCase {
     
@@ -72,7 +73,7 @@ public class DHTValueTest extends MojitoTestCase {
             KUID key = KUID.createRandomID();
             DHTValueType type = DHTValueType.TEST;
             Version version = Version.ZERO;
-            byte[] b = "Hello World".getBytes();
+            byte[] b = StringUtils.toUTF8Bytes("Hello World");
             
             long time = System.currentTimeMillis();
             

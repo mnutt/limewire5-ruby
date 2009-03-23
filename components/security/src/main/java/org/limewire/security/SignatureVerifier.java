@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.util.Base32;
 import org.limewire.util.FileUtils;
+import org.limewire.util.StringUtils;
 
 /**
  * Verifies a {@link Signature} given a public key and an 
@@ -101,6 +102,7 @@ public class SignatureVerifier {
         byte[] fileData = FileUtils.readFileFully(keyFile);
         if(fileData == null)
             return null;
+        // use default file encoding here for string conversion
         return readKey(new String(fileData), alg);
     }
     
@@ -143,7 +145,7 @@ public class SignatureVerifier {
         byte[] content = new byte[data.length - i - 2];
         System.arraycopy(data, 0, sig, 0, sig.length);
         System.arraycopy(data, i+2, content, 0, content.length);
-        return new byte[][] { Base32.decode(new String(sig)), content };
+        return new byte[][] { Base32.decode(StringUtils.getASCIIString(sig)), content };
     }
     
     /**

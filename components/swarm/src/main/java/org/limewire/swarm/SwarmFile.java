@@ -37,7 +37,7 @@ public interface SwarmFile {
     /**
      * Returns the base path for this file. Can be used for remote and local
      * repositories. The path may contain subfolders to represent the full path
-     *  to the file.
+     *  to the file, the path should be in unix format. path/to/file
      * 
      * @return
      */

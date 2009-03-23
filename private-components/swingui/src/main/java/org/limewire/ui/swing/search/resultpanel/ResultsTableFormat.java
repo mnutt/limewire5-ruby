@@ -6,15 +6,12 @@ import java.util.List;
 
 import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
-import org.limewire.core.api.Category;
-import org.limewire.core.api.FilePropertyKey;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.AbstractColumnStateFormat;
 import org.limewire.ui.swing.table.ColumnStateInfo;
+import org.limewire.ui.swing.table.QualityComparator;
 import org.limewire.ui.swing.util.EventListTableSortFormat;
-import org.limewire.util.StringUtils;
-
 
 /**
  * This class is the base class for each of the TableFormat classes
@@ -30,11 +27,20 @@ public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T>
     
     private final String sortID;
 
+    /**
+     * Constructs a ResultsTableFormat with the specified array of column
+     * descriptors.
+     */
     public ResultsTableFormat(ColumnStateInfo... columnInfo) {
         this("", -1, -1, -1, columnInfo);
     }
     
-    public ResultsTableFormat(String sortID, int nameColumn, int fromColumn, int spamColumn, ColumnStateInfo... columnInfo) {
+    /**
+     * Constructs a ResultsTableFormat with the specified sort identifier,
+     * Name/From/Spam column indices, and array of column descriptors.
+     */
+    public ResultsTableFormat(String sortID, int nameColumn, int fromColumn, 
+            int spamColumn, ColumnStateInfo... columnInfo) {
         super(columnInfo);
         this.sortID = sortID;
         this.nameColumn = nameColumn;
@@ -106,15 +112,31 @@ public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T>
             return getLimeComparator();
     }
     
-    public FromComparator getFromComparator() {
+    /**
+     * Returns a comparator for the From column.
+     */
+    public Comparator getFromComparator() {
         return new FromComparator();
     }
     
-    public NameComparator getNameComparator() {
-        return new NameComparator();
+    /**
+     * Returns a comparator for the Name column.
+     */
+    public Comparator getNameComparator() {
+        return new NameComparator(false);
     }
     
-    public IsSpamComparator getSpamComparator() {
+    /**
+     * Returns a comparator for the Quality column.
+     */
+    public Comparator getQualityComparator() {
+        return new QualityComparator();
+    }
+    
+    /**
+     * Returns a comparator for the Spam column.
+     */
+    public Comparator getSpamComparator() {
         return new IsSpamComparator();
     }
     
@@ -142,6 +164,12 @@ public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T>
      * a custom comparator.
      */
     public static class NameComparator implements Comparator<VisualSearchResult> {
+        private final boolean useAudioArtist;
+        
+        public NameComparator(boolean useAudioArtist) {
+            this.useAudioArtist = useAudioArtist;
+        }
+        
         @Override
         public int compare(VisualSearchResult o1, VisualSearchResult o2) {
             String name1 = getName(o1);
@@ -151,13 +179,7 @@ public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T>
         }
         
         private String getName(VisualSearchResult result) {
-            String name = result.getPropertyString(FilePropertyKey.NAME);
-
-            if(result.getCategory().equals(Category.AUDIO) && 
-                    !StringUtils.isEmpty(result.getPropertyString(FilePropertyKey.TITLE))) {
-                name =  result.getPropertyString(FilePropertyKey.TITLE);
-            }
-            return name;
+            return result.getNameProperty(useAudioArtist);
         }
     }
     

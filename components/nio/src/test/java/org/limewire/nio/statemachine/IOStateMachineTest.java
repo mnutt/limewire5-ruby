@@ -9,6 +9,7 @@ import junit.framework.Test;
 import org.limewire.nio.channel.ReadBufferChannel;
 import org.limewire.nio.channel.WriteBufferChannel;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 @SuppressWarnings("unchecked")
 public class IOStateMachineTest extends BaseTestCase {
@@ -226,12 +227,12 @@ public class IOStateMachineTest extends BaseTestCase {
         shake.setReadChannel(readChannel);
         shake.setWriteChannel(writeChannel);
         
-        state1.setDataToPutInBuffer("DATA".getBytes());
+        state1.setDataToPutInBuffer(StringUtils.toAsciiBytes("DATA"));
         shake.handleRead();
         
         ByteBuffer buffer = ByteBuffer.allocate(5);
         shake.read(buffer);
-        assertEquals("DATA\0", new String(buffer.array()));
+        assertEquals("DATA\0", StringUtils.getASCIIString(buffer.array()));
         assertEquals(4, buffer.position());
     }
 

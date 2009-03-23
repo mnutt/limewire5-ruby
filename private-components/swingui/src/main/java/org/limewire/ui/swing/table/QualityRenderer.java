@@ -4,8 +4,10 @@ import java.awt.Component;
 
 import javax.swing.JTable;
 
+import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.core.api.library.PropertiableFile;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
@@ -33,7 +35,7 @@ public class QualityRenderer extends DefaultLibraryRenderer {
                     text = "";
                 else {
                     Number num = ((Number)result.getProperty(FilePropertyKey.QUALITY));
-                    text = GuiUtils.toQualityStringShort(num.longValue()); 
+                    text = GuiUtils.toQualityStringShort(num.longValue()) + getQualityDetails(result); 
                 }
             }
         } else if(value instanceof RemoteFileItem) {
@@ -42,7 +44,7 @@ public class QualityRenderer extends DefaultLibraryRenderer {
                 text = "";
             else {
                 Number num = ((Number)item.getProperty(FilePropertyKey.QUALITY));
-                text = GuiUtils.toQualityStringShort(num.longValue()); 
+                text = GuiUtils.toQualityStringShort(num.longValue()) + getQualityDetails(item); 
             }
         } else if(value instanceof LocalFileItem) {
             LocalFileItem item = (LocalFileItem) value;
@@ -50,7 +52,7 @@ public class QualityRenderer extends DefaultLibraryRenderer {
                 text = "";
             else {
                 Number num = ((Number)item.getProperty(FilePropertyKey.QUALITY));
-                text = GuiUtils.toQualityStringShort(num.longValue()); 
+                text = GuiUtils.toQualityStringShort(num.longValue()) + getQualityDetails(item); 
             }
         } else {
             text = "";
@@ -58,5 +60,15 @@ public class QualityRenderer extends DefaultLibraryRenderer {
         
         super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
         return this;
+    }
+    
+    private String getQualityDetails(PropertiableFile propertiable){
+        if (propertiable.getCategory() == Category.AUDIO){
+            Object bitRate = propertiable.getProperty(FilePropertyKey.BITRATE);
+            if (bitRate != null) {
+                return " (" + bitRate + ")";
+            }
+        }
+        return "";
     }
 }

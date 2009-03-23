@@ -35,9 +35,7 @@ import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 /**
- * An implementation of GnutellaConnectionManager for the live core.  This is 
- * defined as a Guice singleton, which means Guice will create the instance
- * when the binding is defined.
+ * An implementation of GnutellaConnectionManager for the live core. 
  */
 @Singleton
 public class GnutellaConnectionManagerImpl 
@@ -57,10 +55,11 @@ public class GnutellaConnectionManagerImpl
     /** List of ConnectionItem instances. */
     private final EventList<ConnectionItem> connectionItemList;
     
-    private volatile long lastIdleTime;
     private volatile ConnectionStrength currentStrength = ConnectionStrength.DISCONNECTED;
-    private volatile ConnectionLifecycleEventType lastStrengthRelatedEvent;
-
+    
+    volatile ConnectionLifecycleEventType lastStrengthRelatedEvent;
+    volatile long lastIdleTime;
+    
     /**
      * Constructs the live implementation of GnutellaConnectionManager using 
      * the specified connection and library services.
@@ -81,12 +80,21 @@ public class GnutellaConnectionManagerImpl
         // Create list of connection items as thread safe list.
         connectionItemList = GlazedListsFactory.threadSafeList(
                 new BasicEventList<ConnectionItem>());
-        
-        // Add listener for connection events. 
-        connectionManager.addEventListener(this);
+    }
+
+    /**
+     * Adds this as a listener for core connection events. 
+     */
+    @Inject
+    void registerListener() {
+        connectionManager.addEventListener(this);    
     }
     
-    @Inject void register(ServiceRegistry registry, final @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor) {
+    /**
+     * Register the periodic connection strength updater service.
+     */
+    @Inject 
+    void registerService(ServiceRegistry registry, final @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor) {
         registry.register(new Service() {
             private volatile ScheduledFuture<?> meter;
             private volatile ConnectionLifecycleListener listener;
@@ -143,7 +151,7 @@ public class GnutellaConnectionManagerImpl
         changeSupport.firePropertyChange(GnutellaConnectionManager.CONNECTION_STRENGTH, oldStrength, newStrength);
     }
     
-    private ConnectionStrength calculateStrength() {
+    ConnectionStrength calculateStrength() {
         int stable = connectionManager.countConnectionsWithNMessages(STABLE_THRESHOLD);
             
         ConnectionStrength strength;

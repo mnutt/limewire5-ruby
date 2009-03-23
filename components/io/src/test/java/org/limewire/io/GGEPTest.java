@@ -11,6 +11,7 @@ import org.limewire.io.IOUtils;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.ByteUtils;
 import org.limewire.util.NameValue;
+import org.limewire.util.StringUtils;
 
 import junit.framework.Test;
 
@@ -30,7 +31,7 @@ public class GGEPTest extends BaseTestCase {
         byte[] nulls = new byte[10];
         for (int i = 0; i < nulls.length; i++)
             nulls[i] = (byte)(i % 2);
-        String someNulls = "Hello" + new String(nulls);
+        String someNulls = "Hello" + StringUtils.getASCIIString(nulls);
         try {
             GGEP one = new GGEP(true);
             one.put("Susheel", nulls);
@@ -203,7 +204,7 @@ public class GGEPTest extends BaseTestCase {
         byte[] bytes = new byte[2];
         bytes[0] = (byte)'S';
         bytes[1] = (byte)0x0;
-        String hasANull = new String(bytes);
+        String hasANull = StringUtils.getASCIIString(bytes);
 
         GGEP temp = new GGEP();
         temp.put("WHATEVER", hasANull);
@@ -215,7 +216,7 @@ public class GGEPTest extends BaseTestCase {
         byte[] bytes = new byte[2];
         bytes[0] = (byte)'S';
         bytes[1] = (byte)0x0;
-        String hasANull = new String(bytes);
+        String hasANull = StringUtils.getASCIIString(bytes);
 
         GGEP temp = new GGEP(true);
         temp.put("WHATEVER", hasANull);
@@ -252,7 +253,7 @@ public class GGEPTest extends BaseTestCase {
     }
     
     public void testPutCompressed() throws Exception {
-        byte[] middleValue = "middle".getBytes();
+        byte[] middleValue = StringUtils.toAsciiBytes("middle");
         GGEP g = new GGEP(true);
         g.put("1", "begin");
         g.putCompressed("2", middleValue);
@@ -311,7 +312,7 @@ public class GGEPTest extends BaseTestCase {
         out.write('n');
         out.write(0x21);
         out.write('2');
-        byte[] middleValue = "the middle value, compressed.".getBytes();
+        byte[] middleValue = StringUtils.toAsciiBytes("the middle value, compressed.");
         byte[] compressed = IOUtils.deflate(middleValue);
         assertNotEquals(middleValue, compressed);
         int length = compressed.length;
@@ -334,7 +335,7 @@ public class GGEPTest extends BaseTestCase {
         assertEquals(bytes.length, offsets[0]);
         assertEquals(3, ggep.getHeaders().size());
         assertEquals("begin", ggep.getString("1"));
-        assertEquals(new String(middleValue), ggep.getString("2"));
+        assertEquals("the middle value, compressed.", ggep.getString("2"));
         assertEquals("end", ggep.getString("3"));
         
         // Make sure that also write the data as compressed, if it was read that way.
@@ -921,7 +922,7 @@ public class GGEPTest extends BaseTestCase {
     public void testCobsSymmetry() throws IOException {
         // a quick test for symmetry - but symmetry was actually tested above,
         // so no need for much testing...
-        byte[] bytes = (new String("Sush Is Cool!")).getBytes();
+        byte[] bytes = StringUtils.toAsciiBytes("Sush Is Cool!");
         byte[] after = GGEP.cobsDecode(GGEP.cobsEncode(bytes));
         assertEquals(bytes.length , after.length);
     }

@@ -1,150 +1,37 @@
 <!-- top level ant file -->
-<project name="limewire" default="compile-src" basedir=".">
+<project name="limewire" default="compile" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <property name="limewire.home" location="${basedir}"/>
-
-    <import file="components/build.xml"/>
-    <import file="core/build.xml"/>
-    <import file="tests/build.xml" />
-    <import file="components/core-glue/build.xml"/>
+    <property name="includes" value="components/*/build.xml, private-components/*/build.xml"/>	
+	<property name="cloverdb-excludes" value="private-components/mock-core/clover/*"/>
+	<property name="cloverdb-includes" value="components/*/clover/clover.db, private-components/*/clover/clover.db"/>
+	
+    <import file="components/common/generic-multi-build.xml"/>
     
-    <target name="initialize" depends="lw-core.initialize, lw-tests.initialize, lw-components.initialize, lw-core-glue.initialize" unless="initialized.limewire">
-        <property name="limewire.components.limewire.home"
-                  location="${limewire.home}"/>
-        <property name="limewire.components.limewire.tests"
-                  location="${limewire.components.tests.home}"/>
-        <do.setup-properties component="limewire"/>
-    </target>
+    <!-- runs all tests except those in gnutella-core. -->
+    <target name="test-fast-tests" depends="publish-dependencies">
+        <do.multi-ant target="test-all" excludes="components/gnutella-core/*"/>
+	</target>
     
-    <target name="compile"
-            description="Compiles all code."
-            depends="initialize, lw-components.compile-core-src, lw-components.compile-ui-src, lw-core.compile-core, lw-tests.compile-src, lw-tests.compile-tests, lw-core-glue.compile-src, lw-core-glue.compile-tests"/>
-    
-    <target name="compile-src"
-            description="Compiles all source code (not tests)."
-            depends="initialize, lw-components.compile-core-src, lw-components.compile-ui-src, lw-core.compile-core, lw-core-glue.compile-src"/>
-    
-    <target name="compile-tests"
-            description="Compiles all code required for tests."
-            depends="initialize, lw-components.compile-tests, lw-tests.compile-src, lw-tests.compile-tests, lw-core-glue.compile-tests"/>
-    
-    <target name="clean" 
-            description="Cleans everything."
-            depends="initialize, lw-components.clean, clean-core, lw-tests.clean, lw-core-glue.clean">
-        <do.clean component="limewire"/>
-        <delete dir="${limewire.components.limewire.home}/unused"/>
-    </target>
-    
-    <target name="clean-src"
-            description="Cleans artifacts from compiling src."
-            depends="initialize, lw-components.clean-src, clean-core, lw-core-glue.clean-src"/>
-    
-    <target name="clean-tests"
-            description="Cleans artifacts from compiling tests."
-            depends="initialize, lw-components.clean-tests, lw-tests.clean, lw-core-glue.clean-tests">
-        <do.clean-testData component="limewire"/>
-    </target>
-        
-    <target name="test-all"
-            description="Tests all components and LimeWire tests."
-            depends="compile, lw-core-glue.test-all, lw-tests.test-all, lw-components.test-all">
-        <mkdir dir="${tests.limewire.components.limewire.xml}"/>
-        <do.tests2html component="limewire">
-            <more-xml-locations>
-                <fileset dir="${tests.limewire.components.all.xml}" includes="TEST-*.xml"/>
-                <fileset dir="${tests.limewire.components.tests.xml}" includes="TEST-*.xml"/>
-                <fileset dir="${tests.limewire.components.core-glue.xml}" includes="TEST-*.xml"/>
-            </more-xml-locations>
-        </do.tests2html>
-    </target>    
-    
-    <target name="test2html" depends="initialize">
-        <mkdir dir="${tests.limewire.components.limewire.xml}"/>
-        <do.tests2html component="limewire">
-            <more-xml-locations>
-                <fileset dir="${tests.limewire.components.tests.xml}" includes="TEST-*.xml"/>
-            </more-xml-locations>
-        </do.tests2html>
-    </target>
-    
-    <target name="test-components"
-            description="Tests all components"
-            depends="compile, lw-components.test-all">
-         <mkdir dir="${tests.limewire.components.limewire.xml}"/>
-         <do.tests2html component="limewire">
-             <more-xml-locations>
-                 <fileset dir="${tests.limewire.components.all.xml}" includes="TEST-*.xml"/>
-             </more-xml-locations>
-         </do.tests2html>
-    </target>    
-    
-    <target name="test-one-lw"
-            description="Tests a single test in limewire/tests.  (Useful for testing outside of the normal directory.)  Requires: -Dclass="
-            depends="compile, lw-tests.test"/>
-    
-    <target name="test-pkg-lw"
-            description="Tests a single package in limewire/tests.  (Useful for testing outside of the normal directory.)  Requires: -Dpackage="
-            depends="compile, lw-tests.test-package"/>
-    
-    <target name="jar" depends="compile-src, lw-components.jar, lw-core-glue.jar">
-        <!-- get the list of jars in a space separated list without dirnames -->
-        <fileset dir="${limewire.lib.jars}" includes="**/*.jar" id="alljars"/>
-        <pathconvert property="classpath" refid="alljars" pathsep=" ">
-            <mapper type = "flatten" />
-        </pathconvert>
-        
-        <mkdir dir="${limewire.home}/dist"/>        
-       
-        <delete file="${limewire.home}/dist/LimeWire.jar"/>
-        <jar jarfile="${limewire.home}/dist/LimeWire.jar" compress="false">
-            <fileset dir="${build.limewire.core.classes}" includes="com/limegroup/**/*.class"/>
-            <zipfileset src="${dist.limewire.components.all.jar}"/>  
-            <zipfileset src="${dist.limewire.components.core-glue.jar}"/>
-            <manifest>
-                <attribute name="Main-Class" value="org.limewire.ui.swing.Main" />
-                <attribute name="Class-Path" value=". ${classpath}"/>
-            </manifest>
-        </jar>
-    </target> 
-    
-    <!-- TODO: implement -->
-    <target name="clean-dist"/>
-        
-    <target name="javadoc">
-        <fail message="Use maven to generate javadocs."/>
-    </target>
-    
-    <target name="clover2html"
-            description="Converts clover's generated data into HTML reports."
-            depends="initialize">
-        <do.clover2html component="limewire">
-            <moretestinfo>
-                <testsources refid="limewire.components.sources.tests"/>
-                <testsources dir="${limewire.components.tests.home}"/>
-                <testsources dir="${limewire.components.core-glue.tests.home}"/>
-                <testresults dir="${tests.limewire.components.all.xml}" includes="TEST-*.xml"/>
-                <testresults dir="${tests.limewire.components.tests.xml}" includes="TEST-*.xml"/>
-                <testresults dir="${tests.limewire.components.core-glue.xml}" includes="TEST-*.xml"/>
-             </moretestinfo>
-        </do.clover2html>
-    </target>
-    
-    <target name="with.clover"
-            description="Instructs the build to use clover's instrumenting."
-            depends="initialize">
-        <mkdir dir="${limewire.components.limewire.home}/unused"/>
-        <do.clover-setup component="limewire" defaultfileset="${limewire.components.limewire.home}/unused">
-              <locations>    
-                <fileset dir="${limewire.core.src}"/>
-                <fileset dir="${limewire.components.tests.home}"/>
-                <fileset refid="limewire.components.sources.all"/>
-                <fileset dir="${limewire.components.core-glue.src}"/>
-                <fileset dir="${limewire.components.core-glue.tests}"/>
-              </locations>
-          </do.clover-setup>
-      </target>
+    <!-- BEGIN GETTEXT TASKS -->
 
     <property name="translation.cutoff" value="60"/>
+    <property name="gettexttasks.jar" value="${limewire.lib.jars.ant}/gettext-ant-tasks.jar"/>
+
+	<target name="init.gettext" description="Loads the gettext ant tasks">
+    	 <taskdef name="gettext-extract"
+           classname="org.xnap.commons.ant.gettext.GettextExtractKeysTask"
+           classpath="${gettexttasks.jar}"/>
+    	 <taskdef name="gettext-merge"
+           classname="org.xnap.commons.ant.gettext.GettextMergeKeysTask"
+           classpath="${gettexttasks.jar}"/>
+    	 <taskdef name="gettext-dist"
+           classname="org.xnap.commons.ant.gettext.GettextDistTask"
+           classpath="${gettexttasks.jar}"/>
+          <taskdef name="gettext-generate-default"
+    	   classname="org.xnap.commons.ant.gettext.GenerateDefaultBundleTask"
+    	   classpath="${gettexttasks.jar}"/>
+	</target>    
 
     <target name="lw-gettext-extract"
              description="Extracts message keys from the source code"
@@ -153,9 +40,16 @@
         <gettext-extract keysFile="limewire.pot"
              poDirectory="lib/messagebundles" keywords="-ktrc:1c,2
           -ktrnc:1c,2,3 -ktr -kmarktr -ktrn:1,2 -ktrl -k">
-          <fileset dir="components" includes="**/*.java"/>
-          <fileset dir="core" includes="**/*.java"/>
-          <fileset dir="private-components" includes="**/*.java"/>
+          <fileset dir="components">
+	    <patternset id="non.test.sources">
+	      <include name="**/*.java"/>
+	      <exclude name="**/src/test/**"/>
+	      <exclude name="**/src/test-common/**"/>
+	    </patternset>
+	  </fileset>
+          <fileset dir="private-components">
+	    <patternset refid="non.test.sources"/>
+	  </fileset>
         </gettext-extract>
     </target>
 
@@ -217,13 +111,6 @@
         <!-- clean up -->
         <delete dir="lib/messagebundles/org"/>
     </target>
-
-    <!-- mask imported targets -->
-    <target name="test"/>
-    <target name="test-package"/>
-    <target name="compile-core"/>
-    <target name="compile-core-src"/>
-    <target name="compile-ui-src"/>
-    <target name="compile-gui"/>
-
+    
+    <!-- END GETTEXT TASKS -->
 </project>

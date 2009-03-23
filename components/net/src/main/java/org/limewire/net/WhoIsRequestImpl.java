@@ -15,6 +15,7 @@ import java.util.StringTokenizer;
 import org.limewire.io.IP;
 import org.limewire.io.NetworkUtils;
 import org.limewire.io.IOUtils;
+import org.limewire.util.StringUtils;
 
 /**
  * Represents a WHOIS request. The request value will be
@@ -314,13 +315,13 @@ public class WhoIsRequestImpl implements WhoIsRequest {
             byte[] bytes = new byte[1000];
             int read = 0;
             
-            os.write((this.name+"\r\n").getBytes());
+            os.write(StringUtils.toAsciiBytes(this.name+"\r\n"));
             
             // read until we hit EOF or the socket closes.
             try {
                 while (0 < (read = is.read(bytes, 0, 1000))) {
                     if (read > 0)
-                        sb.append(new String(bytes, 0, read, "US-ASCII"));
+                        sb.append(StringUtils.getASCIIString(bytes, 0, read));
                 }
                 
             }

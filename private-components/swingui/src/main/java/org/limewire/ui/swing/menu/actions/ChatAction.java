@@ -19,9 +19,7 @@ public class ChatAction extends AbstractAction {
 
     @Inject
     ChatAction(ChatFriendListPane friendsPane, ChatFramePanel friendsPanel) {
-        // TODO fberger
-        // super(I18n.tr("&Chat"));
-        super(I18n.tr("Chat"));
+        super(I18n.tr("&Chat"));
         this.friendsPane = friendsPane;
         this.friendsPanel = friendsPanel;
         setEnabled(false);

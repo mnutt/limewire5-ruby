@@ -21,9 +21,12 @@ import org.limewire.net.EmptySocketBindingSettings;
 import org.limewire.net.LimeWireNetModule;
 import org.limewire.net.ProxySettings;
 import org.limewire.net.ProxySettings.ProxyType;
+import org.limewire.net.ProxySettingsStub;
 import org.limewire.net.SocketBindingSettings;
 import org.limewire.net.SocketsManager;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
+import org.limewire.nio.NIOTestUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -89,7 +92,7 @@ public class ProxyTest extends BaseTestCase {
     public void tearDown() throws Exception {
         fps.killServers();
         
-        LimeTestUtils.waitForNIO();
+        NIOTestUtils.waitForNIO();
     }
 
     /**
@@ -307,7 +310,7 @@ public class ProxyTest extends BaseTestCase {
         get.addHeader("connection", "close");
         HttpResponse response = httpClient.execute(get);
         byte[] resp = IOUtils.readFully(response.getEntity().getContent());
-        assertEquals("invalid response from server", "hello", new String(resp));
+        assertEquals("invalid response from server", "hello", StringUtils.getUTF8String(resp));
         get.abort();
     }
 
@@ -324,7 +327,7 @@ public class ProxyTest extends BaseTestCase {
         // release the connections.
         // TODO client.setHttpConnectionManager(new SimpleHttpConnectionManager());
         HttpResponse response = httpClient.execute(get);
-        String resp = new String(IOUtils.readFully(response.getEntity().getContent()));
+        String resp = StringUtils.getUTF8String(IOUtils.readFully(response.getEntity().getContent()));
         assertEquals("invalid response from server", "hello", resp);
         get.abort();
     }
@@ -342,7 +345,7 @@ public class ProxyTest extends BaseTestCase {
         // release the connections.
         // TODO client.setHttpConnectionManager(new SimpleHttpConnectionManager());
         HttpResponse response = httpClient.execute(get);
-        String resp = new String(IOUtils.readFully(response.getEntity().getContent()));
+        String resp = StringUtils.getUTF8String(IOUtils.readFully(response.getEntity().getContent()));
         assertEquals("invalid response from server", "hello", resp);
         get.abort();
     }
@@ -360,7 +363,7 @@ public class ProxyTest extends BaseTestCase {
         // release the connections.
         // TODO client.setHttpConnectionManager(new SimpleHttpConnectionManager());
         HttpResponse response = httpClient.execute(get);
-        String resp = new String(IOUtils.readFully(response.getEntity().getContent()));
+        String resp = StringUtils.getUTF8String(IOUtils.readFully(response.getEntity().getContent()));
         assertEquals("invalid response from server", "hello", resp);
         get.abort();
     }
@@ -382,7 +385,7 @@ public class ProxyTest extends BaseTestCase {
         // release the connections.
         // TODO client.setHttpConnectionManager(new SimpleHttpConnectionManager());
         HttpResponse response = httpClient.execute(get);
-        String resp = new String(IOUtils.readFully(response.getEntity().getContent()));
+        String resp = StringUtils.getUTF8String(IOUtils.readFully(response.getEntity().getContent()));
         assertEquals("invalid response from server", "hello", resp);
         get.abort();
     }
@@ -404,7 +407,7 @@ public class ProxyTest extends BaseTestCase {
         // release the connections.
         // TODO client.setHttpConnectionManager(new SimpleHttpConnectionManager());
         HttpResponse response = httpClient.execute(get);
-        String resp = new String(IOUtils.readFully(response.getEntity().getContent()));
+        String resp = StringUtils.getUTF8String(IOUtils.readFully(response.getEntity().getContent()));
         assertEquals("invalid response from server", "hello", resp);
         get.abort();
     }

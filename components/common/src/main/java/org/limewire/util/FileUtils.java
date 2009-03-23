@@ -215,7 +215,7 @@ public class FileUtils {
      * 
      * @param f the <tt>File</tt> instance from which the extension 
      *   should be extracted
-     * @return the file extension string, or <tt>null</tt> if the extension
+     * @return the file extension string, or <tt>empty string</tt> if the extension
      *   could not be extracted
      */
     public static String getFileExtension(File f) {

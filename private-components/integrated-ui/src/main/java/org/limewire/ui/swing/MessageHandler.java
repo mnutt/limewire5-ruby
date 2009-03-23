@@ -1,6 +1,7 @@
 package org.limewire.ui.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -129,10 +130,13 @@ public class MessageHandler implements MessageCallback {
     }
 
     private JComponent getLabel(String message) {
-        if (message.startsWith("<html"))
-            return new HTMLLabel(message);
-        else
+        if (message.startsWith("<html")) {
+            HTMLLabel label = new HTMLLabel(message);
+            label.setMargin(new Insets(5, 5, 5, 5));
+            return label;
+        } else { 
             return new MultiLineLabel(message, 400);
+        }
     }
 
 }

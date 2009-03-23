@@ -54,7 +54,7 @@ class ReconnectionManager implements EventListener<XMPPConnectionEvent> {
                                 newConnection == null; i++) {
                             try {
                                 LOG.debugf("attempting to reconnect to {0} ..." + configuration.getServiceName());
-                                newConnection = serviceImpl.login(configuration, true);
+                                newConnection = serviceImpl.loginImpl(configuration, true);
                             } catch (XMPPException e) {
                                 // Ignored
                             }

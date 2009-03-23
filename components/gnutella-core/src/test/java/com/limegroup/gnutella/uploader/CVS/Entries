@@ -1,0 +1,20 @@
+/AltLocHeaderInterceptorTest.java/1.8/Mon Sep 24 18:11:26 2007//
+/AltLocUploadTest.java/1.58/Sun Feb  8 17:59:22 2009//
+/BrowseTest.java/1.33/Fri Mar 20 17:46:35 2009//
+/FileRequestHandlerTest.java/1.33/Sun Feb  8 17:05:49 2009//
+/FileRequestParserTest.java/1.2/Sun Nov 16 23:50:35 2008//
+/HTTPHeaderUtilsTest.java/1.20/Sat Sep 27 05:39:04 2008//
+/HTTPUploaderTest.java/1.36/Thu Mar 19 23:17:11 2009//
+/HttpPushRequestHandlerTest.java/1.6/Wed Dec  3 22:02:04 2008//
+/HttpUploadClient.java/1.4/Wed Oct  3 15:04:11 2007//
+/MockHTTPUploadSessionManager.java/1.4/Tue Jun  5 21:30:22 2007//
+/MockHTTPUploader.java/1.3/Wed Sep  5 17:02:14 2007//
+/PushUploadTest.java/1.48/Thu Mar 19 22:59:48 2009//
+/StubAltLocTracker.java/1.2/Thu Sep 20 17:26:14 2007//
+/TLSBrowseTest.java/1.1/Tue Jul 17 04:32:13 2007//
+/TLSUploadTest.java/1.2/Tue Jul 17 04:32:13 2007//
+/UploadQueueingTest.java/1.41/Thu Mar 19 22:59:48 2009//
+/UploadSlotManagerTest.java/1.7/Mon Aug  4 23:06:56 2008//
+/UploadTest.java/1.150/Thu Mar 19 23:17:11 2009//
+/UploadTestUtils.java/1.2/Thu May 31 18:27:17 2007//
+D

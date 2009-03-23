@@ -10,6 +10,7 @@ import junit.framework.Test;
 import org.limewire.concurrent.ManagedThread;
 import org.limewire.io.SimpleNetworkInstanceUtils;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 public class SocketAcceptorTest extends BaseTestCase {
     
@@ -59,7 +60,7 @@ public class SocketAcceptorTest extends BaseTestCase {
                 try {
                     s = new Socket();
                     s.connect(new InetSocketAddress("localhost", port), 200); 
-                    s.getOutputStream().write(text.getBytes());
+                    s.getOutputStream().write(StringUtils.toAsciiBytes(text));
                 } catch (Exception e) {
                     error[0] = e;
                 }

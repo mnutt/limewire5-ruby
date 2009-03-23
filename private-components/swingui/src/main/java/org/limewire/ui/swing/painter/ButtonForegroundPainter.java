@@ -1,5 +1,6 @@
 package org.limewire.ui.swing.painter;
 
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 
@@ -9,6 +10,7 @@ import javax.swing.Icon;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.limewire.ui.swing.components.LimeComboBox;
+import org.limewire.ui.swing.util.FontUtils;
 
 /**
  * Painter to be used to extend general font and icon behaviour to all
@@ -23,6 +25,15 @@ public class ButtonForegroundPainter extends AbstractPainter<JXButton> {
     private final Paint hoverForeground;
     private final Paint disabledForeground;
     
+    private final FontTransform pressedTransform;
+    private final FontTransform hoverTransform;
+    private final FontTransform disabledTransform;
+    
+    private Font fontCache = null;
+    private Font pressedFontCache = null;
+    private Font hoverFontCache = null;
+    private Font disabledFontCache = null;
+    
     /**
      * Creates a button foreground painter that does not
      *  change it's font colour based on mouse state.
@@ -31,22 +42,60 @@ public class ButtonForegroundPainter extends AbstractPainter<JXButton> {
      *          buttons since it will ignore the default app style
      *          -- instead use the factory
      */
-    ButtonForegroundPainter() {
+    public ButtonForegroundPainter() {
         this(null, null, null);
     }
        
     /** 
-     * Can be used to create a foreground painter with unique pressed and hover font colours
+     * Can be used to create a foreground painter with unique overlaid pressed and hover font colours
      *  and a right aligned icon.  
      *  
      *  NOTE: Will ignore default app style.  Use the factory if regular behaviour is desired.
      */
     public ButtonForegroundPainter(Paint hoverForeground, Paint pressedForeground, Paint disabledForeground) {
+        this(hoverForeground, pressedForeground, disabledForeground, 
+                FontTransform.NO_CHANGE, FontTransform.NO_CHANGE, FontTransform.NO_CHANGE);        
+    }
+    
+    /** 
+     * Can be used to create a foreground painter with unique overlaid pressed and hover font style and colours
+     *  with a right aligned icon.  FontTransforms are used to apply font transform operations on the
+     *  components base font when the button is in a certain state.
+     *  
+     *  NOTE: Will ignore default app style.  Use the factory if regular behaviour is desired.
+     */    
+    public ButtonForegroundPainter(Paint hoverForeground, Paint pressedForeground, Paint disabledForeground,
+            FontTransform hoverTransform, FontTransform pressedTransform, FontTransform disabledTransform) {
+        
         this.pressedForeground = pressedForeground;
         this.hoverForeground = hoverForeground;
         this.disabledForeground = disabledForeground;
         
+        this.pressedTransform = pressedTransform;
+        this.hoverTransform = hoverTransform;
+        this.disabledTransform = disabledTransform;
+        
         setCacheable(false);
+    }
+    
+    private Font deriveTransform(Font font, FontTransform transform) {
+        switch (transform) {
+        case NO_CHANGE :
+            return font;
+        case ADD_UNDERLINE :
+            return FontUtils.deriveUnderline(font, true);
+        case REMOVE_UNDERLINE :
+            return FontUtils.deriveUnderline(font, false);
+        }
+        return font;
+        
+    }
+    
+    private void reloadFontCache(Font font) {
+        fontCache = font;
+        disabledFontCache = deriveTransform(font, disabledTransform);
+        pressedFontCache  = deriveTransform(font, pressedTransform);
+        hoverFontCache    = deriveTransform(font, hoverTransform);
     }
     
     @Override
@@ -57,17 +106,25 @@ public class ButtonForegroundPainter extends AbstractPainter<JXButton> {
         
         Icon icon = null;
         Paint foreground = null;
+
+        Font font = object.getFont();
+        if (font != fontCache) {
+            reloadFontCache(font);
+        }
          
         if (!object.isEnabled()) {
             foreground = disabledForeground;
+            font = disabledFontCache;
         }
-        else if (object.getModel().isPressed()) {
+        else if (object.getModel().isPressed() || object.getModel().isSelected()) {
             icon = object.getPressedIcon();
-            foreground = pressedForeground; 
+            foreground = pressedForeground;
+            font = pressedFontCache;
         }
         else if (object.getModel().isRollover() || object.hasFocus()) {
             icon = object.getRolloverIcon();
             foreground = hoverForeground;
+            font = hoverFontCache;
         }
         else {
             icon = object.getIcon();
@@ -77,14 +134,15 @@ public class ButtonForegroundPainter extends AbstractPainter<JXButton> {
             foreground = object.getForeground();
         }
         
-        g.setFont(object.getFont());
         g.setPaint(foreground);
+        g.setFont(font);
         
         if (object.getText() != null) {
             g.drawString(object.getText(), object.getInsets().left, textBaseline);
             
             if (icon != null) {
-                icon.paintIcon(object, g, object.getWidth() - object.getInsets().right + 3, 
+                icon.paintIcon(object, g, 
+                        object.getWidth() - icon.getIconWidth()/2 - 10, 
                         object.getHeight()/2 - icon.getIconHeight()/2);
             }
         } 
@@ -109,6 +167,16 @@ public class ButtonForegroundPainter extends AbstractPainter<JXButton> {
         }
 
         
+    }
+    
+    /**
+     * Shortcuts to specify common font transform operations.
+     * 
+     * NOTE: At this time only adding or removing an underline
+     *        from the base font is supported
+     */
+    public enum FontTransform {
+        NO_CHANGE, ADD_UNDERLINE, REMOVE_UNDERLINE;
     }
 
 }

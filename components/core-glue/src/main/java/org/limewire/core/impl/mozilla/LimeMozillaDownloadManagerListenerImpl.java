@@ -9,7 +9,6 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.util.Objects;
 import org.mozilla.browser.MozillaExecutor;
-import org.mozilla.browser.XPCOMUtils;
 import org.mozilla.interfaces.nsIDOMDocument;
 import org.mozilla.interfaces.nsIDownload;
 import org.mozilla.interfaces.nsIDownloadManager;
@@ -25,6 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.DownloadManager;
+import com.limegroup.gnutella.downloader.CoreDownloader;
 
 /**
  * Provides a means of tracking what downloads have listeners already, and
@@ -45,12 +45,16 @@ class LimeMozillaDownloadManagerListenerImpl implements
 
     private final ScheduledExecutorService backgroundExecutor;
 
+    private final XPComUtility xpComUtility;
+    
     @Inject
     public LimeMozillaDownloadManagerListenerImpl(
             @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
-            DownloadManager downloadManager) {
+            DownloadManager downloadManager,
+            XPComUtility xpComUtility) {
         this.backgroundExecutor = Objects.nonNull(backgroundExecutor, "backgroundExecutor");
         this.downloadManager = Objects.nonNull(downloadManager, "downloadManager");
+        this.xpComUtility = Objects.nonNull(xpComUtility, "xpComUtility");
         this.listeners = new HashMap<Long, LimeMozillaDownloadProgressListener>();
     }
 
@@ -59,7 +63,8 @@ class LimeMozillaDownloadManagerListenerImpl implements
         nsISimpleEnumerator enumerator = downloadManager.getActiveDownloads();
         while (enumerator.hasMoreElements()) {
             nsISupports elem = enumerator.getNext();
-            nsIDownload download = XPCOMUtils.proxy(elem, nsIDownload.class);
+            
+            nsIDownload download = xpComUtility.proxy(elem, nsIDownload.class);
             long downloadId = download.getId();
             try {
                 downloadManager.resumeDownload(downloadId);
@@ -76,13 +81,13 @@ class LimeMozillaDownloadManagerListenerImpl implements
         nsISimpleEnumerator enumerator = downloadManager.getActiveDownloads();
         while (enumerator.hasMoreElements()) {
             nsISupports elem = enumerator.getNext();
-            nsIDownload download = XPCOMUtils.proxy(elem, nsIDownload.class);
+            nsIDownload download = xpComUtility.proxy(elem, nsIDownload.class);
             addListener(download, nsIDownloadManager.DOWNLOAD_QUEUED);
         }
     }
 
     private nsIDownloadManager getDownloadManager() {
-        nsIDownloadManager downloadManager = XPCOMUtils.getServiceProxy(NS_IDOWNLOADMANAGER_CID,
+        nsIDownloadManager downloadManager = xpComUtility.getServiceProxy(NS_IDOWNLOADMANAGER_CID,
                 nsIDownloadManager.class);
         return downloadManager;
     }
@@ -97,10 +102,11 @@ class LimeMozillaDownloadManagerListenerImpl implements
         LimeMozillaDownloadProgressListener listener = listeners.get(downloadId);
         if (listener == null) {
             LimeMozillaDownloadProgressListenerImpl listenerImpl = new LimeMozillaDownloadProgressListenerImpl(
-                    this, backgroundExecutor, download, state);
+                    this, backgroundExecutor, download, xpComUtility);
             listeners.put(download.getId(), listenerImpl);
+            CoreDownloader downloader = (CoreDownloader)downloadManager.downloadFromMozilla(listenerImpl);
+            listenerImpl.init(downloader, state);
             getDownloadManager().addListener(listenerImpl);
-            downloadManager.downloadFromMozilla(listenerImpl);
             return true;
         }
         return false;

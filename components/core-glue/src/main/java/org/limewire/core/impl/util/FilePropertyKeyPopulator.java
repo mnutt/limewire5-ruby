@@ -197,6 +197,23 @@ public class FilePropertyKeyPopulator {
         }
         return quality;
     }
+    
+    /** Returns the XML Schema URI for the given category. */
+    public static String getLimeXmlSchemaUri(Category category) {
+        switch (category) {
+        case AUDIO:
+            return LimeXMLNames.AUDIO_SCHEMA;
+        case DOCUMENT:
+            return LimeXMLNames.DOCUMENT_SCHEMA;
+        case IMAGE:
+            return LimeXMLNames.IMAGE_SCHEMA;
+        case PROGRAM:
+            return LimeXMLNames.APPLICATION_SCHEMA;
+        case VIDEO:
+            return LimeXMLNames.VIDEO_SCHEMA;
+        }
+        throw new UnsupportedOperationException("Category: " + category + " is not supported.");
+    }
 
     /**
      * Returns the lime xml name that maps to the given category and

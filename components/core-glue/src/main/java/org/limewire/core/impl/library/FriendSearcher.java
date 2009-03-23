@@ -19,7 +19,7 @@ public class FriendSearcher {
     }
     
     public void doSearch(SearchDetails searchDetails, FriendSearchListener listener) {
-        Collection<RemoteFileItem>results = libraries.getMatchingItems(searchDetails.getSearchQuery(), searchDetails.getSearchCategory());
+        Collection<RemoteFileItem>results = libraries.getMatchingItems(searchDetails);
         listener.handleFriendResults(results);
     }
 }

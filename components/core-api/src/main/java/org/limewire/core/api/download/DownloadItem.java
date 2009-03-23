@@ -60,14 +60,14 @@ public interface DownloadItem extends PropertiableFile {
 	public long getTotalSize();
 
     /**
-     * @return seconds remaining or <code>UNKNOWN</code> if unknown
+     * @return seconds remaining until the download will complete or <code>UNKNOWN</code> if unknown
      */
 	public long getRemainingDownloadTime();
 	
     /**
-     * @return seconds remaining or <code>UNKNOWN</code> if unknown
+     * @return seconds remaining until the state will change or <code>UNKNOWN</code> if unknown
      */
-    public long getRemainingQueueTime();
+    public long getRemainingTimeInState();
 
 	public void cancel();
 
@@ -90,7 +90,7 @@ public interface DownloadItem extends PropertiableFile {
      * Returns the position of the download on the uploader, relevant only if
      * the downloader is remote queued.
      */
-    public int getQueuePosition();
+    public int getRemoteQueuePosition();
   
     public ErrorState getErrorState();
     
@@ -117,5 +117,8 @@ public interface DownloadItem extends PropertiableFile {
     /**
      * Sets the destination path and file name for the download.
      */
-    void setSaveFile(File saveFile, boolean overwrite) throws SaveLocationException; 
+    void setSaveFile(File saveFile, boolean overwrite) throws SaveLocationException;
+
+    /** Returns true if {@link #resume()} will search for more sources. */
+    boolean isSearchAgainEnabled(); 
 }

@@ -6,3 +6,5 @@ target
 .settings
 bin
 eclipse
+dist
+clover

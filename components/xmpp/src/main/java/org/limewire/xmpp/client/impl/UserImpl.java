@@ -190,7 +190,7 @@ public class UserImpl implements User {
         synchronized (presenceLock) {
             presences.put(presence.getJID(), presence);
         }
-        presenceListeners.broadcast(new PresenceEvent(presence, Presence.EventType.PRESENCE_NEW));
+        presenceListeners.broadcast(new PresenceEvent(presence, PresenceEvent.Type.PRESENCE_NEW));
     }
 
     void removePresense(Presence presence) {
@@ -217,14 +217,14 @@ public class UserImpl implements User {
             }
         }
 
-        presenceListeners.broadcast(new PresenceEvent(presence, Presence.EventType.PRESENCE_UPDATE));
+        presenceListeners.broadcast(new PresenceEvent(presence, PresenceEvent.Type.PRESENCE_UPDATE));
     }
 
     @Override
     public void addPresenceListener(EventListener<PresenceEvent> presenceListener) {
         presenceListeners.addListener(presenceListener);
         for(Presence presence : getPresences().values()) {
-            presenceListener.handleEvent(new PresenceEvent(presence, Presence.EventType.PRESENCE_NEW));
+            presenceListener.handleEvent(new PresenceEvent(presence, PresenceEvent.Type.PRESENCE_NEW));
         }
     }
 
@@ -239,7 +239,7 @@ public class UserImpl implements User {
         synchronized (presenceLock) {
             presences.put(updatedPresence.getJID(), updatedPresence);
         }
-        presenceListeners.broadcast(new PresenceEvent(updatedPresence, Presence.EventType.PRESENCE_UPDATE));
+        presenceListeners.broadcast(new PresenceEvent(updatedPresence, PresenceEvent.Type.PRESENCE_UPDATE));
     }
 
     Presence getPresence(String jid) {

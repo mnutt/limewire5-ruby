@@ -16,23 +16,24 @@ import org.limewire.ui.swing.util.I18n;
  * Table format for the Video Table when it is in My Library
  */
 public class VideoTableFormat<T extends LocalFileItem> extends AbstractMyLibraryFormat<T> {
-    static final int NAME_INDEX = 0;
-    static final int LENGTH_INDEX = 1;
-    static final int MISC_INDEX = 2;
-    static final int YEAR_INDEX = 3;
-    static final int SIZE_INDEX = 4;
-    static final int RATING_INDEX = 5;
-    static final int DIMENSION_INDEX = 6;
-    static final int DESCRIPTION_INDEX = 7;
-    static final int GENRE_INDEX = 8;
-    static final int HIT_INDEX = 9;
-    static final int UPLOADS_INDEX = 10;
-    static final int UPLOAD_ATTEMPTS_INDEX = 11;
-    static final int PATH_INDEX = 12;
-    static final int ACTION_INDEX = 13;
+    static final int ACTION_INDEX = 0;
+    static final int NAME_INDEX = 1;
+    static final int LENGTH_INDEX = 2;
+    static final int MISC_INDEX = 3;
+    static final int YEAR_INDEX = 4;
+    static final int SIZE_INDEX = 5;
+    static final int RATING_INDEX = 6;
+    static final int DIMENSION_INDEX = 7;
+    static final int DESCRIPTION_INDEX = 8;
+    static final int GENRE_INDEX = 9;
+    static final int HIT_INDEX = 10;
+    static final int UPLOADS_INDEX = 11;
+    static final int UPLOAD_ATTEMPTS_INDEX = 12;
+    static final int PATH_INDEX = 13;
     
     public VideoTableFormat() {
         super(ACTION_INDEX, "LIBRARY_VIDEO_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
+                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_VIDEO_ACTION", I18n.tr("Sharing"), 61, true, false),
                 new ColumnStateInfo(NAME_INDEX, "LIBRARY_VIDEO_NAME", I18n.tr("Name"), 611, true, true), 
                 new ColumnStateInfo(LENGTH_INDEX, "LIBRARY_VIDEO_LENGTH", I18n.tr("Length"), 62, true, true), 
                 new ColumnStateInfo(MISC_INDEX, "LIBRARY_VIDEO_MISC", I18n.tr("Misc"), 100, false, true), 
@@ -46,7 +47,6 @@ public class VideoTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
                 new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_VIDEO_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
                 new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_VIDEO_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true),
                 new ColumnStateInfo(PATH_INDEX, "LIBRARY_VIDEO_PATH", I18n.tr("Location"), 200, false, true),
-                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_VIDEO_ACTION", I18n.tr("Sharing"), 61, true, false)
         });
     }
 

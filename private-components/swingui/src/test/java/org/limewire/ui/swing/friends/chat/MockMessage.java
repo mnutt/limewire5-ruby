@@ -1,11 +1,6 @@
 package org.limewire.ui.swing.friends.chat;
 
-import org.limewire.ui.swing.friends.chat.ChatFriend;
-import org.limewire.ui.swing.friends.chat.MessageText;
-
-
 public class MockMessage implements MessageText {
-    private final String friendName;
     private final String friendID;
     private final String senderName;
     private final String message;
@@ -13,17 +8,11 @@ public class MockMessage implements MessageText {
     private final long messageTimeMillis;
 
     public MockMessage(ChatFriend chatFriend, String message, long messageTimeMillis, String senderName, Type type) {
-        this.friendName = chatFriend.getName();
         this.friendID = chatFriend.getID();
         this.message = message;
         this.messageTimeMillis = messageTimeMillis;
         this.senderName = senderName;
         this.type = type;
-    }
-
-    @Override
-    public String getFriendName() {
-        return friendName;
     }
 
     @Override

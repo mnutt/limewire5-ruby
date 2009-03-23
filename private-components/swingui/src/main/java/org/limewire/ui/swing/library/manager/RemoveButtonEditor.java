@@ -28,7 +28,7 @@ class RemoveButtonEditor extends HyperlinkButton implements TableCellEditor {
                 int idx = treeTable.getEditingRow();
                 LibraryManagerItem item = (LibraryManagerItem)treeTable.getModel().getValueAt(idx, LibraryManagerModel.REMOVE_INDEX);
                 if(item != null) {
-                    ((LibraryManagerModel)treeTable.getTreeTableModel()).removeChild(item);
+                    ((LibraryManagerModel)treeTable.getTreeTableModel()).excludeChild(item);
                 }
                 treeTable.repaint();
             }

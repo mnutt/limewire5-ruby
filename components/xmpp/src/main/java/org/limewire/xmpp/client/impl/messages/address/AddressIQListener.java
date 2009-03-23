@@ -90,7 +90,7 @@ public class AddressIQListener implements PacketListener, EventListener<AddressE
             // TODO async?
             LOG.debugf("new address to publish: {0}", event);
             synchronized (AddressIQListener.this) {
-                address = event.getSource();
+                address = event.getData();
                 for(User user : connection.getUsers()) {
                     for(Map.Entry<String, FriendPresence> presenceEntry : user.getFriendPresences().entrySet()) {
                         if(presenceEntry.getValue().hasFeatures(LimewireFeature.ID)) {

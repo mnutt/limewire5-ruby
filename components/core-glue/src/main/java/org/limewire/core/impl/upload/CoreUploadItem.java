@@ -22,6 +22,7 @@ import com.limegroup.bittorrent.BTUploader;
 import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.Uploader;
+import com.limegroup.gnutella.Uploader.UploadStatus;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.uploader.HTTPUploader;
 import com.limegroup.gnutella.uploader.UploadType;
@@ -32,10 +33,11 @@ class CoreUploadItem implements UploadItem {
 
     private final PropertyChangeSupport support = new SwingSafePropertyChangeSupport(this);
     
-    private Map<FilePropertyKey, Object> propertiesMap;
+    private volatile Map<FilePropertyKey, Object> propertiesMap;
     
     public final static long UNKNOWN_TIME = Long.MAX_VALUE;
     private final UploadItemType uploadItemType;
+    private boolean isFinished = false;
     
     public CoreUploadItem(Uploader uploader) {
         this.uploader = uploader;
@@ -60,7 +62,7 @@ class CoreUploadItem implements UploadItem {
 
     @Override
     public UploadState getState() {
-        switch (uploader.getState()) {
+        switch (getUploaderStatus()) {
         case CANCELLED:
             return UploadState.CANCELED;
         case COMPLETE:
@@ -98,6 +100,37 @@ class CoreUploadItem implements UploadItem {
         }
 
         throw new IllegalStateException("Unknown Upload status : " + uploader.getState());
+    }
+    
+    private UploadStatus getUploaderStatus() {
+        // do not change the status if we are at an intermediary
+        // complete or connecting state.
+        // (meaning that this particular chunk finished, but more will come)
+        // we use isFinished to tell us when it's finished, because that is
+        // set when remove is called, which is only called when the entire
+        // upload has finished.
+        // we use getTotalAmountUploaded to know if a byte has been read
+        // (which would mean we're not connecting anymore)
+        UploadStatus state = uploader.getState();
+        UploadStatus lastState = uploader.getLastTransferState();
+        if ( (state == UploadStatus.COMPLETE && !isFinished) ||
+             (state == UploadStatus.CONNECTING &&
+                 uploader.getTotalAmountUploaded() != 0)
+           ) {
+            state = lastState;
+        }
+        
+        // Reset the current state to be the lastState if we're complete now,
+        // but our last transfer wasn't uploading, queued, or thex.
+        if(uploader.getUploadType() != UploadType.BROWSE_HOST &&
+          state == UploadStatus.COMPLETE && 
+          lastState != UploadStatus.UPLOADING &&
+          lastState != UploadStatus.QUEUED &&
+          lastState != UploadStatus.THEX_REQUEST) {
+            state = lastState;
+        }
+        
+        return state;    
     }
 
     @Override
@@ -305,5 +338,14 @@ class CoreUploadItem implements UploadItem {
     @Override
     public int getNumUploadConnections() {
         return uploader.getNumUploadConnections();
+    }
+    
+    /**
+     * Called when upload is finished. This enables the DONE state. This method
+     * is necessary to present false DONE states.
+     */
+    void finish(){
+        isFinished = true;
+        fireDataChanged();
     }
 }

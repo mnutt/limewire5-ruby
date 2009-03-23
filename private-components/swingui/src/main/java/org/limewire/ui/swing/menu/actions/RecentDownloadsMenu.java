@@ -37,12 +37,11 @@ public class RecentDownloadsMenu extends MnemonicMenu {
 
     @Inject
     public RecentDownloadsMenu(final LibraryManager libraryManager) {
-        // TODO fberger
-        super(I18n.tr("Recent Downloads"));
+        super(I18n.tr("&Recent Downloads"));
         emptyItem = new JMenuItem(I18n.tr("(empty)"));
         emptyItem.setEnabled(false);
 
-        clearMenu = new AbstractAction(I18n.tr("Clear list")) {
+        clearMenu = new AbstractAction(I18n.tr("Clear List")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 DownloadSettings.RECENT_DOWNLOADS.clear();

@@ -54,7 +54,7 @@ implements PacketListener, PacketFilter, FriendRequestDecisionHandler {
                         // Ask the user
                         friendRequestBroadcaster.broadcast(new FriendRequestEvent(
                                 new FriendRequest(friendUsername, this),
-                                FriendRequest.EventType.REQUESTED));
+                                FriendRequestEvent.Type.REQUESTED));
                     } else {
                         LOG.debug("it's a response to our subscription");
                         // Acknowledge the subscription

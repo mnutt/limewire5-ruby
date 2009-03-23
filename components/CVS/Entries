@@ -1,9 +1,12 @@
+/.cvsignore/1.4/Mon Mar 23 14:54:57 2009//
+/build.xml/1.42/Mon Mar 23 14:54:57 2009//
 D/collection////
 D/common////
 D/core-api////
 D/core-glue////
 D/core-settings////
 D/geocode////
+D/gnutella-core////
 D/http////
 D/io////
 D/jingle////
@@ -24,6 +27,3 @@ D/swarm////
 D/test-util////
 D/xmpp////
 D/xmpp-api////
-/.cvsignore/1.2/Sat Feb 21 05:27:34 2009//
-/build.xml/1.39/Sun Feb 22 05:56:08 2009//
-/pom.xml/1.23/Sat Feb 21 05:27:34 2009//

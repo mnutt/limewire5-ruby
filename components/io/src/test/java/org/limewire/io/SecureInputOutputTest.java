@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 import junit.framework.Test;
 
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 public class SecureInputOutputTest extends BaseTestCase {
     
@@ -122,7 +123,7 @@ public class SecureInputOutputTest extends BaseTestCase {
                 + "the length field works correctly";
         
         
-        assertGreaterThan(0xFF, algorithm.getBytes().length);
+        assertGreaterThan(0xFF, StringUtils.toAsciiBytes(algorithm).length);
         
         MessageDigest md = new FakeMessageDigest(algorithm, 16);
         

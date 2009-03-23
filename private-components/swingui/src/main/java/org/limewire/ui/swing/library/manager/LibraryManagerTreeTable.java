@@ -18,8 +18,9 @@ import org.limewire.util.FileUtils;
 public class LibraryManagerTreeTable extends MouseableTreeTable {
     
     private final LibraryData libraryData;
+    private final ExcludedFolderCollectionManager excludedFolders;
 
-    public LibraryManagerTreeTable(IconManager iconManager, LibraryData libraryData) {
+    public LibraryManagerTreeTable(IconManager iconManager, LibraryData libraryData, ExcludedFolderCollectionManager excludedFolders) {
         setTableHeader(null); // No table header for this table.
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setSelectionBackground(getBackground());
@@ -35,6 +36,7 @@ public class LibraryManagerTreeTable extends MouseableTreeTable {
         setOpenIcon(null);
         
         this.libraryData = libraryData;
+        this.excludedFolders = excludedFolders;
     }
     
     public LibraryManagerModel getLibraryModel() {
@@ -81,28 +83,23 @@ public class LibraryManagerTreeTable extends MouseableTreeTable {
         item = parent.getChildFor(directory);
         
         if(item == null) {
-            item = new LibraryManagerItemImpl(parent, libraryData, directory, true);
+            item = new LibraryManagerItemImpl(parent, libraryData, excludedFolders, directory);
             getLibraryModel().addChild(item, parent);
+            getLibraryModel().getAllExcludedSubfolders().remove(item.getFile());
+            getLibraryModel().unexcludeAllSubfolders(item.getFile());
             
-            // Make sure that we're not the ancestor of any existing item in the list
-            // If we are, we remove that item.
-            List<LibraryManagerItem> toRemove = new ArrayList<LibraryManagerItem>();
-            for(LibraryManagerItem child : root.getChildren()) {
-                if(FileUtils.isAncestor(directory, child.getFile()) && !directory.equals(child.getFile())) {
-                    toRemove.add(child);
-                }
-            }
-            
-            for(LibraryManagerItem child : toRemove) {
-                getLibraryModel().removeChild(child);
-            }
+            removeDuplicateRoots(root, directory);
         } else {
+            removeDuplicateRoots(root, directory);
+            
             // If the item already exists, go through all its excluded children and explicitly add them.
             // work off a copy because we'll be modifying the list as we iterate through it.
-            for(File excludedChild : new ArrayList<File>(item.getExcludedChildren())) {
+            for(File excludedChild : getExcludedDescendents(item.getFile())) {
                 expand = true;
-                getLibraryModel().addChild(new LibraryManagerItemImpl(item, libraryData, excludedChild, true), item);
+                LibraryManagerItem excludedParent = findParent(item, excludedChild);
+                getLibraryModel().addChild(new LibraryManagerItemImpl(excludedParent, libraryData, excludedFolders, excludedChild), excludedParent);
             }
+            getLibraryModel().unexcludeAllSubfolders(item.getFile());
         }
         
         TreePath path = new TreePath(getLibraryModel().getPathToRoot(item));
@@ -112,6 +109,38 @@ public class LibraryManagerTreeTable extends MouseableTreeTable {
         }
         int row = getRowForPath(path);
         getSelectionModel().setSelectionInterval(row, row);
+    }
+    
+    /**
+     * Returns the excluded children of this file
+     */
+    private List<File> getExcludedDescendents(File parent) {
+        List<File> excludedChildren = new ArrayList<File>();
+        for(File file : getLibraryModel().getAllExcludedSubfolders()) {
+            if(FileUtils.isAncestor(parent, file))
+                excludedChildren.add(file);
+        }
+        return excludedChildren;
+    }
+    
+    /**
+     * Check all the top level roots to see if they are descendant of this directory.
+     * If they are, remove them and their excluded children.
+     */
+    private void removeDuplicateRoots(LibraryManagerItem root, File directory) {
+        // Make sure that we're not the ancestor of any existing item in the list
+        // If we are, we remove that item.
+        List<LibraryManagerItem> toRemove = new ArrayList<LibraryManagerItem>();
+        for(LibraryManagerItem child : root.getChildren()) {
+            if(FileUtils.isAncestor(directory, child.getFile()) && !directory.equals(child.getFile())) {
+                toRemove.add(child);
+            }
+        }
+        // updating the model that we just iterated over
+        for(LibraryManagerItem child : toRemove) {
+            getLibraryModel().removeChild(child);
+            getLibraryModel().unexcludeAllSubfolders(child.getFile());
+        }
     }
     
     private LibraryManagerItem findParent(LibraryManagerItem start, File directory) {

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.FileUtils;
@@ -30,12 +31,14 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         final Long bitrate = new Long(128);
         final Long seconds = new Long(956);
         final Long year = new Long(1999);
-        final Long track = new Long(5);
+        final String track = "5";
         final Long quality = new Long(2);
 
-        Mockery context = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
         final LimeXMLDocument document = context.mock(LimeXMLDocument.class);
 
         context.checking(new Expectations() {
@@ -78,10 +81,10 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
         assertEquals(quality, map.get(FilePropertyKey.QUALITY));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     public void testVideoFilePopulation() throws Exception {
         final String fileName = "testFileName.mpg";
         final Long fileSize = new Long(1234);
@@ -99,9 +102,11 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         final Long year = new Long(1999);
         final Long quality = new Long(2);
 
-        Mockery context = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
         final LimeXMLDocument document = context.mock(LimeXMLDocument.class);
 
         context.checking(new Expectations() {
@@ -150,10 +155,10 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
         assertEquals(quality, map.get(FilePropertyKey.QUALITY));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     public void testImageFilePopulation() throws Exception {
         final String fileName = "testFileName.jpg";
         final Long fileSize = new Long(1234);
@@ -162,9 +167,11 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         final String title = "Rock";
         final String comments = "woah!";
 
-        Mockery context = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
         final LimeXMLDocument document = context.mock(LimeXMLDocument.class);
 
         context.checking(new Expectations() {
@@ -188,10 +195,10 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     public void testDocumentFilePopulation() throws Exception {
         final String fileName = "testFileName.txt";
         final Long fileSize = new Long(1234);
@@ -200,9 +207,11 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         final String title = "Rock";
         final String comments = "woah!";
 
-        Mockery context = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
         final LimeXMLDocument document = context.mock(LimeXMLDocument.class);
 
         context.checking(new Expectations() {
@@ -226,10 +235,10 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     public void testProgramFilePopulation() throws Exception {
         final String fileName = "testFileName.exe";
         final Long fileSize = new Long(1234);
@@ -238,9 +247,11 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         final String title = "Rock";
         final String platform = "woah!";
 
-        Mockery context = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
         final LimeXMLDocument document = context.mock(LimeXMLDocument.class);
 
         context.checking(new Expectations() {
@@ -264,8 +275,22 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
         assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
         assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
-        
+
         context.assertIsSatisfied();
     }
 
+    public void testGetLimeXmlSchemaUri() throws Exception {
+        assertEquals(LimeXMLNames.AUDIO_SCHEMA, FilePropertyKeyPopulator.getLimeXmlSchemaUri(Category.AUDIO));
+        assertEquals(LimeXMLNames.IMAGE_SCHEMA, FilePropertyKeyPopulator.getLimeXmlSchemaUri(Category.IMAGE));
+        assertEquals(LimeXMLNames.DOCUMENT_SCHEMA, FilePropertyKeyPopulator.getLimeXmlSchemaUri(Category.DOCUMENT));
+        assertEquals(LimeXMLNames.APPLICATION_SCHEMA, FilePropertyKeyPopulator.getLimeXmlSchemaUri(Category.PROGRAM));
+        assertEquals(LimeXMLNames.VIDEO_SCHEMA, FilePropertyKeyPopulator.getLimeXmlSchemaUri(Category.VIDEO));
+
+        try {
+            FilePropertyKeyPopulator.getLimeXmlSchemaUri(Category.OTHER);
+            fail("Should have thrown and unsupported Operation exception.");
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+    }
 }

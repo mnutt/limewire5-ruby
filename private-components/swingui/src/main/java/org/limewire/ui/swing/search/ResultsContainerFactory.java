@@ -1,13 +1,17 @@
 package org.limewire.ui.swing.search;
 
-import org.limewire.core.api.search.Search;
-import org.limewire.ui.swing.search.model.VisualSearchResult;
+import org.limewire.ui.swing.search.model.SearchResultsModel;
 
-import ca.odell.glazedlists.EventList;
-
+/**
+ * Defines a factory for creating the container for search results tables.
+ */
 public interface ResultsContainerFactory {
 
-    public ResultsContainer create(
-        EventList<VisualSearchResult> visualSearchResults,
-        Search search, SearchInfo searchInfo, RowSelectionPreserver preserver);
+    /**
+     * Creates a new ResultsContainer using the specified search results data
+     * model and selection preserver.
+     */
+    public ResultsContainer create(SearchResultsModel searchResultsModel,
+            RowSelectionPreserver preserver);
+    
 }

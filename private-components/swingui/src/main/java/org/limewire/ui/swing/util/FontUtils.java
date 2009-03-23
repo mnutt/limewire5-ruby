@@ -43,12 +43,12 @@ public class FontUtils {
 
     public static void underline(JComponent component) {
         Font font = component.getFont();
-        if (font != null) {
-            Map<TextAttribute, ?> map = font.getAttributes();
-            Map<TextAttribute, Object> newMap = new HashMap<TextAttribute, Object>(map);
-            newMap.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-            component.setFont(font.deriveFont(newMap));
+        
+        if (font == null) {
+            return;
         }
+        
+        component.setFont(deriveUnderline(font, true));
     }
     
     public static boolean isUnderlined(JComponent component) {
@@ -59,14 +59,18 @@ public class FontUtils {
     
     public static void removeUnderline(JComponent component) {
         Font font = component.getFont();
-        if (font == null) return;
-        component.setFont(deriveUnderlineRemoved(font));
+        
+        if (font == null) {
+            return;
+        }
+        
+        component.setFont(deriveUnderline(font, false));
     }
-    
-    public static Font deriveUnderlineRemoved(Font font) {
+
+    public static Font deriveUnderline(Font font, boolean underlined) {
         Map<TextAttribute, ?> map = font.getAttributes();
         Map<TextAttribute, Object> newMap = new HashMap<TextAttribute, Object>(map);
-        newMap.put(TextAttribute.UNDERLINE, Integer.valueOf(-1));
+        newMap.put(TextAttribute.UNDERLINE, underlined ? TextAttribute.UNDERLINE_ON : Integer.valueOf(-1));
         return font.deriveFont(newMap);
     }
     

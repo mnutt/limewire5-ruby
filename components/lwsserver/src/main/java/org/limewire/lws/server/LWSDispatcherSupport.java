@@ -364,7 +364,6 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
          * Perform some operation on the incoming message and return the result.
          * 
          * @param args CGI params
-         * @param callback TODO
          */
         void handle(Map<String, String> args, StringCallback callback);
 
@@ -499,7 +498,6 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
          * Opens a connection based on the passed in URL <code>url</code>.
          * 
          * @param host  URL to open
-         * @param port TODO
          * @return a connection based on the passed in URL <code>url</code>.
          * @throws IOException if an IO error occurs
          */

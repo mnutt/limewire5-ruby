@@ -67,6 +67,14 @@ public class MarqueeButton extends JButton {
         timer.start();
     }
     
+    public void stop() {
+        if (timer != null) {
+            timer.stop();
+            position = 0;
+            repaint();
+        }
+    }
+    
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D)g.create();

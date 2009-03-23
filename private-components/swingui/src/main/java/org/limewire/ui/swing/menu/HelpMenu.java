@@ -26,21 +26,17 @@ class HelpMenu extends MnemonicMenu {
     public HelpMenu(Application application, final IconManager iconManager,
             final TrayNotifier trayNotifier, final Navigator navigator, 
             final StorePanel storePanel) {
-        // TODO fberger
-        //super(I18n.tr("&Help"));
-        super(I18n.tr("Help"));
+        super(I18n.tr("&Help"));
 
-        // add(new AbstractAction(I18n.tr("&Using LimeWire")) {
-        add(new AbstractAction(I18n.tr("Using LimeWire")) {
+        add(new AbstractAction(I18n.tr("&Using LimeWire")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NativeLaunchUtils.openURL("http://www.limewire.com/client_redirect/?page=support");
             }
         });
 
-        // add(new AbstractAction(I18n.tr("&FAQ")) {
-        add(new AbstractAction(I18n.tr("FAQ")) {
-            @Override
+         add(new AbstractAction(I18n.tr("&FAQ")) {
+             @Override
             public void actionPerformed(ActionEvent e) {
                 NativeLaunchUtils
                         .openURL("http://www.limewire.com/client_redirect/?page=faq");
@@ -49,8 +45,7 @@ class HelpMenu extends MnemonicMenu {
         
         if(!application.isProVersion()) {
             addSeparator();
-            //add(new AbstractAction(I18n.tr("Get personalized &tech support")) {
-            add(new AbstractAction(I18n.tr("Get personalized tech support")) {
+            add(new AbstractAction(I18n.tr("Get personalized &tech support")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     NativeLaunchUtils
@@ -61,8 +56,7 @@ class HelpMenu extends MnemonicMenu {
         
         if (!OSUtils.isMacOSX()) {
             addSeparator();
-            // add(new AbstractAction(I18n.tr("&About LimeWire...")) {
-            add(new AbstractAction(I18n.tr("About LimeWire...")) {
+            add(new AbstractAction(I18n.tr("&About LimeWire...")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     new AboutDisplayEvent().publish();

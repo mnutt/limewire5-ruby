@@ -1,7 +1,7 @@
 package org.limewire.xmpp.api.client;
 
+import org.limewire.concurrent.ListeningFuture;
 import org.limewire.xmpp.api.client.Presence.Mode;
-
 
 
 /**
@@ -13,31 +13,50 @@ public interface XMPPService {
     /**
      * Attempts to log in a connection using the specified configuration.
      * Any existing connections will be logged out first.
+     * 
+     * @param configuration the XMPPConnectionConfiguration to use; can not be null
+     *
+     * @return a {@link ListeningFuture} of {@link XMPPConnection}
+     * 
+     * The ExecutionException will be to an XMPPException if an error occurs
      */
-    public XMPPConnection login(XMPPConnectionConfiguration configuration) throws XMPPException;
+    public ListeningFuture<XMPPConnection> login(XMPPConnectionConfiguration configuration);
 
     /**
      * Logs out any existing connections.
+     * @return a {@link ListeningFuture} if callers wish to be
+     * notified of completion.
+     *
+     * The ExecutionException will be to an XMPPException if an error occurs
      */
-    public void logout();
+    public ListeningFuture<Void> logout();
 
     /**
      * Returns the logged in connection, or null if there isn't one.
      */
     public XMPPConnection getActiveConnection();
-    
+
     /**
-     * Returns true if this is logged in to atleast one host.
+     * A non-blocking method that roughly approximates
+     * the logged in status.  Suitable for UI callers;
+     * non-UI callers should probably use {@link #isLoggedIn()}
+     * @return true if any connections are logged in
      */
-    public boolean isLoggedIn();
+    boolean isLoggedIn();
     
     /** Returns true if any connections are currently logging in. */
     public boolean isLoggingIn();
     
     /**
-     * Sets the Mode for all of known the XMPP connections.
+     * Sets a new <code>&lt;presence&gt;</code> mode (i.e., status)
+     * for every XMPPConnection
      * 
-     * @throws XMPPException if there is an error sending the xmpp message 
+     * @param mode the new mode to set
+     * @return a {@link ListeningFuture} if callers wish to be
+     * notified of completion.
+     * 
+     * The ExecutionException will be to an XMPPException
+     * if there is an error sending the xmpp message
      */
-    void setMode(Mode mode) throws XMPPException;
+    ListeningFuture<Void> setMode(Mode mode);
 }

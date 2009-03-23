@@ -68,7 +68,7 @@ public class AllFriendsLibraryPanel extends AbstractFriendLibraryPanel {
         
         createMyCategories(remoteLibraryManager.getAllFriendsFileList().getSwingModel());
         selectFirstVisible();
-        getHeaderPanel().setText(I18n.tr("Download from all friends"));
+        getHeaderPanel().setText(I18n.tr("Browse Files from all your Friends"));
 
         categorySelector = new CategorySelector();
         eventList.addListEventListener(categorySelector);

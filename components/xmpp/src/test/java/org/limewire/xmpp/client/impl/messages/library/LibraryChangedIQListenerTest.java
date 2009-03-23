@@ -56,7 +56,7 @@ public class LibraryChangedIQListenerTest extends BaseTestCase {
         
         libraryChangedIQListener.processPacket(libraryChangedIQ);
         
-        assertSame(friendPresence, event.get().getSource());
+        assertSame(friendPresence, event.get().getData());
         assertEquals(LibraryChanged.LIBRARY_CHANGED, event.get().getType());
         
         context.assertIsSatisfied();

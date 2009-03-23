@@ -2,10 +2,9 @@ package org.limewire.ui.swing.friends.chat;
 
 import java.beans.PropertyChangeListener;
 
-import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.xmpp.api.client.MessageReader;
 import org.limewire.xmpp.api.client.MessageWriter;
+import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.Presence.Mode;
 
 /**
@@ -13,54 +12,112 @@ import org.limewire.xmpp.api.client.Presence.Mode;
  *
  */
 public interface ChatFriend {
-    Friend getFriend();
-    
+
+    /**
+     * @return User object used by this chat friend
+     */
+    User getUser();
+
+    /**
+     * @return the user id corresponding to this chat friend.  This is typically the id
+     * used by this chat friend to sign on.
+     */
     String getID();
-    
+
+    /**
+     * @return The display String identifying this chat friend
+     */
     String getName();
-    
-    void setStatus(String status);
-    
+
+    /**
+     * @return the status message
+     */
     String getStatus();
 
-    void setMode(Mode mode);
-    
+    /**
+     * @return the presence status ("available", "away", etc)
+     */
     Mode getMode();
-    
+
+    /**
+     * @return true if this chat has been marked as started, but has
+     * not been stopped.
+     */
     boolean isChatting();
-    
+
+    /**
+     * Returns true if the current chat is the active chat. An active conversation
+     * means that the chat is visible to the end user
+     *
+     * @return true if the current chat is active
+     */
     boolean isActiveConversation();
-    
+
+    /**
+     * Sets the active status of the current chat
+     *
+     * @param active true to set the conversation as active
+     */
     void setActiveConversation(boolean active);
-    
+
+    /**
+     * @return true if any presences of the user are signed in thru LimeWire
+     */
     boolean isSignedInToLimewire();
 
+    /**
+     * @return true if this chat friend is currently signed in
+     */
     boolean isSignedIn();
-    
+
+    /**
+     * If not yet started, marks the current chat as started
+     */
     void startChat();
-    
+
+    /**
+     * If chat is currently started, marks the chat as stopped
+     */
     void stopChat();
-    
+
+    /**
+     * Gets the time at which the chat started.
+     * For example, normally a chat can be considered started upon the first sign
+     * of communication between the current connection and this chat user
+     *
+     * @return start chat time in milliseconds
+     */
     long getChatStartTime();
-    
-    boolean isReceivingUnviewedMessages();
-    
-    void setReceivingUnviewedMessages(boolean hasMessages);
-    
+
+    /**
+     *
+     * @return whether or not this chat user has received messages that have
+     * yet to be displayed in the chat window
+     */
+    boolean hasReceivedUnviewedMessages();
+
+    /**
+     * Set whether or not this chat user has received messages that have yet to be displayed
+     * in the chat window
+     *
+     * @param hasMessages true if this chat user has received messages not yet displayed
+     */
+    void setReceivedUnviewedMessages(boolean hasMessages);
+
+    /**
+     * Creates and wires together the necessary objects for
+     * sending and receiving messages.
+     *
+     * @param reader The chat impl calls into the {@link MessageReader} upon
+     *        receiving messages and updates in chat state
+     * @return messageWriter {@link MessageWriter} impl on which methods are called to send messages
+     * and update chat state.
+     */
     MessageWriter createChat(MessageReader reader);
 
     void addPropertyChangeListener(PropertyChangeListener listener);
     
     void removePropertyChangeListener(PropertyChangeListener listener);
-
-    /**
-     * Returns the highest priority presence, null if user not signed in.
-     * Priority of presences is determined as follows:
-     *
-     * 1. Active presence
-     * 2. Highest priority XMPP presence
-     */
-    FriendPresence getBestPresence();
 
     /**
      * updates the state of this chatFriend based on its underlying attributes, for instance 

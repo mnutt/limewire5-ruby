@@ -65,6 +65,8 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue(UploadStatus.CANCELLED));
                 
                 exactly(1).of(changeListener).propertyChange(with(any(PropertyChangeEvent.class)));
+                
+                allowing(uploader);
             }});
         
         CoreUploadItem upload = new CoreUploadItem(uploader);
@@ -127,6 +129,8 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue(UploadStatus.CANCELLED));
                 
                 never(changeListener).propertyChange(with(any(PropertyChangeEvent.class)));
+                
+                allowing(uploader);
             }});
         
         CoreUploadItem upload = new CoreUploadItem(uploader);
@@ -148,13 +152,16 @@ public class CoreUploadItemTest extends BaseTestCase {
         
         context.checking(new Expectations() {
             {
-                atLeast(1).of(uploader).getState();
+                allowing(uploader).getState();
                 will(returnValue(type));
-                atLeast(1).of(uploader).getFileName();
+                allowing(uploader).getFileName();
                 will(returnValue(fileName));
                 
                 allowing(uploader).getUploadType();
                 will(returnValue(UploadType.BROWSE_HOST));
+                
+                allowing(uploader).getLastTransferState();
+                will(returnValue(UploadStatus.BROWSE_HOST));
             }});
         
         CoreUploadItem upload = new CoreUploadItem(uploader);
@@ -205,6 +212,9 @@ public class CoreUploadItemTest extends BaseTestCase {
                 
                 atLeast(1).of(addr).getAddress();
                 will(returnValue(new byte[] {1,2,3,4}));
+                
+                allowing(uploader).getLastTransferState();
+                will(returnValue(UploadStatus.BROWSE_HOST));
             }});
         
         CoreUploadItem upload = new CoreUploadItem(uploader);
@@ -241,6 +251,8 @@ public class CoreUploadItemTest extends BaseTestCase {
                 
                 atLeast(1).of(uploader).getHost();
                 will(returnValue(host));
+                
+                allowing(uploader);
             }});
         
         CoreUploadItem upload = new CoreUploadItem(uploader);
@@ -263,6 +275,8 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue(UploadStatus.UPLOADING));
                 exactly(1).of(uploader).getHost();
                 will(returnValue(host));
+                
+                allowing(uploader);
             }});
         
         CoreUploadItem upload = new CoreUploadItem(uploader);
@@ -281,15 +295,18 @@ public class CoreUploadItemTest extends BaseTestCase {
         
         context.checking(new Expectations() {
             {
-                atLeast(1).of(uploader).getState();
+                allowing(uploader).getState();
                 will(returnValue(state));
                 allowing(uploader).getFileName();
                 will(returnValue(fileName));
                
-                if (state == UploadStatus.COMPLETE) {
-                    allowing(uploader).getUploadType();
-                    will(returnValue(UploadType.BROWSE_HOST));
-                }
+                allowing(uploader).getUploadType();
+                will(returnValue(UploadType.BROWSE_HOST));
+                
+                allowing(uploader).getLastTransferState();
+                will(returnValue(state));
+                
+                allowing(uploader);
             }});
         
         CoreUploadItem upload = new CoreUploadItem(uploader);

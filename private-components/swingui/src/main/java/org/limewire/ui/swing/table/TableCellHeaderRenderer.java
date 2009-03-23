@@ -55,12 +55,32 @@ public class TableCellHeaderRenderer extends JXLabel implements TableCellRendere
     
     private Icon sortIcon;
     
+    /**
+     * Constructs a TableCellHeaderRenderer with the default horizontal
+     * alignment.
+     */
     public TableCellHeaderRenderer() {
+        this(LEADING);
+    }
+    
+    /**
+     * Constructs a TableCellHeaderRenderer with the specified horizontal
+     * alignment.
+     */
+    public TableCellHeaderRenderer(int horizontalAlignment) {
         GuiUtils.assignResources(this);
         
-        emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 0);
+        switch (horizontalAlignment) {
+        case TRAILING: case RIGHT:
+            emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 10);
+            break;
+        default:
+            emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 0);
+            break;
+        }
         font = getFont().deriveFont(Font.BOLD, 11);
 
+        setHorizontalAlignment(horizontalAlignment);
         setHorizontalTextPosition(JLabel.LEFT);
         setForeground(fontColor);
         setBackgroundPainter(new HeaderBackgroundPainter());

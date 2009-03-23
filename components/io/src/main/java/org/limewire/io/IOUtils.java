@@ -140,6 +140,9 @@ public class IOUtils {
      * Note that only one extra character is read from the stream in the case of
      * success (the white space character after the word).
      *
+     * Note: Doesn't handle multibyte words correctly, each byte as it comes in
+     * will be treated as one character.
+     *
      * @param in The input stream from where to read the word
      * @param maxSize The maximum size of the word.
      * @return the first word (i.e., no whitespace) of specified maximum size
@@ -381,8 +384,13 @@ public class IOUtils {
      * if it couldn't be fully read. 
      */
     public static void readFully(InputStream in, byte[] array) throws IOException {
-        if (in.read(array) != array.length) {
-            throw new EOFException();
+        int offset = 0;
+        while (offset < array.length) {
+            int read = in.read(array, offset, array.length - offset);
+            if (read == -1) {
+                throw new EOFException();
+            }
+            offset += read;
         }
     }
 }

@@ -803,11 +803,11 @@ public class NetworkUtilsTest extends BaseTestCase {
     public void testAreInSameSiteLocalNetwork() throws Exception {
         assertTrue(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("10.0.25.5"), InetAddress.getByName("10.0.22.0")));
         assertTrue(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("192.168.25.5"), InetAddress.getByName("192.168.2.0")));
-        assertTrue(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("172.16.25.5"), InetAddress.getByName("172.16.0.0")));
+        assertTrue(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("172.16.25.5"), InetAddress.getByName("172.31.0.0")));
         
         assertFalse(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("11.0.25.5"), InetAddress.getByName("10.0.22.0")));
         assertFalse(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("192.161.25.5"), InetAddress.getByName("192.168.2.0")));
-        assertFalse(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("172.10.25.5"), InetAddress.getByName("172.16.0.0")));
+        assertFalse(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("172.10.25.5"), InetAddress.getByName("172.31.0.0")));
         assertFalse(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("10.0.25.5"), InetAddress.getByName("192.168.22.0")));
         assertFalse(NetworkUtils.areInSameSiteLocalNetwork(InetAddress.getByName("172.16.25.5"), InetAddress.getByName("192.168.22.0")));
         

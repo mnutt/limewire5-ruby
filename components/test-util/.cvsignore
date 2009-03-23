@@ -1,9 +1,3 @@
-build
-.classpath
-.project
-testData
-target
-.settings
-bin
-eclipse
 dist
+build
+target

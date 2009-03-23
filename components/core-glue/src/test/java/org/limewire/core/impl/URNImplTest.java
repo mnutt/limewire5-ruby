@@ -34,6 +34,7 @@ public class URNImplTest extends BaseTestCase {
         assertNotEquals(urnImpl1, "test");
         assertNotEquals(urnImpl2, "test");
         assertNotEquals(urnImpl3, "test");
+        assertFalse(urnImpl3.equals("test"));
 
         assertEquals(urnImpl1.hashCode(), urnImpl2.hashCode());
         

@@ -28,15 +28,11 @@ public class ViewMenu extends MnemonicMenu {
     @Inject
     public ViewMenu(final LeftPanel leftPanel, final DownloadSummaryPanel downloadSummaryPanel,
             final ChatFramePanel friendsPanel, final DownloadMediator downloadMediator) {
-        // TODO fberger 
-        // super(I18n.tr("&View"));
-        super(I18n.tr("View"));
+        super(I18n.tr("&View"));
         add(buildShowHideAction(leftPanel, I18n.tr("Hide &Sidebar"), I18n.tr("Show &Sidebar")));
         add(buildShowHideDownloadTrayAction(downloadSummaryPanel, downloadMediator, I18n
-                //.tr("Hide &Download Tray"), I18n.tr("Show &Download Tray")));
-                .tr("Hide Download Tray"), I18n.tr("Show Download Tray")));
-        // add(buildShowHideAction(friendsPanel, I18n.tr("Hide &Chat Window"), I18n.tr("Show &Chat Window")));
-        add(buildShowHideAction(friendsPanel, I18n.tr("Hide Chat Window"), I18n.tr("Show Chat Window")));
+                .tr("Hide &Download Tray"), I18n.tr("Show &Download Tray")));
+        add(buildShowHideAction(friendsPanel, I18n.tr("Hide &Chat Window"), I18n.tr("Show &Chat Window")));
     }
 
     private Action buildShowHideAction(final VisibleComponent component, final String visibleName,

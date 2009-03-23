@@ -39,6 +39,7 @@ public class MessageComponent extends JPanel {
         this(18, 22, 18, 22);
     }
     
+    // TODO: top, left, right, bottom does not seem to map correctly
     public MessageComponent(int topInset, int leftInset, int rightInset, int bottomInset) {
         GuiUtils.assignResources(this);
         
@@ -62,9 +63,14 @@ public class MessageComponent extends JPanel {
         component.setForeground(fontColor);
     }
     
-    public void decorateSubLabel(JComponent component) {
+    public void decorateSubLabel(JLabel component) {
         component.setFont(subFont);
         component.setForeground(fontColor);
+    }
+    
+    public void decorateSubLabel(HTMLLabel label) {
+        label.setHtmlFont(subFont);
+        label.setHtmlForeground(fontColor);
     }
     
     public void decorateFont(JComponent component) {

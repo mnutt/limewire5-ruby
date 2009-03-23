@@ -1,191 +1,83 @@
 package org.limewire.core.impl.properties;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.limewire.util.BaseTestCase;
-import org.limewire.util.NameValue;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import com.limegroup.gnutella.xml.LimeXMLSchema;
+import org.limewire.util.BaseTestCase;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 import com.limegroup.gnutella.xml.LimeXMLSchemaRepository;
-import com.limegroup.gnutella.xml.SchemaFieldInfo;
 
 public class PropertyDictionaryImplTest extends BaseTestCase {
+
+    private PropertyDictionaryImpl propertyDictionaryImpl;
 
     public PropertyDictionaryImplTest(String name) {
         super(name);
     }
 
+    public static Test suite() {
+        return new TestSuite(PropertyDictionaryImplTest.class);
+    }
+    
+    @Override
+    protected void setUp() throws Exception {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT);
+
+        final LimeXMLSchemaRepository limeXMLSchemaRepository = injector
+                .getInstance(LimeXMLSchemaRepository.class);
+        propertyDictionaryImpl = new PropertyDictionaryImpl(limeXMLSchemaRepository);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        propertyDictionaryImpl = null;
+    }
+
     public void testGetApplicationPlatforms() {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
-
-        final LimeXMLSchemaRepository limeXMLSchemaRepository = context
-                .mock(LimeXMLSchemaRepository.class);
-        PropertyDictionaryImpl propertyDictionaryImpl = new PropertyDictionaryImpl(
-                limeXMLSchemaRepository);
-
-        final LimeXMLSchema limeXMLSchema = context.mock(LimeXMLSchema.class);
-        final SchemaFieldInfo schemaFieldInfo = context.mock(SchemaFieldInfo.class);
-
-        final List<NameValue<String>> valueList = new ArrayList<NameValue<String>>();
-        final String value1 = "test1";
-        valueList.add(new NameValue<String>(value1));
-        final String value2 = "test2";
-        valueList.add(new NameValue<String>(value2));
-        context.checking(new Expectations() {
-            {
-                one(limeXMLSchemaRepository).getAvailableSchemas();
-                will(returnValue(Collections.singletonList(limeXMLSchema)));
-                one(limeXMLSchema).getDescription();
-                will(returnValue("application"));
-                one(schemaFieldInfo).getCanonicalizedFieldName();
-                will(returnValue("platform"));
-                one(schemaFieldInfo).getEnumerationList();
-                will(returnValue(valueList));
-                one(limeXMLSchema).getEnumerationFields();
-                will(returnValue(Collections.singletonList(schemaFieldInfo)));
-            }
-        });
-
         List<String> propertyValues = propertyDictionaryImpl.getApplicationPlatforms();
-        assertContains(propertyValues, value1);
-        assertContains(propertyValues, value2);
-
-        context.assertIsSatisfied();
+        assertEquals(5, propertyValues.size());
+        assertContains(propertyValues, "", "Windows", "OSX", "Linux/Unix", "Multi-platform");
+        propertyValues = propertyDictionaryImpl.getApplicationPlatforms();
+        assertEquals(5, propertyValues.size());
+        assertContains(propertyValues, "", "Windows", "OSX", "Linux/Unix", "Multi-platform");
     }
 
     public void testGetAudioGenres() {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
-
-        final LimeXMLSchemaRepository limeXMLSchemaRepository = context
-                .mock(LimeXMLSchemaRepository.class);
-        PropertyDictionaryImpl propertyDictionaryImpl = new PropertyDictionaryImpl(
-                limeXMLSchemaRepository);
-
-        final LimeXMLSchema limeXMLSchema = context.mock(LimeXMLSchema.class);
-        final SchemaFieldInfo schemaFieldInfo = context.mock(SchemaFieldInfo.class);
-
-        final List<NameValue<String>> valueList = new ArrayList<NameValue<String>>();
-        final String value1 = "test1";
-        valueList.add(new NameValue<String>(value1));
-        final String value2 = "test2";
-        valueList.add(new NameValue<String>(value2));
-        context.checking(new Expectations() {
-            {
-                one(limeXMLSchemaRepository).getAvailableSchemas();
-                will(returnValue(Collections.singletonList(limeXMLSchema)));
-                one(limeXMLSchema).getDescription();
-                will(returnValue("audio"));
-                one(schemaFieldInfo).getCanonicalizedFieldName();
-                will(returnValue("genre"));
-                one(schemaFieldInfo).getEnumerationList();
-                will(returnValue(valueList));
-                one(limeXMLSchema).getEnumerationFields();
-                will(returnValue(Collections.singletonList(schemaFieldInfo)));
-            }
-        });
-
         List<String> propertyValues = propertyDictionaryImpl.getAudioGenres();
-        assertContains(propertyValues, value1);
-        assertContains(propertyValues, value2);
-
-        context.assertIsSatisfied();
+        assertEquals(127, propertyValues.size());
+        assertContains(propertyValues, "", "Blues", "Classic Rock", "Country", "Funk");
+        propertyValues = propertyDictionaryImpl.getAudioGenres();
+        assertEquals(127, propertyValues.size());
+        assertContains(propertyValues, "", "Blues", "Classic Rock", "Country", "Funk");
     }
 
     public void testGetVideoGenres() {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
-
-        final LimeXMLSchemaRepository limeXMLSchemaRepository = context
-                .mock(LimeXMLSchemaRepository.class);
-        PropertyDictionaryImpl propertyDictionaryImpl = new PropertyDictionaryImpl(
-                limeXMLSchemaRepository);
-
-        final LimeXMLSchema limeXMLSchema = context.mock(LimeXMLSchema.class);
-        final SchemaFieldInfo schemaFieldInfo = context.mock(SchemaFieldInfo.class);
-
-        final List<NameValue<String>> valueList = new ArrayList<NameValue<String>>();
-        final String value1 = "test1";
-        valueList.add(new NameValue<String>(value1));
-        final String value2 = "test2";
-        valueList.add(new NameValue<String>(value2));
-        context.checking(new Expectations() {
-            {
-                one(limeXMLSchemaRepository).getAvailableSchemas();
-                will(returnValue(Collections.singletonList(limeXMLSchema)));
-                one(limeXMLSchema).getDescription();
-                will(returnValue("video"));
-                one(schemaFieldInfo).getCanonicalizedFieldName();
-                will(returnValue("type"));
-                one(schemaFieldInfo).getEnumerationList();
-                will(returnValue(valueList));
-                one(limeXMLSchema).getEnumerationFields();
-                will(returnValue(Collections.singletonList(schemaFieldInfo)));
-            }
-        });
-
         List<String> propertyValues = propertyDictionaryImpl.getVideoGenres();
-        assertContains(propertyValues, value1);
-        assertContains(propertyValues, value2);
-
-        context.assertIsSatisfied();
+        assertEquals(10, propertyValues.size());
+        assertContains(propertyValues, "", "Music Video", "Commercial", "Trailer", "Movie Clip",
+                "Video Clip", "VHS Movie", "DVD Movie", "Adult", "Other");
+        propertyValues = propertyDictionaryImpl.getVideoGenres();
+        assertEquals(10, propertyValues.size());
+        assertContains(propertyValues, "", "Music Video", "Commercial", "Trailer", "Movie Clip",
+                "Video Clip", "VHS Movie", "DVD Movie", "Adult", "Other");
     }
 
     public void testGetVideoRatings() {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
-
-        final LimeXMLSchemaRepository limeXMLSchemaRepository = context
-                .mock(LimeXMLSchemaRepository.class);
-        PropertyDictionaryImpl propertyDictionaryImpl = new PropertyDictionaryImpl(
-                limeXMLSchemaRepository);
-
-        final LimeXMLSchema limeXMLSchema = context.mock(LimeXMLSchema.class);
-        final SchemaFieldInfo schemaFieldInfo = context.mock(SchemaFieldInfo.class);
-
-        final List<NameValue<String>> valueList = new ArrayList<NameValue<String>>();
-        final String value1 = "test1";
-        valueList.add(new NameValue<String>(value1));
-        final String value2 = "test2";
-        valueList.add(new NameValue<String>(value2));
-        context.checking(new Expectations() {
-            {
-                one(limeXMLSchemaRepository).getAvailableSchemas();
-                will(returnValue(Collections.singletonList(limeXMLSchema)));
-                one(limeXMLSchema).getDescription();
-                will(returnValue("video"));
-                one(schemaFieldInfo).getCanonicalizedFieldName();
-                will(returnValue("rating"));
-                one(schemaFieldInfo).getEnumerationList();
-                will(returnValue(valueList));
-                one(limeXMLSchema).getEnumerationFields();
-                will(returnValue(Collections.singletonList(schemaFieldInfo)));
-            }
-        });
-
         List<String> propertyValues = propertyDictionaryImpl.getVideoRatings();
-        assertContains(propertyValues, value1);
-        assertContains(propertyValues, value2);
-
-        context.assertIsSatisfied();
+        assertContains(propertyValues, "", "G", "PG", "PG-13", "R", "NC-17", "NR");
+        propertyValues = propertyDictionaryImpl.getVideoRatings();
+        assertContains(propertyValues, "", "G", "PG", "PG-13", "R", "NC-17", "NR");
     }
 
+    private <T> void assertContains(List<T> list, T firstObject, T... otherObjects) {
+        assertContains(list, firstObject);
+        for (T otherObject : otherObjects) {
+            assertContains(list, otherObject);
+        }
+    }
 }

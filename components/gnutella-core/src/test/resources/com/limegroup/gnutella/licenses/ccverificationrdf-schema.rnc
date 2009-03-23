@@ -1,0 +1,62 @@
+default namespace = "http://web.resource.org/cc/"
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+grammar {
+   start =
+      element rdf:RDF {
+
+         element Work {
+            attribute rdf:about { xsd:anyURI } &
+            element dc:title { text }? &
+            element dc:description { text }? &
+            element dc:subject { text }? &
+            element dc:publisher { agent }? &
+            element dc:creator { agent }? &
+            element dc:contributor { agent }? &
+            element dc:rights { agent}? &
+
+            # recommended by DC to follow http://www.w3.org/TR/NOTE-datetime
+            element dc:date { text }? &
+
+            # see http://www.iana.org/assignments/media-types/
+            element dc:format { text }? &
+
+            # see http://dublincore.org/documents/dcmi-type-vocabulary/
+            element dc:type {
+               attribute rdf:resource { xsd:anyURI }
+            }? &
+
+            # at least one license required.  user gets to choose if there
+            # is more than one
+
+            element license {
+               attribute rdf:resource { xsd:anyURI }
+            }+
+         }+ &
+         
+         element License {
+            attribute rdf:about { xsd:anyURI } &
+
+            element permits {
+               attribute rdf:resource { xsd:anyURI }
+            }* &
+
+            element requires {
+               attribute rdf:resource { xsd:anyURI }
+            }* &
+
+            element prohibits {
+               attribute rdf:resource { xsd:anyURI }
+            }*
+         }*
+      }
+
+   agent = 
+      element Agent {
+         element dc:title { text } &
+         element dc:description { text }?
+      }
+
+
+}

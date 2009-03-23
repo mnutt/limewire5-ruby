@@ -37,6 +37,7 @@ import org.limewire.mojito.settings.KademliaSettings;
 import org.limewire.mojito.util.DatabaseUtils;
 import org.limewire.mojito.util.MojitoUtils;
 import org.limewire.util.PrivilegedAccessor;
+import org.limewire.util.StringUtils;
 
 public class StorableTest extends MojitoTestCase {
 
@@ -71,7 +72,7 @@ public class StorableTest extends MojitoTestCase {
             KUID key = KUID.createRandomID();
             DHTValueType type = DHTValueType.TEST;
             Version version = Version.ZERO;
-            byte[] b = "Hello World".getBytes();
+            byte[] b = StringUtils.toAsciiBytes("Hello World");
             
             long time = System.currentTimeMillis();
             

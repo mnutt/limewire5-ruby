@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.friend.feature.features.AuthTokenFeature;
@@ -57,8 +58,8 @@ public class XMPPServiceTest extends XmppBaseTestCase {
                 SERVICE, aliceRosterListener);
         XMPPConnectionConfiguration bob = new XMPPConnectionConfigurationMock(USERNAME_2, PASSWORD_2,
                 SERVICE, bobRosterListener);
-        service.login(alice);
-        service.login(bob);
+        service.login(alice).get();
+        service.login(bob).get();
         // Allow login, roster, presence, library messages to be sent, received
         Thread.sleep(SLEEP * 2); // TODO wait()/notify()
         assertEquals(1, aliceRosterListener.countPresences(USERNAME_2));
@@ -168,17 +169,17 @@ public class XMPPServiceTest extends XmppBaseTestCase {
      * Tests that logging out removes the connection from the service's
      * list of connections
      */
-    public void testUserLogout() throws InterruptedException {
+    public void testUserLogout() throws InterruptedException, ExecutionException {
         List<? extends XMPPConnection> connections = service.getConnections();
         assertTrue(connections.get(0).isLoggedIn());
-        connections.get(0).logout();
+        connections.get(0).logout().get();
         assertFalse(connections.get(0).isLoggedIn());
     }
 
     /**
      * Tests that friends receive one another's status updates
      */
-    public void testStatusChanges() throws InterruptedException, UnknownHostException, XMPPException {
+    public void testStatusChanges() throws InterruptedException, UnknownHostException, XMPPException, ExecutionException {
         assertEquals(1, aliceRosterListener.getRosterSize());
         assertEquals(USERNAME_2, aliceRosterListener.getFirstRosterEntry());
         assertEquals(1, aliceRosterListener.countPresences(USERNAME_2));
@@ -193,7 +194,7 @@ public class XMPPServiceTest extends XmppBaseTestCase {
 
         for(XMPPConnection connection : service.getConnections()) {
             if(connection.getConfiguration().getUserInputLocalID().equals(USERNAME_2)) {
-                connection.setMode(Presence.Mode.away);
+                connection.setMode(Presence.Mode.away).get();
             }
         }
 
@@ -347,13 +348,13 @@ public class XMPPServiceTest extends XmppBaseTestCase {
      * after which they're received by whichever presence replied most recently
      */
     public void testChatWithMultiplePresencesOfSameUser()
-    throws InterruptedException, XMPPException, UnknownHostException {
+            throws InterruptedException, XMPPException, UnknownHostException, ExecutionException {
         // Create a second presence for Bob
         RosterListenerMock bob2RosterListener = new RosterListenerMock();
         XMPPConnectionConfiguration bob2 = 
             new XMPPConnectionConfigurationMock(USERNAME_2, PASSWORD_2,
                     SERVICE, bob2RosterListener);
-        service.login(bob2);
+        service.login(bob2).get();
         Thread.sleep(SLEEP);
 
         addressEventBroadcaster.listeners.broadcast(new AddressEvent(

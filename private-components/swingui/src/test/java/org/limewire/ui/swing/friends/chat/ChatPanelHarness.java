@@ -39,12 +39,12 @@ public class ChatPanelHarness {
                 final MockLibraryManager libraryManager = new MockLibraryManager();
                 EventListenerList<FriendPresenceEvent> presenceSupport = new EventListenerList<FriendPresenceEvent>();
                 final EventListenerList<FriendEvent> friendSupport = new EventListenerList<FriendEvent>();
-                ChatFriendListPane friendsPane = new ChatFriendListPane(icons, null, presenceSupport);
+                ChatFriendListPane friendsPane = new ChatFriendListPane(icons, null);
                 ChatPanel chatPanel = new ChatPanel(new ConversationPaneFactory() {
                     @Override
                     public ConversationPane create(MessageWriter writer, ChatFriend chatFriend, String loggedInID) {
-                        return new ConversationPane(writer, chatFriend, loggedInID, libraryManager, new IconManagerStub(), null, null, null, null,
-                                new IconLibraryImpl(), new ScheduledThreadPoolExecutor(1));
+                        return new ConversationPane(writer, chatFriend, loggedInID, libraryManager, new IconManagerStub(), null,
+                                new IconLibraryImpl(), null, new ScheduledThreadPoolExecutor(1));
                     }
                 }, icons, friendsPane, new ChatTopPanel());
                 

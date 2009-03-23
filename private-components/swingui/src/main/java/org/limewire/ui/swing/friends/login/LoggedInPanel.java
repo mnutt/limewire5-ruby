@@ -9,6 +9,7 @@ import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import net.miginfocom.swing.MigLayout;
@@ -123,18 +124,20 @@ class LoggedInPanel extends JXPanel {
         optionsBox.setText(I18n.tr("Options"));
 
         signoutBox.setText(I18n.tr("Sign Out"));
-        signoutBox.addAction(new AbstractAction(I18n.tr("Switch User")) {
+        JPopupMenu signoutMenu = new JPopupMenu();
+        signoutMenu.add(decorateItem(new JMenuItem(new AbstractAction(I18n.tr("Switch User")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 friendActions.signOut(true);
             }
-        });
-        signoutBox.addAction(new AbstractAction(I18n.tr("Sign Out")) {
+        })));
+        signoutMenu.add(decorateItem(new JMenuItem(new AbstractAction(I18n.tr("Sign Out")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 friendActions.signOut(false);
             }
-        });
+        })));
+        signoutBox.overrideMenu(signoutMenu);
 
         signInButton.setAction(new AbstractAction(I18n.tr("Sign In")) {
             @Override

@@ -1,26 +1,29 @@
 package org.limewire.core.impl.xmpp;
 
+import org.limewire.concurrent.ListeningFuture;
+import org.limewire.concurrent.SimpleFuture;
+import org.limewire.xmpp.api.client.Presence.Mode;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 import org.limewire.xmpp.api.client.XMPPService;
-import org.limewire.xmpp.api.client.Presence.Mode;
 
 class MockXmppService implements XMPPService {
 
     @Override
-    public XMPPConnection login(XMPPConnectionConfiguration configuration) {
-        return null;
+    public ListeningFuture<XMPPConnection> login(XMPPConnectionConfiguration configuration) {
+        return new SimpleFuture<XMPPConnection>((XMPPConnection)null);    
     }
 
     @Override
-    public void logout() {
+    public ListeningFuture<Void> logout() {
+        return new SimpleFuture<Void>((Void)null);
     }
-    
+
     @Override
     public boolean isLoggedIn() {
         return false;
     }
-    
+
     @Override
     public boolean isLoggingIn() {
         return false;
@@ -32,7 +35,7 @@ class MockXmppService implements XMPPService {
     }
 
     @Override
-    public void setMode(Mode mode) {
-        
+    public ListeningFuture<Void> setMode(Mode mode) {
+        return new SimpleFuture<Void>((Void)null);    
     }
 }

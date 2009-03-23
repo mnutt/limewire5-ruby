@@ -36,6 +36,8 @@ public interface ConnectionItem {
 
     public void setHostName(String hostName);
     
+    public void resetHostName();
+    
     public float getMeasuredDownstreamBandwidth();
     
     public float getMeasuredUpstreamBandwidth();

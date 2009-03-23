@@ -99,6 +99,7 @@ public class InspectionUtilsTest extends BaseTestCase {
     public void testOldStyleTraversal() throws Exception {
         NotGuiced.inspectableInt = 1;
         NotGuiced.inspectable = new Inspectable() {
+            @Override
             public Object inspect() {
                 return "asdf";
             }
@@ -262,6 +263,7 @@ class InspectableClass implements Inspectable {
     InspectableClass(String s) {
         this.s = s;
     }
+    @Override
     public Object inspect() {
         return s;
     }
@@ -288,6 +290,7 @@ class Outter implements OutterI {
     @InspectableContainer
     private class Inner {
         private final Inspectable inspectable = new Inspectable() {
+            @Override
             public Object inspect() {
                 return "asdf";
             }
@@ -309,6 +312,7 @@ abstract class AbstractParent implements Parent {
     @InspectableContainer
     private class Inner {
         private final Inspectable inspectable = new Inspectable() {
+            @Override
             public Object inspect() {
                 return "abcd";
             }

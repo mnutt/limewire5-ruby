@@ -47,10 +47,9 @@ public interface Navigator {
      */
     public void removeNavigationListener(NavigationListener itemListener);
     
-    /**
-     * Selects the prior item in the history.
-     */
+    /** Selects the prior item in the history. */
     public boolean goBack();
 
-
+    /** Instructs the navigator to show nothing. This deselects any currently selected item. */
+    public void showNothing();
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.limewire.nio.observer.WriteObserver;
+import org.limewire.util.StringUtils;
 
 
 public class WriteBufferChannel implements ChannelWriter, InterestWritableByteChannel {
@@ -95,9 +96,12 @@ public class WriteBufferChannel implements ChannelWriter, InterestWritableByteCh
         return (ByteBuffer)buffer.flip();
     }
     
+    /**
+     * @returns ascii string representation of written buffer 
+     */
     public String getDataAsString() {
         ByteBuffer buffer = getBuffer();
-        return new String(buffer.array(), 0, buffer.limit());
+        return StringUtils.getASCIIString(buffer.array(), 0, buffer.limit());
     }
     
     public void setBuffer(ByteBuffer buffer) {

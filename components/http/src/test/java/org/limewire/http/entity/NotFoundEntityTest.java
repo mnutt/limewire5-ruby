@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.limewire.util.StringUtils;
 
 public class NotFoundEntityTest extends TestCase {
 
@@ -14,7 +15,7 @@ public class NotFoundEntityTest extends TestCase {
         NotFoundEntity entity = new NotFoundEntity("foobar");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         entity.writeTo(out);
-        String content = new String(out.toByteArray());
+        String content = StringUtils.getASCIIString(out.toByteArray());
         assertTrue(content.indexOf("foobar") != -1);
         assertTrue(content.indexOf("<html>") != -1);
     }
@@ -24,7 +25,7 @@ public class NotFoundEntityTest extends TestCase {
         NotFoundEntity entity = new NotFoundEntity(request);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         entity.writeTo(out);
-        String content = new String(out.toByteArray());
+        String content = StringUtils.getASCIIString(out.toByteArray());
         assertTrue(content.indexOf("foobar") != -1);
         assertTrue(content.indexOf("<html>") != -1);
     }

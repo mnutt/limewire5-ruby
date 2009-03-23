@@ -44,7 +44,7 @@ class FriendListListeners {
         rosterListeners.addListener(new EventListener<RosterEvent>() {
             @Override
             public void handleEvent(RosterEvent event) {
-                User user = event.getSource();
+                User user = event.getData();
 
                 switch(event.getType()) {
                 case USER_ADDED:
@@ -121,19 +121,19 @@ class FriendListListeners {
     private class PresenceListener implements EventListener<PresenceEvent> {
         @Override
         public void handleEvent(PresenceEvent event) {
-            switch (event.getSource().getType()) {
+            switch (event.getData().getType()) {
                 case available:
                     switch (event.getType()) {
                         case PRESENCE_NEW:
-                            addPresence(event.getSource());
+                            addPresence(event.getData());
                             break;
                         case PRESENCE_UPDATE:
-                            updatePresence(event.getSource());
+                            updatePresence(event.getData());
                             break;
                     }
                     break;
                 case unavailable:
-                    removePresence(event.getSource());
+                    removePresence(event.getData());
                     break;
             }
         }

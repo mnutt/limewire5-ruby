@@ -40,7 +40,7 @@ public class LimeWirePlayer implements Runnable, AudioPlayer {
      * Sleep time for when the song is playing but the sourceLine is full and 
      * no reading/writing occurs
      */
-    private static final long SLEEP_PLAYING = 150;
+    private static final long SLEEP_PLAYING = 100;
 
     /**
      *  Maximum size of the buffer to read/write from

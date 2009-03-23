@@ -4,5 +4,5 @@
 package org.limewire.ui.swing.nav;
 
 public enum NavCategory {
-    LIBRARY, LIMEWIRE, SEARCH, DOWNLOAD, SHARING, UPLOAD
+    LIBRARY, LIMEWIRE, SEARCH_RESULTS, DOWNLOAD, SHARING, UPLOAD
 }

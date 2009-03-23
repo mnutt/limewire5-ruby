@@ -14,7 +14,7 @@ import com.google.inject.Singleton;
 
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.UPnPManager;
-import com.limegroup.scripting.RubyEvaluator;
+import org.limewire.scripting.RubyEvaluator;
 
 @Singleton
 public 

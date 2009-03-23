@@ -41,7 +41,9 @@ public class IdleStatusMonitorTest extends TestCase {
         monitor.register(registry);
         monitor.register(connectionSupport);
         Service service = registry.registeredService;
+        assertNotNull(service.getServiceName());
         service.start();
+        
         monitorRunnable = backgroundExecutor.scheduleAtFixedRateCommand;
     }
 

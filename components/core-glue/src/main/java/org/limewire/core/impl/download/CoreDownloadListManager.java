@@ -92,7 +92,7 @@ public class CoreDownloadListManager implements DownloadListManager {
 	}
 	
 	@Inject 
-	void register(DownloadListenerList listenerList) {
+	void registerDownloadListener(DownloadListenerList listenerList) {
 	    
 	    listenerList.addDownloadListener(new CoreDownloadListener(threadSafeDownloadItems,
                 new QueueTimeCalculator(observableDownloadItems)));
@@ -100,7 +100,7 @@ public class CoreDownloadListManager implements DownloadListManager {
 	}
 	
 	@Inject 
-    void register(ServiceScheduler scheduler, @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor) {
+    void registerService(ServiceScheduler scheduler, @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor) {
 
 	      Runnable command = new Runnable() {
               @Override
@@ -289,7 +289,7 @@ public class CoreDownloadListManager implements DownloadListManager {
             downloader.addListener(new TorrentDownloadListener(downloadManager, activityCallback, list, downloader));
             downloader.addListener(new RecentDownloadListener(downloader));
             downloader.addListener(itunesDownloadListenerFactory.createListener(downloader));
-            list.add(item);
+            threadSafeDownloadItems.add(item);
             URN urn = item.getUrn();
             if(urn != null) {
                 //the bittorrent File Downloader can have a null urn

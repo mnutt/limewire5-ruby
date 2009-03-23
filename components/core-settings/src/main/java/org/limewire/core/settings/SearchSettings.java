@@ -280,7 +280,23 @@ public final class SearchSettings extends LimeProps {
     public static final IntSetting OOB_SUCCESS_RATE_GOOD =
         FACTORY.createRemoteIntSetting("OOB_SUCCESS_RATE_GOOD",
                 60, "SearchSettings.OOBSuccessRateGood", 0, 100);
+    
+    /**
+     * Whether to temporarily ignore addresses that send OOB responses
+     * from multiple ports.
+     */
+    public static final BooleanSetting OOB_IGNORE_MULTIPLE_PORTS =
+        FACTORY.createRemoteBooleanSetting("OOB_IGNORE_MULTIPLE_PORTS", true,
+                "SearchSettings.OOBIgnoreMultiplePorts");
 
+    /**
+     * Whether to temporarily ignore addresses that send more results than
+     * they offered.
+     */
+    public static final BooleanSetting OOB_IGNORE_EXCESS_RESULTS =
+        FACTORY.createRemoteBooleanSetting("OOB_IGNORE_EXCESS_RESULTS", true,
+                "SearchSettings.OOBIgnoreExcessResults");
+    
     /**
      * Minimum success rate for attempting OOB occasionally (percentage).
      */
@@ -330,6 +346,12 @@ public final class SearchSettings extends LimeProps {
     public static final FloatSetting FILTER_SPAM_RESULTS =
         FACTORY.createFloatSetting("FILTER_SPAM_RESULTS_2", 0.85f, 0.5f, 1.0f);
     
+    /**
+     * Whether to replace IP addresses with friendly-looking strings
+     */
+    public static final BooleanSetting FRIENDLY_ADDRESS_DESCRIPTIONS =
+        FACTORY.createBooleanSetting("FRIENDLY_ADDRESS_DESCRIPTIONS", true);
+
 	/**
      * Do not issue query keys more than this often
      */

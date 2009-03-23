@@ -18,6 +18,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.limewire.promotion.impressions.UserQueryEvent;
 import org.limewire.promotion.impressions.UserQueryEventData;
+import org.limewire.util.StringUtils;
 
 /**
  * Instances of this class make <code>POST</code> requests to the URL given
@@ -55,7 +56,7 @@ public abstract class AbstractPromotionBinderRequestor implements PromotionBinde
             // The query and data
             //
             UserQueryEventData data = new UserQueryEventData(e);
-            String dataStr = new String(new Base64().encode(data.getData()));
+            String dataStr = StringUtils.getASCIIString(new Base64().encode(data.getData()));
             nameValuePairs.add(new BasicNameValuePair("query_" + i, data.getQuery())); 
             nameValuePairs.add(new BasicNameValuePair("data_" + i, dataStr));
             i++;

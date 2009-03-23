@@ -2,6 +2,7 @@ package org.limewire.nio.ssl;
 
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -150,20 +151,21 @@ public class SSLEngineTest {
     /** Transfers data from the client -> server, and server -> client. */
     private void doData(SSLEngine client, SSLEngine server, ByteBuffer clientOut, ByteBuffer serverOut) throws SSLException {
         LOG.debug("Doing client -> server data test");
-        doDataTest("CLIENT TEST OUT", client, server, clientOut, serverOut);
+        doDataTest(new byte[] { 'C', 'L', 'I', 'E', 'N', 'T', ' ', 'T', 'E', 'S', 'T', ' ', 'O', 'U', 'T' } , 
+								client, server, clientOut, serverOut);
         LOG.debug("Doing server -> client data test");
-        doDataTest("SERVER TEST OUT", server, client, serverOut, clientOut);
+        doDataTest(new byte[] { 'S', 'E', 'R', 'V', 'E', 'R', ' ', 'T', 'E', 'S', 'T', ' ', 'O', 'U', 'T' }, server, client, serverOut, clientOut);
         LOG.debug("Finished data test");
     }
     
     /** Transfers a testString from srcEngine to dstEngine, using the buffers as scratch space. */
-    private void doDataTest(String testString, SSLEngine srcEngine, SSLEngine dstEngine, ByteBuffer writeBuf, ByteBuffer readBuf) throws SSLException {
-        ByteBuffer data = ByteBuffer.wrap(testString.getBytes());
+    private void doDataTest(byte[] testData, SSLEngine srcEngine, SSLEngine dstEngine, ByteBuffer writeBuf, ByteBuffer readBuf) throws SSLException {
+        ByteBuffer data = ByteBuffer.wrap(testData);
         SSLEngineResult result = srcEngine.wrap(data, writeBuf);
         if(result.getStatus() != Status.OK)
             throw new IllegalStateException("Can't wrap data: " + result);
         if(data.hasRemaining())
-            throw new IllegalStateException("Didn't wrap all data (" + testString + "): " + data);
+            throw new IllegalStateException("Didn't wrap all data (" + testData + "): " + data);
         
         writeBuf.flip();
         result = dstEngine.unwrap(writeBuf, readBuf);
@@ -171,9 +173,9 @@ public class SSLEngineTest {
             throw new IllegalStateException("Can't unwrap data: " + result);
         if(writeBuf.hasRemaining())
             throw new IllegalStateException("Didn't unwrap all data!  readIn: " + writeBuf + ", made: " + readBuf);
-        String read = new String(readBuf.array(), 0, readBuf.position());
-        if(!testString.equals(read))
-            throw new IllegalStateException("Wrong data read!  Wanted: " + testString + ", was: " + read);
+        byte[] read = Arrays.copyOf(readBuf.array(), readBuf.position());
+        if (!Arrays.equals(testData, read))
+            throw new IllegalStateException("Wrong data read!  Wanted: " + Arrays.asList(testData) + ", was: " + Arrays.asList(read));
         
         readBuf.clear();
         writeBuf.clear();

@@ -4,3 +4,6 @@ private-all
 bin
 eclipse
 target
+testData
+junit
+clover

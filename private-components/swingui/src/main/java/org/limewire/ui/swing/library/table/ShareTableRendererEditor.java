@@ -7,7 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.Action;
-import javax.swing.JButton;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -18,7 +18,7 @@ import org.jdesktop.application.Resource;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.settings.LibrarySettings;
-import org.limewire.ui.swing.components.HyperlinkButton;
+import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.table.TableRendererEditor;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -28,29 +28,50 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 public class ShareTableRendererEditor extends TableRendererEditor implements Configurable{
-    @Resource
-    private Font shareButtonFont;
+    @Resource private Font shareButtonFont;    
+    
+    @Resource private Icon p2pNotSharedIcon;
+    @Resource private Icon friendsNotSharedIcon;
+    
+    @Resource private Icon p2pSharedIcon;
+    @Resource private Icon friendsSharedIcon;
+    
+    @Resource private Icon p2pDisabledIcon;
+    @Resource private Icon friendsDisabledIcon;
 
-    private HyperlinkButton shareButton;
+    private IconButton p2pButton;
+    private IconButton friendsButton;
     private LocalFileItem fileItem;
     
     private final XMPPService xmppService;
     
-    private final ToolTipMouseListener toolTipMouseListener;
+    private final ToolTipMouseListener p2pTooltipListener;
+    private final ToolTipMouseListener friendsTooltipListener;
     
     @AssistedInject
     public ShareTableRendererEditor(@Assisted Action shareAction, XMPPService xmppService){
         GuiUtils.assignResources(this);
+        
         this.xmppService = xmppService;
         
-        shareButton = new HyperlinkButton(I18n.tr("share"));
-        shareButton.setFont(shareButtonFont);
-        shareButton.setHorizontalTextPosition(SwingConstants.LEFT);       
-        shareButton.addActionListener(shareAction);
+        p2pButton = new IconButton(p2pNotSharedIcon);
+        friendsButton = new IconButton(friendsNotSharedIcon);
+        friendsButton.setFont(shareButtonFont);
+        
+        p2pButton.setDisabledIcon(p2pDisabledIcon);
+        friendsButton.setDisabledIcon(friendsDisabledIcon);
+        
+        p2pButton.addActionListener(shareAction);
+        friendsButton.addActionListener(shareAction);
+        friendsButton.setHorizontalTextPosition(SwingConstants.RIGHT);
+        friendsButton.setVerticalTextPosition(SwingConstants.CENTER);
     
-        this.toolTipMouseListener = new ToolTipMouseListener(shareButton);
-        setLayout(new MigLayout("insets 2 5 2 5, hidemode 0, aligny 50%"));
-        add(shareButton);
+        this.p2pTooltipListener = new ToolTipMouseListener(p2pButton);
+        this.friendsTooltipListener = new ToolTipMouseListener(friendsButton);
+        setLayout(new MigLayout("insets 2 5 2 5, hidemode 3, aligny 50%"));
+        
+        add(p2pButton);
+        add(friendsButton);
     }
 
     @Override
@@ -69,35 +90,66 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
     
     @Override
     public void configure(LocalFileItem item, boolean isRowSelected) {
+        friendsButton.setVisible(xmppService.isLoggedIn()); // don't show if not logged in
+        
         fileItem = item;
-
-        int friendCount = item.getFriendShareCount();
-        shareButton.removeMouseListener(toolTipMouseListener);
-
+        
+        p2pButton.removeMouseListener(p2pTooltipListener);
+        friendsButton.removeMouseListener(friendsTooltipListener);
+        
         if(!item.isShareable()) {
-            shareButton.setEnabled(false);
-            shareButton.setToolTipText(I18n.tr("This file cannot be shared."));
-            shareButton.addMouseListener(toolTipMouseListener);
-        } else if(item.getCategory() == Category.DOCUMENT && (!LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.getValue() && !xmppService.isLoggedIn())) {
+            p2pButton.setEnabled(false);
+            friendsButton.setEnabled(false);
+            
+            p2pButton.setToolTipText(I18n.tr("This file cannot be shared."));
+            friendsButton.setToolTipText(I18n.tr("This file cannot be shared."));
+            
+            p2pButton.addMouseListener(p2pTooltipListener);
+            friendsButton.addMouseListener(p2pTooltipListener);
+        } else if(item.getCategory() == Category.DOCUMENT) {
             //if the share documents with gnutella option is unchecked, the user must be logged in for the share button to be enabled.
-            shareButton.setEnabled(false);
-            shareButton.setToolTipText(I18n.tr("Sign in to share Documents with your friends"));
-            shareButton.addMouseListener(toolTipMouseListener);
+            if(!LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING.getValue()) {
+                p2pButton.setEnabled(false);
+                p2pButton.setToolTipText(I18n.tr("Sharing documents with the p2p network is disabled."));
+                p2pButton.addMouseListener(p2pTooltipListener);
+            } else {
+                p2pButton.setEnabled(true);
+                p2pButton.setToolTipText(I18n.tr("Share this file with the p2p network."));
+            }
+            
+            friendsButton.setEnabled(true);
+            friendsButton.setToolTipText(I18n.tr("Share this file with a friend."));
+            
         } else if(item.getCategory() == Category.PROGRAM && !LibrarySettings.ALLOW_PROGRAMS.getValue()) {
-            shareButton.setEnabled(false);
-            shareButton.setToolTipText(I18n.tr("This file cannot be shared."));
-            shareButton.addMouseListener(toolTipMouseListener);
+            p2pButton.setEnabled(false);
+            friendsButton.setEnabled(false);
+            
+            p2pButton.setToolTipText(I18n.tr("This file cannot be shared."));
+            friendsButton.setToolTipText(I18n.tr("This file cannot be shared."));
+            
+            p2pButton.addMouseListener(p2pTooltipListener);
+            friendsButton.addMouseListener(p2pTooltipListener);
         } else {
-            shareButton.setEnabled(true);
-            shareButton.setToolTipText(I18n.tr("Share this file with a friend"));
+            p2pButton.setEnabled(true);
+            p2pButton.setToolTipText(I18n.tr("Share this file with the p2p network."));
+            friendsButton.setEnabled(true);
+            friendsButton.setToolTipText(I18n.tr("Share this file with a friend."));
         }
         
-        if(friendCount > 0) {   
-            shareButton.setText(I18n.tr("share ({0})",GuiUtils.toLocalizedInteger(item.getFriendShareCount())));
+        int friendCount = item.getFriendShareCount();
+        if(item.isSharedWithGnutella()) {
+            p2pButton.setIcon(p2pSharedIcon);
+            friendCount--;
         } else {
-            shareButton.setText(I18n.tr("share"));
-            shareButton.setIcon(null);
-            shareButton.setFont(shareButtonFont);
+            p2pButton.setIcon(p2pNotSharedIcon);
+        }
+        
+        if(friendCount > 0) {
+            friendsButton.setIcon(friendsSharedIcon);
+            friendsButton.setText(GuiUtils.toLocalizedInteger(friendCount));
+        } else {
+            friendsButton.setIcon(friendsNotSharedIcon);
+            friendsButton.setText("");
         }
     }
 
@@ -105,12 +157,12 @@ public class ShareTableRendererEditor extends TableRendererEditor implements Con
         return fileItem;
     }
     
-    public JButton getShareButton(){
-        return shareButton;
+    public JComponent getShareEditorWidget(){
+        return this;
     }
     
     /**
-     * On clicking the given component the tooltip will immediatley be displayed. 
+     * On clicking the given component the tooltip will immediately be displayed. 
      */
     private final class ToolTipMouseListener extends MouseAdapter {
         private final JComponent component;

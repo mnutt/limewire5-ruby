@@ -26,7 +26,6 @@ import com.google.inject.Singleton;
 @Singleton
 public class GuiCallbackImpl implements GuiCallback {
     private final SaveLocationExceptionHandler saveLocationExceptionHandler;
-
     private final MagnetHandler magnetHandler;
 
     @Inject
@@ -61,7 +60,6 @@ public class GuiCallbackImpl implements GuiCallback {
                         "restoreView"));
             }
         });
-
     }
 
     @Override
@@ -77,5 +75,26 @@ public class GuiCallbackImpl implements GuiCallback {
     @Override
     public boolean promptUserQuestion(String marktr) {
         return yesNoQuestion(I18n.tr(marktr));
+    }
+    
+    @Override
+    public void dangerousDownloadDeleted(String filename) {
+        final String truncated;
+        if(filename.length() < 70)
+            truncated = filename;
+        else
+            truncated = filename.substring(0, 70) + "...";
+        SwingUtils.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(),
+                        I18n.tr("{0}\n" +
+                                "This file may have been designed to damage your computer.\n" +
+                                "LimeWire has cancelled the download for your protection.",
+                                truncated),
+                        I18n.tr("Dangerous Download Cancelled"),
+                        JOptionPane.WARNING_MESSAGE);
+            }
+        });
     }
 }

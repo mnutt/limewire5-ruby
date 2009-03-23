@@ -14,9 +14,7 @@ public class SwitchUserAction extends AbstractAction {
 
     @Inject
     SwitchUserAction(FriendActions friendActions) {
-        // TODO fberger
-        // super(I18n.tr("Switch &User"));
-        super(I18n.tr("Switch User"));
+        super(I18n.tr("Switch &User"));
         this.friendActions = friendActions;
     }
 

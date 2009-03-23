@@ -3,6 +3,7 @@ package org.limewire.ui.swing.util;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.library.FileItem;
+import org.limewire.core.api.search.SearchResult;
 
 public class PropertyUtils {
     
@@ -18,11 +19,17 @@ public class PropertyUtils {
        return item.getFileName();
     }
     
+    public static String getTitle(SearchResult result){
+        return result.getFileName();
+     }
+    
     public static String getToolTipText(Object o){
         if(o instanceof FileItem){
             return getTitle((FileItem)o);
         } else if(o instanceof DownloadItem){
             return getTitle((DownloadItem)o);
+        } else if(o instanceof SearchResult){
+            return getTitle((SearchResult)o);
         }
         return o.toString();
     }

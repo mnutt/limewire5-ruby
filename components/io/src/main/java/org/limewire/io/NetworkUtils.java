@@ -344,8 +344,8 @@ public final class NetworkUtils {
         if (address1.length == 4) {
             if (address1[0] == 10) {
                 return address2[0] == 10;
-            } else if (address1[0] == (byte)172 && address1[1] == 16) {
-                return address2[0] == (byte)172 && address2[1] == 16;
+            } else if (address1[0] == (byte)172 && (address1[1] & 0xF0) == 16) {
+                return address2[0] == (byte)172 && (address2[1] & 0xF0) == 16;
             } else if (address1[0] == (byte)192 && address1[1] == (byte)168) {
                 return address2[0] == (byte)192 && address2[1] == (byte)168;
             } else {

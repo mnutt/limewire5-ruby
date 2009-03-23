@@ -85,6 +85,18 @@ class NavigatorImpl implements Navigator {
             return true;
         }
     }
+    
+    @Override
+    public void showNothing() {
+        if(selectedItem != null) {
+            NavItemImpl item = selectedItem;
+            selectedItem = null;
+            item.fireSelected(false);
+            for(NavigationListener listener : listeners) {
+                listener.itemSelected(null, null, null, null);
+            }
+        }
+    }
         
     private void addNavItem(NavItemImpl item, JComponent panel) {
         LOG.debugf("Adding item {0}", item);

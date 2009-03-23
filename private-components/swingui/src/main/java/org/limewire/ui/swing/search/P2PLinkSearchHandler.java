@@ -39,8 +39,8 @@ class P2PLinkSearchHandler implements SearchHandler {
     }
     
     @Override
-    public void doSearch(SearchInfo info) {
-        String q = info.getQuery().substring("p2p://".length());
+    public boolean doSearch(SearchInfo info) {
+        String q = info.getSearchQuery().substring("p2p://".length());
         final FriendPresence presence = createFriendPresence(q);
         remoteLibraryManager.addPresenceLibrary(presence);
         // Run this later, to allow the library a bit of time to render the friend.
@@ -50,6 +50,7 @@ class P2PLinkSearchHandler implements SearchHandler {
                 libraryNavigator.selectFriendLibrary(presence.getFriend());
             }
         });
+        return true;
     }
     
     private FriendPresence createFriendPresence(String info) {

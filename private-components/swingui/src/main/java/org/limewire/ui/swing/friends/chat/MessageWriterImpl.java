@@ -16,6 +16,7 @@ class MessageWriterImpl implements MessageWriter {
         this.writer = writer;
     }
 
+    @Override
     public void writeMessage(final String message) throws XMPPException {
         ThreadExecutor.startThread(new Runnable() {
             @Override
@@ -31,9 +32,10 @@ class MessageWriterImpl implements MessageWriter {
     }
 
     private Message newMessage(String message, Message.Type type) {
-        return new MessageTextImpl(localID, chatFriend, type, message);
+        return new MessageTextImpl(localID, chatFriend.getID(), type, message);
     }
 
+    @Override
     public void setChatState(ChatState chatState) throws XMPPException {
         writer.setChatState(chatState);
     }

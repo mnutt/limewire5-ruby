@@ -22,17 +22,14 @@ public class MessageTextImpl extends AbstractMessageImpl implements MessageText 
     @Resource(key = "ChatInputPanel.textFont")
     private Font textFont;
 
-    public MessageTextImpl(String senderName, ChatFriend chatFriend, Type type, String message) {
-        this(senderName, chatFriend.getName(), chatFriend.getID(), type, message);
-    }
-
-    public MessageTextImpl(String senderName, String friendName, String friendId, Type type,
+    public MessageTextImpl(String senderName, String chatFriendId, Type type,
             String message) {
-        super(senderName, friendName, friendId, type);
+        super(senderName, chatFriendId, type);
         GuiUtils.assignResources(this);
         this.message = message;
     }
 
+    @Override
     public String getMessageText() {
         return message;
     }
@@ -41,6 +38,7 @@ public class MessageTextImpl extends AbstractMessageImpl implements MessageText 
         return getMessageText();
     }
 
+    @Override
     public String format() {
         return insertBreaksAddAnchorsTags(message.replace("<", "&lt;").replace(">", "&gt;"));
     }

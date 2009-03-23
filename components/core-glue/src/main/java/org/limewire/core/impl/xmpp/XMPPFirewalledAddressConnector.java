@@ -48,7 +48,8 @@ class XMPPFirewalledAddressConnector implements AddressConnector, PushedSocketHa
     private final NetworkManager networkManager;
     private final ConnectBackRequestSender connectRequestSender;
     private final ScheduledExecutorService backgroundExecutor;
-    private final List<PushedSocketConnectObserver> observers = new CopyOnWriteArrayList<PushedSocketConnectObserver>();
+    
+    final List<PushedSocketConnectObserver> observers = new CopyOnWriteArrayList<PushedSocketConnectObserver>();
 
     private final Provider<UDPSelectorProvider> udpSelectorProvider;
 
@@ -173,7 +174,7 @@ class XMPPFirewalledAddressConnector implements AddressConnector, PushedSocketHa
 
         private final FirewalledAddress firewalledAddress;
         private final ConnectObserver observer;
-        private final AtomicBoolean acceptedOrFailed = new AtomicBoolean(false);
+        final AtomicBoolean acceptedOrFailed = new AtomicBoolean(false);
 
         public PushedSocketConnectObserver(FirewalledAddress firewalledAddress, ConnectObserver observer) {
             this.firewalledAddress = firewalledAddress;

@@ -9,8 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -27,17 +27,17 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import javax.swing.AbstractAction;
-import javax.swing.JCheckBox;
 
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.core.api.support.LocalClientInfo;
@@ -45,9 +45,9 @@ import org.limewire.core.api.support.LocalClientInfoFactory;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.io.IOUtils;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.MultiLineLabel;
-import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.settings.BugSettings;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -116,6 +116,7 @@ public final class BugManager {
 	/**
 	 * A separator between bug reports.
 	 */
+	// saved to local file system only, so use platform encoding
 	private final byte[] SEPARATOR = "-----------------\n".getBytes();
 	
 	/**
@@ -150,6 +151,7 @@ public final class BugManager {
     @SuppressWarnings("unused")
     @InspectionPoint("bug report")
     private static final Inspectable INSPECTABLE = new Inspectable() {
+        @Override
         public Object inspect() {
             
             if (!SwingUiSettings.USAGE_STATS.getValue() && !LimeWireUtils.isAlphaRelease())
@@ -249,6 +251,7 @@ public final class BugManager {
                     f.delete();
                 os = new BufferedOutputStream(
                         new FileOutputStream(f.getPath(), true));
+                // saved to local file system, use default encoding
                 os.write((new Date().toString() + "\n").getBytes());
                 os.write(info.toBugReport().getBytes());
                 os.write(SEPARATOR);

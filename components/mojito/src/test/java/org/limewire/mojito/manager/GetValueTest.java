@@ -17,6 +17,7 @@ import org.limewire.mojito.db.impl.DHTValueImpl;
 import org.limewire.mojito.result.FindValueResult;
 import org.limewire.mojito.routing.Version;
 import org.limewire.mojito.util.MojitoUtils;
+import org.limewire.util.StringUtils;
 
 public class GetValueTest extends MojitoTestCase {
     
@@ -47,7 +48,7 @@ public class GetValueTest extends MojitoTestCase {
             
             KUID valueId = KUID.createRandomID();
             DHTValue value = new DHTValueImpl(
-                    DHTValueType.TEXT, Version.ZERO, "Hello World".getBytes());
+											  DHTValueType.TEXT, Version.ZERO, StringUtils.toAsciiBytes("Hello World"));
             first.put(valueId, value).get();
             
             try {
@@ -99,7 +100,7 @@ public class GetValueTest extends MojitoTestCase {
             
             KUID valueId = KUID.createRandomID();
             DHTValue value = new DHTValueImpl(
-                    DHTValueType.TEXT, Version.ZERO, "Hello World".getBytes());
+											  DHTValueType.TEXT, Version.ZERO, StringUtils.toAsciiBytes("Hello World"));
             first.put(valueId, value).get();
             
             EntityKey lookupKey1 = EntityKey.createEntityKey(valueId, DHTValueType.TEXT);

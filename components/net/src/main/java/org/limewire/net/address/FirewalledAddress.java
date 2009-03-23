@@ -58,6 +58,9 @@ public class FirewalledAddress implements Address {
         return privateAddress;
     }
     
+    /**
+     * @return a set of push proxy addresses, which may be empty
+     */
     public Set<Connectable> getPushProxies() {
         return pushProxies;
     }

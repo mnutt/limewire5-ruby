@@ -11,6 +11,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -32,6 +36,7 @@ import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.SwingEDTEvent;
+import org.limewire.util.Objects;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -53,6 +58,7 @@ public class ChatTopPanel extends JXPanel {
     private JLabel friendStatusLabel;
     
     private Action minimizeAction;
+    private final Map<String, PropertyChangeListener> friendStatusAndModeListeners;
     
     @Inject
     public ChatTopPanel() {        
@@ -86,7 +92,7 @@ public class ChatTopPanel extends JXPanel {
         friendStatusLabel.setFont(textFont);
         add(friendStatusLabel, "wmin 0, shrinkprio 0");
         
-        JXHyperlink minimizeChat = new JXHyperlink(new AbstractAction(tr("<html><u>Hide</u></html>")) {
+        JXHyperlink minimizeChat = new JXHyperlink(new AbstractAction("<html><u>" + tr("Hide") + "</u></html>") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 minimizeAction.actionPerformed(e);
@@ -106,7 +112,7 @@ public class ChatTopPanel extends JXPanel {
                 }
             }
         });
-        
+        friendStatusAndModeListeners = new HashMap<String, PropertyChangeListener>();
         ToolTipManager.sharedInstance().registerComponent(this);
         
         EventAnnotationProcessor.subscribe(this);
@@ -144,18 +150,47 @@ public class ChatTopPanel extends JXPanel {
     
     @EventSubscriber
     public void handleConversationStarted(ConversationSelectedEvent event) {
+        ChatFriend chatFriend = event.getFriend();
         if (event.isLocallyInitiated()) {
-            ChatFriend chatFriend = event.getFriend();
-            friendAvailabiltyIcon.setText(getAvailabilityHTML(chatFriend.getMode()));
-            friendNameLabel.setText(chatFriend.getName());
-            String status = chatFriend.getStatus();
-            friendStatusLabel.setText(status != null && status.length() > 0 ? " - " + status : "");
+            update(chatFriend);
         }
+        addChatFriendStatusListener(chatFriend);
+    }
+
+    private void addChatFriendStatusListener(final ChatFriend chatFriend) {
+        PropertyChangeListener statusAndModeListener = new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String propertyName = evt.getPropertyName();
+                if (("status".equals(propertyName) || "mode".equals(propertyName)) &&
+                        (!Objects.equalOrNull(evt.getNewValue(), evt.getOldValue())) ) {
+                    update(chatFriend);
+                }
+            }
+        };
+        chatFriend.addPropertyChangeListener(statusAndModeListener);
+        friendStatusAndModeListeners.put(chatFriend.getID(), statusAndModeListener);
+    }
+
+    private void removeChatFriendStatusListener(ChatFriend finishedFriend) {
+        PropertyChangeListener statusAndModeListener = friendStatusAndModeListeners.remove(finishedFriend.getID());
+        finishedFriend.removePropertyChangeListener(statusAndModeListener);
+    }
+
+
+
+    private void update(ChatFriend chatFriend) {
+        friendAvailabiltyIcon.setText(getAvailabilityHTML(chatFriend.getMode()));
+        friendNameLabel.setText(chatFriend.getName());
+        String status = chatFriend.getStatus();
+        friendStatusLabel.setText(status != null && status.length() > 0 ? " - " + status : "");
     }
     
     @EventSubscriber
     public void handleConversationEnded(CloseChatEvent event) {
         clearFriendInfo();
+        removeChatFriendStatusListener(event.getFriend());
     }
     
     private void clearFriendInfo() {

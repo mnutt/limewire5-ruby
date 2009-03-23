@@ -1,19 +1,41 @@
 package org.limewire.ui.swing.search;
 
+import java.util.Collections;
+import java.util.Map;
+
+import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.search.SearchCategory;
-import org.limewire.core.api.search.SearchDetails.SearchType;
 import org.limewire.ui.swing.util.I18n;
 
 public class DefaultSearchInfo implements SearchInfo {
 
+    private final String title;
     private final String query;
     private final SearchCategory searchCategory;
     private final SearchType searchType;
+    private final Map<FilePropertyKey, String> advancedSearch;
     
+    /** Creates a new SearchInfo for the given single keyword search. */
     public static DefaultSearchInfo createKeywordSearch(String query, SearchCategory searchCategory) {
-        return new DefaultSearchInfo(query, searchCategory, SearchType.KEYWORD);
+        return new DefaultSearchInfo(query, query, Collections.<FilePropertyKey, String>emptyMap(), searchCategory, SearchType.KEYWORD);
     }
     
+    /** Creates a new SearchInfo for the given advanced search. */
+    public static DefaultSearchInfo createAdvancedSearch(Map<FilePropertyKey, String> advancedSearch, SearchCategory searchCategory) {
+        return new DefaultSearchInfo(createTitle(advancedSearch), "", advancedSearch, searchCategory, SearchType.KEYWORD);
+    }
+    
+    private static String createTitle(Map<FilePropertyKey, String> advancedSearch) {
+        StringBuilder sb = new StringBuilder();
+        for(String value : advancedSearch.values()) {
+            if (value != null && value.trim().length() > 1) {
+                sb.append(value + " ");
+            }
+        }
+        return sb.toString().trim();
+    }
+    
+    /** Creates a new SearchInfo for the given What's New search. */
     public static DefaultSearchInfo createWhatsNewSearch(SearchCategory searchCategory) {
         String title;
         switch(searchCategory) {
@@ -26,23 +48,30 @@ public class DefaultSearchInfo implements SearchInfo {
         case ALL:
         default: title = I18n.tr("New files"); break;
         }
-        return new DefaultSearchInfo(title, searchCategory, SearchType.WHATS_NEW);
+        return new DefaultSearchInfo(title, null, Collections.<FilePropertyKey, String>emptyMap(), searchCategory, SearchType.WHATS_NEW);
     }
 
-    private DefaultSearchInfo(String query, SearchCategory searchCategory, SearchType searchType) {
+    private DefaultSearchInfo(String title, String query, Map<FilePropertyKey, String> advancedSearch, SearchCategory searchCategory, SearchType searchType) {
+        this.title = title;
         this.query = query;
+        this.advancedSearch = advancedSearch;
         this.searchCategory = searchCategory;
         this.searchType = searchType;
     }
 
     @Override
-    public String getQuery() {
+    public String getSearchQuery() {
         return query;
+    }
+    
+    @Override
+    public Map<FilePropertyKey, String> getAdvancedDetails() {
+        return advancedSearch;
     }
 
     @Override
     public String getTitle() {
-        return query;
+        return title;
     }
     
     @Override

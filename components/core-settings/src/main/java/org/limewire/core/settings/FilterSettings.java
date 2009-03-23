@@ -1,10 +1,10 @@
-
 package org.limewire.core.settings;
 
 import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.setting.BooleanSetting;
 import org.limewire.setting.IntSetting;
 import org.limewire.setting.StringArraySetting;
+import org.limewire.setting.StringSetting;
 
 /**
  * Settings for filters
@@ -31,26 +31,6 @@ public class FilterSettings extends LimeProps {
         FACTORY.createBooleanSetting("FILTER_ADULT", false);
     
     /**
-	 * Sets whether or not search results including VBS are
-	 * banned.
-	 */
-    public static final BooleanSetting FILTER_VBS =
-        FACTORY.createBooleanSetting("FILTER_VBS", true);
-    
-    /**
-	 * Sets whether or not search results including HTML are
-	 * banned.
-	 */
-    public static final BooleanSetting FILTER_HTML =
-        FACTORY.createBooleanSetting("FILTER_HTML", false);
-    
-    /**
-     * Sets whether or not search results of the wmv and asf types are banned.
-     */
-    public static final BooleanSetting FILTER_WMV_ASF =
-    	FACTORY.createBooleanSetting("FILTER_WMV_ASF",true);
-    
-    /**
      * Sets whether or not known spam and malware URNs are banned.
      */
     public static final BooleanSetting FILTER_URNS =
@@ -69,6 +49,12 @@ public class FilterSettings extends LimeProps {
         FACTORY.createRemoteStringArraySetting("FILTERED_URNS_REMOTE",
                 new String[0], "FilterSettings.filteredUrnsRemote");
     
+    /**
+     * Sets whether or not results with filtered URNs are considered spam. 
+     */
+    public static final BooleanSetting FILTERED_URNS_ARE_SPAM =
+        FACTORY.createRemoteBooleanSetting("FILTERED_URNS_ARE_SPAM", true,
+                "FilterSettings.filteredUrnsAreSpam");
     /**
 	 * Sets whether or not duplicate search results are
 	 * banned.
@@ -114,7 +100,8 @@ public class FilterSettings extends LimeProps {
      * search results.
      */
     public static final StringArraySetting BANNED_EXTENSIONS =
-        FACTORY.createStringArraySetting("BANNED_EXTENSIONS", new String[]{".vbs",".asf",".asx",".wmv",".html",".htm"});
+        FACTORY.createStringArraySetting("BANNED_EXTENSIONS",
+                new String[]{".vbs",".asf",".asx",".wm",".wma",".wmv",".htm",".html"});
     
     /**
      * Whether to filter queries containing hashes.
@@ -126,13 +113,6 @@ public class FilterSettings extends LimeProps {
     public static final IntSetting MIN_MATCHING_WORDS =
     	FACTORY.createRemoteIntSetting("MIN_MATCHING_WORDS",0,
     			"FilterSettings.minMatchingWords", 0, 30);
-    
-    /** 
-     * Whether to drop responses that have an action 
-     */
-    public static final BooleanSetting FILTER_ACTION_RESPONSES =
-    		FACTORY.createRemoteBooleanSetting("FILTER_ACTION_RESPONSES",false,
-    				"FilterSettings.filterActionResponses");
     
     /**
      * An array of ip addresses that LimeWire will respond to.  
@@ -164,16 +144,18 @@ public class FilterSettings extends LimeProps {
                 "FilterSettings.maxAltsPerResponse", 10, 100);
 
     /**
-     * How many alts to display in the gui.
-     */
-    public static final IntSetting MAX_ALTS_TO_DISPLAY =
-        FACTORY.createRemoteIntSetting("MAX_ALTS_TO_DISPLAY", 15,
-                "FilterSettings.maxAltsToDisplay", 2, 100);
-    
-    /**
      * How many responses to allow per QueryReply message.
      */
     public static final IntSetting MAX_RESPONSES_PER_REPLY =
         FACTORY.createRemoteIntSetting("MAX_RESPONSES_PER_REPLY", 10, 
                 "FilterSettings.maxResponsesPerReply", 10, 256);
+    
+    /**
+     * Base32-encoded, deflated, bencoded description of dangerous file types.
+     * See DangerousFileTypeEncoder.
+     */
+    public static final StringSetting DANGEROUS_FILE_TYPES =
+        FACTORY.createRemoteStringSetting("DANGEROUS_FILE_TYPES",
+                "PCOEWMNUJLG4SMNWJIWE4M5SFLHTKBXCIQIFDFU2NJUJLG3DNBTGLIFWVG2C73N44CZJWDFLDCJM5ZNEUYBABWCDCMGA",
+                "FilterSettings.DangerousFileTypes");
 }

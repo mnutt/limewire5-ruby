@@ -3,7 +3,6 @@ package org.limewire.ui.swing.library.manager;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -16,21 +15,18 @@ public class LibraryManagerItemImpl implements LibraryManagerItem {
     private boolean fullName;
     private final File file;
     private final LibraryData libraryData;
+    private final ExcludedFolderCollectionManager excludedFolders;
     private final LibraryManagerItem parent;
-    private final List<File> excludedChildren;
-    private final boolean showExcludedChildren;
     
     private List<LibraryManagerItem> children;
     
     public LibraryManagerItemImpl(LibraryManagerItem parent, 
-            LibraryData libraryData,
-            File file,
-            boolean showExcludedChildren) {
-        this.showExcludedChildren = showExcludedChildren;
+            LibraryData libraryData, ExcludedFolderCollectionManager excludedFolders,
+            File file) {
         this.parent = parent;
         this.libraryData = libraryData;
+        this.excludedFolders = excludedFolders;
         this.file = FileUtils.canonicalize(file);
-        this.excludedChildren = new ArrayList<File>();
     }
     
     @Override
@@ -89,10 +85,8 @@ public class LibraryManagerItemImpl implements LibraryManagerItem {
             
             if(folders != null) {
                 for(File folder : folders) {
-                    if(!showExcludedChildren && libraryData.isDirectoryExcluded(folder)) {
-                        excludedChildren.add(folder);
-                    } else {
-                        children.add(new LibraryManagerItemImpl(this, libraryData, folder, showExcludedChildren));
+                    if(!excludedFolders.isExcluded(folder)) {
+                        children.add(new LibraryManagerItemImpl(this, libraryData, excludedFolders, folder));
                     }
                 }
             }
@@ -103,30 +97,22 @@ public class LibraryManagerItemImpl implements LibraryManagerItem {
     }
     
     public int addChild(LibraryManagerItem item) {
-        excludedChildren.remove(item.getFile());
         int idx = Collections.binarySearch(getChildren(), item, new Orderer());
         if(idx >= 0) {
             throw new IllegalStateException("already contains: " + item + ", in: " + children);
         }
         idx = -(idx + 1);
-        children.add(idx, item);
+        getChildren().add(idx, item);
         assert item.getParent() == this;
         return idx;
     }
 
     public int removeChild(LibraryManagerItem item) {
-        excludedChildren.add(item.getFile());
         int idx = getChildren().indexOf(item);
         assert idx != -1;
-        children.remove(idx);
+        getChildren().remove(idx);
         return idx;
     }    
-    
-    @Override
-    public Collection<? extends File> getExcludedChildren() {
-        getChildren(); // calculate the exclusions...
-        return Collections.unmodifiableList(excludedChildren);
-    }
     
     @Override
     public LibraryManagerItem getChildFor(File directory) {

@@ -9,6 +9,7 @@ import junit.framework.Test;
 
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.FileUtils;
+import org.limewire.util.StringUtils;
 
 public class SwarmFileSystemImplTest extends BaseTestCase {
 
@@ -55,13 +56,13 @@ public class SwarmFileSystemImplTest extends BaseTestCase {
 
         String testWrite1 = "testWrite File 1";
         ByteBuffer byteBuffer = ByteBuffer.allocate(testWrite1.length());
-        byteBuffer.put(testWrite1.getBytes());
+        byteBuffer.put(StringUtils.toAsciiBytes(testWrite1));
         byteBuffer.flip();
         swarmFileSystem.write(byteBuffer, 0);
         swarmFileSystem.close();
         Assert.assertTrue(file1.exists());
         Assert.assertEquals(testWrite1.length(), file1.length());
-        Assert.assertEquals(testWrite1, new String(FileUtils.readFileFully(file1)));
+        Assert.assertEquals(testWrite1, StringUtils.getASCIIString(FileUtils.readFileFully(file1)));
 
     }
 
@@ -72,7 +73,7 @@ public class SwarmFileSystemImplTest extends BaseTestCase {
         swarmFileSystem.addSwarmFile(new SwarmFileImpl(fileWrite1, 1024));
         String testWrite1 = "testWrite File 1";
         ByteBuffer byteBuffer = ByteBuffer.allocate(testWrite1.length());
-        byteBuffer.put(testWrite1.getBytes());
+        byteBuffer.put(StringUtils.toAsciiBytes(testWrite1));
         byteBuffer.flip();
         swarmFileSystem.write(byteBuffer, 0);
         swarmFileSystem.close();
@@ -84,7 +85,7 @@ public class SwarmFileSystemImplTest extends BaseTestCase {
         swarmFileSystem2.close();
         Assert.assertTrue(fileWrite1.exists());
         Assert.assertEquals(testWrite1.length(), byteBuffer.position());
-        Assert.assertEquals(testWrite1, new String(byteBuffer.array()));
+        Assert.assertEquals(testWrite1, StringUtils.getASCIIString(byteBuffer.array()));
     }
 
     public void testWriteMulti() throws IOException {
@@ -95,7 +96,7 @@ public class SwarmFileSystemImplTest extends BaseTestCase {
         swarmFileSystem.addSwarmFile(new SwarmFileImpl(file2, 6));
         String testWrite1 = "testWrite File 1";
         ByteBuffer byteBuffer = ByteBuffer.allocate(testWrite1.length());
-        byteBuffer.put(testWrite1.getBytes());
+        byteBuffer.put(StringUtils.toAsciiBytes(testWrite1));
         byteBuffer.flip();
         swarmFileSystem.write(byteBuffer, 0);
         swarmFileSystem.close();
@@ -103,12 +104,12 @@ public class SwarmFileSystemImplTest extends BaseTestCase {
         Assert.assertTrue(file1.exists());
         Assert.assertEquals(10, file1.length());
         Assert
-                .assertEquals(testWrite1.substring(0, 10), new String(FileUtils
+                .assertEquals(testWrite1.substring(0, 10), StringUtils.getASCIIString(FileUtils
                         .readFileFully(file1)));
         Assert.assertTrue(file2.exists());
         Assert.assertEquals(6, file2.length());
         Assert.assertEquals(testWrite1.substring(10, 16),
-                new String(FileUtils.readFileFully(file2)));
+                StringUtils.getASCIIString(FileUtils.readFileFully(file2)));
 
     }
 
@@ -122,7 +123,7 @@ public class SwarmFileSystemImplTest extends BaseTestCase {
 
         String testWrite1 = "File 1";
         ByteBuffer byteBuffer = ByteBuffer.allocate(testWrite1.length());
-        byteBuffer.put(testWrite1.getBytes());
+        byteBuffer.put(StringUtils.toAsciiBytes(testWrite1));
         byteBuffer.flip();
         swarmFileSystem.write(byteBuffer, 10);
         swarmFileSystem.close();
@@ -131,7 +132,7 @@ public class SwarmFileSystemImplTest extends BaseTestCase {
         Assert.assertEquals(0, file1.length());
         Assert.assertTrue(file2.exists());
         Assert.assertEquals(6, file2.length());
-        Assert.assertEquals(testWrite1, new String(FileUtils.readFileFully(file2)));
+        Assert.assertEquals(testWrite1, StringUtils.getASCIIString(FileUtils.readFileFully(file2)));
 
     }
 

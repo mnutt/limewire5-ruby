@@ -74,6 +74,7 @@ public class OpenFileAction extends AbstractAction {
                                 }, sle, false);
                     }
                 } else {
+                    // {0}: name of file
                     FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), I18n.tr("The file {0} does not exist.", file.getName()), I18n.tr("Unable to open torrent"), JOptionPane.ERROR_MESSAGE);
                 }
             }

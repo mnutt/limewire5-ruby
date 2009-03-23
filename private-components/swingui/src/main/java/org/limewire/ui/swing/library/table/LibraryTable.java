@@ -150,7 +150,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         getColumnModel().getColumn(format.getActionColumn()).setPreferredWidth(shareEditor.getPreferredSize().width);
         getColumnModel().getColumn(format.getActionColumn()).setWidth(shareEditor.getPreferredSize().width);
         setRowHeight(rowHeight);
-        setSavedColumnSettings();
+        applySavedColumnSettings();
     }
     
     public void enableDownloading(DownloadListManager downloadListManager, LibraryNavigator libraryNavigator, LibraryFileList libraryList){
@@ -158,11 +158,11 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         
         setDoubleClickHandler(new LibraryDownloadDoubleClickHandler(downloadAction));
         
-        setSavedColumnSettings();
+        applySavedColumnSettings();
     }
     
     public void enableSharing() {
-        setSavedColumnSettings();
+        applySavedColumnSettings();
     }
     
     public void dispose() {
@@ -182,6 +182,11 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
     }
     
     @Override
+    public List<T> getAllItems() {
+        return new ArrayList<T>(getLibraryTableModel().getAllItems());
+    }
+    
+    @Override
     public void setModel(TableModel newModel) {
         assert getModel() == null : "cannot change model!";
         super.setModel(newModel);
@@ -194,7 +199,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
      * have been loaded. The order in which width/visiblity/order are called
      * is also expected to be in that order.
  	 */
-    protected void setSavedColumnSettings(){
+    public void applySavedColumnSettings(){
         columnStateHandler.setupColumnWidths();
         columnStateHandler.setupColumnVisibility();
         columnStateHandler.setupColumnOrder();

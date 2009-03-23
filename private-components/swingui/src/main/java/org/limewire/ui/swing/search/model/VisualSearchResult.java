@@ -52,6 +52,13 @@ public interface VisualSearchResult extends NavSelectable, PropertiableFile {
     String getPropertyString(FilePropertyKey key);
 
     /**
+     * Returns the name property as a text string.  For audio files with a 
+     * non-blank title, the title property is returned, prefixed by the artist
+     * if <code>useAudioArtist</code> is true.
+     */
+    String getNameProperty(boolean useAudioArtist);
+    
+    /**
      * Returns a Collection of sources that support the search result.  Each
      * source is represented by a RemoteHost object. 
      */

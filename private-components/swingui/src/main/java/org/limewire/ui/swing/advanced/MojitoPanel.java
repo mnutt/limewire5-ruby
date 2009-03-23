@@ -88,9 +88,10 @@ class MojitoPanel extends TabPanel {
             renderNotAvailable();
         }
         
-        // Initialize DHT state.
+        // Initialize DHT state, and notify listeners if enabled.
         dhtStarted = mojitoManager.isRunning();
         dhtLabel.setText(mojitoManager.getName());
+        fireEnabledChanged(isTabEnabled());
         
         // Add property change listener to update DHT state.
         if (dhtListener == null) {

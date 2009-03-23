@@ -27,6 +27,7 @@ import org.limewire.nio.observer.StubReadObserver;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.OSUtils;
 import org.limewire.util.PrivilegedAccessor;
+import org.limewire.util.StringUtils;
 
 public class NIODispatcherTest extends BaseTestCase {
     
@@ -216,7 +217,7 @@ public class NIODispatcherTest extends BaseTestCase {
         Socket accepted = LISTEN_SOCKET.accept();
         
         // First make sure we get notified of data & can read it.
-        accepted.getOutputStream().write("OUT".getBytes()); 
+        accepted.getOutputStream().write(StringUtils.toAsciiBytes("OUT")); 
         accepted.getOutputStream().flush();
         NIODispatcher.instance().registerRead(c1, o1);
         // Let the NIO thread pump a few times to make sure we read it.
@@ -228,7 +229,7 @@ public class NIODispatcherTest extends BaseTestCase {
         assertLessThanOrEquals(3, o1.getReadsHandled());
         ByteBuffer buffer = o1.getReadBuffer();
         assertEquals(3, buffer.position());
-        assertEquals("OUT", new String(buffer.array(), 0, 3));
+        assertEquals("OUT", StringUtils.getASCIIString(buffer.array(), 0, 3));
         
         // Now that we've read everything, wait a for more cycle and make sure
         // no more events came in.
@@ -241,7 +242,7 @@ public class NIODispatcherTest extends BaseTestCase {
         // Tell the reader to ignore reading from the actual buffer,
         // but keep interest on and see how many read notifications we get...
         o1.setIgnoreReadData(true);
-        accepted.getOutputStream().write("A".getBytes());
+        accepted.getOutputStream().write(StringUtils.toAsciiBytes("A"));
         accepted.getOutputStream().flush();
         for(int i = 0; i < 10; i++)
             NIOTestUtils.waitForNIO();
@@ -280,7 +281,7 @@ public class NIODispatcherTest extends BaseTestCase {
         Socket accepted = LISTEN_SOCKET.accept();
         
         // First make sure we get notified of data & can read it.
-        accepted.getOutputStream().write("OUT".getBytes()); 
+        accepted.getOutputStream().write(StringUtils.toAsciiBytes("OUT")); 
         accepted.getOutputStream().flush();
         NIODispatcher.instance().registerRead(c1, o1);
         // Let the NIO thread pump a few times to make sure we read it.
@@ -292,7 +293,7 @@ public class NIODispatcherTest extends BaseTestCase {
         assertLessThanOrEquals(3, o1.getReadsHandled());
         ByteBuffer buffer = o1.getReadBuffer();
         assertEquals(3, buffer.position());
-        assertEquals("OUT", new String(buffer.array(), 0, 3));
+        assertEquals("OUT", StringUtils.getASCIIString(buffer.array(), 0, 3));
         
         // Now that we've read everything, wait a for more cycle and make sure
         // no more events came in.
@@ -306,7 +307,7 @@ public class NIODispatcherTest extends BaseTestCase {
         // but keep interest on and see how many read notifications we get...
         o1.getReadBuffer().clear();
         o1.setAmountToRead(1);
-        accepted.getOutputStream().write("ABC".getBytes());
+        accepted.getOutputStream().write(StringUtils.toAsciiBytes("ABC"));
         accepted.getOutputStream().flush();
         for(int i = 0; i < 10; i++)
             NIOTestUtils.waitForNIO();
@@ -318,7 +319,7 @@ public class NIODispatcherTest extends BaseTestCase {
         // Make sure that when we consumed data, it was on the first notification
         assertEquals(priorReadsHandled + 1, o1.getReadsHandledAtLastConsume());
         assertEquals(1, o1.getReadBuffer().position());
-        assertEquals("A", new String(o1.getReadBuffer().array(), 0, 1));
+        assertEquals("A", StringUtils.getASCIIString(o1.getReadBuffer().array(), 0, 1));
         
         // Just to do some stricter testing, also make sure that if we turn
         // interest off & back on again, we'll continue to get notifications
@@ -339,7 +340,7 @@ public class NIODispatcherTest extends BaseTestCase {
         assertGreaterThan(priorReadsHandled + 5, o1.getReadsHandled());
         assertEquals(priorReadsHandled + 1, o1.getReadsHandledAtLastConsume());
         assertEquals(1, o1.getReadBuffer().position());
-        assertEquals("B", new String(o1.getReadBuffer().array(), 0, 1));
+        assertEquals("B", StringUtils.getASCIIString(o1.getReadBuffer().array(), 0, 1));
         
         c1.close();
         accepted.close();

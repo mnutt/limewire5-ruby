@@ -6,6 +6,7 @@ import java.io.InputStream;
 import junit.framework.Test;
 
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 /**
  * Unit tests for ByteReader
@@ -29,7 +30,7 @@ public class ByteReaderTest extends BaseTestCase {
 		ByteReader bin;
 		String s;       
 	
-		in=new ByteArrayInputStream("abc\r\na\rbc\n".getBytes());
+		in=new ByteArrayInputStream(StringUtils.toAsciiBytes("abc\r\na\rbc\n"));
 		bin=new ByteReader(in);
 	
 		s=bin.readLine(); assertEquals("abc", s);
@@ -37,7 +38,7 @@ public class ByteReaderTest extends BaseTestCase {
 		s=bin.readLine(); assertNull(s);
 		s=bin.readLine(); assertNull(s);
 	
-		in=new ByteArrayInputStream("a\ne".getBytes());
+		in=new ByteArrayInputStream(StringUtils.toAsciiBytes("a\ne"));
 		bin=new ByteReader(in);
 	
 		s=bin.readLine(); assertEquals("a", s);

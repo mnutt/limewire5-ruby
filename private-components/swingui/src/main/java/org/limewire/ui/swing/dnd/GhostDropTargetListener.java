@@ -6,13 +6,11 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
-import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
 import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.friend.Network;
+import org.limewire.ui.swing.library.LibraryListSourceChanger;
 
 /**
  * Listens to drag and drop events. When files are dragged onto a
@@ -29,23 +27,27 @@ public class GhostDropTargetListener implements DropTargetListener {
     private final GhostDragGlassPane ghostDragGlassPane;
     private final Component parent;
     private final Friend friend;
+    private final LibraryListSourceChanger listChanger;
     
     public GhostDropTargetListener(Component parent, GhostDragGlassPane ghostDragGlassPane) {
         this.parent = parent;
         this.ghostDragGlassPane = ghostDragGlassPane;
         this.friend = null;
-    }
-    
-    public GhostDropTargetListener(Component parent, GhostDragGlassPane ghostDragGlassPane, String renderName) {
-        this.parent = parent;
-        this.ghostDragGlassPane = ghostDragGlassPane;
-        this.friend = new FriendAdapter(renderName);
+        this.listChanger = null;
     }
     
     public GhostDropTargetListener(Component parent, GhostDragGlassPane ghostDragGlassPane, Friend friend) {
         this.parent = parent;
         this.ghostDragGlassPane = ghostDragGlassPane;
         this.friend = friend;
+        this.listChanger = null;
+    }
+    
+    public GhostDropTargetListener(Component parent, GhostDragGlassPane ghostDragGlassPane, LibraryListSourceChanger listChanger) {
+        this.parent = parent;
+        this.ghostDragGlassPane = ghostDragGlassPane;
+        this.friend = null;
+        this.listChanger = listChanger;
     }
     
     @Override
@@ -75,7 +77,11 @@ public class GhostDropTargetListener implements DropTargetListener {
         SwingUtilities.convertPointFromScreen(p, ghostPane); 
 
         ghostPane.setPoint(p);
-        ghostPane.setText(friend);
+        //if filtering, set drop target name to friend filtering on
+        if(listChanger != null)
+            ghostPane.setText(listChanger.getCurrentFriend());
+        else
+        	ghostPane.setText(friend);
     }
 
 	/**
@@ -123,36 +129,5 @@ public class GhostDropTargetListener implements DropTargetListener {
     
     private Component getGlassPane() {
         return SwingUtilities.getRootPane(parent).getGlassPane();
-    }
-    
-    /**
-     * Takes a String and creates a Friend which returns that name.
-     */
-    private class FriendAdapter implements Friend {
-        private String renderName;
-        
-        public FriendAdapter(String name) {
-            this.renderName = name;
-        }
-
-        @Override
-        public String getRenderName() {
-            return renderName;
-        }
-        
-        @Override
-        public String getName() {return null;}
-        @Override
-        public String getFirstName() {return null;}
-        @Override
-        public Map<String, FriendPresence> getFriendPresences() {return null;}
-        @Override
-        public String getId() {return null;}
-        @Override
-        public Network getNetwork() {return null;}
-        @Override
-        public boolean isAnonymous() {return false;}
-        @Override
-        public void setName(String name) {}
     }
 }

@@ -1,7 +1,5 @@
 package org.limewire.ui.swing.friends.login;
 
-import static org.limewire.ui.swing.util.I18n.tr;
-
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,17 +17,15 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeComboBox;
+import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.components.PromptPasswordField;
 import org.limewire.ui.swing.components.PromptTextField;
-import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.components.decorators.ButtonDecorator;
 import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
 import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
@@ -38,15 +34,16 @@ import org.limewire.ui.swing.friends.settings.XMPPAccountConfigurationManager;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.settings.SwingUiSettings;
-import org.limewire.ui.swing.util.BackgroundExecutorService;
 import org.limewire.ui.swing.util.GuiUtils;
+import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
-import org.limewire.xmpp.api.client.XMPPException;
 import org.limewire.xmpp.api.client.XMPPService;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import net.miginfocom.swing.MigLayout;
 
 @Singleton
 class LoginPanel extends JXPanel implements SettingListener {
@@ -273,15 +270,7 @@ class LoginPanel extends JXPanel implements SettingListener {
         authFailedLabel.setVisible(false);
         validate();
         repaint();
-        BackgroundExecutorService.execute(new Runnable() {
-            public void run() {
-                try {
-                    xmppService.login(config);
-                } catch (XMPPException e) {
-                    // Ignored
-                }
-            }
-        });            
+        xmppService.login(config);         
     }
 
     @Override

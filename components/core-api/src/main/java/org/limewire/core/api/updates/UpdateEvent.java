@@ -1,14 +1,14 @@
 package org.limewire.core.api.updates;
 
-import org.limewire.listener.DefaultSourceTypeEvent;
+import org.limewire.listener.DefaultDataTypeEvent;
 
-public class UpdateEvent extends DefaultSourceTypeEvent<UpdateInformation, UpdateEvent.Type> {
+public class UpdateEvent extends DefaultDataTypeEvent<UpdateInformation, UpdateEvent.Type> {
 
     public static enum Type {
         UPDATE
     }
     
-    public UpdateEvent(UpdateInformation source, Type event) {
-        super(source, event);
+    public UpdateEvent(UpdateInformation data, Type event) {
+        super(data, event);
     }
 }

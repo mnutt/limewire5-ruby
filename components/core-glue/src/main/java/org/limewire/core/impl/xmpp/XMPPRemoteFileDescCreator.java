@@ -40,6 +40,9 @@ public class XMPPRemoteFileDescCreator implements RemoteFileDescCreator {
         return address instanceof XMPPAddress;
     }
 
+    /**
+     * Note browseHost and replyToMulticast will be ignored.
+     */
     @Override
     public RemoteFileDesc create(Address address, long index, String filename, long size,
             byte[] clientGUID, int speed, int quality, boolean browseHost, LimeXMLDocument xmlDoc,

@@ -4,13 +4,16 @@ import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.Map;
 
-import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.friend.Network;
 import org.limewire.xmpp.api.client.MessageReader;
 import org.limewire.xmpp.api.client.MessageWriter;
+import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.Presence;
+import org.limewire.xmpp.api.client.IncomingChatListener;
+import org.limewire.xmpp.api.client.PresenceEvent;
 import org.limewire.xmpp.api.client.Presence.Mode;
+import org.limewire.listener.EventListener;
 
 class MockChatFriend implements ChatFriend {
     private String name, status;
@@ -25,8 +28,8 @@ class MockChatFriend implements ChatFriend {
     }
     
     @Override
-    public Friend getFriend() {
-        return new Friend() {
+    public User getUser() {
+        return new User() {
             @Override
             public String getId() {
                 return name;
@@ -48,7 +51,7 @@ class MockChatFriend implements ChatFriend {
             public void setName(String name) {
                 MockChatFriend.this.name = name;
             }
-            
+
             @Override
             public boolean isAnonymous() {
                 return false;
@@ -62,6 +65,45 @@ class MockChatFriend implements ChatFriend {
             @Override
             public Map<String, FriendPresence> getFriendPresences() {
                 return Collections.emptyMap();
+            }
+
+            @Override
+            public void addPresenceListener(EventListener<PresenceEvent> presenceListener) {}
+
+            @Override
+            public MessageWriter createChat(MessageReader reader) {
+                return null;
+            }
+
+            @Override
+            public void setChatListenerIfNecessary(IncomingChatListener listener) {}
+
+            @Override
+            public void removeChatListener() {}
+
+            @Override
+            public Presence getActivePresence() {
+                return null;
+            }
+
+            @Override
+            public boolean hasActivePresence() {
+                return false;
+            }
+
+            @Override
+            public boolean isSignedIn() {
+                return false;
+            }
+
+            @Override
+            public Map<String, Presence> getPresences() {
+                return Collections.emptyMap();
+            }
+
+            @Override
+            public boolean isSubscribed() {
+                return false;
             }
         };
     }
@@ -146,32 +188,17 @@ class MockChatFriend implements ChatFriend {
     }
 
     @Override
-    public boolean isReceivingUnviewedMessages() {
+    public boolean hasReceivedUnviewedMessages() {
         return receivingUnviewedMessages;
     }
 
     @Override
-    public void setReceivingUnviewedMessages(boolean hasMessages) {
+    public void setReceivedUnviewedMessages(boolean hasMessages) {
         this.receivingUnviewedMessages = hasMessages;
-    }
-
-    @Override
-    public Presence getBestPresence() {
-        return null;
     }
 
     @Override
     public void update() {
         // do nothing
-    }
-
-    @Override
-    public void setMode(Mode mode) {
-        this.state = mode;
-    }
-
-    @Override
-    public void setStatus(String status) {
-        this.status = status;
     }
 }

@@ -3,6 +3,8 @@ package org.limewire.util;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +29,12 @@ public class StringUtils {
      * Collator used for internationalization.
      */
     private volatile static Collator COLLATOR;
+    
+    private static final ThreadLocal<CharsetEncoder> ASCII_ENCODER = new ThreadLocal<CharsetEncoder>() {
+        protected CharsetEncoder initialValue() {
+            return Charset.forName("ISO-8859-1").newEncoder();
+        }
+    };
     
     static {
         COLLATOR = Collator.getInstance(Locale.getDefault());
@@ -391,12 +399,20 @@ public class StringUtils {
     	return getEncodedString(bytes, "ISO-8859-1");
     }
     
+    public static String getASCIIString(byte[] bytes, int offset, int length) {
+        return new String(bytes, offset, length, Charset.forName("ISO-8859-1"));
+    }
+    
     /**
      * Utility wrapper for getting a String object out of byte [] using the
      * UTF-8 encoding.
      */
     public static String getUTF8String(byte [] bytes) {
     	return getEncodedString(bytes, "UTF-8");
+    }
+    
+    public static String getUTF8String(byte[] bytes, int offset, int length) {
+        return new String(bytes, offset, length, Charset.forName("UTF-8"));
     }
     
     /**
@@ -605,5 +621,12 @@ public class StringUtils {
      */
     public static boolean isEmpty(String s) {
         return s == null || s.trim().length() == 0;
+    }
+    
+    /**
+     * @return true if <code>sequence</code> can be encoded as ascii only
+     */
+    public static boolean isAsciiOnly(CharSequence sequence) {
+        return ASCII_ENCODER.get().canEncode(sequence);
     }
 }

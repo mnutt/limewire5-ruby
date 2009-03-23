@@ -1,10 +1,14 @@
-/FriendFileListProviderTest.java/1.10/Sat Feb 21 05:27:34 2009//
-/FriendShareListRefresherTest.java/1.12/Tue Feb 10 22:27:51 2009//
-/IdleStatusMonitorTest.java/1.8/Sun Feb 22 05:56:09 2009//
-/MockScheduledExecutorService.java/1.2/Sat Feb 21 05:27:34 2009//
-/MockServiceRegistry.java/1.1/Sat Feb 21 05:27:34 2009//
-/XMPPRemoteFileDescDeserializerTest.java/1.10/Thu Feb 12 17:34:40 2009//
-/XMPPRemoteFileDescTest.java/1.5/Tue Feb 10 20:51:04 2009//
-/XMPPResourceFactoryImplTest.java/1.4/Wed Feb  4 19:59:56 2009//
-/XmppPresenceLibraryAdderTest.java/1.1/Thu Feb 12 20:03:26 2009//
+/FriendFileListProviderTest.java/1.11/Mon Mar 23 14:54:59 2009//
+/FriendShareListRefresherTest.java/1.12/Mon Feb 23 16:13:14 2009//
+/IdleStatusMonitorTest.java/1.9/Mon Mar 23 14:54:59 2009//
+/IdleTimeImplTest.java/1.1/Wed Mar 18 21:41:10 2009//
+/MockScheduledExecutorService.java/1.2/Mon Jan  5 17:05:10 2009//
+/MockServiceRegistry.java/1.1/Mon Jan  5 17:05:10 2009//
+/RemoteFileItemFactoryImplTest.java/1.1/Tue Mar 17 21:17:22 2009//
+/XMPPFirewalledAddressConnectorTest.java/1.5/Tue Mar  3 19:41:26 2009//
+/XMPPRemoteFileDescCreatorTest.java/1.1/Fri Mar 13 19:48:02 2009//
+/XMPPRemoteFileDescDeserializerTest.java/1.10/Mon Feb 23 16:13:14 2009//
+/XMPPRemoteFileDescTest.java/1.5/Mon Feb 23 16:13:14 2009//
+/XMPPResourceFactoryImplTest.java/1.4/Mon Feb 23 16:13:14 2009//
+/XmppPresenceLibraryAdderTest.java/1.1/Mon Feb 23 16:13:14 2009//
 D

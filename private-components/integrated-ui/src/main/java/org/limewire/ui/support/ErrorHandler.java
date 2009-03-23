@@ -1,7 +1,8 @@
 package org.limewire.ui.support;
 
+import javax.swing.SwingUtilities;
+
 import org.limewire.service.ErrorCallback;
-import org.limewire.ui.swing.util.SwingUtils;
 
 /** Forwards error messages to the BugManager on the Swing thread. */
 public final class ErrorHandler implements ErrorCallback {
@@ -16,8 +17,9 @@ public final class ErrorHandler implements ErrorCallback {
         if(problem instanceof ThreadDeath)
             throw (ThreadDeath)problem;
         else {
-            Runnable doWorkRunnable = new Error(problem, msg);
-            SwingUtils.invokeLater(doWorkRunnable);
+            // force to end of queue, so we don't continue holding
+            // any locks if this was already called from the UI thread.
+            SwingUtilities.invokeLater(new Error(problem, msg));
         }
     }
 

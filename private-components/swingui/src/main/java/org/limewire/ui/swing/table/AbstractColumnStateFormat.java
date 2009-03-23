@@ -2,8 +2,6 @@ package org.limewire.ui.swing.table;
 
 import java.util.Comparator;
 
-import org.limewire.util.StringUtils;
-
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
 import ca.odell.glazedlists.gui.WritableTableFormat;
 
@@ -65,17 +63,19 @@ public abstract class AbstractColumnStateFormat<T> implements VisibleTableFormat
         public int compare(Object alpha, Object beta) {    
             // compare nulls
             if (alpha == null) {
-                return (beta == null) ? 0 : -1;
-                
+                return (beta == null) ? 0 : -1;                
             } else if (beta == null) {
                 return 1;
-
+            } else if(alpha == beta) {
+                return 0;
             } else if (alpha.getClass().isInstance(beta)) {
                 // Compare objects of the same type.  String values use an 
                 // I18n-compatible, case-insensitive comparison.  Non-Comparable
                 // values throw an exception to report a data model issue.
                 if (alpha instanceof String) {
-                    return StringUtils.compareFullPrimary((String) alpha, (String) beta);
+                    return ((String)alpha).compareToIgnoreCase((String)beta);
+                    // TODO: This is making things insanely slow -- commenting out for now.
+//                    return StringUtils.compareFullPrimary((String) alpha, (String) beta);
                 } else if (alpha instanceof Comparable) {
                     return ((Comparable) alpha).compareTo(beta);
                 } else {

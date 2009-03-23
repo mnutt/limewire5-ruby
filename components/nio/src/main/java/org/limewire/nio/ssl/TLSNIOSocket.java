@@ -7,6 +7,8 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.nio.NIOSocket;
 import org.limewire.nio.channel.InterestReadableByteChannel;
@@ -21,6 +23,8 @@ import org.limewire.nio.observer.ConnectObserver;
  */
 public class TLSNIOSocket extends NIOSocket {
 
+    private final static Log LOG = LogFactory.getLog(TLSNIOSocket.class);
+    
     private volatile SSLReadWriteChannel tlsLayer;
     private volatile InterestReadableByteChannel baseReader;
     private volatile InterestWritableByteChannel baseWriter;
@@ -110,7 +114,6 @@ public class TLSNIOSocket extends NIOSocket {
         }
     }
     
-    
     /**
      * A delegating connector that forces the TLS Layer to be initialized
      * prior to informing the real <code>ConnectObserver</code> about the connection.
@@ -125,18 +128,40 @@ public class TLSNIOSocket extends NIOSocket {
         }
 
         public void handleConnect(Socket socket) throws IOException {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Initializing TLS connection to " +
+                        getInetAddress().getHostAddress() + ":" + getPort() + 
+                        ", open " + tlsLayer.isOpen() +
+                        ", handshaking " + tlsLayer.isHandshaking());
+            }
             tlsLayer.initialize(addr, SSLUtils.getTLSCipherSuites(), true, false);
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Initialized TLS connection to " +
+                        getInetAddress().getHostAddress() + ":" + getPort() + 
+                        ", open " + tlsLayer.isOpen() +
+                        ", handshaking " + tlsLayer.isHandshaking());
+            }
             delegate.handleConnect(socket);
         }
 
         public void handleIOException(IOException iox) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug(iox + ", " +
+                        getInetAddress().getHostAddress() + ":" + getPort() + 
+                        ", open " + tlsLayer.isOpen() +
+                        ", handshaking " + tlsLayer.isHandshaking());
+            }
             delegate.handleIOException(iox);
         }
 
         public void shutdown() {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Shutting down TLS connection to " +
+                        getInetAddress().getHostAddress() + ":" + getPort() + 
+                        ", open " + tlsLayer.isOpen() +
+                        ", handshaking " + tlsLayer.isHandshaking());
+            }
             delegate.shutdown();
-        }
-        
+        }        
     }
-
 }

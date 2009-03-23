@@ -7,6 +7,7 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.util.ArrayList;
@@ -185,10 +186,13 @@ public class FocusJOptionPane {
     }
     
     private static JComponent getLabel(String message) {
-        if(message.startsWith("<html"))
-            return new HTMLLabel(message);
-        else
+        if(message.startsWith("<html")) {
+            HTMLLabel label = new HTMLLabel(message);
+            label.setMargin(new Insets(5, 5, 5, 5));
+            return label;
+        } else {
             return new MultiLineLabel(message, 400);
+        }
     }
     
     public static Window getWindowForComponent(Component parentComponent) throws HeadlessException {

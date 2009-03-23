@@ -91,7 +91,7 @@ final class ServletAccessor {
             post.addHeader("User-Agent", LimeWireUtils.getHttpServer());
             post.addHeader("Content-Type",
                     "application/x-www-form-urlencoded; charset=UTF-8");
-            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params)));
+            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), "UTF-8"));
 
             HttpConnectionParams.setConnectionTimeout(client.getParams(), CONNECT_TIMEOUT);
             HttpClientParams.setRedirecting(client.getParams(), false);

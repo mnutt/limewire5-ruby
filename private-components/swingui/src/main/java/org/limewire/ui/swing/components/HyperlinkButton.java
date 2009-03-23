@@ -59,7 +59,7 @@ public class HyperlinkButton extends JXButton implements MouseListener {
     public void removeUnderline() {
         Font font = getFont();
         if (font != null) {
-            super.setFont(FontUtils.deriveUnderlineRemoved(font));
+            super.setFont(FontUtils.deriveUnderline(font, false));
         }
     }
     

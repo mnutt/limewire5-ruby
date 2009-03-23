@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Locale;
 
 import org.limewire.player.api.AudioPlayer;
+import org.limewire.player.api.AudioSource;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 
@@ -31,6 +32,10 @@ public class PlayerUtils {
         player.pause();
     }
     
+    public static void stop() {
+        player.stop();
+    }
+    
     /**Plays file internally if playable.  Launches native player otherwise.
      * 
      * @param file
@@ -45,5 +50,14 @@ public class PlayerUtils {
             return false;
         }
 
+    }
+    
+    /**
+     * @return The current file playing in the player. This may return null if
+     *         nothing is playing or if the audio source is not a file.
+     */
+    public static File getCurrentSongFile(){
+        AudioSource source = player.getCurrentSong();
+        return source == null? null : source.getFile();
     }
 }

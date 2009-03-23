@@ -298,15 +298,6 @@ class NavList extends JXPanel {
         return panel;
     } 
     
-    NavPanel selectFriendShareList(Friend friend) {
-        NavPanel panel = getPanelForFriend(friend);
-        if(panel != null) {
-            panel.select();
-            panel.showSharingCard();
-        }
-        return panel;
-    } 
-    
     private class NavPanelMoveAction extends AbstractAction {
         private final boolean moveDown;
         

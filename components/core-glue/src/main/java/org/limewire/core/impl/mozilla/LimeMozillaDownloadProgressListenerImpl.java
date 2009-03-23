@@ -15,7 +15,6 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.util.Objects;
 import org.mozilla.browser.MozillaExecutor;
-import org.mozilla.browser.XPCOMUtils;
 import org.mozilla.interfaces.nsIDOMDocument;
 import org.mozilla.interfaces.nsIDownload;
 import org.mozilla.interfaces.nsIDownloadManager;
@@ -28,7 +27,8 @@ import org.mozilla.xpcom.XPCOMException;
 
 import com.limegroup.bittorrent.SimpleBandwidthTracker;
 import com.limegroup.gnutella.InsufficientDataException;
-import com.limegroup.gnutella.Downloader.DownloadState;
+import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.downloader.CoreDownloader;
 import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.mozilla.MozillaDownload;
 
@@ -61,8 +61,12 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
 
     private final ScheduledExecutorService backgroundExecutor;
 
+    private final XPComUtility xpComUtility;
+    
+    private CoreDownloader downloader;
+    
     public LimeMozillaDownloadProgressListenerImpl(LimeMozillaDownloadManagerListener manager,
-            ScheduledExecutorService backgroundExecutor, nsIDownload download, short state) {
+            ScheduledExecutorService backgroundExecutor, nsIDownload download, XPComUtility xpComUtility) {
         this.manager = Objects.nonNull(manager, "manager");
         this.backgroundExecutor = Objects.nonNull(backgroundExecutor, "backgroundExecutor");
         Objects.nonNull(download, "download");
@@ -70,12 +74,11 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
         this.downloadId = download.getId();
         this.state = new AtomicInteger();
         this.statusEvents = new LinkedBlockingQueue<DownloadStateEvent>();
-        changeState(state);
         this.totalProgress = new AtomicLong();
         this.down = new SimpleBandwidthTracker();
         this.incompleteFile = new File(download.getTargetFile().getPath());
         this.contentLength = new AtomicLong(download.getSize());
-
+        this.xpComUtility = xpComUtility;
     }
 
     @Override
@@ -84,12 +87,17 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
             changeState(state);
         }
     }
+    
+    public void init(CoreDownloader coreDownloader, short state) {
+        this.downloader = coreDownloader;
+        changeState(state);
+    }
 
     private synchronized void changeState(short state) {
         if (state != this.state.get()) {
             this.state.set(state);
             DownloadState downloadStatus = getDownloadStatus();
-            DownloadStateEvent downloadStatusEvent = new DownloadStateEvent(null, downloadStatus);
+            DownloadStateEvent downloadStatusEvent = new DownloadStateEvent(downloader, downloadStatus);
             statusEvents.add(downloadStatusEvent);
             backgroundExecutor.execute(new Runnable() {
                 @Override
@@ -234,7 +242,7 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
 
     @Override
     public synchronized boolean isInactive() {
-        boolean inactive = state.get() != nsIDownloadManager.DOWNLOAD_DOWNLOADING;
+        boolean inactive = state.get() != nsIDownloadManager.DOWNLOAD_DOWNLOADING && state.get() != nsIDownloadManager.DOWNLOAD_SCANNING;
         return inactive;
     }
 
@@ -264,6 +272,8 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
                             getDownloadManager().cancelDownload(downloadId);
                         }
                     } catch (XPCOMException e) {
+                       	//TODO catching this exception because user in ui can click multiple times and mozilla code cannot handle that
+                       	//should revisit and figure out a better way of ahndling this issue
                         LOG.debug(e.getMessage(), e);
                     }
                 }
@@ -282,6 +292,8 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
                         try {
                             getDownloadManager().pauseDownload(downloadId);
                         } catch (XPCOMException e) {
+                          	//TODO catching this exception because user in ui can click multiple times and mozilla code cannot handle that
+                        	//should revisit and figure out a better way of ahndling this issue
                             LOG.debug(e.getMessage(), e);
                         }
                         changeState(nsIDownloadManager.DOWNLOAD_PAUSED);
@@ -320,6 +332,8 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
                         try {
                             getDownloadManager().resumeDownload(downloadId);
                         } catch (XPCOMException e) {
+                        	//TODO catching this exception because user in ui can click multiple times and mozilla code cannot handle that
+                        	//should revisit and figure out a better way of ahndling this issue
                             LOG.debug(e.getMessage(), e);
                         }
                     }
@@ -329,7 +343,7 @@ public class LimeMozillaDownloadProgressListenerImpl implements nsIDownloadProgr
     }
 
     private nsIDownloadManager getDownloadManager() {
-        nsIDownloadManager downloadManager = XPCOMUtils.getServiceProxy(
+        nsIDownloadManager downloadManager = xpComUtility.getServiceProxy(
                 "@mozilla.org/download-manager;1", nsIDownloadManager.class);
         return downloadManager;
     }

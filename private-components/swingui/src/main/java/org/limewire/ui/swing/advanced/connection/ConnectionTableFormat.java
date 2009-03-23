@@ -12,6 +12,7 @@ import java.util.Properties;
 import javax.swing.table.TableColumn;
 
 import org.limewire.core.api.connection.ConnectionItem;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.BackgroundExecutorService;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -199,9 +200,13 @@ public class ConnectionTableFormat implements TableFormat<ConnectionItem> {
         switch (index) {
         case HOST_IDX:
             if (!connectionItem.isAddressResolved() // address not resolved yet
-                && connectionItem.isConnected()     // must be connected
-                && ((System.currentTimeMillis() - connectionItem.getTime()) > 10000)) {
-                     assignHostName(connectionItem);
+                    && connectionItem.isConnected()     // must be connected
+                    && System.currentTimeMillis() - connectionItem.getTime() > 10000
+                    && SwingUiSettings.RESOLVE_CONNECTION_HOSTNAMES.getValue()) {
+                assignHostName(connectionItem);
+            } else if(connectionItem.isAddressResolved()
+                    && !SwingUiSettings.RESOLVE_CONNECTION_HOSTNAMES.getValue()) {
+                connectionItem.resetHostName();
             }
             return connectionItem.getHostName() + ":" + connectionItem.getPort();
 
@@ -335,7 +340,7 @@ public class ConnectionTableFormat implements TableFormat<ConnectionItem> {
         // Start task to update host name.
         BackgroundExecutorService.execute(new HostAssigner(connectionItem));
     }
-
+    
     /**
      * Defines a column in the Connection table.
      */

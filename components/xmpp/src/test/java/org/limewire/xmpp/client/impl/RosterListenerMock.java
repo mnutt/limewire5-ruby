@@ -18,12 +18,12 @@ public class RosterListenerMock implements EventListener<RosterEvent> {
     IncomingChatListenerMock listener = new IncomingChatListenerMock();
     
     public void handleEvent(RosterEvent event) {
-        if(event.getType().equals(User.EventType.USER_ADDED)) {
-            userAdded(event.getSource());
-        } else if(event.getType().equals(User.EventType.USER_DELETED)) {
-            userDeleted(event.getSource().getId());
-        } else if(event.getType().equals(User.EventType.USER_UPDATED)) {
-            userUpdated(event.getSource());
+        if(event.getType().equals(RosterEvent.Type.USER_ADDED)) {
+            userAdded(event.getData());
+        } else if(event.getType().equals(RosterEvent.Type.USER_DELETED)) {
+            userDeleted(event.getData().getId());
+        } else if(event.getType().equals(RosterEvent.Type.USER_UPDATED)) {
+            userUpdated(event.getData());
         }
     }
     
@@ -59,7 +59,7 @@ public class RosterListenerMock implements EventListener<RosterEvent> {
         user.addPresenceListener(new EventListener<PresenceEvent>() {
             public void handleEvent(PresenceEvent event) {
                 synchronized (RosterListenerMock.this) {
-                    Presence presence = event.getSource();
+                    Presence presence = event.getData();
                     String id = StringUtils.parseBareAddress(presence.getJID());
                     if(presence.getType().equals(Presence.Type.available)) {
                         if(roster.get(id) == null) {

@@ -507,7 +507,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
             FontUtils.underline(launchButton);            
           
             tryAgainButton = new HyperlinkButton();
-            tryAgainButton.setText(I18n.tr("Try again"));
+            // text is set when made visible depending on state
             tryAgainButton.setFont(itemFont);
             tryAgainButton.setActionCommand(DownloadActionHandler.RESUME_COMMAND);
             //FontUtils.bold(tryAgainButton);
@@ -600,6 +600,14 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
             launchButton.setVisible(item.isLaunchable() && item.getState() == DownloadState.DONE);
             cancelButton.setVisible(item.getState() == DownloadState.ERROR);
             
+            if(tryAgainButton.isVisible()) {
+                if(item.isSearchAgainEnabled()) {
+                    tryAgainButton.setText(I18n.tr("Search Again"));
+                } else {
+                    tryAgainButton.setText(I18n.tr("Try Again"));
+                }
+            }
+            
             statusLabel.setVisible(item.getState() != DownloadState.DOWNLOADING && item.getState() != DownloadState.PAUSED);
             if (statusLabel.isVisible()){
                 statusLabel.setText(getMessage(item));
@@ -630,20 +638,22 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
             case DONE:
                 return I18n.tr("Done - ");
             case CONNECTING:
-                return I18n.tr("Connecting...");           
+                return I18n.tr("Connecting...");     
+            case TRYING_AGAIN:
+                return I18n.tr("Searching...");
             case STALLED:
                 return I18n.tr("Stalled at {0}% - ", item.getPercentComplete()); 
             case ERROR:         
                 return I18n.tr("Unable to download  - ");            
             case LOCAL_QUEUED:
-                return getQueueTime(item.getRemainingQueueTime());                
+                return getQueueTime(item.getRemainingTimeInState());                
             case REMOTE_QUEUED:
-                if(item.getQueuePosition() == -1 || item.getQueuePosition() == Integer.MAX_VALUE){
-                    return getQueueTime(item.getRemainingQueueTime());
+                if(item.getRemoteQueuePosition() == -1 || item.getRemoteQueuePosition() == Integer.MAX_VALUE){
+                    return getQueueTime(item.getRemainingTimeInState());
                 } 
                 return I18n.trn("Waiting - Next in line",
                         "Waiting - {0} in line",
-                        item.getQueuePosition(), item.getQueuePosition());
+                        item.getRemoteQueuePosition(), item.getRemoteQueuePosition());
             default:
                 return null;
             }            

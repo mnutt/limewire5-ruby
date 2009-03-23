@@ -65,11 +65,6 @@ public class RootLibraryManagerItem implements LibraryManagerItem {
     }
     
     @Override
-    public Collection<? extends File> getExcludedChildren() {
-        return Collections.emptyList();
-    }
-    
-    @Override
     public LibraryManagerItem getChildFor(File directory) {
         for(LibraryManagerItem child : children) {
             if(child.getFile().equals(directory)) {
@@ -93,5 +88,4 @@ public class RootLibraryManagerItem implements LibraryManagerItem {
             }
         }
     }
-
 }

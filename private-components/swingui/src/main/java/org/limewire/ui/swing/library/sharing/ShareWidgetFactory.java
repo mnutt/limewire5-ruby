@@ -9,8 +9,10 @@ public interface ShareWidgetFactory {
     ShareWidget<File> createFileShareWidget();
 
     ShareWidget<LocalFileItem[]> createMultiFileShareWidget();
+    
+    ShareWidget<LocalFileItem[]> createMultiFileFriendOnlyShareWidget();
 
     ShareWidget<LocalFileItem[]> createMultiFileUnshareWidget();
-
+    
     ShareWidget<Category> createCategoryShareWidget();
 }

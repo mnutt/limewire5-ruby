@@ -11,5 +11,5 @@ import org.limewire.ui.swing.components.Disposable;
  */
 interface EmptyLibraryFactory {
 
-    JComponent createEmptyLibrary(Friend friend, FriendFileList friendFileList, FriendLibraryMediator mediator, Disposable disposable, JComponent messageComponent);
+    JComponent createEmptyLibrary(Friend friend, FriendFileList friendFileList, Disposable disposable, JComponent messageComponent);
 }

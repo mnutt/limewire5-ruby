@@ -15,6 +15,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.limewire.http.HttpTestUtils;
 import org.limewire.http.MockIOControl;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 public class FileNIOEntityTest extends BaseTestCase {
 
@@ -47,7 +48,7 @@ public class FileNIOEntityTest extends BaseTestCase {
         assertEquals(file, entity.getFile());
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         entity.writeTo(out);
-        assertEquals(ALPHABET, new String(out.toByteArray()));
+        assertEquals(ALPHABET, StringUtils.getUTF8String(out.toByteArray()));
     }
 
     public void testGetFile() throws Exception {
@@ -57,7 +58,7 @@ public class FileNIOEntityTest extends BaseTestCase {
         assertEquals(26, entity.getContentLength());
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         entity.writeTo(out);
-        assertEquals(ALPHABET, new String(out.toByteArray()));
+        assertEquals(ALPHABET, StringUtils.getUTF8String(out.toByteArray()));
     }
 
     public void testGetFileNIO() throws Exception {
@@ -70,7 +71,7 @@ public class FileNIOEntityTest extends BaseTestCase {
         IdentityEncoder encoder = new IdentityEncoder(channel, new SessionOutputBufferImpl(0, 0, params), new HttpTransportMetricsImpl());
         readAllNIO(entity, encoder);
         assertTrue(encoder.isCompleted());
-        assertEquals(ALPHABET, new String(out.toByteArray()));
+        assertEquals(ALPHABET, StringUtils.getUTF8String(out.toByteArray()));
     }
 
     public void testGetFileRange() throws Exception {
@@ -81,7 +82,7 @@ public class FileNIOEntityTest extends BaseTestCase {
         assertEquals(file, entity.getFile());
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         entity.writeTo(out);
-        assertEquals("cde", new String(out.toByteArray()));
+        assertEquals("cde", StringUtils.getUTF8String(out.toByteArray()));
     }
 
     public void testGetFileRangeNIO() throws Exception {
@@ -95,7 +96,7 @@ public class FileNIOEntityTest extends BaseTestCase {
         IdentityEncoder encoder = new IdentityEncoder(channel, new SessionOutputBufferImpl(0, 0, params), new HttpTransportMetricsImpl());
         readAllNIO(entity, encoder);
         assertTrue(encoder.isCompleted());
-        assertEquals("cde", new String(out.toByteArray()));
+        assertEquals("cde", StringUtils.getUTF8String(out.toByteArray()));
     }
 
     private void readAllNIO(FileNIOEntity entity, IdentityEncoder encoder)
@@ -118,7 +119,7 @@ public class FileNIOEntityTest extends BaseTestCase {
         assertEquals(file, entity.getFile());
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         entity.writeTo(out);
-        assertEquals("", new String(out.toByteArray()));
+        assertEquals("", StringUtils.getUTF8String(out.toByteArray()));
     }
 
     public void testGetEmptyFileNIO() throws Exception {
@@ -131,9 +132,9 @@ public class FileNIOEntityTest extends BaseTestCase {
         IdentityEncoder encoder = new IdentityEncoder(channel, new SessionOutputBufferImpl(0, 0, params), new HttpTransportMetricsImpl());
         entity.produceContent(encoder, new MockIOControl());
         assertTrue(encoder.isCompleted());
-        assertEquals("", new String(out.toByteArray()));
+        assertEquals("", StringUtils.getUTF8String(out.toByteArray()));
         entity.finish();
-        assertEquals("", new String(out.toByteArray()));
+        assertEquals("", StringUtils.getUTF8String(out.toByteArray()));
     }
     
 }

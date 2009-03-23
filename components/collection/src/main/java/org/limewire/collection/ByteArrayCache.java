@@ -50,10 +50,10 @@ public class ByteArrayCache {
     private int _numCreated;
 
     /** The number of byte[]'s to create before blocking when the next one is gotten. */
-    private int _maxSize;
+    private final int _maxSize;
     
     /** The length of buffers to create. */
-    private int _length;
+    private final int _length;
 
     /** Constructs a new ByteArraCache using the default size of 512 & length of 1024 */
     public ByteArrayCache() {
@@ -114,6 +114,7 @@ public class ByteArrayCache {
      * The byte[] MUST HAVE BEEN A byte[] RETURNED FROM get().
      */
     public synchronized void release(byte[] data) {
+        assert data.length == _length : "illegal length: " + data.length;
         _totalSize += data.length;
         CACHE.ensureCapacity(_maxSize);
         CACHE.push(data);

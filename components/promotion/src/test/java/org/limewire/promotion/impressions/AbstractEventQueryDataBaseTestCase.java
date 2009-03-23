@@ -5,6 +5,7 @@ import java.util.Date;
 import org.limewire.promotion.containers.PromotionMessageContainer;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.ByteUtils;
+import org.limewire.util.StringUtils;
 
 abstract class AbstractEventQueryDataBaseTestCase extends BaseTestCase {
 
@@ -82,9 +83,10 @@ abstract class AbstractEventQueryDataBaseTestCase extends BaseTestCase {
 
     private int transfer(Impression i, byte[] in, int start) {
         int cur = start;
-        int len = i.getBinderUniqueName().getBytes().length;
-        arraycopy(ByteUtils.long2bytes(i.getBinderUniqueName().length(), 1), 0, in, cur, 1);     cur += 1;
-        arraycopy(i.getBinderUniqueName().getBytes(), 0, in, cur, len);                             cur += len;
+        byte[] binderName = StringUtils.toAsciiBytes(i.getBinderUniqueName());
+        int len = binderName.length;
+        arraycopy(ByteUtils.long2bytes(len, 1), 0, in, cur, 1);     cur += 1;
+        arraycopy(binderName, 0, in, cur, len);                             cur += len;
         arraycopy(ByteUtils.long2bytes(i.getPromoUniqueID(), 8), 0, in, cur, 8);           cur += 8;
         arraycopy(date2bytes(i.getTimeShown()), 0, in, cur, 8);                                     cur += 8;
         return cur;

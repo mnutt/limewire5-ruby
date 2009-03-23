@@ -91,6 +91,12 @@ public class CoreConnectionItem implements ConnectionItem {
     }
     
     @Override
+    public void resetHostName() {
+        host = routedConnection.getInetAddress().getHostAddress();
+        addressResolved = false;
+    }
+    
+    @Override
     public float getMeasuredDownstreamBandwidth() {
         return routedConnection.getMeasuredDownstreamBandwidth();
     }

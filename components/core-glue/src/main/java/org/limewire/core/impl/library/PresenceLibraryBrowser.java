@@ -48,7 +48,7 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
     private static final Log LOG = LogFactory.getLog(PresenceLibraryBrowser.class);
 
     private final BrowseFactory browseFactory;
-    private final RemoteLibraryManagerImpl remoteLibraryManager;
+    private final RemoteLibraryManager remoteLibraryManager;
 
     private final SocketsManager socketsManager;
     
@@ -56,7 +56,7 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
      * Keeps track of libraries that could not be browsed yet, because the local peer didn't have
      * enough connection capabilities.
      */
-    private final Set<PresenceLibrary> librariesToBrowse = Collections.synchronizedSet(new HashSet<PresenceLibrary>());
+    final Set<PresenceLibrary> librariesToBrowse = Collections.synchronizedSet(new HashSet<PresenceLibrary>());
 
     private final XMPPRemoteFileDescDeserializer remoteFileDescDeserializer;
     
@@ -74,26 +74,26 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
     private volatile int latestConnectivityEventRevision = 0;
 
     @Inject
-    public PresenceLibraryBrowser(BrowseFactory browseFactory, RemoteLibraryManagerImpl remoteLibraryManager,
+    public PresenceLibraryBrowser(BrowseFactory browseFactory, RemoteLibraryManager remoteLibraryManager,
             SocketsManager socketsManager, XMPPRemoteFileDescDeserializer remoteFileDescDeserializer) {
         this.browseFactory = browseFactory;
         this.remoteLibraryManager = remoteLibraryManager;
         this.socketsManager = socketsManager;
         this.remoteFileDescDeserializer = remoteFileDescDeserializer;
-        socketsManager.addListener(new ConnectivityChangeListener());
     }
 
-    @Inject void register(ListenerSupport<LibraryChangedEvent> listenerSupport) {
+    @Inject 
+    void register(ListenerSupport<LibraryChangedEvent> listenerSupport) {
         listenerSupport.addListener(this);
     }
 
-    public void handleEvent(LibraryChangedEvent event) {
-        remoteLibraryManager.removePresenceLibrary(event.getSource());
-        remoteLibraryManager.addPresenceLibrary(event.getSource());
-    }
-
     @Inject
-    public void addListener(RemoteLibraryManager remoteLibraryManager) {
+    void registerToSocksManager() {
+        socketsManager.addListener(new ConnectivityChangeListener());
+    }
+    
+    @Inject
+    void registerToRemoteLibraryManager() {    
         remoteLibraryManager.getFriendLibraryList().addListEventListener(new ListEventListener<FriendLibrary>() {
             @Override
             public void listChanged(ListEvent<FriendLibrary> listChanges) {
@@ -123,16 +123,28 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
         });
     }
 
-    private void browse(final PresenceLibrary presenceLibrary) {
+    @Override
+    public void handleEvent(LibraryChangedEvent event) {
+        remoteLibraryManager.removePresenceLibrary(event.getData());
+        remoteLibraryManager.addPresenceLibrary(event.getData());
+    }
+    
+    void browse(final PresenceLibrary presenceLibrary) {
+        
+        // TODO: Is this needed again?  We should already be in loading
         presenceLibrary.setState(LibraryState.LOADING);
+        
         final FriendPresence friendPresence = presenceLibrary.getPresence();
-        LOG.debugf("browsing {0} ...", friendPresence.getPresenceId());
-        final Browse browse = browseFactory.createBrowse(friendPresence);
+        
         AddressFeature addressFeature = ((AddressFeature)friendPresence.getFeature(AddressFeature.ID));
         if(addressFeature == null) {
             // happens during sign-off
             return;    
         }
+        
+        LOG.debugf("browsing {0} ...", friendPresence.getPresenceId());
+        final Browse browse = browseFactory.createBrowse(friendPresence);
+        
         final XMPPAddress address;
         if(!friendPresence.getFriend().isAnonymous()) {
             address = (XMPPAddress) addressFeature.getFeature();    
@@ -177,7 +189,7 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
      * @param startConnectivityRevision the revisions of {@link #latestConnectivityEventRevision}
      * when this method is called
      */
-    private void tryToResolveAndBrowse(final PresenceLibrary presenceLibrary, final int startConnectivityRevision) {
+    void tryToResolveAndBrowse(final PresenceLibrary presenceLibrary, final int startConnectivityRevision) {
         presenceLibrary.setState(LibraryState.LOADING);
         final FriendPresence friendPresence = presenceLibrary.getPresence();
         AddressFeature addressFeature = (AddressFeature)friendPresence.getFeature(AddressFeature.ID);
@@ -234,11 +246,15 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
         synchronized (librariesToBrowse) {
             retry = latestConnectivityEventRevision > startRevision;
             if (!retry) {
-                assert(librariesToBrowse.add(presenceLibrary));
+                LOG.debugf("readding and not trying after fail {0}", presenceLibrary);
+                boolean wasAdded = librariesToBrowse.add(presenceLibrary);
+                assert(wasAdded);
             } else {
                 // copy value under lock
                 startRevision = latestConnectivityEventRevision;
+                LOG.debugf("retrying with new revision {0}", startRevision);
             }
+            LOG.debugf("libraries to browser after fail: {0}, size {1}", librariesToBrowse, librariesToBrowse.size());
         }
         if (retry) {
             tryToResolveAndBrowse(presenceLibrary, startRevision);
@@ -265,6 +281,7 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
             synchronized (librariesToBrowse) {
                 currentRevision = ++latestConnectivityEventRevision;
                 copy = new ArrayList<PresenceLibrary>(librariesToBrowse);
+                LOG.debugf("revision: {0}, libraries to browse again: {1}", currentRevision, copy);
                 librariesToBrowse.clear();
             }
             for (PresenceLibrary library : copy) {

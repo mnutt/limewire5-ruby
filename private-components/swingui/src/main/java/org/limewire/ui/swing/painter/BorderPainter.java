@@ -209,6 +209,11 @@ public class BorderPainter<X> extends AbstractPainter<X> {
         }
     }
     
+    /**
+     * Specifies which accent to draw around the bottom edge of a rounded border.
+     *  Accents are used to add emphasis or depth to a component but at this time
+     *  there are only the few preset types to choose in this enum.
+     */
     public enum AccentType {
         
         /**

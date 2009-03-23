@@ -6,8 +6,6 @@ package org.limewire.xmpp.api.client;
  */
 public class FriendRequest {
 
-    public enum EventType {REQUESTED}
-
     private final String friendUsername;
     private final FriendRequestDecisionHandler decisionHandler;
 

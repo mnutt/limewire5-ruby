@@ -3,6 +3,7 @@ package org.limewire.ui.swing.search.resultpanel.classic;
 import java.awt.Component;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.jdesktop.swingx.decorator.SortKey;
@@ -12,6 +13,7 @@ import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.ResultsTableFormat;
 import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
+import org.limewire.ui.swing.table.TrackComparator;
 import org.limewire.ui.swing.util.I18n;
 
 /**
@@ -38,11 +40,11 @@ public class AudioTableFormat extends ResultsTableFormat<VisualSearchResult> {
     public AudioTableFormat() {
         super("CLASSIC_SEARCH_AUDIO_TABLE", TITLE_INDEX, FROM_INDEX, IS_SPAM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_AUDIO_FROM", I18n.tr("From"), 88, true, true), 
-                new ColumnStateInfo(TITLE_INDEX, "CLASSIC_SEARCH_AUDIO_TITLE", I18n.tr("Name"), 287, true, true),     
+                new ColumnStateInfo(TITLE_INDEX, "CLASSIC_SEARCH_AUDIO_TITLE", I18n.tr("Name"), 255, true, true),     
                 new ColumnStateInfo(ARTIST_INDEX, "CLASSIC_SEARCH_AUDIO_ARTIST", I18n.tr("Artist"), 174, true, true), 
                 new ColumnStateInfo(ALBUM_INDEX, "CLASSIC_SEARCH_AUDIO_ALBUM", I18n.tr("Album"), 157, true, true), 
                 new ColumnStateInfo(LENGTH_INDEX, "CLASSIC_SEARCH_AUDIO_LENGTH", I18n.tr("Length"), 64, true, true), 
-                new ColumnStateInfo(QUALITY_INDEX, "CLASSIC_SEARCH_AUDIO_QUALITY", I18n.tr("Quality"), 73, true, true), 
+                new ColumnStateInfo(QUALITY_INDEX, "CLASSIC_SEARCH_AUDIO_QUALITY", I18n.tr("Quality"), 105, true, true), 
                 new ColumnStateInfo(BITRATE_INDEX, "CLASSIC_SEARCH_AUDIO_BITRATE", I18n.tr("Bitrate"), 55, false, true), 
                 new ColumnStateInfo(GENRE_INDEX, "CLASSIC_SEARCH_AUDIO_GENRE", I18n.tr("Genre"), 80, false, true),
                 new ColumnStateInfo(TRACK_INDEX, "CLASSIC_SEARCH_AUDIO_TRACK", I18n.tr("Track"), 60, false, true), 
@@ -66,6 +68,19 @@ public class AudioTableFormat extends ResultsTableFormat<VisualSearchResult> {
         return super.getColumnClass(column);
     }
     
+    @Override
+    public Comparator getColumnComparator(int column) {
+        switch (column) {
+        case TRACK_INDEX:
+            return getTrackComparator();
+        case QUALITY_INDEX:
+            return getQualityComparator();
+        default:
+            return super.getColumnComparator(column);
+        }
+    }    
+    
+    @Override
     public Object getColumnValue(VisualSearchResult vsr, int column) {
         switch(column) {
             case FROM_INDEX: return vsr;
@@ -111,5 +126,12 @@ public class AudioTableFormat extends ResultsTableFormat<VisualSearchResult> {
         default:
             return Collections.emptyList();
         }
+    }
+    
+    /**
+     * Returns a comparator for the track column.
+     */
+    public Comparator getTrackComparator() {
+        return new TrackComparator();
     }
 }

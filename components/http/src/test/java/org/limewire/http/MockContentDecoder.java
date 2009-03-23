@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.http.nio.ContentDecoder;
 import org.limewire.util.BufferUtils;
+import org.limewire.util.StringUtils;
 
 public class MockContentDecoder implements ContentDecoder {
 
@@ -13,7 +14,7 @@ public class MockContentDecoder implements ContentDecoder {
     public boolean completed;
 
     public MockContentDecoder(String source) {
-        this.source = ByteBuffer.wrap(source.getBytes());
+        this.source = ByteBuffer.wrap(StringUtils.toUTF8Bytes(source));
     }
 
     public boolean isCompleted() {

@@ -17,23 +17,25 @@ public class InspectionHistogram<K> implements Inspectable {
     /**
      * Counts single occurrence of K. 
      */
-    public synchronized void count(K occurence) {
-        count(occurence, 1);
+    public synchronized long count(K occurence) {
+        return count(occurence, 1);
     }
     
     /**
      * Adds <code>value</code> to values under K.
      */
-    public synchronized void count(K key, long value) {
+    public synchronized long count(K key, long value) {
         Long already = counts.get(key);
         if (already == null) {
             already = 0L;
         }
         counts.put(key, already + value);
+        return already + value;
     }
     
-    public synchronized Object inspect() {
-        return new HashMap<Object,Long>(counts);
+    @Override
+    public synchronized Map<K, Long> inspect() {
+        return new HashMap<K, Long>(counts);
     }
     
     @Override

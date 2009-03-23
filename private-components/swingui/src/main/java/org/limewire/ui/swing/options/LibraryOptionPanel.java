@@ -41,6 +41,8 @@ import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.HorizonalCheckBoxListPanel;
 import org.limewire.ui.swing.components.Line;
+import org.limewire.ui.swing.library.manager.ExcludedFolderCollectionManager;
+import org.limewire.ui.swing.library.manager.ExcludedFolderCollectionManagerImpl;
 import org.limewire.ui.swing.library.manager.LibraryManagerItem;
 import org.limewire.ui.swing.library.manager.LibraryManagerItemImpl;
 import org.limewire.ui.swing.library.manager.LibraryManagerModel;
@@ -67,6 +69,7 @@ public class LibraryOptionPanel extends OptionPanel {
     private final LibraryManagerOptionPanel libraryManagerPanel;    
     private final ShareCategoryPanel shareCategoryPanel;
     private final UsePlayerPanel playerPanel;
+    private ExcludedFolderCollectionManager excludedFolders;
     
     @Inject
     public LibraryOptionPanel(LibraryManager libraryManager, 
@@ -76,6 +79,7 @@ public class LibraryOptionPanel extends OptionPanel {
         this.iconManager = iconManager;
         this.shareListManager = shareListManager;
         this.knownFriends = knownFriends;
+        this.excludedFolders = new ExcludedFolderCollectionManagerImpl();
         this.libraryManagerPanel = new LibraryManagerOptionPanel(libraryManager.getLibraryData()); 
         this.shareCategoryPanel = new ShareCategoryPanel();
         this.playerPanel = new UsePlayerPanel();
@@ -248,7 +252,7 @@ public class LibraryOptionPanel extends OptionPanel {
         }
 
         private void createComponents() {
-            treeTableContainer = new LibraryTreeTableContainer(iconManager, libraryData);
+            treeTableContainer = new LibraryTreeTableContainer(iconManager, libraryData, excludedFolders);
             addFolderButton = new JButton(new AddDirectoryAction(this));
 
             checkBoxes = new HorizonalCheckBoxListPanel<Category>(Category.getCategoriesInOrder());
@@ -281,7 +285,12 @@ public class LibraryOptionPanel extends OptionPanel {
             LibraryManagerModel model = treeTableContainer.getTable().getLibraryModel();
             Collection<File> manage = model.getRootChildrenAsFiles();
             Collection<File> exclude = model.getAllExcludedSubfolders();
+            // make sure these settings changed before reloading the Library
+            if(!manage.equals(libraryData.getDirectoriesToManageRecursively())
+                || !exclude.equals(libraryData.getDirectoriesToExcludeFromManaging())
+                || !getManagedCategories().equals(libraryData.getManagedCategories())) {
             libraryData.setManagedOptions(manage, exclude, getManagedCategories());
+            }
             
             return manualImportPanel.applyOptions();
         }
@@ -306,10 +315,10 @@ public class LibraryOptionPanel extends OptionPanel {
         public void initOptions() {
             RootLibraryManagerItem root = new RootLibraryManagerItem(AutoDirectoryManageConfig.getDefaultManagedDirectories(libraryData));
             for(File file : libraryData.getDirectoriesToManageRecursively()) {
-                root.addChild(new LibraryManagerItemImpl(root, libraryData, file, false));
+                root.addChild(new LibraryManagerItemImpl(root, libraryData, excludedFolders, file));
             }
-
-            treeTableContainer.getTable().setTreeTableModel(new LibraryManagerModel(root));
+            excludedFolders.setExcludedFolders(libraryData.getDirectoriesToExcludeFromManaging());
+            treeTableContainer.getTable().setTreeTableModel(new LibraryManagerModel(root, excludedFolders));
             
             Collection<Category> categories = libraryData.getManagedCategories();
             checkBoxes.setSelected(categories);
@@ -340,6 +349,7 @@ public class LibraryOptionPanel extends OptionPanel {
                     if(libraryData.isDirectoryAllowed(folder)) {
                         treeTableContainer.getTable().addDirectory(folder);
                     } else {
+                        // {0}: name of folder
                         FocusJOptionPane.showMessageDialog(LibraryManagerOptionPanel.this, I18n.tr(
                                 "You selected: {0}\n\nLimeWire cannot manage "
                                         + "this folder because it is either not a folder "
@@ -364,7 +374,7 @@ public class LibraryOptionPanel extends OptionPanel {
             this.libraryData = libraryData;
             this.initialList = new HashSet<File>();
             
-            treeTable = new LibraryManagerTreeTable(iconManager, libraryData);
+            treeTable = new LibraryManagerTreeTable(iconManager, libraryData, excludedFolders);
             treeTable.setShowsRootHandles(false);
             treeTable.putClientProperty("JTree.lineStyle", "None");
             
@@ -419,8 +429,9 @@ public class LibraryOptionPanel extends OptionPanel {
                 initialList.add(file);
                 root.addChild(new NoChildrenLibraryManagerItem(root, file));
             }
+            excludedFolders.setExcludedFolders(libraryData.getDirectoriesToExcludeFromManaging());
 
-            treeTable.setTreeTableModel(new LibraryManagerModel(root));
+            treeTable.setTreeTableModel(new LibraryManagerModel(root, excludedFolders));
             setVisible(!initialList.isEmpty());
         }
     }

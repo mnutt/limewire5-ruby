@@ -14,6 +14,8 @@ import org.limewire.ui.swing.search.resultpanel.DocumentsResultsPanel;
 import org.limewire.ui.swing.search.resultpanel.DocumentsResultsPanelFactory;
 import org.limewire.ui.swing.search.resultpanel.ImagesResultsPanel;
 import org.limewire.ui.swing.search.resultpanel.ImagesResultsPanelFactory;
+import org.limewire.ui.swing.search.resultpanel.NameRendererFactory;
+import org.limewire.ui.swing.search.resultpanel.NameRendererFactoryImpl;
 import org.limewire.ui.swing.search.resultpanel.OtherResultsPanel;
 import org.limewire.ui.swing.search.resultpanel.OtherResultsPanelFactory;
 import org.limewire.ui.swing.search.resultpanel.ProgramResultsPanel;
@@ -56,6 +58,10 @@ public class LimeWireUiSearchModule extends AbstractModule {
             FactoryProvider.newFactory(
                 ResultsContainerFactory.class, ResultsContainer.class));
         
+        bind(SortAndFilterPanelFactory.class).toProvider(
+            FactoryProvider.newFactory(
+                SortAndFilterPanelFactory.class, SortAndFilterPanel.class));
+        
         bind(AllResultsPanelFactory.class).toProvider(
             FactoryProvider.newFactory(
                 AllResultsPanelFactory.class, AllResultsPanel.class));
@@ -96,6 +102,8 @@ public class LimeWireUiSearchModule extends AbstractModule {
         bind(RemoteHostActions.class).to(RemoteHostActionsImpl.class);
 
         bind(new TypeLiteral<PropertiesFactory<VisualSearchResult>>(){}).to(SearchResultPropertiesFactory.class);
+        
+        bind(NameRendererFactory.class).to(NameRendererFactoryImpl.class);
         
         bind(SearchHeadingDocumentBuilder.class).to(SearchHeadingDocumentBuilderImpl.class);
         

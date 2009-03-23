@@ -12,6 +12,8 @@ public interface IconLibrary {
 
     Icon getAway();
     
+    Icon getChatButton();
+    
     Icon getChatting();
     
     Icon getUnviewedMessages();

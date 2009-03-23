@@ -1,5 +1,6 @@
 package org.limewire.core.settings;
 
+import org.limewire.setting.BooleanSetting;
 import org.limewire.setting.IntSetting;
 import org.limewire.setting.StringSetting;
 
@@ -26,4 +27,10 @@ public class MozillaSettings extends LimeProps {
     public static final IntSetting MAX_CONNECTIONS
         = FACTORY.createRemoteIntSetting("MAX_CONNECTIONS", 16,
                 "MozillaSettings.MaxConnections", 2, 50);
+    
+    /**
+     * Whether to use xulrunner (for testing)
+     */
+    public static final BooleanSetting USE_MOZILLA =
+        FACTORY.createBooleanSetting("USE_MOZILLA", true);
 }

@@ -28,6 +28,10 @@ public enum Category {
         return singular;
     }
     
+    public String getPluralName() {
+        return plural;
+    }
+    
     @Override
     public String toString() {
         return plural;

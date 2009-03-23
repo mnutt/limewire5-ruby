@@ -21,6 +21,9 @@ import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
 import org.limewire.core.api.library.ShareListManager;
 
+import ca.odell.glazedlists.event.ListEventPublisher;
+import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
+
 import com.google.inject.Singleton;
 
 
@@ -45,6 +48,15 @@ public class MockLibraryManager implements ShareListManager, LibraryManager {
         initializeMockGnutellaData();
         initializeMockFriendData();
         initializeFriends();
+    }
+    
+    @Override
+    public ListEventPublisher getLibraryListEventPublisher() {
+        return allFileList.getModel().getPublisher();
+    }
+    @Override
+    public ReadWriteLock getReadWriteLock() {
+        return allFileList.getModel().getReadWriteLock();
     }
     
     private void initializeMockGnutellaData(){

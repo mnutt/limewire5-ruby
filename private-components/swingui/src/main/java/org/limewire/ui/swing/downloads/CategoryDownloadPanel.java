@@ -54,8 +54,9 @@ public class CategoryDownloadPanel extends JPanel {
             case PAUSED: return 5;
             case REMOTE_QUEUED: return 6;
             case LOCAL_QUEUED: return 7;
-            case STALLED: return 8;
-            case ERROR: return 9;            
+            case TRYING_AGAIN: return 8;
+            case STALLED: return 9;
+            case ERROR: return 10;            
             }
             
            throw new IllegalArgumentException("Unknown DownloadState: " + state);

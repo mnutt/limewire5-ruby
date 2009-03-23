@@ -26,6 +26,8 @@ public class TestSearchResult implements SearchResult {
     private String fileName;
 
     private Map<FilePropertyKey, Object> properties;
+    
+    private Category category = Category.AUDIO;
 
     public TestSearchResult(String urn, String fileName) {
         this.urn = urn;
@@ -95,15 +97,20 @@ public class TestSearchResult implements SearchResult {
         return new TestURN(urn);
     }
 
+    @Override
     public String toString() {
         return getUrn() + " - " + getProperty(FilePropertyKey.NAME);
     }
 
     @Override
     public Category getCategory() {
-        return Category.AUDIO;
+        return category;
     }
 
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+    
     @Override
     public boolean isSpam() {
         return false;
@@ -119,17 +126,19 @@ public class TestSearchResult implements SearchResult {
         return null;
     }
 
-
-
+    @Override
     public int getRelevance() {
         return 0;
     }
 
+    @Override
     public boolean isLicensed() {
         return false;
     }
 
-
+    /**
+     * Test implementation of URN.
+     */
     private class TestURN implements URN {
         private String urn;
 

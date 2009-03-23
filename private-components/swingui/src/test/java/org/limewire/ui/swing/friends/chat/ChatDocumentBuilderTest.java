@@ -122,7 +122,7 @@ public class ChatDocumentBuilderTest extends TestCase {
                     .append("Download it now, or get it from them <a href=\"#library\">later</a>.<br/>");
 
         ArrayList<Message> messages = new ArrayList<Message>();
-        messages.add(new MessageFileOfferImpl("you", "0", "myName", Type.Received, new MockFileMetadata("heynow-fileid", "Foo doc.doc")));
+        messages.add(new MessageFileOfferImpl("you", "myName", Type.Received, new MockFileMetadata("heynow-fileid", "Foo doc.doc"), null));
 
         compareOutput(conversation.toString(), ChatState.active, false, messages);
     }
@@ -138,7 +138,7 @@ public class ChatDocumentBuilderTest extends TestCase {
                     .append("<input type=\"submit\" value=\"Foo doc.doc:disabled\"/></form><br/><br/>");
 
         ArrayList<Message> messages = new ArrayList<Message>();
-        messages.add(new MessageFileOfferImpl("you", "0", "myName", Type.Sent, new MockFileMetadata("heynow-fileid", "Foo doc.doc")));
+        messages.add(new MessageFileOfferImpl("you", "myName", Type.Sent, new MockFileMetadata("heynow-fileid", "Foo doc.doc"), null));
         compareOutput(conversation.toString(), ChatState.active, false, messages);
     }
 
@@ -170,7 +170,7 @@ public class ChatDocumentBuilderTest extends TestCase {
         ArrayList<Message> list = new ArrayList<Message>();
         for(int i = 0; i < messages.length; i++) {
             Type type = types[i];
-            list.add(new MessageTextImpl(type == Type.Sent ? "me" : "you", null, null, type, messages[i]));
+            list.add(new MessageTextImpl(type == Type.Sent ? "me" : "you", null, type, messages[i]));
         }
         return list;
     }

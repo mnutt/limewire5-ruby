@@ -152,7 +152,7 @@ public class MiniPlayerPanel extends JPanel {
         public void progressChange(int bytesread) {
             if (byteLength != 0) {
                currentSecs = durationSecs * bytesread / byteLength;
-               statusButton.setToolTipText(title + " - " + artist + 
+               statusButton.setToolTipText(artist + " - " + title + 
                        " (" + CommonUtils.seconds2time(currentSecs) + 
                        "/" + CommonUtils.seconds2time(durationSecs) + ")");
             }
@@ -172,7 +172,7 @@ public class MiniPlayerPanel extends JPanel {
             artist = (String) properties.get("author");
             
             if (title != null && artist != null) {
-                statusButton.setText(title + " - " + artist);
+                statusButton.setText(artist + " - " + title);
             } 
             else {
                 String text = null;
@@ -219,6 +219,7 @@ public class MiniPlayerPanel extends JPanel {
                 playPauseButton.setIcon(playIcon);
                 playPauseButton.setRolloverIcon(playIconRollover);
                 playPauseButton.setPressedIcon(playIconPressed);
+                statusButton.stop();
             }
         }
         

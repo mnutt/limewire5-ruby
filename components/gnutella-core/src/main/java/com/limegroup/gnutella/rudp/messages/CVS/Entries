@@ -1,0 +1,12 @@
+/.cvsignore/1.2/Tue Feb 27 21:25:24 2007//
+/AbstractLimeRUDPMessage.java/1.7/Mon Apr 28 18:44:59 2008//
+/LimeAckMessageImpl.java/1.2/Tue Feb 27 21:25:24 2007//
+/LimeDataMessageImpl.java/1.2/Tue Feb 27 21:25:24 2007//
+/LimeFinMessageImpl.java/1.2/Tue Feb 27 21:25:24 2007//
+/LimeKeepAliveMessageImpl.java/1.2/Tue Feb 27 21:25:24 2007//
+/LimeRUDPMessageFactory.java/1.6/Thu Aug 21 19:54:23 2008//
+/LimeRUDPMessageHandler.java/1.3/Tue May 27 16:49:59 2008//
+/LimeRUDPMessageParser.java/1.6/Thu Dec  6 15:49:54 2007//
+/LimeSynMessageImpl.java/1.3/Thu Aug 21 19:54:23 2008//
+/LimeWireGnutellaRudpMessageModule.java/1.2/Tue May 27 16:49:59 2008//
+D

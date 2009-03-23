@@ -2,50 +2,73 @@ package org.limewire.xmpp.api.client;
 
 import java.util.Collection;
 
+import org.limewire.concurrent.ListeningFuture;
+
 public interface XMPPConnection {
     
     public XMPPConnectionConfiguration getConfiguration();
 
     /**
-     * logs a user into the xmpp server; blocking call.
-     * @throws XMPPException
+     * logs a user into the xmpp server.
+     * @return a {@link ListeningFuture} if callers wish to be
+     * notified of completion.
+     * 
+     * The ExecutionException will be to an XMPPException if an error occurs
      */
-    public void login() throws XMPPException;
+    public ListeningFuture<Void> login();
     
     /**
-     * logs a user out of the xmpp server; blocking call.
-     * @throws XMPPException
+     * logs a user out of the xmpp server.
+     * @return a {@link ListeningFuture} if callers wish to be
+     * notified of completion.
+     * 
+     * The ExecutionException will be to an XMPPException if an error occurs
      */
-    public void logout();
-    
-    /** Returns true if this connection is logged in. */
+    public ListeningFuture<Void> logout();
+
+    /**
+     * @return true if this connection is logged in
+     */
     public boolean isLoggedIn();
     
-    /** Returns true if this connection is logging in. */
+    /**
+     * @return true if this connection is now logging in
+     */
     public boolean isLoggingIn();
 
     /**
      * Sets a new <code>&lt;presence&gt;</code> mode (i.e., status)
      * @param mode the new mode to set
+     * @return a {@link ListeningFuture} if callers wish to be
+     * notified of completion.
      * 
-     * @throws XMPPException if there is an error sending the xmpp message
+     * The ExecutionException will be to an XMPPException
+     * if there is an error sending the xmpp message
      */
-    public void setMode(Presence.Mode mode) throws XMPPException;
+    public ListeningFuture<Void> setMode(Presence.Mode mode);
 
     /**
      * Add a user to the friend list
      * @param id cannot be null
      * @param name can be null
-     * @throws XMPPException if there is an error sending the xmpp message
+     * @return a {@link ListeningFuture} if callers wish to be
+     * notified of completion.
+     * 
+     * The ExecutionException will be to an XMPPException
+     * if there is an error sending the xmpp message
      */
-    public void addUser(String id, String name) throws XMPPException;
+    public ListeningFuture<Void> addUser(String id, String name);
     
     /**
      * Remove a user from the friend list
      * @param id cannot be null
-     * @throws XMPPException if there is an error sending the xmpp message
+     * @return a {@link ListeningFuture} if callers wish to be
+     * notified of completion.
+     * 
+     * The ExecutionException will be to an XMPPException
+     * if there is an error sending the xmpp message
      */
-    public void removeUser(String id) throws XMPPException;
+    public ListeningFuture<Void> removeUser(String id);
 
     /**
      * Returns the user belonging to <code>id</code>. <code>id</code>

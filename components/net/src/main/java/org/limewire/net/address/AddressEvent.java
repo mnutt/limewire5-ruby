@@ -1,11 +1,11 @@
 package org.limewire.net.address;
 
 import org.limewire.io.Address;
-import org.limewire.listener.DefaultSourceTypeEvent;
+import org.limewire.listener.DefaultDataTypeEvent;
 
-public class AddressEvent extends DefaultSourceTypeEvent<Address, Address.EventType> {
+public class AddressEvent extends DefaultDataTypeEvent<Address, Address.EventType> {
 
-    public AddressEvent(Address source, Address.EventType event) {
-        super(source, event);
+    public AddressEvent(Address data, Address.EventType event) {
+        super(data, event);
     }
 }

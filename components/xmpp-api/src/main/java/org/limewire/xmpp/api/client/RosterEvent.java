@@ -1,10 +1,16 @@
 package org.limewire.xmpp.api.client;
 
-import org.limewire.listener.DefaultSourceTypeEvent;
+import org.limewire.listener.DefaultDataTypeEvent;
 
-public class RosterEvent extends DefaultSourceTypeEvent<User, User.EventType> {
+public class RosterEvent extends DefaultDataTypeEvent<User, RosterEvent.Type> {
 
-    public RosterEvent(User source, User.EventType event) {
-        super(source, event);
+    public static enum Type {
+        USER_ADDED,
+        USER_UPDATED,
+        USER_DELETED
+    }
+
+    public RosterEvent(User data, Type event) {
+        super(data, event);
     }
 }

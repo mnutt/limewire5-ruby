@@ -1,9 +1,6 @@
 package org.limewire.ui.swing.search;
 
-import org.limewire.core.api.search.Search;
-import org.limewire.ui.swing.search.model.VisualSearchResult;
-
-import ca.odell.glazedlists.EventList;
+import org.limewire.ui.swing.search.model.SearchResultsModel;
 
 /**
  * Defines a factory for creating the search results display container.
@@ -11,11 +8,10 @@ import ca.odell.glazedlists.EventList;
 public interface SearchResultsPanelFactory {
     
     /**
-     * Creates a new SearchResultsPanel using the specified search information,
-     * list of search results, and Search object.
+     * Creates a new SearchResultsPanel using the specified search results data
+     * model.
      */
-    public SearchResultsPanel createSearchResultsPanel(SearchInfo searchInfo,
-            EventList<VisualSearchResult> visualSearchResults,
-            Search search);
+    public SearchResultsPanel createSearchResultsPanel(
+            SearchResultsModel searchResultsModel);
     
 }

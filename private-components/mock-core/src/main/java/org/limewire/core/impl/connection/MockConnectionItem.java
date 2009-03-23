@@ -37,6 +37,10 @@ public class MockConnectionItem implements ConnectionItem {
     @Override
     public void setHostName(String hostName) {
     }
+    
+    @Override
+    public void resetHostName() {
+    }
 
     @Override
     public float getMeasuredDownstreamBandwidth() {

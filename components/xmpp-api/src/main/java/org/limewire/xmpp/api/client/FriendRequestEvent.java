@@ -1,10 +1,12 @@
 package org.limewire.xmpp.api.client;
 
-import org.limewire.listener.DefaultSourceTypeEvent;
+import org.limewire.listener.DefaultDataTypeEvent;
 
-public class FriendRequestEvent extends DefaultSourceTypeEvent<FriendRequest, FriendRequest.EventType> {
+public class FriendRequestEvent extends DefaultDataTypeEvent<FriendRequest, FriendRequestEvent.Type> {
 
-    public FriendRequestEvent(FriendRequest source, FriendRequest.EventType event) {
-        super(source, event);
+    public enum Type {REQUESTED}
+
+    public FriendRequestEvent(FriendRequest data, Type event) {
+        super(data, event);
     }
 }

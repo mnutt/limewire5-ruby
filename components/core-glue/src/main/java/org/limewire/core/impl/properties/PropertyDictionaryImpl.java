@@ -29,7 +29,7 @@ class PropertyDictionaryImpl implements PropertyDictionary {
     @Override
     public List<String> getAudioGenres() {
         if (audioGenres == null) {
-            audioGenres = Collections.unmodifiableList(getEnumeration("audio", "genre"));
+            audioGenres = Collections.unmodifiableList(getValueList("audio", "genre"));
         }
         return audioGenres;
     }
@@ -37,7 +37,7 @@ class PropertyDictionaryImpl implements PropertyDictionary {
     @Override
     public List<String> getVideoRatings() {
         if (videoRatings == null) {
-            videoRatings = Collections.unmodifiableList(getEnumeration("video", "rating"));
+            videoRatings = Collections.unmodifiableList(getValueList("video", "rating"));
         }
         return videoRatings;
     }
@@ -45,7 +45,7 @@ class PropertyDictionaryImpl implements PropertyDictionary {
     @Override
     public List<String> getVideoGenres() {
         if (videoGenres == null) {
-            videoGenres = Collections.unmodifiableList(getEnumeration("video", "type"));
+            videoGenres = Collections.unmodifiableList(getValueList("video", "type"));
         }
         return videoGenres;
     }
@@ -53,25 +53,30 @@ class PropertyDictionaryImpl implements PropertyDictionary {
     @Override
     public List<String> getApplicationPlatforms() {
         if (applicationPlatforms == null) {
-            applicationPlatforms = Collections.unmodifiableList(getEnumeration("application", "platform"));
+            applicationPlatforms = Collections.unmodifiableList(getValueList("application", "platform"));
         }
         return applicationPlatforms;
     }
 
-    private List<String> getEnumeration(String schemaDescription, String enumerationName) {
-        List<String> enumeration = new ArrayList<String>();
+    private List<String> getValueList(String schemaDescription, String enumerationName) {
+        List<String> values = new ArrayList<String>();
         for (LimeXMLSchema schema : schemaRepository.getAvailableSchemas()) {
             if (schemaDescription.equals(schema.getDescription())) {
                 for(SchemaFieldInfo info : schema.getEnumerationFields()) {
                     String canonicalizedFieldName = info.getCanonicalizedFieldName();
-                    if (canonicalizedFieldName != null && canonicalizedFieldName.contains(enumerationName)) {
+                    if (canonicalizedFieldName != null && canonicalizedFieldName.endsWith("__" + enumerationName + "__")) {
                         for(NameValue<String> nameValue : info.getEnumerationList()) {
-                            enumeration.add(nameValue.getName());
+                            values.add(nameValue.getName());
+                        }
+                        // Ensure a blank one always exists.
+                        if(!values.contains("")) {
+                            values.add(0, "");
                         }
                     }
                 }
             }
         }
-        return enumeration;
+        Collections.sort(values);
+        return values;
     }
 }

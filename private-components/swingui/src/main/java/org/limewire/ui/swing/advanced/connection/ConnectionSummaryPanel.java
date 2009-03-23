@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -29,6 +32,7 @@ import org.limewire.core.api.connection.GnutellaConnectionManager;
 import org.limewire.listener.EventBean;
 import org.limewire.ui.swing.advanced.connection.PopupManager.PopupProvider;
 import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.EventList;
@@ -48,6 +52,7 @@ public class ConnectionSummaryPanel extends JPanel {
     private static final String IS_FIREWALLED_NO_TRANSFERS = I18n.tr("You are behind a firewall and do not support firewall transfers");
     private static final String WHY = I18n.tr("why");
     private static final String CONNECTED_TO = I18n.tr("Connected to:");
+    private static final String RESOLVE = I18n.tr("Show hostnames of connected peers");
     
     private static final String CONNECTING = I18n.tr("Connecting");
     private static final String LEAVES = I18n.tr("Leaves");
@@ -76,6 +81,7 @@ public class ConnectionSummaryPanel extends JPanel {
     private JLabel summaryLabel = new JLabel();
     private JTable summaryTable = new JTable();
     private SummaryTableModel summaryTableModel = new SummaryTableModel();
+    private JCheckBox resolveCheckBox = new JCheckBox(RESOLVE);
 
     /**
      * Constructs the ConnectionDetailPanel to display connections details.
@@ -118,12 +124,24 @@ public class ConnectionSummaryPanel extends JPanel {
 
         // Install renderer to align summary value.
         summaryTable.getColumnModel().getColumn(0).setCellRenderer(new SummaryCellRenderer());
+        
+        resolveCheckBox.setContentAreaFilled(false);
+        boolean resolve = SwingUiSettings.RESOLVE_CONNECTION_HOSTNAMES.getValue();
+        resolveCheckBox.setSelected(resolve);
+        resolveCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                boolean resolve = resolveCheckBox.isSelected();
+                SwingUiSettings.RESOLVE_CONNECTION_HOSTNAMES.setValue(resolve);
+            }
+        });
 
         add(nodeLabel    , "cell 0 0 2 1");
         add(firewallLabel, "cell 0 1,growx 100");
         add(reasonLabel  , "cell 1 1,bottom");
         add(summaryLabel , "cell 0 2 2 1");
         add(summaryTable , "cell 0 3 2 1");
+        add(resolveCheckBox, "cell 0 4 2 1");
     }
 
     @Override
@@ -176,12 +194,12 @@ public class ConnectionSummaryPanel extends JPanel {
      */
     private void updateFirewallStatus() {
         // Get firewall status.
-        FirewallStatus firewallStatus = firewallStatusBean.getLastEvent().getSource();
+        FirewallStatus firewallStatus = firewallStatusBean.getLastEvent().getData();
         
         if (firewallStatus == FirewallStatus.FIREWALLED) {
             // Get firewall transfer status and reason.
             FirewallTransferStatusEvent event = firewallTransferBean.getLastEvent();
-            FirewallTransferStatus transferStatus = event.getSource();
+            FirewallTransferStatus transferStatus = event.getData();
             FWTStatusReason transferReason = event.getType();
 
             // Set firewall status and reason.

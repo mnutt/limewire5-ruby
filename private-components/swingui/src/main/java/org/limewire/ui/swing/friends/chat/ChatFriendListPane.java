@@ -53,6 +53,7 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.friend.FriendPresenceEvent;
+import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
@@ -75,6 +76,9 @@ import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.IncomingChatListener;
 import org.limewire.xmpp.api.client.MessageReader;
 import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.FileOfferEvent;
+import org.limewire.xmpp.api.client.FileMetaData;
+import org.limewire.xmpp.api.client.FileOffer;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -121,9 +125,7 @@ public class ChatFriendListPane extends JPanel {
     @Resource(key="ChatFriendList.activeConversationBackgroundColor") private Color activeConversationBackgroundColor;
 
     @Inject
-    public ChatFriendListPane(IconLibrary icons, 
-            LibraryNavigator libraryNavigator,
-            ListenerSupport<FriendPresenceEvent> presenceSupport) {
+    public ChatFriendListPane(IconLibrary icons, LibraryNavigator libraryNavigator) {
         super(new BorderLayout());
         this.icons = icons;
         this.chatFriends = new BasicEventList<ChatFriend>();
@@ -146,18 +148,13 @@ public class ChatFriendListPane extends JPanel {
         add(scrollPane);
         setPreferredSize(new Dimension(PREFERRED_WIDTH, 200));
         
-        presenceSupport.addListener(new EventListener<FriendPresenceEvent>() {
-            @Override
-            @SwingEDTEvent
-            public void handleEvent(FriendPresenceEvent event) {
-                handlePresenceEvent(event);
-            }
-        });
-        
         EventAnnotationProcessor.subscribe(this);
     }
     
-    @Inject void register(ListenerSupport<XMPPConnectionEvent> connectionSupport) {
+    @Inject void register(ListenerSupport<XMPPConnectionEvent> connectionSupport,
+                          ListenerSupport<FileOfferEvent> fileOfferEventListenerSupport,
+                          ListenerSupport<FriendPresenceEvent> presenceSupport) {
+
         connectionSupport.addListener(new EventListener<XMPPConnectionEvent>() {
             @Override
             @SwingEDTEvent
@@ -169,11 +166,47 @@ public class ChatFriendListPane extends JPanel {
                 }
             }
         });
+
+        fileOfferEventListenerSupport.addListener(new EventListener<FileOfferEvent>() {
+            @Override
+            @SwingEDTEvent
+            public void handleEvent(FileOfferEvent event) {
+                FileOffer fileOfferReceived = event.getData();
+                handleIncomingFileOffer(fileOfferReceived.getFile(), fileOfferReceived.getFromJID());
+
+            }
+        });
+
+        presenceSupport.addListener(new EventListener<FriendPresenceEvent>() {
+            @Override
+            @SwingEDTEvent
+            public void handleEvent(FriendPresenceEvent event) {
+                handlePresenceEvent(event);
+            }
+        });
     }
 
     private void handleSignoff() {
         closeAllChats();
-    }    
+    }
+
+    private void handleIncomingFileOffer(FileMetaData metadata, String fromJID) {
+        int slashIndex = fromJID.indexOf("/");
+        String fromFriendId = (slashIndex < 0) ? fromJID : fromJID.substring(0, slashIndex);
+
+        // look up and get chatFriend, and get presence which sent the file offer
+        ChatFriend chatFriend = idToFriendMap.get(fromFriendId);
+
+        if (chatFriend != null) {
+            Map<String, FriendPresence> presences = chatFriend.getUser().getFriendPresences();
+            FriendPresence fileOfferPresence = presences.get(fromJID);
+            if (fileOfferPresence != null) {
+                new MessageReceivedEvent(new MessageFileOfferImpl(fromFriendId, fromFriendId,
+                        Type.Received, metadata, fileOfferPresence)).publish();
+            }
+        }
+    }
+
 
     private void addPopupMenus(JComponent comp) {
         FriendContext context = new FriendContext();
@@ -262,7 +295,7 @@ public class ChatFriendListPane extends JPanel {
                     keysPressed.add(Character.toString(e.getKeyChar()));
                 }
                 
-                editor.setFilterText(keysPressed.toArray(new String[0]));
+                editor.setFilterText(keysPressed.toArray(new String[keysPressed.size()]));
                 
                 if (LOG.isDebugEnabled()) {
                     LOG.debugf("FriendsPane keyPressed(): {0} {1} ", KeyEvent.getKeyText(e.getKeyCode()), getKeyPressed());
@@ -328,7 +361,7 @@ public class ChatFriendListPane extends JPanel {
     
     private void handlePresenceEvent(FriendPresenceEvent event) {
         LOG.debugf("handling presence event {0}", event);
-        final Presence presence = (Presence)event.getSource();
+        final Presence presence = (Presence)event.getData();
         final User user = presence.getUser();
         ChatFriend chatFriend = idToFriendMap.get(user.getId());
         switch(event.getType()) {
@@ -378,7 +411,7 @@ public class ChatFriendListPane extends JPanel {
         ChatFriend chatFriend = idToFriendMap.get(message.getFriendID());
 
         if (message.getType() != Type.Sent) {
-            chatFriend.setReceivingUnviewedMessages(true);
+            chatFriend.setReceivedUnviewedMessages(true);
         }
         if (!chatFriend.isActiveConversation() && message.getType() != Type.Sent) {
             if (!friendTimerMap.containsKey(chatFriend)) {
@@ -440,7 +473,7 @@ public class ChatFriendListPane extends JPanel {
             oldActiveConversation.setActiveConversation(false);
         }
         activeConversation = new WeakReference<ChatFriend>(chatFriend);
-        chatFriend.setReceivingUnviewedMessages(false);
+        chatFriend.setReceivedUnviewedMessages(false);
         chatFriend.setActiveConversation(true);
         friendTimerMap.remove(chatFriend);
     }
@@ -451,7 +484,7 @@ public class ChatFriendListPane extends JPanel {
     public void markActiveConversationRead() {
         ChatFriend activeFriend = activeConversation.get();
         if(activeFriend != null) {
-            activeFriend.setReceivingUnviewedMessages(false);
+            activeFriend.setReceivedUnviewedMessages(false);
         }
     }
     
@@ -461,7 +494,7 @@ public class ChatFriendListPane extends JPanel {
             return timer.getIcon();
         }
         
-        if(!chatFriend.isActiveConversation() && chatFriend.isReceivingUnviewedMessages()) {
+        if(!chatFriend.isActiveConversation() && chatFriend.hasReceivedUnviewedMessages()) {
             return icons.getUnviewedMessages();
         }
         
@@ -836,7 +869,7 @@ public class ChatFriendListPane extends JPanel {
         public void actionPerformed(ActionEvent e) {
             ChatFriend chatFriend = context.getFriend();
             if (chatFriend != null) {
-                libraryNavigator.selectFriendLibrary(chatFriend.getFriend());
+                libraryNavigator.selectFriendLibrary(chatFriend.getUser());
             }
         }
     }
@@ -850,7 +883,7 @@ public class ChatFriendListPane extends JPanel {
         public void actionPerformed(ActionEvent e) {
             ChatFriend chatFriend = context.getFriend();
             if (chatFriend != null) {
-                libraryNavigator.selectFriendShareList(chatFriend.getFriend());
+                libraryNavigator.selectFriendShareList(chatFriend.getUser());
             }
         }
 
@@ -862,7 +895,7 @@ public class ChatFriendListPane extends JPanel {
                 return;
             }
             
-            item.setText(tr("Share"));
+            item.setText(tr("What I'm Sharing"));
         }
     }
     

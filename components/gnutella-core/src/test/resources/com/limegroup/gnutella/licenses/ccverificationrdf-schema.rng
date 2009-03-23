@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" ns="http://web.resource.org/cc/" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="rdf:RDF">
+      <interleave>
+        <oneOrMore>
+          <element name="Work">
+            <interleave>
+              <attribute name="rdf:about">
+                <data type="anyURI"/>
+              </attribute>
+              <optional>
+                <element name="dc:title">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <element name="dc:description">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <element name="dc:subject">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <element name="dc:publisher">
+                  <ref name="agent"/>
+                </element>
+              </optional>
+              <optional>
+                <element name="dc:creator">
+                  <ref name="agent"/>
+                </element>
+              </optional>
+              <optional>
+                <element name="dc:contributor">
+                  <ref name="agent"/>
+                </element>
+              </optional>
+              <optional>
+                <element name="dc:rights">
+                  <ref name="agent"/>
+                </element>
+              </optional>
+              <optional>
+                <!-- recommended by DC to follow http://www.w3.org/TR/NOTE-datetime -->
+                <element name="dc:date">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <!-- see http://www.iana.org/assignments/media-types/ -->
+                <element name="dc:format">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <!-- see http://dublincore.org/documents/dcmi-type-vocabulary/ -->
+                <element name="dc:type">
+                  <attribute name="rdf:resource">
+                    <data type="anyURI"/>
+                  </attribute>
+                </element>
+              </optional>
+              <oneOrMore>
+                <!--
+                  at least one license required.  user gets to choose if there
+                  is more than one
+                -->
+                <element name="license">
+                  <attribute name="rdf:resource">
+                    <data type="anyURI"/>
+                  </attribute>
+                </element>
+              </oneOrMore>
+            </interleave>
+          </element>
+        </oneOrMore>
+        <zeroOrMore>
+          <element name="License">
+            <interleave>
+              <attribute name="rdf:about">
+                <data type="anyURI"/>
+              </attribute>
+              <zeroOrMore>
+                <element name="permits">
+                  <attribute name="rdf:resource">
+                    <data type="anyURI"/>
+                  </attribute>
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="requires">
+                  <attribute name="rdf:resource">
+                    <data type="anyURI"/>
+                  </attribute>
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="prohibits">
+                  <attribute name="rdf:resource">
+                    <data type="anyURI"/>
+                  </attribute>
+                </element>
+              </zeroOrMore>
+            </interleave>
+          </element>
+        </zeroOrMore>
+      </interleave>
+    </element>
+  </start>
+  <define name="agent">
+    <element name="Agent">
+      <interleave>
+        <element name="dc:title">
+          <text/>
+        </element>
+        <optional>
+          <element name="dc:description">
+            <text/>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+</grammar>

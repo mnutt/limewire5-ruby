@@ -10,11 +10,11 @@ import javax.swing.JList;
 /** A {@link javax.swing.ListModel} for {@link JList} that is based off a {@link List}. */
 public class CollectionBackedListModel extends AbstractListModel {
     
-    private final List<?> data;
+    protected final List data;
     
     public CollectionBackedListModel(Collection<?> data) {
-        if(data instanceof List) {
-            this.data = (List)data;
+        if(data instanceof List<?>) {
+            this.data = (List<?>)data;
         } else {
             this.data = new ArrayList<Object>(data);
         }

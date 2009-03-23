@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.limewire.http.entity.AbstractProducingNHttpEntity;
+import org.limewire.util.StringUtils;
 
 public class MockHttpNIOEntity extends AbstractProducingNHttpEntity {
 
@@ -45,7 +46,7 @@ public class MockHttpNIOEntity extends AbstractProducingNHttpEntity {
         if (exception != null) {
             throw new IOException();
         }
-        contentEncoder.write(ByteBuffer.wrap(data.getBytes(), transferred, 1));
+        contentEncoder.write(ByteBuffer.wrap(StringUtils.toUTF8Bytes(data), transferred, 1));
         transferred++;
         return transferred < contentLength;
     }

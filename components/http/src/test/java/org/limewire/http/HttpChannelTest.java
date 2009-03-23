@@ -17,6 +17,7 @@ import org.limewire.http.protocol.ExtendedAsyncNHttpServiceHandler;
 import org.limewire.http.reactor.HttpChannel;
 import org.limewire.http.reactor.HttpIOSession;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 public class HttpChannelTest extends BaseTestCase {
 
@@ -62,7 +63,7 @@ public class HttpChannelTest extends BaseTestCase {
         int read = channel.read(dst);
         assertEquals(6, read);
         assertEquals(6, dst.position());
-        assertEquals("GETabc", new String(dst.array(), 0, 6));
+        assertEquals("GETabc", StringUtils.getUTF8String(dst.array(), 0, 6));
 
         read = channel.read(dst);
         assertEquals(0, read);
@@ -80,17 +81,17 @@ public class HttpChannelTest extends BaseTestCase {
         int read = channel.read(dst);
         assertEquals(2, read);
         dst.flip();
-        assertEquals("GE", new String(dst.array(), 0, 2));
+        assertEquals("GE", StringUtils.getUTF8String(dst.array(), 0, 2));
 
         dst.clear();
         read = channel.read(dst);
         assertEquals(2, read);
-        assertEquals("Ta", new String(dst.array(), 0, 2));
+        assertEquals("Ta", StringUtils.getUTF8String(dst.array(), 0, 2));
 
         dst.clear();
         read = channel.read(dst);
         assertEquals(2, read);
-        assertEquals("bc", new String(dst.array(), 0, 2));
+        assertEquals("bc", StringUtils.getUTF8String(dst.array(), 0, 2));
 
         dst.clear();
         read = channel.read(dst);
@@ -109,7 +110,7 @@ public class HttpChannelTest extends BaseTestCase {
         int read = channel.read(dst);
         assertEquals(3, read);
         dst.flip();
-        assertEquals("abc", new String(dst.array(), 0, 3));
+        assertEquals("abc", StringUtils.getUTF8String(dst.array(), 0, 3));
     }
 
     public void testDelayedClosing() throws Exception {

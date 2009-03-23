@@ -10,6 +10,7 @@ import java.util.zip.Inflater;
 import junit.framework.Test;
 
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.StringUtils;
 
 /**
  * Tests that DeflaterWriter deflates data written to it correctly,
@@ -142,7 +143,7 @@ public final class DeflaterWriterTest extends BaseTestCase {
 	
     public void testHasBufferedOutput() throws Exception {
         assertFalse(WRITER.hasBufferedOutput());
-        WRITER.write(ByteBuffer.wrap("Hello".getBytes()));
+        WRITER.write(ByteBuffer.wrap(StringUtils.toUTF8Bytes("Hello")));
         assertTrue(WRITER.hasBufferedOutput());
         WRITER.handleWrite();
         assertTrue(SINK.hasBufferedOutput());
@@ -151,7 +152,7 @@ public final class DeflaterWriterTest extends BaseTestCase {
         assertFalse(WRITER.hasBufferedOutput());
 
         SINK.getBuffer().limit(2);
-        WRITER.write(ByteBuffer.wrap("Hello".getBytes()));
+        WRITER.write(ByteBuffer.wrap(StringUtils.toUTF8Bytes("Hello")));
         assertTrue(WRITER.hasBufferedOutput());
         WRITER.handleWrite();
         SINK.getBuffer().clear();

@@ -92,8 +92,8 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
             }
         });
 
-        coreDownloadListManager.register(listenerList);
-        coreDownloadListManager.register(scheduler, backgroundExecutor);
+        coreDownloadListManager.registerDownloadListener(listenerList);
+        coreDownloadListManager.registerService(scheduler, backgroundExecutor);
 
         final Downloader unfinishedItem1 = context.mock(Downloader.class);
         final Downloader unfinishedItem2 = context.mock(Downloader.class);
@@ -253,7 +253,7 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
                 downloadManager, remoteFileDescFactory, activityCallback, spamManager,
                 itunesDownloadListenerFactory);
 
-        coreDownloadListManager.register(listenerList);
+        coreDownloadListManager.registerDownloadListener(listenerList);
 
         final Downloader unfinishedItem1 = context.mock(Downloader.class);
         final Downloader unfinishedItem2 = context.mock(Downloader.class);
@@ -361,7 +361,7 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
                 downloadManager, remoteFileDescFactory, activityCallback, spamManager,
                 itunesDownloadListenerFactory);
 
-        coreDownloadListManager.register(listenerList);
+        coreDownloadListManager.registerDownloadListener(listenerList);
 
         TestPropertyChangeListener listener = new TestPropertyChangeListener();
         coreDownloadListManager.addPropertyChangeListener(listener);
@@ -416,7 +416,7 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
         CoreDownloadListManager coreDownloadListManager = new CoreDownloadListManager(
                 downloadManager, remoteFileDescFactory, activityCallback, spamManager,
                 itunesDownloadListenerFactory);
-        coreDownloadListManager.register(listenerList);
+        coreDownloadListManager.registerDownloadListener(listenerList);
 
         final MagnetLinkImpl magnetLink = context.mock(MagnetLinkImpl.class);
         final MagnetOptions magnetOptions = context.mock(MagnetOptions.class);
@@ -504,7 +504,7 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
         CoreDownloadListManager coreDownloadListManager = new CoreDownloadListManager(
                 downloadManager, remoteFileDescFactory, activityCallback, spamManager,
                 itunesDownloadListenerFactory);
-        coreDownloadListManager.register(listenerList);
+        coreDownloadListManager.registerDownloadListener(listenerList);
 
         final DownloadItem downloadItem = context.mock(DownloadItem.class);
         final Downloader downloader = context.mock(Downloader.class);
@@ -567,7 +567,7 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
         CoreDownloadListManager coreDownloadListManager = new CoreDownloadListManager(
                 downloadManager, remoteFileDescFactory, activityCallback, spamManager,
                 itunesDownloadListenerFactory);
-        coreDownloadListManager.register(listenerList);
+        coreDownloadListManager.registerDownloadListener(listenerList);
 
         final DownloadItem downloadItem = context.mock(DownloadItem.class);
         final Downloader downloader = context.mock(Downloader.class);
@@ -631,7 +631,7 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
         CoreDownloadListManager coreDownloadListManager = new CoreDownloadListManager(
                 downloadManager, remoteFileDescFactory, activityCallback, spamManager,
                 itunesDownloadListenerFactory);
-        coreDownloadListManager.register(listenerList);
+        coreDownloadListManager.registerDownloadListener(listenerList);
 
         final DownloadItem downloadItem = context.mock(DownloadItem.class);
         final Downloader downloader = context.mock(Downloader.class);
@@ -726,7 +726,7 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
         CoreDownloadListManager coreDownloadListManager = new CoreDownloadListManager(
                 downloadManager, remoteFileDescFactory, activityCallback, spamManager,
                 itunesDownloadListenerFactory);
-        coreDownloadListManager.register(listenerList);
+        coreDownloadListManager.registerDownloadListener(listenerList);
 
         final DownloadItem downloadItem = context.mock(DownloadItem.class);
         final Downloader downloader = context.mock(Downloader.class);

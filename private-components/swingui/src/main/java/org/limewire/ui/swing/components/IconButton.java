@@ -84,6 +84,12 @@ public class IconButton extends JXButton {
         addMouseListener(actionHandListener);
     }
     
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        ActionHandListener.setActionHandDrawingDisabled(this, !enabled);
+    }
+    
     public void removeActionHandListener() {
         removeMouseListener(actionHandListener);
     }

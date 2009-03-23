@@ -89,6 +89,9 @@ public class CoreUploadListManagerTest extends BaseTestCase {
                 // Assertions
                 exactly(1).of(uploader).getFileSize();
                 will(returnValue(testSize));
+                
+                // General
+                allowing(uploader);
             }
         });
         
@@ -98,6 +101,9 @@ public class CoreUploadListManagerTest extends BaseTestCase {
         assertEquals(testSize, items.get(0).getFileSize());
         manager.uploadRemoved(uploader);
         assertEmpty(items);
+        
+        // Test remove when item not managed
+        manager.uploadRemoved(uploader);
         
         context.assertIsSatisfied();
         
@@ -133,6 +139,10 @@ public class CoreUploadListManagerTest extends BaseTestCase {
                 allowing(uploaderSettingDisabled).getUploadType();
                 will(returnValue(UploadType.BROWSE_HOST));
                 
+                // General
+                allowing(uploaderInternal);
+                allowing(uploaderNotComplete);
+                allowing(uploaderSettingDisabled);
             }});
      
         List<UploadItem> items = manager.getUploadItems();
@@ -357,6 +367,9 @@ public class CoreUploadListManagerTest extends BaseTestCase {
                 // Second event listener firing should remove the upload
                 allowing(uploader).getState();
                 will(returnValue(UploadStatus.CANCELLED));
+                
+                // General
+                allowing(uploader);
             }
         });
         

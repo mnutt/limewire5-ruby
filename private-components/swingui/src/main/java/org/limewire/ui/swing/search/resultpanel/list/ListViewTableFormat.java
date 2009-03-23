@@ -26,7 +26,7 @@ public class ListViewTableFormat extends ResultsTableFormat<VisualSearchResult> 
 
     @Override
     public int getInitialWidth(int index) {
-        return index == 0 ? 400 : 170;
+        return 570;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ListViewTableFormat extends ResultsTableFormat<VisualSearchResult> 
 
     @Override
     public int getColumnCount() {
-        return 2;
+        return 1;
     }
 
     @Override

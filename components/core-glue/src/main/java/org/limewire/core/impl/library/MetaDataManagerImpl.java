@@ -18,11 +18,10 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.library.FileDesc;
+import com.limegroup.gnutella.metadata.MetaDataFactory;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 import com.limegroup.gnutella.xml.LimeXMLDocumentFactory;
-import com.limegroup.gnutella.xml.LimeXMLNames;
 import com.limegroup.gnutella.xml.LimeXMLReplyCollection;
-import com.limegroup.gnutella.xml.LimeXMLUtils;
 import com.limegroup.gnutella.xml.SchemaNotFoundException;
 import com.limegroup.gnutella.xml.SchemaReplyCollectionMapper;
 import com.limegroup.gnutella.xml.LimeXMLReplyCollection.MetaDataState;
@@ -32,12 +31,15 @@ public class MetaDataManagerImpl implements MetaDataManager {
     private final SchemaReplyCollectionMapper schemaReplyCollectionMapper;
 
     private final LimeXMLDocumentFactory limeXMLDocumentFactory;
+    private final MetaDataFactory metaDataFactory;
 
     @Inject
     public MetaDataManagerImpl(LimeXMLDocumentFactory limeXMLDocumentFactory,
-            SchemaReplyCollectionMapper schemaReplyCollectionMapper) {
+            SchemaReplyCollectionMapper schemaReplyCollectionMapper,
+            MetaDataFactory metaDataFactory) {
         this.limeXMLDocumentFactory = limeXMLDocumentFactory;
         this.schemaReplyCollectionMapper = schemaReplyCollectionMapper;
+        this.metaDataFactory = metaDataFactory;
     }
 
     @Override
@@ -52,7 +54,7 @@ public class MetaDataManagerImpl implements MetaDataManager {
         FileDesc fileDesc = coreLocalFileItem.getFileDesc();
         Category category = coreLocalFileItem.getCategory();
 
-        String limeXMLSchemaUri = getLimeXmlSchemaUri(category);
+        String limeXMLSchemaUri = FilePropertyKeyPopulator.getLimeXmlSchemaUri(category);
         LimeXMLDocument oldDocument = fileDesc.getXMLDocument(limeXMLSchemaUri);
 
         String input = buildInput(fileDesc, limeXMLSchemaUri, coreLocalFileItem);
@@ -93,7 +95,7 @@ public class MetaDataManagerImpl implements MetaDataManager {
             collection.addReply(fileDesc, result);
         }
 
-        if (LimeXMLUtils.isSupportedFormat(fileDesc.getFileName())) {
+        if(metaDataFactory.containsReader(fileDesc.getFile())) {
             final MetaDataState committed = collection.mediaFileToDisk(fileDesc, result);
             if (committed != MetaDataState.NORMAL && committed != MetaDataState.UNCHANGED) {
                 coreLocalFileItem.reloadProperties();
@@ -103,22 +105,6 @@ public class MetaDataManagerImpl implements MetaDataManager {
             coreLocalFileItem.reloadProperties();
             throw new MetaDataException("Internal Document Error. Data could not be saved.");
         }
-    }
-
-    private String getLimeXmlSchemaUri(Category category) {
-        switch (category) {
-        case AUDIO:
-            return LimeXMLNames.AUDIO_SCHEMA;
-        case DOCUMENT:
-            return LimeXMLNames.DOCUMENT_SCHEMA;
-        case IMAGE:
-            return LimeXMLNames.IMAGE_SCHEMA;
-        case PROGRAM:
-            return LimeXMLNames.APPLICATION_SCHEMA;
-        case VIDEO:
-            return LimeXMLNames.VIDEO_SCHEMA;
-        }
-        throw new UnsupportedOperationException("Category: " + category + " is not supported.");
     }
 
     /**

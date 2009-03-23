@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import org.limewire.core.api.Application;
 import org.limewire.ui.swing.browser.Browser;
 import org.limewire.ui.swing.browser.BrowserUtils;
-import org.limewire.ui.swing.browser.TargetedUrlAction;
+import org.limewire.ui.swing.browser.UriAction;
 import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
@@ -52,16 +52,18 @@ public class StorePanel extends JPanel {
             }
         });
         
-        BrowserUtils.addTargetedUrlAction("_lwStore", new TargetedUrlAction() {
+        BrowserUtils.addTargetedUrlAction("_lwStore", new UriAction() {
             @Override
-            public void targettedUrlClicked(final TargetedUrl targetedUrl) {
+            public boolean uriClicked(final TargetedUri targetedUrl) {
                 SwingUtils.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         navigator.getNavItem(NavCategory.LIMEWIRE, NAME).select();
-                        load(targetedUrl.getUrl());
+                        load(targetedUrl.getUri());
                     }
                 });
+                
+                return true;
             }
         });        
     }

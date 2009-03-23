@@ -23,8 +23,8 @@ public class LibraryTreeTableContainer extends JXPanel {
     private final JScrollPane scrollPane;
     private final JLabel textLabel;
     
-    public LibraryTreeTableContainer(IconManager iconManager, LibraryData libraryData) {
-        this(new LibraryManagerTreeTable(iconManager, libraryData));
+    public LibraryTreeTableContainer(IconManager iconManager, LibraryData libraryData, ExcludedFolderCollectionManager excludedFolders) {
+        this(new LibraryManagerTreeTable(iconManager, libraryData, excludedFolders));
     }
     
     public LibraryTreeTableContainer(LibraryManagerTreeTable treeTable) {

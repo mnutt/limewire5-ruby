@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.net.ProxyManager.ProxyConnector;
 import org.limewire.nio.NBSocket;
 import org.limewire.nio.NBSocketFactory;
@@ -16,7 +18,6 @@ import org.limewire.nio.observer.Shutdownable;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 
 /**
  * A SocketController that does everything SimpleSocketController does,
@@ -27,6 +28,9 @@ import com.google.inject.Singleton;
  */
 @Singleton
 class LimitedSocketController extends SimpleSocketController {
+    
+    private final static Log LOG =
+        LogFactory.getLog(LimitedSocketController.class);
     
     private static final int DEFAULT_MAX_CONNECTING_SOCKETS = 4;
 
@@ -71,13 +75,24 @@ class LimitedSocketController extends SimpleSocketController {
      * Otherwise, observer will be notified of success or failure.
      */
     @Override
-    protected Socket connectPlain(InetSocketAddress localAddr, NBSocketFactory factory, InetSocketAddress addr, int timeout, ConnectObserver observer) throws IOException {
+    protected Socket connectPlain(InetSocketAddress localAddr,
+            NBSocketFactory factory, InetSocketAddress addr, int timeout,
+            ConnectObserver observer) throws IOException {
         NBSocket socket = factory.createSocket();
         bindSocket(socket, localAddr);
         
         if(observer == null) {
+            if(LOG.isDebugEnabled()) {
+                int waiting = getNumWaitingSockets();
+                LOG.debug(waiting + " waiting for sockets (blocking)");
+            }
             // BLOCKING.
             waitForSocket();
+            if(LOG.isDebugEnabled()) {
+                String ipp = addr.getAddress().getHostAddress() +
+                    ":" + addr.getPort();
+                LOG.debug("Connecting to " + ipp + " (blocking)");
+            }
             try {
                 socket.connect(addr, timeout);
             } finally {
@@ -86,7 +101,17 @@ class LimitedSocketController extends SimpleSocketController {
         } else {
             // NON BLOCKING
             if(addWaitingSocket(socket, addr, timeout, observer)) {
+                if(LOG.isDebugEnabled()) {
+                    String ipp = addr.getAddress().getHostAddress() +
+                        ":" + addr.getPort();
+                    LOG.debug("Connecting to " + ipp + " (non-blocking)");
+                }
                 socket.connect(addr, timeout, new DelegateConnector(observer));
+            } else {
+                if(LOG.isDebugEnabled()) {
+                    int waiting = getNumWaitingSockets();
+                    LOG.debug(waiting + " waiting for sockets (non-blocking)");
+                }
             }
         }
         
@@ -149,6 +174,11 @@ class LimitedSocketController extends SimpleSocketController {
         
         for(int i = 0; i < toBeProcessed.size(); i++) {
             Requestor next = toBeProcessed.get(i);
+            if(LOG.isDebugEnabled()) {
+                String ipp = next.addr.getAddress().getHostAddress() +
+                    ":" + next.addr.getPort();
+                LOG.debug("Connecting to " + ipp + " (waiting)");
+            }
             next.socket.setShutdownObserver(null);
             next.socket.connect(next.addr, next.timeout, new DelegateConnector(next.observer));
         }
@@ -193,6 +223,11 @@ class LimitedSocketController extends SimpleSocketController {
         // Release this slot.
         synchronized(this) {
             _socketsConnecting--;
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Releasing socket, " +
+                        _socketsConnecting + " connecting, " +
+                        getNumWaitingSockets() + " waiting");
+            }
         }
         
         // See if any non-blocking requests are queued.

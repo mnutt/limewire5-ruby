@@ -1,7 +1,6 @@
 package org.limewire.ui.swing.library.manager;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,11 +43,6 @@ public class NoChildrenLibraryManagerItem implements LibraryManagerItem {
 
     @Override
     public List<LibraryManagerItem> getChildren() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Collection<? extends File> getExcludedChildren() {
         return Collections.emptyList();
     }
 

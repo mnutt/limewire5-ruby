@@ -12,7 +12,7 @@ import org.limewire.core.settings.DownloadSettings;
 import org.limewire.util.BaseTestCase;
 
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.Downloader.DownloadState;
+import com.limegroup.gnutella.DownloaderInfo.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
 
 public class RecentDownloadListenerTest extends BaseTestCase {

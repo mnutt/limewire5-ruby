@@ -1,12 +1,10 @@
 package org.limewire.ui.swing.painter;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 
-import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.AbstractPainter;
-import org.limewire.ui.swing.util.GuiUtils;
 
 import com.google.inject.Singleton;
 
@@ -18,25 +16,30 @@ import com.google.inject.Singleton;
 @Singleton
 public class PopupButtonBackgroundPainter extends AbstractPainter<JXButton> {
     
-    @Resource private int arcWidth;
-    @Resource private int arcHeight;
-    @Resource private Color backgroundPressed;
-    @Resource private Color backgroundRollover;
+    final private int arcWidth;
+    final private int arcHeight;
+    final private Paint backgroundPressed;
+    final private Paint backgroundRollover;
     
-    public PopupButtonBackgroundPainter() {
-        GuiUtils.assignResources(this);
+    public PopupButtonBackgroundPainter(Paint backgroundPressed, Paint backgroundRollover, 
+            int arcWidth, int arcHeight) {
+
+        this.arcWidth = arcWidth;
+        this.arcHeight = arcHeight;
+        this.backgroundPressed = backgroundPressed;
+        this.backgroundRollover = backgroundRollover;
         
         this.setAntialiasing(true);
     }
     
     @Override
     protected void doPaint(Graphics2D g, JXButton button, int width, int height) {
-        if (button.getModel().isPressed()) {
-            g.setColor(this.backgroundPressed);
+        if (button.getModel().isPressed() || button.getModel().isSelected()) {
+            g.setPaint(backgroundPressed);
             g.fillRoundRect(1, 0, width-2, height-1, arcWidth, arcHeight);
         }
         else if (button.getModel().isRollover() || button.hasFocus()) {
-            g.setColor(this.backgroundRollover);
+            g.setPaint(backgroundRollover);
             g.fillRoundRect(1, 0, width-2, height-1, arcWidth, arcHeight);
         }
     }

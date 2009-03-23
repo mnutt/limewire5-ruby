@@ -1,64 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="examples/mojito/|target/" kind="src" path="core"/>
-	<classpathentry kind="src" path="components/core-glue/src/test/java"/>
-	<classpathentry kind="src" output="components/player/build/tests" path="components/player/src/test/java"/>
-	<classpathentry kind="src" output="components/player/build/classes" path="components/player/src/main/java"/>
-	<classpathentry kind="src" output="components/player-api/build/classes" path="components/player-api/src/main/java"/>
-	<classpathentry kind="src" output="components/mojito/build/tests" path="components/mojito/src/test/resources"/>
-	<classpathentry excluding="build/|testData/" kind="src" output="tests/build/tests" path="tests"/>
-	<classpathentry kind="src" output="components/resources/src/main/resources" path="components/resources/src/main/resources"/>
-	<classpathentry kind="src" output="components/test-util/build/classes" path="components/test-util/src/main/java"/>
-	<classpathentry kind="src" output="components/test-util/build/tests" path="components/test-util/src/test/java"/>
-	<classpathentry kind="src" output="components/common/src/main/resources" path="components/common/src/main/resources"/>
-	<classpathentry kind="src" output="components/common/src/test/resources" path="components/common/src/test/resources"/>
-	<classpathentry kind="src" output="components/common/build/classes" path="components/common/src/main/java"/>
-	<classpathentry kind="src" output="components/common/build/tests" path="components/common/src/test/java"/>
 	<classpathentry kind="src" output="components/collection/build/classes" path="components/collection/src/main/java"/>
 	<classpathentry kind="src" output="components/collection/build/tests" path="components/collection/src/test/java"/>
 	<classpathentry kind="src" output="components/collection/src/test/resources" path="components/collection/src/test/resources"/>
+	<classpathentry kind="src" output="components/common/build/classes" path="components/common/src/main/java"/>
+	<classpathentry kind="src" output="components/common/src/main/resources" path="components/common/src/main/resources"/>
+	<classpathentry kind="src" output="components/common/build/tests" path="components/common/src/test/java"/>
+	<classpathentry kind="src" output="components/common/src/test/resources" path="components/common/src/test/resources"/>
+	<classpathentry kind="src" output="components/common/build/test-common" path="components/common/src/test-common/java"/>
+	<classpathentry kind="src" output="components/core-api/build/classes" path="components/core-api/src/main/java"/>
+	<classpathentry kind="src" output="components/core-glue/build/classes" path="components/core-glue/src/main/java"/>
+	<classpathentry kind="src" output="components/core-glue/build/tests" path="components/core-glue/src/test/java"/>
+	<classpathentry kind="src" output="components/core-settings/build/classes" path="components/core-settings/src/main/java"/>
+	<classpathentry kind="src" output="components/geocode/build/classes" path="components/geocode/src/main/java"/>
+	<classpathentry kind="src" output="components/geocode/build/tests" path="components/geocode/src/test/java"/>
+	<classpathentry kind="src" output="components/gnutella-core/build/classes" path="components/gnutella-core/src/main/java"/>
+	<classpathentry kind="src" output="components/gnutella-core/build/test" path="components/gnutella-core/src/test/java"/>
+	<classpathentry kind="src" output="components/gnutella-core/src/test/resources" path="components/gnutella-core/src/test/resources"/>	
+	<classpathentry kind="src" output="components/http/build/classes" path="components/http/src/main/java"/>
+	<classpathentry kind="src" output="components/http/build/tests" path="components/http/src/test/java"/>
+	<classpathentry kind="src" output="private-components/integrated-ui/build/classes" path="private-components/integrated-ui/src/main/java"/>
+	<classpathentry kind="src" output="private-components/integrated-ui/build/tests" path="private-components/integrated-ui/src/test/java"/>
 	<classpathentry kind="src" output="components/io/build/classes" path="components/io/src/main/java"/>
 	<classpathentry kind="src" output="components/io/build/tests" path="components/io/src/test/java"/>
+	<classpathentry kind="src" output="components/io/build/test-common" path="components/io/src/test-common/java"/>
+	<classpathentry kind="src" output="components/lwsserver/build/classes" path="components/lwsserver/src/main/java"/>
+	<classpathentry kind="src" output="components/lwsserver/build/tests" path="components/lwsserver/src/test/java"/>
+	<classpathentry kind="src" output="private-components/mock-core/build/classes" path="private-components/mock-core/src/main/java"/>
+	<classpathentry kind="src" output="components/mojito/build/classes" path="components/mojito/src/main/java"/>
+	<classpathentry kind="src" output="components/mojito/build/tests" path="components/mojito/src/test/java"/>
+	<classpathentry kind="src" output="components/mojito/src/test/resources" path="components/mojito/src/test/resources"/>
+	<classpathentry kind="src" output="components/mojito-ui/build/classes" path="components/mojito-ui/src/main/java"/>
+	<classpathentry kind="src" output="components/mojito-ui/build/misc" path="components/mojito-ui/misc/java"/>
+	<classpathentry kind="src" output="components/net/build/classes" path="components/net/src/main/java"/>
+	<classpathentry kind="src" output="components/net/build/tests" path="components/net/src/test/java"/>
+	<classpathentry kind="src" output="components/net/build/test-common" path="components/net/src/test-common/java"/>
+	<classpathentry kind="src" output="components/nio/build/classes" path="components/nio/src/main/java"/>
+	<classpathentry kind="src" output="components/nio/build/tests" path="components/nio/src/test/java"/>
+	<classpathentry kind="src" output="components/nio/build/test-common" path="components/nio/src/test-common/java"/>
+	<classpathentry kind="src" output="components/player/build/classes" path="components/player/src/main/java"/>
+	<classpathentry kind="src" output="components/player/build/tests" path="components/player/src/test/java"/>
+	<classpathentry kind="src" output="components/player-api/build/classes" path="components/player-api/src/main/java"/>
+	<classpathentry kind="src" output="components/promotion/build/classes" path="components/promotion/src/main/java"/>
+	<classpathentry kind="src" output="components/promotion/build/tests" path="components/promotion/src/test/java"/>
+	<classpathentry kind="src" output="components/resources/src/main/resources" path="components/resources/src/main/resources"/>
+	<classpathentry kind="src" output="components/rudp/build/classes" path="components/rudp/src/main/java"/>
+	<classpathentry kind="src" output="components/rudp/build/tests" path="components/rudp/src/test/java"/>
+	<classpathentry kind="src" output="components/scripting/build/classes" path="components/scripting/src/main/java"/>
 	<classpathentry kind="src" output="components/security/build/classes" path="components/security/src/main/java"/>
 	<classpathentry kind="src" output="components/security/build/tests" path="components/security/src/test/java"/>
 	<classpathentry kind="src" output="components/setting/build/classes" path="components/setting/src/main/java"/>
 	<classpathentry kind="src" output="components/setting/build/tests" path="components/setting/src/test/java"/>
-	<classpathentry kind="src" output="components/nio/build/classes" path="components/nio/src/main/java"/>
-	<classpathentry kind="src" output="components/nio/build/tests" path="components/nio/src/test/java"/>
-	<classpathentry kind="src" output="components/rudp/build/classes" path="components/rudp/src/main/java"/>
-	<classpathentry kind="src" output="components/rudp/build/tests" path="components/rudp/src/test/java"/>
-	<classpathentry kind="src" output="components/net/build/classes" path="components/net/src/main/java"/>
-	<classpathentry kind="src" output="components/net/build/tests" path="components/net/src/test/java"/>
 	<classpathentry kind="src" output="components/statistic/build/classes" path="components/statistic/src/main/java"/>
-	<classpathentry kind="src" output="components/http/build/classes" path="components/http/src/main/java"/>
-	<classpathentry kind="src" output="components/http/build/tests" path="components/http/src/test/java"/>
-	<classpathentry kind="src" output="components/mojito/build/classes" path="components/mojito/src/main/java"/>
-	<classpathentry kind="src" output="components/mojito/build/tests" path="components/mojito/src/test/java"/>
-	<classpathentry kind="src" output="components/mojito-ui/build/classes" path="components/mojito-ui/src/main/java"/>
-	<classpathentry kind="src" output="components/mojito-ui/build/misc" path="components/mojito-ui/misc/java"/>
-	<classpathentry kind="src" output="components/lwsserver/build/classes" path="components/lwsserver/src/main/java"/>
-	<classpathentry kind="src" output="components/lwsserver/build/tests" path="components/lwsserver/src/test/java"/>
-	<classpathentry kind="src" output="components/promotion/build/classes" path="components/promotion/src/main/java"/>
-	<classpathentry kind="src" output="components/promotion/build/tests" path="components/promotion/src/test/java"/>
-	<classpathentry kind="src" path="core/examples/mojito"/>
-	<classpathentry kind="src" path="components/geocode/src/main/java"/>
-	<classpathentry kind="src" path="components/geocode/src/test/java"/>
-	<classpathentry kind="src" path="components/xmpp/src/main/java"/>
-	<classpathentry kind="src" path="components/xmpp/src/test/java"/>
+	<classpathentry kind="src" output="components/swarm/build/classes" path="components/swarm/src/main/java"/>
+	<classpathentry kind="src" output="components/swarm/build/tests" path="components/swarm/src/test/java"/>
+	<classpathentry kind="src" output="components/swarm/src/test-common/resources" path="components/swarm/src/test-common/resources"/>
+	<classpathentry kind="src" output="private-components/swingui/build/classes" path="private-components/swingui/src/main/java"/>
+	<classpathentry kind="src" output="private-components/swingui/src/main/resources" path="private-components/swingui/src/main/resources"/>
+	<classpathentry kind="src" output="private-components/swingui/build/tests" path="private-components/swingui/src/test/java"/>
+	<classpathentry kind="src" output="components/xmpp-api/build/classes" path="components/xmpp-api/src/main/java"/>
+	<classpathentry kind="src" output="components/xmpp-api/build/tests" path="components/xmpp-api/src/test/java"/>
+	<classpathentry kind="src" output="components/xmpp/build/classes" path="components/xmpp/src/main/java"/>
+	<classpathentry kind="src" output="components/xmpp/build/tests" path="components/xmpp/src/test/java"/>
 	<classpathentry excluding="windows/|windows/|linux/|osx/" kind="src" path="lib/resources"/>
 	<classpathentry kind="src" path="lib/resources/windows"/>
-	<classpathentry kind="src" path="private-components/integrated-ui/src/main/java"/>
-	<classpathentry kind="src" path="private-components/mock-core/src/main/java"/>
-	<classpathentry kind="src" path="private-components/swingui/src/main/java"/>
-	<classpathentry kind="src" path="private-components/swingui/src/test/java"/>
-	<classpathentry kind="src" path="private-components/swingui/src/main/resources"/>
-	<classpathentry kind="src" path="components/core-api/src/main/java"/>
-	<classpathentry kind="src" path="components/core-glue/src/main/java"/>
-	<classpathentry kind="src" path="components/core-settings/src/main/java"/>
 	<classpathentry kind="src" path="lib/resources/linux"/>
 	<classpathentry kind="src" path="lib/resources/osx"/>
-	<classpathentry kind="src" output="components/xmpp-api/build/classes" path="components/xmpp-api/src/main/java"/>
-	<classpathentry kind="src" path="components/xmpp-api/src/test/java"/>
 	<classpathentry kind="lib" path="lib/jars/clink.jar"/>
 	<classpathentry kind="lib" path="lib/jars/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/jars/compile/cocoaFoundation.jar"/>
@@ -91,7 +98,6 @@
 	<classpathentry kind="lib" path="lib/jars/jxlayer.jar"/>
 	<classpathentry kind="lib" path="lib/jars/dnsjava-2.0.6.jar" sourcepath="lib/sources/dnsjava-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/commons-math-1.2.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/jars/tests/jmock/cglib-nodep.jar"/>
 	<classpathentry kind="lib" path="lib/jars/tests/jmock/cglib-src.jar"/>
 	<classpathentry kind="lib" path="lib/jars/tests/jmock/hamcrest-core.jar"/>
@@ -113,7 +119,6 @@
 	<classpathentry kind="lib" path="lib/jars/onion-common.jar"/>
 	<classpathentry kind="lib" path="lib/jars/onion-fec.jar"/>
 	<classpathentry kind="lib" path="lib/jars/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/jars/jaudiotagger.jar"/>
 	<classpathentry kind="lib" path="lib/jars/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib/jars/hsqldb.jar"/>
 	<classpathentry kind="lib" path="lib/jars/mozdom4java.jar" sourcepath="lib/sources/mozdom4java-src.zip"/>
@@ -129,9 +134,6 @@
 	<classpathentry kind="lib" path="lib/jars/guice-snapshot.jar" sourcepath="lib/sources/guice-snapshot-src.jar"/>
 	<classpathentry kind="lib" path="lib/jars/tests/javax.servlet-5.1.12.jar"/>
 	<classpathentry kind="lib" path="lib/jars/tests/org.mortbay.jetty-5.1.12.jar"/>
-	<classpathentry kind="src" path="components/swarm/src/main/java"/>
-	<classpathentry kind="src" path="components/swarm/src/test/java"/>
-	<classpathentry kind="src" path="components/swarm/src/test/resources"/>
 	<classpathentry kind="lib" path="lib/jars/httpclient-4.0-beta1.jar" sourcepath="lib/sources/httpclient-4.0-beta1-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/httpcore-4.0-beta2.jar" sourcepath="lib/sources/httpcore-4.0.beta2-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/httpcore-nio-4.0-beta2.jar" sourcepath="lib/sources/httpcore-nio-4.0-beta2-src.zip"/>
@@ -141,5 +143,7 @@
 	<classpathentry kind="lib" path="lib/jars/jruby-engine.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jruby-rack-0.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jmdns.jar"/>
+	<classpathentry kind="lib" path="lib/jars/jaudiotagger.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

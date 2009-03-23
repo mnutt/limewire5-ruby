@@ -62,7 +62,7 @@ public class OpenLinkAction extends AbstractAction {
                         MagnetLink[] magnetLinks = magnetFactory.parseMagnetLink(uri);
                         if (magnetLinks.length == 0) {
                             FocusJOptionPane.showMessageDialog(GuiUtils.getMainFrame(), I18n
-                                    .tr("Magnet link contains no options."), I18n.tr("Open Link"),
+                                    .tr("Magnet link is empty."), I18n.tr("Open Link"),
                                     JOptionPane.INFORMATION_MESSAGE);
                         }
 

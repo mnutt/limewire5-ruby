@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.limewire.core.settings.MozillaSettings;
 import org.limewire.io.Expand;
 import org.limewire.io.IOUtils;
 import org.limewire.util.CommonUtils;
@@ -27,7 +28,8 @@ public class LimeMozillaInitializer {
     }
     
     public static boolean shouldInitialize() {
-        return OSUtils.isWindows() || OSUtils.isLinux();
+        return (OSUtils.isWindows() || OSUtils.isLinux()) &&
+            MozillaSettings.USE_MOZILLA.getValue();
     }
 
     public static void initialize() {

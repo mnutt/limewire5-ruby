@@ -10,6 +10,7 @@ class MessageReaderImpl implements MessageReader {
         this.chatFriend = chatFriend;
     }
 
+    @Override
     public void readMessage(final String message) {
         if (message != null) {
             final Message msg = newMessage(message, Message.Type.Received);
@@ -18,9 +19,10 @@ class MessageReaderImpl implements MessageReader {
     }
 
     private Message newMessage(String message, Message.Type type) {
-        return new MessageTextImpl(chatFriend.getName(), chatFriend, type, message);
+        return new MessageTextImpl(chatFriend.getName(), chatFriend.getID(), type, message);
     }
 
+    @Override
     public void newChatState(ChatState chatState) {
         new ChatStateEvent(chatFriend, chatState).publish();
     }

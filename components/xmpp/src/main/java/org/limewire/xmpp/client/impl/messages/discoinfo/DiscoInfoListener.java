@@ -93,8 +93,8 @@ public class DiscoInfoListener implements PacketListener, FeatureRegistry {
     class RosterListener implements EventListener<RosterEvent> {
         @Override
         public void handleEvent(RosterEvent event) {
-            if(event.getType() == User.EventType.USER_ADDED) {
-                event.getSource().addPresenceListener(presenceListener);
+            if(event.getType() == RosterEvent.Type.USER_ADDED) {
+                event.getData().addPresenceListener(presenceListener);
             }
         }
     }
@@ -102,21 +102,21 @@ public class DiscoInfoListener implements PacketListener, FeatureRegistry {
     private class PresenceListener implements EventListener<PresenceEvent> {
         @Override
         public void handleEvent(final PresenceEvent event) {
-            if(event.getType() == Presence.EventType.PRESENCE_NEW
-                    && event.getSource().getType() == Presence.Type.available) {
+            if(event.getType() == PresenceEvent.Type.PRESENCE_NEW
+                    && event.getData().getType() == Presence.Type.available) {
                 Thread t = ThreadExecutor.newManagedThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             ServiceDiscoveryManager serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(smackConnection);
-                            serviceDiscoveryManager.discoverInfo(event.getSource().getJID());
+                            serviceDiscoveryManager.discoverInfo(event.getData().getJID());
                         } catch (org.jivesoftware.smack.XMPPException exception) {
                             if(exception.getXMPPError() != null && exception.getXMPPError().getCode() != 501) {
                                 LOG.info(exception.getMessage(), exception);
                             }
                         }
                     }
-                }, "disco-info-" + event.getSource().getJID());
+                }, "disco-info-" + event.getData().getJID());
                 t.start();
             }
         }

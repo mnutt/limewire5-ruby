@@ -3,11 +3,12 @@ package org.limewire.core.impl.xmpp;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.limewire.concurrent.ListeningFuture;
+import org.limewire.concurrent.SimpleFuture;
+import org.limewire.xmpp.api.client.Presence.Mode;
 import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
-import org.limewire.xmpp.api.client.XMPPException;
-import org.limewire.xmpp.api.client.Presence.Mode;
 
 public class MockXMPPConnection implements XMPPConnection {
     private XMPPConnectionConfiguration config;
@@ -21,37 +22,40 @@ public class MockXMPPConnection implements XMPPConnection {
         return config;
     }
 
+
     @Override
     public boolean isLoggedIn() {
         return true;
     }
-    
+
     @Override
     public boolean isLoggingIn() {
         return false;
     }
 
     @Override
-    public void login() throws XMPPException {
-        
+    public ListeningFuture<Void> login() {
+        return new SimpleFuture<Void>((Void)null);
     }
 
     @Override
-    public void logout() {
-        
+    public ListeningFuture<Void> logout() {
+        return new SimpleFuture<Void>((Void)null);
     }
 
     @Override
-    public void setMode(Mode mode) {
-        
+    public ListeningFuture<Void> setMode(Mode mode) {
+        return new SimpleFuture<Void>((Void)null);
     }
 
-    public void addUser(String id, String name) throws XMPPException {
-        
+    @Override
+    public ListeningFuture<Void> addUser(String id, String name) {
+        return new SimpleFuture<Void>((Void)null);
     }
 
-    public void removeUser(String id) throws XMPPException {
-        
+    @Override
+    public ListeningFuture<Void> removeUser(String id) {
+        return new SimpleFuture<Void>((Void)null);
     }
 
     @Override

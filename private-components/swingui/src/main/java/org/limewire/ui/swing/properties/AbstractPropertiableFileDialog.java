@@ -1,16 +1,17 @@
 package org.limewire.ui.swing.properties;
 
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.ComboBoxModel;
+import javax.swing.JComboBox;
 
-import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.PropertiableFile;
 import org.limewire.core.api.properties.PropertyDictionary;
+import org.limewire.ui.swing.components.CollectionBackedComboBoxModel;
 import org.limewire.ui.swing.util.PropertiableHeadings;
 
 public abstract class AbstractPropertiableFileDialog extends Dialog {
@@ -27,10 +28,10 @@ public abstract class AbstractPropertiableFileDialog extends Dialog {
         heading.setText(propertiableHeadings.getHeading(propertiable));
         filename.setText(propertiable.getFileName());
         fileSize.setText(propertiableHeadings.getFileSize(propertiable));
-        genre.setModel(new DefaultComboBoxModel(getGenres(propertiable)));
+        setupComboBox(genre, propertiable.getPropertyString(FilePropertyKey.GENRE), getGenres(propertiable));
         unEditableGenre.setText(propertiable.getPropertyString(FilePropertyKey.GENRE));
-        rating.setModel(new DefaultComboBoxModel(getRatings(propertiable)));
-        platform.setModel(new DefaultComboBoxModel(getPlatforms(propertiable)));
+        setupComboBox(rating, propertiable.getPropertyString(FilePropertyKey.RATING), getRatings(propertiable));
+        setupComboBox(platform, propertiable.getPropertyString(FilePropertyKey.PLATFORM), getPlatforms(propertiable));
         populateMetadata(propertiable);
         title.setText(str(propertiable.getProperty(FilePropertyKey.TITLE)));
         artist.setText(str(propertiable.getProperty(FilePropertyKey.AUTHOR)));
@@ -41,37 +42,50 @@ public abstract class AbstractPropertiableFileDialog extends Dialog {
         track.setText(str(propertiable.getProperty(FilePropertyKey.TRACK_NUMBER)));
         description.setText(str(propertiable.getProperty(FilePropertyKey.DESCRIPTION)));
     }
-
-    private Object[] getPlatforms(final PropertiableFile propertiableSeed) {
-        return getSeededList(propertiableSeed.getProperty(FilePropertyKey.PLATFORM), propertyDictionary.getApplicationPlatforms());
-    }
-
-    private Object[] getSeededList(Object property, List<String> lwEnumeration) {
-        HashSet<String> enumeration = new LinkedHashSet<String>();
-        if (property != null) {
-            //Add property first so it can appear as the selected item
-            enumeration.add(property.toString());
-        }
-        enumeration.addAll(lwEnumeration);
-        return enumeration.toArray();
-    }
     
-    private Object[] getRatings(final PropertiableFile propertiableSeed) {
-        Category category = propertiableSeed.getCategory();
-        if (category == Category.VIDEO) {
-            return getSeededList(propertiableSeed.getProperty(FilePropertyKey.RATING), propertyDictionary.getVideoRatings());
+    private void setupComboBox(JComboBox comboBox, String current, List<String> possibles) {
+        if(current == null) {
+            current = "";
         }
-        return new Object[0];
+        
+        // If any are listed, current is non-empty, and possibles doesn't contain, add it in.
+        if(!possibles.contains(current) && !current.equals("") && possibles.size() > 0) {
+            possibles = new ArrayList<String>(possibles);            
+            possibles.add(0, current);
+            possibles = Collections.unmodifiableList(possibles);
+        }
+        
+        ComboBoxModel model = new CollectionBackedComboBoxModel(possibles);
+        comboBox.setModel(model);
+        comboBox.setSelectedItem(current);
     }
 
-    private Object[] getGenres(final PropertiableFile propertiableSeed) {
-        Object genreProperty = propertiableSeed.getProperty(FilePropertyKey.GENRE);
-        switch(propertiableSeed.getCategory()) {
-        case AUDIO:
-            return getSeededList(genreProperty, propertyDictionary.getAudioGenres());
-        case VIDEO:
-            return getSeededList(genreProperty, propertyDictionary.getVideoGenres());
+    private List<String> getPlatforms(final PropertiableFile propertiableSeed) {
+        switch (propertiableSeed.getCategory()) {
+        case PROGRAM:
+            return propertyDictionary.getApplicationPlatforms();
+        default:
+            return Collections.emptyList();
         }
-        return new Object[0];
+    }
+
+    private List<String> getRatings(final PropertiableFile propertiableSeed) {
+        switch (propertiableSeed.getCategory()) {
+        case VIDEO:
+            return propertyDictionary.getVideoRatings();
+        default:
+            return Collections.emptyList();
+        }
+    }
+
+    private List<String> getGenres(final PropertiableFile propertiableSeed) {
+        switch (propertiableSeed.getCategory()) {
+        case AUDIO:
+            return propertyDictionary.getAudioGenres();
+        case VIDEO:
+            return propertyDictionary.getVideoGenres();
+        default:
+            return Collections.emptyList();
+        }
     }
 }

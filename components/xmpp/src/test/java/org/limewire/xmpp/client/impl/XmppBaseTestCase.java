@@ -1,26 +1,21 @@
 package org.limewire.xmpp.client.impl;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import org.limewire.util.BaseTestCase;
-import org.limewire.lifecycle.ServiceRegistry;
-import org.limewire.net.LimeWireNetModule;
-import org.limewire.net.ProxySettings;
-import org.limewire.net.EmptyProxySettings;
-import org.limewire.net.SocketBindingSettings;
-import org.limewire.net.EmptySocketBindingSettings;
-import org.limewire.net.address.AddressEvent;
-import org.limewire.io.NetworkInstanceUtils;
-import org.limewire.io.SimpleNetworkInstanceUtils;
 import org.limewire.common.LimeWireCommonModule;
 import org.limewire.http.auth.LimeWireHttpAuthModule;
 import org.limewire.inject.AbstractModule;
+import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.ListenerSupport;
+import org.limewire.net.LimeWireNetTestModule;
+import org.limewire.net.address.AddressEvent;
+import org.limewire.util.BaseTestCase;
+
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Guice;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 
@@ -82,16 +77,5 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
         service.stop();
         registry.stop();
         Thread.sleep(SLEEP);
-    }
-
-
-    class LimeWireNetTestModule extends LimeWireNetModule {
-        @Override
-        protected void configure() {
-            super.configure();
-            bind(ProxySettings.class).to(EmptyProxySettings.class);
-            bind(SocketBindingSettings.class).to(EmptySocketBindingSettings.class);
-            bind(NetworkInstanceUtils.class).to(SimpleNetworkInstanceUtils.class);
-        }
     }
 }

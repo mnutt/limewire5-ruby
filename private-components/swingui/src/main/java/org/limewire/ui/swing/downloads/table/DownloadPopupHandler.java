@@ -155,6 +155,7 @@ public class DownloadPopupHandler implements TablePopupHandler {
             popupMenu.add(removeMenuItem);
             break;
 
+        case TRYING_AGAIN:
         case CONNECTING:
         case FINISHING:
         case LOCAL_QUEUED:

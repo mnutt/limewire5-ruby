@@ -51,8 +51,8 @@ public class FileTransferIQListenerTest extends BaseTestCase {
                 @Override
                 public Object invoke(Invocation invocation) throws Throwable {
                     FileOfferEvent event = (FileOfferEvent)invocation.getParameter(0);
-                    assertEquals(FileOffer.EventType.OFFER, event.getType());
-                    FileOffer fileOffer = event.getSource();
+                    assertEquals(FileOfferEvent.Type.OFFER, event.getType());
+                    FileOffer fileOffer = event.getData();
                     assertEquals("me@you.com", fileOffer.getFromJID());
                     assertSame(fileMetaData, fileOffer.getFile());
                     return null;

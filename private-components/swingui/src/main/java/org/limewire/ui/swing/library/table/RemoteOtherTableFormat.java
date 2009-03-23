@@ -6,10 +6,12 @@ import java.util.List;
 
 import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
+import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.FileUtils;
 
 /**
@@ -21,17 +23,21 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int EXTENSION_INDEX = 2;
     static final int SIZE_INDEX = 3;
     
-    public RemoteOtherTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo) {
+    private IconManager iconManager;
+    
+    public RemoteOtherTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo, IconManager iconManager) {
         super(sortID, sortedColumn, isAscending, columnInfo);
+        this.iconManager = iconManager;
     }
     
-    public RemoteOtherTableFormat() {
+    public RemoteOtherTableFormat(IconManager iconManager) {
         super("REMOTE_LIBRARY_OTHER_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_OTHER_NAME", I18n.tr("Name"), 417, true, true),     
                 new ColumnStateInfo(TYPE_INDEX, "REMOTE_LIBRARY_OTHER_TYPE", I18n.tr("Type"), 170, true, true), 
                 new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_OTHER_EXTENSION", I18n.tr("Extension"), 78, true, true), 
                 new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_OTHER_SIZE", I18n.tr("Size"), 57, true, true) 
         });
+        this.iconManager = iconManager;
     }
 
     @Override
@@ -39,7 +45,11 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
         switch(column) {
             case NAME_INDEX: return baseObject;  
             case SIZE_INDEX: return baseObject.getSize();
-            case TYPE_INDEX: return "Verbal description";
+            case TYPE_INDEX: 
+                // Use icon manager to return MIME description.
+                return (iconManager != null) ?
+                    iconManager.getMIMEDescription(baseObject) : 
+                    baseObject.getProperty(FilePropertyKey.DESCRIPTION);
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
         }
         throw new IllegalArgumentException("Unknown column:" + column);

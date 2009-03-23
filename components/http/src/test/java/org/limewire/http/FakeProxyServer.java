@@ -19,6 +19,7 @@ import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.io.ByteReader;
 import org.limewire.net.ProxySettings.ProxyType;
 import org.limewire.service.ErrorService;
+import org.limewire.util.StringUtils;
 
 
 // extends AssertCmparisons just to get useful methods.
@@ -158,9 +159,9 @@ public class FakeProxyServer {
         assertEquals("3rd byte of ip wrong", 1, is.read());
 
         if(_authentication) {
-            byte[] u = new byte[USER.length()];
+            byte[] u = new byte[StringUtils.toUTF8Bytes(USER).length];
             is.read(u);
-            assertEquals("LW sent wrong user", USER, new String(u));
+            assertEquals("LW sent wrong user", USER, StringUtils.getUTF8String(u));
         }
         assertEquals("LW did not send terminating 0", 0, is.read());
         os.write((byte)4);//send version
@@ -199,13 +200,13 @@ public class FakeProxyServer {
         if(_authentication) {//do all the checking
             assertEquals("wrong auth version", 1, is.read());
             assertEquals("wrong user len", USER.length(), is.read());
-            byte[] u = new byte[USER.length()];
+            byte[] u = new byte[StringUtils.toUTF8Bytes(USER).length];
             is.read(u);
-            assertEquals("Wrong user sent", USER, new String(u));
+            assertEquals("Wrong user sent", USER, StringUtils.getUTF8String(u));
             assertEquals("wrong pass len", PASS.length(), is.read());
-            byte[] p = new byte[PASS.length()];
+            byte[] p = new byte[StringUtils.toUTF8Bytes(PASS).length];
             is.read(p);
-            assertEquals("Wrong pass sent", PASS, new String(p));
+            assertEquals("Wrong pass sent", PASS, StringUtils.getUTF8String(p));
             os.write((byte)1);//send version
             os.write((byte)0); //send success.
         }
@@ -244,9 +245,9 @@ public class FakeProxyServer {
         assertEquals("LW sent wrong port", "" + _destinationPort, tok.nextToken());
         assertEquals("LW didn't send http string", "HTTP/1.0", tok.nextToken());
         if(_makeError)
-            os.write("503 Busy\r\nHeader: Value\r\n\r\n".getBytes());
+            os.write(StringUtils.toAsciiBytes("503 Busy\r\nHeader: Value\r\n\r\n"));
         else
-            os.write("200 OK\r\nHeader: Value\r\n\r\n".getBytes());
+            os.write(StringUtils.toAsciiBytes("200 OK\r\nHeader: Value\r\n\r\n"));
         
     }
 
@@ -275,12 +276,12 @@ public class FakeProxyServer {
 
 
     private void writeHTTPBack(OutputStream os) throws IOException {        
-        os.write("HTTP/1.1 200 OK\r\n".getBytes());
-        os.write("Server: limewire \r\n".getBytes());
-        os.write("Content-Type: txt/html \r\n".getBytes());
-        os.write("Content-Length: 5 \r\n".getBytes());
-        os.write("\r\n".getBytes());
-        os.write("hello".getBytes());
+        os.write(StringUtils.toAsciiBytes("HTTP/1.1 200 OK\r\n"));
+        os.write(StringUtils.toAsciiBytes("Server: limewire \r\n"));
+        os.write(StringUtils.toAsciiBytes("Content-Type: txt/html \r\n"));
+        os.write(StringUtils.toAsciiBytes("Content-Length: 5 \r\n"));
+        os.write(StringUtils.toAsciiBytes("\r\n"));
+        os.write(StringUtils.toAsciiBytes("hello"));
         os.flush();
     }
     

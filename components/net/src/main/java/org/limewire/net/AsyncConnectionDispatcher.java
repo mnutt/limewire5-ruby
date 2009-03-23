@@ -10,6 +10,7 @@ import org.limewire.nio.AbstractNBSocket;
 import org.limewire.nio.channel.AbstractChannelInterestReader;
 import org.limewire.nio.ssl.SSLUtils;
 import org.limewire.util.BufferUtils;
+import org.limewire.util.StringUtils;
 
 /**
  * A ConnectionDispatcher that reads asynchronously from the socket.
@@ -53,7 +54,7 @@ public class AsyncConnectionDispatcher extends AbstractChannelInterestReader {
         // See if we have a full word.
         for(int i = 0; i < buffer.position(); i++) {
             if(buffer.get(i) == ' ') {                
-                String word = new String(buffer.array(), 0, i);
+                String word = StringUtils.getASCIIString(buffer.array(), 0, i);
                 if(dispatcher.isValidProtocolWord(word)) {
                     if(allowedWord != null && !allowedWord.equals(word)) {
                         if(LOG.isDebugEnabled())

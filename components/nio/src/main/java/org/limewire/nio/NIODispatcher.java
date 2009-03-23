@@ -1135,6 +1135,7 @@ public class NIODispatcher implements Runnable {
             numImmediateSelects = Math.max(0, numImmediateSelects +1 );   
         }
         
+        @Override
         public Object inspect() {
             long [] data = getStats();
             Map<String,Object> ret = new HashMap<String,Object>();
