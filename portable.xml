@@ -61,6 +61,7 @@
 			<src path="components/core-settings/src/main/java"/>
 			<!-- skip  components/CVS -->
 			<src path="components/geocode/src/main/java"/>
+			<src path="components/gnutella-core/src/main/java"/>
 			<src path="components/http/src/main/java"/>
 
 			<src path="components/io/src/main/java"/>
@@ -78,6 +79,7 @@
 			<!-- skip  components/resources -->
 			<src path="components/rudp/src/main/java"/>
 
+			<src path="components/scripting/src/main/java"/>
 			<src path="components/security/src/main/java"/>
 			<src path="components/setting/src/main/java"/>
 			<src path="components/statistic/src/main/java"/>
