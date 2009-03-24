@@ -85,9 +85,9 @@ public class RemoteOptionPanel extends OptionPanel {
             stopButton.addActionListener(new StopRemoteAction(mongrelManager));
 
             add(statusLabel, "gapbottom 5");
-            add(status, "gapbottom 5, wrap");
-            add(startButton, "gapbottom 5");
-            add(stopButton, "gapbottom 5, wrap");
+            // add(status, "gapbottom 5, wrap");
+            // add(startButton, "gapbottom 5");
+            // add(stopButton, "gapbottom 5, wrap");
             add(startOnLaunchCheckBox, "wrap");
         }
 
