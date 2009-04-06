@@ -40,6 +40,7 @@ public class MessageFileOfferImpl extends AbstractMessageImpl implements Message
         return sourcePresence;
     }
 
+    @Override
     public String toString() {
         String state = (downloadState == null) ? "No State" : downloadState.toString();
         String fileOffer = fileMetadata.getName();

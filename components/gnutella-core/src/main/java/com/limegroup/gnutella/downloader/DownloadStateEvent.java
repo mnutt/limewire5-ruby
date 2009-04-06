@@ -2,7 +2,7 @@ package com.limegroup.gnutella.downloader;
 
 import org.limewire.listener.DefaultSourceTypeEvent;
 
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 
 public class DownloadStateEvent extends DefaultSourceTypeEvent<CoreDownloader, DownloadState> {
 

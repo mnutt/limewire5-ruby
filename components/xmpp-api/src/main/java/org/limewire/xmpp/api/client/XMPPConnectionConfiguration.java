@@ -1,6 +1,9 @@
 package org.limewire.xmpp.api.client;
 
+import java.util.List;
+
 import org.limewire.core.api.friend.Network;
+import org.limewire.io.UnresolvedIpPort;
 import org.limewire.listener.EventListener;
 
 /**
@@ -43,4 +46,12 @@ public interface XMPPConnectionConfiguration extends Network {
     
     // FIXME: this is only used by tests
     public EventListener<RosterEvent> getRosterListener();
+    
+    /**
+     * A list of jabber servers to use for this configuration in the 
+     * event that RFC 3920 SRV lookup fails to find valid entries
+     * in DNS.
+     * @return a list of jabber servers; never null
+     */
+    public List<UnresolvedIpPort> getDefaultServers();
 }

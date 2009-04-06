@@ -2,15 +2,15 @@ package com.limegroup.gnutella.messages;
 
 import java.io.ByteArrayInputStream;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 
 import junit.framework.Test;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.Message.Network;
 
-public class MessageTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class MessageTest extends org.limewire.gnutella.tests.LimeTestCase {
     
     private PingRequestFactory pingRequestFactory;
     private MessageFactory messageFactory;

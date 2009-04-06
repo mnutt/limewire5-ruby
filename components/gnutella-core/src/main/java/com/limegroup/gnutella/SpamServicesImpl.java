@@ -84,14 +84,14 @@ public class SpamServicesImpl implements SpamServices {
     public void blockHost(String host) {
         // FIXME move into IPFilter
         // FIXME synchronize access to setting properly?
-        String[] bannedIPs = FilterSettings.BLACK_LISTED_IP_ADDRESSES.getValue();
+        String[] bannedIPs = FilterSettings.BLACK_LISTED_IP_ADDRESSES.get();
         Arrays.sort(bannedIPs, Comparators.stringComparator());
 
         if (Arrays.binarySearch(bannedIPs, host, Comparators.stringComparator()) < 0) {
             String[] more_banned = new String[bannedIPs.length + 1];
             System.arraycopy(bannedIPs, 0, more_banned, 0, bannedIPs.length);
             more_banned[bannedIPs.length] = host;
-            FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(more_banned);
+            FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(more_banned);
             reloadIPFilter();
         }
     }
@@ -100,10 +100,10 @@ public class SpamServicesImpl implements SpamServices {
         // FIXME move into IPFilter
         // FIXME synchronize access to setting properly?
         String[] bannedIPs = FilterSettings.BLACK_LISTED_IP_ADDRESSES
-                .getValue();
+                .get();
         List<String> bannedList = Arrays.asList(bannedIPs);
         if (bannedList.remove(host)) {
-            FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(bannedList.toArray(new String[0]));
+            FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(bannedList.toArray(new String[0]));
             reloadIPFilter();
         }
     }

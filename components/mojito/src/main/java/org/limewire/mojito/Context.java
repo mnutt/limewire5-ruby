@@ -171,7 +171,7 @@ public class Context implements MojitoDHT, RouteTable.ContactPinger {
         
         PublicKey masterKey = null;
         try {
-            File file = new File(ContextSettings.MASTER_KEY.getValue());
+            File file = new File(ContextSettings.MASTER_KEY.get());
             if (file.exists() && file.isFile()) {
                 masterKey = CryptoUtils.loadPublicKey(file);
             }

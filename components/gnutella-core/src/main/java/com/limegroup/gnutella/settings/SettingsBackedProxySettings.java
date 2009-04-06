@@ -26,11 +26,11 @@ public class SettingsBackedProxySettings implements ProxySettings {
     }
 
     public String getProxyPassword() {
-        return ConnectionSettings.PROXY_PASS.getValue();
+        return ConnectionSettings.PROXY_PASS.get();
     }
 
     public String getProxyUsername() {
-        return ConnectionSettings.PROXY_USERNAME.getValue();
+        return ConnectionSettings.PROXY_USERNAME.get();
     }
 
     public boolean isProxyAuthenticationRequired() {
@@ -42,7 +42,7 @@ public class SettingsBackedProxySettings implements ProxySettings {
     }
 
     public String getProxyHost() {
-        return ConnectionSettings.PROXY_HOST.getValue();
+        return ConnectionSettings.PROXY_HOST.get();
     }
 
     public int getProxyPort() {

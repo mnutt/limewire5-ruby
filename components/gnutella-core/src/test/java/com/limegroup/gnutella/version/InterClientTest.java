@@ -6,6 +6,8 @@ import java.io.File;
 import junit.framework.Test;
 
 import org.limewire.core.settings.UpdateSettings;
+import org.limewire.gnutella.tests.ActivityCallbackStub;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GGEP;
 import org.limewire.listener.EventListener;
 import org.limewire.util.Base32;
@@ -18,7 +20,6 @@ import com.google.inject.Module;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.BlockingConnectionUtils;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.PeerTestCase;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.messages.Message;
@@ -28,7 +29,6 @@ import com.limegroup.gnutella.messages.vendor.CapabilitiesVMStubHelper;
 import com.limegroup.gnutella.messages.vendor.UpdateRequest;
 import com.limegroup.gnutella.messages.vendor.UpdateResponse;
 import com.limegroup.gnutella.messages.vendor.VendorMessage;
-import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 import com.limegroup.gnutella.util.DataUtils;
 import com.limegroup.gnutella.util.LimeWireUtils;
 

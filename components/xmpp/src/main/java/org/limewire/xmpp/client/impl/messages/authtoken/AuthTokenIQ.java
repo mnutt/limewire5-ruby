@@ -51,6 +51,7 @@ public class AuthTokenIQ extends IQ {
         return authToken;
     }
 
+    @Override
     public String getChildElementXML() {        
         StringBuilder authTokenElement = new StringBuilder("<auth-token xmlns=\"jabber:iq:lw-auth-token\">");        
         authTokenElement.append("<token value=\"").append(StringUtils.getUTF8String(Base64.encodeBase64(authToken))).append("\"/>");

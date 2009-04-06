@@ -4,12 +4,11 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import javax.swing.JLabel;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -24,18 +23,25 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
+import org.limewire.core.api.search.SearchCategory;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.properties.PropertiesFactory;
-import org.limewire.ui.swing.search.RowSelectionPreserver;
 import org.limewire.ui.swing.search.SearchViewType;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
+import org.limewire.ui.swing.search.resultpanel.classic.AllTableFormat;
+import org.limewire.ui.swing.search.resultpanel.classic.AudioTableFormat;
 import org.limewire.ui.swing.search.resultpanel.classic.ClassicDoubleClickHandler;
+import org.limewire.ui.swing.search.resultpanel.classic.DocumentTableFormat;
 import org.limewire.ui.swing.search.resultpanel.classic.FromTableCellRenderer;
+import org.limewire.ui.swing.search.resultpanel.classic.ImageTableFormat;
+import org.limewire.ui.swing.search.resultpanel.classic.OtherTableFormat;
+import org.limewire.ui.swing.search.resultpanel.classic.ProgramTableFormat;
+import org.limewire.ui.swing.search.resultpanel.classic.VideoTableFormat;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewDisplayedRowsLimit;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewTableEditorRenderer;
@@ -43,9 +49,11 @@ import org.limewire.ui.swing.search.resultpanel.list.ListViewTableEditorRenderer
 import org.limewire.ui.swing.search.resultpanel.list.ListViewTableFormat;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule.RowDisplayResult;
 import org.limewire.ui.swing.table.CalendarRenderer;
-import org.limewire.ui.swing.table.ConfigurableTable;
+import org.limewire.ui.swing.table.FileSizeRenderer;
+import org.limewire.ui.swing.table.QualityRenderer;
+import org.limewire.ui.swing.table.TableCellHeaderRenderer;
 import org.limewire.ui.swing.table.TableColors;
-import org.limewire.ui.swing.table.VisibleTableFormat;
+import org.limewire.ui.swing.table.TimeRenderer;
 import org.limewire.ui.swing.util.EventListJXTableSorting;
 import org.limewire.ui.swing.util.GuiUtils;
 
@@ -54,96 +62,138 @@ import ca.odell.glazedlists.RangeList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
-import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swing.EventTableModel;
+
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * Base class containing the search results tables for a single category.  
- * BaseResultPanel contains both the List view and Table view components. 
+ * BaseResultPanel contains both the List view and Table view components.  The
+ * current view is selected by calling the <code>setViewType()</code> method.
+ * the display category is selected by calling the <code>showCategory()</code>
+ * method.
  */
-public abstract class BaseResultPanel extends JXPanel {
+public class BaseResultPanel extends JXPanel {
     
     private static final int MAX_DISPLAYED_RESULT_SIZE = 500;
     private static final int TABLE_ROW_HEIGHT = 23;
-    private static final int ROW_HEIGHT = 56;
+    private static final int ROW_HEIGHT = ListViewRowHeightRule.RowDisplayConfig.HeadingAndMetadata.getRowHeight();
 
     private final ListViewTableEditorRendererFactory listViewTableEditorRendererFactory;
     private final Log LOG = LogFactory.getLog(BaseResultPanel.class);
     
     private final CardLayout layout = new CardLayout();
-    private final EventList<VisualSearchResult> baseEventList;
-    private ListViewTable resultsList;
-    private ConfigurableTable<VisualSearchResult> resultsTable;
+
+    /** Table component for the List view. */
+    private final ListViewTable resultsList;
+
+    /** Table component for the Table view. */
+    private final ResultsTable<VisualSearchResult> resultsTable;
     
-    //cache for RowDisplayResult which could be expensive to generate with large search result sets
+    /** cache for RowDisplayResult which could be expensive to generate with large search result sets */
     private final Map<VisualSearchResult, RowDisplayResult> vsrToRowDisplayResultMap = 
         new HashMap<VisualSearchResult, RowDisplayResult>();
     
-    private Scrollable visibleComponent;
+    /** Data model containing search results. */
+    private final SearchResultsModel searchResultsModel;
     
-    private final SearchResultFromWidgetFactory factory;
-
-    private List<DownloadPreprocessor> downloadPreprocessors = new ArrayList<DownloadPreprocessor>();
-    
-    private final LibraryNavigator libraryNavigator;
+    private final ResultsTableFormatFactory tableFormatFactory;
+    private final Navigator navigator;
+    private final PropertiesFactory<VisualSearchResult> properties;
+    private final ListViewRowHeightRule rowHeightRule;
+    private final SearchResultFromWidgetFactory fromWidgetfactory;
     private final NameRendererFactory nameRendererFactory;
     private final DownloadHandler downloadHandler;
-    private final boolean showAudioArtist;
     
-    private final SearchResultsModel searchResultsModel;
+    private RangeList<VisualSearchResult> maxSizedList;
+    private ListEventListener<VisualSearchResult> maxSizedListener;
+    
+    private EventListJXTableSorting resultsTableSorting; 
+    private ColorHighlighter resultsColorHighlighter;
+    private Scrollable visibleComponent;
 
     /**
      * Constructs a BaseResultPanel with the specified components.
      */
-    BaseResultPanel(SearchResultsModel searchResultsModel,
+    @AssistedInject
+    public BaseResultPanel(
+            @Assisted SearchResultsModel searchResultsModel,
+            ResultsTableFormatFactory tableFormatFactory,
             ListViewTableEditorRendererFactory listViewTableEditorRendererFactory,
-            EventList<VisualSearchResult> eventList,
-            ResultsTableFormat<VisualSearchResult> tableFormat,
-            RowSelectionPreserver preserver,
             Navigator navigator,
             PropertiesFactory<VisualSearchResult> properties, 
             ListViewRowHeightRule rowHeightRule,
             SearchResultFromWidgetFactory fromWidgetFactory,
             LibraryNavigator libraryNavigator,
-            NameRendererFactory nameRendererFactory,
-            boolean showAudioArtist) {
+            NameRendererFactory nameRendererFactory) {
         
         this.searchResultsModel = searchResultsModel;
+        this.tableFormatFactory = tableFormatFactory;
         this.listViewTableEditorRendererFactory = listViewTableEditorRendererFactory;
-        this.baseEventList = eventList;
-        this.factory = fromWidgetFactory;
-        this.downloadPreprocessors.add(new LicenseWarningDownloadPreprocessor());
-        this.libraryNavigator = libraryNavigator;
+        this.navigator = navigator;
+        this.properties = properties;
+        this.rowHeightRule = rowHeightRule;
+        this.fromWidgetfactory = fromWidgetFactory;
         this.nameRendererFactory = nameRendererFactory;
         this.downloadHandler = new DownloadHandlerImpl(searchResultsModel, navigator, libraryNavigator);
-        this.showAudioArtist = showAudioArtist;
+
+        // Create tables.
+        this.resultsList = createList();
+        this.resultsTable = createTable();
         
         setLayout(layout);
-                
-        configureList(eventList, preserver, navigator, properties, rowHeightRule);
-        configureTable(eventList, tableFormat, navigator, properties);
  
         add(resultsList, SearchViewType.LIST.name());
         add(resultsTable, SearchViewType.TABLE.name());
-        setViewType(SearchViewType.LIST);
     }
     
     /**
-     * Configures the List view for search results.
+     * Creates a new List view table.
      */
-    private void configureList(final EventList<VisualSearchResult> eventList, 
-            RowSelectionPreserver preserver, final Navigator navigator, 
-            final PropertiesFactory<VisualSearchResult> properties, 
-            final ListViewRowHeightRule rowHeightRule) {
+    private ListViewTable createList() {
+        ListViewTable listTable = new ListViewTable();
         
-        ListViewTableFormat tableFormat = new ListViewTableFormat();        
-        final RangeList<VisualSearchResult> maxSizedList = new RangeList<VisualSearchResult>(newVisibleFilterList(eventList));
+        // Set list table fields that do not change with search category.
+        listTable.setShowGrid(true, false);
+        listTable.setRowHeightEnabled(true);
+        
+        return listTable;
+    }
+    
+    /**
+     * Creates a new Table view table.
+     */
+    private ResultsTable<VisualSearchResult> createTable() {
+        ResultsTable<VisualSearchResult> table = new ResultsTable<VisualSearchResult>();
+        
+        // Set table fields that do not change with search category.
+        table.setPopupHandler(new SearchPopupHandler(table, downloadHandler, properties));
+        table.setDoubleClickHandler(new ClassicDoubleClickHandler(table, downloadHandler));
+        table.setRowHeight(TABLE_ROW_HEIGHT);
+        
+        return table;
+    }
+    
+    /**
+     * Configures the List view to display results for the selected category.
+     */
+    private void configureList() {
+        // Remove listener with reference to previous list.
+        if (maxSizedList != null) {
+            maxSizedList.removeListEventListener(maxSizedListener);
+        }
+        
+        // Get sorted list for selected category.
+        final EventList<VisualSearchResult> sortedList = searchResultsModel.getSortedSearchResults();
+        
+        // Create sized list.
+        maxSizedList = GlazedListsFactory.rangeList(sortedList);
         maxSizedList.setHeadRange(0, MAX_DISPLAYED_RESULT_SIZE + 1);
         
-        resultsList = new ListViewTable(maxSizedList, tableFormat);
-        resultsList.setShowGrid(true, false);
-        preserver.addRowPreservationListener(resultsList);
-        
+        // Create table format and set table model.
+        ListViewTableFormat tableFormat = new ListViewTableFormat();
+        resultsList.setEventListFormat(maxSizedList, tableFormat, false);
         
         // Represents display limits for displaying search results in list view.
         // The limits are introduced to avoid a performance penalty caused by
@@ -159,7 +209,7 @@ public abstract class BaseResultPanel extends JXPanel {
 
             @Override
             public int getTotalResultsReturned() {
-                return eventList.size();
+                return sortedList.size();
             }
         };
 
@@ -193,14 +243,13 @@ public abstract class BaseResultPanel extends JXPanel {
             resultsList.getColumnModel().getColumn(i).setPreferredWidth(tableFormat.getInitialWidth(i));
         }
         
-        resultsList.setRowHeightEnabled(true);
         //add listener to table model to set row heights based on contents of the search results
-        maxSizedList.addListEventListener(new ListEventListener<VisualSearchResult>() {
+        maxSizedListener = new ListEventListener<VisualSearchResult>() {
             @Override
             public void listChanged(ListEvent<VisualSearchResult> listChanges) {
                 
-                final EventTableModel model = (EventTableModel) resultsList.getModel();
-                if (model.getRowCount() == 0) {
+                EventTableModel tableModel = resultsList.getEventTableModel();
+                if (tableModel.getRowCount() == 0) {
                     return;
                 }
                 
@@ -208,6 +257,7 @@ public abstract class BaseResultPanel extends JXPanel {
                 Runnable runner = new Runnable() {
                     @Override
                     public void run() {
+                        EventTableModel model = resultsList.getEventTableModel();
                         
                         resultsList.setIgnoreRepaints(true);
                         boolean setRowSize = false;
@@ -244,59 +294,56 @@ public abstract class BaseResultPanel extends JXPanel {
                 
                 SwingUtilities.invokeLater(runner);
             }
-        });
+        };
+        maxSizedList.addListEventListener(maxSizedListener);
         resultsList.setRowHeight(ROW_HEIGHT);        
     }
-    
-    /**
-     * Creates a filtered list of visible results using the specified list of 
-     * search results.
-     */
-    private EventList<VisualSearchResult> newVisibleFilterList(
-            EventList<VisualSearchResult> eventList) {
-        return GlazedListsFactory.filterList(eventList, new Matcher<VisualSearchResult>() {
-            @Override
-            public boolean matches(VisualSearchResult item) {
-                boolean visible = item.isVisible();
-                LOG.debugf("filter... VSR urn {0} visibility {1}", item.getCoreSearchResults().get(0).getUrn(), visible);
-                return visible;
-            }
-        });
-    }
 
     /**
-     * Configures the Table view for search results.
+     * Configures the Table view to display results for the selected category.
      */
-    private void configureTable(EventList<VisualSearchResult> eventList,
-        final ResultsTableFormat<VisualSearchResult> tableFormat, Navigator navigator,
-        PropertiesFactory<VisualSearchResult> properties) {
-        
+    private void configureTable() {
+        // Uninstall components with references to previous list.
+        if (resultsTableSorting != null) {
+            resultsTableSorting.uninstall();
+        }
+        if (resultsColorHighlighter != null) {
+            resultsTable.removeHighlighter(resultsColorHighlighter);
+        }
+
+        // Get results list and table format for selected category.
+        SearchCategory selectedCategory = searchResultsModel.getSelectedCategory();
+        EventList<VisualSearchResult> eventList = searchResultsModel.getCategorySearchResults(selectedCategory);
+        ResultsTableFormat<VisualSearchResult> tableFormat = tableFormatFactory.createTableFormat(selectedCategory);
+
+        // Create sorted list and set table model.
         SortedList<VisualSearchResult> sortedList = new SortedList<VisualSearchResult>(eventList);
-        resultsTable = new ConfigurableTable<VisualSearchResult>(sortedList, tableFormat, true);
+        resultsTable.setEventListFormat(sortedList, tableFormat, true);
 
         //link the jxtable column headers to the sorted list
-        EventListJXTableSorting.install(resultsTable, sortedList, tableFormat);
+        resultsTableSorting = EventListJXTableSorting.install(resultsTable, sortedList, tableFormat);
             
         setupCellRenderers(tableFormat);
-  
-        resultsTable.setPopupHandler(new SearchPopupHandler(resultsTable, downloadHandler, properties));
-        resultsTable.setDoubleClickHandler(new ClassicDoubleClickHandler(resultsTable.getEventTableModel(), downloadHandler, navigator, libraryNavigator));
-
-        resultsTable.setRowHeight(TABLE_ROW_HEIGHT);
         
-        resultsTable.setupColumnHandler();
+        // Apply column settings for table format.
+        resultsTable.applySavedColumnSettings();
 
         TableColors tableColors = new TableColors();
-        resultsTable.addHighlighter(new ColorHighlighter(new DownloadedHighlightPredicate(sortedList), null, tableColors.getDisabledForegroundColor(), null, tableColors.getDisabledForegroundColor()));
+        resultsColorHighlighter = new ColorHighlighter(new DownloadedHighlightPredicate(sortedList), 
+                null, tableColors.getDisabledForegroundColor(), 
+                null, tableColors.getDisabledForegroundColor());
+        resultsTable.addHighlighter(resultsColorHighlighter);
     }
 
     /**
      * Initializes cell renderers in the Table view column model based on 
      * column types provided by the specified table format. 
      */
-    protected void setupCellRenderers(final ResultsTableFormat<VisualSearchResult> tableFormat) {
+    protected void setupCellRenderers(ResultsTableFormat<VisualSearchResult> tableFormat) {
+        SearchCategory selectedCategory = searchResultsModel.getSelectedCategory();
+        
         CalendarRenderer calendarRenderer = new CalendarRenderer();
-        TableCellRenderer nameRenderer = nameRendererFactory.createNameRenderer(showAudioArtist);
+        TableCellRenderer nameRenderer = nameRendererFactory.createNameRenderer((selectedCategory == SearchCategory.ALL));
         TableCellRenderer defaultRenderer = new DefaultLibraryRenderer();
         
         int columnCount = tableFormat.getColumnCount();
@@ -306,14 +353,50 @@ public abstract class BaseResultPanel extends JXPanel {
                 || clazz == Integer.class
                 || clazz == Long.class) {
                 setCellRenderer(i, defaultRenderer);
+                setCellEditor(i, null);
             } else if (clazz == Calendar.class) {
                 setCellRenderer(i, calendarRenderer);
+                setCellEditor(i, null);
             } else if (i == tableFormat.getNameColumn()) {
                 setCellRenderer(i, nameRenderer);
+                setCellEditor(i, null);
             } else if (VisualSearchResult.class.isAssignableFrom(clazz)) {
-                setCellRenderer(i, new FromTableCellRenderer(factory.create(true)));
-                setCellEditor(i, new FromTableCellRenderer(factory.create(true)));
+                setCellRenderer(i, new FromTableCellRenderer(fromWidgetfactory.create(true)));
+                setCellEditor(i, new FromTableCellRenderer(fromWidgetfactory.create(true)));
             }
+        }
+        
+        // Set specific column renderers for selected category.
+        switch (selectedCategory) {
+        case ALL:
+            setCellRenderer(AllTableFormat.SIZE_INDEX, new FileSizeRenderer());
+            break;
+        case AUDIO:
+            setHeaderRenderer(AudioTableFormat.LENGTH_INDEX, new TableCellHeaderRenderer(JLabel.TRAILING));
+            setCellRenderer(AudioTableFormat.SIZE_INDEX, new FileSizeRenderer());
+            setCellRenderer(AudioTableFormat.LENGTH_INDEX, new TimeRenderer());
+            setCellRenderer(AudioTableFormat.QUALITY_INDEX, new QualityRenderer());
+            break;
+        case VIDEO:
+            setHeaderRenderer(VideoTableFormat.LENGTH_INDEX, new TableCellHeaderRenderer(JLabel.TRAILING));
+            setCellRenderer(VideoTableFormat.SIZE_INDEX, new FileSizeRenderer());
+            setCellRenderer(VideoTableFormat.LENGTH_INDEX, new TimeRenderer());
+            setCellRenderer(VideoTableFormat.QUALITY_INDEX, new QualityRenderer());
+            break;
+        case DOCUMENT:
+            setCellRenderer(DocumentTableFormat.SIZE_INDEX, new FileSizeRenderer());
+            break;
+        case IMAGE:
+            setCellRenderer(ImageTableFormat.SIZE_INDEX, new FileSizeRenderer());
+            break;
+        case PROGRAM:
+            setCellRenderer(ProgramTableFormat.SIZE_INDEX, new FileSizeRenderer());
+            break;
+        case OTHER:
+            setCellRenderer(OtherTableFormat.SIZE_INDEX, new FileSizeRenderer());
+            break;
+        default:
+            break;
         }
     }
 
@@ -348,10 +431,15 @@ public abstract class BaseResultPanel extends JXPanel {
     }
 
     /**
-     * Returns the list of visual search results.
+     * Displays search results for the specified search category.
      */
-    public EventList<VisualSearchResult> getResultsEventList() {
-        return baseEventList;
+    public void showCategory(SearchCategory searchCategory) {
+        // Select category to update sorted list.
+        searchResultsModel.setSelectedCategory(searchCategory);
+        
+        // Configure results list and table.
+        configureList();
+        configureTable();
     }
 
     /**
@@ -398,17 +486,16 @@ public abstract class BaseResultPanel extends JXPanel {
         }       
     }
 
-    
- 
     /**
      * Table component to display search results in a vertical list.
      */
-    public static class ListViewTable extends ConfigurableTable<VisualSearchResult> {
+    public static class ListViewTable extends ResultsTable<VisualSearchResult> {
         @Resource private Color similarResultParentBackgroundColor;        
         private boolean ignoreRepaints;
         
-        public ListViewTable(EventList<VisualSearchResult> eventList, VisibleTableFormat<VisualSearchResult> tableFormat) {
-            super(eventList, tableFormat, false);
+        public ListViewTable() {
+            super();
+            
             GuiUtils.assignResources(this);
             
             setGridColor(Color.decode("#EBEBEB"));

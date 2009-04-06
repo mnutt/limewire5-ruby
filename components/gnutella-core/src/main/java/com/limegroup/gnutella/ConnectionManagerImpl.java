@@ -1092,7 +1092,7 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
         if(userAgent == null)
             return false;
         userAgent = userAgent.toLowerCase(Locale.US);
-        String[] bad = ConnectionSettings.EVIL_HOSTS.getValue();
+        String[] bad = ConnectionSettings.EVIL_HOSTS.get();
         for(int i = 0; i < bad.length; i++)
             if(userAgent.indexOf(bad[i]) != -1)
                 return false;
@@ -1118,7 +1118,7 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
         if(userAgent == null)
             return false;
         userAgent = userAgent.toLowerCase(Locale.US);
-        String[] bad = ConnectionSettings.EVIL_HOSTS.getValue();
+        String[] bad = ConnectionSettings.EVIL_HOSTS.get();
         for(int i = 0; i < bad.length; i++)
             if(userAgent.indexOf(bad[i]) != -1)
                 return false;
@@ -2496,8 +2496,8 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
     private boolean checkLocale(String loc) {
         if(loc == null)
             loc = /** assume english if locale is not given... */
-                ApplicationSettings.DEFAULT_LOCALE.getValue();
-        return ApplicationSettings.LANGUAGE.getValue().equals(loc);
+                ApplicationSettings.DEFAULT_LOCALE.get();
+        return ApplicationSettings.LANGUAGE.get().equals(loc);
     }
     
     

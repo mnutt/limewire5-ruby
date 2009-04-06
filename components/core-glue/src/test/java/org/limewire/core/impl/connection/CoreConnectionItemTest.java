@@ -110,18 +110,31 @@ public class CoreConnectionItemTest extends BaseTestCase {
      *  properly modifiable.
      */
     public void testHostName() {
-        Mockery context = new Mockery();
+        final Mockery context = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+                
         final RoutedConnection connection = context.mock(RoutedConnection.class);        
         
         context.checking(new Expectations() {{
             allowing(connection).getAddress();
             will(returnValue("initial"));
+            
+            InetAddress inetAddress = context.mock(InetAddress.class);
+            allowing(connection).getInetAddress();
+            will(returnValue(inetAddress));
+            allowing(inetAddress).getHostAddress();
+            will(returnValue("reseted"));
         }});
         
         CoreConnectionItem item = new CoreConnectionItem(connection);
         assertEquals("initial", item.getHostName());
         item.setHostName("override");
         assertEquals("override", item.getHostName());
+        item.setAddressResolved(true);
+        item.resetHostName();
+        assertEquals("reseted", item.getHostName());
+        assertFalse(item.isAddressResolved());
         
         context.assertIsSatisfied();
     }

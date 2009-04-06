@@ -113,7 +113,7 @@ public class ActivityCallbackAdapter implements ActivityCallback {
         
     }
 
-    public void downloadCompleted(Downloader d) {
+    public void removeDownload(Downloader d) {
         
     }
 

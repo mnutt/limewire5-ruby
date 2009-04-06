@@ -43,6 +43,7 @@ public class NoSaveIQ extends IQ {
         items.put(Objects.nonNull(jid, "jid"), Objects.nonNull(value, "value"));
     }
 
+    @Override
     public String getChildElementXML() {
         StringBuilder s = new StringBuilder("<query xmlns='google:nosave'>");
         for(Map.Entry<String, Boolean> entry : items.entrySet()) {

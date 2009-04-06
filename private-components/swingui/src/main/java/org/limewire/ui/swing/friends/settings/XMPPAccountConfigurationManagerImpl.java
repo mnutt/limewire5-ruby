@@ -12,6 +12,8 @@ import javax.swing.Icon;
 
 import org.jdesktop.application.Resource;
 import org.limewire.core.api.xmpp.XMPPResourceFactory;
+import org.limewire.io.UnresolvedIpPort;
+import org.limewire.io.UnresolvedIpPortImpl;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.xmpp.api.client.PasswordManager;
@@ -43,11 +45,11 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
     }
 
     private void loadCustomServer() {
-        String custom = SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.getValue();
+        String custom = SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.get();
         XMPPAccountConfigurationImpl customConfig =
             new XMPPAccountConfigurationImpl(custom, "Jabber", resource);
         configs.put(customConfig.getLabel(), customConfig);
-        String autoLogin = SwingUiSettings.XMPP_AUTO_LOGIN.getValue();
+        String autoLogin = SwingUiSettings.XMPP_AUTO_LOGIN.get();
         if(!autoLogin.equals("")) {
             int comma = autoLogin.indexOf(',');
             try {
@@ -72,12 +74,28 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
 
     private void loadWellKnownServers() {
         XMPPAccountConfiguration gmail =
-            new XMPPAccountConfigurationImpl(true, "gmail.com", "Gmail", gmailIcon, resource);
+            new XMPPAccountConfigurationImpl(true, "gmail.com", "Gmail", gmailIcon, resource, getGTalkServers());
         XMPPAccountConfiguration livejournal =
-            new XMPPAccountConfigurationImpl(false, "livejournal.com", "LiveJournal", ljIcon, resource);
+            new XMPPAccountConfigurationImpl(false, "livejournal.com", "LiveJournal", ljIcon, resource, getLiveJournalServers());
 
         configs.put(gmail.getLabel(), gmail);
         configs.put(livejournal.getLabel(), livejournal);
+    }
+
+    private List<UnresolvedIpPort> getLiveJournalServers() {
+        List<UnresolvedIpPort> defaultServers = new ArrayList<UnresolvedIpPort>(1);
+        defaultServers.add(new UnresolvedIpPortImpl("xmpp.services.livejournal.com", 5222));
+        return defaultServers;
+    }
+
+    private List<UnresolvedIpPort> getGTalkServers() {
+        List<UnresolvedIpPort> defaultServers = new ArrayList<UnresolvedIpPort>(5);
+        defaultServers.add(new UnresolvedIpPortImpl("talk.1.google.com", 5222));
+        defaultServers.add(new UnresolvedIpPortImpl("talk1.1.google.com", 5222));
+        defaultServers.add(new UnresolvedIpPortImpl("talk2.1.google.com", 5222));
+        defaultServers.add(new UnresolvedIpPortImpl("talk3.1.google.com", 5222));
+        defaultServers.add(new UnresolvedIpPortImpl("talk4.1.google.com", 5222));
+        return defaultServers;
     }
 
     @Override
@@ -116,17 +134,17 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
         // Remove the old configuration, if there is one
         if(autoLoginConfig != null) {
             passwordManager.removePassword(autoLoginConfig.getUserInputLocalID());
-            SwingUiSettings.XMPP_AUTO_LOGIN.setValue("");
-            SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.setValue("");
+            SwingUiSettings.XMPP_AUTO_LOGIN.set("");
+            SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.set("");
             autoLoginConfig = null;
         }
         // Store the new configuration, if there is one
         if(config != null) {
             try {
                 passwordManager.storePassword(config.getUserInputLocalID(), config.getPassword());
-                SwingUiSettings.XMPP_AUTO_LOGIN.setValue(config.getLabel() + "," + config.getUserInputLocalID());
+                SwingUiSettings.XMPP_AUTO_LOGIN.set(config.getLabel() + "," + config.getUserInputLocalID());
                 if(config.getLabel().equals("Jabber"))
-                    SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.setValue(config.getServiceName());
+                    SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.set(config.getServiceName());
                 autoLoginConfig = config;
             } catch (IllegalArgumentException ignored) {
                 // Empty username or password - no soup for you!

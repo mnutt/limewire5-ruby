@@ -14,7 +14,7 @@ import junit.framework.Test;
 /**
  * Tests for DIMERecord.
  */
-public final class DIMERecordTest extends com.limegroup.gnutella.util.LimeTestCase {
+public final class DIMERecordTest extends org.limewire.gnutella.tests.LimeTestCase {
 
 	/**
 	 * Constructs a new test instance for responses.

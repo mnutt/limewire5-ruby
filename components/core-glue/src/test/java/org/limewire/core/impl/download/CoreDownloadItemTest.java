@@ -656,7 +656,7 @@ public class CoreDownloadItemTest extends BaseTestCase {
             }
         });
 
-        assertEquals(DownloadState.CONNECTING, coreDownloadItem.getState());
+        assertEquals(DownloadState.RESUMING, coreDownloadItem.getState());
 
         context.checking(new Expectations() {
             {

@@ -10,10 +10,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
+
 import junit.framework.Test;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
@@ -29,7 +30,7 @@ import com.limegroup.gnutella.messages.Message.Network;
  *  THIS TEST SHOULD NOT BE INCLUDED IN ALL TESTS!  It is very specifically 
  *  tuned and will now work in general.
  */
-public class GUESSTester extends com.limegroup.gnutella.util.LimeTestCase {
+public class GUESSTester extends org.limewire.gnutella.tests.LimeTestCase {
 
 	/**
 	 * Constant for the size of UDP messages to accept -- dependent upon

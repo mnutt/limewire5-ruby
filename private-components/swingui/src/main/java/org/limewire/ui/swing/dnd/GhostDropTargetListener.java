@@ -10,7 +10,7 @@ import java.awt.dnd.DropTargetListener;
 import javax.swing.SwingUtilities;
 
 import org.limewire.core.api.friend.Friend;
-import org.limewire.ui.swing.library.LibraryListSourceChanger;
+import org.limewire.ui.swing.library.ListSourceChanger;
 
 /**
  * Listens to drag and drop events. When files are dragged onto a
@@ -27,7 +27,7 @@ public class GhostDropTargetListener implements DropTargetListener {
     private final GhostDragGlassPane ghostDragGlassPane;
     private final Component parent;
     private final Friend friend;
-    private final LibraryListSourceChanger listChanger;
+    private final ListSourceChanger listChanger;
     
     public GhostDropTargetListener(Component parent, GhostDragGlassPane ghostDragGlassPane) {
         this.parent = parent;
@@ -43,7 +43,7 @@ public class GhostDropTargetListener implements DropTargetListener {
         this.listChanger = null;
     }
     
-    public GhostDropTargetListener(Component parent, GhostDragGlassPane ghostDragGlassPane, LibraryListSourceChanger listChanger) {
+    public GhostDropTargetListener(Component parent, GhostDragGlassPane ghostDragGlassPane, ListSourceChanger listChanger) {
         this.parent = parent;
         this.ghostDragGlassPane = ghostDragGlassPane;
         this.friend = null;
@@ -77,11 +77,19 @@ public class GhostDropTargetListener implements DropTargetListener {
         SwingUtilities.convertPointFromScreen(p, ghostPane); 
 
         ghostPane.setPoint(p);
+        
+        Friend currentFriend;
         //if filtering, set drop target name to friend filtering on
         if(listChanger != null)
-            ghostPane.setText(listChanger.getCurrentFriend());
+            currentFriend = listChanger.getCurrentFriend();
         else
-        	ghostPane.setText(friend);
+            currentFriend = friend;
+        
+        // if friend is already set in ghost pane, don't update image
+        if(currentFriend != null && ghostPane.getCurrentFriend() != null &&
+                currentFriend.getId().equals(ghostPane.getCurrentFriend().getId()))
+            return;
+        ghostPane.setText(currentFriend);
     }
 
 	/**

@@ -647,6 +647,7 @@ class SharedFilesKeywordIndexImpl implements SharedFilesKeywordIndex {
          * "What is new" search. Get up to 3 of your "youngest" files.
          */
         WHATS_NEW {
+            @Override
             void processQueryStage(QueryRequest request, QueryProcessingContext context,
                     SharedFilesKeywordIndexImpl keywordIndex) {
                 Set<Response> responses = keywordIndex.queryWhatsNew(request);
@@ -654,6 +655,7 @@ class SharedFilesKeywordIndexImpl implements SharedFilesKeywordIndex {
                 context.setFinishedProcessing();
             }
 
+            @Override
             boolean shouldProcess(QueryRequest request) {
                 return request.isWhatIsNewRequest();
             }
@@ -667,11 +669,13 @@ class SharedFilesKeywordIndexImpl implements SharedFilesKeywordIndex {
          * before they ever reach this point.
          */
         SPECIAL_CASE_EMPTY_RESPONSE {
+            @Override
             void processQueryStage(QueryRequest request, QueryProcessingContext context,
                     SharedFilesKeywordIndexImpl keywordIndex) {
                 context.setFinishedProcessing();
             }
 
+            @Override
             boolean shouldProcess(QueryRequest request) {
                 String str = request.getQuery();
                 return str.equals(QueryRequest.INDEXING_QUERY)
@@ -683,12 +687,14 @@ class SharedFilesKeywordIndexImpl implements SharedFilesKeywordIndex {
          * Search file name
          */
         FILE_SEARCH {
+            @Override
             void processQueryStage(QueryRequest request, QueryProcessingContext context,
                     SharedFilesKeywordIndexImpl keywordIndex) {
                 Set<Response> responses = keywordIndex.queryFileNames(request);
                 context.addQueryResponses(responses);
             }
 
+            @Override
             boolean shouldProcess(QueryRequest request) {
                 return true;
             }
@@ -699,6 +705,7 @@ class SharedFilesKeywordIndexImpl implements SharedFilesKeywordIndex {
          * Search meta data
          */
         METADATA_SEARCH {
+            @Override
             void processQueryStage(QueryRequest request, QueryProcessingContext context,
                     SharedFilesKeywordIndexImpl keywordIndex) {
                 Set<Response> responses = keywordIndex.queryMetaData(request);
@@ -706,6 +713,7 @@ class SharedFilesKeywordIndexImpl implements SharedFilesKeywordIndex {
                 context.setFinishedProcessing();
             }
 
+            @Override
             boolean shouldProcess(QueryRequest request) {
                 return request.shouldIncludeXMLInResponse();
             }

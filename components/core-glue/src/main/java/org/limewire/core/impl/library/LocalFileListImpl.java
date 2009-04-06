@@ -110,16 +110,36 @@ abstract class LocalFileListImpl implements LocalFileList {
         return threadSafeList.size();
     }
     
+    /**
+     * Adds <code>fd</code> as {@link LocalFileItem} to this list. 
+     */
     protected void addFileDesc(FileDesc fd) {
+        threadSafeList.add(getOrCreateLocalFileItem(fd));
+    }
+    
+    private LocalFileItem getOrCreateLocalFileItem(FileDesc fileDesc) {
         LocalFileItem item;
-        Object object = fd.getClientProperty(FILE_ITEM_PROPERTY);
+        Object object = fileDesc.getClientProperty(FILE_ITEM_PROPERTY);
         if(object != null) {
             item = (LocalFileItem)object;
         } else {
-            item = fileItemFactory.createCoreLocalFileItem(fd);
-            fd.putClientProperty(FILE_ITEM_PROPERTY, item);
+            item = fileItemFactory.createCoreLocalFileItem(fileDesc);
+            fileDesc.putClientProperty(FILE_ITEM_PROPERTY, item);
         }
-        threadSafeList.add(item);
+        return item;
+    }
+    
+    /**
+     * Adds all <code>fileDescs</code> as {@link LocalFileItem} to this list.
+     * <p>
+     * Caller is responsible for locking the iterable.
+     */
+    protected void addAllFileDescs(Iterable<FileDesc> fileDescs) {
+        List<LocalFileItem> fileItems = new ArrayList<LocalFileItem>();
+        for (FileDesc fileDesc : fileDescs) {
+            fileItems.add(getOrCreateLocalFileItem(fileDesc));
+        }
+        threadSafeList.addAll(fileItems);
     }
     
     protected void changeFileDesc(FileDesc old, FileDesc now) {

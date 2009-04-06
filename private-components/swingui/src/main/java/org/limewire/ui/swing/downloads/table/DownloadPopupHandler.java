@@ -175,6 +175,7 @@ public class DownloadPopupHandler implements TablePopupHandler {
             }
             popupMenu.add(libraryMenuItem);
             break;
+        case RESUMING:
         case DOWNLOADING:
             if (downloadItem.getCategory() != Category.PROGRAM && downloadItem.getCategory() != Category.OTHER) {
                 popupMenu.add(previewMenuItem).setEnabled(downloadItem.isLaunchable());

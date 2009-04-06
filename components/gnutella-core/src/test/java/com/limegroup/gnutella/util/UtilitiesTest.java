@@ -7,7 +7,7 @@ import junit.framework.Test;
 /**
  * Unit tests for Utilities
  */
-public class UtilitiesTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class UtilitiesTest extends org.limewire.gnutella.tests.LimeTestCase {
     public UtilitiesTest(String name) {
         super(name);
     }

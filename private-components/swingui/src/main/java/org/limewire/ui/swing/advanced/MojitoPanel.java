@@ -51,6 +51,7 @@ class MojitoPanel extends TabPanel {
         // Install listener to request focus when tab panel is shown.  This
         // allows the Arcs view to begin handling mouse clicks immediately.
         addComponentListener(new ComponentAdapter() {
+            @Override
             public void componentShown(ComponentEvent e) {
                 if (dhtRenderer != null) {
                     dhtRenderer.requestFocusInWindow();

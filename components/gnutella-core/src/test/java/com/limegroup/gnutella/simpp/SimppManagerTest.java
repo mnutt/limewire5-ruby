@@ -9,6 +9,8 @@ import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
@@ -18,11 +20,9 @@ import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
 import com.limegroup.gnutella.settings.SimppSettingsManager;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 
 public class SimppManagerTest extends LimeTestCase {
@@ -155,9 +155,9 @@ public class SimppManagerTest extends LimeTestCase {
                 SimppManagerTestSettings.TEST_UPLOAD_SETTING.getValue());
         }
 
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(
                                                    new String[] {"*.*.*.*"} );
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(
                                                    new String[] {"127.*.*.*"});
         
         ConnectionSettings.WATCHDOG_ACTIVE.setValue(false);
@@ -174,7 +174,7 @@ public class SimppManagerTest extends LimeTestCase {
         NetworkSettings.PORT.setValue(PORT);
         
         ConnectionSettings.FORCE_IP_ADDRESS.setValue(true);
-        ConnectionSettings.FORCED_IP_ADDRESS_STRING.setValue("127.0.0.1");
+        ConnectionSettings.FORCED_IP_ADDRESS_STRING.set("127.0.0.1");
         ConnectionSettings.FORCED_PORT.setValue(PORT);
         
         UltrapeerSettings.NEED_MIN_CONNECT_TIME.setValue(false);

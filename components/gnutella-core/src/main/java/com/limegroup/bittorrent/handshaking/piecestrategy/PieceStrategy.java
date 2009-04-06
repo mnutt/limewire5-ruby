@@ -6,6 +6,10 @@ import org.limewire.collection.BitField;
 
 import com.limegroup.bittorrent.BTInterval;
 
+/**
+ * Based upon the implemetnation the strategy will return a List of BTIntervals
+ * that should be downlaoded next.
+ */
 public interface PieceStrategy {
     /**
      * Returns the next pieces that should be downloaded. For bit torrent peers

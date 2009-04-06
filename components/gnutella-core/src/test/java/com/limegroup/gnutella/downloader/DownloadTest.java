@@ -13,7 +13,7 @@ import org.limewire.core.settings.SpeedConstants;
 
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.RemoteFileDesc;
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.messages.vendor.ContentResponse;
 
 /**

@@ -6,15 +6,15 @@ import junit.framework.Test;
 
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.SearchSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class RatingTableTest extends LimeTestCase {
 
@@ -39,7 +39,7 @@ public class RatingTableTest extends LimeTestCase {
         SearchSettings.ENABLE_SPAM_FILTER.setValue(true);
         // Whitelist the first address so it gets a default rating
         String[] whitelist = new String[] {addr1, addr2};
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(whitelist);
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(whitelist);
         Injector inject = LimeTestUtils.createInjector();
         manager = inject.getInstance(SpamManager.class);
         rfdFactory = inject.getInstance(RemoteFileDescFactory.class);

@@ -11,11 +11,11 @@ import com.limegroup.gnutella.downloader.serial.DownloadSerializeSettings;
 public class OldDownloadSettings implements DownloadSerializeSettings {
     
     public File getBackupFile() {
-        return SharingSettings.OLD_DOWNLOAD_SNAPSHOT_BACKUP_FILE.getValue();
+        return SharingSettings.OLD_DOWNLOAD_SNAPSHOT_BACKUP_FILE.get();
     }
 
     public File getSaveFile() {
-        return SharingSettings.OLD_DOWNLOAD_SNAPSHOT_FILE.getValue();
+        return SharingSettings.OLD_DOWNLOAD_SNAPSHOT_FILE.get();
     }
 
 }

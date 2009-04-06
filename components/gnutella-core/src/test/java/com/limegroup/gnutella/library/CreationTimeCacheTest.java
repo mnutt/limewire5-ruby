@@ -15,16 +15,16 @@ import java.util.concurrent.Future;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.UrnSet;
 import com.limegroup.gnutella.helpers.UrnHelper;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class CreationTimeCacheTest extends LimeTestCase {
     

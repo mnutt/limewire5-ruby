@@ -21,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.limewire.core.api.connection.FirewallStatus;
 import org.limewire.core.api.connection.FirewallStatusEvent;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.IOUtils;
 import org.limewire.io.NetworkUtils;
 import org.limewire.listener.EventListener;
@@ -39,7 +41,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class AcceptorTest extends LimeTestCase {
     
@@ -397,7 +398,7 @@ public class AcceptorTest extends LimeTestCase {
          int localPort = acceptor.getPort(false);
          ConnectionSettings.FORCED_PORT.setValue(1000);
          ConnectionSettings.FORCE_IP_ADDRESS.setValue(true);
-         ConnectionSettings.FORCED_IP_ADDRESS_STRING.setValue(InetAddress.getLocalHost().getHostAddress());
+         ConnectionSettings.FORCED_IP_ADDRESS_STRING.set(InetAddress.getLocalHost().getHostAddress());
          assertEquals(1000, acceptor.getPort(true));
          assertNotEquals(1000,localPort); 
      }

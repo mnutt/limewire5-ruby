@@ -9,12 +9,12 @@ import java.io.File;
 import junit.framework.Test;
 
 import org.limewire.core.api.Category;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.lifecycle.ServiceRegistry;
 
 import com.google.inject.Injector;
 import com.google.inject.Stage;
-import com.limegroup.gnutella.LimeTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * FriendFileList tests

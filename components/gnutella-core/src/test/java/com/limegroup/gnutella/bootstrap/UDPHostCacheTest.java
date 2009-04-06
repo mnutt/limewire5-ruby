@@ -17,6 +17,9 @@ import java.util.Set;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
+import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.GUID;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.util.PrivilegedAccessor;
@@ -28,7 +31,6 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.ExtendedEndpoint;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.UniqueHostPinger;
@@ -38,8 +40,6 @@ import com.limegroup.gnutella.messages.PingReply;
 import com.limegroup.gnutella.messages.PingReplyFactory;
 import com.limegroup.gnutella.messages.PingRequest;
 import com.limegroup.gnutella.messages.PingRequestFactory;
-import com.limegroup.gnutella.stubs.NetworkManagerStub;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Unit tests for UDPHostCache.
@@ -137,6 +137,17 @@ public class UDPHostCacheTest extends LimeTestCase {
             assertEquals(0, cache.getSize());
             cache.remove(create("5.4.3.2" + i));
         }
+    }
+    
+    public void testIgnoresInvalidAddresses() {
+        assertEquals(0, cache.getSize());
+        // Invalid hosts are added...
+        cache.add(create("192.168.1.2"));
+        assertEquals(1, cache.getSize());
+        cache.add(create("localhost"));
+        assertEquals(2, cache.getSize());
+        // ...but later removed, so fetchHosts() should return false
+        assertFalse(cache.fetchHosts());
     }
     
     public void testUsesFiveAtATime() {
@@ -477,7 +488,7 @@ public class UDPHostCacheTest extends LimeTestCase {
     }
     
     @Singleton
-    private static class StubCache extends UDPHostCache {
+    private static class StubCache extends UDPHostCacheImpl {
         private static final int EXPIRY_TIME = 2 * 1000;        
         private int amountFetched = -1;
         private Collection<? extends ExtendedEndpoint> lastFetched;
@@ -495,7 +506,7 @@ public class UDPHostCacheTest extends LimeTestCase {
         }
         
         @Override
-        boolean fetch(Collection<? extends ExtendedEndpoint> hosts) {
+        protected boolean fetch(Collection<? extends ExtendedEndpoint> hosts) {
             if(doRealFetch) {
                 return super.fetch(hosts);
             } else {
@@ -506,7 +517,7 @@ public class UDPHostCacheTest extends LimeTestCase {
         }
         
         @Override
-        PingRequest getPing() {
+        protected PingRequest getPing() {
             PingRequest pr = super.getPing();
             guid = pr.getGUID();
             return pr;

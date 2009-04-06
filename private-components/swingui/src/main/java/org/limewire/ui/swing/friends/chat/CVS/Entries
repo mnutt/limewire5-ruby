@@ -1,6 +1,5 @@
 /AbstractMessageImpl.java/1.2/Mon Mar 23 14:55:28 2009//
 /ChatDocumentBuilder.java/1.6/Mon Mar 23 14:55:28 2009//
-/ChatFramePanel.java/1.26/Mon Feb 23 16:13:17 2009//
 /ChatFriend.java/1.2/Mon Mar 23 14:55:29 2009//
 /ChatFriendImpl.java/1.4/Mon Mar 23 14:55:29 2009//
 /ChatFriendListPane.java/1.27/Mon Mar 23 14:55:29 2009//
@@ -25,13 +24,14 @@
 /LimeWireUiFriendsChatModule.java/1.2/Mon Mar 23 14:55:29 2009//
 /Message.java/1.2/Mon Mar 23 14:55:29 2009//
 /MessageFileOffer.java/1.2/Mon Mar 23 14:55:29 2009//
-/MessageFileOfferImpl.java/1.6/Mon Mar 23 14:55:29 2009//
 /MessageReaderImpl.java/1.2/Mon Mar 23 14:55:29 2009//
 /MessageReceivedEvent.java/1.1/Thu Jan 22 05:05:32 2009//
 /MessageText.java/1.2/Mon Mar 23 14:55:29 2009//
-/MessageTextImpl.java/1.5/Mon Mar 23 14:55:29 2009//
 /MessageWriterImpl.java/1.2/Mon Mar 23 14:55:29 2009//
 /ResizingInputPanel.java/1.7/Tue Feb 10 21:11:53 2009//
 /URLWrapper.java/1.4/Tue Feb 10 21:11:53 2009//
 /package.html/1.1/Thu Jan 22 05:05:32 2009//
+/ChatFramePanel.java/1.27/Mon Apr  6 16:05:45 2009//
+/MessageFileOfferImpl.java/1.7/Mon Apr  6 16:05:45 2009//
+/MessageTextImpl.java/1.6/Mon Apr  6 16:05:45 2009//
 D

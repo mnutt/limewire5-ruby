@@ -16,20 +16,20 @@ public class LocaleUtils {
     
     /** Returns the current locale in use. */
     public static Locale getCurrentLocale() {
-        return new Locale(ApplicationSettings.LANGUAGE.getValue(),
-                ApplicationSettings.COUNTRY.getValue(),
-                ApplicationSettings.LOCALE_VARIANT.getValue());        
+        return new Locale(ApplicationSettings.LANGUAGE.get(),
+                ApplicationSettings.COUNTRY.get(),
+                ApplicationSettings.LOCALE_VARIANT.get());        
     }
 
     /** Sets the locale based on whats in the preferences. */
     public static void setLocaleFromPreferences() {
-        if (ApplicationSettings.LANGUAGE.getValue().equals("")) {
-            ApplicationSettings.LANGUAGE.setValue("en");
+        if (ApplicationSettings.LANGUAGE.get().equals("")) {
+            ApplicationSettings.LANGUAGE.set("en");
         }
         
-        Locale locale = new Locale(ApplicationSettings.LANGUAGE.getValue(),
-                ApplicationSettings.COUNTRY.getValue(),
-                ApplicationSettings.LOCALE_VARIANT.getValue());
+        Locale locale = new Locale(ApplicationSettings.LANGUAGE.get(),
+                ApplicationSettings.COUNTRY.get(),
+                ApplicationSettings.LOCALE_VARIANT.get());
         Locale.setDefault(locale);
         StringUtils.setLocale(locale);
         GuiUtils.setLocale(locale);
@@ -54,9 +54,9 @@ public class LocaleUtils {
         String s = getCurrentLocale().getDisplayName();
         if (!checkUIFonts("dialog", s)) {
             // if it couldn't display, revert the locale to english.
-            ApplicationSettings.LANGUAGE.setValue("en");
-            ApplicationSettings.COUNTRY.setValue("");
-            ApplicationSettings.LOCALE_VARIANT.setValue("");
+            ApplicationSettings.LANGUAGE.set("en");
+            ApplicationSettings.COUNTRY.set("");
+            ApplicationSettings.LOCALE_VARIANT.set("");
             setLocaleFromPreferences();
         }
     }

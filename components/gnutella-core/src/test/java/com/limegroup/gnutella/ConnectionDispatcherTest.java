@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.io.SimpleNetworkInstanceUtils;
 import org.limewire.net.ConnectionAcceptor;
 import org.limewire.net.ConnectionDispatcher;
@@ -12,7 +13,6 @@ import org.limewire.net.ConnectionDispatcherImpl;
 
 import junit.framework.Test;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class ConnectionDispatcherTest extends LimeTestCase {
     

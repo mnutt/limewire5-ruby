@@ -1,11 +1,11 @@
-/**
- * 
- */
 package org.limewire.core.api;
 
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Represents the various properties that a file can have in its meta-data. 
+ */
 public enum FilePropertyKey {
     TITLE,//for audio this is the track name
     AUTHOR,//for audio files this represents the artists name
@@ -65,15 +65,24 @@ public enum FilePropertyKey {
         longKeys.add(BITRATE);
         longKeys.add(FILE_SIZE);
     };
-    
+   
+    /**
+     * Returns a Collection of the keys which are supposed to be indexed for file searching purposes. 
+     */
     public static Collection<FilePropertyKey> getIndexableKeys() {
         return indexableKeys;
     }
     
+    /**
+     * Returns a Collection of keys which are supposed to be editable by the user.  
+     */
     public static Collection<FilePropertyKey> getEditableKeys() {
         return editableKeys;
     }
     
+    /**
+     * Returns true if the key contains a Long value, false otherwise. 
+     */
     public static boolean isLong(FilePropertyKey key){
         return longKeys.contains(key);
     }

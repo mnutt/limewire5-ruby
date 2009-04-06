@@ -41,7 +41,7 @@ final class PromotionServicesImpl implements PromotionServices, Service {
     public void start() {
         try {
             promotionBinderRepository.init(
-                        PromotionSettings.SEARCH_URL.getValue(),
+                        PromotionSettings.SEARCH_URL.get(),
                         PromotionSettings.BUCKET_ID_MODULUS.getValue()
                     );
             

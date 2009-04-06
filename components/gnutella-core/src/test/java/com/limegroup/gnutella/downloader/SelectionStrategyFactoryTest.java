@@ -16,7 +16,7 @@ public class SelectionStrategyFactoryTest extends BaseTestCase {
     public void testGetStrategyForWithAllLocales() {
         for (Locale locale : Locale.getAvailableLocales()) {
             Locale.setDefault(locale);
-            for (String extension : DownloadSettings.PREVIEWABLE_EXTENSIONS.getValue()) {
+            for (String extension : DownloadSettings.PREVIEWABLE_EXTENSIONS.get()) {
                 String upperCaseExtension = extension.toUpperCase(Locale.US);
                 SelectionStrategy strategy = SelectionStrategyFactory.getStrategyFor(upperCaseExtension, 500);
                 assertTrue("Failed for locale: " + locale, strategy instanceof BiasedRandomDownloadStrategy);

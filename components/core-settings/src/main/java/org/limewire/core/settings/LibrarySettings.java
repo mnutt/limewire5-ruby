@@ -20,12 +20,12 @@ public class LibrarySettings extends LimeProps {
      * Removes a name of a saved friendlist.
      */
     public static final void removeFriendListName(String id) {
-        String[] names = SHARED_FRIEND_LIST_NAMES.getValue();
+        String[] names = SHARED_FRIEND_LIST_NAMES.get();
         List<String> nameList = new ArrayList<String>(Arrays.asList(names));
         nameList.remove(id);
         
         if(nameList.size() != names.length) {
-            SHARED_FRIEND_LIST_NAMES.setValue(nameList.toArray(new String[nameList.size()]));
+            SHARED_FRIEND_LIST_NAMES.set(nameList.toArray(new String[nameList.size()]));
         }
     }
     /**
@@ -34,13 +34,13 @@ public class LibrarySettings extends LimeProps {
      * already existed
      */
     public static final boolean addFriendListName(String id) {
-        String[] names = SHARED_FRIEND_LIST_NAMES.getValue();
+        String[] names = SHARED_FRIEND_LIST_NAMES.get();
         List<String> nameList = new ArrayList<String>(Arrays.asList(names));
         if(nameList.contains(id))
             return false;
         else {
             nameList.add(id);
-            SHARED_FRIEND_LIST_NAMES.setValue(nameList.toArray(new String[nameList.size()]));
+            SHARED_FRIEND_LIST_NAMES.set(nameList.toArray(new String[nameList.size()]));
             return true;
         }
     }
@@ -56,7 +56,7 @@ public class LibrarySettings extends LimeProps {
      * otherwise.
      */
     public static final boolean containsFriendShareNewImages(String id) {
-        String[] names = SHARE_NEW_IMAGES_ALWAYS.getValue();
+        String[] names = SHARE_NEW_IMAGES_ALWAYS.get();
         List<String> nameList = new ArrayList<String>(Arrays.asList(names));
         return nameList.contains(id);
     }
@@ -72,7 +72,7 @@ public class LibrarySettings extends LimeProps {
      * false otherwise.
      */
     public static final boolean containsFriendShareNewAudio(String id) {
-        String[] names = SHARE_NEW_AUDIO_ALWAYS.getValue();
+        String[] names = SHARE_NEW_AUDIO_ALWAYS.get();
         List<String> nameList = new ArrayList<String>(Arrays.asList(names));
         return nameList.contains(id);
     }
@@ -88,7 +88,7 @@ public class LibrarySettings extends LimeProps {
      * false otherwise.
      */
     public static final boolean containsFriendShareNewVideo(String id) {
-        String[] names = SHARE_NEW_VIDEO_ALWAYS.getValue();
+        String[] names = SHARE_NEW_VIDEO_ALWAYS.get();
         List<String> nameList = new ArrayList<String>(Arrays.asList(names));
         return nameList.contains(id);
     }
@@ -98,13 +98,13 @@ public class LibrarySettings extends LimeProps {
      * @return true if the name was added, false if the name already existed.
      */
     public static final boolean addFriendShareNewFiles(StringArraySetting stringArray, String id) {
-        String[] names = stringArray.getValue();
+        String[] names = stringArray.get();
         List<String> nameList = new ArrayList<String>(Arrays.asList(names));
         if(nameList.contains(id))
             return false;
         else {
             nameList.add(id);
-            stringArray.setValue(nameList.toArray(new String[nameList.size()]));
+            stringArray.set(nameList.toArray(new String[nameList.size()]));
             return true;
         }
     }
@@ -114,12 +114,12 @@ public class LibrarySettings extends LimeProps {
      * @param id - friend to remove
      */
     public static final void removeFiendShareNewFiles(StringArraySetting stringArray, String id) {
-        String[] names = stringArray.getValue();
+        String[] names = stringArray.get();
         List<String> nameList = new ArrayList<String>(Arrays.asList(names));
         nameList.remove(id);
         
         if(nameList.size() != names.length) {
-            stringArray.setValue(nameList.toArray(new String[nameList.size()]));
+            stringArray.set(nameList.toArray(new String[nameList.size()]));
         }
     }
     

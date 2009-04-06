@@ -576,49 +576,8 @@ public class BasicSearchResultsModelTest extends BaseTestCase {
         Assert.assertEquals(group0, group1.getSimilarityParent());
     }
 
-    /** Tests method to retrieve sorted and filtered search results. */
-    public void testGetCategorySearchResultsAll() {
-        // Create test search results.
-        TestSearchResult testResult1 = new TestSearchResult("1", "xray");
-        TestSearchResult testResult2 = new TestSearchResult("2", "zulu");
-        TestSearchResult testResult3 = new TestSearchResult("3", "whiskey");
-        TestSearchResult testResult4 = new TestSearchResult("4", "yankee");
-
-        model.addSearchResult(testResult1);
-        model.addSearchResult(testResult2);
-        model.addSearchResult(testResult3);
-        model.addSearchResult(testResult4);
-        
-        // Get filtered search results.
-        List<VisualSearchResult> filteredList = model.getCategorySearchResults(SearchCategory.ALL);
-        
-        // Verify unsorted order.
-        String expectedReturn = "xray";
-        String actualReturn = filteredList.get(0).getHeading();
-        assertEquals("unsorted list", expectedReturn, actualReturn);
-        
-        // Apply sort option.
-        model.setSortOption(SortOption.NAME);
-        
-        // Verify sorted order.
-        expectedReturn = "whiskey";
-        actualReturn = filteredList.get(0).getHeading();
-        assertEquals("sorted list", expectedReturn, actualReturn);
-        
-        // Apply filter editor.
-        TextMatcherEditor<VisualSearchResult> editor = new TextMatcherEditor<VisualSearchResult>(
-                new VisualSearchResultTextFilterator());
-        editor.setFilterText(new String[] {"z"});
-        model.setFilterEditor(editor);
-        
-        // Verify filtered list.
-        int expectedSize = 1;
-        int actualSize = filteredList.size();
-        assertEquals("filtered list size", expectedSize, actualSize);
-    }
-
     /** Tests method to retrieve filtered search results by category. */
-    public void testGetCategorySearchResultsVideo() {
+    public void testGetCategorySearchResults() {
         // Create test search results.
         TestSearchResult testResult1 = new TestSearchResult("1", "xray");
         TestSearchResult testResult2 = new TestSearchResult("2", "zulu");
@@ -632,13 +591,77 @@ public class BasicSearchResultsModelTest extends BaseTestCase {
         model.addSearchResult(testResult3);
         model.addSearchResult(testResult4);
 
-        // Get filtered search results for category.
+        // Get category search results.
         List<VisualSearchResult> categoryList = model.getCategorySearchResults(SearchCategory.VIDEO);
         
         // Verify category list.
         int expectedSize = 1;
         int actualSize = categoryList.size();
         assertEquals("category list size", expectedSize, actualSize);
+    }
+    
+    /** Tests method to retrieve sorted and filtered search results. */
+    public void testGetSortedSearchResults() {
+        // Create test search results.
+        TestSearchResult testResult1 = new TestSearchResult("1", "xray");
+        TestSearchResult testResult2 = new TestSearchResult("2", "zulu");
+        TestSearchResult testResult3 = new TestSearchResult("3", "whiskey");
+        TestSearchResult testResult4 = new TestSearchResult("4", "yankee");
+
+        model.addSearchResult(testResult1);
+        model.addSearchResult(testResult2);
+        model.addSearchResult(testResult3);
+        model.addSearchResult(testResult4);
+        
+        // Get sorted search results.
+        model.setSelectedCategory(SearchCategory.ALL);
+        List<VisualSearchResult> sortedList = model.getSortedSearchResults();
+        
+        // Verify unsorted order.
+        String expectedReturn = "xray";
+        String actualReturn = sortedList.get(0).getHeading();
+        assertEquals("unsorted list", expectedReturn, actualReturn);
+        
+        // Apply sort option.
+        model.setSortOption(SortOption.NAME);
+        
+        // Verify sorted order.
+        expectedReturn = "whiskey";
+        actualReturn = sortedList.get(0).getHeading();
+        assertEquals("sorted list", expectedReturn, actualReturn);
+    }
+
+    /** Tests method to set filter editor with filter text. */
+    public void testSetFilterEditor() {
+        // Create test search results.
+        TestSearchResult testResult1 = new TestSearchResult("1", "xray");
+        TestSearchResult testResult2 = new TestSearchResult("2", "zulu");
+        TestSearchResult testResult3 = new TestSearchResult("3", "whiskey");
+        TestSearchResult testResult4 = new TestSearchResult("4", "yankee");
+
+        model.addSearchResult(testResult1);
+        model.addSearchResult(testResult2);
+        model.addSearchResult(testResult3);
+        model.addSearchResult(testResult4);
+        
+        // Get all search results.
+        List<VisualSearchResult> filteredList = model.getCategorySearchResults(SearchCategory.ALL);
+        
+        // Verify unfiltered list.
+        int expectedSize = 4;
+        int actualSize = filteredList.size();
+        assertEquals("unfiltered list size", expectedSize, actualSize);
+        
+        // Apply filter editor.
+        TextMatcherEditor<VisualSearchResult> editor = new TextMatcherEditor<VisualSearchResult>(
+                new VisualSearchResultTextFilterator());
+        editor.setFilterText(new String[] {"z"});
+        model.setFilterEditor(editor);
+        
+        // Verify filtered list.
+        expectedSize = 1;
+        actualSize = filteredList.size();
+        assertEquals("filtered list size", expectedSize, actualSize);
     }
 
     /**

@@ -5,11 +5,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.Collection;
 
 import org.limewire.core.settings.DHTSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.inject.AbstractModule;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.dht.db.AltLocModel;
 import com.limegroup.gnutella.dht.db.AltLocValueFactory;
 import com.limegroup.gnutella.dht.util.KUIDUtils;
@@ -19,7 +20,6 @@ import com.limegroup.gnutella.library.FileManagerTestUtils;
 import com.limegroup.gnutella.library.RareFileStrategy;
 import com.limegroup.gnutella.tigertree.HashTree;
 import com.limegroup.gnutella.tigertree.HashTreeCache;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class AltLocModelTest extends LimeTestCase {
     private FileDesc fileDesc;

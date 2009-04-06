@@ -18,24 +18,24 @@ import com.limegroup.gnutella.messages.PingRequest;
 import com.limegroup.gnutella.messages.PingRequestFactory;
 
 @Singleton
-public class BootstrapperImpl implements Bootstrapper {
+class BootstrapperImpl implements Bootstrapper {
 
     private static final Log LOG = LogFactory.getLog(BootstrapperImpl.class);
 
     /** Milliseconds to wait between multicast fetches. */
-    private static final int MULTICAST_INTERVAL = 50 * 1000;
+    static int MULTICAST_INTERVAL = 50 * 1000;
 
     /** Milliseconds to wait after trying multicast before falling back to UDP. */
-    private static final int UDP_FALLBACK_DELAY = 5 * 1000;
+    static int UDP_FALLBACK_DELAY = 5 * 1000;
 
     /** Milliseconds to wait between UDP fetches. */
-    private static final int UDP_INTERVAL = 30 * 1000;
+    static int UDP_INTERVAL = 30 * 1000;
 
     /** Milliseconds to wait after trying UDP before falling back to TCP. */
-    private static final int TCP_FALLBACK_DELAY = 40 * 1000;
+    static int TCP_FALLBACK_DELAY = 40 * 1000;
 
     /** Milliseconds to wait between TCP fetches. */
-    private static final int TCP_INTERVAL = 5 * 60 * 1000;        
+    static int TCP_INTERVAL = 5 * 60 * 1000;        
 
     /** The time at which we started to think about bootstrapping. */
     private long firstBootstrapCheck = 0;

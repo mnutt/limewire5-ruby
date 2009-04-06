@@ -3,13 +3,13 @@ package com.limegroup.gnutella.version;
 import junit.framework.Test;
 
 import org.limewire.core.api.updates.UpdateStyle;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.OSUtils;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.Version;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public final class UpdateCollectionTest extends LimeTestCase {
 

@@ -165,7 +165,7 @@ public class DaapManager {
                 
                 maxPlaylistSize = DaapSettings.DAAP_MAX_LIBRARY_SIZE.getValue();
                 
-                String name = DaapSettings.DAAP_LIBRARY_NAME.getValue();
+                String name = DaapSettings.DAAP_LIBRARY_NAME.get();
                 
                 library = new Library(name);
                 autoCommitTxn = new AutoCommitTransaction(library);
@@ -294,7 +294,7 @@ public class DaapManager {
             bonjour.updateService();
 
             Transaction txn = library.beginTransaction();
-            String name = DaapSettings.DAAP_LIBRARY_NAME.getValue();
+            String name = DaapSettings.DAAP_LIBRARY_NAME.get();
             library.setName(txn, name);
             masterPlaylist.setName(txn, name);
             database.setName(txn, name);
@@ -340,11 +340,11 @@ public class DaapManager {
      * Returns true if the extension of name is a supported file type.
      */
     private static boolean isSupportedAudioFormat(String name) {
-        return isSupportedFormat(DaapSettings.DAAP_SUPPORTED_AUDIO_FILE_TYPES.getValue(), name);
+        return isSupportedFormat(DaapSettings.DAAP_SUPPORTED_AUDIO_FILE_TYPES.get(), name);
     }
     
     private static boolean isSupportedVideoFormat(String name) {
-        return isSupportedFormat(DaapSettings.DAAP_SUPPORTED_VIDEO_FILE_TYPES.getValue(), name);
+        return isSupportedFormat(DaapSettings.DAAP_SUPPORTED_VIDEO_FILE_TYPES.get(), name);
     }
     
     private static boolean isSupportedFormat(String[] types, String name) {
@@ -872,7 +872,7 @@ public class DaapManager {
          * don't care)!
          */
         public byte[] getPassword(String username, Object scheme) {
-            String password = DaapSettings.DAAP_PASSWORD.getValue();
+            String password = DaapSettings.DAAP_PASSWORD.get();
             if (password.startsWith("MD5/")) {
                 password = password.substring(4);
             }
@@ -886,7 +886,7 @@ public class DaapManager {
                 return DaapSettings.DAAP_PASSWORD.equals(password);
             } else if (uri != null && nonce != null) {
                 // DIGEST
-                String ha1 = DaapSettings.DAAP_PASSWORD.getValue();
+                String ha1 = DaapSettings.DAAP_PASSWORD.get();
                 if (ha1.startsWith("MD5/")) {
                     ha1 = ha1.substring(4);
                 }
@@ -992,8 +992,8 @@ public class DaapManager {
 
         private ServiceInfo createServiceInfo() {
 
-            String type = DaapSettings.DAAP_TYPE_NAME.getValue();
-            String name = DaapSettings.DAAP_SERVICE_NAME.getValue();
+            String type = DaapSettings.DAAP_TYPE_NAME.get();
+            String name = DaapSettings.DAAP_SERVICE_NAME.get();
 
             int port = DaapSettings.DAAP_PORT.getValue();
             int weight = DaapSettings.DAAP_WEIGHT.getValue();

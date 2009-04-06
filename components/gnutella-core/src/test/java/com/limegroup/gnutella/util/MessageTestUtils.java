@@ -126,7 +126,7 @@ public class MessageTestUtils {
             allowing(pingReply).getNumUltrapeerSlots();
             will(returnValue(0));
             allowing(pingReply).getClientLocale();
-            will(returnValue(ApplicationSettings.DEFAULT_LOCALE.getValue()));
+            will(returnValue(ApplicationSettings.DEFAULT_LOCALE.get()));
             // this could also be moved to a generic message mocking method
             allowing(pingReply).getCreationTime();
             will(returnValue(System.currentTimeMillis()));

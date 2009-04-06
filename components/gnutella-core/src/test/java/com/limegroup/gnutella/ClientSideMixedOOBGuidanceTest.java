@@ -9,6 +9,8 @@ import java.net.Socket;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
+import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.GUID;
 import org.limewire.net.SocketsManager;
 import org.limewire.service.ErrorService;
@@ -24,7 +26,6 @@ import com.limegroup.gnutella.messages.QueryReplyFactory;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.vendor.MessagesSupportedVendorMessage;
 import com.limegroup.gnutella.messages.vendor.QueryStatusResponse;
-import com.limegroup.gnutella.stubs.NetworkManagerStub;
 
 /**
  * Checks whether (multi)leaves avoid forwarding messages to ultrapeers, do

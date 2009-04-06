@@ -15,6 +15,8 @@ import org.limewire.core.settings.DHTSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.PingPongSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.mojito.MojitoDHT;
 import org.limewire.mojito.routing.Contact;
@@ -29,7 +31,6 @@ import com.limegroup.gnutella.BlockingConnectionUtils;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NodeAssigner;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.connection.BlockingConnectionFactory;
@@ -43,7 +44,6 @@ import com.limegroup.gnutella.messages.vendor.DHTContactsMessage;
 import com.limegroup.gnutella.messages.vendor.PushProxyRequest;
 import com.limegroup.gnutella.stubs.CapabilitiesVMFactoryImplStub;
 import com.limegroup.gnutella.util.EmptyResponder;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /*
  * DHT <----> Ultrapeer <----> Leaf
@@ -127,9 +127,9 @@ public class PassiveLeafForwardContactsTest extends LimeTestCase {
         PingPongSettings.PINGS_ACTIVE.setValue(false);
         ConnectionSettings.EVER_ACCEPTED_INCOMING.setValue(false);
         
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(
                 new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(
                 new String[] {"127.*.*.*"});
         
         org.limewire.core.settings.NetworkSettings.PORT.setValue(PORT);

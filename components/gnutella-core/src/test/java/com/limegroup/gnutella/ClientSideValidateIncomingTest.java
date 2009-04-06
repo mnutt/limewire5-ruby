@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.util.Random;
 
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.util.StringUtils;
 
@@ -19,6 +20,7 @@ import com.google.inject.Injector;
 import com.google.inject.Stage;
 
 import static com.limegroup.gnutella.ConnectionManagerImpl.MAX_TCP_CONNECT_BACK_ATTEMPTS;
+
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PingRequest;

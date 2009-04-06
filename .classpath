@@ -11,12 +11,17 @@
 	<classpathentry kind="src" output="components/core-api/build/classes" path="components/core-api/src/main/java"/>
 	<classpathentry kind="src" output="components/core-glue/build/classes" path="components/core-glue/src/main/java"/>
 	<classpathentry kind="src" output="components/core-glue/build/tests" path="components/core-glue/src/test/java"/>
+	<classpathentry kind="src" output="components/core-glue/src/test/resources" path="components/core-glue/src/test/resources"/>
+	<classpathentry kind="src" output="components/core-glue/build/test-common" path="components/core-glue/src/test-common/java"/>
 	<classpathentry kind="src" output="components/core-settings/build/classes" path="components/core-settings/src/main/java"/>
 	<classpathentry kind="src" output="components/geocode/build/classes" path="components/geocode/src/main/java"/>
 	<classpathentry kind="src" output="components/geocode/build/tests" path="components/geocode/src/test/java"/>
 	<classpathentry kind="src" output="components/gnutella-core/build/classes" path="components/gnutella-core/src/main/java"/>
+	<classpathentry kind="src" output="components/gnutella-core/src/main/resources" path="components/gnutella-core/src/main/resources"/>
 	<classpathentry kind="src" output="components/gnutella-core/build/test" path="components/gnutella-core/src/test/java"/>
-	<classpathentry kind="src" output="components/gnutella-core/src/test/resources" path="components/gnutella-core/src/test/resources"/>	
+	<classpathentry kind="src" output="components/gnutella-core/src/test/resources" path="components/gnutella-core/src/test/resources"/>
+	<classpathentry kind="src" output="components/gnutella-core/build/test-common" path="components/gnutella-core/src/test-common/java"/>
+	<classpathentry kind="src" output="components/gnutella-core/src/test-common/resources" path="components/gnutella-core/src/test-common/resources"/>
 	<classpathentry kind="src" output="components/http/build/classes" path="components/http/src/main/java"/>
 	<classpathentry kind="src" output="components/http/build/tests" path="components/http/src/test/java"/>
 	<classpathentry kind="src" output="private-components/integrated-ui/build/classes" path="private-components/integrated-ui/src/main/java"/>
@@ -26,6 +31,7 @@
 	<classpathentry kind="src" output="components/io/build/test-common" path="components/io/src/test-common/java"/>
 	<classpathentry kind="src" output="components/lwsserver/build/classes" path="components/lwsserver/src/main/java"/>
 	<classpathentry kind="src" output="components/lwsserver/build/tests" path="components/lwsserver/src/test/java"/>
+	<classpathentry kind="src" output="components/lwsserver/build/test-common" path="components/lwsserver/src/test-common/java"/>
 	<classpathentry kind="src" output="private-components/mock-core/build/classes" path="private-components/mock-core/src/main/java"/>
 	<classpathentry kind="src" output="components/mojito/build/classes" path="components/mojito/src/main/java"/>
 	<classpathentry kind="src" output="components/mojito/build/tests" path="components/mojito/src/test/java"/>
@@ -43,7 +49,6 @@
 	<classpathentry kind="src" output="components/player-api/build/classes" path="components/player-api/src/main/java"/>
 	<classpathentry kind="src" output="components/promotion/build/classes" path="components/promotion/src/main/java"/>
 	<classpathentry kind="src" output="components/promotion/build/tests" path="components/promotion/src/test/java"/>
-	<classpathentry kind="src" output="components/resources/src/main/resources" path="components/resources/src/main/resources"/>
 	<classpathentry kind="src" output="components/rudp/build/classes" path="components/rudp/src/main/java"/>
 	<classpathentry kind="src" output="components/rudp/build/tests" path="components/rudp/src/test/java"/>
 	<classpathentry kind="src" output="components/scripting/build/classes" path="components/scripting/src/main/java"/>

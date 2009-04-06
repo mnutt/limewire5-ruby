@@ -6,11 +6,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Test;
 
 import org.apache.http.message.BasicHeader;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.Connectable;
 import org.limewire.io.IpPort;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.altlocs.AltLocListener;
 import com.limegroup.gnutella.altlocs.AltLocManager;
 import com.limegroup.gnutella.altlocs.AlternateLocation;
@@ -18,7 +19,6 @@ import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
 import com.limegroup.gnutella.altlocs.DirectAltLoc;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.http.AltLocHeaderInterceptor;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class AltLocHeaderInterceptorTest extends LimeTestCase {
 

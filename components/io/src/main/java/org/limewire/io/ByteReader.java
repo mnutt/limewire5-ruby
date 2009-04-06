@@ -11,6 +11,8 @@ import java.io.InputStream;
  * This also catches ArrayIndexOutOfBoundsExceptions while reading, as this
  * exception can be thrown from native socket code on windows occasionally.
  * The exception is treated exactly like an IOException.
+ * 
+ * Is only guaranteed to handle single byte string decodings correctly.
  */
 public class ByteReader {
 

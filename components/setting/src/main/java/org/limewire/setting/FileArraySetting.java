@@ -18,7 +18,7 @@ import org.limewire.util.FileUtils;
  * {@link SettingsFactory#createFileArraySetting(String, File[])}.
  */
  
-public class FileArraySetting extends AbstractSetting {
+public class FileArraySetting extends AbstractSetting<File[]> {
     
     private File[] value;
 
@@ -40,7 +40,7 @@ public class FileArraySetting extends AbstractSetting {
 	 * 
 	 * @return the value of this setting
 	 */
-	public File[] getValue() {
+	public File[] get() {
         return value;
 	}
 
@@ -49,7 +49,7 @@ public class FileArraySetting extends AbstractSetting {
 	 *
 	 * @param value the value to store
 	 */
-	public synchronized void setValue(File[] value) {
+	public synchronized void set(File[] value) {
 	    setValueInternal(decode(value));
 	}
 
@@ -65,7 +65,7 @@ public class FileArraySetting extends AbstractSetting {
         File[] newValue = new File[value.length+1];
 		System.arraycopy(value, 0, newValue, 0, value.length);
 		newValue[value.length] = file;
-		setValue(newValue);
+		set(newValue);
 	}
     
 	/**
@@ -91,7 +91,7 @@ public class FileArraySetting extends AbstractSetting {
         //  copy second half, for the length of the rest of the array
 		System.arraycopy(value, index+1, newValue, index, value.length - index - 1);
 		
-		setValue(newValue);
+		set(newValue);
 		return true;
 	}
     
@@ -177,6 +177,6 @@ public class FileArraySetting extends AbstractSetting {
                 continue;
             list.add(file);
         }
-		setValue(list.toArray(new File[list.size()]));
+		set(list.toArray(new File[list.size()]));
 	}
 }

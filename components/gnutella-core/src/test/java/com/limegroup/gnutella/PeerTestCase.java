@@ -14,6 +14,8 @@ import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.io.IOUtils;
 import org.limewire.net.SocketsManager.ConnectType;
@@ -31,7 +33,6 @@ import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PingReply;
 import com.limegroup.gnutella.messages.PingReplyFactory;
 import com.limegroup.gnutella.messages.PingRequest;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Allows a testcase to easily interact with a fully running LimeWire.
@@ -62,9 +63,9 @@ public abstract class PeerTestCase extends LimeTestCase {
     @SuppressWarnings({ "unused", "deprecation" })
     private static void doSettings() throws Exception {
         String localIP = InetAddress.getLocalHost().getHostAddress();
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(
             new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(
             new String[] {"127.*.*.*", "192.168.*.*", "10.254.*.*", localIP});        
         NetworkSettings.PORT.setValue(SERVER_PORT);
         ConnectionSettings.CONNECT_ON_STARTUP.setValue(false);

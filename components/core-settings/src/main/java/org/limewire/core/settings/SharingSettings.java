@@ -94,7 +94,7 @@ public class SharingSettings extends LimeProps {
      */
     public static final FileSetting INCOMPLETE_DIRECTORY =
         FACTORY.createFileSetting("INCOMPLETE_DIRECTORY", 
-            (new File(DIRECTORY_FOR_SAVING_FILES.getValue().getParent(),
+            (new File(DIRECTORY_FOR_SAVING_FILES.get().getParent(),
                 "Incomplete")));
     
     /**
@@ -102,14 +102,14 @@ public class SharingSettings extends LimeProps {
 	 */                
     public static final FileSetting OLD_DOWNLOAD_SNAPSHOT_FILE =
         FACTORY.createFileSetting("DOWNLOAD_SNAPSHOT_FILE", 
-            (new File(INCOMPLETE_DIRECTORY.getValue(), "downloads.dat")));
+            (new File(INCOMPLETE_DIRECTORY.get(), "downloads.dat")));
             
     /**
 	 * A file with a snapshot of current downloading files.
 	 */                
     public static final FileSetting OLD_DOWNLOAD_SNAPSHOT_BACKUP_FILE =
         FACTORY.createFileSetting("DOWNLOAD_SNAPSHOT_BACKUP_FILE", 
-            (new File(INCOMPLETE_DIRECTORY.getValue(), "downloads.bak")));            
+            (new File(INCOMPLETE_DIRECTORY.get(), "downloads.bak")));            
     
     /** The minimum age in days for which incomplete files will be deleted.
      *  This values may be zero or negative; doing so will cause LimeWire to
@@ -188,10 +188,10 @@ public class SharingSettings extends LimeProps {
 		    snapBackup = FileUtils.getCanonicalFile(snapBackup);
 		} catch(IOException ignored) {}
 		
-        DIRECTORY_FOR_SAVING_FILES.setValue(saveDir);
-        INCOMPLETE_DIRECTORY.setValue(incDir);
-        OLD_DOWNLOAD_SNAPSHOT_FILE.setValue(snapFile);
-        OLD_DOWNLOAD_SNAPSHOT_BACKUP_FILE.setValue(snapBackup);
+        DIRECTORY_FOR_SAVING_FILES.set(saveDir);
+        INCOMPLETE_DIRECTORY.set(incDir);
+        OLD_DOWNLOAD_SNAPSHOT_FILE.set(snapFile);
+        OLD_DOWNLOAD_SNAPSHOT_BACKUP_FILE.set(snapBackup);
     }
     
     /**
@@ -201,24 +201,24 @@ public class SharingSettings extends LimeProps {
      */
     public static final File getSaveDirectory(String fileName) {
     	if (fileName == null) {
-    		return DIRECTORY_FOR_SAVING_FILES.getValue();
+    		return DIRECTORY_FOR_SAVING_FILES.get();
     	}
     	String extension = FileUtils.getFileExtension(fileName);
     	if (extension.equals("")) {
-    		return DIRECTORY_FOR_SAVING_FILES.getValue();
+    		return DIRECTORY_FOR_SAVING_FILES.get();
     	}
         MediaType type = MediaType.getMediaTypeForExtension(extension);
     	if (type == null)
-    		return DIRECTORY_FOR_SAVING_FILES.getValue();	
+    		return DIRECTORY_FOR_SAVING_FILES.get();	
     	FileSetting fs = getFileSettingForMediaType(type);
     	if (fs.isDefault()) {
-    		return DIRECTORY_FOR_SAVING_FILES.getValue();
+    		return DIRECTORY_FOR_SAVING_FILES.get();
     	}
-    	return fs.getValue();
+    	return fs.get();
     }
 
     public static final File getSaveDirectory() { 
-    	return DIRECTORY_FOR_SAVING_FILES.getValue();
+    	return DIRECTORY_FOR_SAVING_FILES.get();
     }
 
     /**
@@ -256,14 +256,14 @@ public class SharingSettings extends LimeProps {
             storeDir = FileUtils.getCanonicalFile(storeDir);
         } catch(IOException ignored) {}
         
-        DIRECTORY_FOR_SAVING_LWS_FILES.setValue(storeDir);
+        DIRECTORY_FOR_SAVING_LWS_FILES.set(storeDir);
     }
             
     /**
      * @return directory of where to save songs purchased from LimeWire Store
      */
     public static final File getSaveLWSDirectory() {
-        final File f = DIRECTORY_FOR_SAVING_LWS_FILES.getValue();        
+        final File f = DIRECTORY_FOR_SAVING_LWS_FILES.get();        
         if (!f.exists()) f.mkdirs();
         return f;
     }
@@ -276,7 +276,7 @@ public class SharingSettings extends LimeProps {
     public static final void setSubdirectoryLWSTemplate(String template) { 
         if(template == null) 
             throw new NullPointerException();
-        TEMPLATE_SUBDIRECTORY_LWS_FILES.setValue(template);
+        TEMPLATE_SUBDIRECTORY_LWS_FILES.set(template);
     }
 
     /**
@@ -284,7 +284,7 @@ public class SharingSettings extends LimeProps {
      * If no subdirectory template is used, will return ""
      */
     public static final String getSubDirectoryLWSTemplate() {
-        return TEMPLATE_SUBDIRECTORY_LWS_FILES.getValue();
+        return TEMPLATE_SUBDIRECTORY_LWS_FILES.get();
     }
     
     /**
@@ -296,14 +296,14 @@ public class SharingSettings extends LimeProps {
     public static final void setFileNameLWSTemplate(String template) {
         if( template == null)
             throw new NullPointerException();
-        TEMPLATE_FOR_NAMING_LWS_FILES.setValue(template);
+        TEMPLATE_FOR_NAMING_LWS_FILES.set(template);
     }
     
     /**
      * @return template of how to name LWS files
      */
     public static final String getFileNameLWSTemplate() {
-        return TEMPLATE_FOR_NAMING_LWS_FILES.getValue();
+        return TEMPLATE_FOR_NAMING_LWS_FILES.get();
     }
     
     /*********************************************************************/

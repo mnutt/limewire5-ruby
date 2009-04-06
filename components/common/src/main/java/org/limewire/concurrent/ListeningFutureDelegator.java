@@ -6,6 +6,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventListenerList;
+import org.limewire.listener.EventListenerList.EventListenerListContext;
 
 /**
  * Delegates from one ListeningFuture to another, converting from the Source
@@ -14,20 +15,22 @@ import org.limewire.listener.EventListenerList;
 public abstract class ListeningFutureDelegator<S, R> implements ListeningFuture<R> {
     
     private final ListeningFuture<S> delegate;
+    private final EventListenerListContext listenerContext;
     
     public ListeningFutureDelegator(ListeningFuture<S> delegate) {
         this.delegate = delegate;
+        this.listenerContext = new EventListenerListContext();
     }
 
     public void addFutureListener(final EventListener<FutureEvent<R>> listener) {
         // If we're done, we can just dispatch immediately w/o having to 
         // worry about creating a delegate listener.
         if(isDone()) {
-            EventListenerList.dispatch(listener, FutureEvent.createEvent(this));
+            EventListenerList.dispatch(listener, FutureEvent.createEvent(this), listenerContext);
         } else {        
             delegate.addFutureListener(new EventListener<FutureEvent<S>>() {
                 public void handleEvent(FutureEvent<S> event) {
-                    EventListenerList.dispatch(listener, FutureEvent.createEvent(ListeningFutureDelegator.this));
+                    EventListenerList.dispatch(listener, FutureEvent.createEvent(ListeningFutureDelegator.this), listenerContext);
                 }
             });
         }

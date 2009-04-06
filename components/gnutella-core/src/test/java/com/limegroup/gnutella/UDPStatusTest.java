@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.jmock.Mockery;
+import org.limewire.gnutella.tests.LimeTestUtils;
 
 import junit.framework.Test;
 

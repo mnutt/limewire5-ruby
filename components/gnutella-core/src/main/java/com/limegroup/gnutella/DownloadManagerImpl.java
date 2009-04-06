@@ -284,7 +284,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
     private void loadResumeDownloaders() {
         Collection<File> incompleteFiles = 
             incompleteFileManager.getUnregisteredIncompleteFilesInDirectory(
-                    SharingSettings.INCOMPLETE_DIRECTORY.getValue());
+                    SharingSettings.INCOMPLETE_DIRECTORY.get());
         for(File file : incompleteFiles) {
             try {
                 download(file);
@@ -371,9 +371,9 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
                 d.stop();
         }
         
-        Set<String> hopeless = UpdateSettings.FAILED_UPDATES.getValue();
+        Set<String> hopeless = UpdateSettings.FAILED_UPDATES.get();
         hopeless.retainAll(urns);
-        UpdateSettings.FAILED_UPDATES.setValue(hopeless);
+        UpdateSettings.FAILED_UPDATES.set(hopeless);
     }
     
     PushDownloadManager getPushManager() {
@@ -1136,7 +1136,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
         dl.finish();
         if (dl.getQueryGUID() != null)
             messageRouter.get().downloadFinished(dl.getQueryGUID());
-        callback(dl).downloadCompleted(dl);
+        callback(dl).removeDownload(dl);
         
         //Save this' state to disk for crash recovery.
         if(ser)

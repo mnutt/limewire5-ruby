@@ -27,6 +27,7 @@ public class LibraryChangedIQ extends IQ {
     public LibraryChangedIQ() {
     }
 
+    @Override
     public String getChildElementXML() {
         return "<library-changed xmlns='jabber:iq:lw-lib-change'/>";
     }

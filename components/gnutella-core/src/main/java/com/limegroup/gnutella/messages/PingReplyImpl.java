@@ -197,7 +197,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
         boolean tlsCapable = false;
         
         String locale /** def. val from settings? */
-            = ApplicationSettings.DEFAULT_LOCALE.getValue(); 
+            = ApplicationSettings.DEFAULT_LOCALE.get(); 
         int slots = -1; //-1 didn't get it.
         InetAddress myIP=null;
         int myPort=0;

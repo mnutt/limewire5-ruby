@@ -17,6 +17,7 @@ class MozillaClosingListener extends WindowAdapter {
         this.chrome = chrome;
     }
 
+    @Override
     public void windowClosing(WindowEvent e) {
         BrowserUtils.removeDomListener(chrome);
     }

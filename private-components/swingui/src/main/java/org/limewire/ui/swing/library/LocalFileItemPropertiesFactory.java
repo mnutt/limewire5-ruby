@@ -204,14 +204,14 @@ public class LocalFileItemPropertiesFactory implements PropertiesFactory<LocalFi
             location.add(locateOnDisk);
             location.add(locateInLibrary, isShared ? "wrap" : "");
 
-            locateOnDisk.setAction(new AbstractAction(I18n.tr("locate on disk")) {
+            locateOnDisk.setAction(new AbstractAction(I18n.tr("Locate on Disk")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     NativeLaunchUtils.launchExplorer(propertiable.getFile());
                 }
             });
 
-            locateInLibrary.setAction(new AbstractAction(I18n.tr("locate in library")) {
+            locateInLibrary.setAction(new AbstractAction(I18n.tr("Locate in Library")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     setVisible(false);

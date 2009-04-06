@@ -12,6 +12,12 @@ import org.limewire.util.Objects;
 import com.limegroup.bittorrent.BTInterval;
 import com.limegroup.bittorrent.disk.TorrentDiskManager;
 
+/**
+ * Implements the SwarmWriteJob interface to be used when writing data from the
+ * swarm downloads to the VerifyingFolder. It handles translating the content
+ * into a format that the Verifying folder can understand in order to write the
+ * data.
+ */
 public class BTSwarmWriteJob implements SwarmWriteJob {
 
     public static final int DEFAULT_BUFFER_SIZE = 16 * 1024;

@@ -7,7 +7,9 @@ import java.net.Socket;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.protocol.HTTP;
 import org.limewire.core.settings.FilterSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.ByteReader;
 import org.limewire.io.GUID;
 import org.limewire.util.FileUtils;
@@ -142,7 +144,7 @@ public final class ServerSideBrowseHostTest extends ServerSideTestCase {
         Socket s = new Socket("localhost", PORT);
         ByteReader in = new ByteReader(s.getInputStream());
         BufferedWriter out = 
-            new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+            new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), HTTP.DEFAULT_PROTOCOL_CHARSET));
 
         // first test a GET
         out.write("GET /  HTTP/1.1\r\n");
@@ -184,7 +186,7 @@ public final class ServerSideBrowseHostTest extends ServerSideTestCase {
         Socket s = new Socket("localhost", PORT);
         ByteReader in = new ByteReader(s.getInputStream());
         BufferedWriter out = 
-            new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+            new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), HTTP.DEFAULT_PROTOCOL_CHARSET));
 
         // first test a GET
         out.write("GET /  HTTP/1.1\r\n");

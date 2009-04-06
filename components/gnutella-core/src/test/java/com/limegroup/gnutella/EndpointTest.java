@@ -2,7 +2,7 @@ package com.limegroup.gnutella;
 
 import junit.framework.Test;
 
-public class EndpointTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class EndpointTest extends org.limewire.gnutella.tests.LimeTestCase {
     public EndpointTest(String name) {
         super(name);
     }

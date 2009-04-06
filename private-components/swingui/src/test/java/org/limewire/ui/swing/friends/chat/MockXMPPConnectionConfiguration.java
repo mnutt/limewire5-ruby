@@ -1,8 +1,12 @@
 package org.limewire.ui.swing.friends.chat;
 
+import java.util.List;
+import java.util.Collections;
+
 import org.limewire.listener.EventListener;
 import org.limewire.xmpp.api.client.RosterEvent;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
+import org.limewire.io.UnresolvedIpPort;
 
 public class MockXMPPConnectionConfiguration implements XMPPConnectionConfiguration {
     private final String username;
@@ -61,5 +65,9 @@ public class MockXMPPConnectionConfiguration implements XMPPConnectionConfigurat
     @Override
     public EventListener<RosterEvent> getRosterListener() {
         return rosterListener;
+    }
+
+    @Override public List<UnresolvedIpPort> getDefaultServers() {
+        return Collections.emptyList();
     }
 }

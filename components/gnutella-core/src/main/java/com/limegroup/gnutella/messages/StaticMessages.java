@@ -62,7 +62,7 @@ public final class StaticMessages implements Service {
     }
     
     private QueryReply createLimeReply() {
-        byte [] reply = Base32.decode(SearchSettings.LIME_SIGNED_RESPONSE.getValue());
+        byte [] reply = Base32.decode(SearchSettings.LIME_SIGNED_RESPONSE.get());
         return createReply(new ByteArrayInputStream(reply));
     }
     

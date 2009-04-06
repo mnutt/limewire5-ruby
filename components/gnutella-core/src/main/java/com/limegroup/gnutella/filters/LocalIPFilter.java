@@ -85,14 +85,14 @@ public final class LocalIPFilter extends AbstractIPFilter {
         
         // Load basic bad...
         IPList newBad = new IPList();
-        String[] allHosts = FilterSettings.BLACK_LISTED_IP_ADDRESSES.getValue();
+        String[] allHosts = FilterSettings.BLACK_LISTED_IP_ADDRESSES.get();
         for (int i=0; i<allHosts.length; i++) {
             newBad.add(allHosts[i]);
         }
         
         // Load basic good...
         IPList newGood = new IPList();
-        allHosts = FilterSettings.WHITE_LISTED_IP_ADDRESSES.getValue();
+        allHosts = FilterSettings.WHITE_LISTED_IP_ADDRESSES.get();
         for (int i=0; i<allHosts.length; i++) {
             newGood.add(allHosts[i]);
         }

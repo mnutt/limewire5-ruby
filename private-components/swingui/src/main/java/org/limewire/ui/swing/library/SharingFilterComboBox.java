@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -149,6 +150,7 @@ public class SharingFilterComboBox extends LimeComboBox {
             SharingFilterComboBox.this.fireChangeEvent(this);
         }
 
+        @Override
         public String toString() {
             return friend.getRenderName();
         }
@@ -172,15 +174,35 @@ public class SharingFilterComboBox extends LimeComboBox {
            
             menu.add(new MenuAction(SharingTarget.GNUTELLA_SHARE.getFriend(), shareListManager.getGnutellaShareList().size(), gnutellaIcon));
             
-            List<Friend> sortedFriends = new ArrayList<Friend>(menuList);
-            Collections.sort(sortedFriends, new FriendComparator(shareListManager));
-            for(Friend friend : sortedFriends) {
-                menu.add(new MenuAction(friend, shareListManager.getOrCreateFriendShareList(friend).size(), friendIcon));
+            List<Friend> sharedFriends = getSharedFriends();
+            if (sharedFriends.size() > 0) {
+                Collections.sort(sharedFriends, new FriendComparator(shareListManager));
+                for (Friend friend : sharedFriends) {
+                    menu.add(new MenuAction(friend, shareListManager.getOrCreateFriendShareList(friend).size(), friendIcon));
+                }
+                if (sharedFriends.size() < menuList.size()){
+                    menu.addLabel(I18n.tr("<HTML>You aren't sharing<BR>with any other friends</HTML>"), null);
+                }
+            } else {//no shared friends
+                menu.addLabel(I18n.tr("<HTML>You aren't sharing<BR>with any friends</HTML>"), friendIcon);
             }
             
-            //ensure the menu is properlly sized since it may have changed since the last time
+            //ensure the menu is properly sized since it may have changed since the last time
             menu.validate();
         }
+    }
+    
+
+    
+    private List<Friend> getSharedFriends(){
+        List<Friend> friends = new ArrayList<Friend>(menuList);
+        Iterator<Friend> iterator = friends.iterator();
+        while (iterator.hasNext()) {
+            if (shareListManager.getOrCreateFriendShareList(iterator.next()).size() == 0) {
+                iterator.remove();
+            }
+        }
+        return friends;
     }
     
     /**
@@ -274,6 +296,17 @@ public class SharingFilterComboBox extends LimeComboBox {
         public Component add(Component comp) {
             panel.add(comp);
             return comp;
+        }
+        
+        public Component addLabel(String text, Icon icon){
+            //using CreateButton() so that our layout/spacing is the same
+            JButton label = createButton(null);
+            label.setText(text);
+            label.setIcon(icon);
+            label.setEnabled(false);
+            label.setForeground(labelColor);
+            panel.add(label);
+            return label;
         }
         
         /**

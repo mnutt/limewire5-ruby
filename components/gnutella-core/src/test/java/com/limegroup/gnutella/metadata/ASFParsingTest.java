@@ -5,12 +5,12 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.metadata.audio.AudioMetaData;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * test for the parsing of ASF files.

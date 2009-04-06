@@ -1,14 +1,14 @@
 package com.limegroup.gnutella.auth;
 
 import org.limewire.core.settings.ContentSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.IpPortImpl;
 
 import com.google.inject.Injector;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.UDPService;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Nightly integration test to ensure filtering server is running.

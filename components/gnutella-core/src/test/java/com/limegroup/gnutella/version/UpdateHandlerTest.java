@@ -23,6 +23,8 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.limewire.core.settings.UpdateSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.security.SettingsProvider;
 import org.limewire.util.Clock;
 import org.limewire.util.CommonUtils;
@@ -35,13 +37,11 @@ import com.limegroup.gnutella.ApplicationServices;
 import com.limegroup.gnutella.ClockStub;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.http.HttpClientListener;
 import com.limegroup.gnutella.http.HttpExecutor;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
 import com.limegroup.gnutella.stubs.ScheduledExecutorServiceStub;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class UpdateHandlerTest extends LimeTestCase {
     

@@ -30,6 +30,7 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int DIMENSION_INDEX = 8;
     static final int DESCRIPTION_INDEX = 9;
     static final int GENRE_INDEX = 10;
+    static final int FROM_INDEX = 11;
 
     public RemoteVideoTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnState) {
         super(sortID, sortedColumn, isAscending, columnState);
@@ -47,7 +48,8 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
                 new ColumnStateInfo(RATING_INDEX, "REMOTE_LIBRARY_VIDEO_RATING", I18n.tr("Rating"), 60, false, true),
                 new ColumnStateInfo(DIMENSION_INDEX, "REMOTE_LIBRARY_VIDEO_DIMENSION", I18n.tr("Resolution"), 80, false, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_VIDEO_DESCRIPTION", I18n.tr("Description"), 100, false, true),
-                new ColumnStateInfo(GENRE_INDEX, "REMOTE_LIBRARY_VIDEO_GENRE", I18n.tr("Genre"), 80, false, true) 
+                new ColumnStateInfo(GENRE_INDEX, "REMOTE_LIBRARY_VIDEO_GENRE", I18n.tr("Genre"), 80, false, true),
+                new ColumnStateInfo(FROM_INDEX, "REMOTE_LIBRARY_OTHER_FROM", I18n.tr("From"), 38, true, true)
         });
     }
 
@@ -70,6 +72,7 @@ public class RemoteVideoTableFormat<T extends RemoteFileItem> extends AbstractRe
                     return baseObject.getProperty(FilePropertyKey.WIDTH) + " X " + baseObject.getProperty(FilePropertyKey.HEIGHT);
             case GENRE_INDEX:
                 return baseObject.getProperty(FilePropertyKey.GENRE);
+            case FROM_INDEX: return baseObject;
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

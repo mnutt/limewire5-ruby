@@ -15,7 +15,7 @@ import com.limegroup.gnutella.dht.DHTManager.DHTMode;
  * Unit tests for ExtendedEndpoint.
  */
 @SuppressWarnings( { "unchecked", "cast" } )
-public class ExtendedEndpointTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class ExtendedEndpointTest extends org.limewire.gnutella.tests.LimeTestCase {
     private ExtendedEndpoint e;
     private Comparator comparator;
 
@@ -118,7 +118,7 @@ public class ExtendedEndpointTest extends com.limegroup.gnutella.util.LimeTestCa
         e.write(out);
         //Window time is hard-coded below.
         assertEquals("127.0.0.1:6346,3492,1,100,86400113;113,"
-                     + ApplicationSettings.DEFAULT_LOCALE.getValue() 
+                     + ApplicationSettings.DEFAULT_LOCALE.get() 
                      + ",,0,INACTIVE,,\n",
                      out.toString());
     }
@@ -151,7 +151,7 @@ public class ExtendedEndpointTest extends com.limegroup.gnutella.util.LimeTestCa
         e.write(out);
         //Window time is hard-coded below.
         assertEquals("127.0.0.1:6346,,"+timeString+",,"
-                     + "," + ApplicationSettings.DEFAULT_LOCALE.getValue()
+                     + "," + ApplicationSettings.DEFAULT_LOCALE.get()
                      + ",,,,,\n",
                      out.toString());
     }

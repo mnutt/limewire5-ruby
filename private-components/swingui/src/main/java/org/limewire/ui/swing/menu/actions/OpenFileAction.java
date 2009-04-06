@@ -52,7 +52,7 @@ public class OpenFileAction extends AbstractAction {
 
                     @Override
                     public String getDescription() {
-                        return I18n.tr(".torrent files");
+                        return I18n.tr("\".torrent\" files");
                     }
                 });
 

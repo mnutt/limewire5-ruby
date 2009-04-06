@@ -15,16 +15,15 @@ import javax.net.ssl.SSLServerSocket;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.protocol.HTTP;
 import org.limewire.concurrent.ManagedThread;
 import org.limewire.nio.ssl.SSLUtils;
 import org.limewire.util.StringUtils;
-
 
 /**
  * Simulates an HTTP server.  Listens on a port, accepts a single
  * connection, records request and writes result.
  */
-@SuppressWarnings("unchecked")
 public class TestBootstrapServer {
     
     
@@ -32,7 +31,7 @@ public class TestBootstrapServer {
         LogFactory.getLog(TestBootstrapServer.class);
     
     private ServerSocket _ss;
-    private List _sockets = new LinkedList();
+    private List<Socket> _sockets = new LinkedList<Socket>();
 
     private volatile String _request;
     private volatile String _response;
@@ -98,7 +97,7 @@ public class TestBootstrapServer {
     }
 
     /** Sets the data this should send for any HTTP response.  Default value:
-     *  "".  Example value: "18.239.0.144:6346\r\n1.2.3.4\r\n\r\n.*/
+     *  "".  Example value: "18.239.0.144:6346\r\n1.2.3.4\r\n\r\n".*/
     public void setResponseData(String data) {
         this._responseData=data;
     }
@@ -140,9 +139,9 @@ public class TestBootstrapServer {
                 LOG.debug("accepted new connection");
                 _numConnections++;
                 _sockets.add(s);
-                BufferedReader in=
-                    new BufferedReader(
-                        new InputStreamReader(s.getInputStream()));
+                BufferedReader in =
+                    new BufferedReader(new InputStreamReader(s.getInputStream(),
+                            HTTP.DEFAULT_PROTOCOL_CHARSET));
                 OutputStream out = s.getOutputStream();
                 while(true) {
                     LOG.debug("reading new request");

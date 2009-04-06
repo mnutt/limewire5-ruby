@@ -25,6 +25,8 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
     static final int SIZE_INDEX = 4;
     static final int AUTHOR_INDEX = 5;
     static final int DESCRIPTION_INDEX = 6;
+    static final int FROM_INDEX = 7;
+    
     private IconManager iconManager;
     
     public RemoteDocumentTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo, IconManager iconManager) {
@@ -40,7 +42,8 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
                 new ColumnStateInfo(CREATED_INDEX, "REMOTE_LIBRARY_DOCUMENT_CREATED", I18n.tr("Date Created"), 100, false, true), 
                 new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_DOCUMENT_SIZE", I18n.tr("Size"), 57, true, true),
                 new ColumnStateInfo(AUTHOR_INDEX, "REMOTE_LIBRARY_DOCUMENT_AUTHOR", I18n.tr("Author"), 120, false, true), 
-                new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_DOCUMENT_DESCRIPTION", I18n.tr("Description"), 120, false, false)
+                new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_DOCUMENT_DESCRIPTION", I18n.tr("Description"), 120, false, false),
+                new ColumnStateInfo(FROM_INDEX, "REMOTE_LIBRARY_DOCUMENT_FROM", I18n.tr("From"), 32, true, true)
         });
         this.iconManager = iconManager;
     }
@@ -59,6 +62,7 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
                      baseObject.getProperty(FilePropertyKey.DESCRIPTION);
              case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
              case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
+             case FROM_INDEX: return baseObject;
          }
          throw new IllegalArgumentException("Unknown column:" + column);
     }

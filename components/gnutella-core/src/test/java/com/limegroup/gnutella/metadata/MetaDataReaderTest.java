@@ -2,11 +2,11 @@ package com.limegroup.gnutella.metadata;
 
 import java.io.File;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 public class MetaDataReaderTest extends LimeTestCase {

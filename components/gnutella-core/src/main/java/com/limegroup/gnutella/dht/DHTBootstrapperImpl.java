@@ -291,7 +291,7 @@ class DHTBootstrapperImpl implements DHTBootstrapper, SimppListener {
      * @return the SocketAddress of a SIMPP bootstrap host, or null if we don't have any.
      */
     SocketAddress getSimppHost() {
-        String[] simppHosts = DHTSettings.DHT_BOOTSTRAP_HOSTS.getValue();
+        String[] simppHosts = DHTSettings.DHT_BOOTSTRAP_HOSTS.get();
         List<SocketAddress> list = new ArrayList<SocketAddress>(simppHosts.length);
 
         for (String hostString : simppHosts) {

@@ -63,14 +63,14 @@ public class FilterKeywordOptionPanel extends AbstractFilterOptionPanel {
     @Override
     boolean applyOptions() {
         String[] values = eventList.toArray(new String[eventList.size()]);
-        FilterSettings.BANNED_WORDS.setValue(values);
+        FilterSettings.BANNED_WORDS.set(values);
         spamManager.adjustSpamFilters();
         return false;
     }
 
     @Override
     boolean hasChanged() {
-        List model = Arrays.asList(FilterSettings.BANNED_WORDS.getValue());
+        List model = Arrays.asList(FilterSettings.BANNED_WORDS.get());
         String[] values = eventList.toArray(new String[eventList.size()]);
         
         return model.equals(new ArrayList<String>(Arrays.asList(values)));
@@ -79,7 +79,7 @@ public class FilterKeywordOptionPanel extends AbstractFilterOptionPanel {
     @Override
     public void initOptions() {
         eventList.clear();
-        String[] bannedWords = FilterSettings.BANNED_WORDS.getValue();
+        String[] bannedWords = FilterSettings.BANNED_WORDS.get();
         eventList.addAll(new ArrayList<String>(Arrays.asList(bannedWords)));
     }
 }

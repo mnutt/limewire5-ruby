@@ -124,7 +124,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
      * Cached illegal characters in search strings.
      */
     private static final char[] ILLEGAL_CHARS =
-        SearchSettings.ILLEGAL_CHARS.getValue();
+        SearchSettings.ILLEGAL_CHARS.get();
 
 
     /**
@@ -702,7 +702,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
      * @return true if this is likely a query for LimeWire.
      */
     public boolean isQueryForLW() {
-        for (String term : SearchSettings.LIME_SEARCH_TERMS.getValue()) {
+        for (String term : SearchSettings.LIME_SEARCH_TERMS.get()) {
             if (getQuery().length() > 0 &&
                     getQuery().toLowerCase(Locale.US).contains(term))
                 return true;

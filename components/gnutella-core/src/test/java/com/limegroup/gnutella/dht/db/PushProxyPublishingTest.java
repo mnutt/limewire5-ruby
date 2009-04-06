@@ -7,6 +7,9 @@ import junit.framework.Test;
 
 import org.limewire.core.settings.DHTSettings;
 import org.limewire.core.settings.NetworkSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
+import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.GUID;
 import org.limewire.io.IOUtils;
 import org.limewire.io.LimeWireIOTestModule;
@@ -23,15 +26,12 @@ import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.ExtendedEndpoint;
 import com.limegroup.gnutella.HostCatcher;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.PushEndpoint;
 import com.limegroup.gnutella.dht.DHTManager;
 import com.limegroup.gnutella.dht.DHTManager.DHTMode;
 import com.limegroup.gnutella.dht.DHTTestUtils;
 import com.limegroup.gnutella.stubs.ConnectionManagerStub;
-import com.limegroup.gnutella.stubs.NetworkManagerStub;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Integration test to ensure that push proxies are published.

@@ -48,7 +48,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
     
     private final EventListenerList<LifeCycleEvent> listenerList;
     
-    private static enum State { NONE, STARTING, STARTED, STOPPED };
+    private static enum State { NONE, STARTING, STARTED, STOPPED }
     
     /** The time when this finished starting. */
     @InspectablePrimitive("time lifecycle finished starting") 
@@ -88,7 +88,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.LifecycleManager#installListeners()
      */
-    public void installListeners() {
+    private void installListeners() {
         if(preinitializeBegin.getAndSet(true))
             return;
         

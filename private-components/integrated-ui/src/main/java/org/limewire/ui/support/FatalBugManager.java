@@ -182,6 +182,7 @@ public final class FatalBugManager {
                 sendButton.setEnabled(false);
                 sendButton.setText("Sending...");
                 new Thread("Fatal Bug Sending Thread") {
+                    @Override
                     public void run() {
                         try {
                             sendToServlet(info);

@@ -158,7 +158,7 @@ class CoreRandomGlue {
     private void cleanupPreviewFiles() {
         //Cleanup any preview files.  Note that these will not be deleted if
         //your previewer is still open.
-        File incompleteDir = SharingSettings.INCOMPLETE_DIRECTORY.getValue();
+        File incompleteDir = SharingSettings.INCOMPLETE_DIRECTORY.get();
         if (incompleteDir == null)
             return; // if we could not get the incomplete directory, simply return.
         

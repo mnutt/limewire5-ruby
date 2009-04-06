@@ -9,12 +9,17 @@ import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.ShareListManager;
 
-public class LibraryListSourceChanger {
+/**
+ * Allows My Library to be filtered based on a friend. When a friend
+ * is selected, only files that are shared with that friend are 
+ * displayed.
+ */
+public class LibraryListSourceChanger implements ListSourceChanger {
     
     private final PluggableList<LocalFileItem> delegateList;    
     private final LibraryManager libraryManager;
     private final ShareListManager shareListManager;
-    private final List<FriendChangedListener> listeners = new CopyOnWriteArrayList<FriendChangedListener>();
+    private final List<ListChangedListener> listeners = new CopyOnWriteArrayList<ListChangedListener>();
     
     private Friend currentFriend;
     
@@ -25,10 +30,9 @@ public class LibraryListSourceChanger {
         this.shareListManager = shareListManager;
     }
     
-    public void addListener(FriendChangedListener listener) {
+    public void addListener(ListChangedListener listener) {
         listeners.add(listener);
     }
-    
 
     /**
      * Set the current friend to filter with. If no filtering is
@@ -45,7 +49,7 @@ public class LibraryListSourceChanger {
             delegateList.setSource(shareListManager.getFriendShareList(friend).getSwingModel());
         }
         
-        for(FriendChangedListener listener : listeners) {
+        for(ListChangedListener listener : listeners) {
             listener.friendChanged(currentFriend);
         }
     }
@@ -57,11 +61,4 @@ public class LibraryListSourceChanger {
     public Friend getCurrentFriend() {
         return currentFriend;
     }
-    
-    /** A listener for when the friend in the library changes. */
-    public static interface FriendChangedListener {
-        /** Notification that the current visible friend has changed. */
-        public void friendChanged(Friend currentFriend);
-    }
-
 }

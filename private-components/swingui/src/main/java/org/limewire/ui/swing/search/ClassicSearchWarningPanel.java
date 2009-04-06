@@ -44,6 +44,7 @@ class ClassicSearchWarningPanel extends JXPanel implements SettingListener {
         ResizeUtils.forceHeight(this, height);
         setBackground(background);
         
+        // text is lower case since hyperlink
         HyperlinkButton close = new HyperlinkButton(new AbstractAction(I18n.tr("close")) {
             @Override
             public void actionPerformed(ActionEvent e) {

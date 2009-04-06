@@ -3,12 +3,13 @@ package com.limegroup.gnutella;
 import java.net.InetAddress;
 
 import org.limewire.core.settings.SearchSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 
 import junit.framework.Test;
 
-import com.limegroup.gnutella.connection.BlockingConnection;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.QueryRequestFactory;

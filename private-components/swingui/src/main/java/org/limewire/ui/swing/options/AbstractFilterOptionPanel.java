@@ -77,7 +77,8 @@ public abstract class AbstractFilterOptionPanel extends OptionPanel {
         private final HyperlinkButton button;
         
         public RemoveButtonRenderer(final FilterTable table) {
-            
+
+            // lower case since hyperlink
             button = new HyperlinkButton(I18n.tr("remove"));
             button.addActionListener(new ActionListener(){
                 @Override

@@ -7,7 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -20,6 +22,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
+import org.limewire.core.api.Category;
 import org.limewire.core.api.library.FriendAutoCompleterFactory;
 import org.limewire.core.api.properties.PropertyDictionary;
 import org.limewire.core.api.search.SearchCategory;
@@ -44,6 +47,8 @@ public class AdvancedSearchPanel extends JXPanel {
     private final List<UiSearchListener> uiSearchListeners = new ArrayList<UiSearchListener>();
     private final PropertyDictionary propertyDictionary;
     private final ButtonDecorator buttonDecorator;
+    
+    private Map<Category, AdvancedPanel> advancedPanels = new HashMap<Category, AdvancedPanel>();
     
     private final Action searchAction = new AbstractAction(I18n.tr("Search")) {
         @Override
@@ -94,11 +99,11 @@ public class AdvancedSearchPanel extends JXPanel {
 
         inputPanel = new JPanel(new MigLayout("insets 0, gap 0, hidemode 3, wrap"));
         
-        addCategory(SearchCategory.AUDIO, createAudioFields());
-        addCategory(SearchCategory.VIDEO, createVideoFields());
-        addCategory(SearchCategory.IMAGE, createImageFields());
-        addCategory(SearchCategory.DOCUMENT, createDocumentFields());
-        addCategory(SearchCategory.PROGRAM, createProgramFields());
+        addCategory(SearchCategory.AUDIO);
+        addCategory(SearchCategory.VIDEO);
+        addCategory(SearchCategory.IMAGE);
+        addCategory(SearchCategory.DOCUMENT);
+        addCategory(SearchCategory.PROGRAM);
         
         buttonDecorator.decorateGreenFullButton(searchButton);
         searchButton.setFont(headingFont);
@@ -107,27 +112,26 @@ public class AdvancedSearchPanel extends JXPanel {
         add(inputPanel, "gapleft 45, gaptop 4");
     }
     
-    private AdvancedPanel createProgramFields() {
-        return new AdvancedProgramPanel(friendAutoCompleterFactory);
+    /**
+	 * Creates the correct AdvancedPanel based on the category 
+	 * selected.
+	 */
+    private AdvancedPanel createAdvancedPanel(Category category) {
+        if(category == Category.AUDIO)
+            return new AdvancedAudioPanel(propertyDictionary, friendAutoCompleterFactory);
+        else if(category == Category.VIDEO)
+            return new AdvancedVideoPanel(propertyDictionary, friendAutoCompleterFactory);
+        else if(category == Category.DOCUMENT)
+            return new AdvancedDocumentPanel(friendAutoCompleterFactory);
+        else if(category == Category.IMAGE)
+            return new AdvancedImagePanel(friendAutoCompleterFactory);
+        else if(category == Category.PROGRAM)
+            return new AdvancedProgramPanel(friendAutoCompleterFactory);
+        
+        return null;
     }
 
-    private AdvancedPanel createDocumentFields() {
-        return new AdvancedDocumentPanel(friendAutoCompleterFactory);
-    }
-
-    private AdvancedPanel createImageFields() {
-        return new AdvancedImagePanel(friendAutoCompleterFactory);
-    }
-
-    private AdvancedPanel createVideoFields() {
-        return new AdvancedVideoPanel(propertyDictionary, friendAutoCompleterFactory);
-    }
-
-    private AdvancedPanel createAudioFields() {
-        return new AdvancedAudioPanel(propertyDictionary, friendAutoCompleterFactory);
-    }
-
-    private void addCategory(final SearchCategory category, final AdvancedPanel component) {
+    private void addCategory(final SearchCategory category) {
         final JXButton button = new JXButton(I18n.tr(category.getCategory().getPluralName()));
                 
         button.setModel(new JToggleButton.ToggleButtonModel());
@@ -137,14 +141,20 @@ public class AdvancedSearchPanel extends JXPanel {
         
         selectorPanel.add(button);
         
-        ResizeUtils.forceWidth(component, 300);
-        component.setVisible(false);
-        inputPanel.add(component);
-        
         button.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent event) {
                 if (event.getStateChange() == ItemEvent.SELECTED) {
+                    
+                    AdvancedPanel component = advancedPanels.get(category.getCategory());
+                    if(component == null) {
+                        component = createAdvancedPanel(category.getCategory());
+                        advancedPanels.put(category.getCategory(), component);
+                        
+                        ResizeUtils.forceWidth(component, 300);
+                        component.setVisible(false);
+                        inputPanel.add(component);
+                    }
                     
                     // Update visibility so invisible panels don't effect size
                     if (visibleComponent != null) {

@@ -340,6 +340,15 @@ public class StringUtilsTest extends BaseTestCase {
         }
     }
     
+    public void testCountOccurrences() {
+        assertEquals(0, StringUtils.countOccurrences("", 'f'));
+        assertEquals(0, StringUtils.countOccurrences("fdfdfdfdf", 'e'));
+        assertEquals(6, StringUtils.countOccurrences("ffffff", 'f'));
+        assertEquals(1, StringUtils.countOccurrences("fddddd", 'f'));
+        assertEquals(1, StringUtils.countOccurrences("dddddf", 'f'));
+        assertEquals(2, StringUtils.countOccurrences("fdddddf", 'f'));
+    }
+    
     private static class AllFields {
         String a = "a";
         int i = Integer.MAX_VALUE;

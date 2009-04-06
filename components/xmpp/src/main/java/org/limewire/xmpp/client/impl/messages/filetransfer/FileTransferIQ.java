@@ -68,6 +68,7 @@ public class FileTransferIQ extends IQ {
         return transferType;
     }
 
+    @Override
     public String getChildElementXML() {
         String fileTransfer = "<file-transfer xmlns='jabber:iq:lw-file-transfer' type='" + transferType.toString() + "'>";
         if(fileMetaData != null) {

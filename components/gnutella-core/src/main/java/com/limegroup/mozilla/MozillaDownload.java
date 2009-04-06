@@ -5,7 +5,7 @@ import java.io.File;
 import org.limewire.listener.EventListener;
 
 import com.limegroup.gnutella.BandwidthTracker;
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.DownloadStateEvent;
 
 /**

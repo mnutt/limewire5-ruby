@@ -18,6 +18,7 @@ public class LibraryImageCellRenderer extends ImageCellRenderer {
     }
     
     
+    @Override
     public void setButtonComponent(JComponent buttonPanel) {
         super.setButtonComponent(buttonPanel);
         if(buttonPanel instanceof Configurable){

@@ -18,7 +18,7 @@ import org.limewire.service.ErrorService;
  * Create a <code>PasswordSetting</code> object with a 
  * {@link SettingsFactory#createPasswordSettingMD5(String, String)}.
  */
-public final class PasswordSetting extends AbstractSetting {
+public final class PasswordSetting extends AbstractSetting<String> {
 
     /* 
      * Q: Why MD5 and not SHA1 as default?
@@ -95,7 +95,7 @@ public final class PasswordSetting extends AbstractSetting {
      * 
      * @return the value of this setting
      */
-    public String getValue() {
+    public String get() {
         return value;
     }
 
@@ -104,7 +104,7 @@ public final class PasswordSetting extends AbstractSetting {
      * 
      * @param str the <tt>String</tt> to store
      */
-    public void setValue(String str) {
+    public void set(String str) {
         setValueInternal(str);
     }
 
@@ -116,7 +116,7 @@ public final class PasswordSetting extends AbstractSetting {
     @Override
     protected void loadValue(String sValue) {
         if (algorithm != null && !isEncrypted(sValue)) {
-            setValue(encrypt(algorithm, sValue));
+            set(encrypt(algorithm, sValue));
             return;
         }
         value = sValue;
@@ -130,7 +130,7 @@ public final class PasswordSetting extends AbstractSetting {
         this.algorithm = algorithm;
         
         if (algorithm != null && !isEncrypted(value)) {
-            setValue(encrypt(algorithm, value));
+            set(encrypt(algorithm, value));
         }
     }
     

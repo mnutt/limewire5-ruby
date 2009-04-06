@@ -6,10 +6,10 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.metadata.audio.AudioMetaData;
 
 public class ID3ReaderTest extends AudioTestBase {

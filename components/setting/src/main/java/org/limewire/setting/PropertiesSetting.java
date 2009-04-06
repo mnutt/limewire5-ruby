@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class PropertiesSetting extends AbstractSetting {
+public class PropertiesSetting extends AbstractSetting<Properties> {
 
     private Properties value;
     
@@ -19,11 +19,11 @@ public class PropertiesSetting extends AbstractSetting {
         this.value = fromString(value);
     }
     
-    public Properties getValue() {
+    public Properties get() {
         return value;
     }
     
-    public void setValue(Properties properties) {
+    public void set(Properties properties) {
         value = properties;
         super.setValueInternal(toString(properties));
     }

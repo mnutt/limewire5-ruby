@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
-import junit.framework.TestCase;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
@@ -14,6 +12,7 @@ import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.listener.EventListener;
 import org.limewire.util.AssignParameterAction;
+import org.limewire.util.BaseTestCase;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -22,7 +21,8 @@ import com.limegroup.gnutella.library.FileListChangedEvent;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FriendFileList;
 
-public class FriendFileListImplTest extends TestCase {
+public class FriendFileListImplTest extends BaseTestCase {
+    
     private Mockery context = null;
 
     private CoreLocalFileItemFactory coreLocalFileItemFactory = null;
@@ -38,6 +38,11 @@ public class FriendFileListImplTest extends TestCase {
     private EventList<LocalFileItem> subList = null;
 
     private AtomicReference<EventListener<FileListChangedEvent>> fileListChangeListener = null;
+
+    public FriendFileListImplTest(String name) {
+        super(name);
+        
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -75,8 +80,6 @@ public class FriendFileListImplTest extends TestCase {
                 one(testFileList).addFileListListener(with(any(EventListener.class)));
                 will(new AssignParameterAction<EventListener<FileListChangedEvent>>(
                         fileListChangeListener, 0));
-                one(fileManager).getFriendFileList(name);
-                will(returnValue(testFileList));
                 allowing(testFileList).getReadLock();
                 will(returnValue(new ReentrantLock()));
                 one(testFileList).iterator();

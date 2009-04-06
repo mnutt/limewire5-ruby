@@ -33,6 +33,7 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
 
@@ -59,6 +60,7 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
         }
     }
 
+    @Override
     protected void tearDown() throws Exception {
         removeFriendRequestListener();
         connectionFive.removeUser(USERNAME_6);

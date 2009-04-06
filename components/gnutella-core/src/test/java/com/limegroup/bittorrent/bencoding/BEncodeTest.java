@@ -14,11 +14,11 @@ import java.util.Set;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.util.BEncoder;
 import org.limewire.util.ReadBufferChannel;
 import org.limewire.util.StringUtils;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 @SuppressWarnings("unchecked")
 public class BEncodeTest extends LimeTestCase {

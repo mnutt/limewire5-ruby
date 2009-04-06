@@ -54,7 +54,7 @@ public abstract class DefaultHeaders extends Properties {
 
         props.put(HeaderNames.X_MAX_TTL, "3");
         props.put(HeaderNames.X_DYNAMIC_QUERY, "0.1");
-        props.put(HeaderNames.X_LOCALE_PREF, ApplicationSettings.LANGUAGE.getValue());
+        props.put(HeaderNames.X_LOCALE_PREF, ApplicationSettings.LANGUAGE.get());
 
         if (ConnectionSettings.ACCEPT_DEFLATE.getValue())
             props.put(HeaderNames.ACCEPT_ENCODING, HeaderNames.DEFLATE_VALUE);

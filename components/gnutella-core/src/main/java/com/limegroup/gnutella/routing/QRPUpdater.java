@@ -80,7 +80,7 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
         this.backgroundExecutor = backgroundExecutor;
         this.fileDescListenerSupport = fileDescListenerSupport;
 
-        for (String entry : SearchSettings.LIME_QRP_ENTRIES.getValue())
+        for (String entry : SearchSettings.LIME_QRP_ENTRIES.get())
             qrpWords.add(entry);
     }
 
@@ -90,7 +90,7 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
             return;
         
         Set<String> newWords = new HashSet<String>();
-        for (String entry : SearchSettings.LIME_QRP_ENTRIES.getValue())
+        for (String entry : SearchSettings.LIME_QRP_ENTRIES.get())
             newWords.add(entry);
 
         // any change in words?
@@ -139,7 +139,7 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
         LOG.debug("building QRT");
         queryRouteTable = new QueryRouteTable();
         if (SearchSettings.PUBLISH_LIME_KEYWORDS.getBoolean()) {
-            for (String entry : SearchSettings.LIME_QRP_ENTRIES.getValue()) {
+            for (String entry : SearchSettings.LIME_QRP_ENTRIES.get()) {
                 queryRouteTable.addIndivisible(entry);
             }
         }

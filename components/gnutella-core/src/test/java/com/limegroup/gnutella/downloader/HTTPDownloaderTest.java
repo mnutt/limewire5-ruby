@@ -25,6 +25,8 @@ import org.limewire.collection.BitNumbers;
 import org.limewire.collection.Function;
 import org.limewire.collection.MultiIterable;
 import org.limewire.collection.Range;
+import org.limewire.gnutella.tests.LimeTestUtils;
+import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.inject.Providers;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
@@ -44,7 +46,6 @@ import com.google.inject.Module;
 import com.limegroup.gnutella.BandwidthManager;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.PushEndpointCache;
 import com.limegroup.gnutella.PushEndpointFactory;
@@ -62,12 +63,11 @@ import com.limegroup.gnutella.http.SimpleReadHeaderState;
 import com.limegroup.gnutella.library.CreationTimeCache;
 import com.limegroup.gnutella.statistics.TcpBandwidthStatistics;
 import com.limegroup.gnutella.stubs.IOStateObserverStub;
-import com.limegroup.gnutella.stubs.NetworkManagerStub;
 import com.limegroup.gnutella.stubs.ReadBufferChannel;
 import com.limegroup.gnutella.tigertree.ThexReaderFactory;
 import com.limegroup.gnutella.util.MockUtils;
 
-public class HTTPDownloaderTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class HTTPDownloaderTest extends org.limewire.gnutella.tests.LimeTestCase {
 
     private HTTPDownloaderFactory httpDownloaderFactory;
 

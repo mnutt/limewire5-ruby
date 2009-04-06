@@ -34,6 +34,7 @@ class MozillaKeyListener extends KeyAdapter {
         });
     }
 
+    @Override
     public void keyPressed(KeyEvent e) {
         if (e instanceof MozillaKeyEvent) {
             MozillaKeyEvent mozKeyEvent = (MozillaKeyEvent) e;

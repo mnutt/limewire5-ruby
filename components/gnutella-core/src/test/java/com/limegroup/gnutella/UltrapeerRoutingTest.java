@@ -10,6 +10,8 @@ import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.PingPongSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 
 import com.google.inject.Injector;
@@ -30,7 +32,6 @@ import com.limegroup.gnutella.messages.QueryRequestFactory;
 import com.limegroup.gnutella.routing.QueryRouteTable;
 import com.limegroup.gnutella.routing.RouteTableMessage;
 import com.limegroup.gnutella.util.EmptyResponder;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * The most important end-to-end message routing test.  Checks whether
@@ -131,7 +132,8 @@ public final class UltrapeerRoutingTest extends LimeTestCase {
         ULTRAPEER_2 = connectionFactory.createConnection("localhost", PORT); 
     }
 
-	public void setUp() throws Exception {
+	@Override
+    public void setUp() throws Exception {
         //Setup LimeWire backend.  For testing other vendors, you can skip all
         //this and manually configure a client to listen on port 6667, with
         //incoming slots and no connections.
@@ -139,9 +141,9 @@ public final class UltrapeerRoutingTest extends LimeTestCase {
         //all addresses but localhost and 18.239.0.*.  The latter is used in
         //pongs for testing.  TODO: it would be nice to have a way to prevent
         //BootstrapServerManager from adding defaults and connecting.
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(
             new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(
             new String[] {"127.*.*.*", "18.239.0.*"});
         // TODO hack: incrementing port value so each test has its own port
         // PORT++;
@@ -179,7 +181,8 @@ public final class UltrapeerRoutingTest extends LimeTestCase {
 					 NetworkSettings.PORT.getValue());
 	}
 
-	public void tearDown() throws Exception {
+	@Override
+    public void tearDown() throws Exception {
         drainAll();
 		sleep();
 		LEAF.close();

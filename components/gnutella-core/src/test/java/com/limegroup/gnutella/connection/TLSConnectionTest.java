@@ -7,6 +7,8 @@ import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.net.SocketsManager.ConnectType;
 
 import junit.framework.Test;
@@ -15,12 +17,10 @@ import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.StubGnetConnectObserver;
 import com.limegroup.gnutella.handshaking.HeadersFactory;
 import com.limegroup.gnutella.messages.PingReplyFactory;
 import com.limegroup.gnutella.util.EmptyResponder;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class TLSConnectionTest extends LimeTestCase {
     
@@ -49,8 +49,8 @@ public class TLSConnectionTest extends LimeTestCase {
     
     private static void setSettings() throws Exception {
         String localIP = InetAddress.getLocalHost().getHostAddress();
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(new String[] {"127.*.*.*", "192.168.*.*", "10.254.*.*", localIP});
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(new String[] {"*.*.*.*"});
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(new String[] {"127.*.*.*", "192.168.*.*", "10.254.*.*", localIP});
         NetworkSettings.PORT.setValue(PORT);
         ConnectionSettings.CONNECT_ON_STARTUP.setValue(false);
         UltrapeerSettings.EVER_ULTRAPEER_CAPABLE.setValue(true);

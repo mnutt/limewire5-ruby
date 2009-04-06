@@ -5,7 +5,7 @@ import junit.framework.Test;
 /**
  * Tests for UUID.
  */
-public final class UUIDTest extends com.limegroup.gnutella.util.LimeTestCase {
+public final class UUIDTest extends org.limewire.gnutella.tests.LimeTestCase {
 
 	/**
 	 * Constructs a new test instance for responses.

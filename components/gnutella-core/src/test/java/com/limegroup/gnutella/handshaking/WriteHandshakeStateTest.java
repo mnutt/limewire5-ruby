@@ -6,11 +6,11 @@ import java.util.Properties;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.nio.statemachine.IOState;
 import org.limewire.util.StringUtils;
 
 import com.limegroup.gnutella.stubs.WriteBufferChannel;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class WriteHandshakeStateTest extends LimeTestCase {
     

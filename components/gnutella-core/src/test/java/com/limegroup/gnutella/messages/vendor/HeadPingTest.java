@@ -2,13 +2,13 @@ package com.limegroup.gnutella.messages.vendor;
 
 import java.io.ByteArrayOutputStream;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.util.StringUtils;
 
 import junit.framework.Test;
 
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.Message.Network;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class HeadPingTest extends LimeTestCase {
     

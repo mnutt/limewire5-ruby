@@ -6,12 +6,12 @@ import junit.framework.Test;
 
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
 import com.limegroup.gnutella.ConnectionManager;
-import com.limegroup.gnutella.LimeTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 
 /**

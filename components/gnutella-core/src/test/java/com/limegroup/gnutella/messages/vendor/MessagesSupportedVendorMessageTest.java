@@ -5,19 +5,19 @@ import java.io.ByteArrayOutputStream;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.util.ByteUtils;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.Message.Network;
 
 /** Tests the important MessagesSupportedVendorMessage.
  */
-public class MessagesSupportedVendorMessageTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class MessagesSupportedVendorMessageTest extends org.limewire.gnutella.tests.LimeTestCase {
     private MessagesSupportedVendorMessage messagesSupportedVendorMessage;
     private MessageFactory messageFactory;
 

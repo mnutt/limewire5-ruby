@@ -9,11 +9,11 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.Properties;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.util.StringUtils;
 
 import junit.framework.Test;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class BlockingIncomingHandshakerTest extends LimeTestCase {
     

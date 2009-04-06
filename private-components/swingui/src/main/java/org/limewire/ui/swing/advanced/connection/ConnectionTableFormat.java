@@ -378,6 +378,7 @@ public class ConnectionTableFormat implements TableFormat<ConnectionItem> {
             return visible;
         }
         
+        @Override
         public int getWidth() {
             return width;
         }

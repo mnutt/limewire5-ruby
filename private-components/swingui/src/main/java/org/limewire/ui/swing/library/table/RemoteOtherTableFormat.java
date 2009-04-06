@@ -22,6 +22,7 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int TYPE_INDEX = 1;
     static final int EXTENSION_INDEX = 2;
     static final int SIZE_INDEX = 3;
+    static final int FROM_INDEX = 4;
     
     private IconManager iconManager;
     
@@ -35,7 +36,8 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_OTHER_NAME", I18n.tr("Name"), 417, true, true),     
                 new ColumnStateInfo(TYPE_INDEX, "REMOTE_LIBRARY_OTHER_TYPE", I18n.tr("Type"), 170, true, true), 
                 new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_OTHER_EXTENSION", I18n.tr("Extension"), 78, true, true), 
-                new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_OTHER_SIZE", I18n.tr("Size"), 57, true, true) 
+                new ColumnStateInfo(SIZE_INDEX, "REMOTE_LIBRARY_OTHER_SIZE", I18n.tr("Size"), 57, true, true),
+                new ColumnStateInfo(FROM_INDEX, "REMOTE_LIBRARY_OTHER_FROM", I18n.tr("From"), 32, true, true)
         });
         this.iconManager = iconManager;
     }
@@ -51,6 +53,7 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
                     iconManager.getMIMEDescription(baseObject) : 
                     baseObject.getProperty(FilePropertyKey.DESCRIPTION);
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
+            case FROM_INDEX: return baseObject;
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

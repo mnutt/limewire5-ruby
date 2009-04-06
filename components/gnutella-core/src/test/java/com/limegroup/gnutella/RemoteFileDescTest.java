@@ -7,6 +7,7 @@ import java.util.Set;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
@@ -22,7 +23,7 @@ import com.limegroup.gnutella.http.HTTPConstants;
  * This class tests the methods of the <tt>RemoteFileDesc</tt> class.
  */
 @SuppressWarnings("unchecked")
-public final class RemoteFileDescTest extends com.limegroup.gnutella.util.LimeTestCase {	  
+public final class RemoteFileDescTest extends org.limewire.gnutella.tests.LimeTestCase {	  
 
 	private byte[] TEST_GUID;
     private PushEndpointFactory pushEndpointFactory;

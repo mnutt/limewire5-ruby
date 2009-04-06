@@ -447,7 +447,7 @@ public class AcceptorImpl implements ConnectionAcceptor, SocketProcessor, Accept
 		if(preferForcedAddress) {
 		    if (ConnectionSettings.FORCE_IP_ADDRESS.getValue()) {
 		        String address = 
-		            ConnectionSettings.FORCED_IP_ADDRESS_STRING.getValue();
+		            ConnectionSettings.FORCED_IP_ADDRESS_STRING.get();
 		        try {
 		            InetAddress ia = InetAddress.getByName(address);
 		            byte[] addr = ia.getAddress();
@@ -541,7 +541,7 @@ public class AcceptorImpl implements ConnectionAcceptor, SocketProcessor, Accept
             MulticastSocket mcastServiceSocket = null;
             try {
                 InetAddress mgroup = InetAddress.getByName(
-                    ConnectionSettings.MULTICAST_ADDRESS.getValue()
+                    ConnectionSettings.MULTICAST_ADDRESS.get()
                 );
                 mcastServiceSocket =                            
                     multicastService.get().newListeningSocket(

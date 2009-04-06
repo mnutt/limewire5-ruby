@@ -11,8 +11,12 @@ import java.util.List;
 
 import junit.framework.Test;
 
+import org.apache.http.protocol.HTTP;
 import org.limewire.core.settings.ContentSettings;
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.gnutella.tests.ActivityCallbackStub;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.ByteReader;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.nio.NIODispatcher;
@@ -27,7 +31,6 @@ import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.HTTPAcceptor;
 import com.limegroup.gnutella.HTTPUploadManager;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.RequestCache;
 import com.limegroup.gnutella.URN;
@@ -49,12 +52,10 @@ import com.limegroup.gnutella.library.FileDescStub;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerStub;
 import com.limegroup.gnutella.messages.vendor.ContentRequest;
-import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 import com.limegroup.gnutella.stubs.IOStateObserverStub;
 import com.limegroup.gnutella.tigertree.HashTree;
 import com.limegroup.gnutella.tigertree.HashTreeCache;
 import com.limegroup.gnutella.tigertree.HashTreeCacheImpl;
-import com.limegroup.gnutella.util.LimeTestCase;
 import com.limegroup.gnutella.util.LimeWireUtils;
 import com.limegroup.gnutella.util.PipedSocketFactory;
 
@@ -498,7 +499,7 @@ public class UploadQueueingTest extends LimeTestCase {
         try {
             Socket sb = psf.getSocketB();
             OutputStream os = sb.getOutputStream();
-            out = new BufferedWriter(new OutputStreamWriter(os));
+            out = new BufferedWriter(new OutputStreamWriter(os, HTTP.DEFAULT_PROTOCOL_CHARSET));
             out.write("GET " + url1 + " HTTP/1.1\r\n");
             out.write("User-Agent: " + LimeWireUtils.getHttpServer() + "\r\n");
             out.write("X-Queue: 0.1\r\n");// we support remote queueing

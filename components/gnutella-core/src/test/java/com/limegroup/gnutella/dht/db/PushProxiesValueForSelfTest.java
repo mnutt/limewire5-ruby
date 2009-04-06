@@ -6,6 +6,7 @@ import junit.framework.Test;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortSet;
@@ -14,7 +15,6 @@ import org.limewire.util.BaseTestCase;
 
 import com.limegroup.gnutella.PushEndpoint;
 import com.limegroup.gnutella.PushEndpointFactory;
-import com.limegroup.gnutella.stubs.NetworkManagerStub;
 
 public class PushProxiesValueForSelfTest extends BaseTestCase {
 

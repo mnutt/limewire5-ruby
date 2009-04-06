@@ -33,7 +33,17 @@ public class FloatSetting extends AbstractNumberSetting<Float> {
 		super(defaultProps, props, key, String.valueOf(defaultFloat), 
               true, min, max);
 	}
+    
+    @Override
+    public Float get() {
+        return getValue();
+    }
         
+    @Override
+    public void set(Float newValue) {
+        setValue(newValue);
+    }
+    
 	/**
 	 * Returns the value of this setting.
 	 * 

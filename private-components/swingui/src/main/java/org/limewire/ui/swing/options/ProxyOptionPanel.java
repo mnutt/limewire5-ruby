@@ -127,10 +127,10 @@ public class ProxyOptionPanel extends OptionPanel {
 
         ConnectionSettings.PROXY_PORT.setValue(proxyPort);
         ConnectionSettings.CONNECTION_METHOD.setValue(connectionMethod);
-        ConnectionSettings.PROXY_HOST.setValue(proxy);
+        ConnectionSettings.PROXY_HOST.set(proxy);
         
-        ConnectionSettings.PROXY_USERNAME.setValue(userNameTextField.getText());
-        ConnectionSettings.PROXY_PASS.setValue(passwordField.getPassword().toString());
+        ConnectionSettings.PROXY_USERNAME.set(userNameTextField.getText());
+        ConnectionSettings.PROXY_PASS.set(passwordField.getPassword().toString());
         ConnectionSettings.PROXY_AUTHENTICATE.setValue(authenticationCheckBox.isSelected());
         return false;
     }
@@ -140,15 +140,15 @@ public class ProxyOptionPanel extends OptionPanel {
         int oldProxyPort = ConnectionSettings.PROXY_PORT.getValue();
         if(oldProxyPort != portTextField.getValue(oldProxyPort))
             return true;
-        if(!ConnectionSettings.PROXY_HOST.getValue().equals(proxyTextField.getText()))
+        if(!ConnectionSettings.PROXY_HOST.get().equals(proxyTextField.getText()))
             return true;
         
         // authentication:
         if(ConnectionSettings.PROXY_AUTHENTICATE.getValue() != authenticationCheckBox.isSelected())
             return true;
-        if(!ConnectionSettings.PROXY_USERNAME.getValue().equals(userNameTextField.getText()))
+        if(!ConnectionSettings.PROXY_USERNAME.get().equals(userNameTextField.getText()))
             return true;
-        if(!ConnectionSettings.PROXY_PASS.getValue().equals(passwordField.getPassword().toString()))
+        if(!ConnectionSettings.PROXY_PASS.get().equals(passwordField.getPassword().toString()))
             return true;
         
         // connection style
@@ -169,7 +169,7 @@ public class ProxyOptionPanel extends OptionPanel {
     @Override
     public void initOptions() {
         int connectionMethod = ConnectionSettings.CONNECTION_METHOD.getValue();
-        String proxy = ConnectionSettings.PROXY_HOST.getValue();
+        String proxy = ConnectionSettings.PROXY_HOST.get();
         int proxyPort = ConnectionSettings.PROXY_PORT.getValue();
 
         noProxyRadioButton.setSelected(connectionMethod == ConnectionSettings.C_NO_PROXY);
@@ -182,8 +182,8 @@ public class ProxyOptionPanel extends OptionPanel {
         
         //authentication
         authenticationCheckBox.setSelected(ConnectionSettings.PROXY_AUTHENTICATE.getValue());
-        userNameTextField.setText(ConnectionSettings.PROXY_USERNAME.getValue());
-        passwordField.setText(ConnectionSettings.PROXY_PASS.getValue());
+        userNameTextField.setText(ConnectionSettings.PROXY_USERNAME.get());
+        passwordField.setText(ConnectionSettings.PROXY_PASS.get());
         
         updateState();
     }

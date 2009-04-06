@@ -4,6 +4,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.feature.Feature;
 import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.core.api.friend.feature.FeatureEvent.Type;
 import org.limewire.core.api.friend.feature.features.AddressFeature;
@@ -53,8 +54,8 @@ public class XmppPresenceLibraryAdderTest extends BaseTestCase {
         
         final XmppPresenceLibraryAdder adder = new XmppPresenceLibraryAdder(manager);
         final FeatureListener listener = adder.new FeatureListener();
-        final FeatureEvent e1 = new FeatureEvent(presence1, Type.ADDED, null);
-        final FeatureEvent e2 = new FeatureEvent(presence2, Type.ADDED, null);
+        final FeatureEvent e1 = new FeatureEvent(presence1, Type.ADDED, new Feature<Object>(new Object(), null));
+        final FeatureEvent e2 = new FeatureEvent(presence2, Type.ADDED, new Feature<Object>(new Object(), null));
                 
         context.checking(new Expectations() {
             {
@@ -84,8 +85,8 @@ public class XmppPresenceLibraryAdderTest extends BaseTestCase {
         
         final XmppPresenceLibraryAdder adder = new XmppPresenceLibraryAdder(manager);
         final FeatureListener listener = adder.new FeatureListener();
-        final FeatureEvent e1 = new FeatureEvent(presence1, Type.REMOVED, null);
-        final FeatureEvent e2 = new FeatureEvent(presence2, Type.REMOVED, null);
+        final FeatureEvent e1 = new FeatureEvent(presence1, Type.REMOVED, new Feature<Object>(new Object(), null));
+        final FeatureEvent e2 = new FeatureEvent(presence2, Type.REMOVED, new Feature<Object>(new Object(), null));
                 
         context.checking(new Expectations() {
             {

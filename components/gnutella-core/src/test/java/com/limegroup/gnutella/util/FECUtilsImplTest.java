@@ -3,8 +3,10 @@ package com.limegroup.gnutella.util;
 import java.util.Arrays;
 import java.util.List;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
+
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 
 import junit.framework.Test;
 

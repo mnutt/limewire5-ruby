@@ -2,7 +2,6 @@ package org.limewire.core.impl.connection;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +20,7 @@ import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.MatchAndCopy;
+import org.limewire.util.PrivateAccessor;
 
 import ca.odell.glazedlists.EventList;
 
@@ -431,8 +431,6 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
     /**
      * Returns the input of the calculate function when called in environment 
      *  that corresponds to the parameters passed in.
-     * @param lastIdleTime TODO
-     * @param lastStrengthRelatedEvent TODO
      */
     private ConnectionStrength testCalculate(
             final int countConnectionsWithNMessages, 
@@ -470,17 +468,14 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
         }});
         
         // LimeWireUtils.isPro() is hardcoded, use reflection to get it
-        boolean oldIsPro = LimeWireUtils.isPro();
-        Field isProField = LimeWireUtils.class.getDeclaredField("_isPro");
-        isProField.setAccessible(true);
-        isProField.set(null, isPro);
+        PrivateAccessor isProAccessor = new PrivateAccessor(LimeWireUtils.class, null, "_isPro");
+        isProAccessor.setValue(isPro);
         
         // Calculate connection strength
         ConnectionStrength strength = gnutellaConnectionManager.calculateStrength();
 
         // Reset pro field
-        isProField.set(null, oldIsPro);
-        isProField.setAccessible(false);
+        isProAccessor.reset();
         
         context.assertIsSatisfied();
 

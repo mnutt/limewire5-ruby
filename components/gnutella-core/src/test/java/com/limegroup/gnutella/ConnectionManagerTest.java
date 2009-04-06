@@ -21,6 +21,9 @@ import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.Backend;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.net.SocketsManager;
 import org.limewire.net.TLSManager;
@@ -60,7 +63,6 @@ import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
 import com.limegroup.gnutella.messages.vendor.MessagesSupportedVendorMessage;
 import com.limegroup.gnutella.search.SearchResultHandler;
 import com.limegroup.gnutella.simpp.SimppManager;
-import com.limegroup.gnutella.util.LimeTestCase;
 import com.limegroup.gnutella.version.UpdateHandler;
 
 /**
@@ -122,7 +124,7 @@ public class ConnectionManagerTest extends LimeTestCase {
         //  Currently, there are no default EVIL_HOSTS useragents.  to test this, we need
         //      to pick on someone, so it will be Morpheus =)
         String [] agents = {"morpheus"};
-        ConnectionSettings.EVIL_HOSTS.setValue( agents );
+        ConnectionSettings.EVIL_HOSTS.set( agents );
         
         CATCHER.resetLatches();
         CATCHER.endpoint = null;
@@ -143,14 +145,7 @@ public class ConnectionManagerTest extends LimeTestCase {
 
     @Override
     public void tearDown() throws Exception {
-        //Kill all connections
-        if (connectionServices != null) {
-            connectionServices.disconnect();
-        }
-        if (lifecycleManager != null) {
-            lifecycleManager.shutdown();
-        }
-        Thread.sleep(500);
+        lifecycleManager.shutdown();
     }
     
     /**
@@ -758,11 +753,11 @@ public class ConnectionManagerTest extends LimeTestCase {
         @Override
         public void doneWithConnect(Endpoint e, boolean success) {
             if (success) {
-                successLatch.countDown();
                 successes.incrementAndGet();
+                successLatch.countDown();
             } else {
-                failureLatch.countDown();
                 failures.incrementAndGet();
+                failureLatch.countDown();
             }
         }
         

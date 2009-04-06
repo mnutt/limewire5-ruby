@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.Test;
 
 import org.limewire.collection.Range;
+import org.limewire.gnutella.tests.ActivityCallbackStub;
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.http.reactor.LimeConnectingIOReactorFactory;
 import org.limewire.swarm.SwarmCoordinator;
 import org.limewire.swarm.SwarmCoordinatorListener;
@@ -40,8 +42,6 @@ import com.limegroup.bittorrent.handshaking.piecestrategy.PieceStrategy;
 import com.limegroup.bittorrent.handshaking.piecestrategy.RandomGapStrategy;
 import com.limegroup.bittorrent.handshaking.piecestrategy.RandomPieceStrategy;
 import com.limegroup.gnutella.LimeWireCoreModule;
-import com.limegroup.gnutella.stubs.ActivityCallbackStub;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class BTSwarmCoordinatorTest extends LimeTestCase {
 

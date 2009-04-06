@@ -1,5 +1,7 @@
 <ivysettings>
-    <properties file="${limewire.ivy.home}/dependencies.props"/>
+    <property name="limewire.home" value="${ivy.settings.dir}/../.." override="false"/>
+    <properties file="build.properties" override="false"/>
+    <properties file="dependencies.props"/>
     
     <!-- a bunch of patterns for how to store & lookup dependencies. -->
     <property name="ivy.local.default.root"             value="${limewire.home}/.ivy2/local" override="false"/>

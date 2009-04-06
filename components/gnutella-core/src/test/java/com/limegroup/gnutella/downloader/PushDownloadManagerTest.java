@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
@@ -38,10 +40,8 @@ import com.google.inject.Stage;
 import com.limegroup.gnutella.Acceptor;
 import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.stubs.AcceptorStub;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 
 public class PushDownloadManagerTest extends LimeTestCase {

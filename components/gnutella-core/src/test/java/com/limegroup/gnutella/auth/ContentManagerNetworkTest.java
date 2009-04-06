@@ -7,18 +7,18 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import org.limewire.core.settings.ContentSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortImpl;
 
 import com.google.inject.Injector;
 import com.limegroup.gnutella.Acceptor;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.UDPService;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.messages.vendor.ContentRequest;
 import com.limegroup.gnutella.messages.vendor.ContentResponse;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 import junit.framework.Test;
  

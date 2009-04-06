@@ -18,10 +18,10 @@ public class ApplicationServicesImpl implements ApplicationServices {
     ApplicationServicesImpl() {
         byte [] myguid=null;
         try {
-            myguid = GUID.fromHexString(ApplicationSettings.CLIENT_ID.getValue());
+            myguid = GUID.fromHexString(ApplicationSettings.CLIENT_ID.get());
         }catch(IllegalArgumentException iae) {
             myguid = GUID.makeGuid();
-            ApplicationSettings.CLIENT_ID.setValue((new GUID(myguid)).toHexString());
+            ApplicationSettings.CLIENT_ID.set((new GUID(myguid)).toHexString());
         }
         limewireGUID = myguid;
         

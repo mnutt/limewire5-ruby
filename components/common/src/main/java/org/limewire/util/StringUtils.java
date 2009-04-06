@@ -31,6 +31,7 @@ public class StringUtils {
     private volatile static Collator COLLATOR;
     
     private static final ThreadLocal<CharsetEncoder> ASCII_ENCODER = new ThreadLocal<CharsetEncoder>() {
+        @Override
         protected CharsetEncoder initialValue() {
             return Charset.forName("ISO-8859-1").newEncoder();
         }
@@ -628,5 +629,18 @@ public class StringUtils {
      */
     public static boolean isAsciiOnly(CharSequence sequence) {
         return ASCII_ENCODER.get().canEncode(sequence);
+    }
+    
+    /**
+     * @return the number of occurrences of <code>c</code> in <code>sequence</code> 
+     */
+    public static int countOccurrences(CharSequence sequence, char c) {
+        int count = 0;
+        for (int i = 0; i < sequence.length(); i++) {
+            if (sequence.charAt(i) == c) {
+                ++count;
+            }
+        }
+        return count;
     }
 }

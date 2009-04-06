@@ -5,10 +5,10 @@ import java.io.File;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.util.TestUtils;
 
 import com.limegroup.gnutella.metadata.audio.AudioMetaData;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Test MP3Info class

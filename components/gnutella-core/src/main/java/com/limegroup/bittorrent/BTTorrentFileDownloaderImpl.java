@@ -87,7 +87,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         this.torrentManager = Objects.nonNull(torrentManager, "torrentManager");
         this.btMetaInfoFactory = Objects.nonNull(btMetaInfoFactory, "btMetaInfoFactory");
         this.eventListenerList = new EventListenerList<DownloadStateEvent>();
-        this.incompleteTorrentFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.getValue(), UUID.randomUUID().toString() + ".torrent");
+        this.incompleteTorrentFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.get(), UUID.randomUUID().toString() + ".torrent");
         addListener(this);
     }
 
@@ -247,6 +247,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         return null;
     }
 
+    @Override
     public File getSaveFile() {
         // TODO revamp to make better file names
 
@@ -375,6 +376,7 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         return false;
     }
 
+    @Override
     public void setInactivePriority(int priority) {
 
     }

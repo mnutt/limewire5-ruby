@@ -17,6 +17,9 @@ import com.limegroup.bittorrent.BTData.BTFileData;
 import com.limegroup.gnutella.metadata.MetaData;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 
+/**
+ * Allows accessing metadata about the torrent through the MetaData interface. 
+ */
 public class TorrentMetaData implements MetaData {
 
     public static final String TORRENT_SCHEMA = "http://www.limewire.com/schemas/torrent.xsd";

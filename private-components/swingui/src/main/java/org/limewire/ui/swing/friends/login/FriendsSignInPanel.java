@@ -208,7 +208,7 @@ public class FriendsSignInPanel extends JXPanel implements FriendActions {
                     // Ignore duplicate events caused by authentication
                     // errors and events caused by deliberately signing
                     // out or switching user
-                    Exception reason = event.getData();
+                    Exception reason = event.getException();
                     if(reason != null) {
                         disconnected(reason);
                     }

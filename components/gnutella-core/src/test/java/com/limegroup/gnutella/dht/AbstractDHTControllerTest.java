@@ -13,6 +13,7 @@ import java.util.Set;
 import junit.framework.Test;
 
 import org.limewire.core.settings.DHTSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.mojito.EntityKey;
 import org.limewire.mojito.KUID;
 import org.limewire.mojito.MojitoDHT;
@@ -43,7 +44,6 @@ import org.limewire.security.SecurityToken.TokenProvider;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.dht.AbstractDHTController.RandomNodeAdder;
 
 public class AbstractDHTControllerTest extends DHTTestCase {

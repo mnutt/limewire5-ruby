@@ -2,10 +2,10 @@ package com.limegroup.gnutella.messages;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.BaseTestCase;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 
 
 public class MessageFactoryTest extends BaseTestCase {

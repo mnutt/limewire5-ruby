@@ -11,13 +11,13 @@ import junit.framework.Test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cyberneko.relaxng.parsers.SAXParser;
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.util.TestUtils;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class PublishedCCLicenseTest extends LimeTestCase {
     

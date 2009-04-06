@@ -14,10 +14,10 @@ public class FilterListImpl implements FilterList {
     
     @Override
     public void addIPToFilter(String ipAddress) {
-        List<String> blackList = new ArrayList<String>(Arrays.asList(FilterSettings.BLACK_LISTED_IP_ADDRESSES.getValue()));
+        List<String> blackList = new ArrayList<String>(Arrays.asList(FilterSettings.BLACK_LISTED_IP_ADDRESSES.get()));
         blackList.add(ipAddress);
         FilterSettings.USE_NETWORK_FILTER.setValue(true);
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(blackList.toArray(new String[blackList.size()]));
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(blackList.toArray(new String[blackList.size()]));
         spamManager.reloadIPFilter();
     }
 }

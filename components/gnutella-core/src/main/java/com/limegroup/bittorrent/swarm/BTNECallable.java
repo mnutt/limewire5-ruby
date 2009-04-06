@@ -10,6 +10,10 @@ import org.limewire.collection.NECallable;
 import com.limegroup.bittorrent.BTInterval;
 import com.limegroup.bittorrent.BTPiece;
 
+/**
+ * Creates an NECallable impl to write data downloaded from the swarm into the
+ * VerifyingFolder.
+ */
 public final class BTNECallable implements NECallable<BTPiece> {
     private final int pieceId;
 

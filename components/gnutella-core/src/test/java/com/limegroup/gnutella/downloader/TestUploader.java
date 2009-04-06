@@ -28,6 +28,7 @@ import org.limewire.collection.Function;
 import org.limewire.collection.IntPair;
 import org.limewire.collection.RoundRobinQueue;
 import org.limewire.concurrent.ManagedThread;
+import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.BandwidthThrottle;
 import org.limewire.io.GUID;
 import org.limewire.io.IP;
@@ -54,6 +55,8 @@ import com.limegroup.gnutella.altlocs.AlternateLocationCollection;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactoryImpl;
 import com.limegroup.gnutella.dht.db.SearchListener;
+import com.limegroup.gnutella.filters.AbstractIPFilter;
+import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.filters.IPList;
 import com.limegroup.gnutella.http.FeaturesWriter;
 import com.limegroup.gnutella.http.HTTPHeaderName;
@@ -61,7 +64,6 @@ import com.limegroup.gnutella.http.HTTPHeaderValue;
 import com.limegroup.gnutella.http.HTTPHeaderValueCollection;
 import com.limegroup.gnutella.http.HTTPUtils;
 import com.limegroup.gnutella.http.HttpTestUtils;
-import com.limegroup.gnutella.stubs.NetworkManagerStub;
 import com.limegroup.gnutella.tigertree.HashTreeWriteHandler;
 import com.limegroup.gnutella.tigertree.HashTreeWriteHandlerFactory;
 import com.limegroup.gnutella.tigertree.SimpleHashTreeNodeManager;
@@ -239,7 +241,7 @@ public class TestUploader {
      * INVARIANT: networkManagerStub == networkManager
      */
     private final NetworkManagerStub networkManagerStub;
-    
+
     @Inject
     public TestUploader(Injector injector) {
         this(injector.getInstance(NetworkManager.class));
@@ -295,6 +297,7 @@ public class TestUploader {
         LOG.debug("starting to handle request with direct socket given");
         
         Thread t = new ManagedThread(name) {
+            @Override
             public void run() {
                 synchronized(TestUploader.this) {
                     try{
@@ -1275,7 +1278,27 @@ public class TestUploader {
                     new PushEndpointFactoryImpl(  //push endpoint factory
                             Providers.of((PushEndpointCache)new PECache()),
                             null,
-                            new NIUtils()), 
+                            new NIUtils(),
+                            Providers.of((IPFilter)new AbstractIPFilter() {
+                                @Override
+                                protected boolean allowImpl(IP ip) {
+                                    return true;
+                                }
+                                @Override
+                                public boolean hasBlacklistedHosts() {
+                                    return false;
+                                }
+                                @Override
+                                public int logMinDistanceTo(IP ip) {
+                                    return 0;
+                                }
+                                @Override
+                                public void refreshHosts(IPFilterCallback callback) {
+                                }
+                                @Override
+                                public void refreshHosts() {
+                                }
+                            })), 
                     new AppServices(), // application services
                     null, // connection services
                     new NIUtils(), // network instance utils

@@ -39,7 +39,7 @@ class ReconnectionManager implements EventListener<XMPPConnectionEvent> {
         if(event.getType() == XMPPConnectionEvent.Type.CONNECTED) {
             connected = true;   
         } else if(event.getType() == XMPPConnectionEvent.Type.DISCONNECTED) {
-            if(event.getData() != null && connected) {
+            if(event.getException() != null && connected) {
                 XMPPConnection connection = event.getSource();
                 final XMPPConnectionConfiguration configuration = connection.getConfiguration();
                 synchronized (this.serviceImpl) {

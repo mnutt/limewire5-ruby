@@ -66,18 +66,18 @@ public final class PongCacherImpl implements PongCacher {
             //if the locale that we were searching for was not the default
             //"en" locale and we do not have enough pongs in the list
             //then populate the list "pongs" with the default locale pongs
-            if(!ApplicationSettings.DEFAULT_LOCALE.getValue().equals(loc)
+            if(!ApplicationSettings.DEFAULT_LOCALE.get().equals(loc)
                && pongs.size() < NUM_HOPS) {
 
                 //get the best pongs for default locale
                 removeList = 
-                    addBestPongs(ApplicationSettings.DEFAULT_LOCALE.getValue(),
+                    addBestPongs(ApplicationSettings.DEFAULT_LOCALE.get(),
                                  pongs,
                                  curTime,
                                  pongs.size());
                 
                 //remove any pongs that were reported as stale pongs
-                removePongs(ApplicationSettings.DEFAULT_LOCALE.getValue(),
+                removePongs(ApplicationSettings.DEFAULT_LOCALE.get(),
                             removeList);
             }
 
@@ -96,7 +96,7 @@ public final class PongCacherImpl implements PongCacher {
         //normal expire time otherwise use the longer expire time
         //so we can have some memory of non english locales
         int exp_time = 
-            (ApplicationSettings.DEFAULT_LOCALE.getValue().equals(loc))?
+            (ApplicationSettings.DEFAULT_LOCALE.get().equals(loc))?
             EXPIRE_TIME :
             EXPIRE_TIME_LOC;
         

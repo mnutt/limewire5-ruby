@@ -13,27 +13,35 @@ import org.limewire.nio.observer.Shutdownable;
  * Something that executes HTTP requests using the http client library.
  */
 public interface HttpExecutor {
+
+    /**
+     * Execute an http request asynchronously. A default {@link org.apache.http.params.HttpParams}
+     * is used with a connection timeout of 5s, socket timeout of 8s, and maximum rediects
+     * of 10.
+     * 
+     * @param request the request to execute
+     * @return a {@link Shutdownable} to allow the request to be aborted.
+     */
+    Shutdownable execute(HttpUriRequest request);
+
+    /**
+     * Execute an http request asynchronously.
+     * 
+     * @param request the request to execute
+     * @param params the {@link org.apache.http.params.HttpParams} to use
+     * @return a {@link Shutdownable} to allow the request to be aborted.
+     */
+    Shutdownable execute(HttpUriRequest method, HttpParams params);
+    
 	/**
-	 * Execute the provided <tt>HttpMethod</tt> and notifies the
-	 * provided <tt>HttpClientListener</tt> using a default
-	 * <tt>ThreadPool</tt>
-     *
-     * This returns a Shutdownable that can be used to shutdown the execution
-     * of requesting all methods, to stop the current processing.
-	 */
+     * Execute an http request asynchronously.
+     * 
+     * @param request the request to execute
+     * @param params the {@link org.apache.http.params.HttpParams} to use
+     * @param listener the {@link HttpClientListener} to use
+     * @return a {@link Shutdownable} to allow the request to be aborted.
+     */
 	public Shutdownable execute(HttpUriRequest method, HttpParams params, HttpClientListener listener);
-	
-	/**
-	 * Execute the provided <tt>HttpMethod</tt> using the provided <tt>ThreadPool</tt>
-	 * and notifies the provided <tt>HttpClientListener</tt> on the same thread.
-     *
-     * This returns a Shutdownable that can be used to shutdown the execution
-     * of requesting all methods, to stop the current processing.
-	 */
-	public Shutdownable execute(HttpUriRequest method,
-            HttpParams params,
-            HttpClientListener listener,
-			ExecutorService executor);
 	
 	/**
 	 * Tries to execute any of the methods until the HttpClientListener

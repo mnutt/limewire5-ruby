@@ -2009,6 +2009,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
             }
         }
         
+        @Override
         protected Set<Map.Entry<K, V>> newSubMapEntrySet() {
             return new PrefixEntrySetView();
         }
@@ -2017,11 +2018,13 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
             private TrieEntry<K, V> prefixStart;
             private int iterModCount = 0;
             
+            @Override
             public int size() {
                 fixup();
                 return PrefixSubMap.this.size;
             }
 
+            @Override
             public Iterator<Map.Entry<K,V>> iterator() {
                 if(modCount != iterModCount) {
                     prefixStart = subtree(prefix, offset, length);
@@ -2072,15 +2075,18 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
             fromInclusive = true;
         }
         
+        @Override
         public boolean isEmpty() {
             return entrySet().isEmpty();
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public boolean containsKey(Object key) {
             return inRange((K) key) && PatriciaTrie.this.containsKey(key);
         }
        
+        @Override
         @SuppressWarnings("unchecked")
         public V remove(Object key) {
             if(!inRange((K)key))
@@ -2088,6 +2094,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
             return PatriciaTrie.this.remove(key);
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public V get(Object key) {
             if (!inRange((K) key))
@@ -2095,6 +2102,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
             return PatriciaTrie.this.get(key);
         }
 
+        @Override
         public V put(K key, V value) {
             if (!inRange(key))
                 throw new IllegalArgumentException("key out of range");
@@ -2141,6 +2149,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
 
         private transient Set<Map.Entry<K,V>> entrySet;
 
+        @Override
         public Set<Map.Entry<K,V>> entrySet() {
             if(entrySet == null)
                 entrySet = newSubMapEntrySet();
@@ -2154,6 +2163,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
         class EntrySetView extends AbstractSet<Map.Entry<K,V>> {
             private transient int size = -1, sizeModCount;
 
+            @Override
             public int size() {
                 if (size == -1 || sizeModCount != PatriciaTrie.this.modCount) {
                     size = 0;  sizeModCount = PatriciaTrie.this.modCount;
@@ -2166,10 +2176,12 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
                 return size;
             }
 
+            @Override
             public boolean isEmpty() {
                 return !iterator().hasNext();
             }
 
+            @Override
             @SuppressWarnings("unchecked")
             public boolean contains(Object o) {
                 if (!(o instanceof Map.Entry))
@@ -2183,6 +2195,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
                        valEquals(node.getValue(), entry.getValue());
             }
 
+            @Override
             @SuppressWarnings("unchecked")
             public boolean remove(Object o) {
                 if (!(o instanceof Map.Entry))
@@ -2199,6 +2212,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
                 return false;
             }
 
+            @Override
             public Iterator<Map.Entry<K,V>> iterator() {
                 return new SubMapEntryIterator(
                     (fromKey == null ? firstEntry() : ceilingEntry(fromKey)),

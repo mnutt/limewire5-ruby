@@ -140,7 +140,7 @@ public class OOBHandler implements MessageHandler, Runnable {
             int hash = Arrays.hashCode(t.getBytes());
             synchronized(sessions) {
                 if(!sessions.containsKey(hash)) {
-                    sessions.put(hash, new OOBSession(t, toRequest, new GUID(msg.getGUID()), true));
+                    sessions.put(hash, new OOBSession(t, toRequest, new GUID(msg.getGUID())));
                     ack = new LimeACKVendorMessage(g, toRequest, t);
                     if(LOG.isDebugEnabled()) {
                         LOG.debug("Sending OOBv3 LimeACK to " +

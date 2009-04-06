@@ -3,22 +3,17 @@ package org.limewire.swarm;
 import java.io.File;
 
 /**
- * 
- *
+ * Represents a file in the swarm file system.  
  */
 public interface SwarmFile {
 
     /**
      * Returns the local file backing this download.
-     * 
-     * @return
      */
     public abstract File getFile();
 
     /**
      * The total file size of the complete file.
-     * 
-     * @return
      */
     public abstract long getFileSize();
 
@@ -38,8 +33,6 @@ public interface SwarmFile {
      * Returns the base path for this file. Can be used for remote and local
      * repositories. The path may contain subfolders to represent the full path
      *  to the file, the path should be in unix format. path/to/file
-     * 
-     * @return
      */
     public abstract String getPath();
 

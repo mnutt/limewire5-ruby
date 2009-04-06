@@ -5,23 +5,24 @@ import org.limewire.util.Objects;
 /**
  * A default, simple implementation of Event.
  */
-public class DefaultDataTypeEvent<D, E> extends DefaultDataEvent<D> implements DataTypeEvent<D, E> {
+public class DefaultDataTypeEvent<D, T> extends DefaultDataEvent<D> implements DataTypeEvent<D, T> {
     
-    private final E event;
+    private final T type;
     
-    public DefaultDataTypeEvent(D data, E event) {
+    public DefaultDataTypeEvent(D data, T type) {
         super(data);
-        this.event = Objects.nonNull(event, "event");
+        this.type = Objects.nonNull(type, "type");
     }
 
-    public E getType() {
-        return event;
+    @Override
+    public T getType() {
+        return type;
     }
 
     @Override
     public int hashCode() {
         int hash = super.hashCode();
-        hash = 31 * hash + event.hashCode();
+        hash = 31 * hash + type.hashCode();
         return hash;
     }
 
@@ -30,14 +31,14 @@ public class DefaultDataTypeEvent<D, E> extends DefaultDataEvent<D> implements D
         if(!super.equals(obj)) {
             return false;
         }
-        if(!obj.getClass().equals(getClass())) {
+        if(!(obj instanceof DataTypeEvent)) {
             return false;
         }
-        return event.equals(((DefaultDataTypeEvent)obj).getType());
+        return type.equals(((DataTypeEvent)obj).getType());
     }
 
     @Override
     public String toString() {
-        return super.toString() + ", event: " + event;
+        return super.toString() + ", type: " + type;
     }
 }

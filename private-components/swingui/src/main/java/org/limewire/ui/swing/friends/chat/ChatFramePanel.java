@@ -25,6 +25,7 @@ import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
+import org.limewire.listener.EventListenerList;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.components.Resizable;
@@ -36,13 +37,11 @@ import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.sound.WavSoundPlayer;
 import org.limewire.ui.swing.tray.Notification;
 import org.limewire.ui.swing.tray.TrayNotifier;
-import org.limewire.ui.swing.util.EnabledListener;
-import org.limewire.ui.swing.util.EnabledListenerList;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.VisibilityListener;
-import org.limewire.ui.swing.util.VisibilityListenerList;
 import org.limewire.ui.swing.util.VisibleComponent;
+import org.limewire.ui.swing.util.VisibilityType;
+import org.limewire.ui.swing.util.EnabledType;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 
 import com.google.inject.Inject;
@@ -65,8 +64,12 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     //Heavy-weight component so that it can appear above other heavy-weight components
     private final java.awt.Panel mainPanel;
     
-    private final VisibilityListenerList visibilityListenerList = new VisibilityListenerList();
-    private final EnabledListenerList enabledListenerList = new EnabledListenerList();
+    private final EventListenerList<VisibilityType> visibilityListenerList =
+            new EventListenerList<VisibilityType>();
+
+    private final EventListenerList<EnabledType> enabledListenerList =
+            new EventListenerList<EnabledType>();
+
     private boolean actionEnabled = false;
     
     private UnseenMessageListener unseenMessageListener;
@@ -145,7 +148,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
             getDisplayable().handleDisplay();
             new PanelDisplayedEvent(this).publish();
         }
-        visibilityListenerList.visibilityChanged(shouldDisplay);
+        visibilityListenerList.broadcast(VisibilityType.valueOf(shouldDisplay));
     }
     
     private Displayable getDisplayable() {
@@ -201,7 +204,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
             borderPanel.repaint();
         }
         
-        visibilityListenerList.visibilityChanged(true);
+        visibilityListenerList.broadcast(VisibilityType.VISIBLE);
     }
     
     @EventSubscriber
@@ -214,7 +217,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         borderPanel.invalidate();
         borderPanel.repaint();
         
-        visibilityListenerList.visibilityChanged(true);
+        visibilityListenerList.broadcast(VisibilityType.VISIBLE);
     }
 
     private Notification getNoticeForMessage(MessageReceivedEvent event) {
@@ -282,13 +285,13 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
     }
 
     @Override
-    public void addVisibilityListener(VisibilityListener listener) {
-        visibilityListenerList.addVisibilityListener(listener);
+    public void addVisibilityListener(EventListener<VisibilityType> listener) {
+        visibilityListenerList.addListener(listener);
     }
 
     @Override
-    public void removeVisibilityListener(VisibilityListener listener) {
-        visibilityListenerList.removeVisibilityListener(listener);
+    public void removeVisibilityListener(EventListener<VisibilityType> listener) {
+        visibilityListenerList.removeListener(listener);
     }
 
     @Override
@@ -301,17 +304,17 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
             chatFriendListPane.markActiveConversationRead();
         }
         setChatPanelVisible(visible);
-        visibilityListenerList.visibilityChanged(visible);
+        visibilityListenerList.broadcast(VisibilityType.valueOf(visible));
     }
 
     @Override
-    public void addEnabledListener(EnabledListener listener) {
-        enabledListenerList.addEnabledListener(listener);
+    public void addEnabledListener(EventListener<EnabledType> listener) {
+        enabledListenerList.addListener(listener);
     }
 
     @Override
-    public void removeEnabledListener(EnabledListener listener) {
-        enabledListenerList.removeEnabledListener(listener);
+    public void removeEnabledListener(EventListener<EnabledType> listener) {
+        enabledListenerList.removeListener(listener);
     }
 
     /**
@@ -333,7 +336,7 @@ public class ChatFramePanel extends JXPanel implements Resizable, VisibleCompone
         
         // Notify listeners if value changed.
         if (enabled != oldValue) {
-            enabledListenerList.fireEnabledChanged(enabled);
+            enabledListenerList.broadcast(EnabledType.valueOf(enabled));
         }
     }
     

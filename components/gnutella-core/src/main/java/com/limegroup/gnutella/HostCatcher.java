@@ -781,7 +781,7 @@ public class HostCatcher implements Service, Bootstrapper.Listener {
             }
             // Add it to our free UP slots list if it has free UP slots, or if
             // the locales match and it has free locale preferencing slots
-            String myLocale = ApplicationSettings.LANGUAGE.getValue();
+            String myLocale = ApplicationSettings.LANGUAGE.get();
             if(pr.hasFreeUltrapeerSlots() || 
                     (myLocale.equals(pr.getClientLocale()) &&
                             pr.getNumFreeLocaleSlots() > 0)) {
@@ -1269,7 +1269,7 @@ public class HostCatcher implements Service, Bootstrapper.Listener {
     private ExtendedEndpoint preferenceWithLocale(
             RandomAccessMap<ExtendedEndpoint, ExtendedEndpoint> base) {
 
-        String loc = ApplicationSettings.LANGUAGE.getValue();
+        String loc = ApplicationSettings.LANGUAGE.get();
         ExtendedEndpoint ret = null;
         // preference a locale host if we haven't matched any locales yet
         if(!connectionManager.get().isLocaleMatched()) {
@@ -1353,7 +1353,7 @@ public class HostCatcher implements Service, Bootstrapper.Listener {
             Map<? extends ExtendedEndpoint, ? extends ExtendedEndpoint> base,
             String loc, int num) {
         if(loc == null || loc.equals(""))
-            loc = ApplicationSettings.DEFAULT_LOCALE.getValue();
+            loc = ApplicationSettings.DEFAULT_LOCALE.get();
 
         Set<IpPort> hosts = new HashSet<IpPort>(num);
         IntSet masked = new IntSet();

@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.Test;
 
 import org.limewire.core.settings.LibrarySettings;
+import org.limewire.gnutella.tests.ActivityCallbackStub;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
@@ -23,7 +25,6 @@ import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
-import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 
 /**
  * Checks whether Meta-Queries are correctly answered, etc.

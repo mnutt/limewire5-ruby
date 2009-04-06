@@ -43,8 +43,8 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
             buf.add(ipFilter);
 
         //2. Keyword-based techniques.
-        String[] badWords = FilterSettings.BANNED_WORDS.getValue();
-        String[] badExtensions = FilterSettings.BANNED_EXTENSIONS.getValue();
+        String[] badWords = FilterSettings.BANNED_WORDS.get();
+        String[] badExtensions = FilterSettings.BANNED_EXTENSIONS.get();
         
         boolean filterAdult = FilterSettings.FILTER_ADULT.getValue();
         

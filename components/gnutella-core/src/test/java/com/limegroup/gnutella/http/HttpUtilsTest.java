@@ -2,9 +2,10 @@ package com.limegroup.gnutella.http;
 
 import java.io.IOException;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import junit.framework.Test;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Tests the HTTPUtils class.

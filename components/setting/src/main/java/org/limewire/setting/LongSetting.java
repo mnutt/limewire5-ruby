@@ -29,6 +29,16 @@ public class LongSetting extends AbstractNumberSetting<Long> {
 		super(defaultProps, props, key, String.valueOf(defaultLong), 
                                  true, min, max);
 	}
+	
+	@Override
+	public Long get() {
+	    return getValue();
+	}
+	
+	@Override
+	public void set(Long newValue) {
+	    setValue(newValue);
+	}
         
 	/**
 	 * Returns the value of this setting.

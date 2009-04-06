@@ -65,16 +65,12 @@ class TopPanel extends JXPanel implements SearchNavigator {
     private final Navigator navigator;
         
     private final NavItem homeNav;
-<<<<<<< TopPanel.java
     private final JButton webButton;
     
     @Resource private Icon libraryCollapseIcon;
     @Resource private Icon libraryExpandIcon;
     @Resource private Icon webIcon;
     
-=======
-        
->>>>>>> 1.82
     @Inject
     public TopPanel(final SearchHandler searchHandler,
                     Navigator navigator,

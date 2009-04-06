@@ -29,7 +29,7 @@ import org.limewire.concurrent.ExecutorsHelper;
 
 /**
  * Instances of this class will receive HTTP requests and are responsible to
- * doling them out to listeners.  This is abstract so we can have test
+ * doling them out to handlers.  This is abstract so we can have test
  * cases using some of the logic.
  */
 public abstract class LWSDispatcherSupport implements LWSDispatcher {
@@ -192,7 +192,7 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
             notifyConnectionListeners(true);
             return;
         }
-        final Handler h = names2handlers.get(command.toLowerCase());
+        final Handler h = names2handlers.get(command.toLowerCase(Locale.US));
         if (h == null) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Couldn't create a handler for " + command);
@@ -352,7 +352,7 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
     }
 
     // ------------------------------------------------------------
-    // Handlers and Listeners
+    // Handlers
     // ------------------------------------------------------------
     
     /**
@@ -376,27 +376,6 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
     }
     
     /**
-     * Handles commands, but does NOT return a result.
-     */
-    interface Listener {
-
-        /**
-         * Perform some operation on the incoming message.
-         * 
-         * @param args CGI params
-         * @param req incoming {@link Request}
-         */
-        void handle(Map<String, String> args);
-
-        /**
-         * Returns the unique name of this instance.
-         * 
-         * @return the unique name of this instance
-         */
-        String name();     
-    }    
-    
-    /**
      * Generic base class for {@link Handler}s.
      */
     protected abstract static class AbstractHandler extends HasName implements Handler {
@@ -411,18 +390,6 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
         }
     }
     
-    /**
-     * Generic base class for {@link Listener}s.
-     */
-    protected abstract static class AbstractListener extends HasName implements Listener {
-        protected AbstractListener(String name) {
-            super(name);
-        }
-        protected AbstractListener() {
-            super();
-        }
-    }
-
     /**
      * A {@link Handler} requiring a callback specified by the
      * parameter {@link Parameters#CALLBACK}.
@@ -639,8 +606,7 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
         String MISSING_CALLBACK_PARAMETER = "missing.callback.parameter";
     
         /**
-         * A command was not understood or did not have valid handler or
-         * listener.
+         * A command was not understood or did not have valid handler.
          */
         String UNKNOWN_COMMAND = "unknown.command";
     

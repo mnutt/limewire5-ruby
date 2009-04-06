@@ -95,7 +95,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
         ConnectionSettings.CUSTOM_NETWORK_INTERFACE.setValue(meChooseRadioButton.isSelected());
         for(NetworkItem item : eventList) {
             if(item.isSelected()) {
-                ConnectionSettings.CUSTOM_INETADRESS.setValue(item.getAddress());
+                ConnectionSettings.CUSTOM_INETADRESS.set(item.getAddress());
                 break;
             }
         }
@@ -107,7 +107,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
         if(!ConnectionSettings.CUSTOM_NETWORK_INTERFACE.getValue())
             return !limewireChooseRadioButton.isSelected();
         
-        String expect = ConnectionSettings.CUSTOM_INETADRESS.getValue();
+        String expect = ConnectionSettings.CUSTOM_INETADRESS.get();
         for(NetworkItem item : eventList) {
             if(expect.equals(item.getAddress()));
                 return false;
@@ -133,7 +133,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
                     if(address.isAnyLocalAddress() || address.isLinkLocalAddress() || address.isLoopbackAddress())
                         continue;
                     NetworkItem networkItem = new NetworkItem(address, ni.getDisplayName());
-                    if(ConnectionSettings.CUSTOM_INETADRESS.getValue().equals(address.getHostAddress())) {
+                    if(ConnectionSettings.CUSTOM_INETADRESS.get().equals(address.getHostAddress())) {
                         networkItem.setSelected(true);
                         selectedItem = networkItem;
                     }

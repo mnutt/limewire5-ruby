@@ -21,7 +21,7 @@ import java.util.StringTokenizer;
  * {@link SettingsFactory#createFileSetSetting(String, File[])}.
  */
  
-public class FileSetSetting extends AbstractSetting {
+public class FileSetSetting extends AbstractSetting<Set<? extends File>> {
     
     private Set<File> value;
 
@@ -42,7 +42,7 @@ public class FileSetSetting extends AbstractSetting {
 	 * 
 	 * @return the value of this setting
 	 */
-	public Set<File> getValue() {
+	public Set<File> get() {
         return value;
 	}
 	
@@ -56,7 +56,7 @@ public class FileSetSetting extends AbstractSetting {
 	 *
 	 * @param value the value to store
 	 */
-	public void setValue(Set<? extends File> value) {
+	public void set(Set<? extends File> value) {
 	    setValueInternal(decode(value));
 	}
 
@@ -66,7 +66,7 @@ public class FileSetSetting extends AbstractSetting {
 	 */
 	public synchronized void add(File file) {
 	    value.add(file);
-	    setValue(value);
+	    set(value);
 	}
     
 	/**
@@ -78,7 +78,7 @@ public class FileSetSetting extends AbstractSetting {
 	 */
 	public synchronized boolean remove(File file) {
 	    if(value.remove(file)) {
-	        setValue(value);
+	        set(value);
 	        return true;
 	    } else {
 	        return false;
@@ -141,12 +141,12 @@ public class FileSetSetting extends AbstractSetting {
 	            i.remove();
         }
         
-	    setValue(value);
+	    set(value);
     }
 	
 	/** Removes all members **/
 	public synchronized void clear() {
 	    value.clear();
-	    setValue(value);
+	    set(value);
 	}
 }

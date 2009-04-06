@@ -9,13 +9,13 @@ import java.util.StringTokenizer;
 import junit.framework.Test;
 
 import org.limewire.collection.FixedSizeSortedSet;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.helpers.AlternateLocationHelper;
 import com.limegroup.gnutella.helpers.UrnHelper;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 
 /**

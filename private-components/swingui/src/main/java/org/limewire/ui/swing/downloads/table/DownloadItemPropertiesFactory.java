@@ -121,14 +121,14 @@ public class DownloadItemPropertiesFactory implements PropertiesFactory<Download
             location.add(fileLocation, "gapbottom 5,push");
             location.add(locateOnDisk);
             location.add(locateInLibrary);
-            locateOnDisk.setAction(new AbstractAction(I18n.tr("locate on disk")) {
+            locateOnDisk.setAction(new AbstractAction(I18n.tr("Locate on Disk")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     NativeLaunchUtils.launchExplorer(downloadingFile);
                 }
             });
 
-            locateInLibrary.setAction(new AbstractAction(I18n.tr("locate in library")) {
+            locateInLibrary.setAction(new AbstractAction(I18n.tr("Locate in Library")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     setVisible(false);

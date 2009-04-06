@@ -242,7 +242,7 @@ public final class BugManager {
      * If the file reaches a certain size it is erased.
      */
     private void logBugLocally(LocalClientInfo info) {
-        File f = BugSettings.BUG_LOG_FILE.getValue();
+        File f = BugSettings.BUG_LOG_FILE.get();
         FileUtils.setWriteable(f);
         OutputStream os = null;
         try {
@@ -268,7 +268,7 @@ public final class BugManager {
      */
     private void loadOldBugs() {
         ObjectInputStream in = null;
-        File f = BugSettings.BUG_INFO_FILE.getValue();
+        File f = BugSettings.BUG_INFO_FILE.get();
         try {
             // Purposely not a ConverterObjectInputStream --
             // we never want to read old version's bug info.
@@ -319,7 +319,7 @@ public final class BugManager {
             
             ObjectOutputStream out = null;
             try {
-                File f = BugSettings.BUG_INFO_FILE.getValue();
+                File f = BugSettings.BUG_INFO_FILE.get();
                 out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
                 String version = LimeWireUtils.getLimeWireVersion();
                 out.writeObject(version);
@@ -360,7 +360,7 @@ public final class BugManager {
         Version lastVersion;
         try {
             myVersion = new Version(LimeWireUtils.getLimeWireVersion());
-            lastVersion = new Version(BugSettings.LAST_ACCEPTABLE_VERSION.getValue());
+            lastVersion = new Version(BugSettings.LAST_ACCEPTABLE_VERSION.get());
         } catch(VersionFormatException vfe) {
             return false;
         }

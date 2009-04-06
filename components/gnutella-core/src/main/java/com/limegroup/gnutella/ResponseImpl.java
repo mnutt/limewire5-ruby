@@ -261,6 +261,7 @@ class ResponseImpl implements Response {
      * extensions that do not change equality, such as
      * otherLocations.
      */
+    @Override
     public boolean equals(Object o) {
         if(o == this) return true;
         if (! (o instanceof Response))
@@ -275,6 +276,7 @@ class ResponseImpl implements Response {
     }
 
 
+    @Override
     public int hashCode() {
         return  (int)((31 * 31 * getName().hashCode() + 31 * getSize()+getIndex()));
     }
@@ -282,6 +284,7 @@ class ResponseImpl implements Response {
     /**
      * Overrides Object.toString to print out a more informative message.
      */
+    @Override
     public String toString() {
         return ("index:        "+index+"\r\n"+
                 "size:         "+size+"\r\n"+

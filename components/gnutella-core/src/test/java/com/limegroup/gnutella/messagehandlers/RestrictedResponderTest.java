@@ -9,6 +9,7 @@ import java.util.concurrent.Executor;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GGEP;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortImpl;
@@ -24,7 +25,6 @@ import org.limewire.util.BaseTestCase;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.ReplyHandler;
 import com.limegroup.gnutella.UDPReplyHandlerCache;
@@ -80,7 +80,7 @@ public class RestrictedResponderTest extends BaseTestCase {
     
     public void testRestrictions() throws Exception {
         // ban everyone
-        ipSetting.setValue(new String[0]);
+        ipSetting.set(new String[0]);
         TestResponder responder = new TestResponder(null);
         Message m = pingRequestFactory.createMulticastPing();
         responder.handleMessage(m, addr, h);
@@ -89,7 +89,7 @@ public class RestrictedResponderTest extends BaseTestCase {
         assertNull(responder.handler);
         
         // allow this specific hosts
-        ipSetting.setValue(new String[]{"1.2.3.4"});
+        ipSetting.set(new String[]{"1.2.3.4"});
         triggerSimppUpdate();
         responder.handleMessage(m, addr, h);
         assertSame(m, responder.msg);

@@ -189,7 +189,7 @@ public class CoreDownloadListManager implements DownloadListManager {
             FileSetting fs = SharingSettings.getFileSettingForMediaType
             (MediaTypeConverter.toMediaType(category));
             if (!fs.isDefault()) {
-                saveDir = fs.getValue();
+                saveDir = fs.get();
             }
        // }
         Downloader downloader = downloadManager.download(files, alts, queryGuid, overwrite, saveDir, fileName);

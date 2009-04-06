@@ -16,6 +16,7 @@ import junit.framework.Test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.security.AddressSecurityToken;
 import org.limewire.security.MACCalculatorRepositoryManager;
@@ -36,7 +37,7 @@ import com.limegroup.gnutella.messages.QueryRequestFactory;
 import com.limegroup.gnutella.messages.Message.Network;
 
 @SuppressWarnings("unchecked")
-public class QueryUnicasterTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class QueryUnicasterTest extends org.limewire.gnutella.tests.LimeTestCase {
     private static final Log LOG = LogFactory.getLog(QueryUnicasterTest.class);
     
 	/**

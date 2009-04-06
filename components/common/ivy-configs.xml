@@ -1,4 +1,4 @@
-<configurations  defaultconfmapping="compile->master(*);runtime->runtime(*),master(*);test->runtime(*),master(*),test-common(*);test-common->master(*)">
+<configurations  defaultconfmapping="compile->master(*);runtime->runtime(*),master(*);test->runtime(*),master(*),test-common(*);test-common->master(*),test-common(*)">
 
     <conf name="test-common" visibility="public"
         description="shared test code that isn't tests, but is utility code other tests can use." extends="compile"/>

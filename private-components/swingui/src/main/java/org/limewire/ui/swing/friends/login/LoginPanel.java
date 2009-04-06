@@ -48,8 +48,8 @@ import net.miginfocom.swing.MigLayout;
 @Singleton
 class LoginPanel extends JXPanel implements SettingListener {
 
-    private static final String SIGNIN_ENABLED_TEXT = tr("Sign in");
-    private static final String SIGNIN_DISABLED_TEXT = tr("Signing in ...");
+    private static final String SIGNIN_ENABLED_TEXT = tr("Sign In");
+    private static final String SIGNIN_DISABLED_TEXT = tr("Signing in...");
     private static final String AUTHENTICATION_ERROR = tr("Incorrect username or password.");
     private static final String NETWORK_ERROR = tr("Network error.");
     

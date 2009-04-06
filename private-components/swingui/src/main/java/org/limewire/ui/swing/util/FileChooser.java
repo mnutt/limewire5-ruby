@@ -36,7 +36,7 @@ public final class FileChooser {
      * If that cannot be found the current directory is returned.
      */
     public static File getLastInputDirectory() {
-        File dir = SwingUiSettings.LAST_FILECHOOSER_DIRECTORY.getValue();
+        File dir = SwingUiSettings.LAST_FILECHOOSER_DIRECTORY.get();
         if(dir == null || dir.getPath().equals("") || !dir.exists() || !dir.isDirectory()) {
             return getDefaultLastFileChooserDir();
         }
@@ -258,7 +258,7 @@ public final class FileChooser {
                 file = file.getParentFile();
             if(file != null) {
                 if(file.exists() && file.isDirectory())
-                    SwingUiSettings.LAST_FILECHOOSER_DIRECTORY.setValue(file);
+                    SwingUiSettings.LAST_FILECHOOSER_DIRECTORY.set(file);
             }
         }
     }

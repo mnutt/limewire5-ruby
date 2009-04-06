@@ -5,7 +5,7 @@ import junit.framework.Test;
 import org.limewire.io.IP;
 import org.limewire.io.SimpleNetworkInstanceUtils;
 
-public class IPListTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class IPListTest extends org.limewire.gnutella.tests.LimeTestCase {
     public IPListTest(String name) {
         super(name);
     }

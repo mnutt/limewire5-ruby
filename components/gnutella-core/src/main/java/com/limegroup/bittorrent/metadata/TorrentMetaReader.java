@@ -17,6 +17,9 @@ import com.limegroup.gnutella.metadata.MetaData;
 import com.limegroup.gnutella.metadata.MetaDataFactory;
 import com.limegroup.gnutella.metadata.MetaReader;
 
+/**
+ * Converts a torrent file into a MetaData object. 
+ */
 @Singleton
 public class TorrentMetaReader implements MetaReader {
 

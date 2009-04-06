@@ -10,9 +10,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.limewire.collection.BucketQueue;
 import org.limewire.core.settings.ApplicationSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
 
 import com.limegroup.gnutella.messages.PingReply;
-import com.limegroup.gnutella.util.LimeTestCase;
 import com.limegroup.gnutella.util.MessageTestUtils;
 
 /**
@@ -64,14 +64,14 @@ public final class PongCacherImplTest extends LimeTestCase {
         pongCacher.addPong(pr);
         
         // Make sure we get the pong successfully.
-        List pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        List pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
         assertEquals("should be 1 pong",1,pongs.size());
         Iterator iter = pongs.iterator();
         PingReply retrievedPong = (PingReply)iter.next();
         assertEquals("unexpected pong", pr, retrievedPong);
 
         // Make sure we still get the pong successfully on a second pass.
-        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
         assertEquals("should be 1 pong",1,pongs.size());
         iter = pongs.iterator();
         retrievedPong = (PingReply)iter.next();
@@ -88,7 +88,7 @@ public final class PongCacherImplTest extends LimeTestCase {
         pongCacher.addPong(pr2);
         
         // Make sure we get the 2 pongs successfully in the correct order.
-        pongs = pongCacher.getBestPongs(ApplicationSettings.DEFAULT_LOCALE.getValue());
+        pongs = pongCacher.getBestPongs(ApplicationSettings.DEFAULT_LOCALE.get());
         assertEquals("should be 2 pongs",2,pongs.size());
         assertContains("no p2", pongs, pr2);
         assertContains("no p", pongs, pr);
@@ -96,7 +96,7 @@ public final class PongCacherImplTest extends LimeTestCase {
         // Finally, make sure the pong expires on a sleep -- add a bit to the
         // sleep to avoid thread scheduling craziness.
         Thread.sleep(PongCacher.EXPIRE_TIME+800);
-        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
         assertEquals("list should be empty", 0, pongs.size());
     }
 
@@ -129,19 +129,19 @@ public final class PongCacherImplTest extends LimeTestCase {
      */
     public void testGetBestPongs() throws Exception {
         
-        List pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        List pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
 
         PingReply pong = createPong(5, 0);
         pongCacher.addPong(pong);        
 
-        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
         assertEquals("unexpected number of cached pongs", 
                      1, pongs.size());        
 
         pong = createPong(5, 0);
         pongCacher.addPong(pong);        
 
-        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
         assertEquals("unexpected number of cached pongs", 
                      1, pongs.size());  
 
@@ -151,7 +151,7 @@ public final class PongCacherImplTest extends LimeTestCase {
             pongCacher.addPong(curPong);
         }
 
-        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
 
         assertEquals("unexpected number of cached pongs", 
                      PongCacher.NUM_PONGS_PER_HOP, pongs.size());
@@ -161,7 +161,7 @@ public final class PongCacherImplTest extends LimeTestCase {
         pongCacher.addPong(highHopPong);
 
         //Thread.sleep(PongCacher.REFRESH_INTERVAL+200);
-        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
         assertEquals("unexpected number of cached pongs", 
                      PongCacher.NUM_PONGS_PER_HOP+1, pongs.size());
 
@@ -174,7 +174,7 @@ public final class PongCacherImplTest extends LimeTestCase {
         pongCacher.addPong(highHopPong2);
 
         //Thread.sleep(PongCacher.REFRESH_INTERVAL+200);
-        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.getValue());
+        pongs = pongCacher.getBestPongs(ApplicationSettings.LANGUAGE.get());
         assertEquals("unexpected number of cached pongs", 
                      PongCacher.NUM_PONGS_PER_HOP+2, pongs.size());   
 

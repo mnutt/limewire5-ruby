@@ -50,5 +50,10 @@ public class MockRemoteLibraryManager implements RemoteLibraryManager {
         // TODO Auto-generated method stub
         
     }
-    
+
+    @Override
+    public FriendLibrary getFriendLibrary(Friend friend) {
+        // TODO Auto-generated method stub
+        return null;
+    }    
 }

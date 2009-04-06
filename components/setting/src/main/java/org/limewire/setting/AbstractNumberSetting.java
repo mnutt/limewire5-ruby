@@ -13,7 +13,7 @@ import java.util.Properties;
  * Additionally, <code>AbstractNumber</code> defines a method 
  * for subclasses to convert a string to a {@link Comparable}. 
  */
-public abstract class AbstractNumberSetting<T extends Number & Comparable<T>> extends AbstractSetting {
+public abstract class AbstractNumberSetting<T extends Number & Comparable<T>> extends AbstractSetting<T> {
 
     /**
      * Adds a safeguard against remote making a setting take a value beyond the

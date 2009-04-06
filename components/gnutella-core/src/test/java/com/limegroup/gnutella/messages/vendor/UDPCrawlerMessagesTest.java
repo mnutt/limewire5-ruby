@@ -23,6 +23,8 @@ import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.io.NetworkUtils;
@@ -39,7 +41,6 @@ import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.Constants;
 import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.Response;
@@ -58,7 +59,6 @@ import com.limegroup.gnutella.messages.QueryReplyFactory;
 import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.VendorMessageFactory.VendorMessageParser;
 import com.limegroup.gnutella.util.EmptyResponder;
-import com.limegroup.gnutella.util.LimeTestCase;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 public class UDPCrawlerMessagesTest extends LimeTestCase {
@@ -145,9 +145,9 @@ public class UDPCrawlerMessagesTest extends LimeTestCase {
             localIP = InetAddress.getLocalHost().getHostAddress();
         }
         catch (Exception ignored) {}
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(
                 new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(
                 new String[] {localIP,"127.*.*.*"});
         NetworkSettings.PORT.setValue(PORT);
         
@@ -462,7 +462,7 @@ public class UDPCrawlerMessagesTest extends LimeTestCase {
  		
  		//see if any of the connections have the locale in them - they should
         String lang = StringUtils.getASCIIString(payload, 9, 2);
- 		assertEquals(ApplicationSettings.LANGUAGE.getValue(),
+ 		assertEquals(ApplicationSettings.LANGUAGE.get(),
                lang);
  	}
  	

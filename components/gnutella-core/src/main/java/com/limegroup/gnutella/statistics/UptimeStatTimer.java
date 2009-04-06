@@ -111,7 +111,7 @@ final class UptimeStatTimer implements Service {
         }
         // only update setting every so many seconds
         if (currentUptime % interval == 0) {
-            String[] lastNUptimes = ApplicationSettings.LAST_N_UPTIMES.getValue();
+            String[] lastNUptimes = ApplicationSettings.LAST_N_UPTIMES.get();
             // first time this session
             if (firstUtimeUpdate.getAndSet(false)) {
                 String[] copy;
@@ -123,15 +123,15 @@ final class UptimeStatTimer implements Service {
                     System.arraycopy(lastNUptimes, 1, copy, 0, copy.length - 1);
                 }
                 copy[copy.length - 1] = Long.toString(currentUptime);
-                ApplicationSettings.LAST_N_UPTIMES.setValue(copy);
+                ApplicationSettings.LAST_N_UPTIMES.set(copy);
             } else {
                 // very defensive, should never happen
                 if (lastNUptimes.length == 0) {
-                    ApplicationSettings.LAST_N_UPTIMES.setValue(new String[] { Long
+                    ApplicationSettings.LAST_N_UPTIMES.set(new String[] { Long
                             .toString(currentUptime) });
                 } else {
                     lastNUptimes[lastNUptimes.length - 1] = Long.toString(currentUptime);
-                    ApplicationSettings.LAST_N_UPTIMES.setValue(lastNUptimes);
+                    ApplicationSettings.LAST_N_UPTIMES.set(lastNUptimes);
                 }
             }
         }

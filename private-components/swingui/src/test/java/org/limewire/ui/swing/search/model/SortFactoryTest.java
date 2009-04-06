@@ -145,4 +145,24 @@ public class SortFactoryTest extends TestCase {
         int result = comparator.compare(vsr1, vsr2);
         assertTrue("string comparator", (result > 0));
     }
+
+    /** 
+     * Tests method to retrieve string comparator.  Should be case-insensitive.
+     */ 
+    public void testGetStringComparatorMixedCase() {
+        // Create test search results.
+        MockVisualSearchResult vsr1 = new MockVisualSearchResult("Hello");
+        MockVisualSearchResult vsr2 = new MockVisualSearchResult("World");
+        
+        vsr1.getProperties().put(FilePropertyKey.TITLE, "Zulu");
+        vsr2.getProperties().put(FilePropertyKey.TITLE, "yankee");
+        
+        // Get string comparator.
+        Comparator<VisualSearchResult> comparator = 
+            SortFactory.getStringComparator(FilePropertyKey.TITLE, true);
+        
+        // Verify compare is case-insensitive.
+        int result = comparator.compare(vsr1, vsr2);
+        assertTrue("string comparator", (result > 0));
+    }
 }

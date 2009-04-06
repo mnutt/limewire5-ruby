@@ -12,7 +12,7 @@ import java.util.Properties;
  * Create a <code>ColorSetting</code> object with a 
  * {@link SettingsFactory#createColorSetting(String, Color)}.
  */
-public final class ColorSetting extends AbstractSetting {
+public final class ColorSetting extends AbstractSetting<Color> {
     
     private Color value;
 
@@ -51,7 +51,7 @@ public final class ColorSetting extends AbstractSetting {
 	 * 
 	 * @return the value of this setting
 	 */
-	public Color getValue() {
+	public Color get() {
         return value;
 	}
 
@@ -60,7 +60,7 @@ public final class ColorSetting extends AbstractSetting {
 	 *
 	 * @param value the value to store
 	 */
-	public void setValue(Color value) {
+	public void set(Color value) {
 	    setValueInternal(formatColor(value));
         this.value = value;
 	}

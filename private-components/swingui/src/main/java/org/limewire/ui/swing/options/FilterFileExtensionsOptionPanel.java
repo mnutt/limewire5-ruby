@@ -69,14 +69,14 @@ public class FilterFileExtensionsOptionPanel extends AbstractFilterOptionPanel {
     @Override
     boolean applyOptions() {
         String[] values = eventList.toArray(new String[eventList.size()]);
-        FilterSettings.BANNED_EXTENSIONS.setValue(values);
+        FilterSettings.BANNED_EXTENSIONS.set(values);
         spamManager.adjustSpamFilters();
         return false;
     }
 
     @Override
     boolean hasChanged() {
-        List model = Arrays.asList(FilterSettings.BANNED_EXTENSIONS.getValue());
+        List model = Arrays.asList(FilterSettings.BANNED_EXTENSIONS.get());
         String[] values = eventList.toArray(new String[eventList.size()]);
         
         return model.equals(new ArrayList<String>(Arrays.asList(values)));
@@ -85,7 +85,7 @@ public class FilterFileExtensionsOptionPanel extends AbstractFilterOptionPanel {
     @Override
     public void initOptions() {
         eventList.clear();
-        String[] bannedWords = FilterSettings.BANNED_EXTENSIONS.getValue();
+        String[] bannedWords = FilterSettings.BANNED_EXTENSIONS.get();
         eventList.addAll(new ArrayList<String>(Arrays.asList(bannedWords)));
     }
     
@@ -101,7 +101,7 @@ public class FilterFileExtensionsOptionPanel extends AbstractFilterOptionPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             FilterSettings.BANNED_EXTENSIONS.revertToDefault();
-            String[] bannedWords = FilterSettings.BANNED_EXTENSIONS.getValue();
+            String[] bannedWords = FilterSettings.BANNED_EXTENSIONS.get();
             eventList.clear();
             eventList.addAll(new ArrayList<String>(Arrays.asList(bannedWords)));
         }

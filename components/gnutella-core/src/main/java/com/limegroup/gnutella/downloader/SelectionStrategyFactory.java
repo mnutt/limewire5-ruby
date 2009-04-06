@@ -19,7 +19,7 @@ public class SelectionStrategyFactory {
         
         // Check if the extension matches known previewable extennsions
         if (extension != null && extension.length() > 0) {
-            String[] previewableExtensions = DownloadSettings.PREVIEWABLE_EXTENSIONS.getValue();
+            String[] previewableExtensions = DownloadSettings.PREVIEWABLE_EXTENSIONS.get();
         
             // Loop over all previewable extensions
             for (int i = previewableExtensions.length-1; i >= 0; i--) {

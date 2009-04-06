@@ -24,7 +24,6 @@ class OOBSession implements Inspectable {
     private final List<Integer> responseCounts = new ArrayList<Integer>(10);
     private final List<Integer> addedResponses = new ArrayList<Integer>(10);
     private final long start;
-    private final boolean early;
 	// end inspection-related fields
     
     private final SecurityToken token;
@@ -35,12 +34,11 @@ class OOBSession implements Inspectable {
     private final int requestedResponseCount;
     private final GUID guid;
     
-    OOBSession(SecurityToken token, int requestedResponseCount, GUID guid, boolean early) {
+    OOBSession(SecurityToken token, int requestedResponseCount, GUID guid) {
         this.token = token;
         this.requestedResponseCount = requestedResponseCount;
         this.urnHashCodes = new IntSet(requestedResponseCount);
         this.guid = guid;
-        this.early = early;
         start = System.currentTimeMillis();
 	}
     
@@ -102,7 +100,6 @@ class OOBSession implements Inspectable {
         ret.put("timestamps",responseTimestamps);
         ret.put("rcounts",responseCounts);
         ret.put("added",addedResponses);
-        ret.put("early", early);
         return ret;
     }
 }

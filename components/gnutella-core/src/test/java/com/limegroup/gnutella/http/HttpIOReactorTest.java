@@ -9,13 +9,13 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.http.reactor.DefaultDispatchedIOReactor;
 import org.limewire.net.SocketsManager;
 import org.limewire.util.BaseTestCase;
 
 import com.google.inject.Injector;
 import com.limegroup.gnutella.Acceptor;
-import com.limegroup.gnutella.LimeTestUtils;
 
 public class HttpIOReactorTest extends BaseTestCase {
 

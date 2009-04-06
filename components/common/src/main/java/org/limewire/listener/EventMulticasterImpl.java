@@ -1,5 +1,6 @@
 package org.limewire.listener;
 
+import org.limewire.listener.EventListenerList.EventListenerListContext;
 import org.limewire.logging.Log;
 
 /**
@@ -20,6 +21,10 @@ public class EventMulticasterImpl<E> implements EventMulticaster<E> {
     
     public EventMulticasterImpl(Log log) {
         this.listeners = new EventListenerList<E>(log);
+    }
+    
+    public EventListenerListContext getListenerContext() {
+        return listeners.getContext();
     }
     
     @Override

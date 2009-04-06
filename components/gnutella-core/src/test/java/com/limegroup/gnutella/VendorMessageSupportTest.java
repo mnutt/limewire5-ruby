@@ -9,6 +9,9 @@ import java.net.ServerSocket;
 import java.util.Iterator;
 
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.Backend;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.util.StringUtils;
 
@@ -33,7 +36,6 @@ import com.limegroup.gnutella.messages.vendor.VendorMessage;
 import com.limegroup.gnutella.routing.QueryRouteTable;
 import com.limegroup.gnutella.routing.RouteTableMessage;
 import com.limegroup.gnutella.util.EmptyResponder;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 @SuppressWarnings( { "cast" } )
 public class VendorMessageSupportTest extends LimeTestCase {

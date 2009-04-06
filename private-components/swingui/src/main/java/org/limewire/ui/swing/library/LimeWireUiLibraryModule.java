@@ -23,12 +23,6 @@ public class LimeWireUiLibraryModule extends AbstractModule {
     protected void configure() {
         install(new LimeWireUiLibraryNavModule());
         
-        bind(FriendLibraryFactory.class).toProvider(
-                FactoryProvider.newFactory(FriendLibraryFactory.class, FriendLibraryPanel.class));
-        bind(EmptyLibraryFactory.class).toProvider(
-                FactoryProvider.newFactory(EmptyLibraryFactory.class, EmptyLibraryPanel.class));
-        bind(FriendLibraryMediatorFactory.class).toProvider(
-                FactoryProvider.newFactory(FriendLibraryMediatorFactory.class, FriendLibraryMediator.class));
         bind(LibraryTableFactory.class).to(LibraryTableFactoryImpl.class);
         bind(SharingActionFactory.class).to(SharingActionFactoryImpl.class);
         bind(LibraryImageSubPanelFactory.class).to(LibraryImageSubPanelFactoryImpl.class);

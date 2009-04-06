@@ -54,10 +54,12 @@ class AboutWindow {
 		dialog.setTitle(I18n.tr("About LimeWire"));
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		dialog.addWindowListener(new WindowAdapter() {
-		    public void windowClosed(WindowEvent we) {
+		    @Override
+            public void windowClosed(WindowEvent we) {
 		        textPane.stopScroll();
 		    }
-		    public void windowClosing(WindowEvent we) {
+		    @Override
+            public void windowClosing(WindowEvent we) {
 		        textPane.stopScroll();
 		    }
 		});		

@@ -14,6 +14,8 @@ import java.util.StringTokenizer;
 import junit.framework.Test;
 
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortImpl;
 import org.limewire.util.PrivilegedAccessor;
@@ -23,12 +25,10 @@ import com.google.inject.Injector;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.Constants;
 import com.limegroup.gnutella.HostCatcher;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.connection.RoutedConnectionFactory;
 import com.limegroup.gnutella.messages.PingReply;
 import com.limegroup.gnutella.messages.PingReplyFactory;
-import com.limegroup.gnutella.util.LimeTestCase;
 import com.limegroup.gnutella.util.LimeWireUtils;
 import com.limegroup.gnutella.util.MessageTestUtils;
 import com.limegroup.gnutella.util.TestConnectionManager;
@@ -70,6 +70,7 @@ public final class HandshakeResponseTest extends LimeTestCase {
     /**
      * Individual tests will change these as needed.
      */    
+    @Override
     public void setUp() {
         // TODO: with the new HandshakeServices, only need to stub out that class --
         // don't need all the other things.

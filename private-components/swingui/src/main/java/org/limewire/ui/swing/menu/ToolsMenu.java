@@ -1,6 +1,9 @@
 package org.limewire.ui.swing.menu;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
@@ -27,9 +30,15 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
+/**
+ * The Tools menu in the main menubar.
+ */
 @Singleton
 public class ToolsMenu extends MnemonicMenu {
 
+    /** Currently displayed Advanced Tools content panel. */
+    private AdvancedToolsPanel advancedTools;
+    
     @Inject
     public ToolsMenu(final Provider<AdvancedToolsPanel> advancedProvider,
             final Navigator navigator,
@@ -75,8 +84,20 @@ public class ToolsMenu extends MnemonicMenu {
         add(new AbstractAction(I18n.tr("&Advanced Tools...")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AdvancedToolsPanel advancedTools = advancedProvider.get();
-                advancedTools.display();
+                // If the existing Advanced Tools panel is null, then create a
+                // new one, along with a listener to clear the reference when
+                // the window is closed.
+                WindowListener closeListener = null;
+                if (advancedTools == null) {
+                    advancedTools = advancedProvider.get();
+                    closeListener = new WindowAdapter() {
+                        @Override
+                        public void windowClosing(WindowEvent e) {
+                            advancedTools = null;
+                        }
+                    };
+                }
+                advancedTools.display(closeListener);
             }
         });
         if (!OSUtils.isMacOSX()) {

@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.nio.channel.ChannelReadObserver;
 import org.limewire.nio.channel.ChannelWriter;
 import org.limewire.nio.channel.InterestReadableByteChannel;
@@ -20,7 +21,6 @@ import org.limewire.util.StringUtils;
 
 import com.limegroup.gnutella.stubs.ReadBufferChannel;
 import com.limegroup.gnutella.stubs.WriteBufferChannel;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class AsyncIncomingHandshakerTest extends LimeTestCase {
     

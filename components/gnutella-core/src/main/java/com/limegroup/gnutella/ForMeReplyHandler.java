@@ -474,7 +474,7 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
     }
 
     public String getLocalePref() {
-        return ApplicationSettings.LANGUAGE.getValue();
+        return ApplicationSettings.LANGUAGE.get();
     }
     
     /**

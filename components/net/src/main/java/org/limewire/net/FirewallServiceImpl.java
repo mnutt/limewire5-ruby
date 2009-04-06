@@ -27,10 +27,12 @@ public class FirewallServiceImpl extends DefaultService implements FirewallServi
         registry.register(this); // TODO .in("Stage") ???
     }
 
+    @Override
     public String getServiceName() {
         return I18nMarker.marktr("Firewall Manager");
     }
 
+    @Override
     @Asynchronous (daemon = false) // TODO is daemon = false correct?
     public void stop() {
         if(needsCleanup.get()) {

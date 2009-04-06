@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Properties;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.nio.statemachine.IOState;
 import org.limewire.util.StringUtils;
 
 import junit.framework.Test;
 
 import com.limegroup.gnutella.stubs.ReadBufferChannel;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class ReadHandshakeStateTest extends LimeTestCase {
     

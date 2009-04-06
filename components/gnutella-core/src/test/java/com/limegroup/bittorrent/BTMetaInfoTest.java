@@ -8,12 +8,12 @@ import java.util.UUID;
 import junit.framework.Assert;
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.util.AssertComparisons;
 import org.limewire.util.ReadBufferChannel;
 import org.limewire.util.FileUtils;
 import org.limewire.util.TestUtils;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class BTMetaInfoTest extends LimeTestCase {
     /**

@@ -306,7 +306,7 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
         }
 
         public void updateCategoryShareCount() {
-            Set<String> shareNewAlways = new HashSet<String>(Arrays.asList(shareNewAlwaysSetting.getValue()));
+            Set<String> shareNewAlways = new HashSet<String>(Arrays.asList(shareNewAlwaysSetting.get()));
             shareNewAlways.retainAll(possibleShareValues);
             updateShareCountLabel(shareNewAlways.size());
         }

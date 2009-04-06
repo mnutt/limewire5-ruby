@@ -167,7 +167,7 @@ class NavList extends JXPanel {
     
     NavPanel getPanelForFriend(Friend friend) {
         for(NavPanel panel : navPanels) {
-            if(panel.getFriend().getId().equals(friend.getId())) {
+            if(friend != null && panel != null && panel.getFriend().getId().equals(friend.getId())) {
                 return panel;
             }
         }
@@ -293,7 +293,6 @@ class NavList extends JXPanel {
         NavPanel panel = getPanelForFriend(friend);
         if(panel != null) {
             panel.select();
-            panel.showLibraryCard();
         }
         return panel;
     } 

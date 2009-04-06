@@ -1,6 +1,7 @@
 package org.limewire.friend.impl;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendEvent;
@@ -44,6 +45,14 @@ public class LimeWireFriendXmppModule extends AbstractModule {
     
     @Provides @Named("known") Collection<Friend> knownFriendsList(FriendListListeners listeners) {
         return listeners.getKnownFriends();
+    }
+    
+    @Provides @Named("available") Collection<Friend> availableFriendsList(FriendListListeners listeners) {
+        return listeners.getAvailableFriends();
+    }
+    
+    @Provides @Named("availableFriendIds") Set<String> availableFriendIds(FriendListListeners listeners) {
+        return listeners.getAvailableFriendIds();
     }
 
 }

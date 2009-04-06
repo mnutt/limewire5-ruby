@@ -8,6 +8,7 @@ import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.MediaType;
 
 import com.google.inject.AbstractModule;
@@ -69,9 +70,9 @@ public final class UltrapeerQueryRouteTableTest extends ServerSideTestCase {
         ConnectionSettings.EVER_ACCEPTED_INCOMING.setValue(true);
         ConnectionSettings.CONNECT_ON_STARTUP.setValue(false);
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(
             new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(
                     new String[] {"127.*.*.*",InetAddress.getLocalHost().getHostAddress()});
         
 		ConnectionSettings.WATCHDOG_ACTIVE.setValue(false);

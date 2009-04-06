@@ -86,7 +86,7 @@ abstract class RestrictedResponder implements SimppListener, MessageHandler {
     private void updateAllowed() {
         IPList newCrawlers = new IPList();
         try {
-            for (String ip : setting.getValue())
+            for (String ip : setting.get())
                 newCrawlers.add(new IP(ip));
             if (newCrawlers.isValidFilter(false, networkInstanceUtils))
                 allowed = newCrawlers;

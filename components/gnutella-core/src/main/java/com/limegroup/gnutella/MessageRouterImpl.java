@@ -3035,7 +3035,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
             byte [] last = lastGuid;
             if (last != null)
                 unregisterMessageListener(last, this);
-            String newGuid = MessageSettings.TRACKING_GUID.getValue();
+            String newGuid = MessageSettings.TRACKING_GUID.get();
             if (newGuid.length() == 0)
                 return;
             byte[] guid = Base32.decode(newGuid);

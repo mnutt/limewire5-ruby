@@ -14,10 +14,7 @@ public interface LifecycleManager {
 
     public boolean isShutdown();
 
-    /** Phase 1 of the startup process -- wires listeners together. */
-    public void installListeners();
-
-    /** Phase 2 of the startup process -- loads any tasks that can be run in the background. */
+    /** Phase 1 of the startup process -- loads any tasks that can be run in the background. */
     public void loadBackgroundTasks();
 
     /** The core of the startup process, initializes all classes. */

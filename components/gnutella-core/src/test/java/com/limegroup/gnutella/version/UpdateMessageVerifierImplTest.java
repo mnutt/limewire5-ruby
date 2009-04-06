@@ -2,11 +2,11 @@ package com.limegroup.gnutella.version;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 
 public class UpdateMessageVerifierImplTest extends BaseTestCase {
     

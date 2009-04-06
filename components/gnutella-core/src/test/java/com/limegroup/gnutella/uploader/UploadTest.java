@@ -44,6 +44,8 @@ import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.UltrapeerSettings;
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.http.httpclient.HttpClientUtils;
 import org.limewire.http.httpclient.LimeHttpClient;
 import org.limewire.lifecycle.ServiceRegistry;
@@ -61,7 +63,6 @@ import com.google.inject.Stage;
 import com.google.inject.name.Names;
 import com.limegroup.gnutella.Acceptor;
 import com.limegroup.gnutella.HTTPAcceptor;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.UploadManager;
 import com.limegroup.gnutella.dime.DIMEParser;
@@ -78,7 +79,6 @@ import com.limegroup.gnutella.tigertree.HashTree;
 import com.limegroup.gnutella.tigertree.HashTreeCache;
 import com.limegroup.gnutella.tigertree.HashTreeCacheImpl;
 import com.limegroup.gnutella.tigertree.HashTreeUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Test that a client uploads a file correctly. Depends on a file containing the
@@ -206,8 +206,8 @@ public class UploadTest extends LimeTestCase {
     private void doSettings() throws UnknownHostException {
         SharingSettings.ADD_ALTERNATE_FOR_SELF.setValue(false);
         FilterSettings.BLACK_LISTED_IP_ADDRESSES
-                .setValue(new String[] { "*.*.*.*" });
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(new String[] {
+                .set(new String[] { "*.*.*.*" });
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(new String[] {
                 "127.*.*.*", InetAddress.getLocalHost().getHostAddress() });
         NetworkSettings.PORT.setValue(PORT);
         UploadSettings.HARD_MAX_UPLOADS.setValue(10);

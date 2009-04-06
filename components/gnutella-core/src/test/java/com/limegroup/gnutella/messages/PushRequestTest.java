@@ -4,15 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GGEP;
 
 import junit.framework.Test;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.Message.Network;
 
-public class PushRequestTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class PushRequestTest extends org.limewire.gnutella.tests.LimeTestCase {
     private MessageFactory messageFactory;
 
     public PushRequestTest(String name) {

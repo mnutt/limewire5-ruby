@@ -19,6 +19,7 @@ import junit.framework.Test;
 
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.MessageSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.io.GGEP;
@@ -39,7 +40,6 @@ import com.google.inject.name.Names;
 import com.limegroup.bittorrent.bencoding.Token;
 import com.limegroup.gnutella.BlockingConnectionUtils;
 import com.limegroup.gnutella.ConnectionManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.ServerSideTestCase;
@@ -98,11 +98,11 @@ public class InspectionTest extends ServerSideTestCase {
     public void setSettings() throws Exception {
         UDP_ACCESS = new DatagramSocket();
         UDP_ACCESS.setSoTimeout(1000);
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(
                 new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(
                 new String[] {InetAddress.getLocalHost().getHostAddress(),"127.*.*.*"});
-        FilterSettings.INSPECTOR_IP_ADDRESSES.setValue(new String[]{"127.*.*.*"});
+        FilterSettings.INSPECTOR_IP_ADDRESSES.set(new String[]{"127.*.*.*"});
         MessageSettings.INSPECTION_VERSION.setValue(0);
     }
     

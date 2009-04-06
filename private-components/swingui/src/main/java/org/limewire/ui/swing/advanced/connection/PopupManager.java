@@ -1,15 +1,16 @@
 package org.limewire.ui.swing.advanced.connection;
 
 import java.awt.Component;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.Popup;
-import javax.swing.PopupFactory;
+import javax.swing.BorderFactory;
+import javax.swing.JPopupMenu;
 import javax.swing.Timer;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 /**
  * A manager for a popup window.  PopupManager is associated with a 
@@ -19,7 +20,7 @@ public class PopupManager {
     private static final int POPUP_DURATION = 4000;
     
     private final PopupProvider popupProvider;
-    private Popup popup;
+    private JPopupMenu popup;
     private Timer exitTimer;
 
     /**
@@ -42,18 +43,15 @@ public class PopupManager {
         if ((popup == null) && (content != null)) {
             // Add listener to dismiss popup on mouse click.
             content.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     hidePopup();
                 }
             });
-            
-            // Get owner location.
-            Point location = owner.getLocationOnScreen();
 
-            // Use factory to create popup and display.
-            PopupFactory factory = PopupFactory.getSharedInstance();
-            popup = factory.getPopup(owner, content, location.x + x, location.y + y + 20);
-            popup.show();
+            // Create popup and display.
+            popup = createPopup(content);
+            popup.show(owner, x, y);
             
             // Start timer to hide popup.
             startExitTimer();
@@ -66,12 +64,40 @@ public class PopupManager {
     public void hidePopup() {
         // Hide existing popup and reset.
         if (popup != null) {
-            popup.hide();
+            popup.setVisible(false);
             popup = null;
         }
         
         // Stop exit timer.
         stopExitTimer();
+    }
+    
+    /**
+     * Creates a popup window containing the specified component.
+     */
+    private JPopupMenu createPopup(Component component) {
+        // Create popup.  We only display the border for the popup component,
+        // so we remove it from the popup container.
+        JPopupMenu popupMenu = new JPopupMenu();
+        popupMenu.setBorder(BorderFactory.createEmptyBorder());
+        popupMenu.setFocusable(false);
+        popupMenu.add(component);
+        
+        // Add listener to clear reference when popup is hidden.
+        popupMenu.addPopupMenuListener(new PopupMenuListener() {
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+            }
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                popup = null;
+            }
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            }
+        });
+        
+        return popupMenu;
     }
     
     /**

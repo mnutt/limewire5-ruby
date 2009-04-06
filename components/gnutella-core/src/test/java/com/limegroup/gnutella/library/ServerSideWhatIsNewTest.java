@@ -18,6 +18,7 @@ import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.core.settings.SpeedConstants;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
 import org.limewire.listener.EventListener;
@@ -31,7 +32,6 @@ import com.limegroup.gnutella.BlockingConnectionUtils;
 import com.limegroup.gnutella.ClientSideTestCase;
 import com.limegroup.gnutella.DownloadServices;
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.URN;
@@ -736,9 +736,12 @@ public class ServerSideWhatIsNewTest
         FileManager fm = fileManager;
         CreationTimeCache ctCache = creationTimeCache;
 
-        File winInstaller = TestUtils.getResourceFile("com/limegroup/gnutella/Backend.class");
+        File winInstaller = TestUtils.getResourceFile("com/limegroup/gnutella/UltrapeerRoutingTest.class");
         File linInstaller = TestUtils.getResourceFile("com/limegroup/gnutella/UrnSetTest.class");
         File osxInstaller = TestUtils.getResourceFile("com/limegroup/gnutella/UrnTest.class");
+        assertTrue("necessary resource file doesn't exist", winInstaller.exists());
+        assertTrue("necessary resource file doesn't exist", linInstaller.exists());
+        assertTrue("necessary resource file doesn't exist", osxInstaller.exists());
 
         //  Gotta make use of the force-share folder for this test
         if( LibraryUtils.PROGRAM_SHARE.exists() ) {

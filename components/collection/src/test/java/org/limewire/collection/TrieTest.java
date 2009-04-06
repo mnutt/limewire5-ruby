@@ -31,11 +31,13 @@ public class TrieTest extends BaseTestCase {
     }
     
     // ensure we begin with a correct locale
+    @Override
     public void setUp() {
         Locale.setDefault(defaultLocale);
     }
     
     // ensure with end with a correct locale
+    @Override
     public void tearDown() {
         Locale.setDefault(defaultLocale);
     }

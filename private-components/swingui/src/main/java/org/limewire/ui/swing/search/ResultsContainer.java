@@ -1,9 +1,7 @@
 package org.limewire.ui.swing.search;
 
-import java.awt.CardLayout;
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.Scrollable;
@@ -11,14 +9,8 @@ import javax.swing.Scrollable;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
-import org.limewire.ui.swing.search.resultpanel.AllResultsPanelFactory;
-import org.limewire.ui.swing.search.resultpanel.AudioResultsPanelFactory;
 import org.limewire.ui.swing.search.resultpanel.BaseResultPanel;
-import org.limewire.ui.swing.search.resultpanel.DocumentsResultsPanelFactory;
-import org.limewire.ui.swing.search.resultpanel.ImagesResultsPanelFactory;
-import org.limewire.ui.swing.search.resultpanel.OtherResultsPanelFactory;
-import org.limewire.ui.swing.search.resultpanel.ProgramResultsPanelFactory;
-import org.limewire.ui.swing.search.resultpanel.VideoResultsPanelFactory;
+import org.limewire.ui.swing.search.resultpanel.BaseResultPanelFactory;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 
 import com.google.inject.assistedinject.Assisted;
@@ -32,55 +24,34 @@ import com.google.inject.assistedinject.AssistedInject;
  */
 public class ResultsContainer extends JXPanel {
 
-    /** Category results panel currently displayed. */
-    private BaseResultPanel currentPanel;
-    
-    /** Map of results panels indexed by media category. */
-    private Map<String, BaseResultPanel> panelMap = new HashMap<String, BaseResultPanel>();
+    /** Results panel containing display tables. */
+    private final BaseResultPanel baseResultPanel;
+
+    /** Data model containing search results. */
+    private final SearchResultsModel searchResultsModel;
     
     /** Current view type; either LIST or TABLE. */
     private SearchViewType mode = SearchViewType.forId(SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue());
-    
-    private final CardLayout cardLayout = new CardLayout();
 
     /**
-     * Constructs a ResultsContainer with the specified search parameters and
-     * factories.
+     * Constructs a ResultsContainer with the specified search results data
+     * model and factories.
      * @see org.limewire.ui.swing.search.ResultsContainerFactory
      */
-    @AssistedInject ResultsContainer(
+    @AssistedInject
+    ResultsContainer(
         @Assisted SearchResultsModel searchResultsModel,
-        @Assisted RowSelectionPreserver preserver,
-        AllResultsPanelFactory allFactory,
-        AudioResultsPanelFactory audioFactory,
-        VideoResultsPanelFactory videoFactory,
-        ImagesResultsPanelFactory imagesFactory,
-        DocumentsResultsPanelFactory documentsFactory,
-        OtherResultsPanelFactory otherFactory,
-        ProgramResultsPanelFactory programFactory) {
+        BaseResultPanelFactory baseFactory) {
         
-        // Create result panels for all media categories.
-        panelMap.put(SearchCategory.ALL.name(),
-            allFactory.create(searchResultsModel, searchResultsModel.getCategorySearchResults(SearchCategory.ALL), preserver));
-        panelMap.put(SearchCategory.AUDIO.name(),
-            audioFactory.create(searchResultsModel, searchResultsModel.getCategorySearchResults(SearchCategory.AUDIO), preserver));
-        panelMap.put(SearchCategory.VIDEO.name(),
-            videoFactory.create(searchResultsModel, searchResultsModel.getCategorySearchResults(SearchCategory.VIDEO), preserver));
-        panelMap.put(SearchCategory.IMAGE.name(),
-            imagesFactory.create(searchResultsModel, searchResultsModel.getCategorySearchResults(SearchCategory.IMAGE), preserver));
-        panelMap.put(SearchCategory.DOCUMENT.name(),
-            documentsFactory.create(searchResultsModel, searchResultsModel.getCategorySearchResults(SearchCategory.DOCUMENT), preserver));
-        panelMap.put(SearchCategory.PROGRAM.name(),
-            programFactory.create(searchResultsModel, searchResultsModel.getCategorySearchResults(SearchCategory.PROGRAM), preserver));
-        panelMap.put(SearchCategory.OTHER.name(),
-            otherFactory.create(searchResultsModel, searchResultsModel.getCategorySearchResults(SearchCategory.OTHER), preserver));
+        this.searchResultsModel = searchResultsModel;
         
-        setLayout(cardLayout);
+        // Create result panel.
+        baseResultPanel = baseFactory.create(searchResultsModel);
         
-        // Add result panels to the container.
-        for (Map.Entry<String, BaseResultPanel> entry : panelMap.entrySet()) {
-            add(entry.getValue(), entry.getKey());
-        }
+        setLayout(new BorderLayout());
+        
+        // Add result panel to the container.
+        add(baseResultPanel, BorderLayout.CENTER);
     }
 
     /**
@@ -90,8 +61,7 @@ public class ResultsContainer extends JXPanel {
      */
     public void synchronizeResultCount(SearchCategory key, final Action action) {
         // Adds itself as a listener to the list & keeps the action in sync.
-        new SourceCountMaintainer(
-            panelMap.get(key.name()).getResultsEventList(), action);
+        new SourceCountMaintainer(searchResultsModel.getCategorySearchResults(key), action);
     }
     
     /**
@@ -100,19 +70,17 @@ public class ResultsContainer extends JXPanel {
      */
     public void setViewType(SearchViewType mode) {
         this.mode = mode;
-        if (currentPanel != null) {
-            currentPanel.setViewType(mode);
+        if (baseResultPanel != null) {
+            baseResultPanel.setViewType(mode);
         }
     }
     
     /**
      * Displays the search results tables for the specified search category.
      */
-    void showCategory(SearchCategory category) {
-        String name = category.name();
-        currentPanel = panelMap.get(name); 
-        cardLayout.show(this, name);
-        currentPanel.setViewType(mode);
+    public void showCategory(SearchCategory category) {
+        baseResultPanel.showCategory(category);
+        baseResultPanel.setViewType(mode);
     }
 
     /**
@@ -120,13 +88,13 @@ public class ResultsContainer extends JXPanel {
      * displayed.  The method returns null if no header is displayed.
      */
     public Component getScrollPaneHeader() {
-        return currentPanel.getScrollPaneHeader();
+        return baseResultPanel.getScrollPaneHeader();
     }
 
     /**
      * Returns the results view component currently being displayed. 
      */
     public Scrollable getScrollable() {
-        return currentPanel.getScrollable();
+        return baseResultPanel.getScrollable();
     }
 }

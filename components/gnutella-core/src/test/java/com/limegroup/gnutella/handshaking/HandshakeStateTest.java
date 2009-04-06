@@ -3,9 +3,10 @@ package com.limegroup.gnutella.handshaking;
 import java.util.List;
 import java.util.Properties;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import junit.framework.Test;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class HandshakeStateTest extends LimeTestCase {
     

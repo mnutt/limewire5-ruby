@@ -60,7 +60,7 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
         _heapUsage = "" + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
         _nonHeapUsage = "" + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
         _settingsFreeSpace = "" + CommonUtils.getUserSettingsDir().getUsableSpace();
-        _incompleteFreeSpace = "" + SharingSettings.INCOMPLETE_DIRECTORY.getValue().getUsableSpace();
+        _incompleteFreeSpace = "" + SharingSettings.INCOMPLETE_DIRECTORY.get().getUsableSpace();
         _downloadFreeSpace = "" + SharingSettings.getSaveDirectory().getUsableSpace();
 	    
 	    //Store information about the bug and the current thread.

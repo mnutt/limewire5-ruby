@@ -102,7 +102,7 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
     }
     
     public void update(DownloadItem item) {
-        updateComponent(item);
+        updateComponent(item.getState(), item);
     }
 
     private void initComponents() {
@@ -327,11 +327,11 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         fullPanel.add(fullTimeLabel, gbc);    
     }
     
-    private void updateMin(DownloadItem item) {
+    private void updateMin(DownloadState state, DownloadItem item) {
         
         minTitleLabel.setText(item.getTitle());
         
-        switch (item.getState()) {
+        switch (state) {
         
         
         case ERROR :
@@ -367,30 +367,25 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
             
         }
         
-        minStatusLabel.setText(getMessage(item));        
+        minStatusLabel.setText(getMessage(state, item));        
         
         updateButtonsMin(item);      
     }
     
     
     
-    private void updateFull(DownloadItem item) {
+    private void updateFull(DownloadState state, DownloadItem item) {
         
         fullIconLabel.setIcon(categoryIconManager.getIcon(item.getCategory()));
         fullTitleLabel.setText(item.getTitle());
         fullTimeLabel.setForeground(statusLabelColour);
         fullTimeLabel.setFont(statusFontPlainFull);
         
-        if (item.getTotalSize() != 0) {
-            fullProgressBar.setValue((int)(100 * item.getCurrentSize()/item.getTotalSize()));
-        }
-        else {
-            fullProgressBar.setValue(0);
-        }
+        fullProgressBar.setValue(item.getPercentComplete());
 
         fullProgressBar.setEnabled(item.getState() != DownloadState.PAUSED);
         
-        fullStatusLabel.setText(getMessage(item));
+        fullStatusLabel.setText(getMessage(state, item));
         
         if (item.getRemainingDownloadTime() > Long.MAX_VALUE-1000) {
             fullTimeLabel.setVisible(false);
@@ -451,20 +446,20 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         fullButtonPanel.updateButtons(state);
     }
 
-    private void updateComponent(DownloadItem item){
+    private void updateComponent(DownloadState state, DownloadItem item){
         if(item == null) { // can be null because of accessibility calls.
             return;
         }
         
-        switch(item.getState()) {
+        switch(state) {
             case DOWNLOADING:
             case PAUSED:
                 statusViewLayout.show(this, FULL_LAYOUT);
-                updateFull(item);
+                updateFull(state, item);
                 break;
             default:
                 statusViewLayout.show(this, MIN_LAYOUT);
-                updateMin(item);
+                updateMin(state, item);
         }
     }
     
@@ -485,8 +480,11 @@ public class DownloadTableCellImpl extends JXPanel implements DownloadTableCell 
         return painter;
     }
     
-    private String getMessage(DownloadItem item) {
-        switch (item.getState()) {
+    private String getMessage(DownloadState state, DownloadItem item) {
+        switch (state) {
+        case RESUMING:
+            return I18n.tr("Resuming at {0}%",
+                    item.getPercentComplete());
         case CANCELLED:
             return I18n.tr("Cancelled");
         case FINISHING:

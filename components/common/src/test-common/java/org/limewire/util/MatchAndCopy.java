@@ -33,6 +33,10 @@ public class MatchAndCopy<X> extends BaseMatcher<X> {
     public void describeTo(Description description) {
     }
    
+    public void clearMatches() {
+        matches.clear();
+    }
+    
     public List<X> getMatches() {
         return matches;
     }

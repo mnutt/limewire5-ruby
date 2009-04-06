@@ -14,6 +14,7 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.limewire.collection.Range;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.Base32;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.FileUtils;
@@ -21,7 +22,6 @@ import org.limewire.util.StringUtils;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.dime.DIMEGenerator;
 import com.limegroup.gnutella.dime.DIMEParser;

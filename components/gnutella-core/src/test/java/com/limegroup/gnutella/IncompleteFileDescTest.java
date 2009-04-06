@@ -9,6 +9,8 @@ import junit.framework.Test;
 
 import org.limewire.collection.IntervalSet;
 import org.limewire.collection.Range;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
@@ -17,7 +19,6 @@ import com.limegroup.gnutella.downloader.VerifyingFileFactory;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.library.FileDescFactory;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 @SuppressWarnings("unchecked")
 public class IncompleteFileDescTest extends LimeTestCase {

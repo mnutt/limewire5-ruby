@@ -2,8 +2,9 @@ package org.limewire.ui.swing.advanced;
 
 import javax.swing.JPanel;
 
-import org.limewire.ui.swing.util.EnabledListener;
-import org.limewire.ui.swing.util.EnabledListenerList;
+import org.limewire.ui.swing.util.EnabledType;
+import org.limewire.listener.EventListener;
+import org.limewire.listener.EventListenerList;
 
 /**
  * A base panel for tab content in the Advanced Tools window.
@@ -11,7 +12,8 @@ import org.limewire.ui.swing.util.EnabledListenerList;
 public abstract class TabPanel extends JPanel {
     
     /** List of listeners notified when the tabEnabled state changes. */
-    private final EnabledListenerList enabledListenerList = new EnabledListenerList();
+    private final EventListenerList<EnabledType> enabledListenerList =
+            new EventListenerList<EnabledType>();
     
     /**
      * Constructs a TabPanel.
@@ -24,16 +26,16 @@ public abstract class TabPanel extends JPanel {
      * Adds the specified listener to the list that is notified when the 
      * tabEnabled state changes.
      */
-    public void addEnabledListener(EnabledListener listener) {
-        enabledListenerList.addEnabledListener(listener);
+    public void addEnabledListener(EventListener<EnabledType> listener) {
+        enabledListenerList.addListener(listener);
     }
     
     /**
      * Removes the specified listener from the list that is notified when the 
      * tabEnabled state changes.
      */
-    public void removeEnabledListener(EnabledListener listener) {
-        enabledListenerList.removeEnabledListener(listener);
+    public void removeEnabledListener(EventListener<EnabledType> listener) {
+        enabledListenerList.removeListener(listener);
     }
     
     /**
@@ -58,7 +60,7 @@ public abstract class TabPanel extends JPanel {
      * the specified value.
      */
     public void fireEnabledChanged(boolean enabled) {
-        enabledListenerList.fireEnabledChanged(enabled);
+        enabledListenerList.broadcast(EnabledType.valueOf(enabled));
     }
     
 }

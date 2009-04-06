@@ -174,7 +174,7 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
             String saveDirString = SharingSettings.getSaveDirectory().getAbsolutePath();
             if (!newSaveDirString.equals(saveDirString)) {
                 File newSaveDir = new File(newSaveDirString);
-                saveDirSetting.setValue(newSaveDir);
+                saveDirSetting.set(newSaveDir);
             } else {
                 saveDirSetting.revertToDefault();
             }
@@ -212,7 +212,7 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
 
     private void initField(MediaType mediaType, LabelTextField textField) {
         FileSetting saveDirSetting = SharingSettings.getFileSettingForMediaType(mediaType);
-        File saveDir = saveDirSetting.getValue();
+        File saveDir = saveDirSetting.get();
         String saveDirString = saveDir.getAbsolutePath();
         textField.setText(saveDirString);
         // Save initial value for comparison.

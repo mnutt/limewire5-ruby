@@ -95,6 +95,7 @@ class PresenceImpl implements Presence {
         }
     }
 
+    @Override
     public String toString() {
         return getJID() + " for " + user.toString();
     }

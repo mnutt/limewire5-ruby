@@ -2,8 +2,9 @@ package com.limegroup.gnutella.metadata;
 
 import java.io.IOException;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import com.limegroup.gnutella.metadata.audio.AudioMetaData;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Not actually a runnable test. Creates a convienence test for testing meta-data.

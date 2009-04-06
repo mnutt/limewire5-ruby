@@ -119,21 +119,21 @@ public class FilteringOptionPanel extends OptionPanel {
             List<String> list = filterTable.getFilterModel().getModel();
             
             FilterSettings.USE_NETWORK_FILTER.setValue(backListCheckBox.isSelected());
-            FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(list.toArray(new String[list.size()]));
+            FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(list.toArray(new String[list.size()]));
             spamManager.reloadIPFilter();
             return false;
         }
     
         @Override
         boolean hasChanged() {
-            List model = Arrays.asList(FilterSettings.BLACK_LISTED_IP_ADDRESSES.getValue());
+            List model = Arrays.asList(FilterSettings.BLACK_LISTED_IP_ADDRESSES.get());
             return backListCheckBox.isSelected() != FilterSettings.USE_NETWORK_FILTER.getValue()
                     || !model.equals(filterTable.getFilterModel().getModel());
         }
     
         @Override
         public void initOptions() {
-            String[] bannedIps = FilterSettings.BLACK_LISTED_IP_ADDRESSES.getValue();           
+            String[] bannedIps = FilterSettings.BLACK_LISTED_IP_ADDRESSES.get();           
             FilterModel model = new FilterModel(new ArrayList<String>(Arrays.asList(bannedIps)));
             filterTable.setModel(model);
             
@@ -167,20 +167,20 @@ public class FilteringOptionPanel extends OptionPanel {
         boolean applyOptions() {
             List<String> list = filterTable.getFilterModel().getModel();
             
-            FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(list.toArray(new String[list.size()]));
+            FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(list.toArray(new String[list.size()]));
             spamManager.reloadIPFilter();
             return false;
         }
     
         @Override
         boolean hasChanged() {
-            List model = Arrays.asList(FilterSettings.WHITE_LISTED_IP_ADDRESSES.getValue());
+            List model = Arrays.asList(FilterSettings.WHITE_LISTED_IP_ADDRESSES.get());
             return !model.equals(filterTable.getFilterModel().getModel());
         }
     
         @Override
         public void initOptions() {
-            String[] allowedIps = FilterSettings.WHITE_LISTED_IP_ADDRESSES.getValue();
+            String[] allowedIps = FilterSettings.WHITE_LISTED_IP_ADDRESSES.get();
             FilterModel model = new FilterModel(new ArrayList<String>(Arrays.asList(allowedIps)));
             filterTable.setModel(model);
         }
@@ -248,6 +248,7 @@ public class FilteringOptionPanel extends OptionPanel {
         private final List<CellEditorListener> listeners = new ArrayList<CellEditorListener>();
         
         public RemoveButtonRenderer(final FilteringTable table) {
+            // lower case since hyperlink
             super(I18n.tr("remove"));
             
             setBorder(BorderFactory.createEmptyBorder());

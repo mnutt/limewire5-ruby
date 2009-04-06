@@ -52,6 +52,7 @@ import org.limewire.ui.swing.util.I18n;
  */
 public class CheckBoxList<E> extends BoxPanel {
 
+    // lower case since hyperlink
     private static final String REMOVE_TEXT = I18n.tr("remove");
     
     private String disabledTooltip = null;

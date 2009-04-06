@@ -4,9 +4,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import junit.framework.Test;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class StoreSubDirectoryTemplateProcessorTest extends LimeTestCase {
 

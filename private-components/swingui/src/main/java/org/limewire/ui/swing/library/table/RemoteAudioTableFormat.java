@@ -32,6 +32,7 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int FILENAME_INDEX = 10;
     static final int EXTENSION_INDEX = 11;
     static final int DESCRIPTION_INDEX = 12;
+    static final int FROM_INDEX = 13;
     
     public RemoteAudioTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo) {
         super(sortID, sortedColumn, isAscending, columnInfo);
@@ -51,7 +52,8 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
                 new ColumnStateInfo(YEAR_INDEX, "REMOTE_LIBRARY_AUDIO_YEAR", I18n.tr("Year"), 50, false, true), 
                 new ColumnStateInfo(FILENAME_INDEX, "REMOTE_LIBRARY_AUDIO_FILENAME", I18n.tr("Filename"), 120, false, true),
                 new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_AUDIO_EXTENSION", I18n.tr("Extension"), 60, false, true), 
-                new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_AUDIO_DESCRIPTION", I18n.tr("Description"), 100, false, true)
+                new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_AUDIO_DESCRIPTION", I18n.tr("Description"), 100, false, true),
+                new ColumnStateInfo(FROM_INDEX, "REMOTE_LIBRARY_AUDIO_FROM", I18n.tr("From"), 82, true, true)
         });
     }
 
@@ -71,6 +73,7 @@ public class RemoteAudioTableFormat<T extends RemoteFileItem> extends AbstractRe
             case FILENAME_INDEX: return baseObject.getProperty(FilePropertyKey.NAME);
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
             case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
+            case FROM_INDEX: return baseObject;
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

@@ -47,9 +47,9 @@ public class LanguageUtils {
      * Applies this language code to be the new language of the program.
      */
     public static void setLocale(Locale locale) {
-        ApplicationSettings.LANGUAGE.setValue(locale.getLanguage());
-        ApplicationSettings.COUNTRY.setValue(locale.getCountry());
-        ApplicationSettings.LOCALE_VARIANT.setValue(locale.getVariant());
+        ApplicationSettings.LANGUAGE.set(locale.getLanguage());
+        ApplicationSettings.COUNTRY.set(locale.getCountry());
+        ApplicationSettings.LOCALE_VARIANT.set(locale.getVariant());
         
         LocaleUtils.setLocaleFromPreferences();
     }
@@ -208,9 +208,9 @@ public class LanguageUtils {
     }
     
     public static String[] guessLanguage() {
-        String ln = ApplicationSettings.LANGUAGE.getValue();
-        String cn = ApplicationSettings.COUNTRY.getValue();
-        String vn = ApplicationSettings.LOCALE_VARIANT.getValue();
+        String ln = ApplicationSettings.LANGUAGE.get();
+        String cn = ApplicationSettings.COUNTRY.get();
+        String vn = ApplicationSettings.LOCALE_VARIANT.get();
         
         File file = new File("language.prop");
         if(!file.exists())

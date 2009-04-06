@@ -40,7 +40,7 @@ public class AddFriendDialog extends LimeJDialog {
         final JTextField usernameField = new JTextField(18);
         final JTextField nicknameField = new JTextField(18);
         
-        final Action okAction = new AbstractAction(tr("Add friend")) {
+        final Action okAction = new AbstractAction(tr("Add Friend")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!isEnabled()) {

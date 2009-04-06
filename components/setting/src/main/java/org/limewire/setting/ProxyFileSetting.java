@@ -59,8 +59,8 @@ public class ProxyFileSetting extends FileSetting {
 	}
 
 	@Override
-    public File getValue() {
-		return isDefault() ? defaultSetting.getValue() : super.getValue();
+    public File get() {
+		return isDefault() ? defaultSetting.get() : super.get();
 	}
 }
 

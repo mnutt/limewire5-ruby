@@ -74,6 +74,7 @@ import org.limewire.ui.swing.friends.login.FriendsSignInPanel;
 import org.limewire.ui.swing.library.image.LibraryImagePanel;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.playlist.PlaylistButtonDropListener;
+import org.limewire.ui.swing.library.playlist.PlaylistButtonPopupMenu;
 import org.limewire.ui.swing.library.playlist.PlaylistFileItemFunction;
 import org.limewire.ui.swing.library.sharing.ShareWidget;
 import org.limewire.ui.swing.library.sharing.ShareWidgetFactory;
@@ -104,7 +105,7 @@ import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-public class MyLibraryPanel extends LibraryPanel implements EventListener<FriendEvent> {
+public class MyLibraryPanel extends AbstractFileListPanel implements EventListener<FriendEvent> {
     
     @Resource(key="LibraryPanel.selectionPanelBackgroundOverride")
     private Color selectionPanelBackgroundOverride = null;
@@ -135,7 +136,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
     private Map<Category, JXLayer> map = new HashMap<Category, JXLayer>();
     private Map<Category, LockableUI> lockMap = new HashMap<Category, LockableUI>();
     
-    private Timer repaintTimer;
+    private final Timer repaintTimer;
     private ListenerSupport<XMPPConnectionEvent> connectionListeners;
     private ListenerSupport<FriendEvent> knownFriendsListeners;
 
@@ -261,19 +262,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
             getDropTarget().addDropTargetListener(ghostDropTargetListener);
         } catch (TooManyListenersException ignoreException) {            
         }      
-        
-        shareListManager.getCombinedShareList().getModel().addListEventListener(new ListEventListener<LocalFileItem>(){
-            @Override
-            public void listChanged(ListEvent<LocalFileItem> listChanges) {
-                //coalesces repaint calls. Updates usually come in bulk, ie you sign on/off,
-                // share a collection, etc..
-                if(repaintTimer.isRunning())
-                    repaintTimer.restart();
-                else
-                    repaintTimer.start();
-            }
-        });
-        
+                
         repaintTimer = new Timer(250, new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -299,6 +288,21 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
                 case DISCONNECTED:
                     showCorrectButton();
                     break;
+                }
+            }
+        });
+        
+        //listens for changes to shared items and calls repaint to update ui features
+        shareListManager.getCombinedShareList().getSwingModel().addListEventListener(new ListEventListener<LocalFileItem>(){
+            @Override
+            public void listChanged(ListEvent<LocalFileItem> listChanges) {
+                //coalesces repaint calls. Updates usually come in bulk, ie you sign on/off,
+                // share a collection, etc..
+                if(MyLibraryPanel.this.isShowing()) {
+                    if(repaintTimer.isRunning())
+                        repaintTimer.restart();
+                    else
+                        repaintTimer.start();
                 }
             }
         });
@@ -330,7 +334,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
         return getSelectedCategory();
     }
     
-    public void addFriendListener(LibraryListSourceChanger.FriendChangedListener listener) {
+    public void addFriendListener(ListSourceChanger.ListChangedListener listener) {
         currentFriendFilterChanger.addListener(listener);
     }
     
@@ -515,15 +519,18 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
      * operations.
      */
     @Override
-    protected <T extends FileItem> JComponent createCatalogButton(Action action,
+    protected <T extends FileItem> SelectionPanel createCatalogButton(Action action,
             Catalog catalog, FilterList<T> filteredAllFileList) {
         // Create catalog selection button.
-        JComponent button = super.createCatalogButton(action, catalog, filteredAllFileList);
+        SelectionPanel button = super.createCatalogButton(action, catalog, filteredAllFileList);
         
         // Install listener to accept drops on playlist button.  We should
         // consider installing a TransferHandler instead of a DropTarget.
         if (catalog.getType() == Catalog.Type.PLAYLIST) {
             new DropTarget(button, new PlaylistButtonDropListener(catalog.getPlaylist()));
+            
+            // Add context menu to playlist button.
+            button.setPopupMenu(new PlaylistButtonPopupMenu(catalog.getPlaylist()));
         }
         
         return button;
@@ -761,6 +768,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
             panel.setVisible(false);     
         }
         
+        @Override
         @SuppressWarnings("unchecked")
         public void installUI(JComponent c) {
             super.installUI(c);
@@ -777,6 +785,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
             l.getGlassPane().remove(panel);
         }
         
+        @Override
         public void setLocked(boolean isLocked) {
             super.setLocked(isLocked);
             panel.setVisible(isLocked);
@@ -1086,7 +1095,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
                 sharingLabel.setIcon(gnutellaIcon);
             else
                 sharingLabel.setIcon(friendIcon);
-            sharingLabel.setText( "<html>" + I18n.tr("What I'm Sharing With {0}", boldName(friend.getRenderName())) + "</html>");
+            sharingLabel.setText( "<html>" + I18n.tr("What I'm Sharing with {0}", boldName(friend.getRenderName())) + "</html>");
         }
         
         private String boldName(String name) {
@@ -1130,7 +1139,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
         public PlayListListener(Action action) {
             this.action = action;
             
-            currentFriendFilterChanger.addListener(new LibraryListSourceChanger.FriendChangedListener() {
+            currentFriendFilterChanger.addListener(new ListSourceChanger.ListChangedListener() {
                 @Override
                 public void friendChanged(Friend currentFriend) {
                     updateList();
@@ -1210,7 +1219,7 @@ public class MyLibraryPanel extends LibraryPanel implements EventListener<Friend
                 LibrarySettings.ALLOW_PROGRAMS.addSettingListener(this);
             }
             
-            currentFriendFilterChanger.addListener(new LibraryListSourceChanger.FriendChangedListener() {
+            currentFriendFilterChanger.addListener(new ListSourceChanger.ListChangedListener() {
                 @Override
                 public void friendChanged(Friend currentFriend) {
                     setText();

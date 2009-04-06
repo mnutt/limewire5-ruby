@@ -5,7 +5,6 @@ import java.io.File;
 import javax.swing.JScrollPane;
 
 import org.limewire.core.api.Category;
-import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.playlist.Playlist;
@@ -33,13 +32,11 @@ public interface LibraryTableFactory {
     /**
      * Creates a table for Friends
      */
-    <T extends RemoteFileItem> LibraryTable<T> createFriendTable(Category category,
-            EventList<T> eventList, Friend friend);
+    <T extends RemoteFileItem> LibraryTable<T> createFriendTable(Category category, EventList<T> eventList);
 
     /**
      * Creates a table for a playlist.
      */
-    <T extends LocalFileItem> LibraryTable<T> createPlaylistTable(
-            Playlist playlist, EventList<T> eventList);
+    <T extends LocalFileItem> LibraryTable<T> createPlaylistTable(Playlist playlist, EventList<T> eventList);
     
 }

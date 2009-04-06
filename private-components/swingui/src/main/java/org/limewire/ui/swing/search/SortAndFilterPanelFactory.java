@@ -10,9 +10,8 @@ public interface SortAndFilterPanelFactory {
 
     /**
      * Creates a new SortAndFilterPanel using the specified search results data
-     * model and selection preserver.
+     * model.
      */
-    public SortAndFilterPanel create(SearchResultsModel searchResultsModel,
-            RowSelectionPreserver preserver);
+    public SortAndFilterPanel create(SearchResultsModel searchResultsModel);
 
 }

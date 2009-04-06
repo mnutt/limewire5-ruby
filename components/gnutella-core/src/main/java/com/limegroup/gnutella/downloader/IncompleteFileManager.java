@@ -218,7 +218,7 @@ public class IncompleteFileManager  {
      *  getFile(String, URN, int, SharingSettings.INCOMPLETE_DIRECTORY.getValue());
      */
     public synchronized File getFile(String name, URN sha1, long size) throws IOException {
-        return getFile(name, sha1, size, SharingSettings.INCOMPLETE_DIRECTORY.getValue());
+        return getFile(name, sha1, size, SharingSettings.INCOMPLETE_DIRECTORY.get());
     }
     
     /** 
@@ -420,7 +420,7 @@ public class IncompleteFileManager  {
     
     public synchronized void addTorrentEntry(URN urn) {
     	String torrentDirPath = 
-    		SharingSettings.INCOMPLETE_DIRECTORY.getValue().getAbsolutePath() +
+    		SharingSettings.INCOMPLETE_DIRECTORY.get().getAbsolutePath() +
     		File.separator +
     		Base32.encode(urn.getBytes());
     	File torrentDir = new File(torrentDirPath);

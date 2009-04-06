@@ -2,15 +2,15 @@ package com.limegroup.gnutella.rudp;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.rudp.RUDPContext;
 import org.limewire.rudp.messages.RUDPMessage;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.rudp.messages.LimeRUDPMessageParser;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class LimeRUDPContextTest extends LimeTestCase {
     

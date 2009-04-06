@@ -15,10 +15,8 @@
 /DiskController.java/1.6/Fri Mar  6 20:13:12 2009//
 /DownloadBrowseHostList.java/1.5/Tue Jun 27 01:26:10 2006//
 /DownloadHttpRequestState.java/1.1/Thu Jan 29 20:19:49 2009//
-/DownloadStateEvent.java/1.3/Tue Mar 17 21:21:18 2009//
 /DownloadStatsTracker.java/1.1/Tue Mar 25 18:02:10 2008//
 /DownloadStatsTrackerImpl.java/1.3/Wed Mar 11 19:43:50 2009//
-/DownloadWorker.java/1.99/Tue Mar 17 21:21:18 2009//
 /DownloadWorkerFactory.java/1.3/Sun Nov 16 23:50:35 2008//
 /DownloadWorkerFactoryImpl.java/1.9/Sun Nov 16 23:50:35 2008//
 /DownloadWorkerSupport.java/1.5/Thu Jan 29 20:19:49 2009//
@@ -32,20 +30,15 @@
 /HTTPDownloader.java/1.305/Wed Feb  4 23:23:51 2009//
 /HTTPDownloaderFactory.java/1.2/Sun Nov 16 23:50:35 2008//
 /HTTPDownloaderFactoryImpl.java/1.14/Sun Nov 16 23:50:35 2008//
-/InNetworkCallback.java/1.9/Wed Mar 18 16:01:49 2009//
 /InNetworkDownloader.java/1.17/Tue Jan 22 18:53:41 2008//
 /InNetworkDownloaderImpl.java/1.15/Wed Mar 18 16:01:49 2009//
-/IncompleteFileManager.java/1.79/Fri Jan  2 22:54:13 2009//
 /InvalidPathException.java/1.2/Tue Jan 30 20:56:20 2001//
-/LWSIntegrationServices.java/1.6/Tue Sep  2 22:36:18 2008//
 /LWSIntegrationServicesDelegate.java/1.3/Wed Mar 19 00:13:36 2008//
-/LWSIntegrationServicesImpl.java/1.23/Wed Mar 18 16:01:49 2009//
 /LegacyRanker.java/1.16/Tue Nov 18 00:29:17 2008//
 /LimeWireDownloadModule.java/1.8/Thu Feb 26 22:19:50 2009//
 /MagnetDownloader.java/1.59/Tue Apr 15 02:16:29 2008//
 /MagnetDownloaderImpl.java/1.24/Wed Mar 18 16:01:49 2009//
 /ManagedDownloader.java/1.464/Wed Dec  3 22:02:04 2008//
-/ManagedDownloaderImpl.java/1.62/Wed Mar 18 16:01:49 2009//
 /MeshHandler.java/1.5/Tue Mar 11 17:19:18 2008//
 /NoHTTPOKException.java/1.3/Tue Mar 11 17:19:18 2008//
 /NoSuchRangeException.java/1.2/Wed Jun 25 18:12:09 2003//
@@ -77,7 +70,6 @@
 /ResumeDownloaderImpl.java/1.14/Wed Mar 18 16:01:49 2009//
 /SameHostLimitChecker.java/1.2/Sun Nov 16 23:50:35 2008//
 /SelectionStrategy.java/1.5/Thu Jun 28 19:08:45 2007//
-/SelectionStrategyFactory.java/1.4/Mon Aug  4 23:06:55 2008//
 /SourceRanker.java/1.15/Sun Nov 16 23:50:35 2008//
 /SourceRankerFactory.java/1.12/Fri Feb 20 17:11:59 2009//
 /StoreDownloader.java/1.8/Wed Mar 19 00:13:36 2008//
@@ -88,4 +80,12 @@
 /VerifyingFile.java/1.94/Wed Aug 13 04:33:23 2008//
 /VerifyingFileFactory.java/1.4/Tue Jan 22 18:53:41 2008//
 /Visitor.java/1.2/Wed Mar 19 00:13:36 2008//
-D
+D/serial////
+/DownloadStateEvent.java/1.4/Mon Apr  6 16:05:31 2009//
+/DownloadWorker.java/1.100/Mon Apr  6 16:05:31 2009//
+/InNetworkCallback.java/1.11/Mon Apr  6 16:05:31 2009//
+/IncompleteFileManager.java/1.80/Mon Apr  6 16:05:31 2009//
+/LWSIntegrationServices.java/1.7/Mon Apr  6 16:05:31 2009//
+/LWSIntegrationServicesImpl.java/1.25/Mon Apr  6 16:05:31 2009//
+/ManagedDownloaderImpl.java/1.62/Mon Mar 23 19:16:45 2009//
+/SelectionStrategyFactory.java/1.5/Mon Apr  6 16:05:31 2009//

@@ -12,7 +12,7 @@ import org.limewire.listener.EventListener;
 import org.limewire.util.Objects;
 
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
 import com.limegroup.gnutella.downloader.DownloadStateEvent;
 
@@ -54,14 +54,14 @@ public class RecentDownloadListener implements EventListener<DownloadStateEvent>
                     synchronized (RecentDownloadListener.class) {
                         List<File> files;
                         synchronized (DownloadSettings.RECENT_DOWNLOADS) {
-                            files = new ArrayList<File>(DownloadSettings.RECENT_DOWNLOADS.getValue());
+                            files = new ArrayList<File>(DownloadSettings.RECENT_DOWNLOADS.get());
                         }
                         files.add(saveFile);
                         Collections.sort(files, new FileDateLeastToMostRecentComparator());
                         while(files.size() > maxTrackedDownloads) {
                             files.remove(0);
                         }
-                        DownloadSettings.RECENT_DOWNLOADS.setValue(new HashSet<File>(files));
+                        DownloadSettings.RECENT_DOWNLOADS.set(new HashSet<File>(files));
                     }
                 }
             }

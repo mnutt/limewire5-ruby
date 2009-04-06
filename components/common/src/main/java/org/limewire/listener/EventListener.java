@@ -1,5 +1,7 @@
 package org.limewire.listener;
 
+import org.limewire.listener.EventListenerList.EventListenerListContext;
+
 /**
  * A listener for a given kind of event.
  * <p>
@@ -9,7 +11,7 @@ package org.limewire.listener;
  * <p>
  * If classes want to delegate implementations of {@link EventListener}, it is
  * important that the delegate listener's <code>handleEvent(E)</code> method
- * is called via {@link EventListenerList#dispatch(EventListener, Object)}.  This
+ * is called via {@link EventListenerList#dispatch(EventListener, Object, EventListenerListContext)}.  This
  * ensures that the event is dispatched appropriately, according to the 
  * annotation on the delegate listener.
  */

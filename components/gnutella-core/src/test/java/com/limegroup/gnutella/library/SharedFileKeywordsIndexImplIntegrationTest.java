@@ -8,14 +8,14 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.lifecycle.ServiceRegistry;
 
 import com.google.inject.Injector;
 import com.google.inject.Stage;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class SharedFileKeywordsIndexImplIntegrationTest extends LimeTestCase {
 

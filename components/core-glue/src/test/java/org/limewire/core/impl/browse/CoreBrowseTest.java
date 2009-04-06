@@ -1,20 +1,23 @@
 package org.limewire.core.impl.browse;
 
-import org.hamcrest.Description;
-import org.hamcrest.core.IsAnything;
+import java.util.HashSet;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.api.Action;
-import org.jmock.api.Invocation;
+import org.jmock.Sequence;
 import org.limewire.core.api.browse.BrowseListener;
 import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.impl.search.QueryReplyListener;
 import org.limewire.core.impl.search.QueryReplyListenerList;
 import org.limewire.io.GUID;
+import org.limewire.io.IpPort;
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.MatchAndCopy;
 
+import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.SearchServices;
+import com.limegroup.gnutella.messages.QueryReply;
 
 public class CoreBrowseTest extends BaseTestCase {
 
@@ -24,113 +27,88 @@ public class CoreBrowseTest extends BaseTestCase {
 
     /**
      * Tests that the supplied browse listener is populated with search results
-     * as handleBrowseResult is called on the interal BrowseListeer of the
-     * CoreBrowse object.
+     * as handleBrowseResult is called on the internal {@link BrowseListeer} of the
+     * {@link CoreBrowse} object.
      */
     public void testBasicBrowseListenerPopulation() {
-        Mockery context = new Mockery();
+        final Mockery context = new Mockery();
         final FriendPresence friendPresence = context.mock(FriendPresence.class);
         final SearchServices searchServices = context.mock(SearchServices.class);
         final QueryReplyListenerList queryReplyListenerList = context
                 .mock(QueryReplyListenerList.class);
 
-        final FindInternalListenerAction findInternalListenerAction = new FindInternalListenerAction();
         final byte[] searchGuid = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                 16 };
 
+        final BrowseListener testBrowseListener = context.mock(BrowseListener.class);
+        
+        final RemoteFileDesc rfd = context.mock(RemoteFileDesc.class); 
+        final QueryReply queryReply = context.mock(QueryReply.class);
+        
+        final MatchAndCopy<SearchResult> searchResultCollector
+            = new MatchAndCopy<SearchResult>(SearchResult.class);
+        final MatchAndCopy<BrowseListener> browseListenerCollector 
+            = new MatchAndCopy<BrowseListener>(BrowseListener.class);
+        final MatchAndCopy<QueryReplyListener> queryReplyListenerCollector
+            = new MatchAndCopy<QueryReplyListener>(QueryReplyListener.class);
+        
         context.checking(new Expectations() {
             {
-                one(queryReplyListenerList).addQueryReplyListener(with(new IsAnything<byte[]>()),
-                        with(new IsAnything<QueryReplyListener>()));
+                one(queryReplyListenerList).addQueryReplyListener(with(any(byte[].class)),
+                        with(queryReplyListenerCollector));
                 exactly(2).of(queryReplyListenerList).removeQueryReplyListener(
-                        with(new IsAnything<byte[]>()), with(new IsAnything<QueryReplyListener>()));
+                        with(any(byte[].class)), with(any(QueryReplyListener.class)));
                 one(searchServices).newQueryGUID();
                 will(returnValue(searchGuid));
                 one(searchServices).doAsynchronousBrowseHost(
-                        with(new IsAnything<FriendPresence>()), with(new IsAnything<GUID>()),
-                        with(new IsAnything<BrowseListener>()));
-                will(findInternalListenerAction);
+                        with(any(FriendPresence.class)), with(any(GUID.class)),
+                        with(browseListenerCollector));
                 exactly(2).of(searchServices).stopQuery(new GUID(searchGuid));
+                
+                exactly(2).of(testBrowseListener).handleBrowseResult(with(searchResultCollector));
+                
+                allowing(rfd).getClientGUID();
+                will(returnValue(new byte[] {'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'}));
+                allowing(rfd);
+                allowing(queryReply);
+                
+                
+                Sequence sequence1 = context.sequence("seq");
+                exactly(1).of(testBrowseListener).browseFinished(false);
+                inSequence(sequence1);
+                exactly(1).of(testBrowseListener).browseFinished(true);
+                inSequence(sequence1);
             }
         });
+
         CoreBrowse coreBrowse = new CoreBrowse(friendPresence, searchServices,
                 queryReplyListenerList);
 
-        TestBrowseListener testBrowseListener = new TestBrowseListener();
         coreBrowse.start(testBrowseListener);
+        
+        // Can't start twice
+        try {
+            coreBrowse.start(testBrowseListener);
+            fail("Starting a browse twice did not throw an exception");
+        } 
+        catch (IllegalStateException e) {
+            // Expected
+        }
 
-        BrowseListener innerBrowseListener = findInternalListenerAction.getBrowseListener();
+        BrowseListener innerBrowseListener = browseListenerCollector.getLastMatch();
         assertNotNull(innerBrowseListener);
 
+        // Call handleBrowseResult directly
         SearchResult searchResult1 = context.mock(SearchResult.class);
-
         innerBrowseListener.handleBrowseResult(searchResult1);
-        assertEquals(searchResult1, testBrowseListener.searchResult);
-        testBrowseListener.reset();
+        assertEquals(searchResult1, searchResultCollector.getLastMatch());
 
-        SearchResult searchResult2 = context.mock(SearchResult.class);
-        innerBrowseListener.handleBrowseResult(searchResult2);
-        assertEquals(searchResult2, testBrowseListener.searchResult);
-
-        testBrowseListener.reset();
+        // Call handleBrowseResult indirectly through BrowseResultAdapter
+        queryReplyListenerCollector.getLastMatch().handleQueryReply(rfd, queryReply, new HashSet<IpPort>());
 
         innerBrowseListener.browseFinished(false);
-        assertFalse(testBrowseListener.success);
-
         innerBrowseListener.browseFinished(true);
-        assertTrue(testBrowseListener.success);
 
         context.assertIsSatisfied();
-    }
-
-    /**
-     * Finds the internal BrowseListener to enable testing of internal calls.
-     */
-    private class FindInternalListenerAction implements Action {
-        private BrowseListener browseListener = null;
-
-        @Override
-        public void describeTo(Description description) {
-            description
-                    .appendText("Finds the internal BrowseListener to enable testing of internal calls.");
-        }
-
-        @Override
-        public Object invoke(Invocation invocation) throws Throwable {
-            Object param3 = invocation.getParameter(2);
-            browseListener = (BrowseListener) param3;
-            return null;
-        }
-
-        public BrowseListener getBrowseListener() {
-            return browseListener;
-        }
-
-    }
-
-    /**
-     * Helper Browselistener to enable us to find the most recent success and
-     * search result values during testing.
-     */
-    private class TestBrowseListener implements BrowseListener {
-        private Boolean success = null;
-
-        private SearchResult searchResult = null;
-
-        @Override
-        public void browseFinished(boolean success) {
-            this.success = success;
-        }
-
-        @Override
-        public void handleBrowseResult(SearchResult searchResult) {
-            this.searchResult = searchResult;
-        }
-
-        public void reset() {
-            this.success = null;
-            this.searchResult = null;
-        }
-
     }
 }

@@ -8,6 +8,8 @@ import junit.framework.Test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.limewire.gnutella.tests.ActivityCallbackStub;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.TestUtils;
 
@@ -16,19 +18,17 @@ import com.google.inject.Injector;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.downloader.DownloadSerialSettingsStub;
 import com.limegroup.gnutella.downloader.ManagedDownloader;
 import com.limegroup.gnutella.downloader.serial.DownloadSerializeSettings;
 import com.limegroup.gnutella.downloader.serial.DownloadSerializer;
 import com.limegroup.gnutella.downloader.serial.DownloadSerializerImpl;
 import com.limegroup.gnutella.downloader.serial.OldDownloadConverter;
-import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 
 /**
  * Tests backwards compatibility with old downloads.dat files.
  */
-public class OldDownloadsTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class OldDownloadsTest extends org.limewire.gnutella.tests.LimeTestCase {
         
     private static final Log LOG = LogFactory.getLog(OldDownloadsTest.class);
     private Injector injector;
@@ -103,7 +103,7 @@ public class OldDownloadsTest extends com.limegroup.gnutella.util.LimeTestCase {
         }
     
         @Override
-        public void downloadCompleted(Downloader d) {
+        public void removeDownload(Downloader d) {
             downloaders.remove(d);
         }
         

@@ -150,9 +150,9 @@ public class ApplicationSettings extends LimeProps {
      * Gets the current language setting.
      */
     public static String getLanguage() {
-        String lc = LANGUAGE.getValue();
-        String cc = COUNTRY.getValue();
-        String lv = LOCALE_VARIANT.getValue();
+        String lc = LANGUAGE.get();
+        String cc = COUNTRY.get();
+        String lv = LOCALE_VARIANT.get();
         String lang = lc;
         if(cc != null && !cc.equals(""))
             lang += "_" + cc;

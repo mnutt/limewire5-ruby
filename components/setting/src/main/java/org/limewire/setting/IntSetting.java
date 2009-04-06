@@ -33,6 +33,16 @@ public final class IntSetting extends AbstractNumberSetting<Integer> {
 		super(defaultProps, props, key, String.valueOf(defaultInt), true,
                 minRemoteVal, maxRemoteVal);
     }
+	
+	@Override
+	public Integer get() {
+	    return getValue();
+	}
+	
+	@Override
+	public void set(Integer newValue) {
+	    setValue(newValue);
+	}
         
 	/**
 	 * Returns the value of this setting.

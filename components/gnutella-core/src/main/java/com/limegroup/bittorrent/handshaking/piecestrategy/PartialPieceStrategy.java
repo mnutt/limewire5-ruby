@@ -17,6 +17,10 @@ import com.limegroup.bittorrent.BTInterval;
 import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.bittorrent.disk.BlockRangeMap;
 
+/**
+ * Strategy which gives a preference to pieces which are already
+ * partially downloaded. 
+ */
 public class PartialPieceStrategy implements PieceStrategy {
     private static final Log LOG = LogFactory.getLog(PartialPieceStrategy.class);
 

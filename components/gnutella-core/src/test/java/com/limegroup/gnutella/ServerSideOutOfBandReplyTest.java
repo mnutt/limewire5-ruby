@@ -17,6 +17,8 @@ import junit.framework.Test;
 
 import org.limewire.core.settings.MessageSettings;
 import org.limewire.core.settings.SearchSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
+import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.GUID;
 import org.limewire.security.AddressSecurityToken;
 import org.limewire.security.MACCalculatorRepositoryManager;
@@ -46,7 +48,6 @@ import com.limegroup.gnutella.messages.vendor.VendorMessageFactory;
 import com.limegroup.gnutella.messages.vendor.VendorMessageFactory.VendorMessageParser;
 import com.limegroup.gnutella.routing.QueryRouteTable;
 import com.limegroup.gnutella.routing.RouteTableMessage;
-import com.limegroup.gnutella.stubs.NetworkManagerStub;
 
 /**
  *  Tests that an Ultrapeer correctly handles out-of-band queries.  Essentially 

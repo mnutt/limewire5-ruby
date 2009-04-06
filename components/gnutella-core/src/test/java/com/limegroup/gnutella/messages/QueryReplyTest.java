@@ -33,6 +33,7 @@ import org.limewire.collection.BitNumbers;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.SearchSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.BadGGEPBlockException;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
@@ -55,7 +56,6 @@ import org.limewire.util.StringUtils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.Endpoint;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.ResponseFactory;
@@ -75,7 +75,7 @@ import com.limegroup.gnutella.messages.Message.Network;
  * This class tests the QueryReply class.
  */
 @SuppressWarnings({"unchecked", "null"})
-public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCase {
+public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCase {
 
     private static final byte[] IP = new byte[] {1, 1, 1, 1};
     private static final int MAX_LOCATIONS = 10;
@@ -115,6 +115,7 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
 	}
 	
     
+    @Override
     public void setUp() throws Exception {
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
         	    
@@ -1199,7 +1200,7 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
 			Response testResponse = responseFactory.createResponse(fd);
 
             String name = fd.getFileName();
-            char[] illegalChars = SearchSettings.ILLEGAL_CHARS.getValue();
+            char[] illegalChars = SearchSettings.ILLEGAL_CHARS.get();
             Arrays.sort(illegalChars);
 
             if (name.length() > SearchSettings.MAX_QUERY_LENGTH.getValue()
@@ -1264,7 +1265,7 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
 			assertEquals(fd.toString(), expectTime, testResponse.getCreateTime());
             
             String name = fd.getFileName();
-            char[] illegalChars = SearchSettings.ILLEGAL_CHARS.getValue();
+            char[] illegalChars = SearchSettings.ILLEGAL_CHARS.get();
             Arrays.sort(illegalChars);
 
             if (name.length() > SearchSettings.MAX_QUERY_LENGTH.getValue()
@@ -1491,10 +1492,7 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
 
         File[] testFiles = testDir.listFiles(new FileFilter() {
             public boolean accept(File file) {
-                // use files with a $ because they'll generally
-                // trigger a single-response return, which is
-                // easier to check
-                return LibraryUtils.isFileManagable(file) && file.getName().indexOf("$") != -1;
+                return LibraryUtils.isFileManagable(file);
             }
         });
 
@@ -1640,10 +1638,12 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
         private static int off2;
         private static int len2;
 
+        @Override
         protected Object engineGetParameter(String arg0) throws InvalidParameterException {
             return null;
         }
 
+        @Override
         protected void engineInitSign(PrivateKey arg0) throws InvalidKeyException {
             update1 = null;
             off1 = -1;
@@ -1653,19 +1653,24 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
             len2 = -1;
         }
 
+        @Override
         protected void engineInitVerify(PublicKey arg0) throws InvalidKeyException {
         }
 
+        @Override
         protected void engineSetParameter(String arg0, Object arg1) throws InvalidParameterException {
         }
 
+        @Override
         protected byte[] engineSign() throws SignatureException {
             return null;
         }
 
+        @Override
         protected void engineUpdate(byte arg0) throws SignatureException {
         }
 
+        @Override
         protected void engineUpdate(byte[] data, int off, int len) throws SignatureException {
             if(update1 == null) {
                 update1 = data;
@@ -1680,6 +1685,7 @@ public final class QueryReplyTest extends com.limegroup.gnutella.util.LimeTestCa
             }
         }
 
+        @Override
         protected boolean engineVerify(byte[] arg0) throws SignatureException {
             return false;
         }

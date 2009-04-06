@@ -15,7 +15,7 @@ import com.google.inject.name.Named;
 import com.limegroup.gnutella.DownloadManagerEvent;
 import com.limegroup.gnutella.PushEndpoint;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.dht.db.PushEndpointService;
 import com.limegroup.gnutella.dht.db.SearchListener;

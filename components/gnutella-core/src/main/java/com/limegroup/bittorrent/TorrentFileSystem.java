@@ -109,7 +109,7 @@ public class TorrentFileSystem {
 		if (_name.length() == 0)
 			throw new ValueException("bad torrent name");
 
-		_incompleteFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.getValue(), 
+		_incompleteFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.get(), 
 				Base32.encode(infoHash)+File.separator+_name);
 		_completeFile = new File(SharingSettings.getSaveDirectory(_name), _name);
 		

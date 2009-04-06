@@ -128,6 +128,7 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
         }
     }
 
+    // TODO: address and port - are ignored
     @Override
     public void handleQuery(QueryRequest query, String address, int port) {
         for (IncomingSearchListener listener : monitorListeners) {
@@ -149,6 +150,7 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
                 handleSaveLocationException(new DownloadAction() {
                   @Override
                     public void download(File saveFile, boolean overwrite) throws SaveLocationException {
+                          // TODO: save file is ignored
                           downloadManager.downloadTorrent(torrentFile, overwrite);
                     }  
                 },e,false);
@@ -217,6 +219,7 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
         }
     }
     
+    // TODO: if no prompt is ever intended then this should be renamed
     @Override
     public void promptAboutCorruptDownload(Downloader dloader) {
         //just kill the download if it is corrupt
@@ -231,7 +234,7 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
     }
     
     @Override
-    public void downloadCompleted(Downloader d) {
+    public void removeDownload(Downloader d) {
         for (DownloadListener listener : downloadListeners) {
             listener.downloadRemoved(d);
         }

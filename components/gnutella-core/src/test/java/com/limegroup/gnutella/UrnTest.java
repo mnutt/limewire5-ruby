@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 
 
@@ -14,7 +15,7 @@ import org.limewire.io.GUID;
  * needs to be run from either the core directory or the directory above
  * the core directory.
  */
-public final class UrnTest extends com.limegroup.gnutella.util.LimeTestCase {
+public final class UrnTest extends org.limewire.gnutella.tests.LimeTestCase {
 	
 	private static final String [] VALID_URNS = {
 		"urn:sha1:GLSTHIPQGSSZTS5FJUPAKPZWUGYQYPFB",
@@ -137,7 +138,8 @@ public final class UrnTest extends com.limegroup.gnutella.util.LimeTestCase {
 		junit.textui.TestRunner.run(suite());
 	}
 
-	protected void setUp() throws Exception {
+	@Override
+    protected void setUp() throws Exception {
 		urns = new URN[VALID_URNS.length];
 		for(int i=0; i<urns.length; i++) {
 			urns[i] = URN.createSHA1Urn(VALID_URNS[i]);

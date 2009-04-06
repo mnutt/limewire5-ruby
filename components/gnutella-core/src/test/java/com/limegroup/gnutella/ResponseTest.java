@@ -18,6 +18,7 @@ import org.jmock.Mockery;
 import org.limewire.collection.IntervalSet;
 import org.limewire.collection.Range;
 import org.limewire.core.settings.MessageSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.GGEP;
@@ -56,7 +57,7 @@ import com.limegroup.gnutella.xml.LimeXMLDocumentHelper;
  */
 @SuppressWarnings("unchecked")
 // TODO should be renamed to response factory test maybe
-public final class ResponseTest extends com.limegroup.gnutella.util.LimeTestCase {
+public final class ResponseTest extends org.limewire.gnutella.tests.LimeTestCase {
 
 	private QueryReplyFactory queryReplyFactory;
     private ResponseFactoryImpl responseFactoryImpl;

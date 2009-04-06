@@ -669,6 +669,15 @@ public final class NetworkUtils {
         return new IpPortImpl(new InetSocketAddress(host, port));
     }
     
+    /**
+     * Parses ip port in the same fashion as {@link #getIpPort(byte[], java.nio.ByteOrder)}.
+     * 
+     * Creates Connectable using <code>tlsCapable</code>. 
+     */
+    public static Connectable getConnectable(byte[] ipport, java.nio.ByteOrder order, boolean tlsCapable) throws InvalidDataException {
+        return new ConnectableImpl(getIpPort(ipport, order), tlsCapable);
+    }
+    
     
     /**
      * Returns true if both SocketAddresses are either IPv4 or IPv6 addresses

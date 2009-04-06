@@ -13,8 +13,10 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.util.StringTokenizer;
 
+import org.apache.http.protocol.HTTP;
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.io.ByteReader;
 import org.limewire.net.ProxySettings.ProxyType;
@@ -237,7 +239,7 @@ public class FakeProxyServer {
 
     
     private void checkHTTP(InputStream is, OutputStream os) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName(HTTP.DEFAULT_PROTOCOL_CHARSET)));
         String line = reader.readLine();
         StringTokenizer tok = new StringTokenizer(line, " :");
         assertEquals("connect string not sent", "CONNECT", tok.nextToken());

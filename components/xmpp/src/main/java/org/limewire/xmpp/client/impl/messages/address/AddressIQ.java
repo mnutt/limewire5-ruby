@@ -63,6 +63,7 @@ public class AddressIQ extends IQ {
         return address;
     }
 
+    @Override
     public String getChildElementXML() {        
         StringBuilder pushEndpoint = new StringBuilder("<address xmlns=\"jabber:iq:lw-address\">");        
         if(address != null) {

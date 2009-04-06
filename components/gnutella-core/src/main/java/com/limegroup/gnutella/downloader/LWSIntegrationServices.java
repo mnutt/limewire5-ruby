@@ -1,7 +1,6 @@
 package com.limegroup.gnutella.downloader;
 
 
-import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.lws.server.LWSManager;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
@@ -48,8 +47,11 @@ public interface LWSIntegrationServices {
          * constant key for the value of
          * {@link LimeWireUtils#getLimeWireVersion()}.
          */
-        Version("version");
+        Version("version"),
 
+        /** Constant key for the value of {@link LimeWireUtils#isTestingVersion()}. */
+        IsTestingVersion("is.testing.version");
+        
         private final String value;
 
         Info(String s) {
@@ -65,11 +67,6 @@ public interface LWSIntegrationServices {
             return value;
         }
     }
-
-    /**
-     * Initializes this in the start up of the {@link LifecycleManager}
-     */
-    void initialize();
 
     /**
      * The prefix with which to start download URLS. For example, if we call the

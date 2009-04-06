@@ -47,6 +47,8 @@ public class MouseableTable extends StripedJXTable {
 	
 	private boolean stripesPainted = false;
 	
+	private TableCellHeaderRenderer defaultRenderer;
+	
 	protected MouseMotionListener mouseOverEditorListener;
 	
 	public MouseableTable() {
@@ -273,7 +275,13 @@ public class MouseableTable extends StripedJXTable {
     
     protected void setTableHeaderRenderer() {
         JTableHeader th = getTableHeader();
-        th.setDefaultRenderer(new TableCellHeaderRenderer());
+        th.setDefaultRenderer(getTableCellHeaderRenderer());
+    }
+    
+    private TableCellRenderer getTableCellHeaderRenderer() {
+        if(defaultRenderer == null)
+            defaultRenderer = new TableCellHeaderRenderer();
+        return defaultRenderer;
     }
     
     /**
@@ -297,7 +305,7 @@ public class MouseableTable extends StripedJXTable {
                     return;
                 }
                 JTableHeader th = new JTableHeader();
-                th.setDefaultRenderer(new TableCellHeaderRenderer());
+                th.setDefaultRenderer(getTableCellHeaderRenderer());
                 // Put a dummy header in the upper-right corner.
                 final Component renderer = th.getDefaultRenderer().getTableCellRendererComponent(null, "", false, false, -1, -1);
                 JPanel cornerComponent = new JPanel(new BorderLayout());

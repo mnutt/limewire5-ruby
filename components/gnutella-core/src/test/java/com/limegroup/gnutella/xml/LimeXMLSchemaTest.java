@@ -2,9 +2,10 @@ package com.limegroup.gnutella.xml;
 
 import java.util.Iterator;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import junit.framework.Test;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 
 /**

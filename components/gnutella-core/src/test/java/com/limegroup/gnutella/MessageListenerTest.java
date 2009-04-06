@@ -3,6 +3,7 @@ package com.limegroup.gnutella;
 import java.util.List;
 import java.util.Map;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 
 import junit.framework.Test;

@@ -5,13 +5,12 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.ui.swing.components.Line;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
-import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.util.EnabledListener;
-import org.limewire.ui.swing.util.EnabledListenerList;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.ui.swing.util.VisibilityListener;
-import org.limewire.ui.swing.util.VisibilityListenerList;
 import org.limewire.ui.swing.util.VisibleComponent;
+import org.limewire.ui.swing.util.VisibilityType;
+import org.limewire.ui.swing.util.EnabledType;
+import org.limewire.listener.EventListener;
+import org.limewire.listener.EventListenerList;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -20,11 +19,14 @@ import com.google.inject.Singleton;
 public class LeftPanel extends JXPanel implements VisibleComponent {
     public static final String NAME = "Library Panel";
 
-    private final VisibilityListenerList visibilityListenerList = new VisibilityListenerList();
-    private final EnabledListenerList enabledListenerList = new EnabledListenerList();
+    private final EventListenerList<VisibilityType> visibilityListenerList =
+            new EventListenerList<VisibilityType>();
+
+    private final EventListenerList<EnabledType> enabledListenerList =
+            new EventListenerList<EnabledType>();
     
     @Inject
-    public LeftPanel(Navigator navigator, LibraryNavigator libraryNavigator) {
+    public LeftPanel(LibraryNavigator libraryNavigator) {
         GuiUtils.assignResources(this);
 
         setName("LeftPanel");
@@ -32,7 +34,7 @@ public class LeftPanel extends JXPanel implements VisibleComponent {
         setLayout(new MigLayout("insets 0, fill, gap 0"));
         JXPanel libraryNav = libraryNavigator.getComponent();
         libraryNav.setName("LeftPanel.contents");
-        add(libraryNav, "grow");
+        add(libraryNav, "top, grow");
 
         Line line = Line.createVerticalLine();
         line.setName("LeftPanel.rightBorder");
@@ -44,30 +46,30 @@ public class LeftPanel extends JXPanel implements VisibleComponent {
     }
 
     @Override
-    public void addVisibilityListener(VisibilityListener listener) {
-        visibilityListenerList.addVisibilityListener(listener);
+    public void addVisibilityListener(EventListener<VisibilityType> listener) {
+        visibilityListenerList.addListener(listener);
 
     }
 
     @Override
-    public void removeVisibilityListener(VisibilityListener listener) {
-        visibilityListenerList.removeVisibilityListener(listener);
+    public void removeVisibilityListener(EventListener<VisibilityType> listener) {
+        visibilityListenerList.removeListener(listener);
     }
 
     @Override
     public void setVisibility(boolean visible) {
         setVisible(visible);
-        visibilityListenerList.visibilityChanged(visible);
+        visibilityListenerList.broadcast(VisibilityType.valueOf(visible));
     }
 
     @Override
-    public void addEnabledListener(EnabledListener listener) {
-        enabledListenerList.addEnabledListener(listener);
+    public void addEnabledListener(EventListener<EnabledType> listener) {
+        enabledListenerList.addListener(listener);
     }
 
     @Override
-    public void removeEnabledListener(EnabledListener listener) {
-        enabledListenerList.removeEnabledListener(listener);
+    public void removeEnabledListener(EventListener<EnabledType> listener) {
+        enabledListenerList.removeListener(listener);
     }
 
     /**

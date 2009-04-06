@@ -13,6 +13,8 @@ import org.jmock.Mockery;
 import org.jmock.States;
 import org.limewire.collection.NECallable;
 import org.limewire.core.settings.BittorrentSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 
 import junit.framework.Test;
 
@@ -21,10 +23,8 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 import com.limegroup.bittorrent.Chokable;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.UploadServices;
 import com.limegroup.gnutella.stubs.ScheduledExecutorServiceStub;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class LeechChokerTest extends LimeTestCase {
 

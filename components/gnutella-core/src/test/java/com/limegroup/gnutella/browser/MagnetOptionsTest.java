@@ -23,6 +23,7 @@ public class MagnetOptionsTest extends BaseTestCase {
     private String[] guidMagnets;
     private Mockery context;
     
+    @Override
     public void setUp() {
         validMagnets = MagnetOptions.parseMagnet("magnet:?xt.1=urn:sha1:YNCKHTQCWBTRNJIV4WNAE52SJUQCZO5C&xt.2=urn:sha1:TXGCZQTH26NL6OUQAJJPFALHG2LTGBC7");
         guidMagnets = new String[] {

@@ -48,7 +48,7 @@ public final class LeafHandshakeResponder extends DefaultHandshakeResponder {
             /* TODO: ADD STAT
               HandshakingStat.LEAF_OUTGOING_REJECT_LOCALE.incrementStat();
             */
-            if (!ApplicationSettings.LANGUAGE.getValue().equals(response.getLocalePref())) {
+            if (!ApplicationSettings.LANGUAGE.get().equals(response.getLocalePref())) {
                 return HandshakeResponse.createLeafRejectLocaleOutgoingResponse();
             }
         }

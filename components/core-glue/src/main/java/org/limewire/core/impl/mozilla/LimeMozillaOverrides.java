@@ -30,7 +30,7 @@ public class LimeMozillaOverrides {
         // our own download manager
         prefService.getBranch("browser.download.").setBoolPref("useDownloadDir", 1);
         prefService.getBranch("browser.download.").setIntPref("folderList", 2);
-        String downloadDir = SharingSettings.INCOMPLETE_DIRECTORY.getValue().getAbsolutePath();
+        String downloadDir = SharingSettings.INCOMPLETE_DIRECTORY.get().getAbsolutePath();
         prefService.getBranch("browser.download.").setCharPref("dir", downloadDir);
         prefService.getBranch("browser.download.manager.").setBoolPref("showWhenStarting", 0);
         prefService.getBranch("browser.download.manager.").setBoolPref("showAlertOnComplete", 0);
@@ -43,7 +43,7 @@ public class LimeMozillaOverrides {
         // setup which mime types do not prompt to download
         // this will prevent the save or open dialogue from prompting
         prefService.getBranch("browser.helperApps.neverAsk.").setCharPref("saveToDisk",
-                MozillaSettings.DOWNLOAD_MIME_TYPES.getValue());
+                MozillaSettings.DOWNLOAD_MIME_TYPES.get());
 
         // adding the download listener
         nsIDownloadManager downloadManager = XPCOMUtils.getServiceProxy("@mozilla.org/download-manager;1",

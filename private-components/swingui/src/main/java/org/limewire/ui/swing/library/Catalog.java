@@ -84,6 +84,7 @@ public class Catalog {
         return type;
     }
     
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof Catalog) {
             Catalog item = (Catalog) obj;
@@ -93,6 +94,7 @@ public class Catalog {
         return false;
     }
     
+    @Override
     public int hashCode() {
         int result = 17;
         result = 31 * result + ((type == null) ? 0 : type.hashCode());

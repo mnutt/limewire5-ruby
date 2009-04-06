@@ -9,12 +9,12 @@ import junit.framework.Test;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.swarm.SwarmContent;
 import org.limewire.swarm.SwarmWriteJobControl;
 
 import com.limegroup.bittorrent.BTInterval;
 import com.limegroup.bittorrent.disk.TorrentDiskManager;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class BTSwarmWriteJobTest extends LimeTestCase {
 

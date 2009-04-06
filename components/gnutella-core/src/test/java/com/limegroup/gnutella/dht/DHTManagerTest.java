@@ -9,10 +9,10 @@ import junit.framework.Test;
 
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.core.settings.DHTSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.mojito.KUID;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.dht.DHTManager.DHTMode;
 
 public class DHTManagerTest extends DHTTestCase {

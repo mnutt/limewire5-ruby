@@ -15,6 +15,8 @@ import java.util.Set;
 import junit.framework.Test;
 
 import org.limewire.core.settings.SearchSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GGEP;
 import org.limewire.io.GUID;
 import org.limewire.security.AddressSecurityToken;
@@ -26,12 +28,10 @@ import org.limewire.util.OSUtils;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.QueryRequestImpl.QueryRequestPayloadParser;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * This class tests the QueryRequest class with HUGE v0.94 extensions.
@@ -91,6 +91,7 @@ public final class QueryRequestTest extends LimeTestCase {
 	}
 
     
+    @Override
     public void setUp() throws Exception {
         SearchSettings.DISABLE_OOB_V2.revertToDefault();
         OOBv2Disabled = false;
@@ -417,11 +418,11 @@ public final class QueryRequestTest extends LimeTestCase {
 
 
     private static final String[] ILLEGAL_QUERIES = 
-        new String[SearchSettings.ILLEGAL_CHARS.getValue().length];
+        new String[SearchSettings.ILLEGAL_CHARS.get().length];
     
     static {
         for(int i=0; i<ILLEGAL_QUERIES.length; i++) {
-            ILLEGAL_QUERIES[i] = "test"+SearchSettings.ILLEGAL_CHARS.getValue()[i];
+            ILLEGAL_QUERIES[i] = "test"+SearchSettings.ILLEGAL_CHARS.get()[i];
         }
     }
 

@@ -10,6 +10,7 @@ public class SearchHeadingDocumentBuilderImplTest extends TestCase {
     private SearchHeadingDocumentBuilderImpl bldr;
     private SearchHeading heading;
     
+    @Override
     public void setUp() {
         bldr = new SearchHeadingDocumentBuilderImpl();
         heading = new SearchHeading() {

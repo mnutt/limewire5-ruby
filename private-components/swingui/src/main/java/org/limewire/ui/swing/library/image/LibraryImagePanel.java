@@ -136,8 +136,8 @@ public class LibraryImagePanel extends JPanel
     }
         
     private static File getParentFolder(LocalFileItem localFileItem){
-        return localFileItem.isIncomplete() ? SharingSettings.INCOMPLETE_DIRECTORY.getValue() : 
-            ((localFileItem.getFile() == null) ? SharingSettings.INCOMPLETE_DIRECTORY.getValue() : localFileItem.getFile().getParentFile());
+        return localFileItem.isIncomplete() ? SharingSettings.INCOMPLETE_DIRECTORY.get() : 
+            ((localFileItem.getFile() == null) ? SharingSettings.INCOMPLETE_DIRECTORY.get() : localFileItem.getFile().getParentFile());
     }
     
     private static class DirectoryMatcher implements Matcher<LocalFileItem>{

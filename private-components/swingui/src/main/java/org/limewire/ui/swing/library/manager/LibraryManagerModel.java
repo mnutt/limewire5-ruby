@@ -183,6 +183,7 @@ public class LibraryManagerModel extends AbstractTreeTableModel {
         return null;
     }
     
+    @Override
     public String getColumnName(int column) {
         switch(column) {
             case REMOVE_INDEX: return null;

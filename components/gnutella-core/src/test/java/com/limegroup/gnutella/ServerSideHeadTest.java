@@ -9,6 +9,8 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 
 import junit.framework.Test;
 
@@ -23,7 +25,6 @@ import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.HeadPing;
 import com.limegroup.gnutella.messages.vendor.HeadPong;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * tests the server side handling of head pings through UDP.

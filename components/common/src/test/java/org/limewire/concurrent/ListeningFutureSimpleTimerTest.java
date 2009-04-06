@@ -4,6 +4,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.SwingUtilities;
+
 import org.limewire.service.ErrorCallback;
 import org.limewire.service.ErrorCallbackStub;
 import org.limewire.service.ErrorService;
@@ -271,6 +273,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensBeforeCompletes() throws Exception {
+        spinUpSwing();
+        
         RunWaiter waiter = new RunWaiter();
         sq.execute(waiter);
         
@@ -292,6 +296,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensBeforeCompletesWithException() throws Exception {
+        spinUpSwing();
+        
         RunWaiter waiter = new RunWaiter();
         sq.execute(waiter);
         
@@ -320,6 +326,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensBeforeCompletesCancelsWithoutRun() throws Exception {
+        spinUpSwing();
+        
         RunWaiter waiter = new RunWaiter();
         sq.execute(waiter);
         
@@ -343,6 +351,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensBeforeCompletesCancelsDuringRun() throws Exception {
+        spinUpSwing();
+        
         Object result = new Object();
         CallWaiter runner = new CallWaiter(result);
         ListeningFuture<Object> task = sq.schedule((Callable<Object>)runner, 500, TimeUnit.MILLISECONDS);
@@ -370,6 +380,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensBeforeCompletesCancelsDuringRunWithoutAllowedCausesCancelToo() throws Exception {
+        spinUpSwing();
+        
         Object result = new Object();
         CallWaiter runner = new CallWaiter(result);
         ListeningFuture<Object> task = sq.schedule((Callable<Object>)runner, 500, TimeUnit.MILLISECONDS);  
@@ -393,6 +405,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensAfterCompletes() throws Exception {
+        spinUpSwing();
+        
         Object result = new Object();
         Caller runner = new Caller(result);
         ListeningFuture<Object> task = sq.schedule((Callable<Object>)runner, 500, TimeUnit.MILLISECONDS);
@@ -410,6 +424,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensAfterCompletesWithException() throws Exception {
+        spinUpSwing();
+        
         Object result = new Object();
         Caller runner = new Caller(result, true);
         ListeningFuture<Object> task = sq.schedule((Callable<Object>)runner, 500, TimeUnit.MILLISECONDS);
@@ -434,6 +450,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListenAfterCompletesCancelsWithoutRun() throws Exception {
+        spinUpSwing();
+        
         RunWaiter waiter = new RunWaiter();
         sq.execute(waiter);
         
@@ -458,6 +476,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensAfterCompletesCancelsDuringRun() throws Exception {
+        spinUpSwing();
+        
         Object result = new Object();
         CallWaiter runner = new CallWaiter(result);
         ListeningFuture<Object> task = sq.schedule((Callable<Object>)runner, 500, TimeUnit.MILLISECONDS);
@@ -482,6 +502,8 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     }
     
     public void testScheduledAnnotatedListensAfterCompletesCancelsDuringRunWithoutAllowedCausesCancelToo() throws Exception {
+        spinUpSwing();
+        
         Object result = new Object();
         CallWaiter runner = new CallWaiter(result);
         ListeningFuture<Object> task = sq.schedule((Callable<Object>)runner, 500, TimeUnit.MILLISECONDS);
@@ -532,5 +554,11 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
             run();
             return result;
         }
-    }    
+    }
+    
+    private void spinUpSwing() throws Exception {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            public void run() {}
+        });
+    }
 }

@@ -8,20 +8,20 @@ import junit.framework.Test;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.limewire.core.settings.FilterSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.IP;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.filters.IPFilter.IPFilterCallback;
 import com.limegroup.gnutella.messages.PingReply;
 import com.limegroup.gnutella.messages.PushRequest;
 import com.limegroup.gnutella.messages.PushRequestImpl;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class IPFilterTest extends LimeTestCase {
 
@@ -55,10 +55,10 @@ public class IPFilterTest extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(new String[] {
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(new String[] {
                 "18.239.0.*", "13.0.0.0" });
         FilterSettings.WHITE_LISTED_IP_ADDRESSES
-                .setValue(new String[] { "18.239.0.144" });
+                .set(new String[] { "18.239.0.144" });
         
         
         whiteListedAddress = new byte[] { (byte) 18, (byte) 239, (byte) 0, (byte) 144 };

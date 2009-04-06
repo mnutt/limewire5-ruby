@@ -3,11 +3,12 @@ package com.limegroup.gnutella.xml;
 
 import java.util.List;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
+
 import junit.framework.Test;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Tests the LimeXMLDocumentHelper logic.

@@ -9,7 +9,7 @@ import org.limewire.core.settings.iTunesSettings;
 import org.limewire.util.BaseTestCase;
 
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
 
 public class ItunesDownloadListenerTest extends BaseTestCase {

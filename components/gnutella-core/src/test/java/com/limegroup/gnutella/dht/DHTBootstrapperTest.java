@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 import junit.framework.Test;
 
 import org.limewire.core.settings.DHTSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.mojito.Context;
 import org.limewire.mojito.KUID;
 import org.limewire.mojito.MojitoDHT;
@@ -20,7 +21,6 @@ import org.limewire.util.PrivilegedAccessor;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.dht.DHTManager.DHTMode;
 
 public class DHTBootstrapperTest extends DHTTestCase {
@@ -120,7 +120,7 @@ public class DHTBootstrapperTest extends DHTTestCase {
         String[] hosts = new String[] {
                 "1.0.0.0.3:100","2.0.0.0.3:200","3.0.0.0.3:300"};
         
-        DHTSettings.DHT_BOOTSTRAP_HOSTS.setValue(hosts);
+        DHTSettings.DHT_BOOTSTRAP_HOSTS.set(hosts);
         
         //only first hex counts
         KUID id = KUID.createWithHexString("03ED9650238A6C576C987793C01440A0EA91A1FB");
@@ -148,7 +148,7 @@ public class DHTBootstrapperTest extends DHTTestCase {
         Thread.sleep(200);
         assertTrue(bootstrapper.isWaitingForNodes());
         //add bootstrap host post- bootstrap()
-        DHTSettings.DHT_BOOTSTRAP_HOSTS.setValue(new String[] {"127.0.0.1:"+BOOTSTRAP_DHT_PORT});
+        DHTSettings.DHT_BOOTSTRAP_HOSTS.set(new String[] {"127.0.0.1:"+BOOTSTRAP_DHT_PORT});
         //this should trigger bootstrapping
         bootstrapper.simppUpdated(0);
         Thread.sleep(2000);

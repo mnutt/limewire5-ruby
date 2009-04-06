@@ -12,7 +12,7 @@ import org.limewire.core.settings.DownloadSettings;
 import org.limewire.util.BaseTestCase;
 
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
 
 public class RecentDownloadListenerTest extends BaseTestCase {
@@ -86,7 +86,7 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         assertEquals(0, DownloadSettings.RECENT_DOWNLOADS.length());
         new RecentDownloadListener(downloader);
         assertEquals(1, DownloadSettings.RECENT_DOWNLOADS.length());
-        assertEquals(saveFile.getName(), DownloadSettings.RECENT_DOWNLOADS.getValue().iterator()
+        assertEquals(saveFile.getName(), DownloadSettings.RECENT_DOWNLOADS.get().iterator()
                 .next().getName());
         context.assertIsSatisfied();
     }
@@ -118,12 +118,12 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         assertEquals(0, DownloadSettings.RECENT_DOWNLOADS.length());
         new RecentDownloadListener(downloader1);
         assertEquals(1, DownloadSettings.RECENT_DOWNLOADS.length());
-        assertEquals(saveFile1.getName(), DownloadSettings.RECENT_DOWNLOADS.getValue().iterator()
+        assertEquals(saveFile1.getName(), DownloadSettings.RECENT_DOWNLOADS.get().iterator()
                 .next().getName());
         new RecentDownloadListener(downloader2);
         assertEquals(2, DownloadSettings.RECENT_DOWNLOADS.length());
         
-        List<File> list = new ArrayList<File>(DownloadSettings.RECENT_DOWNLOADS.getValue());
+        List<File> list = new ArrayList<File>(DownloadSettings.RECENT_DOWNLOADS.get());
         Collections.sort(list, new SortByFileNameComparator());
         assertEquals(saveFile1.getName(), list.get(0).getName());
         assertEquals(saveFile2.getName(), list.get(1).getName());
@@ -157,11 +157,11 @@ public class RecentDownloadListenerTest extends BaseTestCase {
         assertEquals(0, DownloadSettings.RECENT_DOWNLOADS.length());
         new RecentDownloadListener(downloader1);
         assertEquals(1, DownloadSettings.RECENT_DOWNLOADS.length());
-        assertEquals(saveFile1.getName(), DownloadSettings.RECENT_DOWNLOADS.getValue().iterator()
+        assertEquals(saveFile1.getName(), DownloadSettings.RECENT_DOWNLOADS.get().iterator()
                 .next().getName());
         new RecentDownloadListener(downloader2, 1);
         assertEquals(1, DownloadSettings.RECENT_DOWNLOADS.length());
-        assertEquals(saveFile2.getName(), DownloadSettings.RECENT_DOWNLOADS.getValue().iterator()
+        assertEquals(saveFile2.getName(), DownloadSettings.RECENT_DOWNLOADS.get().iterator()
                 .next().getName());
         context.assertIsSatisfied();
     }

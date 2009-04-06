@@ -23,6 +23,7 @@ public class RemoteProgramTableFormat<T extends RemoteFileItem> extends Abstract
     static final int PLATFORM_INDEX = 3;
     static final int COMPANY_INDEX = 4;
     static final int DESCRIPTION_INDEX = 5;
+    static final int FROM_INDEX = 6;
     
     public RemoteProgramTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo) {
         super(sortID, sortedColumn, isAscending, columnInfo);
@@ -35,7 +36,8 @@ public class RemoteProgramTableFormat<T extends RemoteFileItem> extends Abstract
                 new ColumnStateInfo(EXTENSION_INDEX, "REMOTE_LIBRARY_PROGRAM_EXTENSION", I18n.tr("Extension"), 60, true, true), 
                 new ColumnStateInfo(PLATFORM_INDEX, "REMOTE_LIBRARY_PLATFORM_PLATFORM", I18n.tr("Platform"), 120, false, true), 
                 new ColumnStateInfo(COMPANY_INDEX, "REMOTE_LIBRARY_PROGRAM_COMPANY", I18n.tr("Company"), 120, true, true), 
-                new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_PROGRAM_DESCRIPTION", I18n.tr("Description"), 120, false, true)
+                new ColumnStateInfo(DESCRIPTION_INDEX, "REMOTE_LIBRARY_PROGRAM_DESCRIPTION", I18n.tr("Description"), 120, false, true),
+                new ColumnStateInfo(FROM_INDEX, "REMOTE_LIBRARY_OTHER_FROM", I18n.tr("From"), 80, true, true)
         });
     }
 
@@ -48,6 +50,7 @@ public class RemoteProgramTableFormat<T extends RemoteFileItem> extends Abstract
             case SIZE_INDEX: return baseObject.getSize();
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
             case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);
+            case FROM_INDEX: return baseObject;
         }
         throw new IllegalArgumentException("Unknown column:" + column);
     }

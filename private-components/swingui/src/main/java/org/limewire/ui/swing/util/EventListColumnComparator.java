@@ -57,6 +57,7 @@ public class EventListColumnComparator<E> implements Comparator<E>  {
      * Tests if this EventListColumnComparator is equal to the other specified
      * EventListColumnComparator.
      */
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -70,6 +71,7 @@ public class EventListColumnComparator<E> implements Comparator<E>  {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = tableFormat.hashCode();

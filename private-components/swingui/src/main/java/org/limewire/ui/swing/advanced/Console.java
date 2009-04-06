@@ -48,6 +48,7 @@ import javax.swing.Timer;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -131,7 +132,10 @@ public class Console extends JPanel {
      * text area.
      */
     private Timer delayTimer;
-    
+
+    /** Appender for the log. */
+    private Appender logAppender;
+
     /**
      * Constructs the Console for displaying messages.
      */
@@ -407,7 +411,6 @@ public class Console extends JPanel {
         output.setFont(this.outputFont);
 
         refreshLoggers();
-        attachLogs();
     }
     
     /**
@@ -423,10 +426,17 @@ public class Console extends JPanel {
     /**
      * Adds console appender to logger. 
      */
-    private void attachLogs() {
-        WriterAppender append = new WriterAppender(new PatternLayout(
-                ConsoleSettings.CONSOLE_PATTERN_LAYOUT.getValue()), new ConsoleWriter());
-        LogManager.getRootLogger().addAppender(append);
+    public void attachLogs() {
+        logAppender = new WriterAppender(new PatternLayout(
+                ConsoleSettings.CONSOLE_PATTERN_LAYOUT.get()), new ConsoleWriter());
+        LogManager.getRootLogger().addAppender(logAppender);
+    }
+    
+    /**
+     * Removes appender from logger.
+     */
+    public void removeLogs() {
+        LogManager.getRootLogger().removeAppender(logAppender);
     }
     
     /**

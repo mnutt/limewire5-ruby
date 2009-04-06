@@ -64,6 +64,7 @@ public class DelayedShutdownHandler {
         
         // Add listener to cancel delayed shutdown whenever UI is restored.
         appFrame.getMainFrame().addWindowListener(new WindowAdapter() {
+            @Override
             public void windowDeiconified(WindowEvent e) {
                 cancelShutdown();
             }

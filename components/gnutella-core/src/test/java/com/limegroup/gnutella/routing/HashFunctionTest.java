@@ -1,8 +1,9 @@
 package com.limegroup.gnutella.routing;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import junit.framework.Test;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Unit tests for HashFunction

@@ -24,6 +24,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicLineParser;
+import org.apache.http.protocol.HTTP;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.LibrarySettings;
@@ -31,6 +32,8 @@ import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.UltrapeerSettings;
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
@@ -56,7 +59,6 @@ import com.limegroup.gnutella.ConnectionManagerImpl;
 import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.HostCatcher;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.NetworkManagerImpl;
 import com.limegroup.gnutella.NodeAssigner;
@@ -85,7 +87,6 @@ import com.limegroup.gnutella.messages.QueryRequestFactory;
 import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
 import com.limegroup.gnutella.simpp.SimppManager;
 import com.limegroup.gnutella.statistics.OutOfBandStatistics;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 //ITEST
 public class PushUploadTest extends LimeTestCase {
@@ -131,11 +132,11 @@ public class PushUploadTest extends LimeTestCase {
     }
 
     private void doSettings() throws Exception {
-        LibrarySettings.VERSION.setValue(LibrarySettings.LibraryVersion.FIVE_0_0.name());
+        LibrarySettings.VERSION.set(LibrarySettings.LibraryVersion.FIVE_0_0.name());
         SharingSettings.ADD_ALTERNATE_FOR_SELF.setValue(false);
         FilterSettings.BLACK_LISTED_IP_ADDRESSES
-                .setValue(new String[] { "*.*.*.*" });
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(new String[] {
+                .set(new String[] { "*.*.*.*" });
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(new String[] {
                 "127.*.*.*", InetAddress.getLocalHost().getHostAddress() });
         NetworkSettings.PORT.setValue(PORT);
         UploadSettings.HARD_MAX_UPLOADS.setValue(10);
@@ -442,9 +443,9 @@ public class PushUploadTest extends LimeTestCase {
         
         socket = getSocketFromPush();
 
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream(), HTTP.DEFAULT_PROTOCOL_CHARSET));
         out = new BufferedWriter(new OutputStreamWriter(socket
-                .getOutputStream()));
+                .getOutputStream(), HTTP.DEFAULT_PROTOCOL_CHARSET));
 
         assertEquals("GIV 0:"
                 + new GUID(guid).toString() + "/file", in.readLine());
@@ -464,9 +465,9 @@ public class PushUploadTest extends LimeTestCase {
         
         socket = new Socket("localhost", PORT);
 
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream(), HTTP.DEFAULT_PROTOCOL_CHARSET));
         out = new BufferedWriter(new OutputStreamWriter(socket
-                .getOutputStream()));
+                .getOutputStream(), HTTP.DEFAULT_PROTOCOL_CHARSET));
     }
 
     private HttpResponse sendRequest(HttpRequest request) throws Exception {

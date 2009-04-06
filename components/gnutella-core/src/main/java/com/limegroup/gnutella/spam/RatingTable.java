@@ -64,6 +64,7 @@ public class RatingTable implements Service {
 	private final Map<Token, Token> tokenMap
         = new LinkedHashMap<Token, Token>(INITIAL_SIZE, 0.75f, true) {
             // This method will be called on every get(), put(), and putAll()
+            @Override
             protected boolean removeEldestEntry(Map.Entry<Token, Token> e) {
                 if(size() > MAX_SIZE) {
                     if(LOG.isDebugEnabled())

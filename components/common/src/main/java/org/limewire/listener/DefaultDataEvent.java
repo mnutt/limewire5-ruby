@@ -10,23 +10,22 @@ public class DefaultDataEvent<D> implements DataEvent<D> {
         this.data = Objects.nonNull(data, "data");
     }
     
+    @Override
     public D getData() {
         return data;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 31 * hash + data.hashCode();
-        return hash;
+        return data.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(!obj.getClass().equals(getClass())) {
+        if(!(obj instanceof DataEvent)) {
             return false;
         }
-        return data.equals(((DefaultDataEvent)obj).getData());
+        return data.equals(((DataEvent)obj).getData());
     }
 
     @Override

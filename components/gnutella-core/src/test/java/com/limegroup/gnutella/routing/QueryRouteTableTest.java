@@ -9,16 +9,16 @@ import java.util.zip.Inflater;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.IOUtils;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
 
-public class QueryRouteTableTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class QueryRouteTableTest extends org.limewire.gnutella.tests.LimeTestCase {
     private QueryRequestFactory queryRequestFactory;
     
     public QueryRouteTableTest(String name) {

@@ -15,6 +15,8 @@ import junit.framework.Test;
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.SpeedConstants;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
@@ -34,7 +36,6 @@ import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.PushRequest;
 import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.stubs.AcceptorStub;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Tests the issuing of Push Request through udp and failover to tcp.

@@ -80,9 +80,9 @@ public class PingReplyFactoryImpl implements PingReplyFactory {
                 localPongInfo.isSupernode(),
                 statistics.get().calculateDailyUptime(),
                 udpService.get().isGUESSCapable(),
-                ApplicationSettings.LANGUAGE.getValue().equals("") ? ApplicationSettings.DEFAULT_LOCALE
-                        .getValue()
-                        : ApplicationSettings.LANGUAGE.getValue(),
+                ApplicationSettings.LANGUAGE.get().equals("") ? ApplicationSettings.DEFAULT_LOCALE
+                        .get()
+                        : ApplicationSettings.LANGUAGE.get(),
                 connectionManager.get().getNumLimeWireLocalePrefSlots(), gnutHosts,
                 dhtHosts);
     }
@@ -116,9 +116,9 @@ public class PingReplyFactoryImpl implements PingReplyFactory {
                 localPongInfo.isSupernode(), udpService
                         .get().isGUESSCapable());
 
-        String locale = ApplicationSettings.LANGUAGE.getValue().equals("") ? ApplicationSettings.DEFAULT_LOCALE
-                .getValue()
-                : ApplicationSettings.LANGUAGE.getValue();
+        String locale = ApplicationSettings.LANGUAGE.get().equals("") ? ApplicationSettings.DEFAULT_LOCALE
+                .get()
+                : ApplicationSettings.LANGUAGE.get();
         addLocale(ggep, locale, connectionManager
                 .get().getNumLimeWireLocalePrefSlots());
 

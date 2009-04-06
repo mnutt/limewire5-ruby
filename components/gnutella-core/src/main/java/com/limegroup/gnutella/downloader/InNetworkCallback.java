@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.DownloadCallback;
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.version.UpdateHandler;
 
 /**
@@ -23,7 +23,7 @@ public class InNetworkCallback implements DownloadCallback {
     public void addDownload(Downloader d) {
     }
 
-    public void downloadCompleted(Downloader d) {
+    public void removeDownload(Downloader d) {
         InNetworkDownloader downloader = (InNetworkDownloader) d;
         updateHandler.inNetworkDownloadFinished(
                 downloader.getSha1Urn(),

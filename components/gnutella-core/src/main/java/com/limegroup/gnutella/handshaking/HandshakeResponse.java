@@ -306,7 +306,7 @@ public class HandshakeResponse {
         String loc  = extractStringHeaderValue(headers, 
                                                HeaderNames.X_LOCALE_PREF);
         LOCALE_PREF = (loc.equals(""))?
-            ApplicationSettings.DEFAULT_LOCALE.getValue():
+            ApplicationSettings.DEFAULT_LOCALE.get():
             loc;
            
         LISTEN_PORT = extractIntHeaderValueAfter(headers, HeaderNames.LISTEN_IP, ":", -1);

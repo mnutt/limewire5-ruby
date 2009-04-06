@@ -7,13 +7,13 @@ import junit.framework.Test;
 import junit.textui.TestRunner;
 
 import org.limewire.core.settings.LWSSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.lws.server.LWSDispatcherFactoryImpl;
 import org.limewire.lws.server.StringCallback;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.http.HttpExecutor;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * This checks that we handle an empty hostname setting OK.
@@ -36,9 +36,9 @@ public class LWSManagerImplTest extends LimeTestCase {
         Injector injector = LimeTestUtils.createInjector();
         // precondition: host should NOT be empty when we're not setting remotely
         //               but set to empty now for tseting if it were empty
-        LWSSettings.LWS_AUTHENTICATION_HOSTNAME.setValue("");
-        LWSSettings.LWS_DOWNLOAD_PREFIX.setValue("");
-        assertEquals("", LWSSettings.LWS_AUTHENTICATION_HOSTNAME.getValue());
+        LWSSettings.LWS_AUTHENTICATION_HOSTNAME.set("");
+        LWSSettings.LWS_DOWNLOAD_PREFIX.set("");
+        assertEquals("", LWSSettings.LWS_AUTHENTICATION_HOSTNAME.get());
         
         LWSManagerImpl lwsManagerImpl = new LWSManagerImpl(injector.getInstance(HttpExecutor.class), new LWSDispatcherFactoryImpl());
 
@@ -57,9 +57,9 @@ public class LWSManagerImplTest extends LimeTestCase {
         Injector injector = LimeTestUtils.createInjector();
         // precondition: download prefix should NOT be empty when we're not setting remotely
         //               but set to empty now for tseting if it were empty
-        LWSSettings.LWS_DOWNLOAD_PREFIX.setValue("");
-        LWSSettings.LWS_AUTHENTICATION_HOSTNAME.setValue("");
-        assertEquals("", LWSSettings.LWS_DOWNLOAD_PREFIX.getValue());
+        LWSSettings.LWS_DOWNLOAD_PREFIX.set("");
+        LWSSettings.LWS_AUTHENTICATION_HOSTNAME.set("");
+        assertEquals("", LWSSettings.LWS_DOWNLOAD_PREFIX.get());
         
         LWSManagerImpl lwsManagerImpl = new LWSManagerImpl(injector.getInstance(HttpExecutor.class), new LWSDispatcherFactoryImpl());
 

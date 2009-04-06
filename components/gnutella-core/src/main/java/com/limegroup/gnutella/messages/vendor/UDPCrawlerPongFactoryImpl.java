@@ -87,7 +87,7 @@ public class UDPCrawlerPongFactoryImpl implements UDPCrawlerPongFactory {
                 endpointsLeaf = endpointsLeaf.subList(index,index+request.getNumberLeaves());
             }
         } else {
-            String myLocale = ApplicationSettings.LANGUAGE.getValue();
+            String myLocale = ApplicationSettings.LANGUAGE.get();
             
             //move the connections with the locale pref to the head of the lists
             //we prioritize these disregarding the other criteria (such as isGoodUltrapeer, etc.)

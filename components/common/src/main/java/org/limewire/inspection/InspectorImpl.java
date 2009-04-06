@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -53,7 +54,8 @@ public class InspectorImpl implements Inspector {
         BufferedReader in = null;
         Properties p = new Properties();
         try {
-            in = new BufferedReader(new InputStreamReader(new FileInputStream(props)));
+            // we're allowing inspection keys to be utf-8
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(props), Charset.forName("UTF-8")));
             String current = null;
             while((current = in.readLine()) != null) {
                 String [] k = current.split("=");

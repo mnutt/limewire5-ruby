@@ -214,7 +214,8 @@ public class SortFactory {
             public int compare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
                 String v1 = (String) vsr1.getProperty(key);
                 String v2 = (String) vsr2.getProperty(key);
-                return compareNullCheck(v1, v2, ascending, false);
+                return ascending ? compareToNullIgnoreCase(v1, v2, false)
+                        : compareToNullIgnoreCase(v2, v1, false);
             }
         };
     }

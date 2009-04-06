@@ -6,7 +6,7 @@ import junit.framework.Test;
 
 
 @SuppressWarnings( { "cast" } )
-public class StatisticsTest extends com.limegroup.gnutella.util.LimeTestCase { 
+public class StatisticsTest extends org.limewire.gnutella.tests.LimeTestCase { 
     //Most of this code assumes a window factor W of 7 days.
 
     /** Fudge factor */

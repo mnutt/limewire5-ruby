@@ -118,7 +118,7 @@ public class SystemOptionPanel extends OptionPanel {
             super(I18n.tr("File Associations"));
             setLayout(new MigLayout("insets 0, gap 0"));
 
-            magnetCheckBox = new JCheckBox(I18n.tr(".magnet files"));
+            magnetCheckBox = new JCheckBox(I18n.tr("\".magnet\" files"));
             magnetCheckBox.setContentAreaFilled(false);
             magnetCheckBox.addActionListener(new ActionListener() {
                 @Override
@@ -127,7 +127,7 @@ public class SystemOptionPanel extends OptionPanel {
                 }
             });
 
-            torrentCheckBox = new JCheckBox(I18n.tr(".torrent files"));
+            torrentCheckBox = new JCheckBox(I18n.tr("\".torrent\" files"));
             torrentCheckBox.setContentAreaFilled(false);
             torrentCheckBox.addActionListener(new ActionListener() {
                 @Override

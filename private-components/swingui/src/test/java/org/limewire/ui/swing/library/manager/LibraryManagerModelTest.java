@@ -31,6 +31,7 @@ public class LibraryManagerModelTest extends SwingTestCase {
         return buildTestSuite(LibraryManagerModelTest.class);
     }
     
+    @Override
     protected void postTearDown() {
         super.postTearDown();
 

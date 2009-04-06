@@ -10,6 +10,7 @@ import junit.framework.Test;
 
 import org.limewire.core.settings.DHTSettings;
 import org.limewire.core.settings.NetworkSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.IpPort;
 import org.limewire.io.LimeWireIOTestModule;
 import org.limewire.mojito.Context;
@@ -29,7 +30,6 @@ import org.limewire.util.CommonUtils;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.util.EventDispatcher;
 
 public class PassiveDHTNodeControllerTest extends DHTTestCase {

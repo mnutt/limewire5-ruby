@@ -10,11 +10,11 @@ import java.util.Set;
 import junit.framework.Test;
 
 import org.limewire.core.settings.DHTSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileDescFactory;
@@ -25,7 +25,7 @@ import com.limegroup.gnutella.library.UrnCache;
  * Test the public methods of the <tt>FileDesc</tt> class.
  */
 @SuppressWarnings("unchecked")
-public final class FileDescTest extends com.limegroup.gnutella.util.LimeTestCase {
+public final class FileDescTest extends org.limewire.gnutella.tests.LimeTestCase {
     
     private static final long MAX_FILE_SIZE = 3L * 1024L * 1024;
     private UrnCache urnCache;
@@ -135,7 +135,7 @@ public final class FileDescTest extends com.limegroup.gnutella.util.LimeTestCase
         assertFalse(fd.isRareFile());
         
         // Change the definition to something bogus like completedUploads == attemptedUploads
-        DHTSettings.RARE_FILE_DEFINITION.setValue(new String[] {
+        DHTSettings.RARE_FILE_DEFINITION.set(new String[] {
         "cups","ups","=="
         });
         Thread.sleep(100); //allow setting event to propagate
@@ -147,7 +147,7 @@ public final class FileDescTest extends com.limegroup.gnutella.util.LimeTestCase
         assertTrue(fd.isRareFile());
         
         // test that a broken rule will not make the file rare
-        DHTSettings.RARE_FILE_DEFINITION.setValue(new String[] {
+        DHTSettings.RARE_FILE_DEFINITION.set(new String[] {
                 "badger","badger"
                 });
         Thread.sleep(100); //allow setting event to propagate

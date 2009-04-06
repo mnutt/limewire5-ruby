@@ -18,6 +18,7 @@ public class EventListColumnComparatorTest extends TestCase {
     /**
      * Sets up the fixture.  Called before a test is executed.
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         tableFormat = new TestTableFormat();
@@ -28,6 +29,7 @@ public class EventListColumnComparatorTest extends TestCase {
     /**
      * Tears down the fixture.  Called after a test is executed.
      */
+    @Override
     protected void tearDown() throws Exception {
         columnComparator = null;
         tableFormat = null;
@@ -82,6 +84,7 @@ public class EventListColumnComparatorTest extends TestCase {
             return value;
         }
         
+        @Override
         public String toString() {
             return value.toString();
         }

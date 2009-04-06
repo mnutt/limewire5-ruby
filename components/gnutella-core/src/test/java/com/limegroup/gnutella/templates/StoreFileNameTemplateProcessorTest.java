@@ -3,10 +3,11 @@ package com.limegroup.gnutella.templates;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import junit.framework.Test;
 
 import com.limegroup.gnutella.templates.StoreTemplateProcessor.IllegalTemplateException;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class StoreFileNameTemplateProcessorTest extends LimeTestCase {
 

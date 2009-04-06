@@ -8,6 +8,8 @@ import java.util.Set;
 import junit.framework.Test;
 
 import org.limewire.core.settings.SearchSettings;
+import org.limewire.gnutella.tests.ActivityCallbackStub;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
 
@@ -28,7 +30,6 @@ import com.limegroup.gnutella.messages.vendor.MessagesSupportedVendorMessage;
 import com.limegroup.gnutella.messages.vendor.QueryStatusResponse;
 import com.limegroup.gnutella.search.SearchResultHandler;
 import com.limegroup.gnutella.spam.SpamManager;
-import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 import com.limegroup.gnutella.util.DataUtils;
 
 /**

@@ -10,18 +10,26 @@ import org.limewire.i18n.I18nMarker;
 import org.limewire.io.Address;
 
 /**
- * A single download
+ * The interface for a single download.  Observed by all downloads: gnutella, bittorrent, or other.
  */
 public interface DownloadItem extends PropertiableFile {	
 
     public static final String DOWNLOAD_ITEM = "limewire.download.glueItem";
 
+    /**
+     * Amalgamates the various specific error messages that a downloader could encounter
+     *  into a general error applicable to any type of download and user under understandable.
+     */
 	public static enum ErrorState {
-	    NONE(I18nMarker.marktr("No problems.")),
 	    DISK_PROBLEM(I18nMarker.marktr("There is a disk problem")),
 	    CORRUPT_FILE(I18nMarker.marktr("The file is corrupted")),
 	    FILE_NOT_SHARABLE(I18nMarker.marktr("This file is not shareable")),
-	    UNABLE_TO_CONNECT(I18nMarker.marktr("Trouble connecting to people"));
+	    UNABLE_TO_CONNECT(I18nMarker.marktr("Trouble connecting to people")),
+	    
+	    /**
+         * The DownloadItem is not in an error state.
+         */
+	    NONE(I18nMarker.marktr("No problems."));
 	    
 	    private final String message;
 
@@ -37,16 +45,33 @@ public interface DownloadItem extends PropertiableFile {
         }
     };
     
+    /**
+     * Used to signify a "remainder" estimate that can not be calculated for 
+     *  whatever reason.
+     */
     public final static long UNKNOWN_TIME = Long.MAX_VALUE;
 
+    /**
+     * Adds a listener for state changes affecting getState().
+     */
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 	
+	/**
+     * Removes an existing listener.
+     */
 	public void removePropertyChangeListener(PropertyChangeListener listener);
 	
+	/**
+	 * @return the current state of the download.
+	 */
 	public DownloadState getState();
 
 	public String getTitle();
 
+	/**
+	 * 
+	 * @return the percentage between 0 and 100.
+	 */
 	public int getPercentComplete();
 
 	/**
@@ -69,10 +94,19 @@ public interface DownloadItem extends PropertiableFile {
      */
     public long getRemainingTimeInState();
 
+    /**
+     * Initiates the cancel of this download item.
+     */
 	public void cancel();
 
+	/**
+	 * Pauses the download item if possible.
+	 */
 	public void pause();
 
+	/**
+	 * Resumes downloading of a paused item.
+	 */
 	public void resume();
 
 	public int getDownloadSourceCount();

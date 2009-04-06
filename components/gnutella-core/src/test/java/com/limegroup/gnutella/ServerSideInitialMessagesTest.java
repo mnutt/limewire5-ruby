@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
+
 import junit.framework.Test;
 
 import com.google.inject.Stage;

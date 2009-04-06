@@ -3,10 +3,10 @@ package org.limewire.ui.swing.advanced;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -32,19 +32,19 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.ui.swing.components.LimeJFrame;
 import org.limewire.ui.swing.options.TabItemListener;
 import org.limewire.ui.swing.painter.factories.BarPainterFactory;
-import org.limewire.ui.swing.util.EnabledListener;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.EnabledType;
+import org.limewire.listener.EventListener;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
- * Main content panel for the Advanced Tools window.  The window is displayed
- * by calling the <code>display(TabId)</code> method. 
+ * Main content panel for the Advanced Tools window.  The AdvancedToolsPanel
+ * instance is displayed by calling the <code>display(WindowListener)</code>
+ * method. 
  */
-@Singleton
 public class AdvancedToolsPanel extends JPanel {
     /** Defines the tab identifiers for the window. */
     public enum TabId {
@@ -64,6 +64,7 @@ public class AdvancedToolsPanel extends JPanel {
             return tooltip;
         }
         
+        @Override
         public String toString() {
             return name;
         }
@@ -101,8 +102,6 @@ public class AdvancedToolsPanel extends JPanel {
     private Map<TabId, AdvancedTabItem> tabItemMap = new EnumMap<TabId, AdvancedTabItem>(TabId.class);
     /** Map containing tab panels created. */
     private Map<TabId, TabPanel> tabPanelMap = new EnumMap<TabId, TabPanel>(TabId.class);
-    /** Window used to display the panel. */
-    private Window window;
     
     private JXPanel headerPanel;
     private JPanel cardPanel;
@@ -194,14 +193,25 @@ public class AdvancedToolsPanel extends JPanel {
 
         return button;
     }
+
+    /**
+     * Returns the window frame that contains this panel.
+     */
+    private JFrame getFrame() {
+        Container ancestor = getTopLevelAncestor();
+        return (ancestor instanceof JFrame) ? (JFrame) ancestor : null;
+    }
     
     /**
-     * Displays this panel in a modeless window.
+     * Displays this panel in a modeless window.  If the panel is not contained
+     * in a window frame, then a new window is created and the specified window
+     * listener is installed.  Otherwise, the existing window is made visible.
      */
-    public void display() {
-        if (this.window == null) {
+    public void display(WindowListener windowListener) {
+        JFrame frame = getFrame();
+        if (frame == null) {
             // Create modeless window.
-            JFrame frame = new LimeJFrame(WINDOW_TITLE);
+            frame = new LimeJFrame(WINDOW_TITLE);
 
             // Set window properties. 
             frame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -214,8 +224,10 @@ public class AdvancedToolsPanel extends JPanel {
                     Math.max(mainSize.height - 60, 600));
             frame.setPreferredSize(prefSize);
             
-            // Add listener to handle system menu close action.
+            // Add listeners to handle system menu close action.
+            frame.addWindowListener(windowListener);
             frame.addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     disposeWindow();
                 }
@@ -224,15 +236,12 @@ public class AdvancedToolsPanel extends JPanel {
             // Add listener to handle parent window events.
             GuiUtils.getMainFrame().addWindowListener(this.mainFrameListener);
 
-            // Set content pane and validate.
-            frame.setContentPane(this);
+            // Add to content pane and validate.
+            frame.getContentPane().add(this, BorderLayout.CENTER);
             frame.pack();
 
             // Set window position centered on main frame.
             frame.setLocationRelativeTo(GuiUtils.getMainFrame());
-            
-            // Save window reference.
-            this.window = frame;
 
             // Select first enabled tab.
             select(findNextEnabledTab(-1, true));
@@ -247,15 +256,16 @@ public class AdvancedToolsPanel extends JPanel {
         }
 
         // Display window.
-        this.window.setVisible(true);
-        this.window.toFront();
+        frame.setVisible(true);
+        frame.toFront();
     }
     
     /**
      * Closes the window that is displaying this panel.
      */
     public void disposeWindow() {
-        if (this.window != null) {
+        JFrame frame = getFrame();
+        if (frame != null) {
             // Stop tab panels.
             for (TabId tabId : TabId.values()) {
                 TabPanel tabPanel = tabItemMap.get(tabId).getTabPanel();
@@ -267,9 +277,9 @@ public class AdvancedToolsPanel extends JPanel {
             // Remove window listener from main GUI frame.
             GuiUtils.getMainFrame().removeWindowListener(this.mainFrameListener);
             
-            // Dispose of this window and clear reference.
-            this.window.dispose();
-            this.window = null;
+            // Dispose window.
+            frame.getContentPane().remove(this);
+            frame.dispose();
         }
     }
     
@@ -278,9 +288,10 @@ public class AdvancedToolsPanel extends JPanel {
      * @param visible true if minimized window remains visible in taskbar
      */
     public void minimizeWindow(boolean visible) {
-        if (this.window instanceof Frame) {
-            ((Frame) this.window).setExtendedState(Frame.ICONIFIED);
-            this.window.setVisible(visible);
+        JFrame frame = getFrame();
+        if (frame != null) {
+            frame.setExtendedState(Frame.ICONIFIED);
+            frame.setVisible(visible);
         }
     }
     
@@ -288,9 +299,10 @@ public class AdvancedToolsPanel extends JPanel {
      * Restores the window that is displaying this panel.
      */
     public void restoreWindow() {
-        if (this.window instanceof Frame) {
-            ((Frame) this.window).setExtendedState(Frame.NORMAL);
-            this.window.setVisible(true);
+        JFrame frame = getFrame();
+        if (frame != null) {
+            frame.setExtendedState(Frame.NORMAL);
+            frame.setVisible(true);
         }
     }
     
@@ -460,10 +472,10 @@ public class AdvancedToolsPanel extends JPanel {
             
             // Install listener to handle tab panel enabled.
             TabPanel tabPanel = tabItem.getTabPanel();
-            tabPanel.addEnabledListener(new EnabledListener() {
+            tabPanel.addEnabledListener(new EventListener<EnabledType>() {
                 @Override
-                public void enabledChanged(boolean enabled) {
-                    setEnabled(enabled);
+                public void handleEvent(EnabledType enabledType) {
+                    setEnabled(enabledType.isEnabled());
                 }
             });
             
@@ -508,14 +520,17 @@ public class AdvancedToolsPanel extends JPanel {
      */
     private class MainFrameListener extends WindowAdapter {
         
+        @Override
         public void windowClosed(WindowEvent e) {
             disposeWindow();
         }
         
+        @Override
         public void windowDeiconified(WindowEvent e) {
             restoreWindow();
         }
         
+        @Override
         public void windowIconified(WindowEvent e) {
             minimizeWindow(e.getWindow().isVisible());
         }

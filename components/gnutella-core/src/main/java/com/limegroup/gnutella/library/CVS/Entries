@@ -12,7 +12,6 @@
 /FileListChangedEvent.java/1.8/Tue Dec  9 22:44:31 2008//
 /FileListIterator.java/1.4/Mon Dec 22 17:15:49 2008//
 /FileManager.java/1.12/Mon Dec 15 23:32:52 2008//
-/FileManagerImpl.java/1.23/Thu Mar 19 18:28:24 2009//
 /FriendFileList.java/1.6/Tue Jan 13 17:18:02 2009//
 /FriendFileListImpl.java/1.22/Wed Feb  4 20:51:12 2009//
 /GnutellaFileList.java/1.7/Fri Dec 12 21:40:36 2008//
@@ -21,8 +20,6 @@
 /IncompleteFileDescImpl.java/1.4/Thu Mar 19 22:36:00 2009//
 /IncompleteFileList.java/1.2/Sun Nov  2 04:53:09 2008//
 /IncompleteFileListImpl.java/1.10/Mon Dec 15 23:32:52 2008//
-/LibraryConverter.java/1.7/Fri Nov 21 18:59:32 2008//
-/LibraryFileData.java/1.18/Wed Jan 21 15:23:54 2009//
 /LibraryUtils.java/1.5/Fri Nov 21 18:59:32 2008//
 /LimeWireLibraryModule.java/1.5/Mon Oct 27 22:29:32 2008//
 /LocalFileDetailsFactory.java/1.1/Fri Oct 17 15:23:47 2008//
@@ -30,13 +27,16 @@
 /ManagedFileList.java/1.17/Mon Jan  5 21:44:42 2009//
 /ManagedFileListImpl.java/1.46/Wed Mar 18 16:01:49 2009//
 /ManagedListStatusEvent.java/1.2/Sun Nov  9 17:50:13 2008//
-/OldLibraryData.java/1.2/Wed Oct 29 19:33:46 2008//
 /OldLibrarySettings.java/1.2/Fri Dec  5 21:31:13 2008//
 /RareFileStrategy.java/1.1/Thu Mar 19 22:36:00 2009//
-/RareFileStrategyImpl.java/1.1/Thu Mar 19 22:35:50 2009//
 /SharedFileList.java/1.3/Wed Nov  5 21:05:43 2008//
 /SharedFilesKeywordIndex.java/1.2/Fri Oct 17 19:19:34 2008//
-/SharedFilesKeywordIndexImpl.java/1.15/Fri Feb 27 23:27:02 2009//
 /ThreadSafeFileListIterator.java/1.3/Sun Nov  2 04:53:09 2008//
-/UrnCache.java/1.10/Wed Feb  4 20:51:12 2009//
+/FileManagerImpl.java/1.24/Mon Apr  6 16:05:32 2009//
+/LibraryConverter.java/1.8/Mon Apr  6 16:05:32 2009//
+/LibraryFileData.java/1.19/Mon Apr  6 16:05:32 2009//
+/OldLibraryData.java/1.3/Mon Apr  6 16:05:32 2009//
+/RareFileStrategyImpl.java/1.2/Mon Apr  6 16:05:32 2009//
+/SharedFilesKeywordIndexImpl.java/1.16/Mon Apr  6 16:05:32 2009//
+/UrnCache.java/1.11/Mon Apr  6 16:05:32 2009//
 D

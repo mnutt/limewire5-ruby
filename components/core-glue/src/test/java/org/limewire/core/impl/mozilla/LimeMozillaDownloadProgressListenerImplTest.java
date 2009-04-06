@@ -11,7 +11,7 @@ import org.mozilla.interfaces.nsIDownload;
 import org.mozilla.interfaces.nsIDownloadManager;
 import org.mozilla.interfaces.nsILocalFile;
 
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
 
 public class LimeMozillaDownloadProgressListenerImplTest extends BaseTestCase {

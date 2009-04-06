@@ -54,8 +54,23 @@ public interface SearchResultsModel extends DownloadHandler, Disposable {
     EventList<VisualSearchResult> getCategorySearchResults(SearchCategory category);
 
     /**
-     * Sets the sort option.  This updates the sorted list by changing the
-     * sort comparator.  
+     * Returns a list of sorted and filtered results for the selected search
+     * category and sort option.
+     */
+    EventList<VisualSearchResult> getSortedSearchResults();
+
+    /**
+     * Returns the selected search category.
+     */
+    SearchCategory getSelectedCategory();
+
+    /**
+     * Selects the specified search category.
+     */
+    void setSelectedCategory(SearchCategory searchCategory);
+    
+    /**
+     * Sets the sort option.
      */
     void setSortOption(SortOption sortOption);
 

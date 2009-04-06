@@ -25,17 +25,14 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.util.StringUtils;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.CompositeList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.ObservableElementList.Connector;
 import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.UniqueList;
+import ca.odell.glazedlists.ObservableElementList.Connector;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventAssembler;
 import ca.odell.glazedlists.event.ListEventListener;
@@ -43,6 +40,9 @@ import ca.odell.glazedlists.event.ListEventPublisher;
 import ca.odell.glazedlists.impl.ReadOnlyList;
 import ca.odell.glazedlists.util.concurrent.LockFactory;
 import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * This class keeps track of all friends libraries. As friend presences are found they are 
@@ -128,7 +128,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     public void removeFriendLibrary(Friend friend) {
         lock.writeLock().lock();
         try {
-            FriendLibraryImpl friendLibrary = getFriendLibrary(friend);
+            FriendLibraryImpl friendLibrary = getFriendLibraryImpl(friend);
             while(friendLibrary.allPresenceLibraries.size() > 0) {
                 friendLibrary.removePresenceLibrary(friendLibrary.allPresenceLibraries.get(0).getPresence());
             }
@@ -142,7 +142,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     public void removePresenceLibrary(FriendPresence presence) {
         lock.writeLock().lock();
         try {
-            FriendLibraryImpl friendLibrary = getFriendLibrary(presence.getFriend());
+            FriendLibraryImpl friendLibrary = getFriendLibraryImpl(presence.getFriend());
             if (friendLibrary != null) {
                 friendLibrary.removePresenceLibrary(presence); 
                 if (friendLibrary.getPresenceLibraryList().size() == 0) {
@@ -185,7 +185,12 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         }        
     }
     
-    private FriendLibraryImpl getFriendLibrary(Friend friend) {
+    @Override
+    public FriendLibrary getFriendLibrary(Friend friend) {
+        return findFriendLibrary(friend);
+    }
+    
+    private FriendLibraryImpl getFriendLibraryImpl(Friend friend) {
         return findFriendLibrary(friend);
     }
 

@@ -13,6 +13,7 @@ public class SearchResultAdapterTest extends TestCase {
     private MockPropertiableHeadings propertiableHeadings;
     private SearchResultAdapter adapter;
 
+    @Override
     protected void setUp() {
         result = new MockSearchResult();
         propertiableHeadings = new MockPropertiableHeadings();

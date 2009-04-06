@@ -2,6 +2,7 @@ package org.limewire.friend.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -28,6 +29,7 @@ class FriendListListeners {
     private final EventBroadcaster<FriendEvent> availableBroadcaster;
     private final EventBroadcaster<FriendPresenceEvent> friendPresenceBroadcaster;
     private final ConcurrentMap<String, Friend> knownFriends = new ConcurrentHashMap<String, Friend>();
+    private final ConcurrentMap<String, Friend> availFriends = new ConcurrentHashMap<String, Friend>();
     private final PresenceListener presenceListener = new PresenceListener();
     
     @Inject
@@ -101,14 +103,18 @@ class FriendListListeners {
     }
     
     private void addPresence(Presence presence) {
-        if(presence.getUser().getPresences().size() == 1) {
+        User user = presence.getUser();
+        if(user.getPresences().size() == 1) {
+            availFriends.put(user.getId(), presence.getFriend());
             availableBroadcaster.broadcast(new FriendEvent(presence.getFriend(), FriendEvent.Type.ADDED));
         }
         friendPresenceBroadcaster.broadcast(new FriendPresenceEvent(presence, FriendPresenceEvent.Type.ADDED));
     }
     
     private void removePresence(Presence presence) {
-        if(!presence.getUser().isSignedIn()) {
+        User user = presence.getUser();
+        if(!user.isSignedIn()) {
+            availFriends.remove(user.getId());
             availableBroadcaster.broadcast(new FriendEvent(presence.getFriend(), FriendEvent.Type.REMOVED));
         }
         friendPresenceBroadcaster.broadcast(new FriendPresenceEvent(presence, FriendPresenceEvent.Type.REMOVED));
@@ -116,6 +122,14 @@ class FriendListListeners {
 
     Collection<Friend> getKnownFriends() {
         return Collections.unmodifiableCollection(knownFriends.values());        
+    }
+
+    Collection<Friend> getAvailableFriends() {
+        return Collections.unmodifiableCollection(availFriends.values());
+    }
+    
+    Set<String> getAvailableFriendIds() {
+        return Collections.unmodifiableSet(availFriends.keySet());
     }
 
     private class PresenceListener implements EventListener<PresenceEvent> {

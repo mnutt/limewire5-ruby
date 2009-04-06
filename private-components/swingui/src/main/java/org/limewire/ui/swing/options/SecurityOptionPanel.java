@@ -178,7 +178,7 @@ public class SecurityOptionPanel extends OptionPanel {
             filterFileExtensionPanel = new FilterFileExtensionsOptionPanel(spamManager, new OKDialogAction());
             filterFileExtensionPanel.setPreferredSize(new Dimension(300,400));
             
-            copyrightContentCheckBox = new JCheckBox(I18n.tr("Don't let me download or upload files copyright owners request not be shared"));
+            copyrightContentCheckBox = new JCheckBox(I18n.tr("Don't let me download or upload files copyright owners request not be shared."));
             copyrightContentCheckBox.setContentAreaFilled(false);
             
             adultContentCheckBox = new JCheckBox(I18n.tr("Don't show adult content in search results"));

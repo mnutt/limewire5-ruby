@@ -25,6 +25,7 @@ public class SimilarResultsFileNameDetector extends AbstractNameSimilarResultsDe
         super(Pattern.compile(REPLACE));
     }
 
+    @Override
     public Set<String> getCleanIdentifyingStrings(VisualSearchResult visualSearchResult) {
         List<SearchResult> coreResults = visualSearchResult.getCoreSearchResults();
         Set<String> cleanFileNames = new HashSet<String>();

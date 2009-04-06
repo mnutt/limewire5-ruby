@@ -14,6 +14,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.io.IOUtils;
 import org.limewire.util.StringUtils;

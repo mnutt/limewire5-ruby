@@ -6,13 +6,13 @@ import java.util.HashSet;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.BaseTestCase;
 import org.jmock.Mockery;
 import org.jmock.Expectations;
 
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.version.UpdateHandler;
 import com.limegroup.gnutella.version.UpdateCollection;

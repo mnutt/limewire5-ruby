@@ -5,7 +5,7 @@ import org.limewire.util.Objects;
 /**
  * A default, simple implementation of Event.
  */
-public class DefaultSourceTypeEvent<S, E> extends DefaultSourceEvent<S> implements SourceTypeEvent<S, E> {
+public class DefaultSourceTypeEvent<S, E> extends DefaultSourcedEvent<S> implements SourceTypeEvent<S, E> {
     
     private final E event;
     

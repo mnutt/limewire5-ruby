@@ -10,6 +10,7 @@ import org.limewire.xmpp.client.impl.PasswordManagerImpl;
 import com.limegroup.gnutella.settings.SettingsBackedJabberSettings;
 
 public class CoreGlueXMPPModule extends AbstractModule {
+    @Override
     protected void configure() {
         binder().install(new LimeWireXMPPModule(SettingsBackedJabberSettings.class));
         bind(XmppPresenceLibraryAdder.class);

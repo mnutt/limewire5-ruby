@@ -30,6 +30,7 @@ public class SideLineBorder extends AbstractBorder {
         this.side = side;
     }
 
+    @Override
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         Color oldColor = g.getColor();
 
@@ -51,10 +52,12 @@ public class SideLineBorder extends AbstractBorder {
         g.setColor(oldColor);
     }
 
+    @Override
     public Insets getBorderInsets(Component c) {
         return getBorderInsets(c, new Insets(0, 0, 0, 0));
     }
 
+    @Override
     public Insets getBorderInsets(Component c, Insets insets) {
         insets.left = insets.top = insets.right = insets.bottom = 0;
         switch(side) {
@@ -78,6 +81,7 @@ public class SideLineBorder extends AbstractBorder {
         return color;
     }
 
+    @Override
     public boolean isBorderOpaque() {
         return false;
     }

@@ -21,6 +21,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXPanel;
@@ -33,7 +35,6 @@ import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.ActionLabel;
-import org.limewire.ui.swing.library.FriendLibraryMediator;
 import org.limewire.ui.swing.listener.ActionHandListener;
 import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.menu.actions.ChatAction;
@@ -46,8 +47,6 @@ import org.limewire.util.StringUtils;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
-
-import net.miginfocom.swing.MigLayout;
 
 public class NavPanel extends JXPanel {
     
@@ -65,7 +64,6 @@ public class NavPanel extends JXPanel {
     @Resource private Color textColor;        
     
     private final RemoteLibraryManager remoteLibraryManager;
-    private final FriendLibraryMediator libraryPanel;
     private final LibraryNavigator libraryNavigator;
     
     private final Friend friend;
@@ -88,7 +86,6 @@ public class NavPanel extends JXPanel {
     @AssistedInject
     NavPanel(@Assisted Action action,
              @Assisted Friend friend,
-             @Assisted FriendLibraryMediator libraryPanel,
             RemoteLibraryManager remoteLibraryManager,
             LibraryNavigator libraryNavigator,
             Provider<ChatAction> chatActionProvider) {
@@ -101,7 +98,6 @@ public class NavPanel extends JXPanel {
         this.chatActionProvider = chatActionProvider;
         this.action = action;
         this.friend = friend;           
-        this.libraryPanel = libraryPanel;
         this.remoteLibraryManager = remoteLibraryManager;        
         this.libraryNavigator = libraryNavigator;
         
@@ -343,7 +339,6 @@ public class NavPanel extends JXPanel {
     public void updateLibrary(FriendLibrary friendLibrary) {
         this.friendLibrary = friendLibrary;
         updateLibraryState(friendLibrary.getState());
-        libraryPanel.updateLibraryPanel(friendLibrary.getSwingModel(), friendLibrary.getState());
     }
     
     public boolean isSelected() {
@@ -354,14 +349,8 @@ public class NavPanel extends JXPanel {
         action.actionPerformed(null);
     }
     
-    public void showLibraryCard() {
-        libraryPanel.showLibraryCard();
-    }
-    
     public void removeBrowse() {
-        if(libraryPanel != null) {
-            unbusy(false);
-        }
+        unbusy(false);
     }
     
     public Friend getFriend() {

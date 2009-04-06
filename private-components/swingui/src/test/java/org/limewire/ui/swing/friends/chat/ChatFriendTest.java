@@ -21,6 +21,7 @@ public class ChatFriendTest extends BaseTestCase {
         super(name);
     }
 
+    @Override
     public void setUp() throws Exception {
         context = new Mockery();
     }

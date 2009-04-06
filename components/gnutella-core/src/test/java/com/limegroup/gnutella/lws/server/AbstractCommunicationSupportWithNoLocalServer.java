@@ -7,15 +7,18 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.core.settings.LWSSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
+import org.limewire.lws.server.FakeJavascriptCodeInTheWebpage;
 import org.limewire.lws.server.LWSDispatcherSupport;
 import org.limewire.lws.server.LWSServerUtil;
+import org.limewire.lws.server.LocalServerImpl;
+import org.limewire.lws.server.RemoteServerImpl;
 import org.limewire.net.SocketsManager;
 
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 
 /**
@@ -134,7 +137,7 @@ abstract class AbstractCommunicationSupportWithNoLocalServer extends LimeTestCas
 
         beforeSetup();
 
-        LWSSettings.LWS_AUTHENTICATION_HOSTNAME.setValue("localhost");
+        LWSSettings.LWS_AUTHENTICATION_HOSTNAME.set("localhost");
         LWSSettings.LWS_AUTHENTICATION_PORT.setValue(8080);
         
         inj = LimeTestUtils.createInjector(Stage.PRODUCTION);
@@ -174,7 +177,7 @@ abstract class AbstractCommunicationSupportWithNoLocalServer extends LimeTestCas
     
     protected final void doDetatch() {
         getCommandSender().detach(getPrivateKey(), getSharedKey());
-        lwsManager.clearHandlersAndListeners();
+        lwsManager.clearHandlers();
     }
 
     protected final String doAuthenticate() {

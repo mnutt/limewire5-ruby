@@ -263,7 +263,7 @@ public class OldDownloadConverterImpl implements OldDownloadConverter {
             
             if (saveFile != null && size != null) {
                 String name = CommonUtils.convertFileName(saveFile.getName());
-                incompleteFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.getValue(), "T-"
+                incompleteFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.get(), "T-"
                         + size.longValue() + "-" + name);
             }
         }

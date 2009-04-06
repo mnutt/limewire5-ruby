@@ -19,7 +19,7 @@ import org.limewire.io.LocalSocketAddressProviderStub;
 import org.limewire.service.ErrorService;
 import org.limewire.util.PrivilegedAccessor;
 
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.altlocs.AlternateLocation;
 import com.limegroup.gnutella.altlocs.AlternateLocationCollection;

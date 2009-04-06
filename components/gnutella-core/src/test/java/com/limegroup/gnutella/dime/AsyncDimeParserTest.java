@@ -16,7 +16,7 @@ import junit.framework.Test;
 /**
  * Tests for AsyncDimeParser.
  */
-public final class AsyncDimeParserTest extends com.limegroup.gnutella.util.LimeTestCase {
+public final class AsyncDimeParserTest extends org.limewire.gnutella.tests.LimeTestCase {
     
 
     private ByteArrayOutputStream out;

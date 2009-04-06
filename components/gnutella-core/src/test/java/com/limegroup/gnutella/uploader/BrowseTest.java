@@ -21,11 +21,12 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.params.HttpProtocolParams;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.NetworkSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.http.httpclient.HttpClientUtils;
 import org.limewire.http.httpclient.LimeHttpClient;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileManager;
@@ -34,7 +35,6 @@ import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.Message.Network;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Test that a client uploads a list of files correctly.
@@ -81,7 +81,7 @@ public class BrowseTest extends LimeTestCase {
         File shareDir = LimeTestUtils.getDirectoryWithLotsOfFiles();
         File[] testFiles = shareDir.listFiles(new FileFilter() {
             public boolean accept(File file) {
-                return !file.isDirectory() && file.getName().endsWith(".class");
+                return !file.isDirectory();
             }
         });
         assertGreaterThan("Not enough files to test against", 50, testFiles.length);
@@ -118,8 +118,8 @@ public class BrowseTest extends LimeTestCase {
                 Response[] results = q.getResultsArray();
                 for (Response result : results) {
                     files.add(result.getName());
-                    assertTrue("Expected .class or LimeWire file, got: " + result.getName(),
-                            result.getName().endsWith(".class") || result.getName().toLowerCase().startsWith("limewire"));
+                    assertTrue("Expected .tmp or LimeWire file, got: " + result.getName(),
+                            result.getName().endsWith(".tmp") || result.getName().toLowerCase().startsWith("limewire"));
                 }
             }
 

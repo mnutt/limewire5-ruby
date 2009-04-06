@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -428,6 +429,7 @@ public class DHTManagerImpl implements DHTManager, Service {
 
         // instantiated here so it can record its instantiation time
         TimeInspector<FindValueResult> inspector = new TimeInspector<FindValueResult>(getInspectable) {
+            @Override
             public void handleFutureSuccess(FindValueResult result) {
                 count(result.isSuccess());
             }
@@ -754,7 +756,7 @@ public class DHTManagerImpl implements DHTManager, Service {
             @Override
             public Object inspect() {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                Writer w = new OutputStreamWriter(baos);
+                Writer w = new OutputStreamWriter(baos, Charset.forName("UTF-8"));
                 try {
                     getMojitoDHT().getDHTStats().dump(w, false);
                     w.flush();

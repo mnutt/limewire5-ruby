@@ -1,8 +1,5 @@
-/AboutWindow.java/1.6/Thu Jan 22 05:05:32 2009//
 /AppFrame.java/1.89/Mon Feb 23 16:13:17 2009//
-/DelayedShutdownHandler.java/1.1/Thu Jan 22 05:05:32 2009//
 /FramePositioner.java/1.5/Thu Jan 22 05:05:32 2009//
-/LeftPanel.java/1.45/Thu Jan 22 05:05:32 2009//
 /LimeWireSwingUI.java/1.55/Mon Mar 23 14:55:29 2009//
 /LimeWireUiMainframeModule.java/1.9/Thu Jan 22 05:05:32 2009//
 /MainPanel.java/1.22/Mon Mar 23 14:55:29 2009//
@@ -10,4 +7,7 @@
 /StorePanel.java/1.14/Mon Mar 23 14:55:29 2009//
 /TopPanel.java/1.85/Result of merge//
 /UnseenMessageListener.java/1.2/Thu Jan 22 05:05:32 2009//
+/AboutWindow.java/1.7/Mon Apr  6 16:05:45 2009//
+/DelayedShutdownHandler.java/1.2/Mon Apr  6 16:05:45 2009//
+/LeftPanel.java/1.47/Mon Apr  6 16:05:45 2009//
 D

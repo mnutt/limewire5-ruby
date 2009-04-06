@@ -2,7 +2,6 @@ package org.limewire.core.impl.library;
 
 import org.limewire.listener.EventListener;
 
-import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileListChangedEvent;
 import com.limegroup.gnutella.library.FileManager;
 
@@ -56,13 +55,11 @@ class FriendFileListImpl extends AbstractFriendFileList {
         friendFileList.addFileListListener(eventListener);
         combinedShareList.addMemberList(baseList);
 
-        com.limegroup.gnutella.library.FileList fileList = fileManager.getFriendFileList(name);
+        com.limegroup.gnutella.library.FileList fileList = friendFileList;
 
         fileList.getReadLock().lock();
         try {
-            for (FileDesc fileDesc : fileList) {
-                addFileDesc(fileDesc);
-            }
+            addAllFileDescs(fileList);
         } finally {
             fileList.getReadLock().unlock();
         }

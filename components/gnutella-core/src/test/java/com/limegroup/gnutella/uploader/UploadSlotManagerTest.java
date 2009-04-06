@@ -1,11 +1,11 @@
 package com.limegroup.gnutella.uploader;
 
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
 
 import junit.framework.Test;
 
 import com.limegroup.gnutella.BandwidthTrackerImpl;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class UploadSlotManagerTest extends LimeTestCase {
 	public UploadSlotManagerTest(String name){

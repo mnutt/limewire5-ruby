@@ -10,7 +10,7 @@ import java.util.Properties;
  * Create a <code>StringSetting</code> object with a 
  * {@link SettingsFactory#createStringSetting(String, String)}.
  */
-public final class StringSetting extends AbstractSetting {
+public final class StringSetting extends AbstractSetting<String> {
     
     private String value;
 
@@ -31,7 +31,7 @@ public final class StringSetting extends AbstractSetting {
 	 * 
 	 * @return the value of this setting
 	 */
-	public String getValue() {
+	public String get() {
         return value;
 	}
 
@@ -40,7 +40,7 @@ public final class StringSetting extends AbstractSetting {
 	 *
 	 * @param str the <tt>String</tt> to store
 	 */
-	public void setValue(String str) {
+	public void set(String str) {
 	    setValueInternal(str);
 	}
     

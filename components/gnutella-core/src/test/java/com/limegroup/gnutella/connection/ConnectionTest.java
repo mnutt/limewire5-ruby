@@ -9,6 +9,8 @@ import junit.framework.Test;
 
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.IOUtils;
 import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.nio.NIOServerSocket;
@@ -16,14 +18,10 @@ import org.limewire.nio.observer.AcceptObserver;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.StubGnetConnectObserver;
-import com.limegroup.gnutella.connection.BlockingConnection;
-import com.limegroup.gnutella.connection.BlockingConnectionFactory;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.connection.RoutedConnectionFactory;
 import com.limegroup.gnutella.handshaking.HandshakeResponderFactory;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class ConnectionTest extends LimeTestCase {
     

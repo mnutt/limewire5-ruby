@@ -17,7 +17,7 @@ import org.limewire.util.StringUtils;
  * {@link SettingsFactory#createStringArraySetting(String, String[])}.
  */
  
-public class StringArraySetting extends AbstractSetting {
+public class StringArraySetting extends AbstractSetting<String[]> {
     
     public static final char SEPARATOR = ';';
     
@@ -39,7 +39,7 @@ public class StringArraySetting extends AbstractSetting {
 	 * 
 	 * @return the value of this setting
 	 */
-	public String[] getValue() {
+	public String[] get() {
         return value;
 	}
 
@@ -48,7 +48,7 @@ public class StringArraySetting extends AbstractSetting {
 	 *
 	 * @param value the value to store
 	 */
-	public void setValue(String[] value) {
+	public void set(String[] value) {
 	    setValueInternal(encode(value));
 	}
     
@@ -95,6 +95,6 @@ public class StringArraySetting extends AbstractSetting {
 
     @Override
     public String toString() {
-        return encode(getValue());
+        return encode(get());
     }
 }

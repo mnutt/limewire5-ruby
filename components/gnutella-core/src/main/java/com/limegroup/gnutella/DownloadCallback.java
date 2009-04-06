@@ -10,7 +10,7 @@ public interface DownloadCallback {
     public void addDownload(Downloader d);
 
     /** Remove a downloader from the download window. */
-    public void downloadCompleted(Downloader d);
+    public void removeDownload(Downloader d);
 
      /** 
       * Notifies the GUI that all active downloads have been completed.

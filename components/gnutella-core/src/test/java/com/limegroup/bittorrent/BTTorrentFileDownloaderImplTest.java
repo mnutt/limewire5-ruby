@@ -12,9 +12,11 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.Assert;
 import junit.framework.Test;
 
+import org.apache.http.params.BasicHttpParams;
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.http.httpclient.LimeHttpClient;
 import org.limewire.http.httpclient.SimpleLimeHttpClient;
 import org.limewire.io.Address;
@@ -30,11 +32,11 @@ import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.DownloadManagerEvent;
 import com.limegroup.gnutella.Downloader;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.NoOpSaveLocationManager;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.Uploader;
-import com.limegroup.gnutella.DownloaderInfo.DownloadState;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 import com.limegroup.gnutella.downloader.CoreDownloader;
@@ -44,7 +46,6 @@ import com.limegroup.gnutella.downloader.Visitor;
 import com.limegroup.gnutella.http.DefaultHttpExecutor;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
-import com.limegroup.gnutella.util.LimeTestCase;
 import com.limegroup.gnutella.version.DownloadInformation;
 import com.limegroup.mozilla.MozillaDownload;
 
@@ -88,8 +89,8 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
         forceIPAddressBackup = ConnectionSettings.FORCE_IP_ADDRESS.getValue();
         ConnectionSettings.FORCE_IP_ADDRESS.setValue(true);
-        forceIPAddressStringBackup = ConnectionSettings.FORCED_IP_ADDRESS_STRING.getValue();
-        ConnectionSettings.FORCED_IP_ADDRESS_STRING.setValue("127.0.0.1");
+        forceIPAddressStringBackup = ConnectionSettings.FORCED_IP_ADDRESS_STRING.get();
+        ConnectionSettings.FORCED_IP_ADDRESS_STRING.set("127.0.0.1");
         fileServer = new FileServer(TEST_PORT, fileDir);
         fileServer.start();
         super.setUp();
@@ -99,7 +100,7 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
     protected void tearDown() throws Exception {
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(localIsPrivateBackup);
         ConnectionSettings.FORCE_IP_ADDRESS.setValue(forceIPAddressBackup);
-        ConnectionSettings.FORCED_IP_ADDRESS_STRING.setValue(forceIPAddressStringBackup);
+        ConnectionSettings.FORCED_IP_ADDRESS_STRING.set(forceIPAddressStringBackup);
         fileServer.stop();
         fileServer.destroy();
         FileUtils.deleteRecursive(torrentDir);
@@ -360,7 +361,7 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             public LimeHttpClient get() {
                 return new SimpleLimeHttpClient();
             } 
-        }), new TorrentManager() {
+        }, new BasicHttpParams()), new TorrentManager() {
 
             @Override
             public boolean allowNewTorrent() {
@@ -519,7 +520,7 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             }
 
             @Override
-            public void downloadCompleted(Downloader d) {
+            public void removeDownload(Downloader d) {
             }
 
             @Override

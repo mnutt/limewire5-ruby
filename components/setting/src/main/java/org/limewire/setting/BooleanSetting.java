@@ -9,7 +9,7 @@ import org.limewire.service.Switch;
  * You can create a <code>BooleanSetting</code> object with a 
  * {@link SettingsFactory#createBooleanSetting(String, boolean)}.
  */
-public interface BooleanSetting extends Setting, Switch {
+public interface BooleanSetting extends Setting<Boolean>, Switch {
 
     /**
      * Returns the value of this setting.

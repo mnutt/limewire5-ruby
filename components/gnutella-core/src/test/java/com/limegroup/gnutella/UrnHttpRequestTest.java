@@ -18,6 +18,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHttpRequest;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.FileUtils;
 
 import com.google.inject.Injector;
@@ -27,7 +29,6 @@ import com.limegroup.gnutella.http.HttpTestUtils;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * This class tests HTTP requests involving URNs, as specified in HUGE v094,

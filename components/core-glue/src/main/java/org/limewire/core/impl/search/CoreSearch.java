@@ -26,6 +26,7 @@ import org.limewire.core.impl.library.FriendSearcher;
 import org.limewire.core.impl.search.sponsored.CoreSponsoredResult;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
 import org.limewire.core.settings.PromotionSettings;
+import org.limewire.geocode.GeocodeInformation;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.listener.EventBroadcaster;
@@ -35,12 +36,12 @@ import org.limewire.promotion.containers.PromotionMessageContainer;
 import org.limewire.util.Clock;
 import org.limewire.util.NameValue;
 
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.SearchServices;
-import com.limegroup.gnutella.geocode.CachedGeoLocation;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.util.QueryUtils;
 import com.limegroup.gnutella.xml.LimeXMLDocumentFactory;
@@ -52,7 +53,7 @@ public class CoreSearch implements Search {
     private final QueryReplyListenerList listenerList;
     private final PromotionSearcher promotionSearcher;
     private final FriendSearcher friendSearcher;
-    private final CachedGeoLocation geoLocation;
+    private final Provider<GeocodeInformation> geoLocation;
     private final LimeXMLDocumentFactory xmlDocumentFactory;
 
     /**
@@ -81,7 +82,7 @@ public class CoreSearch implements Search {
             QueryReplyListenerList listenerList,
             PromotionSearcher promotionSearcher,
             FriendSearcher friendSearcher,
-            CachedGeoLocation geoLocation,
+            Provider<GeocodeInformation> geoLocation,
             @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
             EventBroadcaster<SearchEvent> searchEventBroadcaster,
             LimeXMLDocumentFactory xmlDocumentFactory,
@@ -213,14 +214,14 @@ public class CoreSearch implements Search {
             backgroundExecutor.execute(new Runnable() {
                 @Override
                 public void run() { 
-                    promotionSearcher.search(finalQuery, callback, geoLocation.getGeocodeInformation());
+                    promotionSearcher.search(finalQuery, callback, geoLocation.get());
                 }
             });            
         }
     }
     
     private String createPromotionUrl(PromotionMessageContainer container) {
-        String url = PromotionSettings.REDIRECT_URL.getValue();
+        String url = PromotionSettings.REDIRECT_URL.get();
         url += "?url=" + container.getURL();
         url += "&now=" + clock.now() / 1000;
         url += "&id=" + container.getUniqueID();
@@ -319,8 +320,11 @@ public class CoreSearch implements Search {
         @Override
         public void handleQueryReply(RemoteFileDesc rfd, QueryReply queryReply,
                 Set<? extends IpPort> locs) {
+            
+            RemoteFileDescAdapter rfdAdapter = new RemoteFileDescAdapter(rfd, locs);
+            
             for (SearchListener listener : searchListeners) {
-                listener.handleSearchResult(CoreSearch.this, new RemoteFileDescAdapter(rfd, locs));
+                listener.handleSearchResult(CoreSearch.this, rfdAdapter);
             }
         }
     }

@@ -57,7 +57,7 @@ public final class ItunesMediatorImpl implements ItunesMediator {
         File[] files;
         if (file.isDirectory()) {
         	files = FileUtils.getFilesRecursive(file, 
-        			iTunesSettings.ITUNES_SUPPORTED_FILE_TYPES.getValue());
+        			iTunesSettings.ITUNES_SUPPORTED_FILE_TYPES.get());
         } else if (file.isFile() && isSupported(FileUtils.getFileExtension(file)))
             files = new File[] { file };
         else
@@ -80,7 +80,7 @@ public final class ItunesMediatorImpl implements ItunesMediator {
     private static boolean isSupported(String extension) {
         if (extension.isEmpty())
             return false;
-        String[] types = iTunesSettings.ITUNES_SUPPORTED_FILE_TYPES.getValue();
+        String[] types = iTunesSettings.ITUNES_SUPPORTED_FILE_TYPES.get();
         for (int i = 0; i < types.length; i++)
             if (extension.equalsIgnoreCase(types[i]))
                 return true;
@@ -203,7 +203,7 @@ public final class ItunesMediatorImpl implements ItunesMediator {
          */
         private String[] createOSAScriptCommand(File file) {
             String path = file.getAbsolutePath();
-            String playlist = iTunesSettings.ITUNES_PLAYLIST.getValue();
+            String playlist = iTunesSettings.ITUNES_PLAYLIST.get();
 
             String[] command = new String[] { "osascript", "-e", "tell application \"Finder\"",
                     "-e",

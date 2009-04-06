@@ -36,7 +36,7 @@ public class QueryUtils {
         char[] characters = DELIMITERS.toCharArray();
         Arrays.sort(characters);
         DELIMITERS_CHARACTERS = characters;
-        char[] illegal = SearchSettings.ILLEGAL_CHARS.getValue();
+        char[] illegal = SearchSettings.ILLEGAL_CHARS.get();
         StringBuilder sb = new StringBuilder(DELIMITERS.length() + illegal.length);
         DELIMITERS_AND_ILLEGAL = sb.append(illegal).append(DELIMITERS).toString();
     }
@@ -88,7 +88,7 @@ public class QueryUtils {
         String ret = "";
         
         String delim = QueryUtils.DELIMITERS;
-        char[] illegal = SearchSettings.ILLEGAL_CHARS.getValue();
+        char[] illegal = SearchSettings.ILLEGAL_CHARS.get();
         StringBuilder sb = new StringBuilder(delim.length() + illegal.length);
         sb.append(illegal).append(delim);
         StringTokenizer st = new StringTokenizer(name, sb.toString());        

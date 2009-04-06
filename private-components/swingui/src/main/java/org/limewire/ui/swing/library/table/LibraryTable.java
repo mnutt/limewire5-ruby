@@ -154,7 +154,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
     }
     
     public void enableDownloading(DownloadListManager downloadListManager, LibraryNavigator libraryNavigator, LibraryFileList libraryList){
-        LibraryDownloadAction downloadAction = new LibraryDownloadAction(I18n.tr("download"), downloadListManager, this, libraryNavigator, libraryList);
+        LibraryDownloadAction downloadAction = new LibraryDownloadAction(I18n.tr("Download"), downloadListManager, this, libraryNavigator, libraryList);
         
         setDoubleClickHandler(new LibraryDownloadDoubleClickHandler(downloadAction));
         
@@ -287,6 +287,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         ensureRowVisible(getSelectedRow());
     }
     
+    @Override
     public boolean isCellEditable(int row, int column) {
         return super.isCellEditable(row, column) && !isRowDisabled(row);
     }
@@ -389,6 +390,7 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         return null;
     }
     
+    @Override
     public void selectAll() {
         if (getRowCount() > 0) {
             getSelectionModel().setSelectionInterval(0, getRowCount() - 1);

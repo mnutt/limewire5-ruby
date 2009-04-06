@@ -16,6 +16,6 @@ public class UPnPManagerConfigurationImpl implements UPnPManagerConfiguration {
     }
 
     public String getClientID() {
-        return ApplicationSettings.CLIENT_ID.getValue().substring(0,10);
+        return ApplicationSettings.CLIENT_ID.get().substring(0,10);
     }
 }

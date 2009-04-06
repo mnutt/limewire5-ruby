@@ -67,7 +67,7 @@ public class RecentDownloadsMenu extends MnemonicMenu {
         removeAll();
         List<File> files = null;
         synchronized (DownloadSettings.RECENT_DOWNLOADS) {
-            files = new ArrayList<File>(DownloadSettings.RECENT_DOWNLOADS.getValue());
+            files = new ArrayList<File>(DownloadSettings.RECENT_DOWNLOADS.get());
         }
 
         Collections.sort(files, new FileDateMostToLeastRecentComparator());

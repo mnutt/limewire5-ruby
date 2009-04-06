@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,11 +27,14 @@ import org.limewire.concurrent.ListeningExecutorService;
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.concurrent.SimpleFuture;
 import org.limewire.io.IOUtils;
+import org.limewire.lifecycle.ServiceScheduler;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.ConverterObjectInputStream;
 import org.limewire.util.GenericsUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.UrnSet;
 
@@ -89,6 +94,16 @@ public final class UrnCache {
             }
         });
 	}
+    
+    @Inject
+    void register(@Named("backgroundExecutor") ScheduledExecutorService scheduledExecutorService, ServiceScheduler serviceScheduler) {
+        serviceScheduler.scheduleAtFixedRate("urncache persister", new Runnable() {
+            @Override
+            public void run() {
+                persistCache();
+            }
+        }, 30, 30, TimeUnit.SECONDS, scheduledExecutorService);
+    }
 
     /**
      * Calculates the given File's URN and caches it.  The callback will
@@ -258,20 +273,25 @@ public final class UrnCache {
      * Write cache so that we only have to calculate them once.
      */
     synchronized void persistCache() {
-        getUrnMap(); // make sure it's finished constructing.
+        LOG.debug("persist cache");
         
-        if(!dirty)
+        if(!dirty) {
+            LOG.debug("not dirty");
             return;
+        }
+        
+        getUrnMap(); // make sure it's finished constructing.
         
         //It's not ideal to hold a lock while writing to disk, but I doubt think
         //it's a problem in practice.
-        URN_CACHE_FILE.renameTo(URN_CACHE_BACKUP_FILE);
         ObjectOutputStream oos = null;
         try {
             oos = new ObjectOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(URN_CACHE_FILE)));
+                    new BufferedOutputStream(new FileOutputStream(URN_CACHE_BACKUP_FILE)));
             oos.writeObject(getUrnMap());
             oos.flush();
+            URN_CACHE_FILE.delete();
+            URN_CACHE_BACKUP_FILE.renameTo(URN_CACHE_FILE);
         } catch (IOException e) {
             LOG.error("Unable to persist cache", e);
         } finally {

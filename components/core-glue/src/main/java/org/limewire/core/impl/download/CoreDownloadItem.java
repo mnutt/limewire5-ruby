@@ -196,6 +196,8 @@ class CoreDownloadItem implements DownloadItem {
     
     private DownloadState convertState(com.limegroup.gnutella.Downloader.DownloadState state) {
         switch (state) {
+        case RESUMING:
+                return DownloadState.RESUMING;
         case SAVING:
         case HASHING:
             if (getTotalSize() > finishingThreshold) {
@@ -210,7 +212,6 @@ class CoreDownloadItem implements DownloadItem {
 
         
         case CONNECTING:
-        case RESUMING:
         case INITIALIZING:
         case WAITING_FOR_CONNECTIONS:
             return DownloadState.CONNECTING;
@@ -251,6 +252,7 @@ class CoreDownloadItem implements DownloadItem {
         }
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o == null || !(o instanceof CoreDownloadItem)) {
             return false;
@@ -259,6 +261,7 @@ class CoreDownloadItem implements DownloadItem {
     }
     
     //TODO: better hashCode
+    @Override
     public int hashCode(){
         if(hashCode == 0){
            hashCode =  37* getDownloader().hashCode();

@@ -16,6 +16,8 @@ import java.util.Set;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.ActivityCallbackStub;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 
@@ -24,7 +26,6 @@ import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.messages.*;
 import com.limegroup.gnutella.messages.Message.Network;
-import com.limegroup.gnutella.stubs.ActivityCallbackStub;
 
 /**
  * Tests that UDP host ranker works.

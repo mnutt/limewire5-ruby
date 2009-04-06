@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
 import junit.framework.Assert;
 
@@ -15,6 +16,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicLineParser;
+import org.apache.http.protocol.HTTP;
 import org.limewire.util.AssertComparisons;
 
 public class HttpUploadClient {
@@ -41,9 +43,9 @@ public class HttpUploadClient {
 
         socket = new Socket(host, port);
 
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName(HTTP.DEFAULT_PROTOCOL_CHARSET)));
         out = new BufferedWriter(new OutputStreamWriter(socket
-                .getOutputStream()));
+                .getOutputStream(), Charset.forName(HTTP.DEFAULT_PROTOCOL_CHARSET)));
     }
 
     public HttpResponse sendRequest(HttpRequest request) throws Exception {

@@ -19,10 +19,10 @@ import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
+import org.limewire.core.api.search.SearchDetails.SearchType;
 import org.limewire.core.api.search.SearchEvent;
 import org.limewire.core.api.search.SearchListener;
 import org.limewire.core.api.search.SearchResult;
-import org.limewire.core.api.search.SearchDetails.SearchType;
 import org.limewire.core.api.search.sponsored.SponsoredResult;
 import org.limewire.core.api.search.sponsored.SponsoredResultTarget;
 import org.limewire.core.impl.library.CoreRemoteFileItem;
@@ -43,9 +43,9 @@ import org.limewire.util.Clock;
 import org.limewire.util.ExecuteRunnableAction;
 import org.limewire.util.MediaType;
 
+import com.google.inject.Provider;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.SearchServices;
-import com.limegroup.gnutella.geocode.CachedGeoLocation;
 import com.limegroup.gnutella.messages.QueryReply;
 
 public class CoreSearchTest extends BaseTestCase {
@@ -70,7 +70,7 @@ public class CoreSearchTest extends BaseTestCase {
         final QueryReplyListenerList listenerList = context.mock(QueryReplyListenerList.class);
         final PromotionSearcher promotionSearcher = context.mock(PromotionSearcher.class);
         final FriendSearcher friendSearcher = context.mock(FriendSearcher.class);
-        final CachedGeoLocation geoLocation = context.mock(CachedGeoLocation.class);
+        final Provider<GeocodeInformation> geoLocation = context.mock(Provider.class);
         final ScheduledExecutorService backgroundExecutor = context
                 .mock(ScheduledExecutorService.class);
         final EventBroadcaster<SearchEvent> searchEventBroadcaster = (EventBroadcaster<SearchEvent>) context
@@ -162,7 +162,7 @@ public class CoreSearchTest extends BaseTestCase {
         final QueryReplyListenerList listenerList = context.mock(QueryReplyListenerList.class);
         final PromotionSearcher promotionSearcher = context.mock(PromotionSearcher.class);
         final FriendSearcher friendSearcher = context.mock(FriendSearcher.class);
-        final CachedGeoLocation geoLocation = context.mock(CachedGeoLocation.class);
+        final Provider<GeocodeInformation> geoLocation = context.mock(Provider.class);
         final ScheduledExecutorService backgroundExecutor = context
                 .mock(ScheduledExecutorService.class);
         final EventBroadcaster<SearchEvent> searchEventBroadcaster = (EventBroadcaster<SearchEvent>) context
@@ -237,7 +237,7 @@ public class CoreSearchTest extends BaseTestCase {
         final QueryReplyListenerList listenerList = context.mock(QueryReplyListenerList.class);
         final PromotionSearcher promotionSearcher = context.mock(PromotionSearcher.class);
         final FriendSearcher friendSearcher = context.mock(FriendSearcher.class);
-        final CachedGeoLocation geoLocation = context.mock(CachedGeoLocation.class);
+        final Provider<GeocodeInformation> geoLocation = context.mock(Provider.class);
         final ScheduledExecutorService backgroundExecutor = context
                 .mock(ScheduledExecutorService.class);
         final EventBroadcaster<SearchEvent> searchEventBroadcaster = (EventBroadcaster<SearchEvent>) context
@@ -273,7 +273,7 @@ public class CoreSearchTest extends BaseTestCase {
                 one(friendSearcher).doSearch(with(equal(searchDetails)),
                         with(any(FriendSearchListener.class)));
                 one(searchListener).searchStarted(coreSearch);
-                allowing(geoLocation).getGeocodeInformation();
+                allowing(geoLocation).get();
                 will(returnValue(geocodeInformation));
                 one(promotionSearcher).search(with(equal(searchDetails.getSearchQuery())),
                         with(any(PromotionSearchResultsCallback.class)),
@@ -295,7 +295,7 @@ public class CoreSearchTest extends BaseTestCase {
         final String url = "http://url.com/blahblahblah";
         final String description = "description";
         
-        final String expectedUrl = PromotionSettings.REDIRECT_URL.getValue() + "?url=" + url + "&now=52&id=42";
+        final String expectedUrl = PromotionSettings.REDIRECT_URL.get() + "?url=" + url + "&now=52&id=42";
         
         final AtomicReference<List<SponsoredResult>> sponsoredResults = new AtomicReference<List<SponsoredResult>>();
         context.checking(new Expectations() {

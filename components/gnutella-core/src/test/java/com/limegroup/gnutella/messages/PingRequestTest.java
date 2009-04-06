@@ -10,6 +10,7 @@ import junit.framework.Test;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GGEP;
 import org.limewire.io.GUID;
 import org.limewire.io.LocalSocketAddressProvider;
@@ -22,12 +23,11 @@ import org.limewire.util.StringUtils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.ConnectionServices;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.Message.Network;
 
 @SuppressWarnings("unchecked")
 // TODO stub / mock out ping requests
-public class PingRequestTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class PingRequestTest extends org.limewire.gnutella.tests.LimeTestCase {
     private PingRequestFactory pingRequestFactory;
     private MessageFactory messageFactory;
     private ConnectionServices connectionServices;
@@ -205,10 +205,10 @@ public class PingRequestTest extends com.limegroup.gnutella.util.LimeTestCase {
         assertTrue(fromNet.requestsIP());
         
         // now try a ping with locale
-        String original = ApplicationSettings.LANGUAGE.getValue();
-        ApplicationSettings.LANGUAGE.setValue("zz");
+        String original = ApplicationSettings.LANGUAGE.get();
+        ApplicationSettings.LANGUAGE.set("zz");
         PingRequest withLocale = pingRequestFactory.createPingRequest((byte)1);
-        ApplicationSettings.LANGUAGE.setValue(original);
+        ApplicationSettings.LANGUAGE.set(original);
         
         withLocale.addIPRequest();
         

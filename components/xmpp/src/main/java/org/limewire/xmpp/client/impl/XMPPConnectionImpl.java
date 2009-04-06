@@ -2,6 +2,7 @@ package org.limewire.xmpp.client.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
@@ -55,6 +56,9 @@ import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQListene
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQ;
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQListener;
 
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+
 public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConnection {
 
     private static final Log LOG = LogFactory.getLog(XMPPConnectionImpl.class);
@@ -71,6 +75,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
     private final XMPPAddressRegistry xmppAddressRegistry;
     private final ListenerSupport<AddressEvent> addressListenerSupport;
     private final ListeningExecutorService executorService;
+    private final List<ConnectionConfigurationFactory> connectionConfigurationFactories;
 
     private final EventListenerList<RosterEvent> rosterListeners;
     private final Map<String, UserImpl> users;
@@ -81,7 +86,9 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
     private volatile org.jivesoftware.smack.XMPPConnection connection;
     private volatile DiscoInfoListener discoInfoListener;
 
-    XMPPConnectionImpl(XMPPConnectionConfiguration configuration,
+    @AssistedInject
+    public XMPPConnectionImpl(@Assisted XMPPConnectionConfiguration configuration,
+                       @Assisted ListeningExecutorService executorService,
                        EventBroadcaster<RosterEvent> rosterBroadcaster,
                        EventBroadcaster<FileOfferEvent> fileOfferBroadcaster,
                        EventBroadcaster<FriendRequestEvent> friendRequestBroadcaster,
@@ -91,8 +98,8 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                        EventMulticaster<FeatureEvent> featureSupport,
                        EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster,
                        XMPPAddressRegistry xmppAddressRegistry, 
-                       ListenerSupport<AddressEvent> addressListenerSupport,
-                       ListeningExecutorService executorService) {
+                       ListenerSupport<AddressEvent> addressListenerSupport,                       
+                       List<ConnectionConfigurationFactory> connectionConfigurationFactories) {
         this.configuration = configuration;
         this.fileOfferBroadcaster = fileOfferBroadcaster;
         this.friendRequestBroadcaster = friendRequestBroadcaster;
@@ -105,6 +112,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         this.xmppAddressRegistry = xmppAddressRegistry;
         this.addressListenerSupport = addressListenerSupport;
         this.executorService = executorService;
+        this.connectionConfigurationFactories = connectionConfigurationFactories;
         rosterListeners = new EventListenerList<RosterEvent>();
         // FIXME: this is only used by tests
         if(configuration.getRosterListener() != null) {
@@ -171,11 +179,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                 loggingIn.set(true);
                 org.jivesoftware.smack.XMPPConnection.addConnectionCreationListener(smackConnectionListener);
                 org.jivesoftware.smack.XMPPConnection.DEBUG_ENABLED = configuration.isDebugEnabled();
-                ConnectionConfiguration connectionConfig = ConnectionConfigurationFactory.getConnectionConfigurationFromDNS(configuration);
-                connection = new org.jivesoftware.smack.XMPPConnection(connectionConfig);
-                connection.addRosterListener(new RosterListenerImpl());
-                LOG.infof("connecting to {0} at {1}:{2} ...", connectionConfig.getServiceName(), connectionConfig.getHost(), connectionConfig.getPort());
-                connection.connect();
+                connect();
                 LOG.infof("connected.");
                 LOG.infof("logging in {0} with resource: {1} ...", configuration.getUserInputLocalID(), configuration.getResource());
                 connection.login(configuration.getUserInputLocalID(), configuration.getPassword(), configuration.getResource());
@@ -194,6 +198,35 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                 loggingIn.set(false);
             }
         }
+    }
+
+    private void connect() throws org.jivesoftware.smack.XMPPException {
+        for(ConnectionConfigurationFactory factory : connectionConfigurationFactories) {
+            try {
+                connectUsingFactory(factory);
+                return;
+            } catch (XMPPException e) {
+                LOG.debug(e.getMessage(), e);
+            }
+        }
+    }
+
+    private void connectUsingFactory(ConnectionConfigurationFactory factory) throws XMPPException {
+        ConnectionConfigurationFactory.RequestContext requestContext = new ConnectionConfigurationFactory.RequestContext();
+        while(factory.hasMore(configuration, requestContext)) {
+            ConnectionConfiguration connectionConfig = factory.getConnectionConfiguration(configuration, requestContext);
+            connection = new XMPPConnection(connectionConfig);
+            connection.addRosterListener(new RosterListenerImpl());
+            LOG.infof("connecting to {0} at {1}:{2} ...", connectionConfig.getServiceName(), connectionConfig.getHost(), connectionConfig.getPort());
+            try {
+                connection.connect();
+                return;
+            } catch (org.jivesoftware.smack.XMPPException e) {
+                LOG.debug(e.getMessage(), e);
+                requestContext.incrementRequests();
+            }            
+        }
+        throw new XMPPException("couldn't connect using " + factory);
     }
 
     @Override

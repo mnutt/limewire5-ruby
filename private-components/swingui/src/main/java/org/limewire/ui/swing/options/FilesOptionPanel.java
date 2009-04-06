@@ -313,7 +313,7 @@ public class FilesOptionPanel extends OptionPanel {
             final boolean prevEnabled = DaapSettings.DAAP_ENABLED.getValue();
            
             final boolean prevRequiresPassword = DaapSettings.DAAP_REQUIRES_PASSWORD.getValue();
-            final String prevPassword = DaapSettings.DAAP_PASSWORD.getValue();
+            final String prevPassword = DaapSettings.DAAP_PASSWORD.get();
             
             final boolean requiresPassword = requirePassWordCheckBox.isSelected();
             String password = new String(passwordField.getPassword());
@@ -333,7 +333,7 @@ public class FilesOptionPanel extends OptionPanel {
             
             //save password value
             if (!DaapSettings.DAAP_PASSWORD.equals(password)) {
-                DaapSettings.DAAP_PASSWORD.setValue(password);
+                DaapSettings.DAAP_PASSWORD.set(password);
             }           
   
             try {               
@@ -359,7 +359,7 @@ public class FilesOptionPanel extends OptionPanel {
             } catch (IOException err) {               
                 DaapSettings.DAAP_ENABLED.setValue(prevEnabled);
                 DaapSettings.DAAP_REQUIRES_PASSWORD.setValue(prevRequiresPassword);
-                DaapSettings.DAAP_PASSWORD.setValue(prevPassword);
+                DaapSettings.DAAP_PASSWORD.set(prevPassword);
 
                 daapManager.stop();
                 initOptions();
@@ -376,7 +376,7 @@ public class FilesOptionPanel extends OptionPanel {
         boolean hasChanged() {
             return  DaapSettings.DAAP_ENABLED.getValue() != shareWithITunesCheckBox.isSelected() ||
                     DaapSettings.DAAP_REQUIRES_PASSWORD.getValue() != requirePassWordCheckBox.isSelected() ||
-                    DaapSettings.DAAP_PASSWORD.getValue() != requirePassWordCheckBox.getText();
+                    DaapSettings.DAAP_PASSWORD.get() != requirePassWordCheckBox.getText();
         }
 
         @Override
@@ -385,7 +385,7 @@ public class FilesOptionPanel extends OptionPanel {
 
             requirePassWordCheckBox.setSelected(DaapSettings.DAAP_REQUIRES_PASSWORD.getValue());
             if(requirePassWordCheckBox.isSelected()) {
-                passwordField.setText(DaapSettings.DAAP_PASSWORD.getValue());
+                passwordField.setText(DaapSettings.DAAP_PASSWORD.get());
             }
             
             setPasswordVisible(shareWithITunesCheckBox.isSelected());

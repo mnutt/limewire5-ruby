@@ -11,7 +11,7 @@ import junit.framework.Test;
 /**
  * Unit tests for Base32 class.
  */
-public class Base32Test extends com.limegroup.gnutella.util.LimeTestCase {
+public class Base32Test extends org.limewire.gnutella.tests.LimeTestCase {
 
     public Base32Test(String name) {
         super(name);

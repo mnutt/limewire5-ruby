@@ -2,6 +2,8 @@ package com.limegroup.gnutella;
 
 import java.io.InterruptedIOException;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
+
 import junit.framework.Test;
 
 import com.google.inject.Injector;

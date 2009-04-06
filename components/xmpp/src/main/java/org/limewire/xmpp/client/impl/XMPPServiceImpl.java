@@ -12,7 +12,6 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.concurrent.ListeningExecutorService;
 import org.limewire.concurrent.ListeningFuture;
-import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.core.api.friend.feature.features.ConnectBackRequestFeature;
 import org.limewire.core.api.friend.feature.features.LimewireFeature;
 import org.limewire.inspection.Inspectable;
@@ -23,24 +22,16 @@ import org.limewire.io.Connectable;
 import org.limewire.io.GUID;
 import org.limewire.lifecycle.Asynchronous;
 import org.limewire.lifecycle.Service;
-import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.net.ConnectBackRequestedEvent;
-import org.limewire.net.address.AddressEvent;
-import org.limewire.net.address.AddressFactory;
 import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.api.client.ConnectBackRequestSender;
-import org.limewire.xmpp.api.client.FileOfferEvent;
-import org.limewire.xmpp.api.client.FriendRequestEvent;
 import org.limewire.xmpp.api.client.JabberSettings;
-import org.limewire.xmpp.api.client.LibraryChangedEvent;
 import org.limewire.xmpp.api.client.Presence;
 import org.limewire.xmpp.api.client.Presence.Mode;
-import org.limewire.xmpp.api.client.RosterEvent;
 import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
@@ -57,19 +48,9 @@ import com.google.inject.Singleton;
 public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequestSender {
 
     private static final Log LOG = LogFactory.getLog(XMPPServiceImpl.class);
-    
-    private final EventBroadcaster<RosterEvent> rosterBroadcaster;
-    private final EventBroadcaster<FileOfferEvent> fileOfferBroadcaster;
-    private final EventBroadcaster<FriendRequestEvent> friendRequestBroadcaster;
-    private final EventBroadcaster<LibraryChangedEvent> libraryChangedBroadcaster;
-    private final AddressFactory addressFactory;
-    private final EventMulticaster<XMPPConnectionEvent> connectionBroadcaster;
-    private final XMPPAuthenticator authenticator;
-    private final EventMulticaster<FeatureEvent> featureSupport;
-    private final EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster;
-    private final XMPPAddressRegistry xmppAddressRegistry;
+
+    private final XMPPConnectionImplFactory connectionImplFactory;
     private final JabberSettings jabberSettings;
-    private final ListenerSupport<AddressEvent> addressListenerSupport;
     private final ListeningExecutorService executorService;
 
     // Connections that are logged in or logging in
@@ -113,29 +94,11 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
     }
 
     @Inject
-    public XMPPServiceImpl(EventBroadcaster<RosterEvent> rosterBroadcaster,
-            EventBroadcaster<FileOfferEvent> fileOfferBroadcaster,
-            EventBroadcaster<FriendRequestEvent> friendRequestBroadcaster,
-            EventBroadcaster<LibraryChangedEvent> libraryChangedBroadcaster,
-            EventMulticaster<XMPPConnectionEvent> connectionBroadcaster,
-            AddressFactory addressFactory, XMPPAuthenticator authenticator,
-            EventMulticaster<FeatureEvent> featureSupport,
-            EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster,
-            XMPPAddressRegistry xmppAddressRegistry,
-            JabberSettings jabberSettings,
-            ListenerSupport<AddressEvent> addressListenerSupport) {
-        this.rosterBroadcaster = rosterBroadcaster;
-        this.fileOfferBroadcaster = fileOfferBroadcaster;
-        this.friendRequestBroadcaster = friendRequestBroadcaster;
-        this.libraryChangedBroadcaster = libraryChangedBroadcaster;
-        this.connectionBroadcaster = connectionBroadcaster;
-        this.addressFactory = addressFactory;
-        this.authenticator = authenticator;
-        this.featureSupport = featureSupport;
-        this.connectRequestEventBroadcaster = connectRequestEventBroadcaster;
-        this.xmppAddressRegistry = xmppAddressRegistry;
+    public XMPPServiceImpl(XMPPConnectionImplFactory connectionImplFactory,
+                           EventMulticaster<XMPPConnectionEvent> connectionBroadcaster,
+            JabberSettings jabberSettings) {
+        this.connectionImplFactory = connectionImplFactory;
         this.jabberSettings = jabberSettings;
-        this.addressListenerSupport = addressListenerSupport;
 
         connections = new CopyOnWriteArrayList<XMPPConnectionImpl>();
         multipleConnectionsAllowed = false;
@@ -232,17 +195,8 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
                 }                
             }
             
-            XMPPConnectionImpl connection = new XMPPConnectionImpl(
-                    configuration, rosterBroadcaster,
-                    fileOfferBroadcaster,
-                    friendRequestBroadcaster,
-                    libraryChangedBroadcaster,
-                    connectionBroadcaster,
-                    addressFactory, authenticator, featureSupport,
-                    connectRequestEventBroadcaster, 
-                    xmppAddressRegistry,
-                    addressListenerSupport,
-                    executorService);
+            XMPPConnectionImpl connection = connectionImplFactory.createConnection(
+                    configuration, executorService);
             try {
                 connections.add(connection);
                 connection.loginImpl();

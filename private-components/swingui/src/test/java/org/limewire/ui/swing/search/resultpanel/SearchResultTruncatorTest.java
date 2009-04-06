@@ -8,6 +8,7 @@ public class SearchResultTruncatorTest extends TestCase {
     private SearchResultTruncatorImpl trunc;
     private MockFontWidthResolver mockResolver;
 
+    @Override
     protected void setUp() {
         trunc = new SearchResultTruncatorImpl();
         mockResolver = new MockFontWidthResolver();

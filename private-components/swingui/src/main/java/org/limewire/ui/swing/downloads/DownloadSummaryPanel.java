@@ -65,17 +65,17 @@ import org.limewire.ui.swing.table.TableColumnDoubleClickHandler;
 import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.tray.Notification;
 import org.limewire.ui.swing.tray.TrayNotifier;
-import org.limewire.ui.swing.util.EnabledListener;
-import org.limewire.ui.swing.util.EnabledListenerList;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.ForceInvisibleComponent;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 import org.limewire.ui.swing.util.SwingUtils;
-import org.limewire.ui.swing.util.VisibilityListener;
-import org.limewire.ui.swing.util.VisibilityListenerList;
+import org.limewire.ui.swing.util.VisibilityType;
+import org.limewire.ui.swing.util.EnabledType;
 import org.limewire.util.CommonUtils;
+import org.limewire.listener.EventListenerList;
+import org.limewire.listener.EventListener;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.RangeList;
@@ -99,9 +99,12 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 	private final ProgressBarDecorator progressBarDecorator;
     private final Navigator navigator;
     private final TrayNotifier notifier;
-	
-	private final VisibilityListenerList visibilityListenerList = new VisibilityListenerList();
-    private final EnabledListenerList enabledListenerList = new EnabledListenerList();
+    private final EventListenerList<VisibilityType> visibilityListenerList =
+            new EventListenerList<VisibilityType>();
+
+    private final EventListenerList<EnabledType> enabledListenerList =
+            new EventListenerList<EnabledType>();
+
     private AbstractDownloadTable table;
     private final HorizontalDownloadTableModel horizontalTableModel;
 
@@ -264,7 +267,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
         showAllButton.addMouseListener(navMouseListener);
         
         clearFinishedButton = new HyperlinkButton();
-        clearFinishedButton.setText(I18n.tr("Clear finished"));
+        clearFinishedButton.setText(I18n.tr("Clear Finished"));
         clearFinishedButton.setFont(showAllFont);
         clearFinishedButton.setMinimumSize(clearFinishedButton.getPreferredSize());
         clearFinishedButton.addActionListener(new ActionListener(){
@@ -582,23 +585,20 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
                 return;
             }
             
+            DownloadState state = item.getState();
+            
             nameLabel.setText(item.getTitle());
-            progressBar.setVisible(item.getState() == DownloadState.DOWNLOADING || item.getState() == DownloadState.PAUSED);
+            progressBar.setVisible(state == DownloadState.DOWNLOADING || state == DownloadState.PAUSED);
             if (progressBar.isVisible()) { 
-                if (item.getTotalSize() != 0) {
-                    progressBar.setValue((int)(100 * item.getCurrentSize() / item.getTotalSize()));
-                } 
-                else {
-                    progressBar.setValue(0);
-                }
-                progressBar.setEnabled(item.getState() == DownloadState.DOWNLOADING);
+                progressBar.setValue(item.getPercentComplete());
+                progressBar.setEnabled(state == DownloadState.DOWNLOADING);
             }
             
-            pauseButton.setVisible(item.getState() == DownloadState.DOWNLOADING);
-            resumeButton.setVisible(item.getState() == DownloadState.PAUSED);
-            tryAgainButton.setVisible(item.getState() == DownloadState.STALLED);
-            launchButton.setVisible(item.isLaunchable() && item.getState() == DownloadState.DONE);
-            cancelButton.setVisible(item.getState() == DownloadState.ERROR);
+            pauseButton.setVisible(state == DownloadState.DOWNLOADING);
+            resumeButton.setVisible(state == DownloadState.PAUSED);
+            tryAgainButton.setVisible(state == DownloadState.STALLED);
+            launchButton.setVisible(item.isLaunchable() && state == DownloadState.DONE);
+            cancelButton.setVisible(state == DownloadState.ERROR);
             
             if(tryAgainButton.isVisible()) {
                 if(item.isSearchAgainEnabled()) {
@@ -608,29 +608,32 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
                 }
             }
             
-            statusLabel.setVisible(item.getState() != DownloadState.DOWNLOADING && item.getState() != DownloadState.PAUSED);
+            statusLabel.setVisible(state != DownloadState.DOWNLOADING && state != DownloadState.PAUSED && state != DownloadState.RESUMING);
             if (statusLabel.isVisible()){
-                statusLabel.setText(getMessage(item));
-                if(item.getState() == DownloadState.ERROR || item.getState() == DownloadState.STALLED){
+                statusLabel.setText(getMessage(state, item));
+                if(state == DownloadState.ERROR || state == DownloadState.STALLED){
                     statusLabel.setForeground(orangeForeground);
                 } else {
                     statusLabel.setForeground(grayForeground);
                 }
             }            
             
-            if(item.getState() == DownloadState.PAUSED){
+            if(state == DownloadState.PAUSED){
                 timeLabel.setVisible(true);
                 timeLabel.setText(I18n.tr("Paused at {0}%", item.getPercentComplete()));
-            } else if(item.getState() == DownloadState.DOWNLOADING && item.getRemainingDownloadTime() < Long.MAX_VALUE-1000) {
+            } else if(state == DownloadState.DOWNLOADING && item.getRemainingDownloadTime() < Long.MAX_VALUE-1000) {
                 timeLabel.setVisible(true);
                 timeLabel.setText(I18n.tr("{0}% - {1} left", item.getPercentComplete(), CommonUtils.seconds2time(item.getRemainingDownloadTime())));
+            } else if(state == DownloadState.RESUMING) {
+                timeLabel.setVisible(true);
+                timeLabel.setText(I18n.tr("Resuming at {0}%", item.getPercentComplete()));
             } else {
                 timeLabel.setVisible(false);
             }
         }
         
-        private String getMessage(DownloadItem item) {
-            switch (item.getState()) {
+        private String getMessage(DownloadState downloadState, DownloadItem item) {
+            switch (downloadState) {
             case CANCELLED:
                 return I18n.tr("Cancelled");
             case FINISHING:
@@ -715,7 +718,7 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 	@Override
 	public void setVisibility(boolean visible){
 	    setVisible(!forceInvisible && visible);
-        visibilityListenerList.visibilityChanged(isVisible());
+        visibilityListenerList.broadcast(VisibilityType.valueOf(isVisible()));
 	}
 	
 	@Override
@@ -725,23 +728,23 @@ public class DownloadSummaryPanel extends JXPanel implements ForceInvisibleCompo
 	}
 
     @Override
-    public void addVisibilityListener(VisibilityListener listener) {
-        visibilityListenerList.addVisibilityListener(listener);        
+    public void addVisibilityListener(EventListener<VisibilityType> listener) {
+        visibilityListenerList.addListener(listener);
     }
 
     @Override
-    public void removeVisibilityListener(VisibilityListener listener) {
-        visibilityListenerList.removeVisibilityListener(listener);
+    public void removeVisibilityListener(EventListener<VisibilityType> listener) {
+        visibilityListenerList.removeListener(listener);
     }
 
     @Override
-    public void addEnabledListener(EnabledListener listener) {
-        enabledListenerList.addEnabledListener(listener);
+    public void addEnabledListener(EventListener<EnabledType> listener) {
+        enabledListenerList.addListener(listener);
     }
 
     @Override
-    public void removeEnabledListener(EnabledListener listener) {
-        enabledListenerList.removeEnabledListener(listener);
+    public void removeEnabledListener(EventListener<EnabledType> listener) {
+        enabledListenerList.removeListener(listener);
     }
 
     /**

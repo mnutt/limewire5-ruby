@@ -2,6 +2,7 @@ package com.limegroup.gnutella.rudp.messages;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.rudp.RUDPContext;
 import org.limewire.rudp.messages.AckMessage;
 import org.limewire.rudp.messages.DataMessage;
@@ -15,7 +16,6 @@ import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import org.limewire.util.BaseTestCase;
 
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.messages.Message;
 
 public class LimeRUDPMessageFactoryTest extends BaseTestCase {

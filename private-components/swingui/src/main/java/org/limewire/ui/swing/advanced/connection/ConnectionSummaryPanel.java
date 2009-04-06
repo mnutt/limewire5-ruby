@@ -2,12 +2,12 @@ package org.limewire.ui.swing.advanced.connection;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
@@ -16,6 +16,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -31,7 +34,7 @@ import org.limewire.core.api.connection.FirewallTransferStatusEvent;
 import org.limewire.core.api.connection.GnutellaConnectionManager;
 import org.limewire.listener.EventBean;
 import org.limewire.ui.swing.advanced.connection.PopupManager.PopupProvider;
-import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.components.HTMLLabel;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 
@@ -76,8 +79,7 @@ public class ConnectionSummaryPanel extends JPanel {
     private final PopupManager reasonPopupManager;
 
     private JLabel nodeLabel = new JLabel();
-    private JLabel firewallLabel = new MultiLineLabel();
-    private ReasonLabel reasonLabel = new ReasonLabel();
+    private FirewallLabel firewallLabel = new FirewallLabel();
     private JLabel summaryLabel = new JLabel();
     private JTable summaryTable = new JTable();
     private SummaryTableModel summaryTableModel = new SummaryTableModel();
@@ -94,21 +96,26 @@ public class ConnectionSummaryPanel extends JPanel {
         this.gnutellaConnectionManager = gnutellaConnectionManager;
         this.firewallStatusBean = firewallStatusBean;
         this.firewallTransferBean = firewallTransferBean;
-        this.reasonPopupManager = new PopupManager(reasonLabel);
+        this.reasonPopupManager = new PopupManager(firewallLabel);
         
         setBorder(BorderFactory.createTitledBorder(""));
         setLayout(new MigLayout("insets 0 0 0 0,fill",
-            "[left]3[left]",                   // col constraints
+            "[left]",                          // col constraints
             "[top][top][bottom][top,fill]"));  // row constraints
         setPreferredSize(new Dimension(120, 120));
         setOpaque(false);
         
-        reasonLabel.setForeground(Color.BLUE);
-        reasonLabel.setMinimumSize(new Dimension(30, 14));
-        reasonLabel.setPreferredSize(new Dimension(30, 14));
-        reasonLabel.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                reasonPopupManager.showTimedPopup(reasonLabel, e.getX(), e.getY());
+        firewallLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        firewallLabel.setOpaque(false);
+        firewallLabel.setOpenUrlsNatively(false);
+        firewallLabel.addHyperlinkListener(new HyperlinkListener() {
+            @Override
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                if (e.getEventType() == EventType.ACTIVATED) {
+                    Point location = firewallLabel.getPopupLocation();
+                    reasonPopupManager.showTimedPopup(firewallLabel, 
+                            location.x + 18, location.y + 10);
+                }
             }
         });
 
@@ -136,12 +143,11 @@ public class ConnectionSummaryPanel extends JPanel {
             }
         });
 
-        add(nodeLabel    , "cell 0 0 2 1");
-        add(firewallLabel, "cell 0 1,growx 100");
-        add(reasonLabel  , "cell 1 1,bottom");
-        add(summaryLabel , "cell 0 2 2 1");
-        add(summaryTable , "cell 0 3 2 1");
-        add(resolveCheckBox, "cell 0 4 2 1");
+        add(nodeLabel      , "cell 0 0");
+        add(firewallLabel  , "cell 0 1, growx 100");
+        add(summaryLabel   , "cell 0 2");
+        add(summaryTable   , "cell 0 3");
+        add(resolveCheckBox, "cell 0 4");
     }
 
     @Override
@@ -204,17 +210,14 @@ public class ConnectionSummaryPanel extends JPanel {
 
             // Set firewall status and reason.
             if (transferStatus == FirewallTransferStatus.DOES_NOT_SUPPORT_FWT) {
-                firewallLabel.setText(IS_FIREWALLED_NO_TRANSFERS);
-                reasonLabel.setReasonText(getReasonText(transferReason));
+                firewallLabel.setStatusText(IS_FIREWALLED_NO_TRANSFERS, getReasonText(transferReason));
             } else {
-                firewallLabel.setText(IS_FIREWALLED_TRANSFERS);
-                reasonLabel.setReasonText(null);
+                firewallLabel.setStatusText(IS_FIREWALLED_TRANSFERS, null);
             }
             
         } else {
             // Not firewalled so clear transfer status and reason.
-            firewallLabel.setText(IS_NOT_FIREWALLED);
-            reasonLabel.setReasonText(null);
+            firewallLabel.setStatusText(IS_NOT_FIREWALLED, null);
         }
     }
 
@@ -239,10 +242,22 @@ public class ConnectionSummaryPanel extends JPanel {
     }
 
     /**
-     * Label to display firewall transfer status reason.
+     * Label to display firewall transfer status and reason.  FirewallLabel
+     * displays a hyperlink when the reason is not blank; the reason is 
+     * displayed in a popup window when the link is clicked.
      */
-    private class ReasonLabel extends JLabel implements PopupProvider {
+    private class FirewallLabel extends HTMLLabel implements PopupProvider {
+        private Point popupLocation;
         private String reasonText;
+        
+        public FirewallLabel() {
+            addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    popupLocation = e.getPoint();
+                }
+            });
+        }
 
         @Override
         public Component getPopupContent() {
@@ -256,15 +271,20 @@ public class ConnectionSummaryPanel extends JPanel {
             }
         }
         
-        public void setReasonText(String reasonText) {
+        public Point getPopupLocation() {
+            return popupLocation;
+        }
+        
+        public void setStatusText(String statusText, String reasonText) {
             this.reasonText = reasonText;
             
             if ((reasonText != null) && (reasonText.length() > 0)) {
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                setText("<html>(<u>" + WHY + "</u>)</html>");
+                StringBuilder builder = new StringBuilder();
+                builder.append(statusText);
+                builder.append(" (<a href=\"#\">").append(WHY).append("</a>)");
+                setText(builder.toString());
             } else {
-                setCursor(Cursor.getDefaultCursor());
-                setText("");
+                setText(statusText);
             }
         }
     }

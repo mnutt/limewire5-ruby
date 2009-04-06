@@ -39,6 +39,9 @@ import com.google.inject.Singleton;
 @Singleton
 public class GhostDragGlassPane extends JPanel {
 
+	/** Friend that is currently being displayed */
+    private Friend currentFriend = null;
+    
     private DragPanel dragPanel;
     private float alpha = 0.85f;
     
@@ -68,6 +71,8 @@ public class GhostDragGlassPane extends JPanel {
      * the shared message.
      */
     public void setText(Friend friend) {
+        currentFriend = friend;
+        
         dragPanel.setText(friend);
         dragPanel.revalidate();
 
@@ -77,6 +82,13 @@ public class GhostDragGlassPane extends JPanel {
         dragPanel.paint(g2);
         g2.dispose();
         setImage(myImage);
+    }
+    
+    /**
+	 * Returns the friend in the ghost pane, null if no friend is selected.
+	 */
+    public Friend getCurrentFriend() {
+        return currentFriend;
     }
     
     private void setImage(BufferedImage image) {

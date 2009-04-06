@@ -3,7 +3,9 @@ package org.limewire.ui.swing.search.model;
 import java.awt.EventQueue;
 import java.io.File;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
@@ -36,8 +38,9 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
 
 /**
  * The default implementation of SearchResultsModel containing the results of
- * a search.  This assembles search results into a list, and provides 
- * processing to sort and filter the list.
+ * a search.  This assembles search results into grouped, filtered, and sorted
+ * lists, provides access to details about the search request, and handles 
+ * requests to download a search result.
  */
 class BasicSearchResultsModel implements SearchResultsModel {
     private final Log LOG = LogFactory.getLog(getClass());
@@ -66,18 +69,31 @@ class BasicSearchResultsModel implements SearchResultsModel {
     /** Observable list of grouped search results. */
     private final ObservableElementList<VisualSearchResult> observableList;
 
-    /** Sorted list of grouped search results. */
-    private final SortedList<VisualSearchResult> sortedResultList;
-
-    /** Filtered and sorted list of grouped search results. */
+    /** Filtered list of grouped search results. */
     private final FilterList<VisualSearchResult> filteredResultList;
+
+    /** Cache of filtered lists by media category. */
+    private final Map<Category, FilterList<VisualSearchResult>> categoryListMap = 
+        new EnumMap<Category, FilterList<VisualSearchResult>>(Category.class);
 
     /** Listener to handle search request events. */
     private SearchListener searchListener;
 
+    /** Current list of sorted and filtered results. */
+    private SortedList<VisualSearchResult> sortedResultList;
+
+    /** Current list of visible, sorted and filtered results. */
+    private FilterList<VisualSearchResult> visibleResultList;
+
+    /** Current selected search category. */
+    private SearchCategory selectedCategory;
+    
+    /** Current sort option. */
+    private SortOption sortOption;
+
     /**
      * Constructs a BasicSearchResultsModel with the specified search details,
-     * search request object, and property values.
+     * search request object, and services.
      */
     public BasicSearchResultsModel(SearchInfo searchInfo, Search search, 
             PropertiableHeadings propertiableHeadings,
@@ -105,10 +121,11 @@ class BasicSearchResultsModel implements SearchResultsModel {
         observableList = GlazedListsFactory.observableElementList(groupedUrnResults,
                 GlazedLists.beanConnector(VisualSearchResult.class));
         
-        // Create sorted and filtered lists.  We may want to reverse this - a
-        // filtered, unsorted list may be more useful for some tables. 
-        sortedResultList = GlazedListsFactory.sortedList(observableList, null);
-        filteredResultList = GlazedListsFactory.filterList(sortedResultList);
+        // Create filtered list. 
+        filteredResultList = GlazedListsFactory.filterList(observableList);
+        
+        // Initialize display category and sorted list.
+        setSelectedCategory(searchInfo.getSearchCategory());
     }
 
     /**
@@ -170,26 +187,87 @@ class BasicSearchResultsModel implements SearchResultsModel {
         return observableList;
     }
 
+    /**
+     * Returns a list of filtered results for the specified search category.
+     */
     @Override
     public EventList<VisualSearchResult> getCategorySearchResults(SearchCategory searchCategory) {
         if (searchCategory == SearchCategory.ALL) {
             return filteredResultList;
+            
         } else {
-            return GlazedListsFactory.filterList(filteredResultList, 
-                    new CategoryMatcher(searchCategory.getCategory()));
+            // Get filtered list from cache.
+            Category category = searchCategory.getCategory();
+            FilterList<VisualSearchResult> filteredList = categoryListMap.get(category);
+            // Create filtered list if necessary, and add to cache.
+            if (filteredList == null) {
+                filteredList = GlazedListsFactory.filterList(filteredResultList, 
+                        new CategoryMatcher(category));
+                categoryListMap.put(category, filteredList);
+            }
+            return filteredList;
+        }
+    }
+
+    /**
+     * Returns a list of sorted and filtered results for the selected search
+     * category and sort option.  Only visible results are included in the list.
+     */
+    @Override
+    public EventList<VisualSearchResult> getSortedSearchResults() {
+        return visibleResultList;
+    }
+
+    /**
+     * Returns the selected search category.
+     */
+    @Override
+    public SearchCategory getSelectedCategory() {
+        return selectedCategory;
+    }
+
+    /**
+     * Selects the specified search category.  If the selected category is
+     * changed, this method updates the sorted list.
+     */
+    @Override
+    public void setSelectedCategory(SearchCategory selectedCategory) {
+        if (this.selectedCategory != selectedCategory) {
+            this.selectedCategory = selectedCategory;
+            // Dispose of existing visible and sorted lists.
+            if (visibleResultList != null) {
+                visibleResultList.dispose();
+                sortedResultList.dispose();
+            }
+            // Update visible and sorted lists.
+            EventList<VisualSearchResult> filteredList = getCategorySearchResults(selectedCategory);
+            sortedResultList = GlazedListsFactory.sortedList(filteredList, null);
+            visibleResultList = GlazedListsFactory.filterList(sortedResultList, new VisibleMatcher());
+            sortedResultList.setComparator((sortOption != null) ? SortFactory.getSortComparator(sortOption) : null);
         }
     }
     
+    /**
+     * Sets the sort option.  This method updates the sorted list by changing 
+     * the sort comparator.
+     */
     @Override
     public void setSortOption(SortOption sortOption) {
-        sortedResultList.setComparator(SortFactory.getSortComparator(sortOption));
+        this.sortOption = sortOption;
+        sortedResultList.setComparator((sortOption != null) ? SortFactory.getSortComparator(sortOption) : null);
     }
     
+    /**
+     * Sets the MatcherEditor used to filter search results. 
+     */
     @Override
     public void setFilterEditor(MatcherEditor<VisualSearchResult> editor) {
         filteredResultList.setMatcherEditor(editor);
     }
 
+    /**
+     * Adds the specified search result to the results list.
+     */
     @Override
     public void addSearchResult(SearchResult result) {
         if(result.getUrn() == null) {
@@ -203,6 +281,9 @@ class BasicSearchResultsModel implements SearchResultsModel {
         allSearchResults.add(result);
     }
 
+    /**
+     * Removes the specified search result from the results list.
+     */
     @Override
     public void removeSearchResult(SearchResult result) {
         allSearchResults.remove(result);
@@ -275,6 +356,16 @@ class BasicSearchResultsModel implements SearchResultsModel {
         @Override
         public boolean matches(VisualSearchResult vsr) {
             return (vsr.getCategory() == category);
+        }
+    }
+
+    /**
+     * A matcher used to filter visible search results. 
+     */
+    private static class VisibleMatcher implements Matcher<VisualSearchResult> {
+        @Override
+        public boolean matches(VisualSearchResult item) {
+            return item.isVisible();
         }
     }
     

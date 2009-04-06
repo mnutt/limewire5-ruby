@@ -6,6 +6,8 @@ import java.util.List;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.lifecycle.ServiceRegistryListener;
@@ -14,7 +16,6 @@ import org.limewire.lifecycle.StagedRegisterBuilder;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Stage;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class ServiceRegistryIntegrationTest extends LimeTestCase {
     
@@ -88,7 +89,10 @@ public class ServiceRegistryIntegrationTest extends LimeTestCase {
         "OnDemandUnicaster.Expirer", "ScheduledService",
         "OnDemandUnicaster.QueriedHostsExpirer", "ScheduledService",
         "ForMeReplyHandler.Clear Push Requests", "ScheduledService",
-        "DiskContrller.CacheCleaner", "ScheduledService"};
+        "DiskContrller.CacheCleaner", "ScheduledService",
+        "urncache persister", "ScheduledService",
+        
+        };
         
         List<String> missing = new ArrayList<String>();
         

@@ -9,9 +9,8 @@ public interface ResultsContainerFactory {
 
     /**
      * Creates a new ResultsContainer using the specified search results data
-     * model and selection preserver.
+     * model.
      */
-    public ResultsContainer create(SearchResultsModel searchResultsModel,
-            RowSelectionPreserver preserver);
+    public ResultsContainer create(SearchResultsModel searchResultsModel);
     
 }

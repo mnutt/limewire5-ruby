@@ -1,8 +1,8 @@
 package org.limewire.xmpp.activity;
 
-import org.limewire.listener.DefaultSourceEvent;
+import org.limewire.listener.DefaultSourcedEvent;
 
-public class XmppActivityEvent extends DefaultSourceEvent<XmppActivityEvent.ActivityState>{
+public class XmppActivityEvent extends DefaultSourcedEvent<XmppActivityEvent.ActivityState>{
     public static enum ActivityState {
         Active, Idle
     }

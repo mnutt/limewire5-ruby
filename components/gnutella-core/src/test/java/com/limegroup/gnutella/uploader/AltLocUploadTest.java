@@ -44,6 +44,8 @@ import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.UltrapeerSettings;
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.http.httpclient.HttpClientUtils;
 import org.limewire.io.GUID;
 import org.limewire.util.TestUtils;
@@ -58,7 +60,6 @@ import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.HTTPAcceptor;
 import com.limegroup.gnutella.HTTPUploadManager;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.ReplyHandler;
 import com.limegroup.gnutella.Response;
@@ -89,7 +90,6 @@ import com.limegroup.gnutella.messages.vendor.HeadPong;
 import com.limegroup.gnutella.statistics.TcpBandwidthStatistics;
 import com.limegroup.gnutella.uploader.authentication.GnutellaBrowseFileListProvider;
 import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileListProvider;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class AltLocUploadTest extends LimeTestCase {
 
@@ -192,8 +192,8 @@ public class AltLocUploadTest extends LimeTestCase {
     private void doSettings() throws UnknownHostException {
         SharingSettings.ADD_ALTERNATE_FOR_SELF.setValue(false);
         FilterSettings.BLACK_LISTED_IP_ADDRESSES
-                .setValue(new String[] { "*.*.*.*" });
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(new String[] {
+                .set(new String[] { "*.*.*.*" });
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(new String[] {
                 "127.*.*.*", InetAddress.getLocalHost().getHostAddress() });
         NetworkSettings.PORT.setValue(PORT);
         UploadSettings.HARD_MAX_UPLOADS.setValue(10);
@@ -921,7 +921,7 @@ public class AltLocUploadTest extends LimeTestCase {
      * tests that when an altloc has expired from all the meshes it is removed.
      */
     public void testExpiredAltsRemoved() throws Exception {
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(new String[] { "*.*.*.*" });
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(new String[] { "*.*.*.*" });
         injector.getInstance(IPFilter.class).refreshHosts();
         // set the expiration values to the bare minimum
         UploadSettings.EXPIRE_LEGACY.setValue(true);

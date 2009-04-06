@@ -49,6 +49,7 @@ public class XMPPServiceTest extends XmppBaseTestCase {
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         addressRegistry = injector.getInstance(XMPPAddressRegistry.class);
@@ -66,17 +67,20 @@ public class XMPPServiceTest extends XmppBaseTestCase {
         assertEquals(1, bobRosterListener.countPresences(USERNAME_1));
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         assertEquals(0, aliceRosterListener.getRosterSize());
         assertEquals(0, bobRosterListener.getRosterSize());
     }
 
+    @Override
     protected List<Module> getServiceModules() {
         List<Module> defaultServiceModules = super.getServiceModules();
         List<Module> serviceModules = new ArrayList<Module>();
         fileOfferHandler = new FileOfferHandlerMock();
         serviceModules.add(new AbstractModule() {
+            @Override
             protected void configure() {
                 bind(FileOfferHandlerMock.class).toInstance(fileOfferHandler);
             }

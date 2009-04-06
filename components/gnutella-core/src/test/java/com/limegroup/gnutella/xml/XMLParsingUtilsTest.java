@@ -8,12 +8,12 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.NameValue;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Tests for the XMLParsingUtils class

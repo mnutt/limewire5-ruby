@@ -6,6 +6,9 @@ import java.util.List;
 import org.limewire.i18n.I18nMarker;
 
 
+/**
+ * Represents a category for the various file types represented in the application. 
+ */
 public enum Category {
 
     AUDIO(I18nMarker.marktr("Audio"), I18nMarker.marktr("Audio")),
@@ -24,10 +27,16 @@ public enum Category {
         this.plural = plural;
     }
     
+    /**
+     * Returns the name of the category when referring to a single item. 
+     */
     public String getSingularName() {
         return singular;
     }
-    
+
+    /**
+     * Returns the name of the category when referring to many items. 
+     */
     public String getPluralName() {
         return plural;
     }
@@ -37,6 +46,9 @@ public enum Category {
         return plural;
     }
     
+    /**
+     * Returns a List with the categories in the order we would like them to be displayed. 
+     */
     public static List<Category> getCategoriesInOrder() {
         return Arrays.asList(AUDIO, VIDEO, IMAGE, DOCUMENT, PROGRAM, OTHER);
     }

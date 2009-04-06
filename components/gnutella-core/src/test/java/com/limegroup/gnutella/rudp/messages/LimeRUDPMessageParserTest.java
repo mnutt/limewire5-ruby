@@ -6,6 +6,7 @@ import java.util.Random;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.rudp.messages.AckMessage;
 import org.limewire.rudp.messages.DataMessage;
 import org.limewire.rudp.messages.FinMessage;
@@ -18,7 +19,6 @@ import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.MessageFactory.MessageParser;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class LimeRUDPMessageParserTest extends LimeTestCase {
     

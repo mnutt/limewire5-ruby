@@ -11,11 +11,12 @@ import org.limewire.ui.swing.downloads.DownloadMediator;
 import org.limewire.ui.swing.downloads.DownloadSummaryPanel;
 import org.limewire.ui.swing.friends.chat.ChatFramePanel;
 import org.limewire.ui.swing.mainframe.LeftPanel;
-import org.limewire.ui.swing.util.EnabledListener;
 import org.limewire.ui.swing.util.ForceInvisibleComponent;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.VisibilityListener;
 import org.limewire.ui.swing.util.VisibleComponent;
+import org.limewire.ui.swing.util.VisibilityType;
+import org.limewire.ui.swing.util.EnabledType;
+import org.limewire.listener.EventListener;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
@@ -87,10 +88,10 @@ public class ViewMenu extends MnemonicMenu {
      * of the specified action, and initializes its enabled state. 
      */
     private void addEnabledListener(VisibleComponent component, final Action action) {
-        component.addEnabledListener(new EnabledListener() {
+        component.addEnabledListener(new EventListener<EnabledType>() {
             @Override
-            public void enabledChanged(boolean enabled) {
-                action.setEnabled(enabled);
+            public void handleEvent(EnabledType enabledType) {
+                action.setEnabled(enabledType.isEnabled());
             }
         });
         action.setEnabled(component.isActionEnabled());
@@ -98,16 +99,17 @@ public class ViewMenu extends MnemonicMenu {
 
     private void addVisibilityListener(VisibleComponent component, final Action action,
             final String visibleName, final String notVisibleName) {
-        component.addVisibilityListener(new VisibilityListener() {
+        EventListener<VisibilityType> listener = new EventListener<VisibilityType>() {
             @Override
-            public void visibilityChanged(boolean visible) {
-                if (visible) {
+            public void handleEvent(VisibilityType visibilityType) {
+                if (visibilityType == VisibilityType.VISIBLE) {
                     action.putValue(Action.NAME, visibleName);
                 } else {
                     action.putValue(Action.NAME, notVisibleName);
                 }
             }
-        });
+        };
+        component.addVisibilityListener(listener);
     }
 
     private void setInitialText(VisibleComponent component, final Action action,

@@ -34,7 +34,7 @@ public class AuthenticateTest extends AbstractCommunicationSupportWithNoLocalSer
         assertEquals(LWSDispatcherSupport.PING_BYTES.length, sendPing().length());
     }
     
-    public void testPingBeforfeAuthentication() {
+    public void testPingBeforeAuthentication() {
         assertEquals(LWSDispatcherSupport.ErrorCodes.UNKNOWN_COMMAND,LWSServerUtil.unwrapError(sendPing()));
     }    
 

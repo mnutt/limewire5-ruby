@@ -260,7 +260,7 @@ class LibraryFileData extends AbstractSettingsGroup {
 
     /** Retuns true if the given folder is the incomplete folder. */
     boolean isIncompleteDirectory(File folder) {
-        return FileUtils.canonicalize(SharingSettings.INCOMPLETE_DIRECTORY.getValue()).equals(folder);
+        return FileUtils.canonicalize(SharingSettings.INCOMPLETE_DIRECTORY.get()).equals(folder);
     }
     
     /** Gets the list of directories to exclude from recursive management. */

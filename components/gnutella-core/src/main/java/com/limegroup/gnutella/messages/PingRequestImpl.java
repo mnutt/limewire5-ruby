@@ -120,7 +120,7 @@ public class PingRequestImpl extends AbstractMessage implements PingRequest {
     private void addBasicGGEPs() {
         List<NameValue<?>> l = new LinkedList<NameValue<?>>();
         l.add(new NameValue<String>(GGEPKeys.GGEP_HEADER_CLIENT_LOCALE, 
-                            ApplicationSettings.LANGUAGE.getValue()));
+                            ApplicationSettings.LANGUAGE.get()));
         addGGEPs(l);
     }
     
@@ -156,7 +156,7 @@ public class PingRequestImpl extends AbstractMessage implements PingRequest {
             } catch(BadGGEPPropertyException ignoredToo) {}
         }
         
-        return ApplicationSettings.DEFAULT_LOCALE.getValue();
+        return ApplicationSettings.DEFAULT_LOCALE.get();
     }
     
     /**

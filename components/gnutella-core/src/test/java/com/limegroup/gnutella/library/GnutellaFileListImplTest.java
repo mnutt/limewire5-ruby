@@ -28,17 +28,17 @@ import junit.framework.Test;
 
 import org.limewire.collection.CollectionUtils;
 import org.limewire.core.settings.ContentSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.lifecycle.ServiceRegistry;
 
 import com.google.inject.Injector;
 import com.google.inject.Stage;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.auth.StubContentResponseObserver;
 import com.limegroup.gnutella.auth.UrnValidator;
 import com.limegroup.gnutella.messages.vendor.ContentResponse;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class GnutellaFileListImplTest extends LimeTestCase {
 

@@ -203,22 +203,23 @@
 	</macrodef>
     
     <macrodef name="do.resolve-dependencies" description="retreive dependencies with ivy">
-        <attribute name="conf"/>
         <attribute name="ivy.file" default="${limewire.components.this.home}/ivy.xml"/>
         <sequential>
-            <mkdir dir="${build.limewire.components.this.lib}/@{conf}"/>
-            <ivy:resolve  conf="@{conf}"
+            <mkdir dir="${build.limewire.components.this.lib}"/>
+            <ivy:resolve  conf="*"
                           file="@{ivy.file}"
                           log="quiet"/>
-            <ivy:retrieve
-                     conf="@{conf}"
-                     pattern="${build.limewire.components.this.lib}/[conf]/[type]/[artifact](-[revision]).[ext]"
-                     sync="true"
-                     symlink="true"
-                     log="quiet"/>
+            <ivy:retrieve conf="*"
+                          pattern="${build.limewire.components.this.lib}/[conf]/[type]/[artifact](-[revision]).[ext]"
+                          sync="true"
+                          symlink="true"
+                          log="quiet"/>
+                          
             <!-- because ivy:retrieve has sync==true, if there are no dependencies, the dir will be removed.
                  we don't want it removed, because then javac fails because the classpath is missing. -->
-            <mkdir dir="${build.limewire.components.this.lib}/@{conf}"/>
+            <mkdir dir="${build.limewire.components.this.lib}/compile"/>
+            <mkdir dir="${build.limewire.components.this.lib}/test"/>
+            <mkdir dir="${build.limewire.components.this.lib}/test-common"/>
         </sequential>
     </macrodef>
 	
@@ -230,7 +231,7 @@
 	        <do.build-init/>
             <mkdir dir="${limewire.components.this.src}"/>
 			<mkdir dir="${build.limewire.components.this.classes}"/>
-            <do.resolve-dependencies conf="compile"/>
+            <do.resolve-dependencies/>
 			<javac destdir		="${build.limewire.components.this.classes}"
  				   debug	    ="${compile.debug}"
 				   deprecation  ="${compile.deprecation}"
@@ -254,7 +255,6 @@
 			 but this works for now. -->
             <mkdir dir="${limewire.components.this.test-common}"/>
 			<mkdir dir="${build.limewire.components.this.test-common.classes}"/>			 
-			<do.resolve-dependencies conf="test-common"/>
             <javac destdir		="${build.limewire.components.this.test-common.classes}"
  				   debug	    ="${compile.debug}"
 				   deprecation  ="${compile.deprecation}"
@@ -287,7 +287,7 @@
             <echo message="compiling tests for ${component}..." />
             <mkdir dir="${limewire.components.this.tests}"/>
 			<mkdir dir="${build.limewire.components.this.tests}"/>
-            <do.resolve-dependencies conf="test"/>
+            <do.resolve-dependencies/>
 			<javac destdir		="${build.limewire.components.this.tests}"
  				   debug	    ="${compile.debug}"
 				   deprecation  ="${compile.deprecation}"
@@ -362,20 +362,20 @@
         <attribute name="compress"    default="false"/>
         <sequential>
             <do.dist-init/>
-            <delete file="${dist.limewire.components.this.src.jar}"/>
             <mkdir dir="${limewire.components.this.src.resources}"/>
             <jar destfile="${dist.limewire.components.this.src.jar}"
             	 compress="@{compress}"
                  basedir="${build.limewire.components.this.classes}"
+                 whenmanifestonly="skip"
             >
                 <fileset dir="${limewire.components.this.src.resources}"/>
             </jar>
             
-            <delete file="${dist.limewire.components.this.test-common.jar}"/>
             <mkdir dir="${limewire.components.this.test-common.resources}"/>
             <jar destfile="${dist.limewire.components.this.test-common.jar}"
             	 compress="@{compress}"
                  basedir="${build.limewire.components.this.test-common.classes}"
+                 whenmanifestonly="skip"
             >
                 <fileset dir="${limewire.components.this.test-common.resources}"/>
             </jar>            

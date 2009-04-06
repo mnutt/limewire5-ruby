@@ -191,6 +191,7 @@ public class ServiceRegistryImplTest extends BaseTestCase {
             this.timeToSleep = timeToSleep;
         }
         
+        @Override
         @Asynchronous 
         public void stop() {
             super.stop();

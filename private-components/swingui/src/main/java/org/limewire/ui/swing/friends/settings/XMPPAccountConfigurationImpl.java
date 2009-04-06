@@ -1,10 +1,12 @@
 package org.limewire.ui.swing.friends.settings;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.Icon;
 
 import org.jdesktop.swingx.icon.EmptyIcon;
+import org.limewire.io.UnresolvedIpPort;
 import org.limewire.listener.EventListener;
 import org.limewire.util.StringUtils;
 import org.limewire.xmpp.api.client.RosterEvent;
@@ -25,18 +27,19 @@ class XMPPAccountConfigurationImpl implements XMPPAccountConfiguration {
     private volatile String label;
     private volatile String username;
     private volatile String password;
+    private final List<UnresolvedIpPort> defaultServers;
     
     /** Constructs an XMPPAccountConfiguration with the following parameters. */
-    public XMPPAccountConfigurationImpl(boolean requireDomain, String serviceName, String label, Icon icon, String resource) {
-        this(requireDomain, serviceName, label, icon, resource, true);
+    public XMPPAccountConfigurationImpl(boolean requireDomain, String serviceName, String label, Icon icon, String resource, List<UnresolvedIpPort> defaultServers) {
+        this(requireDomain, serviceName, label, icon, resource, defaultServers, true);
     }
     
     /** Constructs a basic XMPPAccountConfiguration that cannot modify the serviceName. */
     public XMPPAccountConfigurationImpl(String serviceName, String label, String resource) {
-        this(false, serviceName, label, null, resource, false);
+        this(false, serviceName, label, null, resource, UnresolvedIpPort.EMPTY_LIST, false);
     }
     
-    private XMPPAccountConfigurationImpl(boolean requireDomain, String serviceName, String label, Icon icon, String resource, boolean modifyUser) {
+    private XMPPAccountConfigurationImpl(boolean requireDomain, String serviceName, String label, Icon icon, String resource, List<UnresolvedIpPort> defaultServers, boolean modifyUser) {
         this.resource = resource;
         this.modifyUser = modifyUser;
         this.isDebugEnabled = false;
@@ -50,6 +53,7 @@ class XMPPAccountConfigurationImpl implements XMPPAccountConfiguration {
         }
         this.username = "";
         this.password = "";
+        this.defaultServers = defaultServers;
     }
 
     @Override
@@ -135,5 +139,10 @@ class XMPPAccountConfigurationImpl implements XMPPAccountConfiguration {
     @Override
     public String toString() {
         return StringUtils.toStringBlacklist(this, password);
+    }
+
+    @Override
+    public List<UnresolvedIpPort> getDefaultServers() {
+        return defaultServers;
     }
 }

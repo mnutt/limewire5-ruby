@@ -10,6 +10,9 @@ import org.limewire.collection.BitField;
 import com.limegroup.bittorrent.BTInterval;
 import com.limegroup.bittorrent.BTMetaInfo;
 
+/**
+ * Picks a random available piece to download.
+ */
 public class RandomPieceStrategy extends AbstractPieceStrategy {
 
     private final Random randomizer;

@@ -518,7 +518,7 @@ class NodeAssignerImpl implements NodeAssigner, Service {
                     dhtManager.get().stop();
                 }
                 
-                DHTSettings.DHT_MODE.setValue(to.toString());
+                DHTSettings.DHT_MODE.set(to.toString());
             }
         };
         

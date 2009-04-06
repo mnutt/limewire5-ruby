@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 
 import com.google.inject.Injector;

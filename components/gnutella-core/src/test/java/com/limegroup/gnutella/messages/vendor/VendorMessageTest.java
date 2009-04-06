@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.io.NetworkUtils;
 import org.limewire.security.AddressSecurityToken;
@@ -16,7 +17,6 @@ import org.limewire.util.BaseTestCase;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.handshaking.HeaderNames;

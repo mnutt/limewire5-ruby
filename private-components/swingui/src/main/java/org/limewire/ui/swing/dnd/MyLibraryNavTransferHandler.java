@@ -32,6 +32,7 @@ public class MyLibraryNavTransferHandler extends TransferHandler {
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
     }
 
+    @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
         return !info.isDataFlavorSupported(LocalFileTransferable.LOCAL_FILE_DATA_FLAVOR) && (info.isDataFlavorSupported(RemoteFileTransferable.REMOTE_FILE_DATA_FLAVOR)
                 || DNDUtils.containsFileFlavors(info));

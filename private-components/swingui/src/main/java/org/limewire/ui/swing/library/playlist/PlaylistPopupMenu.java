@@ -59,6 +59,7 @@ public class PlaylistPopupMenu extends JPopupMenu {
 
         boolean playActionEnabled = singleFile;
         boolean locateActionEnabled = singleFile && !firstItem.isIncomplete();
+        boolean libraryActionEnabled = singleFile && !firstItem.isIncomplete();
         boolean viewFileInfoEnabled = singleFile;
 
         // Remove all menu items.
@@ -67,13 +68,13 @@ public class PlaylistPopupMenu extends JPopupMenu {
         // Add Play menu item.
         add(new PlayAction(libraryNavigator, new Catalog(playlist), firstItem)).setEnabled(playActionEnabled);
 
-        // Add Locate File menu item.
+        // Add Locate File and Locate in Library menu items.
         addSeparator();
         add(new LocateFileAction(firstItem)).setEnabled(locateActionEnabled);
+        add(new LibraryAction(firstItem)).setEnabled(libraryActionEnabled);
 
-        // Add Remove from and Clear playlist menu items.
+        // Add Remove from playlist menu item.
         add(new RemoveAction());
-        add(new ClearAction());
 
         // Add View File Info menu item.  Use the underlying file item, usually
         // a CoreLocalFileItem, so the properties dialog can perform the Copy
@@ -106,17 +107,20 @@ public class PlaylistPopupMenu extends JPopupMenu {
     }
 
     /**
-     * Menu action to clear the playlist.
+     * Menu action to locate file in library.
      */
-    private class ClearAction extends AbstractAction {
-        
-        public ClearAction() {
-            super(I18n.tr("Clear playlist"));
-        }
+    private class LibraryAction extends AbstractAction {
 
+        private final LocalFileItem localItem;
+        
+        public LibraryAction(LocalFileItem localItem) {
+            super(I18n.tr("Locate in Library"));
+            this.localItem = localItem;
+        }
+        
         @Override
-        public void actionPerformed(ActionEvent arg0) {
-            playlist.clear();
+        public void actionPerformed(ActionEvent e) {
+            libraryNavigator.selectInLibrary(localItem.getFile(), localItem.getCategory());
         }
     }
 }

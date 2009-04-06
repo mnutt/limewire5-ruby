@@ -38,7 +38,7 @@ public class SpamOptionPanel extends OptionPanel {
         p.setBorder(BorderFactory.createTitledBorder(""));
         p.setLayout(new MigLayout("gapy 10"));
         
-        clearSpamButton = new JButton(I18n.tr("Clear Spam"));
+        clearSpamButton = new JButton(I18n.tr("Clear Filter"));
         clearSpamButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {

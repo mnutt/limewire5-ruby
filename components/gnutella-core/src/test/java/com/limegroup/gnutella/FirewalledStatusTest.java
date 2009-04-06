@@ -3,6 +3,7 @@ package com.limegroup.gnutella;
 import java.net.Socket;
 
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.gnutella.tests.LimeTestUtils;
 
 import junit.framework.Test;
 

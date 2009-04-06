@@ -15,6 +15,8 @@ import org.limewire.http.httpclient.LimeHttpClient;
 import org.limewire.http.httpclient.SimpleLimeHttpClient;
 import org.limewire.lws.server.LWSDispatcher;
 import org.limewire.lws.server.LWSDispatcherSupport;
+import org.limewire.lws.server.LocalServerImpl;
+import org.limewire.lws.server.LocalServerDelegate;
 
 /**
  * Send commands via the the {@link LimeHttpClient}.

@@ -17,7 +17,7 @@ public class SettingsBackedSocketBindingSettings implements SocketBindingSetting
     }
 
     public String getAddressToBindTo() {
-        return ConnectionSettings.CUSTOM_INETADRESS.getValue();
+        return ConnectionSettings.CUSTOM_INETADRESS.get();
     }
 
     public boolean isSocketBindingRequired() {

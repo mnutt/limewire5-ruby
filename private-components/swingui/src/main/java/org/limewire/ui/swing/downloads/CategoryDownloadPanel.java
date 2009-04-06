@@ -50,13 +50,14 @@ public class CategoryDownloadPanel extends JPanel {
             case DONE: return 1;
             case FINISHING: return 2;
             case DOWNLOADING: return 3;
-            case CONNECTING: return 4;
-            case PAUSED: return 5;
-            case REMOTE_QUEUED: return 6;
-            case LOCAL_QUEUED: return 7;
-            case TRYING_AGAIN: return 8;
-            case STALLED: return 9;
-            case ERROR: return 10;            
+            case RESUMING: return 4;
+            case CONNECTING: return 5;
+            case PAUSED: return 6;
+            case REMOTE_QUEUED: return 7;
+            case LOCAL_QUEUED: return 8;
+            case TRYING_AGAIN: return 9;
+            case STALLED: return 10;
+            case ERROR: return 11;            
             }
             
            throw new IllegalArgumentException("Unknown DownloadState: " + state);

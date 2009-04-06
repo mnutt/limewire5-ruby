@@ -42,10 +42,10 @@ public class URNFilter implements SpamFilter {
     public void refreshURNs() {
         blacklist.clear();
         try {
-            for(String s : FilterSettings.FILTERED_URNS_LOCAL.getValue())
+            for(String s : FilterSettings.FILTERED_URNS_LOCAL.get())
                 blacklist.add(URN.createSHA1Urn("urn:sha1:" + s));
             if(FilterSettings.USE_NETWORK_FILTER.getValue()) {
-                for(String s : FilterSettings.FILTERED_URNS_REMOTE.getValue())
+                for(String s : FilterSettings.FILTERED_URNS_REMOTE.get())
                     blacklist.add(URN.createSHA1Urn("urn:sha1:" + s));
             }
         } catch (IOException iox) {

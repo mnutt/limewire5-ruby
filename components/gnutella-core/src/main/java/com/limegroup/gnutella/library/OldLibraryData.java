@@ -97,7 +97,7 @@ final class OldLibraryData extends AbstractSettingsGroup {
 	@SuppressWarnings("deprecation")
     public final void clean() {
 	    OldLibrarySettings.DIRECTORIES_TO_SHARE.clean();
-		Set<File> parents = OldLibrarySettings.DIRECTORIES_TO_SHARE.getValue();
+		Set<File> parents = OldLibrarySettings.DIRECTORIES_TO_SHARE.get();
 		clean(DIRECTORIES_NOT_TO_SHARE, parents);
 		clean(FILES_NOT_TO_SHARE, parents);
 		clean(SENSITIVE_DIRECTORIES_VALIDATED, parents);

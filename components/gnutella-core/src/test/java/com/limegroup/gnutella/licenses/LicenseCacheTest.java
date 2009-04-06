@@ -3,9 +3,9 @@ package com.limegroup.gnutella.licenses;
 import java.io.File;
 import java.net.URI;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.util.CommonUtils;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class LicenseCacheTest extends LimeTestCase {
 

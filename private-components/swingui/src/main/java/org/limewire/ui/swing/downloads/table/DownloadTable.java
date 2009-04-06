@@ -50,7 +50,8 @@ public class DownloadTable extends AbstractDownloadTable {
         setRowHeight(this.rowHeight);
     }
 	
-	public DownloadItem getDownloadItem(int row){
+	@Override
+    public DownloadItem getDownloadItem(int row){
 	    return model.getDownloadItem(convertRowIndexToModel(row));
 	}
 

@@ -8,17 +8,20 @@ import java.util.StringTokenizer;
 
 import org.limewire.collection.BitNumbers;
 import org.limewire.io.Connectable;
-import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
 import org.limewire.io.InvalidDataException;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortSet;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.io.NetworkUtils;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.http.HTTPConstants;
 import com.limegroup.gnutella.http.HTTPUtils;
 import com.limegroup.gnutella.messages.BadPacketException;
@@ -26,18 +29,23 @@ import com.limegroup.gnutella.messages.BadPacketException;
 @Singleton
 public class PushEndpointFactoryImpl implements PushEndpointFactory {
 
+    private static final Log LOG = LogFactory.getLog(PushEndpointFactoryImpl.class);
+    
     private final Provider<PushEndpointCache> pushEndpointCache;
     private final Provider<SelfEndpoint> selfProvider;
     private final NetworkInstanceUtils networkInstanceUtils;
+    private final Provider<IPFilter> hostileFilter;
     
     @Inject
     public PushEndpointFactoryImpl(
             Provider<PushEndpointCache> pushEndpointCache,
             Provider<SelfEndpoint> selfProvider, 
-            NetworkInstanceUtils networkInstanceUtils) {
+            NetworkInstanceUtils networkInstanceUtils,
+            @Named("hostileFilter") Provider<IPFilter> hostileFilter) {
         this.pushEndpointCache = pushEndpointCache;
         this.selfProvider = selfProvider;
         this.networkInstanceUtils = networkInstanceUtils;
+        this.hostileFilter = hostileFilter;
     }       
     
     public PushEndpoint createPushEndpoint(byte[] guid) {
@@ -109,9 +117,9 @@ public class PushEndpointFactoryImpl implements PushEndpointFactory {
                 // if its not the header, try to parse it as a push proxy
                 try {
                     Connectable ipp = NetworkUtils.parseIpPort(current, tlsCapable);
-                    if(!networkInstanceUtils.isPrivateAddress(ipp.getInetAddress()))
+                    if (isGoodPushProxy(ipp)) {
                         proxies.add(ipp);
-                    continue;
+                    }
                 } catch(IOException ohWell) {
                     tlsProxies = null; // stop adding TLS, since our index may be off
                 }
@@ -179,10 +187,11 @@ public class PushEndpointFactoryImpl implements PushEndpointFactory {
         for (int i = 0; i < number; i++) {
             dais.readFully(tmp);
             try {
-                IpPort ipp = NetworkUtils.getIpPort(tmp, ByteOrder.LITTLE_ENDIAN);
-                if(bn != null && bn.isSet(i))
-                    ipp = new ConnectableImpl(ipp, true);
-                proxies.add(ipp);
+                boolean tlsCapable = bn != null && bn.isSet(i);
+                Connectable ipp = NetworkUtils.getConnectable(tmp, ByteOrder.LITTLE_ENDIAN, tlsCapable);
+                if (isGoodPushProxy(ipp)) {
+                    proxies.add(ipp);
+                }
             } catch(InvalidDataException ide) {
                 throw new BadPacketException(ide);
             }
@@ -200,4 +209,15 @@ public class PushEndpointFactoryImpl implements PushEndpointFactory {
         return selfProvider.get(); 
     }
 
+    boolean isGoodPushProxy(Connectable connectable) {
+        if (networkInstanceUtils.isPrivateAddress(connectable.getInetAddress())) {
+            LOG.debugf("push proxy not public: {0}", connectable);
+            return false;
+        }
+        if (!hostileFilter.get().allow(connectable)) {
+            LOG.debugf("push proxy hostile: {0}", connectable);
+            return false;
+        }
+        return true;
+    }
 }

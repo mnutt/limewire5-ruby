@@ -11,6 +11,8 @@ import junit.framework.Test;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.listener.EventListenerList;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.nio.observer.IOErrorObserver;
@@ -25,7 +27,6 @@ import org.limewire.util.PrivilegedAccessor;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.LifecycleManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.ReplyHandler;
@@ -34,7 +35,6 @@ import com.limegroup.gnutella.messagehandlers.MessageHandler;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.rudp.messages.LimeRUDPMessageHelper;
 import com.limegroup.gnutella.rudp.messages.RUDPMessageHandlerHelper;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class RUDPIntegrationTest extends LimeTestCase {
     
@@ -64,8 +64,8 @@ public class RUDPIntegrationTest extends LimeTestCase {
     
     private static void setSettings() throws Exception {
         String localIP = InetAddress.getLocalHost().getHostAddress();
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(new String[] {"127.*.*.*", localIP});
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(new String[] {"*.*.*.*"});
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(new String[] {"127.*.*.*", localIP});
         NetworkSettings.PORT.setValue(PORT);
         ConnectionSettings.CONNECT_ON_STARTUP.setValue(false);
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);

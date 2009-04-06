@@ -32,7 +32,7 @@ public class SettingsBasedContentAuthority implements ContentAuthority {
      * Initializes this with the proper IpPortContentAuthorities.
      */
     public boolean initialize() {
-        String[] hosts = ContentSettings.AUTHORITIES.getValue();
+        String[] hosts = ContentSettings.AUTHORITIES.get();
         List<ContentAuthority> dns = new ArrayList<ContentAuthority>(hosts.length);
         for(int i = 0; i < hosts.length; i++) {
             try {

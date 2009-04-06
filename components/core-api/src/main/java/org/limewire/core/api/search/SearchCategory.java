@@ -14,9 +14,7 @@ public enum SearchCategory {
     IMAGE(Category.IMAGE, 3),
     DOCUMENT(Category.DOCUMENT, 4), 
     PROGRAM(Category.PROGRAM, 5), 
-    OTHER(Category.OTHER, 6),
-    
-    ;
+    OTHER(Category.OTHER, 6);
     
     private static final EnumMap<Category, SearchCategory> perCategory = new EnumMap<Category, SearchCategory>(Category.class);
 
@@ -48,6 +46,8 @@ public enum SearchCategory {
     /** 
      * Returns the {@link SearchCategory} associated with the given ID, as
      * returned by {@link SearchCategory#getId()}.
+     * 
+     * <p>If the id does not match any members ALL is returned.
      */
     public static SearchCategory forId(Integer id) {
         for(SearchCategory category : values()) {
@@ -55,7 +55,7 @@ public enum SearchCategory {
                 return category;
             }
         }
-        return SearchCategory.ALL;
+        return ALL;
     }
     
     /**

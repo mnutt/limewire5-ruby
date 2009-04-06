@@ -19,6 +19,12 @@ import com.limegroup.bittorrent.BTInterval;
 import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.bittorrent.disk.BlockRangeMap;
 
+/**
+ * Pieces strategy which allows for downloading endgame pieces. Whether or not a
+ * pieces is already being downloaded. If there are no other pieces to request
+ * that same piece can be downloaded by multiple connections in order to finish
+ * the download sooner.
+ */
 public class EndGamePieceStrategy implements PieceStrategy {
     private static final Log LOG = LogFactory.getLog(EndGamePieceStrategy.class);
 
@@ -70,7 +76,8 @@ public class EndGamePieceStrategy implements PieceStrategy {
         // prepare a list of partial or requested blocks the remote host has
         Collection<Integer> available = null;
         for (int requested : requestedAndPartial) {
-            if (!availableBlocks.get(requested) || btMetaInfo.isCompleteBlock(requested, partialBlocks)) {
+            if (!availableBlocks.get(requested)
+                    || btMetaInfo.isCompleteBlock(requested, partialBlocks)) {
                 continue;
             }
 
@@ -133,7 +140,7 @@ public class EndGamePieceStrategy implements PieceStrategy {
                     try {
                         needed = requested.clone();
                     } catch (CloneNotSupportedException e) {
-                       throw new RuntimeException(e);
+                        throw new RuntimeException(e);
                     }
 
                     // exclude the specified intervals again

@@ -47,6 +47,7 @@ class DownloadItemPropertyListener implements PropertyChangeListener {
             case REMOTE_QUEUED:
             case STALLED:
             case FINISHING:
+            case RESUMING:
             case DOWNLOADING:
                 setDownloadState(BasicDownloadState.DOWNLOADING);
                 break;

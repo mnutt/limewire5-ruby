@@ -32,6 +32,16 @@ public final class ByteSetting extends AbstractNumberSetting<Byte> {
 		super(defaultProps, props, key, String.valueOf(defaultByte), 
               true, min, max);
 	}
+	
+	@Override
+	public Byte get() {
+	    return getValue();
+	}
+	
+	@Override
+	public void set(Byte newValue) {
+	    setValue(newValue);
+	}
         
 	/**
 	 * Returns the value of this setting.

@@ -228,6 +228,7 @@ public class UserImpl implements User {
         }
     }
 
+    @Override
     public String toString() {
         return StringUtils.toString(this, id, getName());
     }

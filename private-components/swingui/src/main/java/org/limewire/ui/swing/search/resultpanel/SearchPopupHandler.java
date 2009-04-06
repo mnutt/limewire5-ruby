@@ -7,18 +7,17 @@ import java.util.List;
 
 import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
-import org.limewire.ui.swing.table.ConfigurableTable;
 import org.limewire.ui.swing.table.TablePopupHandler;
 
 public class SearchPopupHandler implements TablePopupHandler {
 
-    private final ConfigurableTable<VisualSearchResult> configTable;
+    private final ResultsTable<VisualSearchResult> resultsTable;
     private final DownloadHandler downloadHandler;
     private final PropertiesFactory<VisualSearchResult> properties;
 
-    public SearchPopupHandler(ConfigurableTable<VisualSearchResult> configTable,
+    public SearchPopupHandler(ResultsTable<VisualSearchResult> resultsTable,
             DownloadHandler downloadHandler, PropertiesFactory<VisualSearchResult> properties) {
-        this.configTable = configTable;
+        this.resultsTable = resultsTable;
         this.downloadHandler = downloadHandler;
         this.properties = properties;
     }
@@ -31,19 +30,19 @@ public class SearchPopupHandler implements TablePopupHandler {
     @Override
     public void maybeShowPopup(Component component, int x, int y) {
 
-        List<Integer> selectedRows = asList(configTable.getSelectedRows());
-        int popupRow = configTable.rowAtPoint(new Point(x, y));
+        List<Integer> selectedRows = asList(resultsTable.getSelectedRows());
+        int popupRow = resultsTable.rowAtPoint(new Point(x, y));
         
         if (selectedRows.size() <= 1 || !selectedRows.contains(popupRow)) {
             selectedRows.clear();
             selectedRows.add(popupRow);
-            configTable.setRowSelectionInterval(popupRow, popupRow);
+            resultsTable.setRowSelectionInterval(popupRow, popupRow);
         }
 
         List<VisualSearchResult> selectedItems = new ArrayList<VisualSearchResult>();
         for (Integer row : selectedRows) {
             if (row != -1) {
-                VisualSearchResult visualSearchResult = configTable.getEventTableModel()
+                VisualSearchResult visualSearchResult = resultsTable.getEventTableModel()
                         .getElementAt(row);
                 if (visualSearchResult != null) {
                     selectedItems.add(visualSearchResult);

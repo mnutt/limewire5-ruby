@@ -52,7 +52,7 @@ import com.google.inject.assistedinject.AssistedInject;
 /**
  * This is the top-level container for the search results display.  
  * SearchResultsPanel contains several UI components, including the category
- * tab items, the sort and filter panel, the sponsored results, and the search
+ * tab items, sort and filter panel, sponsored results panel, and search
  * results tables.
  */
 public class SearchResultsPanel extends JXPanel implements SponsoredResultsView, Disposable {
@@ -123,7 +123,6 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
             SortAndFilterPanelFactory sortAndFilterFactory,
             SearchTabItemsFactory searchTabItemsFactory,
             SponsoredResultsPanel sponsoredResultsPanel,
-            RowSelectionPreserver preserver,
             HeaderBarDecorator headerBarDecorator) {        
 
         GuiUtils.assignResources(this);
@@ -135,7 +134,7 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
         this.sponsoredResultsPanel.setVisible(false);
         
         // Create sort and filter components.
-        this.sortAndFilterPanel = sortAndFilterFactory.create(searchResultsModel, preserver);
+        this.sortAndFilterPanel = sortAndFilterFactory.create(searchResultsModel);
         
         scrollPane = new JScrollPane();
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -143,7 +142,7 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
         configureEnclosingScrollPane();
         
         // Create results container with tables.
-        this.resultsContainer = containerFactory.create(searchResultsModel, preserver);
+        this.resultsContainer = containerFactory.create(searchResultsModel);
         
         viewTypeListener = new SettingListener() {
             int oldSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();

@@ -197,7 +197,7 @@ class FileManagerImpl implements FileManager, Service {
                 int total = 0;
                 int matched = 0;
                 try {
-                    RPNParser parser = new RPNParser(MessageSettings.CUSTOM_FD_CRITERIA.getValue());
+                    RPNParser parser = new RPNParser(MessageSettings.CUSTOM_FD_CRITERIA.get());
                     FileList shareList = getGnutellaFileList();
                     shareList.getReadLock().lock();
                     try {

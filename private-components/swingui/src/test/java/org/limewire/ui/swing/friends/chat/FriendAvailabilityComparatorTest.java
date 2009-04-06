@@ -17,6 +17,7 @@ public class FriendAvailabilityComparatorTest extends TestCase {
 
     private ArrayList<ChatFriend> chatFriends;
     
+    @Override
     public void setUp() {
         chatFriends = new ArrayList<ChatFriend>();
     }

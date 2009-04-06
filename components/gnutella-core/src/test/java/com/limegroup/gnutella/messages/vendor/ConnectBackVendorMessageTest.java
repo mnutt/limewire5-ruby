@@ -9,7 +9,7 @@ import com.limegroup.gnutella.messages.Message.Network;
 
 /** Tests TCP/UDP ConnectBackVendorMessage
  */
-public class ConnectBackVendorMessageTest extends com.limegroup.gnutella.util.LimeTestCase {
+public class ConnectBackVendorMessageTest extends org.limewire.gnutella.tests.LimeTestCase {
 
     private static final int UDP_VERSION = 
         UDPConnectBackVendorMessage.VERSION;

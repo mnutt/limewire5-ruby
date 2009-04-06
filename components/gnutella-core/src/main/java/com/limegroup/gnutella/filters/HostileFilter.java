@@ -41,7 +41,7 @@ public class HostileFilter extends  AbstractIPFilter {
             hostileHosts = newHostile;
             return;
         }
-        String [] allHosts = FilterSettings.HOSTILE_IPS.getValue();
+        String [] allHosts = FilterSettings.HOSTILE_IPS.get();
         try {
             for(String ip : allHosts)
                 newHostile.add(new IP(ip));

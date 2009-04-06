@@ -28,7 +28,9 @@ public class GnutellaPresence implements FriendPresence {
     private final Friend friend;
     private final String id;
     
-    private final String[] adjs = { "Almond", "Brass", "Apricot", "Aqua", "Asparagus", "Tangerine",
+    private static final String UNKNOWN_ADDRESS_DESCRIPTION = "Unknown";
+    
+    private static final String[] adjs = { "Almond", "Brass", "Apricot", "Aqua", "Asparagus", "Tangerine",
             "Awesome", "Banana", "Bear", "Bittersweet", "Fast", "Blue", "Bell", "Gray", "Green",
             "Violet", "Red", "Pink", "Orange", "Sienna", "Cool", "Earthy", "Caribbean", "Elder",
             "Pink", "Cerise", "Cerulean", "Chestnut", "Copper", "Better", "Candy", "Cranberry",
@@ -59,7 +61,7 @@ public class GnutellaPresence implements FriendPresence {
             "Quick", "Rapid", "Short", "Slow", "Swift", "Bitter", "Fresh", "Ripe", "Rotten",
             "Salty", "Sour", "Spicy" };
 
-    private final String[] nouns = { "Alligator", "Alpaca", "Antelope", "Badger", "Armadillo",
+    private static final String[] nouns = { "Alligator", "Alpaca", "Antelope", "Badger", "Armadillo",
             "Bat", "Bear", "Bee", "Bird", "Bison", "Buffalo", "Boar", "Butterfly", "Camel", "Cat",
             "Cattle", "Cow", "Chicken", "Clam", "Cockroach", "Codfish", "Coyote", "Crane", "Crow",
             "Deer", "Dinosaur", "Velociraptor", "Dog", "Dolphin", "Donkey", "Dove", "Duck",
@@ -108,6 +110,10 @@ public class GnutellaPresence implements FriendPresence {
             IpPort ipp = (IpPort)address;
             InetAddress inetAddr = ipp.getInetAddress();
             byte[] addr = inetAddr.getAddress();
+            
+            if (addr.length != 4) {
+                return UNKNOWN_ADDRESS_DESCRIPTION;
+            }
 
             //create a fake name
             int i1 = ByteUtils.ubyte2int(addr[0]);

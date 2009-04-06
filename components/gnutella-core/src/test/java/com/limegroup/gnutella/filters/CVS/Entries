@@ -1,13 +1,13 @@
 /AnomalousQueryFilterTest.java/1.2/Tue Feb  3 14:40:11 2009//
-/DuplicateFilterTest.java/1.15/Wed Dec  3 22:02:04 2008//
 /GUIDFilterTest.java/1.13/Fri Sep  7 17:49:22 2007//
 /GreedyQueryFilterTest.java/1.9/Mon Apr 28 18:45:00 2008//
 /HashFilterTest.java/1.7/Mon Feb  2 23:24:13 2009//
-/IPFilterTest.java/1.19/Wed Nov 12 00:13:57 2008/-kk/
-/IPListTest.java/1.10/Sat Feb  9 00:02:25 2008//
-/KeywordFilterTest.java/1.19/Thu Mar 12 16:12:00 2009//
 /MutableGUIDFilterTest.java/1.5/Wed Dec  3 22:02:04 2008//
 /RequeryFilterTest.java/1.12/Wed Dec  3 22:02:04 2008//
 /SpamReplyFilterTest.java/1.11/Tue Sep 11 19:50:29 2007//
-/XMLDocFilterTest.java/1.12/Mon Dec 15 21:44:16 2008//
-D
+D/response////
+/DuplicateFilterTest.java/1.16/Mon Apr  6 16:05:34 2009//
+/IPFilterTest.java/1.21/Mon Apr  6 16:05:34 2009/-kk/
+/IPListTest.java/1.11/Mon Apr  6 16:05:34 2009//
+/KeywordFilterTest.java/1.20/Mon Apr  6 16:05:34 2009//
+/XMLDocFilterTest.java/1.13/Mon Apr  6 16:05:34 2009//

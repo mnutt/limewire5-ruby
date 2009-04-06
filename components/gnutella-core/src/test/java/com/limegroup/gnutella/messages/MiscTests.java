@@ -6,11 +6,11 @@ import java.util.Random;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.io.GGEP;
 import org.limewire.security.AddressSecurityToken;
 import org.limewire.security.MACCalculatorRepositoryManager;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class MiscTests extends LimeTestCase {
     

@@ -38,6 +38,7 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
     }
 
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         injector = createInjector(getModules());
@@ -64,6 +65,7 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
         Module xmppModule = new LimeWireXMPPTestModule();
         addressEventBroadcaster = new AddressEventTestBroadcaster();
         Module m = new AbstractModule() {
+            @Override
             protected void configure() {
                 bind(new TypeLiteral<ListenerSupport<AddressEvent>>(){}).toInstance(addressEventBroadcaster);
                 bind(XMPPConnectionListenerMock.class);
@@ -72,6 +74,7 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
         return Arrays.asList(xmppModule, m, new LimeWireNetTestModule());
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         service.stop();

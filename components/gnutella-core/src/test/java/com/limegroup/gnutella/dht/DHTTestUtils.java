@@ -22,9 +22,9 @@ import com.limegroup.gnutella.dht.DHTEvent.Type;
 public class DHTTestUtils {
 
     public static void setSettings(int port) {
-        FilterSettings.BLACK_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(
                 new String[] {"*.*.*.*"});
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.setValue(
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(
                 new String[] {"127.*.*.*", "18.239.0.*"});
                 
         org.limewire.core.settings.NetworkSettings.PORT.setValue(port);

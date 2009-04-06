@@ -47,6 +47,7 @@ public class MyLibraryTransferHandler extends TransferHandler {
         return COPY;
     }
 
+    @Override
     public boolean importData(TransferHandler.TransferSupport info) {
         if (!info.isDrop()) {
             return false;

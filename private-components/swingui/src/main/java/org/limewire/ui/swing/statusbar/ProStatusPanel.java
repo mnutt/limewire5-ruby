@@ -165,7 +165,7 @@ public class ProStatusPanel extends HyperlinkButton implements SettingListener, 
 
     private void loadLabels() {
         try {
-            Banner b = new Banner(SwingUiSettings.PRO_ADS.getValue());
+            Banner b = new Banner(SwingUiSettings.PRO_ADS.get());
             updateLabels(b);
         } catch (IllegalArgumentException bad) {
             return;

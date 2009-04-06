@@ -28,6 +28,7 @@ public class DownloadableTransferHandler extends TransferHandler{
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
     }
     
+    @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
         return info.isDataFlavorSupported(RemoteFileTransferable.REMOTE_FILE_DATA_FLAVOR);
     }

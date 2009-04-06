@@ -39,6 +39,7 @@ public interface Presence extends FriendPresence {
             return order;
         }
 
+        @Override
         public String toString() {
             return name;
         }

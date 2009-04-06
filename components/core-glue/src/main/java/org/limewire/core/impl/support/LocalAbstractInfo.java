@@ -456,6 +456,7 @@ abstract class LocalAbstractInfo {
      *
      * @return a <tt>String</tt> containing the bug's name.
 	 */
+    @Override
     public String toString() {
         return _bugName;
     }

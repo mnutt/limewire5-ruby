@@ -28,6 +28,13 @@ import com.limegroup.bittorrent.disk.TorrentDiskManager;
 import com.limegroup.bittorrent.handshaking.piecestrategy.PieceStrategy;
 import com.limegroup.bittorrent.handshaking.piecestrategy.RandomPieceStrategy;
 
+/**
+ * This class abstracts the details of working with the torrent codebase
+ * away from the rest of the swarmer implementation.
+ * 
+ * Provides the minimum implementation to wrap the torrent leasing 
+ * and writing torrent pieces to disk into a SwarmCoordinator interface.
+ */
 public class BTSwarmCoordinator extends AbstractSwarmCoordinator {
 
     private final TorrentFileSystem torrentFileSystem;

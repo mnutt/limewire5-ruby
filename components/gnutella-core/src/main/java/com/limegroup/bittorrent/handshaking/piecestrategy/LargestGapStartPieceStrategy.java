@@ -9,6 +9,9 @@ import org.limewire.collection.BitField;
 import com.limegroup.bittorrent.BTInterval;
 import com.limegroup.bittorrent.BTMetaInfo;
 
+/**
+ * Picks the largest gap of up to 10 available pieces from the start of the file.
+ */
 public class LargestGapStartPieceStrategy extends AbstractPieceStrategy {
 
     //TODO test this

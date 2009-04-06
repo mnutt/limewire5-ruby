@@ -160,6 +160,7 @@ public class HTMLPane extends JEditorPane {
     }
 
     // Copied from {@link JEditorPane#getStream(URL)} because of package-private problems.
+    @Override
     protected InputStream getStream(URL page) throws IOException {
         final URLConnection conn = page.openConnection();
         if (conn instanceof HttpURLConnection) {
@@ -258,21 +259,25 @@ public class HTMLPane extends JEditorPane {
             return super.read(b, off, len);
         }
 
+        @Override
         public int read() throws IOException {
             checkInterrupted();
             return super.read();
         }
 
+        @Override
         public long skip(long n) throws IOException {
             checkInterrupted();
             return super.skip(n);
         }
 
+        @Override
         public int available() throws IOException {
             checkInterrupted();
             return super.available();
         }
 
+        @Override
         public void reset() throws IOException {
             checkInterrupted();
             super.reset();

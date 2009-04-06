@@ -8,14 +8,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import junit.framework.Test;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.lifecycle.ServiceScheduler;
+import org.limewire.util.AssignParameterAction;
 import org.limewire.util.TestUtils;
 
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.helpers.UrnHelper;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 
 /**
@@ -78,6 +85,31 @@ public final class UrnCacheTest extends LimeTestCase {
             assertEquals("URN set should be same as that in desc",
                 fau.urns, set);
         }
+    }
+    
+    public void testPersistsItself() throws Exception {
+        Mockery context = new Mockery();
+        final ServiceScheduler serviceScheduler = context.mock(ServiceScheduler.class);
+        final AtomicReference<Runnable> runnable = new AtomicReference<Runnable>();
+        context.checking(new Expectations() {{
+            one(serviceScheduler).scheduleAtFixedRate(with(any(String.class)), 
+                    with(any(Runnable.class)), with(equal(30L)), with(equal(30L)), 
+                    with(equal(TimeUnit.SECONDS)), with(aNull(ScheduledExecutorService.class)));
+            will(new AssignParameterAction<Runnable>(runnable, 1));
+        }});
+        
+        urnCache.register(null, serviceScheduler);
+        
+        Collection<FileAndUrns> faus = createLotsOfUrns();
+        assertNotNull("should have some file descs", faus);
+        assertGreaterThan("should have some file descs", 0, faus.size());
+        assertTrue("cache should still not be present", !cacheExists() );
+                
+        runnable.get().run();
+        
+        assertTrue("runnable should have written cache", cacheExists());
+        
+        context.assertIsSatisfied();
     }
 
 	private Collection<FileAndUrns> createLotsOfUrns() throws Exception {

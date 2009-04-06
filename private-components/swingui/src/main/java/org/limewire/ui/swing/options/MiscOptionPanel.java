@@ -4,10 +4,12 @@ import static org.limewire.ui.swing.util.I18n.tr;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Locale;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JCheckBox;
@@ -22,12 +24,14 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.application.Resource;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
+import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.friends.settings.XMPPAccountConfiguration;
 import org.limewire.ui.swing.friends.settings.XMPPAccountConfigurationManager;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LanguageUtils;
+import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.SwingUtils;
 
 import com.google.inject.Inject;
@@ -37,6 +41,8 @@ import com.google.inject.Inject;
  */
 public class MiscOptionPanel extends OptionPanel {
 
+    private static final String TRANSLATE_URL = "http://wiki.limewire.org/index.php?title=Translate";
+    
     private final XMPPAccountConfigurationManager accountManager;
 
     private NotificationsPanel notificationsPanel;
@@ -44,9 +50,12 @@ public class MiscOptionPanel extends OptionPanel {
     
     //Language components, does not exist in its own subcomponent
     @Resource private Font font;
+    @Resource private Font linkFont;
+    
     private Locale currentLanguage;
     private JLabel comboLabel;
     private JComboBox languageDropDown;
+    private HyperlinkButton translateButton;
 
     @Inject
     public MiscOptionPanel(XMPPAccountConfigurationManager accountManager) {
@@ -60,8 +69,12 @@ public class MiscOptionPanel extends OptionPanel {
         languageDropDown = new JComboBox();
         createLanguageComboBox();
         
+        translateButton = new HyperlinkButton(new TranslateLinkAction());
+        translateButton.setFont(linkFont);
+        
         add(comboLabel, "split, gapbottom 5");
-        add(languageDropDown, "gapbottom 5, wrap");
+        add(languageDropDown, "gapbottom 5");
+        add(translateButton, "gapbottom 5, wrap");
         
         add(getNotificationsPanel(), "pushx, growx");
         add(getFriendChatPanel(), "pushx, growx");
@@ -122,6 +135,21 @@ public class MiscOptionPanel extends OptionPanel {
         languageDropDown.setSelectedItem(currentLanguage);
     }
 
+    /**
+     * Action to open Translate link in default browser.
+     */
+    private class TranslateLinkAction extends AbstractAction {
+        
+        public TranslateLinkAction() {
+            super(I18n.tr("Help translate LimeWire!"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            NativeLaunchUtils.openURL(TRANSLATE_URL);
+        }
+    }
+    
     private class NotificationsPanel extends OptionPanel {
 
         private JCheckBox showNotificationsCheckBox;
@@ -325,6 +353,7 @@ public class MiscOptionPanel extends OptionPanel {
     }
 
     private class Renderer extends DefaultListCellRenderer {
+        @Override
         public Component getListCellRendererComponent(JList list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -340,6 +369,7 @@ public class MiscOptionPanel extends OptionPanel {
     }
     
     private static class LocaleRenderer extends DefaultListCellRenderer {
+        @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean hasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, hasFocus);
             

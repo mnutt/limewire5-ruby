@@ -624,9 +624,9 @@ public abstract class AbstractConnection implements Connection {
         // If we're forcing, change that if necessary.
         if (ConnectionSettings.FORCE_IP_ADDRESS.getValue()) {
             StringSetting addr = ConnectionSettings.FORCED_IP_ADDRESS_STRING;
-            if (!ipStringFromHeader.equals(addr.getValue())) {
+            if (!ipStringFromHeader.equals(addr.get())) {
                 // TODO store address in one place
-                addr.setValue(ipStringFromHeader);
+                addr.set(ipStringFromHeader);
                 networkManager.addressChanged();
             }
         }

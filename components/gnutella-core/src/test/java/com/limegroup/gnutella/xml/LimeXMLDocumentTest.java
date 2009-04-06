@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.limewire.collection.KeyValue;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 
 import com.google.inject.Injector;
-import com.limegroup.gnutella.LimeTestUtils;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 import junit.framework.Test;
 

@@ -40,7 +40,7 @@ public class UploadPanel extends JXPanel{
     private HeaderBar header;
     private HeaderBarDecorator headerBarDecorator;
     
-    private final Action clearAction = new AbstractAction(I18n.tr("Clear finished")) {
+    private final Action clearAction = new AbstractAction(I18n.tr("Clear Finished")) {
         @Override
         public void actionPerformed(ActionEvent e) {
            clearFinished();

@@ -38,6 +38,7 @@ public class FancyTabProperties implements Cloneable {
         insets = null;
     }
     
+    @Override
     public FancyTabProperties clone() {
         try {
             return (FancyTabProperties)super.clone();

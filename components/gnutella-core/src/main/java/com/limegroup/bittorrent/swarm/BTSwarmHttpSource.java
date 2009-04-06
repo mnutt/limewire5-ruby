@@ -7,6 +7,10 @@ import org.limewire.swarm.SwarmSourceDownloader;
 import org.limewire.swarm.SwarmStatus;
 import org.limewire.swarm.http.SwarmHttpSource;
 
+/**
+ * SwarmSource implementation for Bit torrent Webseed connections. It extends
+ * functionality from The SwarmHttpSource Implementation.
+ */
 public class BTSwarmHttpSource extends SwarmHttpSource {
 
     // private static final int MAX_RESPONSES = 10;

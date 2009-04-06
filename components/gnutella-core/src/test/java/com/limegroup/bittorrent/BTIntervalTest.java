@@ -1,8 +1,9 @@
 package com.limegroup.bittorrent;
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import junit.framework.Test;
 
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class BTIntervalTest extends LimeTestCase {
 

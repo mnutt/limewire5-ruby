@@ -67,9 +67,6 @@ public class SortAndFilterPanel implements Disposable {
     /** Search results data model. */
     private final SearchResultsModel searchResultsModel;
     
-    /** Support class used to preserve row selection. */
-    private final RowSelectionPreserver preserver;
-    
     /** Map of sort options and actions. */ 
     private final Map<SortOption, Action> actionMap = new EnumMap<SortOption, Action>(SortOption.class); 
 
@@ -92,12 +89,11 @@ public class SortAndFilterPanel implements Disposable {
 
     /**
      * Constructs a SortAndFilterPanel with the specified search results data
-     * model, row selection preserver, and UI decorators.
+     * model and UI decorators.
      */
     @AssistedInject
     SortAndFilterPanel(
             @Assisted SearchResultsModel searchResultsModel,
-            @Assisted RowSelectionPreserver preserver,
             ComboBoxDecorator comboBoxDecorator, TextFieldDecorator textFieldDecorator, 
             ButtonDecorator buttonDecorator, HeaderBarDecorator headerBarFactory) {
         
@@ -105,7 +101,6 @@ public class SortAndFilterPanel implements Disposable {
         
         this.buttonDecorator = buttonDecorator;
         this.searchResultsModel = searchResultsModel;
-        this.preserver = preserver;
         
         textFieldDecorator.decorateClearablePromptField(filterBox, AccentType.SHADOW);
         
@@ -123,7 +118,7 @@ public class SortAndFilterPanel implements Disposable {
         // Initialize components to select view type.
         listViewToggleButton.setModel(new JToggleButton.ToggleButtonModel());
         tableViewToggleButton.setModel(new JToggleButton.ToggleButtonModel());
-        setSearchCategory(SearchCategory.ALL);
+        setSearchCategory(searchResultsModel.getSearchCategory());
         configureViewButtons();
         
         // Initialize sorting and filtering.
@@ -263,8 +258,7 @@ public class SortAndFilterPanel implements Disposable {
     }
 
     /**
-     * Configures the sort and filter components to work with the data model 
-     * and selection preserver.
+     * Configures the sort and filter components to work with the data model.
      */
     private void configureSortFilter() {
         // Create text filter with "live" filtering.
@@ -281,10 +275,9 @@ public class SortAndFilterPanel implements Disposable {
             @Override
             public void selectionChanged(Action action) {
                 SortOption option = ((SortAction) action).getSortOption();
-                if (!repopulatingCombo && !option.equals(sortBy)) { // changing sort order
-                    preserver.beforeUpdateEvent();
+                if (!repopulatingCombo && !option.equals(sortBy)) {
+                    // changing sort order
                     searchResultsModel.setSortOption(option);
-                    preserver.afterUpdateEvent();
                     sortBy = option;
                 }
             }
@@ -335,16 +328,22 @@ public class SortAndFilterPanel implements Disposable {
      */
     public void setSearchCategory(SearchCategory category) {
         Action currentItem = sortCombo.getSelectedAction();
+        boolean currentValid = false;
+        
         repopulatingCombo = true;
         sortCombo.removeAllActions();
         
         // Get sort options for category.
         SortOption[] options = SortOption.getSortOptions(category);
 
-        // Create list of sort actions.
+        // Create list of sort actions.  We also determine if the current
+        // sort action is valid for the new category.
         List<Action> actionList = new LinkedList<Action>();
         for (SortOption option : options) {
             actionList.add(actionMap.get(option));
+            if (actionMap.get(option).equals(currentItem)) {
+                currentValid = true;
+            }
         }
         
         sortCombo.addActions(actionList);
@@ -353,7 +352,14 @@ public class SortAndFilterPanel implements Disposable {
 
         repopulatingCombo = false;
 
-        sortCombo.setSelectedAction(currentItem);
+        // Set combobox to current action if valid.  Otherwise, set search 
+        // model to use first sort option.
+        if (currentValid) {
+            sortCombo.setSelectedAction(currentItem);
+        } else {
+            searchResultsModel.setSortOption(options[0]);
+            sortBy = options[0];
+        }
     }
 
     /**
@@ -364,10 +370,10 @@ public class SortAndFilterPanel implements Disposable {
         case COMPANY: return tr("Company");
         case PLATFORM: return tr("Platform");
         case TYPE: return tr("Type");
-        case DATE_CREATED: return tr("Date created");
+        case DATE_CREATED: return tr("Date Created");
         case QUALITY: return tr("Quality");
         case YEAR: return tr("Year");
-        case FILE_EXTENSION: return tr("File extension");
+        case FILE_EXTENSION: return tr("File Extension");
         case TITLE: return tr("Title");
         case LENGTH: return tr("Length");
         case ALBUM: return tr("Album");

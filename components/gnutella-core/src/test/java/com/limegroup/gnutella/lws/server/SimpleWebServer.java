@@ -16,6 +16,7 @@ import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.protocol.HTTP;
 import org.limewire.io.IOUtils;
 
 import com.limegroup.gnutella.downloader.TestFile;
@@ -57,8 +58,9 @@ final class SimpleWebServer {
                     LOG.info("Have socket " + socket);
                     InputStream is = socket.getInputStream();
                     OutputStream os = socket.getOutputStream();
-                    handle(new BufferedReader(new InputStreamReader(socket.getInputStream())),
-                           new PrintStream(os));
+                    handle(new BufferedReader(new InputStreamReader(socket.getInputStream(), HTTP.DEFAULT_PROTOCOL_CHARSET)),
+                            // server is only serving 7bit bytes and doesn't specify content encoding
+                           new PrintStream(os, false, HTTP.DEFAULT_CONTENT_CHARSET));
                     socket.close();
                     is.close();
                     os.close();

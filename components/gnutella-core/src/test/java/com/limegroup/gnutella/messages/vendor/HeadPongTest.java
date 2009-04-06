@@ -17,6 +17,9 @@ import org.jmock.Mockery;
 import org.limewire.collection.BitNumbers;
 import org.limewire.collection.Range;
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
+import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.BadGGEPBlockException;
 import org.limewire.io.BadGGEPPropertyException;
 import org.limewire.io.Connectable;
@@ -32,7 +35,6 @@ import org.limewire.util.StringUtils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.PushEndpoint;
 import com.limegroup.gnutella.PushEndpointFactory;
@@ -49,9 +51,7 @@ import com.limegroup.gnutella.library.GnutellaFileListStub;
 import com.limegroup.gnutella.library.IncompleteFileDescStub;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message.Network;
-import com.limegroup.gnutella.stubs.NetworkManagerStub;
 import com.limegroup.gnutella.stubs.UploadManagerStub;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 public class HeadPongTest extends LimeTestCase {
         
@@ -74,6 +74,7 @@ public class HeadPongTest extends LimeTestCase {
         junit.textui.TestRunner.run(suite());
     }
 
+    @Override
     public void setUp() throws Exception {
         mockery = new Mockery();
         downloadManager = mockery.mock(DownloadManager.class);
@@ -95,6 +96,7 @@ public class HeadPongTest extends LimeTestCase {
         networkManager.setIncomingTLSEnabled(false);
     }
     
+    @Override
     public void tearDown() throws Exception {
         mockery.assertIsSatisfied();
         

@@ -29,6 +29,10 @@
         <ivy:cleancache />                                                              
     </target>
     
+    <target name="ivy-graph-report" depends="ivy-load">
+        <ivy:repreport organisation="org.limewire" xsl="true" xslfile="${limewire.lib.jars.ant}/ivy-limewire-dot.xsl" xslext="dot"/>
+    </target>
+    
     <target name="ivy-load" unless="ivy.loaded">
         <property name="ivy.loaded" value="true"/>
     	<taskdef resource="org/apache/ivy/ant/antlib.xml"

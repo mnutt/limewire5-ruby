@@ -9,15 +9,15 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.ClientPNames;
+import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.http.httpclient.LimeHttpClient;
 import org.limewire.http.httpclient.SimpleLimeHttpClient;
 import org.limewire.nio.NIODispatcher;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.limegroup.gnutella.LimeTestUtils;
 import com.limegroup.gnutella.bootstrap.TestBootstrapServer;
-import com.limegroup.gnutella.util.LimeTestCase;
 
 /**
  * Tests various things of HttpClient / HttpClientManager.

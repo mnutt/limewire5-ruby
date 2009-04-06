@@ -18,6 +18,7 @@ import org.limewire.nio.observer.Shutdownable;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 
 /**
@@ -31,20 +32,35 @@ public class DefaultHttpExecutor implements HttpExecutor {
 	private static final ExecutorService POOL = 
         ExecutorsHelper.newThreadPool("HttpClient pool");
     private final Provider<LimeHttpClient> clientProvider;
+    private final HttpParams httpParams;
 
     @Inject
-    public DefaultHttpExecutor(Provider<LimeHttpClient> clientProvider) {
+    public DefaultHttpExecutor(Provider<LimeHttpClient> clientProvider,
+                               @Named("defaults") HttpParams httpParams) {
         this.clientProvider = clientProvider;
+        this.httpParams = httpParams;
+    }
+    
+    @Override
+    public Shutdownable execute(HttpUriRequest method) {
+        return execute(method, httpParams);
+    }
+    
+    @Override
+    public Shutdownable execute(HttpUriRequest method, HttpParams params) {
+        return execute(method, params, new DefaultHttpClientListener());
     }
 	
+    @Override
     public Shutdownable execute(HttpUriRequest method, HttpParams params, HttpClientListener listener) {
 		return execute(method, params, listener, POOL);
 	}
 
-	public Shutdownable execute(final HttpUriRequest method, final HttpParams params, final HttpClientListener listener,
+	private Shutdownable execute(final HttpUriRequest method, final HttpParams params, final HttpClientListener listener,
 			ExecutorService executor) {
 		
 		Runnable r = new Runnable() {
+            @Override
 			public void run() {
 				performRequest(method, params, listener);		
 			}
@@ -63,6 +79,7 @@ public class DefaultHttpExecutor implements HttpExecutor {
             }
         }
 		
+        @Override
         public void shutdown() {
             if(toAbort != null) {
                  toAbort.abort();
@@ -70,10 +87,12 @@ public class DefaultHttpExecutor implements HttpExecutor {
         }
     }
 	
+    @Override
 	public void releaseResources(HttpResponse response) {
         HttpClientUtils.releaseConnection(response);
 	}
 
+    @Override
 	public Shutdownable executeAny(HttpClientListener listener, 
                         		   ExecutorService executor, 
                         		   Iterable<? extends HttpUriRequest> methods,
@@ -131,6 +150,7 @@ public class DefaultHttpExecutor implements HttpExecutor {
             this.canceller = canceller;
 		}
 		
+        @Override
 		public void run() {
 			for (HttpUriRequest m : methods) {
 				synchronized(this) {
@@ -161,5 +181,24 @@ public class DefaultHttpExecutor implements HttpExecutor {
             }
         }
 	}
+    
+    private class DefaultHttpClientListener implements HttpClientListener {
+        @Override
+        public boolean allowRequest(HttpUriRequest request) {
+            return true;
+        }
+
+        @Override
+        public boolean requestComplete(HttpUriRequest request, HttpResponse response) {
+            releaseResources(response);
+            return false; 
+        }
+
+        @Override
+        public boolean requestFailed(HttpUriRequest request, HttpResponse response, IOException exc) {
+            releaseResources(response);
+            return false;
+        }
+    }
 
 }

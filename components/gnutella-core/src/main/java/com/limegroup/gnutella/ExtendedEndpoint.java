@@ -84,7 +84,7 @@ public class ExtendedEndpoint extends Endpoint {
 
     /** the locale of the client that this endpoint represents */
     private volatile String _clientLocale = 
-        ApplicationSettings.DEFAULT_LOCALE.getValue();
+        ApplicationSettings.DEFAULT_LOCALE.get();
     
     private volatile int _dhtVersion = -1;
     
@@ -103,7 +103,7 @@ public class ExtendedEndpoint extends Endpoint {
 
     /** locale of this client */
     private final static String ownLocale =
-        ApplicationSettings.LANGUAGE.getValue();
+        ApplicationSettings.LANGUAGE.get();
     
     /**
      * Creates a new ExtendedEndpoint with uptime data read from a ping reply.

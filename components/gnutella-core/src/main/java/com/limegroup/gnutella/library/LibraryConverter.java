@@ -26,14 +26,14 @@ import org.limewire.util.MediaType;
 class LibraryConverter {
     
     boolean isOutOfDate() {
-        return LibrarySettings.VERSION.getValue() == LibrarySettings.LibraryVersion.FOUR_X.name();
+        return LibrarySettings.VERSION.get() == LibrarySettings.LibraryVersion.FOUR_X.name();
     }
     
     void convert(LibraryFileData newData) {
         newData.revertToDefault();
         
         OldLibraryData oldData = new OldLibraryData(); // load if necessary
-        for(File folder : OldLibrarySettings.DIRECTORIES_TO_SHARE.getValue()) {
+        for(File folder : OldLibrarySettings.DIRECTORIES_TO_SHARE.get()) {
             if(!LibraryUtils.isSensitiveDirectory(folder) || oldData.SENSITIVE_DIRECTORIES_VALIDATED.contains(folder)) {
                 folder = FileUtils.canonicalize(folder);
                 newData.addDirectoryToManageRecursively(folder);
@@ -56,8 +56,8 @@ class LibraryConverter {
         // Set the new managed extensions.
         List<String> extensions = new ArrayList<String>();
         extensions.addAll(Arrays.asList(OldLibrarySettings.getDefaultExtensions()));
-        extensions.removeAll(Arrays.asList(StringArraySetting.decode(OldLibrarySettings.EXTENSIONS_LIST_UNSHARED.getValue())));
-        extensions.addAll(Arrays.asList(StringArraySetting.decode(OldLibrarySettings.EXTENSIONS_LIST_CUSTOM.getValue())));        
+        extensions.removeAll(Arrays.asList(StringArraySetting.decode(OldLibrarySettings.EXTENSIONS_LIST_UNSHARED.get())));
+        extensions.addAll(Arrays.asList(StringArraySetting.decode(OldLibrarySettings.EXTENSIONS_LIST_CUSTOM.get())));        
         newData.setManagedExtensions(extensions);
         
         // Here's the bulk of the conversion -- loop through, recursively, previously 
@@ -71,7 +71,7 @@ class LibraryConverter {
         }
         
         for(MediaType type : MediaType.getDefaultMediaTypes()) {
-            File file = SharingSettings.getFileSettingForMediaType(type).getValue();
+            File file = SharingSettings.getFileSettingForMediaType(type).get();
             file = FileUtils.canonicalize(file);
             newData.addDirectoryToManageRecursively(file);
         }
@@ -80,7 +80,7 @@ class LibraryConverter {
         
         newData.addDirectoryToManageRecursively(FileUtils.canonicalize(SharingSettings.getSaveDirectory()));
         
-        LibrarySettings.VERSION.setValue(LibrarySettings.LibraryVersion.FIVE_0_0.name());
+        LibrarySettings.VERSION.set(LibrarySettings.LibraryVersion.FIVE_0_0.name());
         
         oldData.revertToDefault();
         OldLibrarySettings.DIRECTORIES_TO_SHARE.revertToDefault();

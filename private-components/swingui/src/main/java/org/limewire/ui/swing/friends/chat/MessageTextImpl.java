@@ -34,6 +34,7 @@ public class MessageTextImpl extends AbstractMessageImpl implements MessageText 
         return message;
     }
 
+    @Override
     public String toString() {
         return getMessageText();
     }

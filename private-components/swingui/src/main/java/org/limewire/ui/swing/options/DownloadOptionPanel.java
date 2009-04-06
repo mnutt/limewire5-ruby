@@ -173,7 +173,7 @@ public class DownloadOptionPanel extends OptionPanel {
                 String oldSaveDir, String newSaveDir) {
             FileSetting mediaSetting = SharingSettings.getFileSettingForMediaType(mediaType);
             if (!mediaSetting.isDefault()) {
-                String mediaSaveDir = mediaSetting.getValue().getAbsolutePath();
+                String mediaSaveDir = mediaSetting.get().getAbsolutePath();
                 if (oldSaveDir.equals(mediaSaveDir) || newSaveDir.equals(mediaSaveDir)) {
                     mediaSetting.revertToDefault();
                 }

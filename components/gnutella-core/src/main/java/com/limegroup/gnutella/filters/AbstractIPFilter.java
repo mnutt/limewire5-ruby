@@ -19,7 +19,7 @@ import com.limegroup.gnutella.messages.PushRequest;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
 
-abstract class AbstractIPFilter implements IPFilter {
+public abstract class AbstractIPFilter implements IPFilter {
 
     private static final Log LOG = LogFactory.getLog(AbstractIPFilter.class);
     

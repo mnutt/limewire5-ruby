@@ -1,6 +1,8 @@
 package com.limegroup.gnutella.util;
 
 
+import org.limewire.gnutella.tests.LimeTestCase;
+
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 import junit.framework.Test;
