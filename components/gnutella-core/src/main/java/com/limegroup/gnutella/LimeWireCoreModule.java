@@ -21,6 +21,9 @@ import org.limewire.geocode.LimewireGeocodeModule;
 import org.limewire.http.LimeWireHttpModule;
 import org.limewire.http.mongrel.MongrelManager;
 import org.limewire.http.mongrel.MongrelManagerImpl;
+import org.limewire.http.mongrel.MongrelGlue;
+import org.limewire.http.webservice.WebService;
+import org.limewire.http.webservice.WebServiceImpl;
 import org.limewire.inject.AbstractModule;
 import org.limewire.inspection.Inspector;
 import org.limewire.inspection.InspectorImpl;
@@ -287,6 +290,7 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(LifecycleManager.class).to(LifecycleManagerImpl.class);
         bind(LocalPongInfo.class).to(LocalPongInfoImpl.class);
         bind(MongrelManager.class).to(MongrelManagerImpl.class);
+        bind(WebService.class).to(WebServiceImpl.class);
         bind(ConnectionServices.class).to(ConnectionServicesImpl.class);
         bind(SearchServices.class).to(SearchServicesImpl.class);
         bind(SearchManager.class).to(SearchManagerImpl.class);
@@ -406,6 +410,7 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(OutOfBandThroughputMeasurer.class);
         bind(HostCatcher.class);
         bind(LimeCoreGlue.class);
+        bind(MongrelGlue.class);
         bind(QRPUpdater.class);
         bind(DaapManager.class);
         bind(SchemaReplyCollectionMapper.class);
