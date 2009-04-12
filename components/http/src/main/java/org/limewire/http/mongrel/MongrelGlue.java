@@ -23,29 +23,29 @@ class MongrelGlue {
     @Inject
     @SuppressWarnings({"unused", "UnusedDeclaration"})
     private void register(org.limewire.lifecycle.ServiceRegistry registry) {
-        registry.register(new Service() {
-            public String getServiceName() {
-                return "Mongrel";
-            }
-
-            public void initialize() {
-            };
-
-            public void start() {
-                mongrelManager.start();
-            };
-        
-            public void stop() {
-                mongrelManager.stop();
-            };
-            
-            public void restart() {
-                mongrelManager.restart();
-            }
-        
-            public boolean isAsyncStop() {
-                return true;
-            }
-        }).in(ServiceStage.LATE);
+//        registry.register(new Service() {
+//            public String getServiceName() {
+//                return "Mongrel";
+//            }
+//
+//            public void initialize() {
+//            };
+//
+//            public void start() {
+//                mongrelManager.start();
+//            };
+//        
+//            public void stop() {
+//                mongrelManager.stop();
+//            };
+//            
+//            public void restart() {
+//                mongrelManager.restart();
+//            }
+//        
+//            public boolean isAsyncStop() {
+//                return true;
+//            }
+//        }).in(ServiceStage.LATE);
     }
 }
