@@ -146,7 +146,7 @@
 	<classpathentry kind="lib" path="lib/jars/swingx-0.9.4.jar" sourcepath="lib/sources/swingx-0.9.4-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/jruby-complete-1.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jruby-engine.jar"/>
-	<classpathentry kind="lib" path="lib/jars/jruby-rack-0.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/jars/jruby-rack-0.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jmdns.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jaudiotagger.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
