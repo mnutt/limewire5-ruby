@@ -51,9 +51,17 @@ class MongrelManagerImpl implements MongrelManager {
             // Try to port forward incoming traffic to our server via UPnP
             mapPort();
 
-            loadMongrel();
+            loadMongrelFromThread();
             setStatus("started");
         }
+    }
+    
+    public void loadMongrelFromThread() {
+        new Thread() {
+          public void run() {
+              loadMongrel();
+          }
+        }.start();
     }
     
     public void loadMongrel() {
