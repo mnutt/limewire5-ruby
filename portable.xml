@@ -20,7 +20,6 @@
 
 			<!-- Paths to folders that each have a tree of image and text files in them -->
 			<fileset dir="components/common/src/main/resources"/>
-			<fileset dir="components/resources/src/main/resources"/>
 			<fileset dir="private-components/swingui/src/main/resources"/>
 		</copy>
 
