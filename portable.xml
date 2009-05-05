@@ -197,13 +197,13 @@
 		<jar jarfile="deploy/launch-win.jar">
 			<manifest>
 				<attribute name="Main-Class" value="org.limewire.ui.swing.Main"/>
-				<attribute name="Class-Path" value="LimeWire.jar win-iTunes-0.0.1.jar win-jacob-1.14.1.jar win-jdic_stub.jar"/>
+				<attribute name="Class-Path" value="LimeWire.jar additional_resources.jar win-iTunes-0.0.1.jar win-jacob-1.14.1.jar win-jdic_stub.jar"/>
 			</manifest>
 		</jar>
 		<jar jarfile="deploy/launch-linux.jar">
 			<manifest>
 				<attribute name="Main-Class" value="org.limewire.ui.swing.Main"/>
-				<attribute name="Class-Path" value="LimeWire.jar linux-jdic_stub.jar"/>
+				<attribute name="Class-Path" value="LimeWire.jar additional_resources.jar linux-jdic_stub.jar"/>
 			</manifest>
 		</jar>
 	</target>
