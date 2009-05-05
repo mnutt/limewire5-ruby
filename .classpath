@@ -71,6 +71,7 @@
 	<classpathentry kind="src" path="lib/resources/windows"/>
 	<classpathentry kind="src" path="lib/resources/linux"/>
 	<classpathentry kind="src" path="lib/resources/osx"/>
+        <classpathentry kind="lib" path="lib/jars/additional_resources.jar"/>
 	<classpathentry kind="lib" path="lib/jars/clink.jar"/>
 	<classpathentry kind="lib" path="lib/jars/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/jars/compile/cocoaFoundation.jar"/>
