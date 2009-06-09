@@ -31,9 +31,15 @@
 		</filesystem>
 	
 	    <!-- declaration of the default chain.  first we lookup in the local cache, then everywhere else. -->
-		<chain name="default" checkmodified="true">
+		<chain name="default-chain" checkmodified="true">
 			<resolver ref="local"/>
 			<resolver ref="cvslib"/>
+		</chain>
+		<!-- this is the actual default chain that should just 
+		     reference default-chain above so it can easily be overriden
+		  -->
+		<chain name="default" checkmodified="true">
+		  <resolver ref="default-chain"/>
 		</chain>
 	</resolvers>	
 </ivysettings>

@@ -23,16 +23,17 @@ import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 import org.limewire.util.FileUtils;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class OpenFileAction extends AbstractAction {
 
     private final DownloadListManager downloadListManager;
 
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
 
     @Inject
     public OpenFileAction(DownloadListManager downloadListManager,
-            SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler) {
         super( I18n.tr("&Open Torrent..."));
         this.downloadListManager = downloadListManager;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
@@ -63,7 +64,7 @@ public class OpenFileAction extends AbstractAction {
                         downloadListManager.addTorrentDownload(file, 
                                 false);
                     } catch (SaveLocationException sle) {
-                        saveLocationExceptionHandler.handleSaveLocationException(
+                        saveLocationExceptionHandler.get().handleSaveLocationException(
                                 new DownloadAction() {
                                     @Override
                                     public void download(File saveFile, boolean overwrite)
@@ -71,6 +72,12 @@ public class OpenFileAction extends AbstractAction {
                                         downloadListManager.addTorrentDownload(
                                                 file, overwrite);
                                     }
+
+                                    @Override
+                                    public void downloadCanceled(SaveLocationException sle) {
+					                    //nothing to do                                        
+                                    }
+
                                 }, sle, false);
                     }
                 } else {

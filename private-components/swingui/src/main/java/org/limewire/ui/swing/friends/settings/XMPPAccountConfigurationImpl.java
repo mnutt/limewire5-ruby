@@ -26,6 +26,11 @@ class XMPPAccountConfigurationImpl implements XMPPAccountConfiguration {
     private volatile String serviceName;
     private volatile String label;
     private volatile String username;
+    /**
+     * The canoncial user name in lower case including the domain name.
+     */
+    private volatile String canonicalId;
+    
     private volatile String password;
     private final List<UnresolvedIpPort> defaultServers;
     
@@ -52,6 +57,7 @@ class XMPPAccountConfigurationImpl implements XMPPAccountConfiguration {
             this.icon = new EmptyIcon(16, 16);
         }
         this.username = "";
+        this.canonicalId = "";
         this.password = "";
         this.defaultServers = defaultServers;
     }
@@ -93,6 +99,7 @@ class XMPPAccountConfigurationImpl implements XMPPAccountConfiguration {
 
     @Override
     public void setUsername(String username) {
+        setCanonicalIdFromUsername(username);
         if(modifyUser) {
             // Some servers expect the domain to be included, others don't
             int at = username.indexOf('@');
@@ -104,6 +111,15 @@ class XMPPAccountConfigurationImpl implements XMPPAccountConfiguration {
         this.username = username;
     }
 
+    void setCanonicalIdFromUsername(String username) {
+        int at = username.indexOf('@');
+        if (at != -1) {
+            this.canonicalId = username.toLowerCase(Locale.US);
+        } else {
+            this.canonicalId = (username + "@" + getServiceName()).toLowerCase(Locale.US);
+        }
+    }
+    
     @Override
     public String getPassword() {
         return password;
@@ -121,9 +137,7 @@ class XMPPAccountConfigurationImpl implements XMPPAccountConfiguration {
 
     @Override
     public String getCanonicalizedLocalID() {
-        // friend and friendpresence ids are
-        // canonicalized to be lowercase
-        return username.toLowerCase(Locale.US);
+        return canonicalId;
     }
 
     @Override

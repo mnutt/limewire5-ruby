@@ -14,6 +14,8 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.FileUtils;
 
+import com.google.inject.Provider;
+
 /**
  * Table format for the Document Table for LW buddies and Browse hosts
  */
@@ -27,14 +29,15 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
     static final int DESCRIPTION_INDEX = 6;
     static final int FROM_INDEX = 7;
     
-    private IconManager iconManager;
+    private Provider<IconManager> iconManager;
     
-    public RemoteDocumentTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo, IconManager iconManager) {
+    public RemoteDocumentTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo, 
+            Provider<IconManager> iconManager) {
         super(sortID, sortedColumn, isAscending, columnInfo);
         this.iconManager = iconManager;
     }
     
-    public RemoteDocumentTableFormat(IconManager iconManager) {
+    public RemoteDocumentTableFormat(Provider<IconManager> iconManager) {
         super("REMOTE_LIBRARY_DOCUMENT_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_DOCUMENT_NAME", I18n.tr("Name"), 417, true, true), 
                 new ColumnStateInfo(TYPE_INDEX, "REMOTE_LIBRARY_DOCUMENT_TYPE", I18n.tr("Type"), 170, true, true),     
@@ -58,7 +61,7 @@ public class RemoteDocumentTableFormat<T extends RemoteFileItem> extends Abstrac
              case TYPE_INDEX: 
                  // Use icon manager to return MIME description.
                  return (iconManager != null) ?
-                     iconManager.getMIMEDescription(baseObject) : 
+                     iconManager.get().getMIMEDescription(baseObject) : 
                      baseObject.getProperty(FilePropertyKey.DESCRIPTION);
              case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
              case DESCRIPTION_INDEX: return baseObject.getProperty(FilePropertyKey.DESCRIPTION);

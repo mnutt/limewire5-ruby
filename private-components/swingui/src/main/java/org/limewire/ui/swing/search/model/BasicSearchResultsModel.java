@@ -1,15 +1,14 @@
 package org.limewire.ui.swing.search.model;
 
-import java.awt.EventQueue;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.SwingUtilities;
+
 import org.limewire.collection.glazedlists.GlazedListsFactory;
-import org.limewire.core.api.Category;
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
@@ -20,9 +19,13 @@ import org.limewire.core.api.search.SearchListener;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+import org.limewire.ui.swing.components.DisposalListener;
+import org.limewire.ui.swing.filter.FilterDebugger;
 import org.limewire.ui.swing.search.SearchInfo;
 import org.limewire.ui.swing.util.PropertiableHeadings;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
+
+import com.google.inject.Provider;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -32,6 +35,7 @@ import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.GroupingList;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.FunctionList.AdvancedFunction;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
@@ -44,6 +48,9 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
  */
 class BasicSearchResultsModel implements SearchResultsModel {
     private final Log LOG = LogFactory.getLog(getClass());
+    
+    /** Filter debugger associated with this model. */
+    private final FilterDebugger<VisualSearchResult> filterDebugger;
 
     /** Descriptor containing search details. */
     private final SearchInfo searchInfo;
@@ -55,7 +62,7 @@ class BasicSearchResultsModel implements SearchResultsModel {
     private final DownloadListManager downloadListManager;
 
     /** Save exception handler. */
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
 
     /** List of all search results. */
     private final EventList<SearchResult> allSearchResults;
@@ -72,10 +79,6 @@ class BasicSearchResultsModel implements SearchResultsModel {
     /** Filtered list of grouped search results. */
     private final FilterList<VisualSearchResult> filteredResultList;
 
-    /** Cache of filtered lists by media category. */
-    private final Map<Category, FilterList<VisualSearchResult>> categoryListMap = 
-        new EnumMap<Category, FilterList<VisualSearchResult>>(Category.class);
-
     /** Listener to handle search request events. */
     private SearchListener searchListener;
 
@@ -90,23 +93,28 @@ class BasicSearchResultsModel implements SearchResultsModel {
     
     /** Current sort option. */
     private SortOption sortOption;
+    
+    private List<DisposalListener> disposalListeners = new ArrayList<DisposalListener>();
 
     /**
      * Constructs a BasicSearchResultsModel with the specified search details,
      * search request object, and services.
      */
     public BasicSearchResultsModel(SearchInfo searchInfo, Search search, 
-            PropertiableHeadings propertiableHeadings,
+            Provider<PropertiableHeadings> propertiableHeadings,
             DownloadListManager downloadListManager,
-            SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler) {
         
         this.searchInfo = searchInfo;
         this.search = search;
         this.downloadListManager = downloadListManager;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         
-        // Create list of all search results.
-        allSearchResults = new BasicEventList<SearchResult>();
+        // Create filter debugger.
+        filterDebugger = new FilterDebugger<VisualSearchResult>();
+        
+        // Create list of all search results.  Must be thread safe for EventSelectionModel to work properly.
+        allSearchResults = GlazedListsFactory.threadSafeList(new BasicEventList<SearchResult>());
         
         // Create list of search results grouped by URN.
         GroupingList<SearchResult> groupingListUrns = GlazedListsFactory.groupingList(
@@ -160,6 +168,31 @@ class BasicSearchResultsModel implements SearchResultsModel {
             search.removeSearchListener(searchListener);
             searchListener = null;
         }
+        
+        if (allSearchResults instanceof TransformedList){
+            ((TransformedList)allSearchResults).dispose();
+        }
+        notifyDisposalListeners();
+    }
+    
+    @Override
+    public SearchCategory getFilterCategory() {
+        return searchInfo.getSearchCategory();
+    }
+    
+    @Override
+    public FilterDebugger<VisualSearchResult> getFilterDebugger() {
+        return filterDebugger;
+    }
+    
+    @Override
+    public EventList<VisualSearchResult> getUnfilteredList() {
+        return observableList;
+    }
+    
+    @Override
+    public EventList<VisualSearchResult> getFilteredList() {
+        return filteredResultList;
     }
     
     @Override
@@ -170,6 +203,11 @@ class BasicSearchResultsModel implements SearchResultsModel {
     @Override
     public String getSearchQuery() {
         return searchInfo.getSearchQuery();
+    }
+    
+    @Override
+    public String getSearchTitle() {
+        return searchInfo.getTitle();
     }
     
     @Override
@@ -188,25 +226,11 @@ class BasicSearchResultsModel implements SearchResultsModel {
     }
 
     /**
-     * Returns a list of filtered results for the specified search category.
+     * Returns a list of filtered results.
      */
     @Override
-    public EventList<VisualSearchResult> getCategorySearchResults(SearchCategory searchCategory) {
-        if (searchCategory == SearchCategory.ALL) {
-            return filteredResultList;
-            
-        } else {
-            // Get filtered list from cache.
-            Category category = searchCategory.getCategory();
-            FilterList<VisualSearchResult> filteredList = categoryListMap.get(category);
-            // Create filtered list if necessary, and add to cache.
-            if (filteredList == null) {
-                filteredList = GlazedListsFactory.filterList(filteredResultList, 
-                        new CategoryMatcher(category));
-                categoryListMap.put(category, filteredList);
-            }
-            return filteredList;
-        }
+    public EventList<VisualSearchResult> getFilteredSearchResults() {
+        return filteredResultList;
     }
 
     /**
@@ -234,14 +258,18 @@ class BasicSearchResultsModel implements SearchResultsModel {
     public void setSelectedCategory(SearchCategory selectedCategory) {
         if (this.selectedCategory != selectedCategory) {
             this.selectedCategory = selectedCategory;
-            // Dispose of existing visible and sorted lists.
-            if (visibleResultList != null) {
-                visibleResultList.dispose();
-                sortedResultList.dispose();
-            }
-            // Update visible and sorted lists.
-            EventList<VisualSearchResult> filteredList = getCategorySearchResults(selectedCategory);
-            sortedResultList = GlazedListsFactory.sortedList(filteredList, null);
+            updateSortedList();
+        }
+    }
+    
+    /**
+     * Updates sorted list of visible results.  This method is called when the
+     * selected category is changed.
+     */
+    private void updateSortedList() {
+        // Create visible and sorted lists if necessary.
+        if (visibleResultList == null) {
+            sortedResultList = GlazedListsFactory.sortedList(filteredResultList, null);
             visibleResultList = GlazedListsFactory.filterList(sortedResultList, new VisibleMatcher());
             sortedResultList.setComparator((sortOption != null) ? SortFactory.getSortComparator(sortOption) : null);
         }
@@ -277,8 +305,13 @@ class BasicSearchResultsModel implements SearchResultsModel {
             return;
         }
         
-        LOG.debugf("Adding result urn: {0} EDT: {1}", result.getUrn(), EventQueue.isDispatchThread());
-        allSearchResults.add(result);
+        LOG.debugf("Adding result urn: {0} EDT: {1}", result.getUrn(), SwingUtilities.isEventDispatchThread());
+        try {
+            allSearchResults.add(result);
+        } catch (Throwable th) {
+            // Throw wrapper exception with detailed message.
+            throw new RuntimeException(createMessageDetail("Problem adding result", result), th);
+        }
     }
 
     /**
@@ -330,7 +363,7 @@ class BasicSearchResultsModel implements SearchResultsModel {
                     }
                 }
             } else {
-                saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+                saveLocationExceptionHandler.get().handleSaveLocationException(new DownloadAction() {
                     @Override
                     public void download(File saveFile, boolean overwrite)
                             throws SaveLocationException {
@@ -338,25 +371,33 @@ class BasicSearchResultsModel implements SearchResultsModel {
                         di.addPropertyChangeListener(new DownloadItemPropertyListener(vsr));
                         vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
                     }
+
+                    @Override
+                    public void downloadCanceled(SaveLocationException sle) {
+	                    //nothing to do                        
+                    }
+
                 }, sle, true);
             }
         }
     }
     
     /**
-     * A matcher used to filter search results by category.
+     * Returns a detailed message including the specified prefix and search 
+     * result.
      */
-    private static class CategoryMatcher implements Matcher<VisualSearchResult> {
-        private final Category category;
+    private String createMessageDetail(String prefix, SearchResult result) {
+        StringBuilder buf = new StringBuilder(prefix);
         
-        public CategoryMatcher(Category category) {
-            this.category = category;
-        }
-
-        @Override
-        public boolean matches(VisualSearchResult vsr) {
-            return (vsr.getCategory() == category);
-        }
+        buf.append(", searchCategory=").append(searchInfo.getSearchCategory());
+        buf.append(", resultCategory=").append(result.getCategory());
+        buf.append(", spam=").append(result.isSpam());
+        buf.append(", unfilteredSize=").append(getUnfilteredList().size());
+        buf.append(", filteredSize=").append(getFilteredList().size());
+        buf.append(", EDT=").append(SwingUtilities.isEventDispatchThread());
+        buf.append(", filters=").append(filterDebugger.getFilterString());
+        
+        return buf.toString();
     }
 
     /**
@@ -386,9 +427,9 @@ class BasicSearchResultsModel implements SearchResultsModel {
     private static class SearchResultGrouper implements
             AdvancedFunction<List<SearchResult>, VisualSearchResult> {
         private final AtomicInteger resultCount;
-        private final PropertiableHeadings propertiableHeadings;
+        private final Provider<PropertiableHeadings> propertiableHeadings;
 
-        public SearchResultGrouper(AtomicInteger resultCount, PropertiableHeadings propertiableHeadings) {
+        public SearchResultGrouper(AtomicInteger resultCount, Provider<PropertiableHeadings> propertiableHeadings) {
             this.resultCount = resultCount;
             this.propertiableHeadings = propertiableHeadings;
         }
@@ -413,6 +454,22 @@ class BasicSearchResultsModel implements SearchResultsModel {
             ((SearchResultAdapter) transformedValue).update();
             resultCount.addAndGet(transformedValue.getSources().size());
             return transformedValue;
+        }
+    }
+
+    @Override
+    public void addDisposalListener(DisposalListener listener) {
+        disposalListeners.add(listener);
+    }
+
+    @Override
+    public void removeDisposalListener(DisposalListener listener) {
+        disposalListeners.remove(listener);
+    }
+    
+    private void notifyDisposalListeners(){
+        for (DisposalListener listener : disposalListeners){
+            listener.objectDisposed(this);
         }
     }
 }

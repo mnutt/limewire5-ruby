@@ -14,6 +14,13 @@ public class CantResumeException extends Exception {
         this._file=file;
     }
     
+    /**@param message the cause of the Exception 
+     * @param f the name of the file that couldn't be resumed */
+    public CantResumeException(String message, String file) {
+        super(message);
+        this._file=file;
+    }
+    
     /** @param f the name of the file that couldn't be resumed */
     public CantResumeException(String file) {
         this._file=file;

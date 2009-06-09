@@ -13,6 +13,8 @@ import org.limewire.core.api.library.LibraryData;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
+import com.google.inject.Provider;
+
 /**
  * A container for {@link LibraryManagerTreeTable} that appends text at the
  * bottom and shows a border surrounding all of it.
@@ -23,7 +25,7 @@ public class LibraryTreeTableContainer extends JXPanel {
     private final JScrollPane scrollPane;
     private final JLabel textLabel;
     
-    public LibraryTreeTableContainer(IconManager iconManager, LibraryData libraryData, ExcludedFolderCollectionManager excludedFolders) {
+    public LibraryTreeTableContainer(Provider<IconManager> iconManager, LibraryData libraryData, ExcludedFolderCollectionManager excludedFolders) {
         this(new LibraryManagerTreeTable(iconManager, libraryData, excludedFolders));
     }
     

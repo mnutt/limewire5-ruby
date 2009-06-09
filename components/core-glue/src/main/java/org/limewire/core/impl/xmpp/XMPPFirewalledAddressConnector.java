@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.limewire.core.api.friend.client.ConnectBackRequestSender;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.GUID;
@@ -23,7 +24,6 @@ import org.limewire.net.address.FirewalledAddress;
 import org.limewire.nio.AbstractNBSocket;
 import org.limewire.nio.observer.ConnectObserver;
 import org.limewire.rudp.UDPSelectorProvider;
-import org.limewire.xmpp.api.client.ConnectBackRequestSender;
 import org.limewire.xmpp.client.impl.XMPPFirewalledAddress;
 
 import com.google.inject.Inject;

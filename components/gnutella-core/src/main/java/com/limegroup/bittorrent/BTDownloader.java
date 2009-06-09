@@ -1,15 +1,31 @@
 package com.limegroup.bittorrent;
 
+import java.io.File;
+import java.io.IOException;
+
 import com.limegroup.gnutella.downloader.CoreDownloader;
 
-/**
- * Public interface for the facade that BitTorrent downloaders use to connect to
- * LimeWire's core download system.
- */
 public interface BTDownloader extends CoreDownloader {
 
     /**
-     * Initializes the downloader with the given meta information. 
+     * Initializes the BTDownloader from a torrent file.
      */
-    public void initBtMetaInfo(BTMetaInfo btMetaInfo);
+    void init(File torrent) throws IOException;
+
+    /**
+     * Returns the incomplete file for this Downloader.
+     */
+    File getIncompleteFile();
+
+    /**
+     * Returns the torrent file backing this downloader if any. Value may be
+     * null.
+     */
+    File getTorrentFile();
+
+    /**
+     * Registers the internal torrent with the torrent manager.
+     */
+    void registerTorrentWithTorrentManager();
+
 }

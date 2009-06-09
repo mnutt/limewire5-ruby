@@ -53,7 +53,7 @@ public class EventListenerList<E> implements ListenerSupport<E>, EventBroadcaste
      * annotations and dispatches in the correct thread, according to the
      * annotation.
      * 
-     * @param context The {@link EventListenerList} context to dispatch the
+     * @param context The {@link EventListenerListContext} context to dispatch the
      *        event with. Usually retrieved by
      *        {@link EventListenerList#getContext()}. The context may be null,
      *        which will result in context not being used.
@@ -95,10 +95,13 @@ public class EventListenerList<E> implements ListenerSupport<E>, EventBroadcaste
         return false;
     }
     
-    /** Notifies just this listener about an event. */
-    public void notifyListener(EventListener<E> listener, E event) {
-        EventListener<E> proxy = new ListenerProxy<E>(null, Objects.nonNull(listener, "listener"), context);
-        proxy.handleEvent(event);
+    /**
+     * Notifies just the given listener about the given event.
+     * This uses the {@link EventListenerListContext} of the current {@link EventListenerList}.
+     * If you need to use another context, use {@link EventListenerList#dispatch(EventListener, Object, EventListenerListContext)}. 
+     */
+    public void dispatch(EventListener<E> listener, E event) {
+        EventListenerList.dispatch(listener, event, context);
     }
     
     /** Broadcasts an event to all listeners. */
@@ -144,8 +147,7 @@ public class EventListenerList<E> implements ListenerSupport<E>, EventBroadcaste
         private final EventListener<E> delegate;
         private final EventListenerListContext context;
         
-        private volatile DispatchType type = DispatchType.UNKNOWN;
-        private volatile Executor executor = null;
+        private volatile DispatchStrategy strategy = DispatchStrategy.UNKNOWN;
         
         public ListenerProxy(Log log, EventListener<E> delegate, EventListenerListContext context) {
             this.log = log;
@@ -158,14 +160,14 @@ public class EventListenerList<E> implements ListenerSupport<E>, EventBroadcaste
             // Note: This is not thread-safe, but it is OK to analyze multiple times.
             //       The internals of analyze make sure that only one ExecutorMap & Executor are
             //       ever set.
-            if(type == DispatchType.UNKNOWN) {
-                analyze(delegate, event);                
+            if(strategy == DispatchStrategy.UNKNOWN) {
+                strategy = analyze(delegate, event);                
             }
             
             if(log != null) {
-                log.tracef("Dispatching event {0} to {1} of type {2}", event, delegate, type);
+                log.tracef("Dispatching event {0} to {1} with strategy {2}", event, delegate, strategy);
             }
-            type.dispatch(delegate, event, executor);
+            strategy.dispatch(delegate, event);
         }
         
         /**
@@ -173,7 +175,7 @@ public class EventListenerList<E> implements ListenerSupport<E>, EventBroadcaste
          * classes & superclasses.  When one is found, see if it is annotated with {@link SwingEDTEvent} or
          * {@link BlockingEvent}.
          */
-        private void analyze(EventListener<E> delegate, E event) {
+        private DispatchStrategy analyze(EventListener<E> delegate, E event) {
             Class<?> eventClass = event.getClass();
             Method method = null;
             while(eventClass != null) {
@@ -191,67 +193,97 @@ public class EventListenerList<E> implements ListenerSupport<E>, EventBroadcaste
 
             BlockingEvent blockingEvent;
             if(method.getAnnotation(SwingEDTEvent.class) != null) {
-                type = DispatchType.SWING;
+                return DispatchStrategy.SWING;
             } else if((blockingEvent = method.getAnnotation(BlockingEvent.class)) != null) {
-                type = DispatchType.BLOCKING;
-                if(context != null) { // context may be null if no context is supported.
-                    executor = context.getOrCreateExecutor(blockingEvent.queueName());
-                }
+                return DispatchStrategy.getBlockingStrategy(context, blockingEvent);
             } else {
-                type = DispatchType.INLINE;
+                return DispatchStrategy.INLINE;
             }
         }
+    }
+    
+    /** A strategy to dispatch events. */
+    private static abstract class DispatchStrategy {
+        /** Dispatches the event, possibly using the given executor. */
+        abstract <E> void dispatch(EventListener<E> listener, E event);
         
-
-        private static enum DispatchType {
-            UNKNOWN() {
-                @Override
-                <E> void dispatch(EventListener<E> listener, E event, Executor executor) {
-                    throw new IllegalStateException("unknown dispatch!");
-                }
+        /** A strategy that always fails. */
+        public static DispatchStrategy UNKNOWN = new DispatchStrategy() {
+            @Override
+            <E> void dispatch(EventListener<E> listener, E event) {
+                throw new IllegalStateException("unknown dispatch!");
             }
+        };
 
-            ,
-            INLINE() {
-                @Override
-                <E> void dispatch(EventListener<E> listener, E event, Executor executor) {
+        /** A strategy that runs immediately. */
+        public static DispatchStrategy INLINE = new DispatchStrategy() {
+            @Override
+            <E> void dispatch(EventListener<E> listener, E event) {
+                listener.handleEvent(event);
+            }
+        };
+        
+        /** A strategy that dispatches on the Swing thread. */
+        public static DispatchStrategy SWING = new DispatchStrategy() {
+            @Override
+            <E> void dispatch(final EventListener<E> listener, final E event) {
+                if(EventQueue.isDispatchThread()) {
                     listener.handleEvent(event);
-                }
-            },
-            SWING() {
-                @Override
-                <E> void dispatch(final EventListener<E> listener, final E event, Executor executor) {
-                    if(EventQueue.isDispatchThread()) {
-                        listener.handleEvent(event);
-                    } else {
-                        EventQueue.invokeLater(new Runnable() {
-                            public void run() {
-                                listener.handleEvent(event);
-                            }
-                        });
-                    }
-                }
-            },
-            BLOCKING() {
-                @Override
-                <E> void dispatch(final EventListener<E> listener, final E event, Executor executor) {
-                    Runnable runner = new Runnable() {
+                } else {
+                    EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             listener.handleEvent(event);
                         }
-                    };
-                    
-                    if(executor == null) {
-                        ThreadExecutor.startThread(runner, "BlockingEvent");
-                    } else {
-                        executor.execute(runner);
+                    });
+                }
+            }
+        };
+        
+        /** A strategy that creates a new thread. */
+        public static DispatchStrategy NEW_THREAD = new DispatchStrategy() {
+            @Override
+            <E> void dispatch(final EventListener<E> listener, final E event) {
+                Runnable runner = new Runnable() {
+                    public void run() {
+                        listener.handleEvent(event);
                     }
+                };
+                ThreadExecutor.startThread(runner, "BlockingEvent");
+            }
+        };
+        
+        /** Returns the appropriate dispatch strategy for this event. */
+        public static DispatchStrategy getBlockingStrategy(EventListenerListContext context, BlockingEvent event) {
+            if(context == null) {
+                return NEW_THREAD;
+            } else {
+                Executor executor = context.getOrCreateExecutor(event.queueName());
+                if(executor == null) {
+                    return NEW_THREAD;
+                } else {
+                    return new ExecutorDispatchStrategy(executor);
+                }
+            }
+        };
+    }
+        
+    /** A strategy that runs in the given executor. */
+    private static class ExecutorDispatchStrategy extends DispatchStrategy {
+        private final Executor executor;
+        
+        public ExecutorDispatchStrategy(Executor executor) {
+            this.executor = executor;
+        }
+        
+        @Override
+        <E> void dispatch(final org.limewire.listener.EventListener<E> listener, final E event) {
+            Runnable runner = new Runnable() {
+                public void run() {
+                    listener.handleEvent(event);
                 }
             };
-
-            abstract <E> void dispatch(EventListener<E> listener, E event, Executor executor);
-
-        };
+            executor.execute(runner);
+        }
     }
     
     /** 
@@ -261,6 +293,11 @@ public class EventListenerList<E> implements ListenerSupport<E>, EventBroadcaste
      * {@link BlockingEvent#queueName()} in the same queue.
      */
     public static final class EventListenerListContext {
+        // The use of AtomicReference here is to allow for cost-free instantiation
+        // of a context.  Most contexts will not have any named executors,
+        // so it would be wasteful to create a map to store them for every
+        // EventListenerList.  In the event that a named executor is required,
+        // the map will be created on-demand.
         private final AtomicReference<ConcurrentMap<String, Executor>> eventExecutorsRef = new AtomicReference<ConcurrentMap<String,Executor>>();
         
         private Executor getOrCreateExecutor(String queueName) {

@@ -17,4 +17,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface InspectableForSize {
     String value();
+    InspectionRequirements[] requires() default {};
 }

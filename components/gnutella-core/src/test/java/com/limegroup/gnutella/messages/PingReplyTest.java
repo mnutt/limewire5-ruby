@@ -1,6 +1,5 @@
 package com.limegroup.gnutella.messages;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
@@ -309,19 +308,6 @@ public class PingReplyTest extends LimeTestCase {
                      pr.getDailyUptime());        
     }
       
-    public void testPowerOf2() {
-        assertTrue(! PingReplyImpl.isPowerOf2(-1));
-        assertTrue(! PingReplyImpl.isPowerOf2(0));
-        assertTrue(PingReplyImpl.isPowerOf2(1));
-        assertTrue(PingReplyImpl.isPowerOf2(2));
-        assertTrue(! PingReplyImpl.isPowerOf2(3));
-        assertTrue(PingReplyImpl.isPowerOf2(4));
-        assertTrue(PingReplyImpl.isPowerOf2(16));
-        assertTrue(! PingReplyImpl.isPowerOf2(18));
-        assertTrue(PingReplyImpl.isPowerOf2(64));
-        assertTrue(! PingReplyImpl.isPowerOf2(71));
-    }
-
     public void testNonGGEPBigPong() throws Exception  {
         //Will this pass big pongs--even if the contents are not GGEP?
         byte[] payload = new byte[14+2];

@@ -1,8 +1,9 @@
 package org.limewire.ui.swing.friends.chat;
 
-import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.client.FileMetaData;
+
 import static org.limewire.ui.swing.util.I18n.tr;
 
 /**

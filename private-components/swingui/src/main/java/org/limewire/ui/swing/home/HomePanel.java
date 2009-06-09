@@ -13,6 +13,7 @@ import javax.swing.event.HyperlinkListener;
 
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.Application;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.browser.Browser;
 import org.limewire.ui.swing.browser.BrowserUtils;
 import org.limewire.ui.swing.browser.UriAction;
@@ -26,13 +27,10 @@ import org.mozilla.browser.MozillaInitialization;
 import org.mozilla.browser.MozillaPanel.VisibilityMode;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /** The main home page.*/
-@Singleton
+@LazySingleton
 public class HomePanel extends JXPanel {
-
-    public static final String NAME = "Home";
     
     private boolean firstRequest = true;
     
@@ -69,7 +67,7 @@ public class HomePanel extends JXPanel {
                     SwingUtils.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            navigator.getNavItem(NavCategory.LIMEWIRE, NAME).select();
+                            navigator.getNavItem(NavCategory.LIMEWIRE, HomeMediator.NAME).select();
                             load(targetedUrl.getUri());
                         }
                     });
@@ -118,7 +116,7 @@ public class HomePanel extends JXPanel {
             // Reset the page to blank before continuing -- blocking is OK because this is fast.
             MozillaAutomation.blockingLoad(browser, "about:blank");
             browser.load(url);
-        } else {
+        } else {    
             String offlinePage = "<html><body>This is the offline home page.</body></html>";
             url += "&html32=true";
             if(firstRequest) {

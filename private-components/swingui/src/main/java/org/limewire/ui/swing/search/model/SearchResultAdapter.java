@@ -27,6 +27,8 @@ import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.util.PropertiableHeadings;
 import org.limewire.util.StringUtils;
 
+import com.google.inject.Provider;
+
 /**
  * An implementation of VisualSearchResult for displaying actual search 
  * results. 
@@ -42,7 +44,7 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
 
     private final Set<RemoteHost> remoteHosts;
     
-    private final PropertiableHeadings propertiableHeadings;
+    private final Provider<PropertiableHeadings> propertiableHeadings;
 
     private BasicDownloadState downloadState = BasicDownloadState.NOT_STARTED;
 
@@ -70,7 +72,7 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
      * Constructs a SearchResultAdapter with the specified List of core results
      * and property values.
      */
-    public SearchResultAdapter(List<SearchResult> sourceValue, PropertiableHeadings propertiableHeadings) {
+    public SearchResultAdapter(List<SearchResult> sourceValue, Provider<PropertiableHeadings> propertiableHeadings) {
         this.coreResults = sourceValue;
         this.propertiableHeadings = propertiableHeadings;
 
@@ -219,8 +221,12 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
     @Override
     public void setDownloadState(BasicDownloadState downloadState) {
         // If the download was aborted, recalculate the spam score
-        if(downloadState == BasicDownloadState.NOT_STARTED)
-            recalculateSpam();
+        if(downloadState == BasicDownloadState.NOT_STARTED) {
+            boolean oldSpam = isSpam();
+            spamCache = null;
+            boolean newSpam = isSpam();
+            firePropertyChange("spam-core", oldSpam, newSpam);
+        }
         BasicDownloadState oldDownloadState = this.downloadState;
         this.downloadState = downloadState;
         firePropertyChange("downloadState", oldDownloadState, downloadState);
@@ -232,8 +238,8 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
     }
 
     /**
-     * Readds the sources from the core search results.
-     * Only adding the filteredSources list to try and cut back on spam related results.
+     * Reloads the sources from the core search results. The number of alt-locs
+     * is limited to avoid giving high relevance to spam results.
      */
     void update() {
         relevance = null;
@@ -267,29 +273,18 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
             boolean spam = false;
             for (SearchResult result : coreResults)
                 spam |= result.isSpam();
-            spamCache = getSpamBoolean(spam);
+            spamCache = spam;
         }
         return spamCache.booleanValue();
-    }
-
-    private Boolean getSpamBoolean(boolean spam) {
-        return spam ? Boolean.TRUE : Boolean.FALSE;
     }
 
     @Override
     public void setSpam(boolean spam) {
         boolean oldSpam = isSpam();
-        spamCache = getSpamBoolean(spam);
-        firePropertyChange("spam", oldSpam, spam);
+        spamCache = spam;
+        firePropertyChange("spam-ui", oldSpam, spam);
     }
     
-    private void recalculateSpam() {
-        boolean oldSpam = isSpam();
-        spamCache = null;
-        boolean newSpam = isSpam();
-        firePropertyChange("spam", oldSpam, newSpam);
-    }
-
     @Override
     public void setChildrenVisible(boolean childrenVisible) {
         this.childrenVisible = childrenVisible;
@@ -337,7 +332,7 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
     @Override
     public String getHeading() {
         if (cachedHeading == null) {
-            cachedHeading =  sanitize(propertiableHeadings.getHeading(this));
+            cachedHeading =  sanitize(propertiableHeadings.get().getHeading(this));
         }
         return cachedHeading;
     }
@@ -362,7 +357,7 @@ class SearchResultAdapter extends AbstractBean implements VisualSearchResult, Co
     @Override
     public String getSubHeading() {
         if (cachedSubHeading == null) {
-            cachedSubHeading = sanitize(propertiableHeadings.getSubHeading(this));
+            cachedSubHeading = sanitize(propertiableHeadings.get().getSubHeading(this));
         }
         return cachedSubHeading;
     }

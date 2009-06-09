@@ -13,6 +13,8 @@ import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
+import com.google.inject.Provider;
+
 /**
  * Table format for the Other Table when it is in My Library
  */
@@ -25,9 +27,9 @@ public class OtherTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
     static final int UPLOADS_INDEX = 5;
     static final int UPLOAD_ATTEMPTS_INDEX = 6;
     static final int PATH_INDEX = 7;
-    private IconManager iconManager;
+    private Provider<IconManager> iconManager;
     
-    public OtherTableFormat(IconManager iconManager) {
+    public OtherTableFormat(Provider<IconManager> iconManager) {
         super(ACTION_INDEX, "LIBRARY_OTHER_TALBE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(ACTION_INDEX, "LIBRARY_OTHER_ACTION", I18n.tr("Sharing"), 61, true, false),
                 new ColumnStateInfo(NAME_INDEX, "LIBRARY_OTHER_NAME", I18n.tr("Name"), 493, true, true), 
@@ -48,7 +50,7 @@ public class OtherTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
         case TYPE_INDEX: 
             // Use icon manager to return MIME description.
             return (iconManager != null) ?
-                iconManager.getMIMEDescription(baseObject) : 
+                iconManager.get().getMIMEDescription(baseObject) : 
                 baseObject.getProperty(FilePropertyKey.DESCRIPTION);
         case SIZE_INDEX: return baseObject.getSize();
         case HIT_INDEX: return baseObject.getNumHits();

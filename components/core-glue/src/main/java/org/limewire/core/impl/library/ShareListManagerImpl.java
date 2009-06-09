@@ -11,11 +11,12 @@ import org.limewire.core.api.library.GnutellaFileList;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.ShareListManager;
+import org.limewire.listener.BlockingEvent;
+import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -35,17 +36,17 @@ class ShareListManagerImpl implements ShareListManager {
     
     private final ConcurrentHashMap<String, FriendFileListImpl> friendLocalFileLists;
 
-    private final EventListener<FriendShareListEvent> friendShareListEventListener;
+    private final EventBroadcaster<FriendShareListEvent> friendShareListEventBroadcaster;
     
     private final CoreLocalFileItemFactory coreLocalFileItemFactory;
 
     @Inject
     ShareListManagerImpl(FileManager fileManager, CoreLocalFileItemFactory coreLocalFileItemFactory,
-            EventListener<FriendShareListEvent> friendShareListEventListener,
+            EventBroadcaster<FriendShareListEvent> friendShareListEventListener,
             LibraryManager libraryManager) {
         this.fileManager = fileManager;
         this.coreLocalFileItemFactory = coreLocalFileItemFactory;
-        this.friendShareListEventListener = friendShareListEventListener;
+        this.friendShareListEventBroadcaster = friendShareListEventListener;
         this.combinedShareList = new CombinedShareList(libraryManager.getLibraryListEventPublisher(), libraryManager.getReadWriteLock());
         this.gnutellaFileList = new GnutellaFileListImpl(coreLocalFileItemFactory, fileManager.getGnutellaFileList(), combinedShareList);
         this.friendLocalFileLists = new ConcurrentHashMap<String, FriendFileListImpl>();
@@ -55,10 +56,14 @@ class ShareListManagerImpl implements ShareListManager {
     void register(@Named("known")ListenerSupport<FriendEvent> knownListeners) {
 
         knownListeners.addListener(new EventListener<FriendEvent>() {
+            @BlockingEvent(queueName="share list friend event handler")
             @Override
             public void handleEvent(FriendEvent event) {
                 Friend friend = event.getData();
                 switch (event.getType()) {
+                    case ADDED:
+                        getOrCreateFriendShareList(friend);
+                        break;
                     case REMOVED:
                         unloadFilesForFriend(friend);
                         break;
@@ -81,7 +86,7 @@ class ShareListManagerImpl implements ShareListManager {
         fileManager.unloadFilesForFriend(friend.getId());
         FriendFileListImpl list = friendLocalFileLists.remove(friend.getId());
         if(list != null) {
-            friendShareListEventListener.handleEvent(new FriendShareListEvent(FriendShareListEvent.Type.FRIEND_SHARE_LIST_REMOVED, list, friend));
+            friendShareListEventBroadcaster.broadcast(new FriendShareListEvent(FriendShareListEvent.Type.FRIEND_SHARE_LIST_REMOVED, list, friend));
             list.dispose();
         }        
     }
@@ -112,7 +117,7 @@ class ShareListManagerImpl implements ShareListManager {
         if(existing == null) {
             LOG.debugf("No existing library for friend {0}", friend.getId());
             newList.commit();
-            friendShareListEventListener.handleEvent(new FriendShareListEvent(FriendShareListEvent.Type.FRIEND_SHARE_LIST_ADDED, newList, friend));
+            friendShareListEventBroadcaster.broadcast(new FriendShareListEvent(FriendShareListEvent.Type.FRIEND_SHARE_LIST_ADDED, newList, friend));
             return newList;
         } else {
             LOG.debugf("Already an existing lib for friend {0}", friend.getId());
@@ -130,7 +135,7 @@ class ShareListManagerImpl implements ShareListManager {
         fileManager.removeFriendFileList(friend.getId());
         FriendFileListImpl list = friendLocalFileLists.remove(friend.getId());
         if(list != null) {
-            friendShareListEventListener.handleEvent(new FriendShareListEvent(FriendShareListEvent.Type.FRIEND_SHARE_LIST_DELETED, list, friend));
+            friendShareListEventBroadcaster.broadcast(new FriendShareListEvent(FriendShareListEvent.Type.FRIEND_SHARE_LIST_DELETED, list, friend));
             list.dispose();
         }        
     }

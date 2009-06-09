@@ -499,9 +499,12 @@ class LibrarySharePanel extends JXButton implements Disposable, ShapeComponent {
         removeEditor.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-               unshareFriend(removeEditor.getFriend());
-               removeEditor.cancelCellEditing();
-               inputField.requestFocusInWindow();
+               SharingTarget sharingTarget = removeEditor.getFriend();
+               if(sharingTarget != null) {
+                   unshareFriend(sharingTarget);
+                   removeEditor.cancelCellEditing();
+                   inputField.requestFocusInWindow();
+               }
             }            
         });
         removeEditor.setOpaque(false);

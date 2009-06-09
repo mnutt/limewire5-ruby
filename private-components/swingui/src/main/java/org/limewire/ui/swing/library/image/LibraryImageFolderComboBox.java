@@ -20,6 +20,9 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.xmpp.api.client.XMPPService;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 public class LibraryImageFolderComboBox extends LimeComboBox {
 
     @Resource
@@ -31,17 +34,18 @@ public class LibraryImageFolderComboBox extends LimeComboBox {
     
     private final XMPPService xmppService;
     private final FriendsSignInPanel friendsSignInPanel;
-    private final SharingActionFactory sharingActionFactory;
+    private final Provider<SharingActionFactory> sharingActionFactoryProvider;
     
     private JPopupMenu menu = new JPopupMenu();
     
     private SelectAllable<LocalFileItem> selectAllable;
     
-    public LibraryImageFolderComboBox(XMPPService xmppService, SharingActionFactory sharingActionFactory,
+    @Inject
+    public LibraryImageFolderComboBox(XMPPService xmppService, Provider<SharingActionFactory> sharingActionFactory,
             FriendsSignInPanel friendsSignInPanel) {
         this.xmppService = xmppService;
         this.friendsSignInPanel = friendsSignInPanel;
-        this.sharingActionFactory = sharingActionFactory;
+        this.sharingActionFactoryProvider = sharingActionFactory;
                 
         GuiUtils.assignResources(this);
         
@@ -86,6 +90,8 @@ public class LibraryImageFolderComboBox extends LimeComboBox {
             
             if(selectAllable == null)
                 return;
+            
+            SharingActionFactory sharingActionFactory = sharingActionFactoryProvider.get();
             
             // if not logged in don't show options for friends.
             if(!xmppService.isLoggedIn()) {

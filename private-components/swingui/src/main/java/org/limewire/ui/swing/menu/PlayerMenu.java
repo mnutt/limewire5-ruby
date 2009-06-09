@@ -24,12 +24,6 @@ public class PlayerMenu extends MnemonicMenu {
         super(I18n.tr("&Player"));
 
         add(getPlayPauseAction(audioPlayer));
-//
-//        add(getNextAction(audioPlayer));
-//        add(getPreviousAction(audioPlayer));
-//
-//        addSeparator();
-//        add(getShowCurrentFileAction(audioPlayer, libraryNavigator, libraryManager));
     }
 
     private Action getPlayPauseAction(final AudioPlayer audioPlayer) {
@@ -93,56 +87,4 @@ public class PlayerMenu extends MnemonicMenu {
         });
         return action;
     }
-
-    
-//    private Action getNextAction(final AudioPlayer audioPlayer) {
-//        //TODO need to have a notion of a playlist for this to work.
-//        Action action = new AbstractAction(I18n.tr("Next")) {;
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                throw new UnsupportedOperationException("TODO implement me.");
-//            }
-//        };
-//
-//        addAudioListener(audioPlayer, action);
-//        return action;
-//    }
-//
-//    private Action getPreviousAction(final AudioPlayer audioPlayer) {
-//        Action action = new AbstractAction(I18n.tr("Previous")) {
-//          //TODO need to have a notion of a playlist for this to work.
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                throw new UnsupportedOperationException("TODO implement me.");
-//            }
-//        };
-//
-//        addAudioListener(audioPlayer, action);
-//        return action;
-//    }
-//
-//
-//    
-//    private Action getShowCurrentFileAction(final AudioPlayer audioPlayer, final LibraryNavigator libraryNavigator,
-//            final LibraryManager libraryManager) {
-//        Action action = new AbstractAction(I18n.tr("Show current file")) {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                AudioSource currentSong = audioPlayer.getCurrentSong();
-//                if (currentSong != null) {
-//                    File currentFile = currentSong.getFile();
-//                    if (currentFile != null) {
-//                        final LocalFileItem localFileItem = libraryManager.getLibraryManagedList()
-//                                .getFileItem(currentFile);
-//                        if (localFileItem != null) {
-//                            libraryNavigator.selectInLibrary(localFileItem.getUrn(), localFileItem.getCategory());
-//                        }
-//                    }
-//                }
-//            }
-//        };
-//        addAudioListener(audioPlayer, action);
-//        return action;
-//    }
-
 }

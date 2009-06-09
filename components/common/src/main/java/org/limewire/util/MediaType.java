@@ -63,21 +63,21 @@ public class MediaType implements Serializable {
     /**
      * Type for 'documents'
      */
-    private static final MediaType TYPE_DOCUMENTS =
+
+    private static final MediaType TYPE_DOCUMENTS = 
         new MediaType(SCHEMA_DOCUMENTS, DOCUMENTS,
-            new String[] {
-                "html", "htm", "xhtml", "mht", "mhtml", "xml",
-                "txt", "ans", "asc", "diz", "eml",
-                "pdf", "ps", "eps", "epsf", "dvi", 
-                "rtf", "wri", "doc", "mcw", "wps",
-                "xls", "wk1", "dif", "csv", "ppt", "tsv",
-                "hlp", "chm", "lit",
-                "tex", "texi", "latex", "info", "man",
-                "wp", "wpd", "wp5", "wk3", "wk4", "shw", 
-                "sdd", "sdw", "sdp", "sdc",
-                "sxd", "sxw", "sxp", "sxc",
-                "abw", "kwd"
-            });
+            new String[] { 
+                "123", "abw", "accdb", "accde", "accdr", "accdt", "ans", "asc", "asp",
+                "bdr", "chm", "css", "csv", "dat", "db", "dif", "diz", "doc", "docm", "docx",
+                "dotm", "dotx", "dvi", "eml", "eps", "epsf", "fm", "grv", "gsa", "gts", "hlp",
+                "htm", "html", "info", "js", "jsp", "kfl", "kwd", "latex", "lit", "log", "man",
+                "mcw", "mdb", "mht", "mhtml", "msg", "obi", "odp", "ods", "odt", "one",
+                "onepkg", "ost", "pages", "pdf", "php", "pot", "potm", "potx", "pps", "ppsm",
+                "ppsx", "ppt", "pptm", "pptx", "ps", "pub", "rtf", "sdc", "sdd", "sdp", "sdw",
+                "shw", "sldx", "sxc", "sxd", "sxp", "sxw", "tex", "texi", "toc", "tsv", "txt",
+                "wk1", "wk3", "wk4", "wks", "wp", "wp5", "wpd", "wps", "wri", "xhtml", "xlam",
+                "xls", "xlsb", "xlsm", "xlsx", "xltm", "xltx", "xml", "xsf", "xsn" 
+             });
             
     /**
      * Type for linux/osx programs, used for Aggregator.

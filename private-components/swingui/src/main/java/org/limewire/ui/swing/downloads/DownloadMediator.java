@@ -1,29 +1,68 @@
 package org.limewire.ui.swing.downloads;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.ui.swing.downloads.table.DownloadStateExcluder;
+import org.limewire.util.FileUtils;
 
 import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.SortedList;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
 public class DownloadMediator {
+    
+    public static enum SortOrder {ORDER_ADDED, NAME, PROGRESS, TIME_REMAINING, SPEED, STATUS, FILE_TYPE, EXTENSION};
 
 	/**
 	 * unfiltered - common to all tables
 	 */
-	private final EventList<DownloadItem> commonBaseList;
+    private final SortedList<DownloadItem> commonBaseList;
 	private DownloadListManager downloadListManager;
 	
 	@Inject
 	public DownloadMediator(DownloadListManager downloadManager) {
 	    this.downloadListManager = downloadManager;
-		commonBaseList = GlazedListsFactory.filterList(downloadManager.getSwingThreadSafeDownloads(), new DownloadStateExcluder(DownloadState.CANCELLED));
+	    EventList<DownloadItem> baseList = GlazedListsFactory.filterList(downloadManager.getSwingThreadSafeDownloads(), new DownloadStateExcluder(DownloadState.CANCELLED));
+	    commonBaseList = GlazedListsFactory.sortedList(baseList, new OrderAddedComparator());
+	    
+	}
+	
+	public void setSortOrder(SortOrder order){
+	    switch(order){
+        case ORDER_ADDED:
+            commonBaseList.setComparator(new OrderAddedComparator());
+            break;
+        case NAME:
+            commonBaseList.setComparator(new NameComparator());
+            break;
+        case PROGRESS:
+            commonBaseList.setComparator(new ProgressComparator());
+            break;
+        case TIME_REMAINING:
+            commonBaseList.setComparator(new TimeRemainingComparator());
+            break;
+        case SPEED:
+            commonBaseList.setComparator(new SpeedComparator());
+            break;
+        case STATUS:
+            commonBaseList.setComparator(new StateComparator());
+            break;
+        case FILE_TYPE:
+            commonBaseList.setComparator(new FileTypeComparator());
+            break;
+        case EXTENSION:
+            commonBaseList.setComparator(new FileExtensionComparator());
+            break;
+	    }
 	}
 
 	public void pauseAll() {
@@ -59,4 +98,175 @@ public class DownloadMediator {
 	public void clearFinished() {
 	    downloadListManager.clearFinished();
 	}
+
+    public void fixStalled() {
+        List<DownloadItem> items = getMatchingDownloadItems(DownloadState.STALLED);
+        for (DownloadItem item : items) {
+            item.resume();
+        }
+    }
+
+    public void cancelStalled() {
+        cancelMatchingDownloadItems(DownloadState.STALLED);
+    }
+
+    public void cancelError() {
+        cancelMatchingDownloadItems(DownloadState.ERROR);
+    }
+
+    public void cancelAll() {
+        cancelMatchingDownloadItems(null);
+    }
+    
+    /**
+     * 
+     * @param state The state of the DownloadItems to be canceled.  Null will cancel all.
+     */
+    private void cancelMatchingDownloadItems(DownloadState state){
+        List<DownloadItem> items = getMatchingDownloadItems(state);
+        for(DownloadItem item : items){
+            item.cancel();
+        }
+    }
+    
+    /**
+     * 
+     * @param state null will return all DownloadItems
+     * @return a List of all DownloadItems in the specified DownloadState
+     */
+    private List<DownloadItem> getMatchingDownloadItems(DownloadState state) {
+        if (state == null) {
+            return new ArrayList<DownloadItem>(commonBaseList);
+        }
+        
+        List<DownloadItem> matchingItems = new ArrayList<DownloadItem>();
+        for (DownloadItem item : commonBaseList) {
+            if (item.getState() == state) {
+                matchingItems.add(item);
+            }
+        }
+        
+        return matchingItems;
+    }
+    
+    private static class StateComparator implements Comparator<DownloadItem>{
+        
+        @Override
+        public int compare(DownloadItem o1, DownloadItem o2) {
+            if (o1 == o2){
+                return 0;
+            }
+
+            return getSortPriority(o1.getState()) - getSortPriority(o2.getState());
+        }   
+        
+        private int getSortPriority(DownloadState state){
+            
+            switch(state){
+            case DONE: return 1;
+            case FINISHING: return 2;
+            case DOWNLOADING: return 3;
+            case RESUMING: return 4;
+            case CONNECTING: return 5;
+            case PAUSED: return 6;
+            case REMOTE_QUEUED: return 7;
+            case LOCAL_QUEUED: return 8;
+            case TRYING_AGAIN: return 9;
+            case STALLED: return 10;
+            case ERROR: return 11;       
+            case CANCELLED: return 12;
+            }
+            
+           throw new IllegalArgumentException("Unknown DownloadState: " + state);
+        }
+    }
+    
+    private static class OrderAddedComparator implements Comparator<DownloadItem>{
+        
+        @Override
+        public int compare(DownloadItem o1, DownloadItem o2) { 
+            //The source list contains items in the order added.  Always returning 0
+            //returns the sorted list to this original order.
+            return 0;
+        }      
+    }
+    
+    private static class NameComparator implements Comparator<DownloadItem>{
+        
+        @Override
+        public int compare(DownloadItem o1, DownloadItem o2) {
+            if (o1 == o2){
+                return 0;
+            }
+
+            return o1.getTitle().compareTo(o2.getTitle());
+        }   
+     
+    } 
+    private static class ProgressComparator implements Comparator<DownloadItem>{
+        
+        @Override
+        public int compare(DownloadItem o1, DownloadItem o2) {
+            if (o1 == o2){
+                return 0;
+            }
+
+            return o2.getPercentComplete() - o1.getPercentComplete();
+        }   
+     
+    } 
+    private static class TimeRemainingComparator implements Comparator<DownloadItem>{
+        
+        @Override
+        public int compare(DownloadItem o1, DownloadItem o2) {
+            if (o1 == o2){
+                return 0;
+            }
+
+            return (int)(o1.getRemainingDownloadTime() - o2.getRemainingDownloadTime());
+        }   
+     
+    }
+    
+    
+    private static class SpeedComparator implements Comparator<DownloadItem>{
+        
+        @Override
+        public int compare(DownloadItem o1, DownloadItem o2) {
+            if (o1 == o2){
+                return 0;
+            }
+
+            return (int)o2.getDownloadSpeed() - (int)o1.getDownloadSpeed();
+        }   
+     
+    }
+    
+    
+    private static class FileTypeComparator implements Comparator<DownloadItem>{
+        
+        @Override
+        public int compare(DownloadItem o1, DownloadItem o2) {
+            if (o1 == o2){
+                return 0;
+            }
+
+            return o1.getCategory().compareTo(o2.getCategory());
+        }   
+     
+    }
+    
+    
+    private static class FileExtensionComparator implements Comparator<DownloadItem>{
+        
+        @Override
+        public int compare(DownloadItem o1, DownloadItem o2) {
+            if (o1 == o2){
+                return 0;
+            }
+
+            return FileUtils.getFileExtension(o1.getDownloadingFile()).compareTo(FileUtils.getFileExtension(o2.getDownloadingFile()));
+        }   
+     
+    }
 }

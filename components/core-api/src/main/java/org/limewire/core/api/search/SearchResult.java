@@ -21,8 +21,8 @@ public interface SearchResult {
     long getSize();
     
     /**
-     * Returns a subset of sources identified for a file. 
-     * Limiting the number of sources to friends plus 2 other sources.
+     * Returns a subset of sources identified for a file, limiting the number
+     * of alt-locs returned.
      */
     List<RemoteHost> getSources();
     

@@ -91,7 +91,12 @@ public class TableCellHeaderRenderer extends JXLabel implements TableCellRendere
             boolean isSelected, boolean hasFocus, int row, int column) {
         JXTable t = (JXTable) table;
 
-        setText((String) value);
+        if(value instanceof String)
+            setText((String) value);
+        else if(value != null)
+            setText(value.toString());
+        else
+            setText("");
         setIcon(sortIcon);
         
         setPreferredSize(new Dimension(20, getPreferredSize().width));

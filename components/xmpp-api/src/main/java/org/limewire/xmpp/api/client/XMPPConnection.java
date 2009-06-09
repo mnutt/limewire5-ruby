@@ -27,17 +27,17 @@ public interface XMPPConnection {
     public ListeningFuture<Void> logout();
 
     /**
-     * @return true if this connection is logged in
+     * @return true if this connection is logged in.
      */
     public boolean isLoggedIn();
     
     /**
-     * @return true if this connection is now logging in
+     * @return true if this connection is now logging in.
      */
     public boolean isLoggingIn();
 
     /**
-     * Sets a new <code>&lt;presence&gt;</code> mode (i.e., status)
+     * Sets a new <code>&lt;presence&gt;</code> mode (i.e., status).
      * @param mode the new mode to set
      * @return a {@link ListeningFuture} if callers wish to be
      * notified of completion.
@@ -45,10 +45,10 @@ public interface XMPPConnection {
      * The ExecutionException will be to an XMPPException
      * if there is an error sending the xmpp message
      */
-    public ListeningFuture<Void> setMode(Presence.Mode mode);
+    public ListeningFuture<Void> setMode(XMPPPresence.Mode mode);
 
     /**
-     * Add a user to the friend list
+     * Add a friend to the friend list.
      * @param id cannot be null
      * @param name can be null
      * @return a {@link ListeningFuture} if callers wish to be
@@ -57,30 +57,30 @@ public interface XMPPConnection {
      * The ExecutionException will be to an XMPPException
      * if there is an error sending the xmpp message
      */
-    public ListeningFuture<Void> addUser(String id, String name);
+    public ListeningFuture<Void> addFriend(String id, String name);
     
     /**
-     * Remove a user from the friend list
+     * Remove a friend from the friend list.
      * @param id cannot be null
      * @return a {@link ListeningFuture} if callers wish to be
      * notified of completion.
      * 
      * The ExecutionException will be to an XMPPException
-     * if there is an error sending the xmpp message
+     * if there is an error sending the xmpp message.
      */
-    public ListeningFuture<Void> removeUser(String id);
+    public ListeningFuture<Void> removeFriend(String id);
 
     /**
-     * Returns the user belonging to <code>id</code>. <code>id</code>
-     * is the user's email address.
+     * Returns the friend belonging to <code>id</code>. <code>id</code>
+     * is the friend's email address.
      * 
-     * @return null if id is not registered on this connection
+     * @return null if id is not registered on this connection.
      */
-    public User getUser(String id);
+    public XMPPFriend getFriend(String id);
 
     /**
-     * @return a copy of the current Collection of Users. Does NOT stay up to
+     * @return a copy of the current Collection of friends. Does NOT stay up to
      * date with changes.
      */
-    public Collection<User> getUsers();
+    public Collection<XMPPFriend> getFriends();
 }

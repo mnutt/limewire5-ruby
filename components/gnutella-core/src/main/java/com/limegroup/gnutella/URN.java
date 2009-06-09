@@ -24,6 +24,7 @@ import org.limewire.io.GUID;
 import org.limewire.io.IOUtils;
 import org.limewire.security.SHA1;
 import org.limewire.util.Base32;
+import org.limewire.util.StringUtils;
 import org.limewire.util.SystemUtils;
 
 import com.limegroup.gnutella.http.HTTPConstants;
@@ -934,5 +935,18 @@ public final class URN implements HTTPHeaderValue, Serializable {
 
         if (!URN.isValidUrn(_urnString))
             throw new InvalidObjectException("invalid urn: "+_urnString);		
+	}
+	
+	/**
+	 * Returns a URN derived from the given hexString. If the hexString
+	 * does not match a valid URN an IOException can be thrown.
+	 * 
+	 * In the case that the given hexString is null, null is returned.
+	 */
+	public static URN createSha1UrnFromHex(String hexString) throws IOException {
+	    if(hexString == null) {
+	        return null;
+	    }
+	    return createSHA1UrnFromBytes(StringUtils.fromHexString(hexString));
 	}
 }

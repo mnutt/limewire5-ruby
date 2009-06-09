@@ -3,7 +3,7 @@ package org.limewire.core.api.library;
 import java.io.File;
 
 import org.limewire.core.api.FilePropertyKey;
-import org.limewire.xmpp.api.client.FileMetaData;
+import org.limewire.core.api.friend.client.FileMetaData;
 
 /**
  * A File that is displayed in a library

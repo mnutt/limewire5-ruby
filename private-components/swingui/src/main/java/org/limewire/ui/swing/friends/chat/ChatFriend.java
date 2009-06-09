@@ -2,10 +2,10 @@ package org.limewire.ui.swing.friends.chat;
 
 import java.beans.PropertyChangeListener;
 
-import org.limewire.xmpp.api.client.MessageReader;
-import org.limewire.xmpp.api.client.MessageWriter;
-import org.limewire.xmpp.api.client.User;
-import org.limewire.xmpp.api.client.Presence.Mode;
+import org.limewire.core.api.friend.client.MessageReader;
+import org.limewire.core.api.friend.client.MessageWriter;
+import org.limewire.xmpp.api.client.XMPPFriend;
+import org.limewire.xmpp.api.client.XMPPPresence.Mode;
 
 /**
  * @author Mario Aquino, Object Computing, Inc.
@@ -16,7 +16,7 @@ public interface ChatFriend {
     /**
      * @return User object used by this chat friend
      */
-    User getUser();
+    XMPPFriend getFriend();
 
     /**
      * @return the user id corresponding to this chat friend.  This is typically the id

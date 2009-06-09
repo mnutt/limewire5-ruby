@@ -101,7 +101,8 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
             buf.add(new HashFilter());
         
         //5. Queries with suspicious GUIDs and flags
-        if (FilterSettings.FILTER_ANOMALOUS_QUERIES.getValue())
+        if (FilterSettings.FILTER_ANOMALOUS_QUERIES.getValue() &&
+                FilterSettings.REALLY_FILTER_ANOMALOUS_QUERIES.getValue())
             buf.add(anomalousQueryFilter.get());
         
         // always filter hostiles

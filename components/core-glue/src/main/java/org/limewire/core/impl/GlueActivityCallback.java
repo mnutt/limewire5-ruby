@@ -7,6 +7,7 @@ import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.limewire.bittorrent.Torrent;
 import org.limewire.core.api.callback.GuiCallback;
 import org.limewire.core.api.callback.GuiCallbackService;
 import org.limewire.core.api.download.DownloadAction;
@@ -28,9 +29,6 @@ import org.limewire.service.MessageService;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.limegroup.bittorrent.ManagedTorrent;
-import com.limegroup.bittorrent.TorrentEvent;
-import com.limegroup.bittorrent.TorrentManager;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.Downloader;
@@ -59,16 +57,11 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
 
     private final DownloadManager downloadManager;
     
-    private final TorrentManager torrentManager;
-    
     private GuiCallback guiCallback = null;
     
-    
-    
     @Inject
-    public GlueActivityCallback(DownloadManager downloadManager, TorrentManager torrentManager) {
+    public GlueActivityCallback(DownloadManager downloadManager) {
         this.downloadManager = downloadManager;
-        this.torrentManager = torrentManager;
         queryReplyListeners = new ConcurrentSkipListMap<byte[], List<QueryReplyListener>>(
                 GUID.GUID_BYTE_COMPARATOR);
     }
@@ -152,7 +145,13 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
                     public void download(File saveFile, boolean overwrite) throws SaveLocationException {
                           // TODO: save file is ignored
                           downloadManager.downloadTorrent(torrentFile, overwrite);
-                    }  
+                    }
+
+                @Override
+                public void downloadCanceled(SaveLocationException sle) {
+                    //nothing to do
+                }
+                
                 },e,false);
             }
         }
@@ -275,23 +274,21 @@ class GlueActivityCallback implements ActivityCallback, QueryReplyListenerList,
     }
 
     @Override
-    public void promptTorrentUploadCancel(ManagedTorrent torrent) {
+    public boolean promptTorrentUploadCancel(Torrent torrent) {
         boolean approve = true;//default to true
         if(guiCallback != null) {
-            if (!torrent.isActive()) {
-                return;
+            if (!torrent.isStarted()) {
+                return false;
             }
             
-            if(!torrent.isComplete()) {
+            if(!torrent.isFinished()) {
                 approve = guiCallback.promptUserQuestion(I18nMarker.marktr("If you stop this upload, the torrent download will stop. Are you sure you want to do this?"));
-            } else if (torrent.getRatio() < 1.0f) {
+            } else if (torrent.getSeedRatio() < 1.0f) {
                 approve = guiCallback.promptUserQuestion(I18nMarker.marktr("This upload is a torrent and it hasn\'t seeded enough. You should let it upload some more. Are you sure you want to stop it?"));
             }
         } 
-        if(approve && torrent.isActive()) {
-            torrentManager
-                    .dispatchEvent(new TorrentEvent(this, TorrentEvent.Type.STOP_APPROVED, torrent));
-        }
+        
+        return approve;
     }
 
 }

@@ -5,9 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
+import org.jdesktop.application.Resource;
 import org.limewire.concurrent.FutureEvent;
 import org.limewire.core.settings.XMPPSettings;
 import org.limewire.listener.EventListener;
@@ -15,13 +17,13 @@ import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
-import org.limewire.ui.swing.friends.chat.IconLibrary;
 import org.limewire.ui.swing.friends.login.FriendActions;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.XMPPService;
-import org.limewire.xmpp.api.client.Presence.Mode;
+import org.limewire.xmpp.api.client.XMPPPresence.Mode;
 
 import com.google.inject.Inject;
 
@@ -30,6 +32,9 @@ import com.google.inject.Inject;
  * the users. These items are backed by a button group and JCheckBoxMenuItems
  */
 public class StatusActions {
+    @Resource private Icon available;
+    @Resource private Icon doNotDisturb;
+    
     private final Action availableAction;
     private final Action doNotDisturbAction;
     
@@ -39,12 +44,14 @@ public class StatusActions {
     private final XMPPService xmppService;
 
     @Inject
-    public StatusActions(final XMPPService xmppService, final IconLibrary iconLibrary) {
+    public StatusActions(final XMPPService xmppService) {
         this.xmppService = xmppService;
+        
+        GuiUtils.assignResources(this);
         
         availableAction = new AbstractAction(I18n.tr("&Available")) {
             { 
-                putValue(Action.SMALL_ICON, iconLibrary.getAvailable());
+                putValue(Action.SMALL_ICON, available);
                 setEnabled(false);
             }
             @Override
@@ -63,7 +70,7 @@ public class StatusActions {
         
         doNotDisturbAction = new AbstractAction(I18n.tr("&Do Not Disturb")) {
             {
-                putValue(Action.SMALL_ICON, iconLibrary.getDoNotDisturb());
+                putValue(Action.SMALL_ICON, doNotDisturb);
                 setEnabled(false);
             }
             @Override

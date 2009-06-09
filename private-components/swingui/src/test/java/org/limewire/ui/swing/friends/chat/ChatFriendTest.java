@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.limewire.util.BaseTestCase;
-import org.limewire.xmpp.api.client.Presence;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPPresence;
+import org.limewire.xmpp.api.client.XMPPFriend;
 import org.jmock.Mockery;
 import org.jmock.Expectations;
 
@@ -33,8 +33,8 @@ public class ChatFriendTest extends BaseTestCase {
      * {@link ChatFriend#stopChat()}.
      */
     public void testIsChatting() throws Exception {
-        User user = new MockUser("userId", "User Name");
-        Presence presence = new MockPresence(user, Presence.Mode.available, null, user.getId() + "/presence123");
+        XMPPFriend user = new MockUser("userId", "User Name");
+        XMPPPresence presence = new MockPresence(user, XMPPPresence.Mode.available, null, user.getId() + "/presence123");
 
         ChatFriend chatFriend = new ChatFriendImpl(presence);
         assertFalse(chatFriend.isChatting());
@@ -61,9 +61,9 @@ public class ChatFriendTest extends BaseTestCase {
         String jid2 = userId + "/presence125";
         String jid3 = userId + "/presence129";
 
-        final Map<String, Presence> presencesMap = new HashMap<String, Presence>();
+        final Map<String, XMPPPresence> presencesMap = new HashMap<String, XMPPPresence>();
 
-        final User user = context.mock(User.class);
+        final XMPPFriend user = context.mock(XMPPFriend.class);
         context.checking(new Expectations() {{
             allowing(user).getPresences();
             will(returnValue(presencesMap));
@@ -72,19 +72,19 @@ public class ChatFriendTest extends BaseTestCase {
         }});
 
         // setting up the presences that we will be using
-        MockPresence jid1AvailPresence = new MockPresence(user, Presence.Mode.available, "Ready 1", jid1);
+        MockPresence jid1AvailPresence = new MockPresence(user, XMPPPresence.Mode.available, "Ready 1", jid1);
         presencesMap.put(jid1, jid1AvailPresence);
 
         ChatFriend chatFriend = new ChatFriendImpl(jid1AvailPresence);
-        assertEquals(Presence.Mode.available, chatFriend.getMode());
+        assertEquals(XMPPPresence.Mode.available, chatFriend.getMode());
         assertEquals("Ready 1", chatFriend.getStatus());
 
         // test updating the 1 presence (jid1)
         // This simulates 1 login going from "available" to "away"
-        presencesMap.put(jid1, new MockPresence(user, Presence.Mode.away, "Away 1", jid1));
+        presencesMap.put(jid1, new MockPresence(user, XMPPPresence.Mode.away, "Away 1", jid1));
         chatFriend.update();
 
-        assertEquals(Presence.Mode.away, chatFriend.getMode());
+        assertEquals(XMPPPresence.Mode.away, chatFriend.getMode());
         assertEquals("Away 1", chatFriend.getStatus());
 
         // login goes back to "available"
@@ -92,35 +92,35 @@ public class ChatFriendTest extends BaseTestCase {
 
         // simulate additional presence signing in
         // Since this presence is "Away", the original "available" presence still takes precedence
-        presencesMap.put(jid2, new MockPresence(user, Presence.Mode.away, "Away", jid2));
+        presencesMap.put(jid2, new MockPresence(user, XMPPPresence.Mode.away, "Away", jid2));
         chatFriend.update();
 
-        assertEquals(Presence.Mode.available, chatFriend.getMode());
+        assertEquals(XMPPPresence.Mode.available, chatFriend.getMode());
         assertEquals("Ready 1", chatFriend.getStatus());
 
         // simulate the 3rd login (presence) coming online as "available".
         // Make sure the top ranked presence has the highest jabber priority
         // out of the "available" presences
-        MockPresence jid3AvailPresence = new MockPresence(user, Presence.Mode.available, "Ready Three", jid3);
+        MockPresence jid3AvailPresence = new MockPresence(user, XMPPPresence.Mode.available, "Ready Three", jid3);
         jid3AvailPresence.setPriority(100);
         jid1AvailPresence.setPriority(98);
         presencesMap.put(jid3, jid3AvailPresence);
 
         // jid3 should determine the chatfriend's status and mode
         chatFriend.update();
-        assertEquals(Presence.Mode.available, chatFriend.getMode());
+        assertEquals(XMPPPresence.Mode.available, chatFriend.getMode());
         assertEquals("Ready Three", chatFriend.getStatus());
         
 
         // simulate presence "logouts".
         presencesMap.remove(jid3);
         chatFriend.update();
-        assertEquals(Presence.Mode.available, chatFriend.getMode());
+        assertEquals(XMPPPresence.Mode.available, chatFriend.getMode());
         assertEquals("Ready 1", chatFriend.getStatus());
 
         presencesMap.remove(jid1);
         chatFriend.update();
-        assertEquals(Presence.Mode.away, chatFriend.getMode());
+        assertEquals(XMPPPresence.Mode.away, chatFriend.getMode());
         assertEquals("Away", chatFriend.getStatus());
 
         presencesMap.remove(jid2);
@@ -129,7 +129,7 @@ public class ChatFriendTest extends BaseTestCase {
 
         // after all presences go offline, the chatfriend status/mode is the
         // status/mode of the last remaining presence.  Not sure if this is the desired behavior!
-        assertEquals(Presence.Mode.away, chatFriend.getMode());
+        assertEquals(XMPPPresence.Mode.away, chatFriend.getMode());
         assertEquals("Away", chatFriend.getStatus());
     }
 

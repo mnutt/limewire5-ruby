@@ -2,7 +2,6 @@ package org.limewire.ui.swing.library.sharing;
 
 import java.io.File;
 
-
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.friend.FriendEvent;

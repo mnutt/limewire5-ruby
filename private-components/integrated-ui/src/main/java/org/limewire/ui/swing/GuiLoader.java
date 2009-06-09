@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
@@ -22,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.limewire.ui.support.FatalBugManager;
+import org.limewire.ui.swing.util.GuiUtils;
 
 class GuiLoader {
 
@@ -40,11 +40,11 @@ class GuiLoader {
             Initializer initializer = new Initializer();
             initializer.initialize(args, splashFrame, splashImage);
         } catch(StartupFailedException sfe) {
-            hideWindows();
+            GuiUtils.hideAndDisposeAllWindows();
             showCorruptionError(sfe);
             System.exit(1);
         } catch(Throwable err) {
-            hideWindows();
+            GuiUtils.hideAndDisposeAllWindows();
             try {
                 FatalBugManager.handleFatalBug(err);
             } catch(Throwable t) {
@@ -59,15 +59,6 @@ class GuiLoader {
         }
     }
 
-    private static void hideWindows() {
-        for(Window window : Window.getWindows()) {
-            try {
-                window.setVisible(false);
-                window.dispose();
-            } catch(Throwable ignored) {}
-        }
-    }
-    
     /**
      * Display a standardly formatted internal error message
      * coming from the backend.

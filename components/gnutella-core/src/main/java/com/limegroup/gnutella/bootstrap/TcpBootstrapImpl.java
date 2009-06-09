@@ -241,7 +241,6 @@ class TcpBootstrapImpl implements TcpBootstrap {
     /**
      * Adds a new gwebcache to the set. Protected for testing.
      */
-    @SuppressWarnings("unused")
     protected synchronized boolean add(URI e) {
         if(hostsSet.contains(e)) {
             LOG.debugf("Not adding known TCP host cache {0}", e);

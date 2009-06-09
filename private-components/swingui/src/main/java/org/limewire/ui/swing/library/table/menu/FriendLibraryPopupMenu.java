@@ -15,11 +15,15 @@ import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
+import org.limewire.ui.swing.properties.FileInfoDialog.FileInfoType;
 import org.limewire.ui.swing.util.BackgroundExecutorService;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class FriendLibraryPopupMenu extends JPopupMenu {
 
@@ -29,24 +33,20 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
 
     final private DownloadListManager downloadListManager;
 
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
-
-    private PropertiesFactory<RemoteFileItem> remoteItemPropertiesFactory;
-
-    private PropertiesFactory<DownloadItem> downloadItemPropertiesFactory;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
 
     private final LibraryManager libraryManager;
+    
+    private final FileInfoDialogFactory fileInfoFactory;
 
+    @Inject
     public FriendLibraryPopupMenu(DownloadListManager downloadListManager,
-            PropertiesFactory<RemoteFileItem> remoteItemPropertiesFactory,
-            SaveLocationExceptionHandler saveLocationExceptionHandler,
-            PropertiesFactory<DownloadItem> downloadItemPropertiesFactory,
-            LibraryManager libraryManager) {
+            Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler,
+            LibraryManager libraryManager, FileInfoDialogFactory fileInfoFactory) {
         this.downloadListManager = downloadListManager;
-        this.remoteItemPropertiesFactory = remoteItemPropertiesFactory;
-        this.downloadItemPropertiesFactory = downloadItemPropertiesFactory;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         this.libraryManager = libraryManager;
+        this.fileInfoFactory = fileInfoFactory;
     }
 
     public void setFileItems(List<RemoteFileItem> items) {
@@ -89,9 +89,9 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
             RemoteFileItem propertiable = fileItems.get(0);
             DownloadItem item = downloadListManager.getDownloadItem(propertiable.getUrn());
             if (item != null) {
-                downloadItemPropertiesFactory.newProperties().showProperties(item);
+                fileInfoFactory.createFileInfoDialog(item, FileInfoType.DOWNLOADING_FILE);
             } else {
-                remoteItemPropertiesFactory.newProperties().showProperties(propertiable);
+                fileInfoFactory.createFileInfoDialog(propertiable, FileInfoType.REMOTE_FILE);
             }
         }
     }
@@ -116,7 +116,7 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
                             try {
                                 downloadListManager.addDownload(fileItem);
                             } catch (SaveLocationException e) {
-                                saveLocationExceptionHandler.handleSaveLocationException(
+                                saveLocationExceptionHandler.get().handleSaveLocationException(
                                         new DownloadAction() {
                                             @Override
                                             public void download(File saveFile, boolean overwrite)
@@ -124,6 +124,12 @@ public class FriendLibraryPopupMenu extends JPopupMenu {
                                                 downloadListManager.addDownload(fileItem, saveFile,
                                                         overwrite);
                                             }
+
+                                            @Override
+                                            public void downloadCanceled(SaveLocationException sle) {
+							                    //nothing to do                                                
+                                            }
+
                                         }, e, true);
                             }
                         }

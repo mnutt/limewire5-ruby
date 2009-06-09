@@ -1,0 +1,16 @@
+/ChatState.java/1.2/Mon May  4 16:15:03 2009//
+/ConnectBackRequestSender.java/1.2/Mon May  4 16:15:03 2009//
+/FileMetaData.java/1.2/Mon May  4 16:15:03 2009//
+/FileOffer.java/1.2/Mon May  4 16:15:03 2009//
+/FileOfferEvent.java/1.2/Mon May  4 16:15:03 2009//
+/FriendException.java/1.2/Mon May  4 16:15:03 2009//
+/FriendRequest.java/1.2/Mon May  4 16:15:03 2009//
+/FriendRequestDecisionHandler.java/1.2/Mon May  4 16:15:03 2009//
+/FriendRequestEvent.java/1.2/Mon May  4 16:15:03 2009//
+/IncomingChatListener.java/1.2/Mon May  4 16:15:03 2009//
+/LibraryChanged.java/1.2/Mon May  4 16:15:03 2009//
+/LibraryChangedEvent.java/1.2/Mon May  4 16:15:03 2009//
+/MessageReader.java/1.3/Wed May 27 16:09:15 2009//
+/MessageWriter.java/1.2/Mon May  4 16:15:03 2009//
+/PasswordManager.java/1.2/Mon May  4 16:15:03 2009//
+D

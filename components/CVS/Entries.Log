@@ -1,9 +1,13 @@
 A D/activation////
 A D/all////
+A D/bittorrent-api////
+A D/facebook////
 A D/filemanager////
+A D/friend////
 A D/games////
 A D/gnutella////
 A D/library////
+A D/libtorrent////
 A D/private-groups////
 A D/privategroups////
 A D/storeserver////
@@ -14,5 +18,6 @@ R D/library////
 R D/gnutella////
 R D/games////
 R D/filemanager////
+R D/facebook////
 R D/all////
 R D/activation////

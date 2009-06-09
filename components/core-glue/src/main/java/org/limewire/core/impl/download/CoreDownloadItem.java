@@ -3,26 +3,37 @@ package org.limewire.core.impl.download;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.limewire.concurrent.ManagedThread;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.endpoint.RemoteHost;
+import org.limewire.core.api.friend.FriendManager;
+import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.impl.RemoteHostRFD;
 import org.limewire.core.impl.URNImpl;
+import org.limewire.core.impl.friend.GnutellaPresence;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
 import org.limewire.io.Address;
+import org.limewire.io.GUID;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
+import org.limewire.xmpp.api.client.XMPPAddress;
 
 import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.InsufficientDataException;
+import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.downloader.DownloadStateEvent;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 
@@ -44,10 +55,12 @@ class CoreDownloadItem implements DownloadItem {
     private final long finishingThreshold = 0;
 
     private final QueueTimeCalculator queueTimeCalculator;
-
-    public CoreDownloadItem(Downloader downloader, QueueTimeCalculator queueTimeCalculator) {
+    private final FriendManager friendManager;
+    
+    public CoreDownloadItem(Downloader downloader, QueueTimeCalculator queueTimeCalculator, FriendManager friendManager) {
         this.downloader = downloader;
         this.queueTimeCalculator = queueTimeCalculator;
+        this.friendManager = friendManager;
         
         downloader.addListener(new EventListener<DownloadStateEvent>() {
             @Override
@@ -86,9 +99,15 @@ class CoreDownloadItem implements DownloadItem {
     public void cancel() {
         cancelled = true;
         support.firePropertyChange("state", null, getState());
-        downloader.stop();
-        downloader.deleteIncompleteFiles();
-        //TODO there is a race condition with the delete action, the stop does not happen right away. should revisit how this will be handled.
+        new ManagedThread(new Runnable() {
+            @Override
+            public void run() {
+                downloader.stop();
+                downloader.deleteIncompleteFiles();
+            }
+        }).start();
+        // TODO there is a race condition with the delete action, the stop does
+        // not happen right away. should revisit how this will be handled.
     }
 
     @Override
@@ -115,6 +134,39 @@ class CoreDownloadItem implements DownloadItem {
     @Override
     public List<Address> getSources() {
         return downloader.getSourcesAsAddresses();
+    }
+
+    @Override
+    public Collection<RemoteHost> getRemoteHosts() {
+        List<RemoteFileDesc> remoteFiles = downloader.getRemoteFileDescs();
+        
+        if(remoteFiles.size() > 0) {
+            List<RemoteHost> remoteHosts = new ArrayList<RemoteHost>(remoteFiles.size());
+            for(RemoteFileDesc rfd : remoteFiles) {
+                remoteHosts.add(new RemoteHostRFD(rfd, getFriendPresence(rfd)));
+                
+            }
+            return remoteHosts;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+    
+    /**
+	 * Returns a FriendPresence for this RemoteFileDesc. If this is
+	 * from a friend returns an associated LW FriendPresnce otherwise
+     * returns a generic GnutellaPresence.
+	 */
+    private FriendPresence getFriendPresence(RemoteFileDesc rfd) {
+        FriendPresence friendPresence = null;
+        
+        if(rfd.getAddress() instanceof XMPPAddress) {
+            friendPresence = friendManager.getMostRelevantFriendPresence(((XMPPAddress)rfd.getAddress()).getId());
+        } 
+        if(friendPresence == null) {
+            friendPresence = new GnutellaPresence(rfd.getAddress(), GUID.toHexString(rfd.getClientGUID()));
+        }
+        return friendPresence;
     }
 
     @Override
@@ -207,7 +259,7 @@ class CoreDownloadItem implements DownloadItem {
             }
 
         case DOWNLOADING:
-        case FETCHING://"FETCHING" is downloading .torrent file
+        case FETCHING:// "FETCHING" is downloading .torrent file
             return DownloadState.DOWNLOADING;
 
         
@@ -399,11 +451,20 @@ class CoreDownloadItem implements DownloadItem {
         synchronized (this) {
             Map<FilePropertyKey, Object> reloadedMap = Collections
                     .synchronizedMap(new HashMap<FilePropertyKey, Object>());
-            //"LimeXMLDocument" attribute is set in ManagedDownloaderImpl
-            LimeXMLDocument doc = (LimeXMLDocument)downloader.getAttribute("LimeXMLDocument");
+            long creationTime = -1;
+            File file = downloader.getFile();
+            if(file != null) {
+                creationTime = file.lastModified();
+			}
+			
+			// "LimeXMLDocument" attribute is set in ManagedDownloaderImpl
+            LimeXMLDocument doc = (LimeXMLDocument) downloader.getAttribute("LimeXMLDocument");
+           
             if (doc != null) {
-                FilePropertyKeyPopulator.populateProperties(getFileName(), getTotalSize(), downloader.getFile().lastModified(), reloadedMap, doc);
+                FilePropertyKeyPopulator.populateProperties(getFileName(), getTotalSize(),
+                        downloader.getFile().lastModified(), reloadedMap, doc);
             }
+            FilePropertyKeyPopulator.populateProperties(getFileName(), getTotalSize(), creationTime, reloadedMap, doc);
             propertiesMap = reloadedMap;
         }
     }

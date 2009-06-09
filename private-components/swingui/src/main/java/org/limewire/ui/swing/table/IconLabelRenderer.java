@@ -25,13 +25,17 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+
 /**
  * Renders a table cell with a string and the system icon representing that
  * file type.
  */
 public class IconLabelRenderer extends JXPanel implements TableCellRenderer {
 
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     private final CategoryIconManager categoryIconManager;
     private final DownloadListManager downloadListManager;
     private final LibraryManager libraryManager;
@@ -44,15 +48,12 @@ public class IconLabelRenderer extends JXPanel implements TableCellRenderer {
     @Resource private Color disabledForegroundColor;
     @Resource private Font font;
     
-    public IconLabelRenderer(IconManager iconManager, CategoryIconManager categoryIconManager, DownloadListManager downloadListManager, LibraryManager libraryManager) {
-        this(iconManager, categoryIconManager, downloadListManager, libraryManager, false);
-    }
-    
-    public IconLabelRenderer(IconManager iconManager, 
+    @Inject
+    public IconLabelRenderer(Provider<IconManager> iconManager, 
             CategoryIconManager categoryIconManager, 
             DownloadListManager downloadListManager, 
             LibraryManager libraryManager, 
-            boolean showAudioArtist) {
+            @Assisted boolean showAudioArtist) {
         super(new BorderLayout());
         this.iconManager = iconManager;
         this.categoryIconManager = categoryIconManager;
@@ -89,7 +90,7 @@ public class IconLabelRenderer extends JXPanel implements TableCellRenderer {
             if (item instanceof RemoteFileItem) {
                 label.setIcon(getIcon((RemoteFileItem)item));
             } else {
-                label.setIcon(iconManager.getIconForFile(((LocalFileItem) item).getFile()));
+                label.setIcon(iconManager.get().getIconForFile(((LocalFileItem) item).getFile()));
             }
             
             if(item instanceof LocalFileItem) {
@@ -140,7 +141,7 @@ public class IconLabelRenderer extends JXPanel implements TableCellRenderer {
         case LIBRARY:
             return libraryIcon;
         }
-        return categoryIconManager.getIcon(vsr, iconManager);
+        return categoryIconManager.getIcon(vsr);
     }
     
     private Icon getIcon(RemoteFileItem remoteFileItem) {

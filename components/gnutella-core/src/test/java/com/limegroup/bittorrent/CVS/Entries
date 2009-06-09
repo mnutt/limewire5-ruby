@@ -7,7 +7,5 @@ D/handshaking////
 D/messages////
 D/metadata////
 D/swarm////
-/BTDownloaderImplTest.java/1.9/Mon Apr  6 16:05:33 2009//
-/BTIntervalTest.java/1.4/Mon Apr  6 16:05:33 2009//
-/BTMetaInfoTest.java/1.9/Mon Apr  6 16:05:33 2009//
-/BTTorrentFileDownloaderImplTest.java/1.26/Mon Apr  6 16:05:33 2009//
+/BTDownloaderImplTest.java/1.14/Mon Jun  8 18:08:07 2009//
+/BTTorrentFileDownloaderImplTest.java/1.29/Mon Jun  8 18:08:07 2009//

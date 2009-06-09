@@ -44,6 +44,7 @@ import org.limewire.ui.swing.event.OptionsDisplayEvent;
 import org.limewire.ui.swing.event.RestoreViewEvent;
 import org.limewire.ui.swing.menu.LimeMenuBar;
 import org.limewire.ui.swing.options.OptionsDialog;
+import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.shell.ShellAssociationManager;
 import org.limewire.ui.swing.tray.TrayExitListener;
@@ -139,9 +140,9 @@ public class AppFrame extends SingleFrameApplication {
         
         isStartup = args.length > 0 && STARTUP.equals(args[0]);
     }
-
+   
     @Override
-    protected void startup() {        
+    protected void startup() { 
         String title = getContext().getResourceMap().getString("Application.title");
         JFrame frame = new FirstVizIgnorer(title);
         frame.setName("mainFrame");
@@ -151,7 +152,7 @@ public class AppFrame extends SingleFrameApplication {
         assert ui == null;
         createUiInjector();
         assert ui != null;
-
+        
         if(isStartup || SwingUiSettings.MINIMIZE_TO_TRAY.getValue()) {
             trayNotifier.showTrayIcon();            
         } else {
@@ -210,6 +211,8 @@ public class AppFrame extends SingleFrameApplication {
             glassPane.setVisible(false);
             ui.showMainPanel();
         }
+        // Make absolutely positively certain that we've set this to true.
+        InstallSettings.UPGRADED_TO_5.setValue(true);
         
         validateSaveDirectory();
 
@@ -238,6 +241,9 @@ public class AppFrame extends SingleFrameApplication {
         if (!lastOptionsDialog.isVisible()) {
             lastOptionsDialog.initOptions();
             lastOptionsDialog.setLocationRelativeTo(GuiUtils.getMainFrame());
+            if(event.getSelectedPanel() != null){
+                lastOptionsDialog.select(event.getSelectedPanel());
+            }
             lastOptionsDialog.setVisible(true);
         }
     }
@@ -278,6 +284,7 @@ public class AppFrame extends SingleFrameApplication {
      */
     @Action
     public void shutdownAfterTransfers() { // DO NOT CHANGE THIS METHOD NAME!
+        trayNotifier.showTrayIcon();
         delayedShutdownHandler.shutdownAfterTransfers();
     }
     

@@ -11,11 +11,14 @@ import org.limewire.core.api.friend.Network;
 public class GnutellaFriend implements Friend {
 
     private final String name;
+    private final String renderName;
     private final String id;
     private final Map<String, FriendPresence> map; 
 
-    public GnutellaFriend(String name, String id, FriendPresence presence) {
+    public GnutellaFriend(String name, String renderName, String id,
+            FriendPresence presence) {
         this.name = name;
+        this.renderName = renderName;
         this.id = id;
         Map<String, FriendPresence> map = new HashMap<String, FriendPresence>(1);
         map.put(presence.getPresenceId(), presence);
@@ -39,7 +42,7 @@ public class GnutellaFriend implements Friend {
 
     @Override
     public String getRenderName() {
-        return getName();
+        return renderName;
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class MockLibraryManager implements ShareListManager, LibraryManager {
 
+    private final MockCombinedShareList combinedShareList;
     private FileListAdapter allFileList;
     private FriendFileListAdapter gnutellaList;
     private FriendFileListAdapter friendList;
@@ -39,8 +40,10 @@ public class MockLibraryManager implements ShareListManager, LibraryManager {
     
     public MockLibraryManager() {
         allFileList = new FileListAdapter();
-        gnutellaList = new FriendFileListAdapter();
-        friendList = new FriendFileListAdapter();
+        
+        this.combinedShareList = new MockCombinedShareList(getLibraryListEventPublisher(), allFileList.getModel().getReadWriteLock());
+        gnutellaList = new FriendFileListAdapter(combinedShareList);
+        friendList = new FriendFileListAdapter(combinedShareList);
         libraryData = new LibraryDataAdapter();
         
         friendMap = new HashMap<String, LocalFileList>();
@@ -152,7 +155,7 @@ public class MockLibraryManager implements ShareListManager, LibraryManager {
 
     @Override
     public FriendFileList getOrCreateFriendShareList(Friend name) {
-        return new FriendFileListAdapter();
+        return new FriendFileListAdapter(combinedShareList);
     }  
     
     @Override

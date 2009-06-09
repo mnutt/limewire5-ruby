@@ -14,6 +14,8 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.FileUtils;
 
+import com.google.inject.Provider;
+
 /**
  * Table format for Other Table for LW buddies and Browse hosts
  */
@@ -24,14 +26,15 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
     static final int SIZE_INDEX = 3;
     static final int FROM_INDEX = 4;
     
-    private IconManager iconManager;
+    private Provider<IconManager> iconManager;
     
-    public RemoteOtherTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo, IconManager iconManager) {
+    public RemoteOtherTableFormat(String sortID, int sortedColumn, boolean isAscending, ColumnStateInfo[] columnInfo, 
+            Provider<IconManager> iconManager) {
         super(sortID, sortedColumn, isAscending, columnInfo);
         this.iconManager = iconManager;
     }
     
-    public RemoteOtherTableFormat(IconManager iconManager) {
+    public RemoteOtherTableFormat(Provider<IconManager> iconManager) {
         super("REMOTE_LIBRARY_OTHER_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "REMOTE_LIBRARY_OTHER_NAME", I18n.tr("Name"), 417, true, true),     
                 new ColumnStateInfo(TYPE_INDEX, "REMOTE_LIBRARY_OTHER_TYPE", I18n.tr("Type"), 170, true, true), 
@@ -50,7 +53,7 @@ public class RemoteOtherTableFormat<T extends RemoteFileItem> extends AbstractRe
             case TYPE_INDEX: 
                 // Use icon manager to return MIME description.
                 return (iconManager != null) ?
-                    iconManager.getMIMEDescription(baseObject) : 
+                    iconManager.get().getMIMEDescription(baseObject) : 
                     baseObject.getProperty(FilePropertyKey.DESCRIPTION);
             case EXTENSION_INDEX: return FileUtils.getFileExtension(baseObject.getFileName());
             case FROM_INDEX: return baseObject;

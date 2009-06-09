@@ -164,7 +164,7 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
         // create uploader
         UploadType type = (LibraryUtils.isForcedShare(fileDesc)) ? UploadType.FORCED_SHARE
                 : UploadType.SHARED_FILE;
-        HTTPUploader uploader = sessionManager.getOrCreateUploader(request, context, type, fileDesc.getFileName());
+        HTTPUploader uploader = sessionManager.getOrCreateUploader(request, context, type, fileDesc.getFileName(), fileRequest.getFriendID());
         uploader.setFileDesc(fileDesc);
 
         // process headers

@@ -4,8 +4,8 @@ import static org.limewire.ui.swing.util.I18n.tr;
 
 import java.util.List;
 
+import org.limewire.core.api.friend.client.ChatState;
 import org.limewire.ui.swing.friends.chat.Message.Type;
-import org.limewire.xmpp.api.client.ChatState;
 
 /**
  * @author Mario Aquino, Object Computing, Inc.
@@ -53,13 +53,15 @@ class ChatDocumentBuilder {
         for(Message message : messages) {
 
             Type type = message.getType();
-            
-            if (lastMessageType == null) {
-                //The first message of a conversation
-                appendDiv(builder, message);
-            } else if (lastMessageType != type || sixtySecondRule(lastMessageTimeFromMe, message)) {
-                builder.append(LINE_BREAK);
-                appendDiv(builder, message);
+
+            if (message.getType() != Message.Type.Server) {
+                if (lastMessageType == null) {
+                    //The first message of a conversation
+                    appendMessageSender(builder, message);
+                } else if (lastMessageType != type || sixtySecondRule(lastMessageTimeFromMe, message)) {
+                    builder.append(LINE_BREAK);
+                    appendMessageSender(builder, message);
+                }
             }
             
             lastMessageType = type;
@@ -83,7 +85,7 @@ class ChatDocumentBuilder {
         return message.getType() == Type.Sent && lastMessageTimeFromMe + 60000 < message.getMessageTimeMillis();
     }
 
-    private static StringBuilder appendDiv(StringBuilder builder, Message message) {
+    private static StringBuilder appendMessageSender(StringBuilder builder, Message message) {
         Type type = message.getType();
         String cssClass = type == Type.Sent ? "me" : "them";
         String content = message.getSenderName();

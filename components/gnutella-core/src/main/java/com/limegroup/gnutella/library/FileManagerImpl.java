@@ -68,7 +68,9 @@ class FileManagerImpl implements FileManager, Service {
         this.treeCache = treeCache;
         this.managedFileList = managedFileList;
         this.sharedFileList = new GnutellaFileListImpl(managedFileList.getLibraryData(), managedFileList, treeCache);
+        this.sharedFileList.initialize();
         this.incompleteFileList = new IncompleteFileListImpl(managedFileList);
+        this.incompleteFileList.initialize();
     }
 
     @Override
@@ -133,6 +135,7 @@ class FileManagerImpl implements FileManager, Service {
         if(fileList == null) {
             LibrarySettings.addFriendListName(name);
             fileList = new FriendFileListImpl(managedFileList.getLibraryData(), managedFileList, name, treeCache);
+            fileList.initialize();
             friendFileLists.put(name, fileList);
         }
         return fileList;

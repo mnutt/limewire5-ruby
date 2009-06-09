@@ -12,8 +12,10 @@ import ca.odell.glazedlists.event.ListEventListener;
 /**
  * A listener to handle updates to the list of visual search results.  This
  * listener installs a PropertyChangeListener to each VisualSearchResult to 
- * handle changes to its "spam" indicator.  When changes occur, notification is
- * sent to the core SpamManager and the SimilarResultsDetector.
+ * handle changes to its "spam-ui" and "spam-core" properties. The
+ * SimilarResultsDetector is notified when changes occur. The core SpamManager
+ * is notified about changes to the "spam-ui" property but not the "spam-core"
+ * property, since it already knows about those changes.
  */
 class SpamListEventListener implements ListEventListener<VisualSearchResult> {
 
@@ -43,28 +45,38 @@ class SpamListEventListener implements ListEventListener<VisualSearchResult> {
 
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if ("spam".equals(evt.getPropertyName())) {
+                        if ("spam-ui".equals(evt.getPropertyName())) {
                             boolean oldSpam = (Boolean) evt.getOldValue();
                             boolean newSpam = (Boolean) evt.getNewValue();
-                            if (oldSpam != newSpam) {
-                                if (newSpam) {
-                                    spamManager.handleUserMarkedSpam(visualSearchResult.getCoreSearchResults());
-                                    VisualSearchResult parent = visualSearchResult
-                                            .getSimilarityParent();
-                                    VisualSearchResult newParent = null;
-                                    if (parent == null) {
-                                        //null parent means you are the parent
-                                        newParent = pickNewParent(visualSearchResult);
-                                    } else {
-                                        removeItemFromParent(visualSearchResult, parent);
-                                    }
-                                    
-                                    similarResultsDetector.removeSpamItem(visualSearchResult, newParent);
-                                } else {
-                                    spamManager.handleUserMarkedGood(visualSearchResult.getCoreSearchResults());
-                                    similarResultsDetector.detectSimilarResult(visualSearchResult);
-                                }
+                            if (oldSpam != newSpam)
+                                spamChanged(newSpam, true);
+                        } else if ("spam-core".equals(evt.getPropertyName())) {
+                            boolean oldSpam = (Boolean) evt.getOldValue();
+                            boolean newSpam = (Boolean) evt.getNewValue();
+                            if (oldSpam != newSpam)
+                                spamChanged(newSpam, false);                            
+                        }
+                    }
+                    
+                    private void spamChanged(boolean newSpam, boolean fromUI) {
+                        if (newSpam) {
+                            if (fromUI)
+                                spamManager.handleUserMarkedSpam(visualSearchResult.getCoreSearchResults());
+                            VisualSearchResult parent =
+                                visualSearchResult.getSimilarityParent();
+                            VisualSearchResult newParent = null;
+                            if (parent == null) {
+                                //null parent means you are the parent
+                                newParent = pickNewParent(visualSearchResult);
+                            } else {
+                                removeItemFromParent(visualSearchResult, parent);
                             }
+
+                            similarResultsDetector.removeSpamItem(visualSearchResult, newParent);
+                        } else {
+                            if (fromUI)
+                                spamManager.handleUserMarkedGood(visualSearchResult.getCoreSearchResults());
+                            similarResultsDetector.detectSimilarResult(visualSearchResult);
                         }
                     }
 

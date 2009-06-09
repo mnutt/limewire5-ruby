@@ -5,7 +5,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.table.TablePopupHandler;
 
@@ -13,13 +13,13 @@ public class SearchPopupHandler implements TablePopupHandler {
 
     private final ResultsTable<VisualSearchResult> resultsTable;
     private final DownloadHandler downloadHandler;
-    private final PropertiesFactory<VisualSearchResult> properties;
+    private final FileInfoDialogFactory fileInfoFactory;
 
     public SearchPopupHandler(ResultsTable<VisualSearchResult> resultsTable,
-            DownloadHandler downloadHandler, PropertiesFactory<VisualSearchResult> properties) {
+            DownloadHandler downloadHandler, FileInfoDialogFactory fileInfoFactory) {
         this.resultsTable = resultsTable;
         this.downloadHandler = downloadHandler;
-        this.properties = properties;
+        this.fileInfoFactory = fileInfoFactory;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class SearchPopupHandler implements TablePopupHandler {
         }
 
         SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, selectedItems,
-                properties, SearchResultMenu.ViewType.Table);
+                fileInfoFactory, SearchResultMenu.ViewType.Table);
         searchResultMenu.show(component, x, y);
     }
 

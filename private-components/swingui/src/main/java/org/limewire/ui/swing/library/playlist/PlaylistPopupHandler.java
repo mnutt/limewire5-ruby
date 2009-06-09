@@ -9,7 +9,7 @@ import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.playlist.Playlist;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.table.LibraryTable;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
 import org.limewire.ui.swing.table.TablePopupHandler;
 
 /**
@@ -26,9 +26,9 @@ public class PlaylistPopupHandler implements TablePopupHandler {
      */
     public PlaylistPopupHandler(LibraryTable<? extends LocalFileItem> table,
             Playlist playlist, LibraryNavigator libraryNavigator,
-            PropertiesFactory<LocalFileItem> propertiesFactory) {
+            FileInfoDialogFactory fileInfoFactory) {
         this.table = table;
-        this.popupMenu = new PlaylistPopupMenu(playlist, libraryNavigator, propertiesFactory);
+        this.popupMenu = new PlaylistPopupMenu(playlist, libraryNavigator, fileInfoFactory);
     }
     
     @Override

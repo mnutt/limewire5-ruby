@@ -14,12 +14,10 @@ import org.limewire.util.Base32;
 import org.limewire.util.FileUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -55,20 +53,13 @@ public class Tokenizer {
 	 */
 	private int MAX_KEYWORD_LENGTH = 8;
 
-    private final Provider<IPFilter> ipFilter;
     private final NetworkInstanceUtils networkInstanceUtils;
     
 	@Inject
-	Tokenizer(Provider<IPFilter> ipFilter,
-            NetworkInstanceUtils networkInstanceUtils) {
-        this.ipFilter = ipFilter;
+	Tokenizer(NetworkInstanceUtils networkInstanceUtils) {
         this.networkInstanceUtils = networkInstanceUtils;
 	}
     
-    void setIPFilter(AddressToken t) {
-        t.setIPFilter(ipFilter);
-    }
-	
 	/**
 	 * Extracts a set of tokens from a RemoteFileDesc
 	 * 
@@ -103,8 +94,10 @@ public class Tokenizer {
      * @param set the set to which the tokens should be added
      */
     private void tokenize(RemoteFileDesc desc, Set<Token> set) {
-		if(LOG.isDebugEnabled())
-			LOG.debug("Tokenizing " + desc);
+		if(LOG.isDebugEnabled()) {
+            String addr = desc.getAddress().getAddressDescription(); 
+			LOG.debug("Tokenizing result from " + addr);
+        }
         String name = desc.getFileName();
         getKeywordTokens(FileUtils.getFilenameNoExtension(name), set);
         String ext = FileUtils.getFileExtension(name);
@@ -123,7 +116,7 @@ public class Tokenizer {
         if(address instanceof Connectable) {
             Connectable connectable = (Connectable)address;
             if(!networkInstanceUtils.isPrivateAddress(connectable.getInetAddress()))
-                set.add(new AddressToken(connectable.getAddress(), ipFilter));
+                set.add(new AddressToken(connectable.getAddress()));
         }
         set.add(new ClientGUIDToken(Base32.encode(desc.getClientGUID())));
     }
@@ -136,14 +129,14 @@ public class Tokenizer {
      */
     public Set<Token> getNonKeywordTokens(QueryReply qr) {
         if(LOG.isDebugEnabled())
-            LOG.debug("Tokenizing " + qr);
+            LOG.debug("Tokenizing query reply from " + qr.getIP());
         Set<Token> set = new HashSet<Token>();
         // Client GUID
         set.add(new ClientGUIDToken(Base32.encode(qr.getClientGUID())));
         // Responder's address, unless private
         String ip = qr.getIP();
         if(!networkInstanceUtils.isPrivateAddress(ip))
-            set.add(new AddressToken(ip, ipFilter));
+            set.add(new AddressToken(ip));
         try {
             for(Response r : qr.getResultsArray()) {
                 // URNs

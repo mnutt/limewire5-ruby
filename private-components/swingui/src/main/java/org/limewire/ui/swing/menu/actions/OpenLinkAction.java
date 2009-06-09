@@ -20,6 +20,7 @@ import org.limewire.ui.swing.util.MagnetHandler;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * An action to prompt the user to open and download a link. Two link types are
@@ -29,16 +30,16 @@ public class OpenLinkAction extends AbstractAction {
 
     private final DownloadListManager downloadListManager;
 
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
 
     private final MagnetFactory magnetFactory;
 
-    private final MagnetHandler magnetHandler;
+    private final Provider<MagnetHandler> magnetHandler;
 
     @Inject
     public OpenLinkAction(DownloadListManager downloadListManager,
-            SaveLocationExceptionHandler saveLocationExceptionHandler, MagnetFactory magnetFactory,
-            MagnetHandler magnetHandler) {
+            Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler, MagnetFactory magnetFactory,
+            Provider<MagnetHandler> magnetHandler) {
         super(I18n.tr("Open &Link..."));
         this.downloadListManager = downloadListManager;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
@@ -67,7 +68,7 @@ public class OpenLinkAction extends AbstractAction {
                         }
 
                         for (final MagnetLink magnet : magnetLinks) {
-                            magnetHandler.handleMagnet(magnet);
+                            magnetHandler.get().handleMagnet(magnet);
                         }
 
                     } else {
@@ -77,17 +78,22 @@ public class OpenLinkAction extends AbstractAction {
             }
 
             private void downloadTorrent(final DownloadListManager downloadListManager,
-                    final SaveLocationExceptionHandler saveLocationExceptionHandler, final URI uri) {
+                    final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler, final URI uri) {
                 try {
                     downloadListManager.addTorrentDownload(uri, false);
                 } catch (SaveLocationException sle) {
-                    saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+                    saveLocationExceptionHandler.get().handleSaveLocationException(new DownloadAction() {
                         @Override
                         public void download(File saveFile, boolean overwrite)
                                 throws SaveLocationException {
-                            downloadListManager.addTorrentDownload(uri,
-                                    overwrite);
+                            downloadListManager.addTorrentDownload(uri, overwrite);
                         }
+
+                        @Override
+                        public void downloadCanceled(SaveLocationException sle) {
+		                    //nothing to do
+                        }
+
                     }, sle, false);
                 }
             }

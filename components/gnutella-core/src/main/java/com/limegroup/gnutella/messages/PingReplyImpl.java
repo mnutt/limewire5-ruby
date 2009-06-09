@@ -1,6 +1,5 @@
 package com.limegroup.gnutella.messages;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -30,6 +29,7 @@ import org.limewire.util.StringUtils;
 
 import com.limegroup.gnutella.ExtendedEndpoint;
 import com.limegroup.gnutella.dht.DHTManager.DHTMode;
+import com.limegroup.gnutella.util.Utilities;
 
 /**
  * A ping reply message, aka, "pong".  This implementation provides a way
@@ -642,15 +642,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
         long kb = getKbytes();
         if (kb < 8)
             return false;
-        return isPowerOf2(ByteUtils.long2int(kb));
-    }
-
-    // TODO: Perhaps move to a generic math utils collection!!??
-    public static boolean isPowerOf2(int x) {  //package access for testability
-        if (x<=0)
-            return false;
-        else
-            return (x&(x - 1)) == 0;
+        return Utilities.isPowerOf2(ByteUtils.long2int(kb));
     }
 
     // overrides Object.toString

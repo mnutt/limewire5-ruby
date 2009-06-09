@@ -57,7 +57,6 @@ public class SimppManagerImpl implements SimppManager {
    
     /** Cached Simpp bytes in case we need to sent it out on the wire */
     private volatile byte[] _lastBytes = new byte[0];
-    private volatile String _lastString = "";    
     private volatile int _lastId = MIN_VERSION;
     
     /** If an HTTP failover update is in progress */
@@ -162,10 +161,6 @@ public class SimppManagerImpl implements SimppManager {
         return _lastBytes;
     }
 
-    public String getPropsString() {
-        return _lastString;
-    }
-    
     public void addSimppSettingsManager(SimppSettingsManager simppSettingsManager) {
         simppSettingsManagers.add(simppSettingsManager);
     }
@@ -257,14 +252,13 @@ public class SimppManagerImpl implements SimppManager {
         
         _lastId = parser.getVersion();
         _lastBytes = data;
-        _lastString = parser.getPropsData();
         
         if(updateType != UpdateType.FROM_DISK) {
             FileUtils.verySafeSave(CommonUtils.getUserSettingsDir(), FILENAME, data);
         }
         
         for(SimppSettingsManager ssm : simppSettingsManagers)
-            ssm.updateSimppSettings(_lastString);
+            ssm.updateSimppSettings(parser.getPropsData());
         for (SimppListener listener : listeners)
             listener.simppUpdated(_lastId);
     }

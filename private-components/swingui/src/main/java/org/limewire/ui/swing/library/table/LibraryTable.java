@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -44,6 +45,8 @@ import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
+import com.google.inject.Provider;
+
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.swing.EventSelectionModel;
@@ -59,8 +62,9 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
     private final LibraryTableFormat<T> format;
     private final TableColors tableColors;
     private final EventList<T> listSelection;
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
     private final ShareTableRendererEditorFactory shareTableRendererEditorFactory;
+    private final DefaultTableCellRenderer defaultTableCellRenderer;
     
     private TableRendererEditor shareEditor;
     private ShareWidget<File> shareWidget;
@@ -68,12 +72,14 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
     
     protected final int rowHeight = 20;
     
-    public LibraryTable(EventList<T> libraryItems, LibraryTableFormat<T> format, SaveLocationExceptionHandler saveLocationExceptionHandler, ShareTableRendererEditorFactory shareTableRendererEditorFactory) {
+    public LibraryTable(EventList<T> libraryItems, LibraryTableFormat<T> format, Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler, 
+            ShareTableRendererEditorFactory shareTableRendererEditorFactory, DefaultTableCellRenderer defaultRenderer) {
         super(new LibraryTableModel<T>(libraryItems, format));
 
         this.format = format;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         this.shareTableRendererEditorFactory = shareTableRendererEditorFactory;
+        this.defaultTableCellRenderer = defaultRenderer;
         
         tableColors = new TableColors();
         setStripesPainted(true);
@@ -114,11 +120,10 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
     }
     
     protected void setupCellRenderers(LibraryTableFormat<T> format) {
-        TableCellRenderer defaultRenderer = new DefaultLibraryRenderer();
         for (int i = 0; i < format.getColumnCount(); i++) {
             Class clazz = format.getColumnClass(i);
             if (clazz == String.class) {
-                setCellRenderer(i, defaultRenderer);
+                setCellRenderer(i, defaultTableCellRenderer);
             } 
         }   
     }
@@ -157,6 +162,8 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
         LibraryDownloadAction downloadAction = new LibraryDownloadAction(I18n.tr("Download"), downloadListManager, this, libraryNavigator, libraryList);
         
         setDoubleClickHandler(new LibraryDownloadDoubleClickHandler(downloadAction));
+        
+        setEnterKeyAction(downloadAction);
         
         applySavedColumnSettings();
     }
@@ -268,12 +275,18 @@ public class LibraryTable<T extends FileItem> extends MouseableTable
                        editor.cancelCellEditing();
                     }
                 } catch (SaveLocationException e) {
-                    saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+                    saveLocationExceptionHandler.get().handleSaveLocationException(new DownloadAction() {
                         @Override
                         public void download(File saveFile, boolean overwrite)
                                 throws SaveLocationException {
                             downloadListManager.addDownload(file, saveFile, overwrite);
                         }
+
+                        @Override
+                        public void downloadCanceled(SaveLocationException sle) {
+		                    //nothing to do                            
+                        }
+
                     }, e, true);
                 }
             }

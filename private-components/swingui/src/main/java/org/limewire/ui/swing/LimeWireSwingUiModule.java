@@ -1,5 +1,6 @@
 package org.limewire.ui.swing;
 
+import org.limewire.inject.LimeWireInjectModule;
 import org.limewire.ui.swing.browser.LimeWireUiBrowserModule;
 import org.limewire.ui.swing.callback.GuiCallbackImpl;
 import org.limewire.ui.swing.components.LimeWireUiComponentsModule;
@@ -17,8 +18,8 @@ import org.limewire.ui.swing.player.LimeWireUiPlayerModule;
 import org.limewire.ui.swing.properties.LimeWireUiPropertiesModule;
 import org.limewire.ui.swing.search.LimeWireUiSearchModule;
 import org.limewire.ui.swing.statusbar.LimeWireUiStatusbarModule;
+import org.limewire.ui.swing.table.LimeWireUiTableModule;
 import org.limewire.ui.swing.tray.LimeWireUiTrayModule;
-import org.limewire.ui.swing.upload.LimeWireUiUploadModule;
 import org.limewire.ui.swing.util.LimeWireUiUtilModule;
 import org.limewire.ui.swing.wizard.LimeWireUiWizardModule;
 
@@ -35,6 +36,7 @@ public class LimeWireSwingUiModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(GuiCallbackImpl.class);
+        install(new LimeWireInjectModule());
         install(new LimeWireUiUtilModule());
         install(new LimeWireUiSearchModule());
         install(new LimeWireUiNavModule());
@@ -50,10 +52,10 @@ public class LimeWireSwingUiModule extends AbstractModule {
         install(new LimeWireUiStatusbarModule());
         install(new LimeWireUiPainterModule(isPro));
         install(new LimeWireUiComponentsModule());
-        install(new LimeWireUiUploadModule());
         install(new LimeWireUiDockModule());
         install(new LimeWireUiWizardModule());
         install(new LimeWireUiPropertiesModule());
+        install(new LimeWireUiTableModule());
         install(new LimeWireUiBrowserModule());
     }
 }

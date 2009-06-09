@@ -20,7 +20,7 @@ import org.limewire.listener.BlockingEvent;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.RegisteringEventListener;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPFriend;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPService;
 
@@ -75,6 +75,7 @@ class FriendShareListRefresher implements RegisteringEventListener<FriendShareLi
     public void handleEvent(final FriendShareListEvent event) {
         if(event.getType() == FriendShareListEvent.Type.FRIEND_SHARE_LIST_ADDED) {
             LibraryChangedSender listener = new LibraryChangedSender(event.getFriend());
+            listener.scheduleSendRefreshCheck();
             listeners.put(event.getFriend().getId(), listener);
             event.getFileList().getModel().addListEventListener(listener);
         } else if(event.getType() == FriendShareListEvent.Type.FRIEND_SHARE_LIST_REMOVED) {
@@ -90,7 +91,7 @@ class FriendShareListRefresher implements RegisteringEventListener<FriendShareLi
                 fileManagerLoaded.set(true);  
                 XMPPConnection connection = xmppService.getActiveConnection();
                 if(connection != null) {
-                    Collection<User> friends = connection.getUsers();
+                    Collection<XMPPFriend> friends = connection.getFriends();
                     for(Friend friend : friends) {
                         tracker.sentRefresh(friend.getId());
                         Map<String, FriendPresence> presences = friend.getFriendPresences();
@@ -122,6 +123,14 @@ class FriendShareListRefresher implements RegisteringEventListener<FriendShareLi
                 libraryRefreshPeriodic.rescheduleIfLater(5000);                                
             }
         }        
+        
+        /**
+         * Schedules an immediate check if a library refresh should be sent
+         * to the friend.
+         */
+        private void scheduleSendRefreshCheck() {
+            libraryRefreshPeriodic.rescheduleIfLater(0);
+        }
     
         class ScheduledLibraryRefreshSender implements Runnable {
     

@@ -14,11 +14,12 @@ import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.net.address.AddressFactory;
 import org.limewire.security.SecureMessage.Status;
+import org.limewire.util.Objects;
 import org.limewire.util.StringUtils;
 import org.limewire.xmpp.api.client.XMPPAddress;
 import org.limewire.xmpp.client.impl.XMPPAddressResolver;
 
-import com.google.inject.internal.base.Objects;
+
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.UrnSet;

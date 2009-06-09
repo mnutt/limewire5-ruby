@@ -47,7 +47,7 @@ public class ConnectBackRequestIQListener implements PacketListener {
     private class ConnectBackRequestIQFeatureInitializer implements FeatureInitializer {
         @Override
         public void register(FeatureRegistry registry) {
-            registry.add(ConnectBackRequestFeature.ID, this);
+            registry.add(ConnectBackRequestFeature.ID, this, true);
         }
 
         @Override
@@ -58,6 +58,10 @@ public class ConnectBackRequestIQListener implements PacketListener {
         @Override
         public void removeFeature(FriendPresence friendPresence) {
             friendPresence.removeFeature(ConnectBackRequestFeature.ID);
+        }
+
+        @Override
+        public void cleanup() {
         }
     }
 

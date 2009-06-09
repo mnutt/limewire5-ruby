@@ -139,22 +139,6 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
     }
 
     /**
-     * Can never browse the LWS, return immediately
-     */
-    @Override
-    public RemoteFileDesc getBrowseEnabledHost() {
-        return null;
-    }
-
-    /**
-     * Can never browse the LWS, return immediately
-     */
-    @Override
-    public boolean hasBrowseEnabledHost() {
-        return false;
-    }
-
-    /**
      * Can only connect to LWS on one socket
      */
     @Override

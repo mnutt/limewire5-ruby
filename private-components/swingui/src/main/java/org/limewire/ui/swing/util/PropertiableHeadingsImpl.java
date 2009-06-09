@@ -4,20 +4,21 @@ import java.text.SimpleDateFormat;
 
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.PropertiableFile;
+import org.limewire.inject.LazySingleton;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-@Singleton
+@LazySingleton
 class PropertiableHeadingsImpl implements PropertiableHeadings {
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("M/d/yyyy");
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     
     @Inject
-    public PropertiableHeadingsImpl(IconManager iconManager) {
+    public PropertiableHeadingsImpl(Provider<IconManager> iconManager) {
         this.iconManager = iconManager;
     }
     
@@ -130,7 +131,7 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
         case DOCUMENT:
         case OTHER:
         default: {
-             subheading = iconManager.getMIMEDescription(propertiable);
+             subheading = iconManager.get().getMIMEDescription(propertiable);
              subheading = subheading == null ? "" : subheading;
             // TODO add name of program used to open this file, not included in
             // 5.0
@@ -190,7 +191,7 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
     public String getFileSize(PropertiableFile propertiable) {
         Long fileSize = getFileSizeLong(propertiable);
         if (fileSize != null) {
-            return GuiUtils.toUnitbytes(fileSize);
+            return GuiUtils.toUnitbytes(fileSize) + "  (" + GuiUtils.toBytes(fileSize) + ")";
         }
         return "";
     }

@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.limewire.concurrent.ExecutorsHelper;
+import org.limewire.core.api.friend.client.ConnectBackRequestSender;
+import org.limewire.core.api.friend.client.FileOfferEvent;
+import org.limewire.core.api.friend.client.FriendRequestEvent;
+import org.limewire.core.api.friend.client.LibraryChangedEvent;
+import org.limewire.core.api.friend.impl.DefaultFriendAuthenticator;
 import org.limewire.friend.impl.LimeWireFriendXmppModule;
 import org.limewire.listener.AsynchronousMulticaster;
 import org.limewire.listener.BroadcastPolicy;
@@ -16,11 +21,7 @@ import org.limewire.listener.EventMulticasterImpl;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.LogFactory;
 import org.limewire.xmpp.activity.XmppActivityEvent;
-import org.limewire.xmpp.api.client.ConnectBackRequestSender;
-import org.limewire.xmpp.api.client.FileOfferEvent;
-import org.limewire.xmpp.api.client.FriendRequestEvent;
 import org.limewire.xmpp.api.client.JabberSettings;
-import org.limewire.xmpp.api.client.LibraryChangedEvent;
 import org.limewire.xmpp.api.client.RosterEvent;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.XMPPService;
@@ -30,7 +31,6 @@ import org.limewire.xmpp.client.impl.FallbackConnectionConfigurationFactory;
 import org.limewire.xmpp.client.impl.XMPPAddressRegistry;
 import org.limewire.xmpp.client.impl.XMPPAddressResolver;
 import org.limewire.xmpp.client.impl.XMPPAddressSerializer;
-import org.limewire.xmpp.client.impl.XMPPAuthenticator;
 import org.limewire.xmpp.client.impl.XMPPConnectionImplFactory;
 import org.limewire.xmpp.client.impl.XMPPConnectionImpl;
 import org.limewire.xmpp.client.impl.XMPPServiceImpl;
@@ -99,7 +99,7 @@ public class LimeWireXMPPModule extends AbstractModule {
         // dito
         bind(XMPPAddressSerializer.class).asEagerSingleton();
         
-        bind(XMPPAuthenticator.class).asEagerSingleton();
+        bind(DefaultFriendAuthenticator.class).asEagerSingleton();
         
         bind(XMPPAddressRegistry.class);
     }

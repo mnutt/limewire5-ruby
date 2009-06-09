@@ -1,6 +1,5 @@
 package com.limegroup.gnutella.version;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -98,9 +97,11 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
      */
     private static final String FILENAME = "version.xml";
     
-    private static final int IGNORE_ID = Integer.MAX_VALUE;
+    // Package access for testing
+    protected static final int IGNORE_ID = Integer.MAX_VALUE;
     
-    private static enum UpdateType {
+    // Package access for testing
+    protected static enum UpdateType {
         FROM_NETWORK, FROM_DISK, FROM_HTTP;
     }
     
@@ -225,36 +226,12 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
         return timeoutUpdateLocation;
     }
     
-    void setTimeoutUrl(String url) {
-        this.timeoutUpdateLocation = url;
-    }
-    
     List<String> getMaxUrls() {
         return maxedUpdateList;
     }
     
     void setMaxUrls(List<String> urls) {
         this.maxedUpdateList = urls;
-    }
-    
-    int getMinHttpRequestUpdateDelayForMaxFailover() {
-        return minMaxHttpRequestDelay;
-    }
-    
-    int getMaxHttpRequestUpdateDelayForMaxFailover() {
-        return maxMaxHttpRequestDelay;
-    }
-    
-    void setMinHttpRequestUpdateDelayForMaxFailover(int min) {
-        minMaxHttpRequestDelay = min;
-    }
-    
-    void setMaxHttpRequestUpdateDelayForMaxFailover(int max) {
-        maxMaxHttpRequestDelay = max;
-    }
-    
-    int getSilentPeriodForMaxHttpRequest() {
-        return silentPeriodForMaxHttpRequest;
     }
     
     void setSilentPeriodForMaxHttpRequest(int silentPeriodForMaxHttpRequest) {
@@ -342,11 +319,11 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
     
     /**
-     * Handles processing a newly arrived message.
+     * Handles processing a newly arrived message. Package access for testing.
      *
      * (Processes the data immediately.)
      */
-    private void handleDataInternal(byte[] data, UpdateType updateType, ReplyHandler handler) {
+    protected void handleDataInternal(byte[] data, UpdateType updateType, ReplyHandler handler) {
         if (data == null) {
             if (updateType == UpdateType.FROM_NETWORK && handler != null)
                 networkUpdateSanityChecker.get()
@@ -1019,6 +996,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     /**
      * Listens for events from FileManager
      */
+    @Override
     public void handleEvent(ManagedListStatusEvent evt) {
         if(evt.getType() == ManagedListStatusEvent.Type.LOAD_COMPLETE) {
             tryToDownloadUpdates();

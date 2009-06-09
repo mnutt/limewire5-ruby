@@ -3,8 +3,8 @@ package org.limewire.ui.swing.friends.chat;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.limewire.core.api.friend.client.MessageWriter;
 import org.limewire.ui.swing.event.AbstractEDTEvent;
-import org.limewire.xmpp.api.client.MessageWriter;
 
 public class ConversationSelectedEvent extends AbstractEDTEvent {
     private final ChatFriend chatFriend;

@@ -1,11 +1,12 @@
 /Inspectable.java/1.7/Fri Jul  6 21:01:30 2007//
 /InspectableContainer.java/1.1/Wed Sep 26 20:43:35 2007//
-/InspectableForSize.java/1.7/Wed Sep 26 21:05:51 2007//
-/InspectablePrimitive.java/1.7/Wed Sep 26 21:05:51 2007//
 /InspectionException.java/1.5/Wed Jan 16 22:41:09 2008//
 /InspectionHistogram.java/1.4/Mon Mar 23 14:54:58 2009//
-/InspectionPoint.java/1.1/Wed Sep 26 20:43:35 2007//
-/InspectionUtils.java/1.13/Thu Aug 14 04:10:23 2008//
 /Inspector.java/1.3/Mon Oct  1 01:07:44 2007//
 /InspectorImpl.java/1.7/Mon Apr  6 16:05:24 2009//
+/InspectableForSize.java/1.8/Mon Jun  8 18:08:04 2009//
+/InspectablePrimitive.java/1.8/Mon Jun  8 18:08:04 2009//
+/InspectionPoint.java/1.2/Mon Jun  8 18:08:04 2009//
+/InspectionRequirements.java/1.1/Tue May 26 16:54:21 2009//
+/InspectionUtils.java/1.14/Mon Jun  8 18:08:04 2009//
 D

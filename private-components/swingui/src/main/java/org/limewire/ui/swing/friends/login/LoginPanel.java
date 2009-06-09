@@ -1,5 +1,7 @@
 package org.limewire.ui.swing.friends.login;
 
+import static org.limewire.ui.swing.util.I18n.tr;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +18,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
@@ -35,17 +39,13 @@ import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
-import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 import org.limewire.xmpp.api.client.XMPPService;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-import net.miginfocom.swing.MigLayout;
-
-@Singleton
 class LoginPanel extends JXPanel implements SettingListener {
 
     private static final String SIGNIN_ENABLED_TEXT = tr("Sign In");
@@ -62,12 +62,12 @@ class LoginPanel extends JXPanel implements SettingListener {
     private JCheckBox autoLoginCheckBox;
     private JLabel authFailedLabel;
     private JXButton signInButton;
-    private final XMPPAccountConfigurationManager accountManager;
+    private final Provider<XMPPAccountConfigurationManager> accountManager;
     private final XMPPService xmppService;
     private final SignInAction signinAction = new SignInAction();
     
     @Inject
-    LoginPanel(XMPPAccountConfigurationManager accountManager,
+    LoginPanel(Provider<XMPPAccountConfigurationManager> accountManager,
             XMPPService xmppService,
             ComboBoxDecorator comboFactory,
             ButtonDecorator buttonDecorator,
@@ -130,7 +130,7 @@ class LoginPanel extends JXPanel implements SettingListener {
         titleLabel.setName("LoginPanel.titleLabel");
         
         List<Action> actions = new ArrayList<Action>();
-        for (XMPPAccountConfiguration config : accountManager.getConfigurations()) {
+        for (XMPPAccountConfiguration config : accountManager.get().getConfigurations()) {
             Action action = new AbstractAction(config.getLabel(), config.getIcon()) {            
                 @Override
                 public void actionPerformed(ActionEvent e) {}
@@ -169,7 +169,7 @@ class LoginPanel extends JXPanel implements SettingListener {
                 // When the user clears the auto-login checkbox,
                 // forget the auto-login config
                 if(!autoLoginCheckBox.isSelected()) {
-                    accountManager.setAutoLoginConfig(null);
+                    accountManager.get().setAutoLoginConfig(null);
                 }
                 SwingUiSettings.REMEMBER_ME_CHECKED.setValue(autoLoginCheckBox.isSelected());
             }
@@ -221,7 +221,7 @@ class LoginPanel extends JXPanel implements SettingListener {
             serviceField.setVisible(false);
         }
         
-        if(config == accountManager.getAutoLoginConfig()) {
+        if(config == accountManager.get().getAutoLoginConfig()) {
             serviceField.setText(config.getServiceName());
             usernameField.setText(config.getUserInputLocalID());
             passwordField.setText(config.getPassword());
@@ -304,10 +304,10 @@ class LoginPanel extends JXPanel implements SettingListener {
             config.setPassword(password);
             if(autoLoginCheckBox.isSelected()) {
                 // Set this as the auto-login account
-                accountManager.setAutoLoginConfig(config);
+                accountManager.get().setAutoLoginConfig(config);
             } else {
                 // If there was previously an auto-login account, delete it
-                accountManager.setAutoLoginConfig(null);
+                accountManager.get().setAutoLoginConfig(null);
             }
             login(config);
         }

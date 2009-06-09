@@ -33,6 +33,8 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.CommonUtils;
 
+import com.google.inject.Inject;
+
 public class MiniPlayerPanel extends JPanel {
   
     @Resource
@@ -59,6 +61,7 @@ public class MiniPlayerPanel extends JPanel {
     private final AudioPlayer player;
     private final LibraryNavigator libraryNavigator;
 
+    @Inject
     public MiniPlayerPanel(AudioPlayer player, LibraryNavigator libraryNavigator) {
         GuiUtils.assignResources(this);
         

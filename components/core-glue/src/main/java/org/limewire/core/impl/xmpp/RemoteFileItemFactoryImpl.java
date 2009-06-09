@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.client.FileMetaData;
 import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.xmpp.RemoteFileItemFactory;
@@ -13,7 +14,6 @@ import org.limewire.core.impl.library.CoreRemoteFileItem;
 import org.limewire.core.impl.search.RemoteFileDescAdapter;
 import org.limewire.io.InvalidDataException;
 import org.limewire.io.IpPort;
-import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.xmpp.api.client.XMPPAddress;
 
 import com.google.inject.Inject;

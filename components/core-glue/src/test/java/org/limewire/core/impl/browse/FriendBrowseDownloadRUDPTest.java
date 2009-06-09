@@ -36,9 +36,9 @@ import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.xmpp.api.client.Presence;
+import org.limewire.xmpp.api.client.XMPPPresence;
 import org.limewire.xmpp.api.client.RosterEvent;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPFriend;
 import org.limewire.xmpp.api.client.XMPPAddress;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
@@ -132,9 +132,9 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
     public void testBrowseDownloadFromFriendBehindFirewall() throws Exception {
         waitForFeature(AddressFeature.ID, FRIEND);
         
-        Collection<Presence> presences = conn.getUser(FRIEND).getPresences().values();
+        Collection<XMPPPresence> presences = conn.getFriend(FRIEND).getPresences().values();
         assertEquals(1, presences.size());
-        Presence presence = presences.iterator().next();
+        XMPPPresence presence = presences.iterator().next();
 
 
         SearchServices searchServices = injector.getInstance(SearchServices.class);
@@ -232,10 +232,10 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
 
 
         // check for the feature in case it already came in prior to listener being added
-        User user = conn.getUser(friendId);
+        XMPPFriend user = conn.getFriend(friendId);
         if (user != null && !user.getPresences().isEmpty()) {
             // friend already signed in
-            Presence presence = conn.getUser(friendId).getPresences().values().iterator().next();
+            XMPPPresence presence = conn.getFriend(friendId).getPresences().values().iterator().next();
             if (presence.getFeature(featureUri) != null) {
                 return;
             }
@@ -251,9 +251,9 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
         private final Map<String, SearchResult> searchResults;
         private final CountDownLatch latch;
         private final XMPPRemoteFileDescDeserializer searchResultToXmppAdapter;
-        private final Presence presence;
+        private final XMPPPresence presence;
 
-        BrowseStatistics(Presence presence) {
+        BrowseStatistics(XMPPPresence presence) {
             this.presence = presence;
             this.searchResultToXmppAdapter = injector.getInstance(XMPPRemoteFileDescDeserializer.class);
             this.searchResults = new ConcurrentHashMap<String, SearchResult>();

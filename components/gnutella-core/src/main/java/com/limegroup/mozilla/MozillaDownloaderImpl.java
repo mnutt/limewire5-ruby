@@ -95,8 +95,8 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     }
 
     @Override
-    public RemoteFileDesc getBrowseEnabledHost() {
-        return null;
+    public List<RemoteFileDesc> getRemoteFileDescs() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -203,11 +203,6 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     @Override
     public String getVendor() {
         return "";
-    }
-
-    @Override
-    public boolean hasBrowseEnabledHost() {
-        return false;
     }
 
     @Override
@@ -378,5 +373,4 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     public void deleteIncompleteFiles() {
         FileUtils.delete(getIncompleteFile(), false);
     }
-
 }

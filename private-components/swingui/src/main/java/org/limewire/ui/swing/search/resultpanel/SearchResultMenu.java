@@ -9,7 +9,8 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
+import org.limewire.ui.swing.properties.FileInfoDialog.FileInfoType;
 import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.util.FileChooser;
@@ -33,7 +34,7 @@ public class SearchResultMenu extends JPopupMenu {
      */
     public SearchResultMenu(final DownloadHandler downloadHandler,
         final List<VisualSearchResult> selectedItems,
-        final PropertiesFactory<VisualSearchResult> propertiesFactory,
+        final FileInfoDialogFactory fileInfoFactory,
         ViewType viewType) {
 
         final VisualSearchResult firstItem = selectedItems.get(0);
@@ -116,7 +117,7 @@ public class SearchResultMenu extends JPopupMenu {
         // Add View File Info menu item.
         add(new AbstractAction(tr("View File Info...")) {
             public void actionPerformed(ActionEvent e) {
-                propertiesFactory.newProperties().showProperties(firstItem);
+                fileInfoFactory.createFileInfoDialog(firstItem, FileInfoType.REMOTE_FILE);
             }
         }).setEnabled(viewFileInfoEnabled);
     }

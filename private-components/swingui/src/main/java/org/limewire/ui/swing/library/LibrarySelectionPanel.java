@@ -83,7 +83,7 @@ class LibrarySelectionPanel extends JPanel implements Disposable {
         selectionGrow.setOpaque(false);
         selectionGrow.add(cardPanel, "dock south");        
         
-        add(selectionGrow, "dock south, aligny baseline, growy");
+        add(selectionGrow, "dock south, aligny baseline, growy, pushy");
     }
     
 

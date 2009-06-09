@@ -38,8 +38,10 @@ public class CategoryShareWidget implements ShareWidget<Category> {
     public void setShareable(Category category) {
         this.category = category;
         String catStr = category.getSingularName();
+        // {0}: name of collection
         sharePanel.setTitleLabel(I18n.tr("Share {0} collection", catStr));
         sharePanel.setTopLabel("Sharing collection with:");
+        // {0}: name of collection, {1} name of collection lower case 
         sharePanel.setBottomLabel(
                 I18n.tr("Sharing your {0} collection shares new {1} files that automatically get added to your Library", catStr, catStr.toLowerCase()));
    

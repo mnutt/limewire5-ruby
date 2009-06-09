@@ -15,7 +15,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,6 +36,7 @@ import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.LimeSliderBar;
 import org.limewire.ui.swing.components.MarqueeButton;
+import org.limewire.ui.swing.components.VolumeSlider;
 import org.limewire.ui.swing.components.decorators.SliderBarDecorator;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
@@ -102,7 +102,7 @@ public class PlayerPanel extends JXPanel {
     private final JButton volumeButton;
     
     private final JPopupMenu volumeControlPopup;
-    private final JSlider volumeSlider; 
+    private final VolumeSlider volumeSlider; 
     
     private final MarqueeButton titleLabel;
     
@@ -169,9 +169,8 @@ public class PlayerPanel extends JXPanel {
         volumeButton.setActionCommand(VOLUME);
         volumeButton.setDisabledIcon(volumeIconDisabled);
         
-        volumeControlPopup = new JPopupMenu();
-        volumeSlider = new JSlider(0,100);
-        initVolumeControl();
+        volumeSlider = new VolumeSlider(0, 100);
+        volumeControlPopup = volumeSlider.createPopup();
         
         progressSlider = new LimeSliderBar();
         sliderBarDecorator.decoratePlain(progressSlider);
@@ -277,21 +276,6 @@ public class PlayerPanel extends JXPanel {
         });
     }
     
-    private void initVolumeControl() {
-        volumeSlider.setOrientation(JSlider.VERTICAL);
-        volumeSlider.setMinimumSize(new Dimension((int)volumeSlider.getMinimumSize().getWidth(), 75));
-        volumeSlider.setMaximumSize(new Dimension((int)volumeSlider.getMaximumSize().getWidth(), 75));
-        volumeSlider.setPreferredSize(new Dimension((int)volumeSlider.getPreferredSize().getWidth(), 75));
-        volumeSlider.setSize(new Dimension((int)volumeSlider.getSize().getWidth(), 75));
-        
-        volumeControlPopup.setMinimumSize(new Dimension(20, 80));
-        volumeControlPopup.setMaximumSize(new Dimension(20, 80));
-        volumeControlPopup.setPreferredSize(new Dimension(20, 80));
-        volumeControlPopup.setSize(new Dimension(20, 80));
-        
-        volumeControlPopup.add(volumeSlider);
-    }
-
     private void previousSong() {
         if (file != null) {
             player.stop();
@@ -422,7 +406,7 @@ public class PlayerPanel extends JXPanel {
         @Override
         public void progressChange(int bytesread) {
             // if we know the length of the song, update the progress bar
-            if (audioProperties.containsKey(AUDIO_LENGTH_BYTES)) {
+            if (audioProperties != null && audioProperties.containsKey(AUDIO_LENGTH_BYTES)) {
                 int byteslength = ((Integer) audioProperties.get(AUDIO_LENGTH_BYTES))
                         .intValue();
 

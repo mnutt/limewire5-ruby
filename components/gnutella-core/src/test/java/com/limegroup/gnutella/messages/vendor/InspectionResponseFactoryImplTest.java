@@ -11,6 +11,7 @@ import java.util.zip.Inflater;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.limewire.bittorrent.bencoding.Token;
 import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.inspection.Inspector;
@@ -25,7 +26,6 @@ import junit.framework.Test;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.limegroup.bittorrent.bencoding.Token;
 import com.limegroup.gnutella.util.FECUtils;
 
 public class InspectionResponseFactoryImplTest extends LimeTestCase {

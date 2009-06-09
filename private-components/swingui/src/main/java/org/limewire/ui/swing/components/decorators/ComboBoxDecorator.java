@@ -99,6 +99,17 @@ public class ComboBoxDecorator {
         tryInstallHandCursor(box);
     }
     
+    /**
+     * Decorates the specified combobox button by removing all background and
+     * border elements so that only its icons are displayed.
+     */
+    public void decorateIconComboBox(JXButton box) {
+        box.setContentAreaFilled(false);
+        box.setBorder(BorderFactory.createEmptyBorder());
+
+        tryInstallHandCursor(box);
+    }
+
     private void tryInstallHandCursor(JXButton box) {
         if (box instanceof LimeComboBox) {
             ((LimeComboBox)box).setMouseOverCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

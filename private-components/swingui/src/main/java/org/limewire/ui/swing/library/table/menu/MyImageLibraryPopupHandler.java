@@ -5,31 +5,18 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.limewire.core.api.Category;
-import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.core.api.playlist.PlaylistManager;
 import org.limewire.ui.swing.library.image.LibraryImageSubPanel;
-import org.limewire.ui.swing.library.nav.LibraryNavigator;
-import org.limewire.ui.swing.library.table.menu.actions.SharingActionFactory;
-import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.table.TablePopupHandler;
-import org.limewire.xmpp.api.client.XMPPService;
 
 public class MyImageLibraryPopupHandler implements TablePopupHandler {
     private LibraryImageSubPanel imagePanel;
 
     private MyLibraryPopupMenu popupMenu;
 
-    public MyImageLibraryPopupHandler(LibraryImageSubPanel imagePanel,
-            SharingActionFactory sharingActionFactory, LibraryManager libraryManager, 
-            PropertiesFactory<LocalFileItem> localFilePropFactory, XMPPService xmppService,
-            LibraryNavigator libraryNavigator, PlaylistManager playlistManager) {
+    public MyImageLibraryPopupHandler(LibraryImageSubPanel imagePanel, MyLibraryPopupMenu popupMenu) {
         this.imagePanel = imagePanel;
-        this.popupMenu = new MyLibraryPopupMenu(Category.IMAGE,
-                libraryManager, sharingActionFactory, localFilePropFactory, 
-                xmppService, libraryNavigator, playlistManager);
-
+        this.popupMenu = popupMenu;
     }
 
     @Override

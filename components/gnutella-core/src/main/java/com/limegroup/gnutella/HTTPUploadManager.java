@@ -734,6 +734,11 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
 
     public HTTPUploader getOrCreateUploader(HttpRequest request,
             HttpContext context, UploadType type, String filename) {
+        return getOrCreateUploader(request, context, type, filename, null);
+    }
+    
+    public HTTPUploader getOrCreateUploader(HttpRequest request,
+            HttpContext context, UploadType type, String filename, String friendID) {
         assert started;
         
         HTTPUploadSession session = getOrCreateSession(context);
@@ -762,6 +767,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
                 cleanupFinishedUploader(uploader);
 
                 uploader = new HTTPUploader(filename, session, tcpBandwidthStatistics);
+                uploader.setFriendId(friendID);
             } else {
                 // reuse existing uploader object
                 uploader.reinitialize();
@@ -769,6 +775,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
         } else {
             // first request for this session
             uploader = new HTTPUploader(filename, session);
+            uploader.setFriendId(friendID);
         }
 
         String method = request.getRequestLine().getMethod();

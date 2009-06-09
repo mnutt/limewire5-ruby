@@ -8,13 +8,13 @@ import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.client.FileMetaData;
 import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.io.Address;
 import org.limewire.io.InvalidDataException;
 import org.limewire.net.address.AddressFactory;
 import org.limewire.util.BaseTestCase;
-import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.xmpp.api.client.XMPPAddress;
 import org.limewire.xmpp.client.impl.XMPPAddressResolver;
 

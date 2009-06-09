@@ -13,8 +13,8 @@ import java.awt.image.Kernel;
 public class PainterUtils {
    
     
-    public static Color TRASPARENT = new Color(0,0,0,0);
-    public static Insets BLANK_INSETS = new Insets(0,0,0,0);
+    public static final Color TRASPARENT = new Color(0,0,0,0);
+    public static final Insets BLANK_INSETS = new Insets(0,0,0,0);
     
     /**
      * Draws a string to a graphics with antialiasing

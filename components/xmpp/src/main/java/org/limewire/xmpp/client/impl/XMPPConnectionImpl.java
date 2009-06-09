@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -20,7 +23,13 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.ChatStateManager;
 import org.limewire.concurrent.ListeningExecutorService;
 import org.limewire.concurrent.ListeningFuture;
+import org.limewire.core.api.friend.client.FileOfferEvent;
+import org.limewire.core.api.friend.client.FriendException;
+import org.limewire.core.api.friend.client.FriendRequestEvent;
+import org.limewire.core.api.friend.client.LibraryChangedEvent;
 import org.limewire.core.api.friend.feature.FeatureEvent;
+import org.limewire.core.api.friend.impl.DefaultFriendAuthenticator;
+import org.limewire.core.api.friend.FriendPresenceEvent;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListenerList;
 import org.limewire.listener.EventMulticaster;
@@ -31,18 +40,15 @@ import org.limewire.logging.LogFactory;
 import org.limewire.net.ConnectBackRequestedEvent;
 import org.limewire.net.address.AddressEvent;
 import org.limewire.net.address.AddressFactory;
-import org.limewire.xmpp.api.client.FileOfferEvent;
-import org.limewire.xmpp.api.client.FriendRequestEvent;
-import org.limewire.xmpp.api.client.LibraryChangedEvent;
-import org.limewire.xmpp.api.client.Presence;
 import org.limewire.xmpp.api.client.RosterEvent;
-import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
-import org.limewire.xmpp.api.client.XMPPException;
+import org.limewire.xmpp.api.client.XMPPFriend;
+import org.limewire.xmpp.api.client.XMPPPresence;
 import org.limewire.xmpp.client.impl.features.FileOfferInitializer;
 import org.limewire.xmpp.client.impl.features.LibraryChangedNotifierFeatureInitializer;
 import org.limewire.xmpp.client.impl.features.LimewireFeatureInitializer;
+import org.limewire.xmpp.client.impl.features.NoSaveFeatureInitializer;
 import org.limewire.xmpp.client.impl.messages.address.AddressIQListener;
 import org.limewire.xmpp.client.impl.messages.address.AddressIQProvider;
 import org.limewire.xmpp.client.impl.messages.authtoken.AuthTokenIQListener;
@@ -55,9 +61,10 @@ import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQ;
 import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQListener;
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQ;
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQListener;
+import org.limewire.xmpp.client.impl.messages.nosave.NoSaveIQ;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 
 public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConnection {
 
@@ -67,10 +74,11 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
     private final EventBroadcaster<FileOfferEvent> fileOfferBroadcaster;
     private final EventBroadcaster<FriendRequestEvent> friendRequestBroadcaster;
     private final EventBroadcaster<LibraryChangedEvent> libraryChangedEventEventBroadcaster;
-    private final EventBroadcaster<XMPPConnectionEvent> connectionBroadcaster;
+    private final EventMulticaster<XMPPConnectionEvent> connectionMulticaster;
+    private final ListenerSupport<FriendPresenceEvent> friendPresenceSupport;
     private final AddressFactory addressFactory;
-    private final XMPPAuthenticator authenticator;
-    private final EventMulticaster<FeatureEvent> featureSupport;
+    private final DefaultFriendAuthenticator authenticator;
+    private final EventBroadcaster<FeatureEvent> featureBroadcaster;
     private final EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster;
     private final XMPPAddressRegistry xmppAddressRegistry;
     private final ListenerSupport<AddressEvent> addressListenerSupport;
@@ -78,7 +86,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
     private final List<ConnectionConfigurationFactory> connectionConfigurationFactories;
 
     private final EventListenerList<RosterEvent> rosterListeners;
-    private final Map<String, UserImpl> users;
+    private final Map<String, XMPPFriend> friends;
     private final SmackConnectionListener smackConnectionListener;
     private final AtomicBoolean loggedIn = new AtomicBoolean(false);
     private final AtomicBoolean loggingIn = new AtomicBoolean(false);
@@ -86,15 +94,16 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
     private volatile org.jivesoftware.smack.XMPPConnection connection;
     private volatile DiscoInfoListener discoInfoListener;
 
-    @AssistedInject
+    @Inject
     public XMPPConnectionImpl(@Assisted XMPPConnectionConfiguration configuration,
                        @Assisted ListeningExecutorService executorService,
                        EventBroadcaster<RosterEvent> rosterBroadcaster,
                        EventBroadcaster<FileOfferEvent> fileOfferBroadcaster,
                        EventBroadcaster<FriendRequestEvent> friendRequestBroadcaster,
                        EventBroadcaster<LibraryChangedEvent> libraryChangedEventEventBroadcaster,
-                       EventBroadcaster<XMPPConnectionEvent> connectionBroadcaster,
-                       AddressFactory addressFactory, XMPPAuthenticator authenticator,
+                       EventMulticaster<XMPPConnectionEvent> connectionMulticaster,
+                       ListenerSupport<FriendPresenceEvent> friendPresenceSupport,
+                       AddressFactory addressFactory, DefaultFriendAuthenticator authenticator,
                        EventMulticaster<FeatureEvent> featureSupport,
                        EventBroadcaster<ConnectBackRequestedEvent> connectRequestEventBroadcaster,
                        XMPPAddressRegistry xmppAddressRegistry, 
@@ -104,10 +113,11 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         this.fileOfferBroadcaster = fileOfferBroadcaster;
         this.friendRequestBroadcaster = friendRequestBroadcaster;
         this.libraryChangedEventEventBroadcaster = libraryChangedEventEventBroadcaster;
-        this.connectionBroadcaster = connectionBroadcaster;
+        this.connectionMulticaster = connectionMulticaster;
+        this.friendPresenceSupport = friendPresenceSupport;
         this.addressFactory = addressFactory;
         this.authenticator = authenticator;
-        this.featureSupport = featureSupport;
+        this.featureBroadcaster = featureSupport;
         this.connectRequestEventBroadcaster = connectRequestEventBroadcaster;
         this.xmppAddressRegistry = xmppAddressRegistry;
         this.addressListenerSupport = addressListenerSupport;
@@ -119,7 +129,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
             rosterListeners.addListener(configuration.getRosterListener());
         }
         rosterListeners.addListener(new EventRebroadcaster<RosterEvent>(rosterBroadcaster));
-        users = new TreeMap<String, UserImpl>(String.CASE_INSENSITIVE_ORDER);
+        friends = new TreeMap<String, XMPPFriend>(String.CASE_INSENSITIVE_ORDER);
         
         smackConnectionListener = new SmackConnectionListener();
     }
@@ -129,7 +139,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         return org.limewire.util.StringUtils.toString(this, configuration, connection);
     }
     
-    public ListeningFuture<Void> setMode(final Presence.Mode mode) {
+    public ListeningFuture<Void> setMode(final XMPPPresence.Mode mode) {
         return executorService.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -139,18 +149,18 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         });   
     }    
 
-    void setModeImpl(Presence.Mode mode) throws XMPPException {
+    void setModeImpl(XMPPPresence.Mode mode) throws FriendException {
         synchronized (this) {
             try {
                 checkLoggedIn();
                 connection.sendPacket(getPresenceForMode(mode));
             } catch (org.jivesoftware.smack.XMPPException e) {
-                throw new XMPPException(e);
+                throw new FriendException(e);
             } 
         }
     }
 
-    private Packet getPresenceForMode(Presence.Mode mode) {
+    private Packet getPresenceForMode(XMPPPresence.Mode mode) {
         org.jivesoftware.smack.packet.Presence presence = new org.jivesoftware.smack.packet.Presence(
                 org.jivesoftware.smack.packet.Presence.Type.available);
         presence.setMode(org.jivesoftware.smack.packet.Presence.Mode.valueOf(mode.name()));
@@ -172,10 +182,10 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         });   
     }
 
-    void loginImpl() throws XMPPException {
+    void loginImpl() throws FriendException {
         synchronized (this) {
             try {
-                connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECTING));        
+                connectionMulticaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECTING));
                 loggingIn.set(true);
                 org.jivesoftware.smack.XMPPConnection.addConnectionCreationListener(smackConnectionListener);
                 org.jivesoftware.smack.XMPPConnection.DEBUG_ENABLED = configuration.isDebugEnabled();
@@ -185,15 +195,15 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                 connection.login(configuration.getUserInputLocalID(), configuration.getPassword(), configuration.getResource());
                 LOG.infof("logged in.");
                 loggedIn.set(true);
-                connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECTED));
+                connectionMulticaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECTED));
             } catch (org.jivesoftware.smack.XMPPException e) {
-                connectionBroadcaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECT_FAILED, e));
+                connectionMulticaster.broadcast(new XMPPConnectionEvent(this, XMPPConnectionEvent.Type.CONNECT_FAILED, e));
                 if(connection != null && connection.isConnected()) {
                     connection.disconnect();
                 }
                 org.jivesoftware.smack.XMPPConnection.removeConnectionCreationListener(smackConnectionListener);
                 connection = null;
-                throw new XMPPException(e);
+                throw new FriendException(e);
             } finally {
                 loggingIn.set(false);
             }
@@ -205,13 +215,13 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
             try {
                 connectUsingFactory(factory);
                 return;
-            } catch (XMPPException e) {
+            } catch (FriendException e) {
                 LOG.debug(e.getMessage(), e);
             }
         }
     }
 
-    private void connectUsingFactory(ConnectionConfigurationFactory factory) throws XMPPException {
+    private void connectUsingFactory(ConnectionConfigurationFactory factory) throws FriendException {
         ConnectionConfigurationFactory.RequestContext requestContext = new ConnectionConfigurationFactory.RequestContext();
         while(factory.hasMore(configuration, requestContext)) {
             ConnectionConfiguration connectionConfig = factory.getConnectionConfiguration(configuration, requestContext);
@@ -226,7 +236,7 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                 requestContext.incrementRequests();
             }            
         }
-        throw new XMPPException("couldn't connect using " + factory);
+        throw new FriendException("couldn't connect using " + factory);
     }
 
     @Override
@@ -251,8 +261,8 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                 loggedIn.set(false);
                 LOG.infof("disconnecting from {0} at {1}:{2} ...", connection.getServiceName(), connection.getHost(), connection.getPort());
                 connection.disconnect();
-                synchronized (users) {
-                    users.clear();
+                synchronized (friends) {
+                    friends.clear();
                 }
                 XMPPConnection.removeConnectionCreationListener(smackConnectionListener);
                 connection = null;
@@ -265,10 +275,10 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         return loggedIn.get();
     }
     
-    private void checkLoggedIn() throws XMPPException {
+    private void checkLoggedIn() throws FriendException {
         synchronized (this) {
             if(!isLoggedIn()) {
-                throw new XMPPException("not connected");
+                throw new FriendException("not connected");
             }
         }
     }
@@ -279,22 +289,25 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
             try {
                 synchronized (XMPPConnectionImpl.this) {
                     checkLoggedIn();
-                    synchronized (users) {
+                    synchronized (friends) {
                         Roster roster = connection.getRoster();
                         if(roster != null) {
+                            Map<String, XMPPFriend> newFriends = new HashMap<String, XMPPFriend>();
                             for(String id : addedIds) {
                                 RosterEntry rosterEntry = roster.getEntry(id);
-                                UserImpl user = new UserImpl(id, rosterEntry, configuration, connection, discoInfoListener);
-                                LOG.debugf("user {0} added", user);
-                                users.put(id, user);
-                                rosterListeners.broadcast(new RosterEvent(user, RosterEvent.Type.USER_ADDED));
+                                XMPPFriendImpl friend = new XMPPFriendImpl(
+                                    id, rosterEntry, configuration, connection, discoInfoListener);
+                                LOG.debugf("friend {0} added", friend);
+                                newFriends.put(id, friend);
                             }
+                            friends.putAll(newFriends);
+                            rosterListeners.broadcast(new RosterEvent(newFriends.values(), RosterEvent.Type.FRIENDS_ADDED));
                         }
                     }
                 }
             } catch (org.jivesoftware.smack.XMPPException e) {
                 LOG.debugf(e, "error getting roster");    
-            } catch (XMPPException e) {
+            } catch (FriendException e) {
                 LOG.debugf(e, "error getting roster");    
             }
         }
@@ -303,41 +316,46 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
             try {
                 synchronized (XMPPConnectionImpl.this) {
                     checkLoggedIn();
-                    synchronized (users) {                 
+                    synchronized (friends) {
                         Roster roster = connection.getRoster();
                         if(roster != null) {
+                            Set<XMPPFriend> updatedFriends = new HashSet<XMPPFriend>();
                             for(String id : updatedIds) {
                                 RosterEntry rosterEntry = roster.getEntry(id);
-                                UserImpl user = users.get(id);
-                                if(user == null) {
+                                XMPPFriendImpl friend = (XMPPFriendImpl) friends.get(id);
+                                if(friend == null) {
                                     // should never happen ?
-                                    user = new UserImpl(id, rosterEntry, configuration, connection, discoInfoListener);
-                                    users.put(id, user);
+                                    friend = new XMPPFriendImpl(
+                                        id, rosterEntry, configuration, connection, discoInfoListener);
+                                    friends.put(id, friend);
                                 } else {
-                                    user.setRosterEntry(rosterEntry);
+                                    friend.setRosterEntry(rosterEntry);
                                 }
-                                LOG.debugf("user {0} updated", user);
-                                rosterListeners.broadcast(new RosterEvent(user, RosterEvent.Type.USER_UPDATED));
+                                updatedFriends.add(friend);
+                                LOG.debugf("friend {0} updated", friend);
                             }
+                            rosterListeners.broadcast(new RosterEvent(updatedFriends, RosterEvent.Type.FRIENDS_UPDATED));
                         }
                     }
                 }
             } catch (org.jivesoftware.smack.XMPPException e) {
                 LOG.debugf(e, "error getting roster");    
-            } catch (XMPPException e) {
+            } catch (FriendException e) {
                 LOG.debugf(e, "error getting roster");    
             }
         }
 
         public void entriesDeleted(Collection<String> removedIds) {
-            synchronized (users) {
+            synchronized (friends) {
+                Set<XMPPFriend> deletedFriends = new HashSet<XMPPFriend>();
                 for(String id : removedIds) {
-                    User user = users.remove(id);
-                    if(user != null) {
-                        LOG.debugf("user {0} removed", user);
-                        rosterListeners.broadcast(new RosterEvent(user, RosterEvent.Type.USER_DELETED));
+                    XMPPFriend friend = friends.remove(id);
+                    if(friend != null) {
+                        deletedFriends.add(friend);
+                        LOG.debugf("friend {0} removed", friend);
                     }
                 }
+                rosterListeners.broadcast(new RosterEvent(deletedFriends, RosterEvent.Type.FRIENDS_DELETED));
             }
         }
 
@@ -345,67 +363,67 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
             String localJID;
             try {
                 localJID = getLocalJid();
-            } catch (XMPPException e) {
+            } catch (FriendException e) {
                 localJID = null;
             }
             if(!presence.getFrom().equals(localJID)) {
-                UserImpl user = getUser(presence);
-                if(user != null) {
+                XMPPFriendImpl friend = getFriend(presence);
+                if(friend != null) {
                     LOG.debugf("presence from {0} changed to {1}", presence.getFrom(), presence.getType());
-                    synchronized (user) {
+                    synchronized (friend) {
                         if (presence.getType().equals(org.jivesoftware.smack.packet.Presence.Type.available)) {
-                            if(!user.getFriendPresences().containsKey(presence.getFrom())) {
-                                addNewPresence(user, presence);
+                            if(!friend.getFriendPresences().containsKey(presence.getFrom())) {
+                                addNewPresence(friend, presence);
                             } else {
-                                updatePresence(user, presence);
+                                updatePresence(friend, presence);
                             }
                         } else if (presence.getType().equals(org.jivesoftware.smack.packet.Presence.Type.unavailable)) {
-                            PresenceImpl p = (PresenceImpl)user.getPresence(presence.getFrom());
+                            PresenceImpl p = (PresenceImpl)friend.getPresence(presence.getFrom());
                             if(p != null) {
                                 p.update(presence);
-                                user.removePresense(p);
+                                friend.removePresense(p);
                             }
                         }
                     }
                 } else {
-                    LOG.debugf("no user for presence {0}", presence.getFrom());    
+                    LOG.debugf("no friend for presence {0}", presence.getFrom());
                 }
             }
         }
 
-        private UserImpl getUser(org.jivesoftware.smack.packet.Presence presence) {
-            UserImpl user;
-            synchronized (users) {
-                user = users.get(StringUtils.parseBareAddress(presence.getFrom()));
+        private XMPPFriendImpl getFriend(org.jivesoftware.smack.packet.Presence presence) {
+            XMPPFriendImpl friend;
+            synchronized (friends) {
+                friend = (XMPPFriendImpl) friends.get(StringUtils.parseBareAddress(presence.getFrom()));
             }
-            return user;
+            return friend;
         }
 
-        private void addNewPresence(final UserImpl user, final org.jivesoftware.smack.packet.Presence presence) {
-            final PresenceImpl presenceImpl = new PresenceImpl(presence, user, featureSupport);
-            user.addPresense(presenceImpl);
+        private void addNewPresence(final XMPPFriendImpl friend, final org.jivesoftware.smack.packet.Presence presence) {
+            final PresenceImpl presenceImpl = new PresenceImpl(presence, friend, featureBroadcaster);
+            friend.addPresense(presenceImpl);
         }
 
-        private void updatePresence(UserImpl user, org.jivesoftware.smack.packet.Presence presence) {
-            PresenceImpl currentPresence = (PresenceImpl)user.getFriendPresences().get(presence.getFrom());
+        private void updatePresence(XMPPFriendImpl friend, org.jivesoftware.smack.packet.Presence presence) {
+            PresenceImpl currentPresence = (PresenceImpl)friend.getFriendPresences().get(presence.getFrom());
             currentPresence.update(presence);
-            user.updatePresence(currentPresence);
+            friend.updatePresence(currentPresence);
         }
     }
 
 
     @Override
-    public ListeningFuture<Void> addUser(final String id, final String name) {
+    public ListeningFuture<Void> addFriend(final String id, final String name) {
         return executorService.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                addUserImpl(id, name);
+                addFriendImpl(id, name);
                 return null;
             }
         }); 
     }
 
-    void addUserImpl(String id, String name) throws XMPPException {
+    void addFriendImpl(String id, String name) throws FriendException {
         synchronized (this) {
             try {
                 checkLoggedIn();
@@ -417,23 +435,23 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                     roster.createEntry(id, name, null);
                 }
             } catch (org.jivesoftware.smack.XMPPException e) {
-                throw new XMPPException(e);
+                throw new FriendException(e);
             } 
         }
     }
 
     @Override
-    public ListeningFuture<Void> removeUser(final String id) {
+    public ListeningFuture<Void> removeFriend(final String id) {
         return executorService.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                removeUserImpl(id);
+                removeFriendImpl(id);
                 return null;
             }
         }); 
     }
 
-    private void removeUserImpl(String id) throws XMPPException {
+    private void removeFriendImpl(String id) throws FriendException {
         synchronized (this) {
             try {
                 checkLoggedIn();
@@ -449,43 +467,43 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                     }
                 }
             } catch (org.jivesoftware.smack.XMPPException e) {
-                throw new XMPPException(e);
+                throw new FriendException(e);
             }
         }
     }
 
     @Override
-    public User getUser(String id) {
-        synchronized (users) { 
-            return users.get(id);
+    public XMPPFriend getFriend(String id) {
+        synchronized (friends) {
+            return friends.get(id);
         }
     }
 
     @Override
-    public Collection<User> getUsers() {
-        synchronized (users) { 
-            return new ArrayList<User>(users.values());
+    public Collection<XMPPFriend> getFriends() {
+        synchronized (friends) {
+            return new ArrayList<XMPPFriend>(friends.values());
         }
     }
 
-    public void sendPacket(Packet packet) throws XMPPException {
+    public void sendPacket(Packet packet) throws FriendException {
         synchronized (this) {
             try {
                 checkLoggedIn();
                 connection.sendPacket(packet);
             } catch (org.jivesoftware.smack.XMPPException e) {
-                throw new XMPPException(e);
+                throw new FriendException(e);
             } 
         }
     }
 
-    public String getLocalJid() throws XMPPException {
+    public String getLocalJid() throws FriendException {
         synchronized (this) {
             checkLoggedIn();
             return connection.getUser();
         }
     }
-    
+
     private class SmackConnectionListener implements ConnectionListener, ConnectionCreationListener {
         private volatile AddressIQListener addressIQListener;
 
@@ -516,13 +534,15 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
                 if (ProviderManager.getInstance().getIQProvider(ConnectBackRequestIQ.ELEMENT_NAME, ConnectBackRequestIQ.NAME_SPACE) == null) {
                     ProviderManager.getInstance().addIQProvider(ConnectBackRequestIQ.ELEMENT_NAME, ConnectBackRequestIQ.NAME_SPACE, new ConnectBackRequestIQProvider());
                 }
+                if (ProviderManager.getInstance().getIQProvider(NoSaveIQ.ELEMENT_NAME, NoSaveIQ.NAME_SPACE) == null) {
+                    ProviderManager.getInstance().addIQProvider(NoSaveIQ.ELEMENT_NAME, NoSaveIQ.NAME_SPACE, NoSaveIQ.getIQProvider());
+                }
             }
 
             ChatStateManager.getInstance(connection);
 
             discoInfoListener = new DiscoInfoListener(XMPPConnectionImpl.this, connection);
-            rosterListeners.addListener(discoInfoListener.getRosterListener());
-            connection.addPacketListener(discoInfoListener, discoInfoListener.getPacketFilter());
+            discoInfoListener.addListeners(connectionMulticaster, friendPresenceSupport);
 
             addressIQListener = new AddressIQListener(XMPPConnectionImpl.this, addressFactory, discoInfoListener, xmppAddressRegistry);
             addressListenerSupport.addListener(addressIQListener);
@@ -543,6 +563,8 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
             new FileOfferInitializer(connection).register(discoInfoListener);
             new LibraryChangedNotifierFeatureInitializer(connection).register(discoInfoListener);
             new LimewireFeatureInitializer().register(discoInfoListener);
+            new NoSaveFeatureInitializer(connection, XMPPConnectionImpl.this, 
+                    rosterListeners, friendPresenceSupport).register(discoInfoListener);
             
             SubscriptionListener sub = new SubscriptionListener(connection,
                                                 friendRequestBroadcaster);
@@ -551,13 +573,13 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
 
         @Override
         public void connectionClosed() {
-            connectionBroadcaster.broadcast(new XMPPConnectionEvent(XMPPConnectionImpl.this, XMPPConnectionEvent.Type.DISCONNECTED));
+            connectionMulticaster.broadcast(new XMPPConnectionEvent(XMPPConnectionImpl.this, XMPPConnectionEvent.Type.DISCONNECTED));
             cleanup();
         }
 
         @Override
         public void connectionClosedOnError(Exception e) {
-            connectionBroadcaster.broadcast(new XMPPConnectionEvent(XMPPConnectionImpl.this, XMPPConnectionEvent.Type.DISCONNECTED, e));
+            connectionMulticaster.broadcast(new XMPPConnectionEvent(XMPPConnectionImpl.this, XMPPConnectionEvent.Type.DISCONNECTED, e));
             cleanup();
         }
 
@@ -576,10 +598,10 @@ public class XMPPConnectionImpl implements org.limewire.xmpp.api.client.XMPPConn
         void cleanup() {
             ChatStateManager.remove(connection);
             if(discoInfoListener != null) {
-                rosterListeners.removeListener(discoInfoListener.getRosterListener());
+                discoInfoListener.cleanup();
             }
             if(addressIQListener != null) {
-                addressListenerSupport.removeListener(addressIQListener);    
+                addressListenerSupport.removeListener(addressIQListener);
             }
         }
     }

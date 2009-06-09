@@ -5,31 +5,18 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.limewire.core.api.Category;
-import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.core.api.library.MagnetLinkFactory;
-import org.limewire.core.api.library.ShareListManager;
-import org.limewire.core.api.playlist.PlaylistManager;
-import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.table.LibraryTable;
-import org.limewire.ui.swing.library.table.menu.actions.SharingActionFactory;
-import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.table.TablePopupHandler;
-import org.limewire.xmpp.api.client.XMPPService;
 
 public class MyLibraryPopupHandler implements TablePopupHandler {
     private LibraryTable<LocalFileItem> table;
 
     private MyLibraryPopupMenu popupMenu;
 
-    public MyLibraryPopupHandler(LibraryTable<LocalFileItem> table, Category category, LibraryManager libraryManager,
-            ShareListManager shareListManager, MagnetLinkFactory magnetFactory,
-            PropertiesFactory<LocalFileItem> propertiesFactory, SharingActionFactory sharingActionFactory,
-            XMPPService xmppService, LibraryNavigator libraryNavigator, PlaylistManager playlistManager) {
+    public MyLibraryPopupHandler(LibraryTable<LocalFileItem> table, MyLibraryPopupMenu popupMenu) {
         this.table = table;
-        this.popupMenu = new MyLibraryPopupMenu(category, libraryManager, sharingActionFactory, 
-                propertiesFactory, xmppService, libraryNavigator, playlistManager);
+        this.popupMenu = popupMenu;
     }
 
     @Override

@@ -11,12 +11,12 @@ import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.feature.Feature;
 import org.limewire.core.api.friend.feature.FeatureEvent;
 import org.limewire.listener.EventBroadcaster;
-import org.limewire.xmpp.api.client.Presence;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPPresence;
+import org.limewire.xmpp.api.client.XMPPFriend;
 
-class PresenceImpl implements Presence {
+class PresenceImpl implements XMPPPresence {
 
-    private final User user;
+    private final XMPPFriend user;
     private final Map<URI, Feature> features;
     private final EventBroadcaster<FeatureEvent> featureBroadcaster;
     private final String jid;
@@ -30,10 +30,10 @@ class PresenceImpl implements Presence {
     
 
     PresenceImpl(org.jivesoftware.smack.packet.Presence presence,
-                 User user, EventBroadcaster<FeatureEvent> featureSupport) {
+                 XMPPFriend user, EventBroadcaster<FeatureEvent> featureBroadcaster) {
         this.user = user;
         this.features = new ConcurrentHashMap<URI, Feature>();
-        this.featureBroadcaster = featureSupport;
+        this.featureBroadcaster = featureBroadcaster;
         this.jid = presence.getFrom();
         update(presence);
     }
@@ -101,7 +101,7 @@ class PresenceImpl implements Presence {
     }
 
     @Override
-    public User getUser() {
+    public XMPPFriend getXMPPFriend() {
         return user;
     }
 

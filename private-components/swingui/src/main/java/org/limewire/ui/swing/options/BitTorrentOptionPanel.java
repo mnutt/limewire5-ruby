@@ -5,47 +5,53 @@ import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.limewire.bittorrent.TorrentManager;
+import org.limewire.bittorrent.TorrentSettings;
+import org.limewire.bittorrent.TorrentSettingsAnnotation;
 import org.limewire.core.settings.BittorrentSettings;
+import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
-
+import com.google.inject.Provider;
 
 /**
  * BitTorrent Option View
  */
 public class BitTorrentOptionPanel extends OptionPanel {
-    
-    private static final int MIN = 1;
-    private static final int MAX = 10;
-    
+
     private ButtonGroup buttonGroup;
-    
+
     private JRadioButton limewireControl;
+
     private JRadioButton myControl;
-    
-    private JSpinner maxUploadSpinner;
-    private JSpinner minUploadSpinner;
-    private JCheckBox safeChunkCheckBox;
-    private JCheckBox experimentCheckBox;
-    
-    private JLabel maxUploadLabel;
-    private JLabel minUploadLabel;
-    
+
+    private JLabel uploadBandWidthLabel;
+
+    private BandWidthSlider uploadBandWidth;
+
+    private JLabel downloadBandWidthLabel;
+
+    private BandWidthSlider downloadBandWidth;
+
+    private final Provider<TorrentManager> torrentManager;
+
+    private final TorrentSettings torrentSettings;
+
     @Inject
-    public BitTorrentOptionPanel() {
+    public BitTorrentOptionPanel(Provider<TorrentManager> torrentManager,
+            @TorrentSettingsAnnotation TorrentSettings torrentSettings) {
+        this.torrentManager = torrentManager;
+        this.torrentSettings = torrentSettings;
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
-        
+
         add(getBitTorrentPanel(), "pushx, growx");
     }
 
@@ -53,99 +59,112 @@ public class BitTorrentOptionPanel extends OptionPanel {
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createTitledBorder(""));
         p.setLayout(new MigLayout("gapy 10"));
-        
-        limewireControl = new JRadioButton(I18n.tr("Let LimeWire manage my BitTorrent settings (Recommended)"));
-        limewireControl.addItemListener(new ItemListener(){
+
+        limewireControl = new JRadioButton(I18n
+                .tr("Let LimeWire manage my BitTorrent settings (Recommended)"));
+        limewireControl.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                updateState(!limewireControl.isSelected());
+                updateState(limewireControl.isSelected());
             }
         });
         myControl = new JRadioButton(I18n.tr("Let me manage my BitTorrent settings"));
-        myControl.addItemListener(new ItemListener(){
+        myControl.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                maxUploadSpinner.setVisible(myControl.isSelected());
-                minUploadSpinner.setVisible(myControl.isSelected());
-                safeChunkCheckBox.setVisible(myControl.isSelected());
-                experimentCheckBox.setVisible(myControl.isSelected());
-                
-                maxUploadLabel.setVisible(myControl.isSelected());
-                minUploadLabel.setVisible(myControl.isSelected());
+                updateState(limewireControl.isSelected());
             }
         });
-        
+
         buttonGroup = new ButtonGroup();
         buttonGroup.add(limewireControl);
         buttonGroup.add(myControl);
-        
-        maxUploadSpinner = new JSpinner(new SpinnerNumberModel(MIN, MIN, MAX, 1));
-        maxUploadSpinner.setVisible(false);
-        minUploadSpinner = new JSpinner(new SpinnerNumberModel(MIN, MIN, MAX, 1));
-        minUploadSpinner.setVisible(false);
-        safeChunkCheckBox = new JCheckBox(I18n.tr("Safe chunk verification"));
-        safeChunkCheckBox.setVisible(false);
-        experimentCheckBox = new JCheckBox(I18n.tr("Experimental disk access"));
-        experimentCheckBox.setVisible(false);
-        
-        maxUploadLabel = new JLabel(I18n.tr("Max uploads per torrent"));
-        maxUploadLabel.setVisible(false);
-        minUploadLabel = new JLabel(I18n.tr("Min uploads per torrent"));
-        minUploadLabel.setVisible(false);
 
-        p.add(limewireControl, "wrap");        
-        p.add(myControl, "wrap");        
+        downloadBandWidthLabel = new JLabel(I18n.tr("Download bandwidth"));
+        uploadBandWidthLabel = new JLabel(I18n.tr("Upload bandwidth"));
 
+        uploadBandWidth = new BandWidthSlider();
+        downloadBandWidth = new BandWidthSlider();
 
-        p.add(maxUploadLabel, "gapleft 35, split");
-        p.add(maxUploadSpinner, "wrap");
-        p.add(minUploadLabel, "gapleft 35, split");
-        p.add(minUploadSpinner, "wrap");
-        p.add(safeChunkCheckBox, "gapleft 35, split, wrap");
-        p.add(experimentCheckBox, "gapleft 35, split, wrap");
-        
+        if (torrentManager.get().isValid()) {
+            p.add(limewireControl, "wrap");
+            p.add(myControl, "wrap");
+
+            p.add(downloadBandWidthLabel, "split");
+            p.add(downloadBandWidth, "alignx right, wrap");
+            p.add(uploadBandWidthLabel, "split");
+            p.add(uploadBandWidth, "alignx right, wrap");
+        } else {
+            //TODO updating text after we get the new error message from mike s.
+            p
+                    .add(new MultiLineLabel(
+                            I18n
+                                    .tr("There was an error loading bittorrent. You will not be use bittorrent capabilities until this is resolved."), 500));
+        }
         return p;
     }
-    
+
     @Override
     boolean applyOptions() {
         SwingUiSettings.AUTOMATIC_SETTINGS.setValue(limewireControl.isSelected());
-        BittorrentSettings.TORRENT_MAX_UPLOADS.setValue((Integer)maxUploadSpinner.getModel().getValue());
-        BittorrentSettings.TORRENT_MIN_UPLOADS.setValue((Integer)minUploadSpinner.getModel().getValue());
-        BittorrentSettings.TORRENT_FLUSH_VERIRY.setValue(safeChunkCheckBox.isSelected());
-        BittorrentSettings.TORRENT_USE_MMAP.setValue(experimentCheckBox.isSelected());
+        if (limewireControl.isSelected()) {
+            BittorrentSettings.LIBTORRENT_UPLOAD_SPEED.setValue(BandWidthSlider.MAX_SLIDER);
+            BittorrentSettings.LIBTORRENT_DOWNLOAD_SPEED.setValue(BandWidthSlider.MAX_SLIDER);
+        } else {
+            BittorrentSettings.LIBTORRENT_UPLOAD_SPEED.setValue(uploadBandWidth.getValue());
+            BittorrentSettings.LIBTORRENT_DOWNLOAD_SPEED.setValue(downloadBandWidth.getValue());
+        }
+        // TODO this a little weird since we are jsut using the fact that the
+        // inject settings will be updated automatically by updating the
+        // BittorentSettings values.
+        if (torrentManager.get().isValid()) {
+            torrentManager.get().updateSettings(torrentSettings);
+        }
         return false;
     }
-    
+
     @Override
     boolean hasChanged() {
-        return SwingUiSettings.AUTOMATIC_SETTINGS.getValue() != limewireControl.isSelected() 
-                || (Integer)maxUploadSpinner.getModel().getValue() != BittorrentSettings.TORRENT_MAX_UPLOADS.getValue()
-                || (Integer)minUploadSpinner.getModel().getValue()!= BittorrentSettings.TORRENT_MIN_UPLOADS.getValue()
-                || BittorrentSettings.TORRENT_FLUSH_VERIRY.getValue() != safeChunkCheckBox.isSelected()
-                || BittorrentSettings.TORRENT_USE_MMAP.getValue() != experimentCheckBox.isSelected();
+        return SwingUiSettings.AUTOMATIC_SETTINGS.getValue() != limewireControl.isSelected()
+                || uploadBandWidth.getValue() != BittorrentSettings.LIBTORRENT_UPLOAD_SPEED
+                        .getValue()
+                || downloadBandWidth.getValue() != BittorrentSettings.LIBTORRENT_DOWNLOAD_SPEED
+                        .getValue();
     }
-    
+
     @Override
     public void initOptions() {
         boolean auto = SwingUiSettings.AUTOMATIC_SETTINGS.getValue();
-        if(auto)
+        if (auto) {
             limewireControl.setSelected(true);
-        else
+        } else {
             myControl.setSelected(true);
-        
-        maxUploadSpinner.getModel().setValue(BittorrentSettings.TORRENT_MAX_UPLOADS.getValue());
-        minUploadSpinner.getModel().setValue(BittorrentSettings.TORRENT_MIN_UPLOADS.getValue());
-        safeChunkCheckBox.setSelected(BittorrentSettings.TORRENT_FLUSH_VERIRY.getValue());
-        experimentCheckBox.setSelected(BittorrentSettings.TORRENT_USE_MMAP.getValue());
-        
-        updateState(!auto);
+        }
+
+        uploadBandWidth.setValue(BittorrentSettings.LIBTORRENT_UPLOAD_SPEED.getValue());
+        downloadBandWidth.setValue(BittorrentSettings.LIBTORRENT_DOWNLOAD_SPEED.getValue());
+
+        updateState(auto);
     }
-    
-    private void updateState(boolean value) {
-        maxUploadSpinner.setEnabled(value);
-        minUploadSpinner.setEnabled(value);
-        safeChunkCheckBox.setEnabled(value);
-        experimentCheckBox.setEnabled(value);
+
+    /**
+     * Updates the state of the components based on whether the user has opted
+     * to control the bittorrent settings manually, or let limewire control
+     * them.
+     * 
+     * @param limewireControlled if true then the user is not managing the
+     *        settings, and the bandwidth controls should not be shown. If false
+     *        the User has opted to manually set the bandwidth settings. The
+     *        upload and download bandwidth controls should be enabled and set
+     *        visible.
+     */
+    private void updateState(boolean limewireControlled) {
+        uploadBandWidthLabel.setVisible(!limewireControlled);
+        uploadBandWidth.setVisible(!limewireControlled);
+        uploadBandWidth.setEnabled(!limewireControlled);
+        downloadBandWidthLabel.setVisible(!limewireControlled);
+        downloadBandWidth.setVisible(!limewireControlled);
+        downloadBandWidth.setEnabled(!limewireControlled);
     }
+
 }

@@ -60,8 +60,8 @@ public class DNSConnectionConfigurationFactory implements ConnectionConfiguratio
                 LOG.debugf("dns lookup of {0} failed: type not found", domain);
             } else if(result == Lookup.TRY_AGAIN) {
                 LOG.debugf("dns lookup of {0} failed: try again", domain);
-                if(requestContext.getNumRequests() < MAX_XMPP_HOST_LOOKUPS) {
-                    requestContext.incrementRequests();
+                requestContext.incrementRequests();
+                if(hasMore(configuration, requestContext)) {
                     return getConnectionConfig(configuration, requestContext);
                 }
             }

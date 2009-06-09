@@ -2,19 +2,15 @@ package org.limewire.ui.swing.search;
 
 import org.limewire.collection.AutoCompleteDictionary;
 import org.limewire.collection.StringTrieSet;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.inject.LazyBinder;
+import org.limewire.ui.swing.filter.AdvancedFilterPanelFactory;
 import org.limewire.ui.swing.search.model.SimilarResultsDetectorFactory;
 import org.limewire.ui.swing.search.model.SimilarResultsDetectorFactoryImpl;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.BaseResultPanel;
 import org.limewire.ui.swing.search.resultpanel.BaseResultPanelFactory;
-import org.limewire.ui.swing.search.resultpanel.NameRendererFactory;
-import org.limewire.ui.swing.search.resultpanel.NameRendererFactoryImpl;
 import org.limewire.ui.swing.search.resultpanel.SearchHeadingDocumentBuilder;
 import org.limewire.ui.swing.search.resultpanel.SearchHeadingDocumentBuilderImpl;
-import org.limewire.ui.swing.search.resultpanel.SearchResultFromWidget;
-import org.limewire.ui.swing.search.resultpanel.SearchResultFromWidgetFactory;
-import org.limewire.ui.swing.search.resultpanel.SearchResultPropertiesFactory;
 import org.limewire.ui.swing.search.resultpanel.SearchResultTruncator;
 import org.limewire.ui.swing.search.resultpanel.SearchResultTruncatorImpl;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule;
@@ -55,6 +51,9 @@ public class LimeWireUiSearchModule extends AbstractModule {
             FactoryProvider.newFactory(
                 SortAndFilterPanelFactory.class, SortAndFilterPanel.class));
         
+        bind(new TypeLiteral<AdvancedFilterPanelFactory<VisualSearchResult>>(){}).to(
+                SearchFilterPanelFactory.class);
+        
         bind(BaseResultPanelFactory.class).toProvider(
             FactoryProvider.newFactory(
                 BaseResultPanelFactory.class, BaseResultPanel.class));
@@ -68,19 +67,14 @@ public class LimeWireUiSearchModule extends AbstractModule {
                         SearchTabItemsFactory.class, SearchTabItems.class));
         
         
-        bind(RemoteHostActions.class).to(RemoteHostActionsImpl.class);
-
-        bind(new TypeLiteral<PropertiesFactory<VisualSearchResult>>(){}).to(SearchResultPropertiesFactory.class);
+        bind(RemoteHostActions.class).toProvider(LazyBinder.newLazyProvider(
+                RemoteHostActions.class, RemoteHostActionsImpl.class));
         
-        bind(NameRendererFactory.class).to(NameRendererFactoryImpl.class);
-        
-        bind(SearchHeadingDocumentBuilder.class).to(SearchHeadingDocumentBuilderImpl.class);
-        
-        bind(SearchResultFromWidgetFactory.class).toProvider(
-                FactoryProvider.newFactory(
-                        SearchResultFromWidgetFactory.class, SearchResultFromWidget.class));
+        bind(SearchHeadingDocumentBuilder.class).toProvider(LazyBinder.newLazyProvider(
+                SearchHeadingDocumentBuilder.class, SearchHeadingDocumentBuilderImpl.class));
         
         bind(ListViewRowHeightRule.class).to(ListViewRowHeightRuleImpl.class);
-        bind(SearchResultTruncator.class).to(SearchResultTruncatorImpl.class);
+        bind(SearchResultTruncator.class).toProvider(LazyBinder.newLazyProvider(
+                SearchResultTruncator.class, SearchResultTruncatorImpl.class));
     }
 }

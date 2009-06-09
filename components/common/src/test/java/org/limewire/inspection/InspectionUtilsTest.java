@@ -7,6 +7,7 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.limewire.util.BaseTestCase;
+import org.limewire.util.OSUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -26,6 +27,8 @@ public class InspectionUtilsTest extends BaseTestCase {
     
     @Override
     public void setUp() throws Exception {
+        Requirements.created = false;
+        
         Module m = new AbstractModule() {
             @Override
             public void configure() {
@@ -37,62 +40,6 @@ public class InspectionUtilsTest extends BaseTestCase {
             }
         };
         injector = Guice.createInjector(m);
-    }
-    
-    public void testTraverse() throws Exception {
-        TestInterface t1 = injector.getInstance(TestInterface.class);
-        TestInterface2 t2 = injector.getInstance(TestInterface2.class);
-        
-        /*
-         * Loop:
-         * t1 --> t2
-         * t2 --> t1
-         */
-        t1.setReference2(t2);
-        t2.setReference1(t1);
-        t1.setObjectReference(new InspectableClass("inspectable1"));
-        t2.setObjectReference(new InspectableClass("inspectable2"));
-        
-        // notice that the class name can be the impl or the interface - works both ways
-        assertEquals("inspectable1",
-                InspectionUtils.inspectValue(
-                        "org.limewire.inspection.TestClass,reference2,reference1,reference", injector));
-
-        assertEquals("inspectable2",
-                InspectionUtils.inspectValue(
-                        "org.limewire.inspection.TestClass2,reference1,reference2," +
-                        "reference1,reference2,reference1,reference2,reference", injector));
-        try {
-            InspectionUtils.inspectValue("org.limewire.inspection.TestClass", injector);
-            fail("invalid value");
-        } catch (InspectionException expcted){}
-        
-        try {
-            InspectionUtils.inspectValue("org.limewire.not.existing.class,a", injector);
-            fail("class should not exist");
-        } catch (InspectionException expcted){}
-        
-        try {
-            InspectionUtils.inspectValue("org.limewire.inspection.TestClass,wrongField", injector);
-            fail("field should not be found");
-        } catch (InspectionException expcted){}
-    }
-    
-    public void testStaticMembersTraversed() throws Exception {
-        TestInterface t1 = injector.getInstance(TestInterface.class);
-        TestInterface2 t2 = injector.getInstance(TestInterface2.class);
-        t1.setReference2(t2);
-        t1.setReference1(t1);
-        t2.setReference1(t1);
-        t1.setObjectReference(t2);
-        t2.setObjectReference(new InspectableClass("test"));
-        
-        /*
-         * traverse
-         * t1 -> self reference(static) -> t2 -> t1(static) -> t2 (static) -> t1 ->t2 -> Inspectable
-         */
-        assertEquals("test",
-                InspectionUtils.inspectValue("org.limewire.inspection.TestClass,reference1,reference,reference1,reference,reference", injector));
     }
     
     
@@ -107,14 +54,14 @@ public class InspectionUtilsTest extends BaseTestCase {
         
         // injector-based traversal will fail
         try {
-            InspectionUtils.inspectValue("org.limewire.inspection.NotGuiced,inspectableInt", injector);
+            InspectionUtils.inspectValue(nameOf(NotGuiced.class) + ":,inspectableInt", injector);
         } catch (InspectionException expected){}
         
         // static traversal will work
         assertEquals("asdf",
-                InspectionUtils.inspectValue("org.limewire.inspection.NotGuiced:inspectable", injector));
+                InspectionUtils.inspectValue(nameOf(NotGuiced.class) + ":inspectable", injector));
         assertEquals("1",
-                InspectionUtils.inspectValue("org.limewire.inspection.NotGuiced:inspectableInt", injector));
+                InspectionUtils.inspectValue(nameOf(NotGuiced.class) + ":inspectableInt", injector));
     }
     
     public void testInspectablePrimitive() throws Exception {
@@ -122,15 +69,13 @@ public class InspectionUtilsTest extends BaseTestCase {
         t.setMemberString("a");
         t.setInspectableString("b");
         try {
-            InspectionUtils.inspectValue("org.limewire.inspection.TestClass,reference1,memberString", injector);
+            InspectionUtils.inspectValue(nameOf(TestClass.class) + ",reference1,memberString", injector);
             fail("should not be inspectable");
         } catch (InspectionException expcted){}
         
-        String inspectable = (String)InspectionUtils.inspectValue("org.limewire.inspection.TestClass,inspectableString", injector);
+        String inspectable = (String)InspectionUtils.inspectValue(nameOf(TestClass.class) + ",inspectableString", injector);
         assertEquals("b", inspectable);
     }
-    
-    
     
     public void testInspectableForSize() throws Exception {
         TestInterface t = injector.getInstance(TestInterface.class);
@@ -144,181 +89,286 @@ public class InspectionUtilsTest extends BaseTestCase {
         t.setInspectableList(inspectable);
         
         try {
-            InspectionUtils.inspectValue("org.limewire.inspection.TestClass,memberList", injector);
+            InspectionUtils.inspectValue(nameOf(TestClass.class) + ",memberList", injector);
             fail("should not be inspectable for size");
         } catch (InspectionException expcted){}
         
-        String res = (String)InspectionUtils.inspectValue("org.limewire.inspection.TestClass,inspectableList", injector);
+        String res = (String)InspectionUtils.inspectValue(nameOf(TestClass.class) + ",inspectableList", injector);
         assertEquals("2",res);
     }
-    
-    
 
     @SuppressWarnings("unchecked")
     public void testSyncCollection() throws Exception {
         SyncList syncList = injector.getInstance(SyncList.class);
         syncList.l = Collections.synchronizedList(new ArrayList());
         syncList.l.add(new Object());
-        assertEquals(String.valueOf(syncList.l.size()),InspectionUtils.inspectValue("org.limewire.inspection.SyncList,l", injector));
+        assertEquals(String.valueOf(syncList.l.size()),InspectionUtils.inspectValue(nameOf(SyncList.class) + ",l", injector));
     }
     
     public void testContainer() throws Exception {
-        Object ret = InspectionUtils.inspectValue("org.limewire.inspection.Outter$Inner,inspectable", injector);
+        Object ret = InspectionUtils.inspectValue(nameOf(org.limewire.inspection.InspectionUtilsTest.Outter.Inner.class) + ",inspectable", injector);
         assertEquals("asdf",ret);
     }
     
     public void testContainerInParent() throws Exception {
-        Object ret = InspectionUtils.inspectValue("org.limewire.inspection.Parent|org.limewire.inspection.AbstractParent$Inner,inspectable", injector);
+        Object ret = InspectionUtils.inspectValue(nameOf(Parent.class) + "|" + nameOf(org.limewire.inspection.InspectionUtilsTest.AbstractParent.Inner.class) + ",inspectable", injector);
         assertEquals("abcd", ret);
     }
-}
-
-interface TestInterface {
-    void setReference1(TestInterface ti);
-    void setReference2(TestInterface2 ti);
     
-    void setObjectReference(Object reference);
-    
-    void setMemberString(String s);
-    void setInspectableString(String s);
-    
-    void setMemeberList(List l);
-    void setInspectableList(List l);
-}
-
-@SuppressWarnings({"unused", "FieldCanBeLocal", "UnusedDeclaration"})
-@Singleton
-class TestClass implements TestInterface{
-    private static TestInterface reference1;
-    private static TestInterface2 reference2;
-
-    public void setReference1(TestInterface ti) {
-        reference1 = ti;
-    }
-    public void setReference2(TestInterface2 ti) {
-        reference2 = ti;
-    }
-    
-    private String memberString;
-    @InspectablePrimitive("")
-    private String inspectableString;
-    
-    public void setMemberString(String memberString) {
-        this.memberString = memberString;
-    }
-    
-    public void setInspectableString(String inspectableString) {
-        this.inspectableString = inspectableString;
-    }
-    
-    private List memberList;
-    @InspectableForSize("")
-    private List inspectableList;
-    
-    public void setMemeberList(List memberList) {
-        this.memberList = memberList;
-    }
-    
-    public void setInspectableList(List inspectableList) {
-        this.inspectableList = inspectableList;
-    }
-    
-    private Object reference;
-    public void setObjectReference(Object reference) {
-        this.reference = reference;
-    }
-    
-    @Override
-    public String toString() {
-        return "testclass";
-    }
-}
-
-interface TestInterface2 {
-    void setReference1(TestInterface ti);
-    void setObjectReference(Object reference);
-}
-@Singleton
-@SuppressWarnings({"unused", "FieldCanBeLocal", "UnusedDeclaration"})
-class TestClass2 implements TestInterface2 {
-    static TestInterface reference1;
-    
-    public void setReference1(TestInterface ti) {
-        reference1 = ti;
-    }
-    
-    private Object reference;
-    public void setObjectReference(Object reference) {
-        this.reference = reference;
-    }
-    
-    @Override
-    public String toString() {
-        return "testclass2";
-    }
-}
-
-class InspectableClass implements Inspectable {
-    String s;
-    InspectableClass(String s) {
-        this.s = s;
-    }
-    @Override
-    public Object inspect() {
-        return s;
-    }
-}
-
-interface SyncListInterface {
-    void setList(List l);
-}
-
-@Singleton
-class SyncList implements SyncListInterface{
-    @InspectableForSize("")
-    List l;
-    public void setList(List l) {
-        this.l = l;
-    }
-}
-
-interface OutterI {}
-
-@Singleton
-@SuppressWarnings({"unused", "UnusedDeclaration"})
-class Outter implements OutterI {
-    @InspectableContainer
-    private class Inner {
-        private final Inspectable inspectable = new Inspectable() {
-            @Override
-            public Object inspect() {
-                return "asdf";
+    public void testRequirements() throws Exception {
+        assertFalse(Requirements.created);
+        if(OSUtils.isWindows()) {
+            assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",x", injector));
+            assertTrue(Requirements.created);
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",y", injector));
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_OSX] on field: int " + Requirements.class.getName() + ".y", x.getMessage());
             }
-        };
-    }
-}
-
-class NotGuiced {
-    @InspectablePrimitive("")
-    static int inspectableInt;
-    
-    static Inspectable inspectable;
-}
-
-interface Parent {}
-
-@SuppressWarnings({"unused", "UnusedDeclaration"})
-abstract class AbstractParent implements Parent {
-    @InspectableContainer
-    private class Inner {
-        private final Inspectable inspectable = new Inspectable() {
-            @Override
-            public Object inspect() {
-                return "abcd";
+            assertFalse(Requirements.created);
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",z", injector));
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_LINUX] on field: int " + Requirements.class.getName() + ".z", x.getMessage());
             }
-        };
+            assertFalse(Requirements.created);
+        } else if(OSUtils.isMacOSX()) {
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",x", injector));                
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_WINDOWS] on field: int " + Requirements.class.getName() + ".x", x.getMessage());
+            }
+            assertFalse(Requirements.created);
+            assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",y", injector));
+            assertTrue(Requirements.created);
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",z", injector));
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_LINUX] on field: int " + Requirements.class.getName() + ".z", x.getMessage());
+            }
+            assertFalse(Requirements.created);
+        } else if(OSUtils.isLinux()) {
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",x", injector));
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_WINDOWS] on field: int " + Requirements.class.getName() + ".x", x.getMessage());
+            }
+            assertFalse(Requirements.created);
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",y", injector));
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_OSX] on field: int " + Requirements.class.getName() + ".y", x.getMessage());
+            }
+            assertFalse(Requirements.created);
+            assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",z", injector));
+            assertTrue(Requirements.created);
+        } else {
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",x", injector));
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_WINDOWS] on field: int " + Requirements.class.getName() + ".x", x.getMessage());
+            }
+            assertFalse(Requirements.created);
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",y", injector));
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_OSX] on field: int " + Requirements.class.getName() + ".y", x.getMessage());
+            }
+            assertFalse(Requirements.created);
+            Requirements.created = false;
+            try {
+                assertEquals("5", InspectionUtils.inspectValue(nameOf(Requirements.class) + ",z", injector));
+            } catch(InspectionException x) {
+                assertEquals("invalid limitations: [OS_LINUX] on field: int " + Requirements.class.getName() + ".z", x.getMessage());
+            }
+            assertFalse(Requirements.created);
+        }
     }
-}
+    
+    private static String nameOf(Class clazz) {
+        return clazz.getName();
+    }
+    
+    @Singleton
+    private static class Requirements {
+        static boolean created = false;
+        public Requirements() {
+            created = true;
+        }
+        @InspectablePrimitive(value="win", requires = InspectionRequirements.OS_WINDOWS)
+        int x = 5;
+        
+        @InspectablePrimitive(value="mac", requires = InspectionRequirements.OS_OSX)
+        int y = 5;
+        
+        @InspectablePrimitive(value="lin", requires = InspectionRequirements.OS_LINUX)
+        int z = 5;
+    }
 
-@Singleton
-class ConcreteChild extends AbstractParent {}
+    private static interface TestInterface {
+        void setReference1(TestInterface ti);
+
+        void setReference2(TestInterface2 ti);
+
+        void setObjectReference(Object reference);
+
+        void setMemberString(String s);
+
+        void setInspectableString(String s);
+
+        void setMemeberList(List l);
+
+        void setInspectableList(List l);
+    }
+
+    @SuppressWarnings("unused")
+    @Singleton
+    private static class TestClass implements TestInterface {
+
+        private static TestInterface reference1;
+
+        private static TestInterface2 reference2;
+
+        public void setReference1(TestInterface ti) {
+            reference1 = ti;
+        }
+
+        public void setReference2(TestInterface2 ti) {
+            reference2 = ti;
+        }
+
+        private String memberString;
+
+        @InspectablePrimitive("")
+        private String inspectableString;
+
+        public void setMemberString(String memberString) {
+            this.memberString = memberString;
+        }
+
+        public void setInspectableString(String inspectableString) {
+            this.inspectableString = inspectableString;
+        }
+
+        private List memberList;
+
+        @InspectableForSize("")
+        private List inspectableList;
+
+        public void setMemeberList(List memberList) {
+            this.memberList = memberList;
+        }
+
+        public void setInspectableList(List inspectableList) {
+            this.inspectableList = inspectableList;
+        }
+
+        private Object reference;
+
+        public void setObjectReference(Object reference) {
+            this.reference = reference;
+        }
+
+        @Override
+        public String toString() {
+            return "testclass";
+        }
+    }
+
+    private static interface TestInterface2 {
+        void setReference1(TestInterface ti);
+
+        void setObjectReference(Object reference);
+    }
+
+    @Singleton
+    @SuppressWarnings( { "unused", "FieldCanBeLocal", "UnusedDeclaration" })
+    private static class TestClass2 implements TestInterface2 {
+        static TestInterface reference1;
+
+        public void setReference1(TestInterface ti) {
+            reference1 = ti;
+        }
+
+        private Object reference;
+
+        public void setObjectReference(Object reference) {
+            this.reference = reference;
+        }
+
+        @Override
+        public String toString() {
+            return "testclass2";
+        }
+    }
+
+    private static interface SyncListInterface {
+        void setList(List l);
+    }
+
+    @Singleton
+    private static class SyncList implements SyncListInterface {
+        @InspectableForSize("")
+        List l;
+
+        public void setList(List l) {
+            this.l = l;
+        }
+    }
+
+    private static interface OutterI {
+    }
+
+    @Singleton
+    @SuppressWarnings( { "unused", "UnusedDeclaration" })
+    private static class Outter implements OutterI {
+        @InspectableContainer
+        private class Inner {
+            @InspectionPoint("i")
+            private final Inspectable inspectable = new Inspectable() {
+                @Override
+                public Object inspect() {
+                    return "asdf";
+                }
+            };
+        }
+    }
+
+    private static class NotGuiced {
+        @InspectablePrimitive("")
+        static int inspectableInt;
+
+        @InspectionPoint("insp")
+        static Inspectable inspectable;
+    }
+
+    private static interface Parent {
+    }
+
+    @SuppressWarnings( { "unused", "UnusedDeclaration" })
+    private static abstract class AbstractParent implements Parent {
+        @InspectableContainer
+        private class Inner {
+            @InspectionPoint("i")
+            private final Inspectable inspectable = new Inspectable() {
+                @Override
+                public Object inspect() {
+                    return "abcd";
+                }
+            };
+        }
+    }
+
+    @Singleton
+    private static class ConcreteChild extends AbstractParent {
+    }
+
+}

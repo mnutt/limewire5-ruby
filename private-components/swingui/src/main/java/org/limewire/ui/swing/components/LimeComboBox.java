@@ -214,6 +214,7 @@ public class LimeComboBox extends JXButton {
         // Make sure the selected action is in the list
         if (actions.contains(action)) {
             selectedAction = action;
+            repaint();
         }        
     }
     

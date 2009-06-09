@@ -58,6 +58,7 @@ import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
+import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.MessageComponent;
@@ -88,10 +89,10 @@ import org.limewire.ui.swing.player.PlayerUtils;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.util.CategoryIconManager;
+import org.limewire.ui.swing.util.CategoryUtils;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.XMPPService;
@@ -103,6 +104,8 @@ import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 
 public class MyLibraryPanel extends AbstractFileListPanel implements EventListener<FriendEvent> {
@@ -124,13 +127,15 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
     
     private final LibraryTableFactory tableFactory;
     private final CategoryIconManager categoryIconManager;
-    private final PlayerPanel playerPanel;
+    private final Provider<PlayerPanel> playerProvider;
     private final LibraryManager libraryManager;
     private final LibraryNavigator libraryNavigator;
     private final Map<Catalog, LibraryOperable<? extends LocalFileItem>> selectableMap;
-    private final ShareWidgetFactory shareFactory;    
+    private final Provider<ShareWidgetFactory> shareFactory;    
     private final PlaylistManager playlistManager;
     private final ShareListManager shareListManager;
+    
+    private PlayerPanel playerPanel = null;
     
     /** Map of JXLayers and categories they exist in */
     private Map<Category, JXLayer> map = new HashMap<Category, JXLayer>();
@@ -166,16 +171,26 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
     // handle this logic of showing/hiding closeable/noncloseable messages.
     // the usage and complexity has changed dramatically since it was first written
     private boolean isClickMessageView = false;
+    
+    private final CatalogSelectionCallback playerCallback = new CatalogSelectionCallback() {
+        @Override
+        public void catalogSelected(Catalog catalog, boolean state) {
+            if (playerPanel != null) {
+                playerPanel.setVisible(state);
+            }
+        }
+    };
 
     @Inject
-    public MyLibraryPanel(LibraryManager libraryManager,
+    public MyLibraryPanel(@Assisted PluggableList<LocalFileItem> baseLibraryList,
+                          @Assisted LibraryListSourceChanger currentFriendFilterChanger,
+                          LibraryManager libraryManager,
                           LibraryNavigator libraryNavigator,
-                          IconManager iconManager,
                           LibraryTableFactory tableFactory,
                           CategoryIconManager categoryIconManager,
-                          ShareWidgetFactory shareFactory,
+                          Provider<ShareWidgetFactory> shareFactory,
                           HeaderBarDecorator headerBarDecorator,
-                          PlayerPanel player, 
+                          Provider<PlayerPanel> playerProvider, 
                           GhostDragGlassPane ghostPane,
                           ListenerSupport<XMPPConnectionEvent> connectionListeners,
                           ShareListManager shareListManager,
@@ -195,18 +210,18 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
         this.tableFactory = tableFactory;
         this.categoryIconManager = categoryIconManager;    
         this.shareFactory = shareFactory;
-        this.playerPanel = player;
+        this.playerProvider = playerProvider;
         this.selectableMap = new HashMap<Catalog, LibraryOperable<? extends LocalFileItem>>();
         this.connectionListeners = connectionListeners;
         this.xmppService = xmppService;
         this.playlistManager = playlistManager;
         this.shareListManager = shareListManager;
+        this.currentFriendFilterChanger = currentFriendFilterChanger;
         
         if (selectionPanelBackgroundOverride != null) { 
             getSelectionPanel().setBackground(selectionPanelBackgroundOverride);
         }
-        PluggableList<LocalFileItem> baseLibraryList = new PluggableList<LocalFileItem>(libraryManager.getLibraryListEventPublisher(), libraryManager.getReadWriteLock());
-        currentFriendFilterChanger = new LibraryListSourceChanger(baseLibraryList, libraryManager, shareListManager);
+
         sharingComboBox = new SharingFilterComboBox(currentFriendFilterChanger, this, shareListManager);
         comboDecorator.decorateLinkComboBox(sharingComboBox);
         sharingComboBox.setText(I18n.tr("What I'm Sharing"));
@@ -218,7 +233,7 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
         sharingComboBox.addSelectionListener(new SelectionListener(){
             @Override
             public void selectionChanged(Action item) {
-                messagePanel.setMessage(currentFriendFilterChanger.getCurrentFriend());
+                messagePanel.setMessage(MyLibraryPanel.this.currentFriendFilterChanger.getCurrentFriend());
                 messagePanel.setVisible(true);
                 sharingComboBox.setVisible(false);
             }
@@ -251,10 +266,6 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
         shareAllComboBox.setText(I18n.tr("Share"));
         
         addHeaderComponent(shareAllComboBox, "cell 0 0, alignx left");
-        addHeaderComponent(playerPanel, "cell 0 0, grow");
-        playerPanel.setMaximumSize(new Dimension(999,999));
-        playerPanel.setPreferredSize(new Dimension(999,999));
-
         
         setTransferHandler(new MyLibraryTransferHandler(null, libraryManager.getLibraryManagedList(), shareListManager, currentFriendFilterChanger));
         ghostDropTargetListener = new GhostDropTargetListener(this,ghostPane, currentFriendFilterChanger);
@@ -308,7 +319,13 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
         });
     }
 
-
+    private void createAndAddPlayer() {
+        playerPanel = playerProvider.get();
+        addHeaderComponent(playerPanel, "cell 0 0, grow");
+        playerPanel.setMaximumSize(new Dimension(999,999));
+        playerPanel.setPreferredSize(new Dimension(999,999));
+    }
+    
     @Override
     public void handleEvent(FriendEvent event) {
         Friend friend = event.getData();
@@ -402,12 +419,7 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
         for(Category category : Category.getCategoriesInOrder()) {        
             CatalogSelectionCallback callback = null;
             if (category == Category.AUDIO) {
-                callback = new CatalogSelectionCallback() {
-                    @Override
-                    public void catalogSelected(Catalog catalog, boolean state) {
-                        playerPanel.setVisible(state);
-                    }
-                };
+                callback = playerCallback;
             }
             
             FilterList<LocalFileItem> filtered = GlazedListsFactory.filterList(sourceList//libraryFileList.getSwingModel()
@@ -430,7 +442,7 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
     }
     
     private JComponent createMyCategoryAction(final Category category, EventList<LocalFileItem> filtered) {        
-        final ShareWidget<File> fileShareWidget = shareFactory.createFileShareWidget();
+        final ShareWidget<File> fileShareWidget = shareFactory.get().createFileShareWidget();
         addDisposable(fileShareWidget);             
         JScrollPane scrollPane;        
         Catalog catalog = new Catalog(category);
@@ -440,6 +452,7 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
             LibraryTable<LocalFileItem> table = tableFactory.createMyTable(category, filterList, currentFriendFilterChanger);
             table.enableMyLibrarySharing(fileShareWidget);
             table.setDoubleClickHandler(new MyLibraryDoubleClickHandler(catalog, getTableModel(table)));
+            table.setEnterKeyAction(new MyLibraryEnterListener(catalog, table));
             selectableMap.put(catalog, table);
             scrollPane = new JScrollPane(table);
             scrollPane.setBorder(BorderFactory.createEmptyBorder());    
@@ -551,13 +564,6 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
             // Create library catalog.
             Catalog playCatalog = new Catalog(playlist);
 
-            CatalogSelectionCallback callback = new CatalogSelectionCallback() {
-                @Override
-                public void catalogSelected(Catalog catalog, boolean state) {
-                    playerPanel.setVisible(state);
-                }
-            };
-
             // Create list by applying filter to library file list.
             FilterList<LocalFileItem> filtered = GlazedListsFactory.filterList(
                     libraryFileList.getSwingModel(), playlist.getFilter());
@@ -568,7 +574,7 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
             // Add playlist to container.  This adds the playlist component and
             // selection button to the container.
             addCatalog(playQuicklistIcon, playCatalog, component,
-                    null, filtered, callback);
+                    null, filtered, playerCallback);
 
             addDisposable(filtered);
             addLibraryInfoBar(playCatalog, filtered);
@@ -604,6 +610,8 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
         // Install double-click handler.
         table.setDoubleClickHandler(new MyLibraryDoubleClickHandler(
                 new Catalog(playlist), getTableModel(table)));
+        
+        table.setEnterKeyAction(new MyLibraryEnterListener(new Catalog(playlist), table));
         
         // Add table to selectable map.  The map is referenced when we select
         // the next/previous item for the media player.
@@ -700,23 +708,51 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
 
         @Override
         public void handleDoubleClick(int row) {
-            File file = model.getFileItem(row).getFile();
-            switch (model.getFileItem(row).getCategory()){
-            case AUDIO:
-                libraryNavigator.setActiveCatalog(catalog);
-                PlayerUtils.playOrLaunch(file);
-                break;
-            case OTHER:
-            case PROGRAM:
-                NativeLaunchUtils.launchExplorer(file);
-                break;
-            case IMAGE:
-            case VIDEO:
-            case DOCUMENT:
-                NativeLaunchUtils.safeLaunchFile(file);
-            }
-        }
+            playOrLaunch(model.getFileItem(row).getFile(), catalog);
+        }        
     }
+    
+    private class MyLibraryEnterListener extends AbstractAction{
+        private final Catalog catalog;
+        private final LibraryTable<? extends LocalFileItem> table;
+
+        public MyLibraryEnterListener(Catalog catalog, LibraryTable<? extends LocalFileItem> table){
+            this.catalog = catalog;
+            this.table = table;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            List<? extends LocalFileItem> selected = table.getSelectedItems();
+            if (selected.size() > 0) {
+                //Launching multiple items would be a bit chaotic so we only want 
+                //to launch the first selected item. 
+                playOrLaunch(selected.get(0).getFile(), catalog);
+            }
+        }       
+    }
+    
+    private void playOrLaunch(File file, Catalog catalog){
+
+        switch (CategoryUtils.getCategory(file)){
+        case AUDIO:
+            libraryNavigator.setActiveCatalog(catalog);
+            if (playerPanel == null) {
+                createAndAddPlayer();
+            }
+            PlayerUtils.playOrLaunch(file);
+            break;
+        case OTHER:
+        case PROGRAM:
+            NativeLaunchUtils.launchExplorer(file);
+            break;
+        case IMAGE:
+        case VIDEO:
+        case DOCUMENT:
+            NativeLaunchUtils.safeLaunchFile(file);
+        }
+    }    
+
     
     public LibraryFileList getLibrary() {
         return libraryManager.getLibraryManagedList();
@@ -1245,7 +1281,7 @@ public class MyLibraryPanel extends AbstractFileListPanel implements EventListen
                 else
                     fileList = shareListManager.getFriendShareList(currentFriendFilterChanger.getCurrentFriend());
                 
-                // if category shaaring, lock the ui
+                // if category sharing, lock the ui
                 if( (category == Category.AUDIO || category == Category.IMAGE || category == Category.VIDEO) && 
                         fileList != null && fileList.isCategoryAutomaticallyAdded(category)) {
                         showCollectionShare(category, currentFriendFilterChanger.getCurrentFriend());

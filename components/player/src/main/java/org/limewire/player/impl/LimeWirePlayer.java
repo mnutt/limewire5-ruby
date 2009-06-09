@@ -1,6 +1,16 @@
 package org.limewire.player.impl;
 
 
+import static org.limewire.player.api.PlayerState.EOM;
+import static org.limewire.player.api.PlayerState.GAIN;
+import static org.limewire.player.api.PlayerState.PAUSED;
+import static org.limewire.player.api.PlayerState.PLAYING;
+import static org.limewire.player.api.PlayerState.SEEKING;
+import static org.limewire.player.api.PlayerState.SEEKING_PAUSED;
+import static org.limewire.player.api.PlayerState.SEEKING_PLAY;
+import static org.limewire.player.api.PlayerState.STOPPED;
+import static org.limewire.player.api.PlayerState.UNKNOWN;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,10 +30,7 @@ import org.limewire.player.api.AudioPlayerListener;
 import org.limewire.player.api.AudioSource;
 import org.limewire.player.api.PlayerState;
 
-
 import com.google.inject.Singleton;
-
-import static org.limewire.player.api.PlayerState.*;
 
 /**
  *  An audio player to play compressed and uncompressed music.

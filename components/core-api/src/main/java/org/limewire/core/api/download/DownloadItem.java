@@ -2,9 +2,11 @@ package org.limewire.core.api.download;
 
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import org.limewire.core.api.Category;
+import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.library.PropertiableFile;
 import org.limewire.i18n.I18nMarker;
 import org.limewire.io.Address;
@@ -119,6 +121,12 @@ public interface DownloadItem extends PropertiableFile {
      * @return speed in kb/s or 0 if speed could not be measured
      */
 	public float getDownloadSpeed();
+	
+	/** 
+	 * Returns a Collection of sources that support this download item. Each
+	 * soure is represented by a RemoteHost object.
+	 */
+	public Collection<RemoteHost> getRemoteHosts();
 
 	/**
      * Returns the position of the download on the uploader, relevant only if

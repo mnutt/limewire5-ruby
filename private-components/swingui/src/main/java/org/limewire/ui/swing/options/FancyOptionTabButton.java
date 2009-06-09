@@ -17,6 +17,7 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
+import org.limewire.ui.swing.components.ButtonMattePainter;
 import org.limewire.ui.swing.options.actions.TabAction;
 import org.limewire.ui.swing.util.GuiUtils;
 
@@ -63,15 +64,14 @@ public class FancyOptionTabButton extends JXButton {
         });
         
         final Painter<JXButton> oldPainter = getBackgroundPainter();
-        setBackgroundPainter(new MattePainter<JXButton>(
-                new GradientPaint(new Point2D.Double(0, 0), topGradient, 
-                        new Point2D.Double(0, 1), bottomGradient,
-                        false), true) {
+        GradientPaint paint = new GradientPaint(new Point2D.Double(0, 0), topGradient, 
+                new Point2D.Double(0, 1), bottomGradient, false);
+        setBackgroundPainter(new ButtonMattePainter(new MattePainter(paint, true)) {
             @Override
-            public void doPaint(Graphics2D g, JXButton component, int width,
+            public void paint(Graphics2D g, JXButton component, int width,
                     int height) {
                 if(Boolean.TRUE.equals(getAction().getValue(Action.SELECTED_KEY))) {
-                    super.doPaint(g, component, width, height-1);
+                    super.paint(g, component, width, height-1);
                 } else {
                     oldPainter.paint(g, component, width, height);
                 }

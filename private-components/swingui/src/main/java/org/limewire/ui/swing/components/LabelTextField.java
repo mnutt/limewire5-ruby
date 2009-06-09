@@ -18,6 +18,8 @@ import org.jdesktop.application.Resource;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.IconManager;
 
+import com.google.inject.Provider;
+
 /**
  * Behaves like a TextField. Adds an icon within the textField that
  * is always displayed to the left of the textfield regardless of how much
@@ -39,9 +41,9 @@ public class LabelTextField extends JPanel {
     
     private MouseListener mouseListener;
     
-    private IconManager iconManager;
+    private Provider<IconManager> iconManager;
     
-    public LabelTextField(IconManager iconManager) {
+    public LabelTextField(Provider<IconManager> iconManager) {
         GuiUtils.assignResources(this);
         
         this.iconManager = iconManager;
@@ -77,7 +79,7 @@ public class LabelTextField extends JPanel {
     public void setText(String text) {
         textField.setText(text);
         try {
-            Icon icon = iconManager.getIconForFile(new File(text));
+            Icon icon = iconManager.get().getIconForFile(new File(text));
             if(icon != null)
                 label.setIcon(icon);
             else

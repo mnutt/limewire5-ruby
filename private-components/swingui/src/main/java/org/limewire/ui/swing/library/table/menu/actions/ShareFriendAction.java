@@ -16,6 +16,8 @@ import org.limewire.ui.swing.library.sharing.ShareWidgetFactory;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
+import com.google.inject.Provider;
+
 /**
  * Creates a menu action for sharing files with a friend. This spawns a
  * sharing dialog for choosing multiple friends. A boolean can be set 
@@ -25,11 +27,11 @@ public class ShareFriendAction extends AbstractAction {
     @Resource
     private Icon friendIcon;
     
-    private final ShareWidgetFactory shareWidgetFactory;
+    private final Provider<ShareWidgetFactory> shareWidgetFactory;
     private final SelectAllable<LocalFileItem> librarySelectable;
     private final boolean isShareAll;
     
-    public ShareFriendAction(ShareWidgetFactory shareWidgetFactory, SelectAllable<LocalFileItem> librarySelectable, boolean isShareAll) {
+    public ShareFriendAction(Provider<ShareWidgetFactory> shareWidgetFactory, SelectAllable<LocalFileItem> librarySelectable, boolean isShareAll) {
         GuiUtils.assignResources(this);
         
         if(isShareAll) {
@@ -52,11 +54,11 @@ public class ShareFriendAction extends AbstractAction {
         List<LocalFileItem> selectedItems = librarySelectable.getSelectedItems();
         
         if(selectedItems.size() == 1){
-            ShareWidget<File> fileShareWidget = shareWidgetFactory.createFileShareWidget();
+            ShareWidget<File> fileShareWidget = shareWidgetFactory.get().createFileShareWidget();
             fileShareWidget.setShareable(selectedItems.get(0).getFile());
             fileShareWidget.show(GuiUtils.getMainFrame());
         } else {
-            ShareWidget<LocalFileItem[]> multiShareWidget = shareWidgetFactory.createMultiFileShareWidget();
+            ShareWidget<LocalFileItem[]> multiShareWidget = shareWidgetFactory.get().createMultiFileShareWidget();
             multiShareWidget.setShareable(selectedItems.toArray(new LocalFileItem[selectedItems.size()]));
             multiShareWidget.show(GuiUtils.getMainFrame());
             

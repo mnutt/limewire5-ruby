@@ -1,7 +1,5 @@
 package org.limewire.ui.swing.menu;
 
-import javax.swing.JComponent;
-
 import org.limewire.ui.swing.action.MnemonicMenu;
 import org.limewire.ui.swing.action.StatusActions;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
@@ -27,8 +25,6 @@ public class FriendMenu extends MnemonicMenu {
         super(I18n.tr("F&riend"));
         this.chatAction = chatAction;
         add(chatAction);
-//        add(new FriendDownloadAction());
-//        add(new FriendShareAction());
         addSeparator();
         add(statusActions.getAvailableMenuItem());
         add(statusActions.getDnDMenuItem());
@@ -42,12 +38,12 @@ public class FriendMenu extends MnemonicMenu {
         navigator.addNavigationListener(new NavigationListener() {
             @Override
             public void itemSelected(NavCategory category, NavItem navItem,
-                    NavSelectable selectable, JComponent panel) {
+                    NavSelectable selectable, org.limewire.ui.swing.library.nav.NavMediator navMediator) {
                 chatAction.setFriend(libraryNavigator.getSelectedFriend());
             }
             
-            @Override public void itemAdded(NavCategory category, NavItem navItem, JComponent panel) {}
-            @Override public void itemRemoved(NavCategory category, NavItem navItem, JComponent panel) {}
+            @Override public void itemAdded(NavCategory category, NavItem navItem) {}
+            @Override public void itemRemoved(NavCategory category, NavItem navItem) {}
             @Override public void categoryAdded(NavCategory category) {}
             @Override public void categoryRemoved(NavCategory category) {}
         });

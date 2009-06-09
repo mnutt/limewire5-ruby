@@ -19,18 +19,17 @@ import org.jdesktop.application.Resource;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.ui.swing.components.FancyTab;
 import org.limewire.ui.swing.components.FancyTabList;
-import org.limewire.ui.swing.components.FancyTabListFactory;
 import org.limewire.ui.swing.components.NoOpAction;
 import org.limewire.ui.swing.components.TabActionMap;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.util.GuiUtils;
 
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
+
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 /**
  * This class contains the numbers of different types of files
@@ -48,9 +47,9 @@ class SearchTabItems {
     
     @Resource private Font tabFont;
 
-    @AssistedInject
-    SearchTabItems(@Assisted SearchCategory category, @Assisted EventList<VisualSearchResult> resultsList, 
-            FancyTabListFactory fancyTabListFactory) {
+    @Inject
+    SearchTabItems(@Assisted SearchCategory category, 
+            @Assisted EventList<VisualSearchResult> resultsList) { 
         
         this.listeners = new CopyOnWriteArrayList<SearchTabListener>();
         
@@ -97,7 +96,8 @@ class SearchTabItems {
             }
         }
 
-        searchTab = fancyTabListFactory.create(searchActionMaps);
+        // Create list of category tabs.
+        searchTab = new FancyTabList(searchActionMaps);
         searchTab.setTabTextColor(Color.WHITE);
         
         // Make all the tabs except "All" invisible

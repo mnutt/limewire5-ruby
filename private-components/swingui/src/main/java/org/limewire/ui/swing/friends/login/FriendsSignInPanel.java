@@ -23,6 +23,7 @@ import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 import org.limewire.xmpp.api.client.XMPPService;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import net.miginfocom.swing.MigLayout;
@@ -34,13 +35,15 @@ public class FriendsSignInPanel extends JXPanel implements FriendActions {
     private final LoginPanel loginPanel;
     private final LoggedInPanel loggedInPanel;
     private final XMPPService xmppService;
-    private final XMPPAccountConfigurationManager accountManager;
+    //TODO: being part of a singleton makes no sense for this to be a provider but
+    // this class should not be initialized the way it currently is.
+    private final Provider<XMPPAccountConfigurationManager> accountManager;
     
     @Inject
     FriendsSignInPanel(LoginPanel loginPanel,
                        LoggedInPanel loggedInPanel,
                        XMPPService xmppService,
-                       XMPPAccountConfigurationManager accountManager) {
+                       Provider<XMPPAccountConfigurationManager> accountManager) {
         this.loggedInPanel = loggedInPanel;
         this.loginPanel = loginPanel;
         this.xmppService = xmppService;
@@ -62,7 +65,7 @@ public class FriendsSignInPanel extends JXPanel implements FriendActions {
         add(loggedInPanel, "growx, gaptop 4");
         
         // Presetup the UI so that it looks correct until services start.
-        XMPPConnectionConfiguration config = accountManager.getAutoLoginConfig();
+        XMPPConnectionConfiguration config = accountManager.get().getAutoLoginConfig();
         if(config != null) {
             loggedInPanel.autoLogin(config);
             shareLabel.setVisible(false);
@@ -92,7 +95,7 @@ public class FriendsSignInPanel extends JXPanel implements FriendActions {
     @Override
     public void signIn() {        
         if(!xmppService.isLoggedIn() && !xmppService.isLoggingIn()) {
-            XMPPAccountConfiguration config = accountManager.getAutoLoginConfig();
+            XMPPAccountConfiguration config = accountManager.get().getAutoLoginConfig();
             if(config == null) {
                 shareLabel.setVisible(false);
                 loginPanel.setVisible(true);
@@ -108,13 +111,13 @@ public class FriendsSignInPanel extends JXPanel implements FriendActions {
         xmppService.logout();
         if(switchUser) {
             // 'Switch User' trumps 'Remember Me'
-            accountManager.setAutoLoginConfig(null);
+            accountManager.get().setAutoLoginConfig(null);
             shareLabel.setVisible(false);
             loginPanel.setVisible(true);
             loggedInPanel.setVisible(false);
         } else {
             XMPPAccountConfiguration auto =
-                accountManager.getAutoLoginConfig();
+                accountManager.get().getAutoLoginConfig();
             if(auto == null) {
                 shareLabel.setVisible(true);
                 loginPanel.setVisible(false);
@@ -176,7 +179,7 @@ public class FriendsSignInPanel extends JXPanel implements FriendActions {
                     @Override
                     public void run() {
                         XMPPAccountConfiguration auto =
-                            accountManager.getAutoLoginConfig();
+                            accountManager.get().getAutoLoginConfig();
                         if(auto != null) {
                             autoLogin(auto);
                         }

@@ -47,19 +47,20 @@ import org.jdesktop.swingx.JXPanel;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.components.IconButton;
-import org.limewire.ui.swing.downloads.MainDownloadPanel;
+import org.limewire.ui.swing.components.RemoteHostWidget;
+import org.limewire.ui.swing.components.RemoteHostWidgetFactory;
+import org.limewire.ui.swing.components.RemoteHostWidget.RemoteWidgetType;
+import org.limewire.ui.swing.event.SelectAndScrollDownloadEvent;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.listener.MousePopupListener;
-import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
+import org.limewire.ui.swing.properties.FileInfoDialog.FileInfoType;
 import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.DownloadHandler;
 import org.limewire.ui.swing.search.resultpanel.SearchHeading;
 import org.limewire.ui.swing.search.resultpanel.SearchHeadingDocumentBuilder;
-import org.limewire.ui.swing.search.resultpanel.SearchResultFromWidget;
-import org.limewire.ui.swing.search.resultpanel.SearchResultFromWidgetFactory;
 import org.limewire.ui.swing.search.resultpanel.SearchResultMenu;
 import org.limewire.ui.swing.search.resultpanel.SearchResultTruncator;
 import org.limewire.ui.swing.search.resultpanel.SearchResultTruncator.FontWidthResolver;
@@ -69,10 +70,11 @@ import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule.RowDi
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.IconManager;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.internal.Nullable;
 
 /**
  * This class is responsible for rendering an individual SearchResult
@@ -122,13 +124,13 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     
     @Resource private Icon dividerIcon;
     
-    private final SearchHeadingDocumentBuilder headingBuilder;
+    private final Provider<SearchHeadingDocumentBuilder> headingBuilder;
     private final ListViewRowHeightRule rowHeightRule;
     private final ListViewDisplayedRowsLimit displayLimit;
-    private final SearchResultTruncator truncator;
+    private final Provider<SearchResultTruncator> truncator;
     private final HeadingFontWidthResolver headingFontWidthResolver = new HeadingFontWidthResolver();
-    private final IconManager iconManager;
-    private SearchResultFromWidget fromWidget;
+    private final FileInfoDialogFactory fileInfoFactory;
+    private RemoteHostWidget fromWidget;
     private JButton itemIconButton;
     private IconButton similarButton = new IconButton();
     private IconButton propertiesButton = new IconButton();
@@ -154,19 +156,18 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
      */
     private int textPanelWidth;
     
-    @AssistedInject
+    @Inject
     ListViewTableEditorRenderer(
             CategoryIconManager categoryIconManager,
-            SearchResultFromWidgetFactory fromWidgetFactory,
-        @Assisted String searchText, 
+            RemoteHostWidgetFactory fromWidgetFactory,
+        @Assisted @Nullable String searchText, 
         @Assisted Navigator navigator, 
         final @Assisted DownloadHandler downloadHandler,
-        SearchHeadingDocumentBuilder headingBuilder,
+        Provider<SearchHeadingDocumentBuilder> headingBuilder,
         ListViewRowHeightRule rowHeightRule,
-        PropertiesFactory<VisualSearchResult> propertiesFactory,
         final @Assisted ListViewDisplayedRowsLimit displayLimit,
         LibraryNavigator libraryNavigator,
-        SearchResultTruncator truncator, IconManager iconManager) {
+        Provider<SearchResultTruncator> truncator, FileInfoDialogFactory fileInfoFactory) {
 
         this.categoryIconManager = categoryIconManager;
         
@@ -175,26 +176,26 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         this.rowHeightRule = rowHeightRule;
         this.displayLimit = displayLimit;
         this.truncator = truncator;
-        this.iconManager = iconManager;
         this.downloadHandler = downloadHandler;
+        this.fileInfoFactory = fileInfoFactory;
         
         GuiUtils.assignResources(this);
 
         
-        fromWidget = fromWidgetFactory.create(false);
+        fromWidget = fromWidgetFactory.create(RemoteWidgetType.SEARCH_LIST);
        
-        makePanel(navigator, libraryNavigator, propertiesFactory);       
+        makePanel(navigator, libraryNavigator);       
 
-        setupButtons(propertiesFactory);
+        setupButtons();
         
         layoutEditorComponent();
     }
     
 
-    private void makePanel(Navigator navigator, LibraryNavigator libraryNavigator, PropertiesFactory<VisualSearchResult> propertiesFactory) {
+    private void makePanel(Navigator navigator, LibraryNavigator libraryNavigator) {
         initializeComponents();
         makeIndentation();
-        setupListeners(navigator, libraryNavigator, propertiesFactory);
+        setupListeners(navigator, libraryNavigator);
 
         lastRowPanel = new JPanel(new MigLayout("insets 10 30 0 0", "[]", "[]"));
         lastRowPanel.setOpaque(false);
@@ -206,7 +207,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     }
 
 
-    private void setupButtons(final PropertiesFactory<VisualSearchResult> propertiesFactory){
+    private void setupButtons(){
         similarButton.setFocusable(false);
         similarButton.setIcon(similarHiddenIcon);
         similarButton.setPressedIcon(similarHiddenPressedIcon);
@@ -255,7 +256,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         propertiesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                propertiesFactory.newProperties().showProperties(vsr);
+                fileInfoFactory.createFileInfoDialog(vsr, FileInfoType.REMOTE_FILE);
             }
         });
         
@@ -351,7 +352,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         case LIBRARY:
             return libraryIcon;
         }
-        return categoryIconManager.getIcon(vsr, iconManager);
+        return categoryIconManager.getIcon(vsr);
     }
 
     private Cursor getIconCursor(VisualSearchResult vsr) {
@@ -390,7 +391,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             @Override
             public String getText() {
                 String headingText = result.getHeading();
-                String truncatedHeading = truncator.truncateHeading(headingText, fudgeFactorPixelWidth, headingFontWidthResolver);
+                String truncatedHeading = truncator.get().truncateHeading(headingText, fudgeFactorPixelWidth, headingFontWidthResolver);
                 handleHeadingTooltip(headingText, truncatedHeading);
                 return truncatedHeading;
             }
@@ -408,14 +409,14 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             public String getText(String adjoiningFragment) {
                 int adjoiningTextPixelWidth = headingFontWidthResolver.getPixelWidth(adjoiningFragment);
                 String headingText = result.getHeading();
-                String truncatedHeading = truncator.truncateHeading(headingText, 
+                String truncatedHeading = truncator.get().truncateHeading(headingText, 
                         fudgeFactorPixelWidth - adjoiningTextPixelWidth, headingFontWidthResolver);
                 handleHeadingTooltip(headingText, truncatedHeading);
                 return truncatedHeading;
             }
         };
 
-        this.heading.setText(headingBuilder.getHeadingDocument(searchHeading, downloadState, result.isSpam()));
+        this.heading.setText(headingBuilder.get().getHeadingDocument(searchHeading, downloadState, result.isSpam()));
         this.downloadSourceCount.setText(Integer.toString(vsr.getSources().size()));
     }
 
@@ -486,7 +487,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         similarResultIndentation.setBackground(similarResultsBackgroundColor);
     }
 
-    private void setupListeners(final Navigator navigator, final LibraryNavigator libraryNavigator, final PropertiesFactory<VisualSearchResult> propertiesFactory) {
+    private void setupListeners(final Navigator navigator, final LibraryNavigator libraryNavigator) {
         heading.addHyperlinkListener(new HyperlinkListener() {
 
             @Override
@@ -496,9 +497,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
                         downloadHandler.download(vsr);
                         table.editingStopped(new ChangeEvent(table));
                     } else if (e.getDescription().equals("#downloading")) {
-                        navigator.getNavItem(
-                            NavCategory.DOWNLOAD,
-                            MainDownloadPanel.NAME).select(vsr);
+                        new SelectAndScrollDownloadEvent(vsr.getUrn()).publish();
                     } else if (e.getDescription().equals("#library")) {
                         libraryNavigator.selectInLibrary(vsr.getUrn(), vsr.getCategory());
                     }
@@ -513,7 +512,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             @Override
             public void handlePopupMouseEvent(MouseEvent e) {
                 final VisualSearchResult result = vsr; 
-                SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), propertiesFactory, SearchResultMenu.ViewType.List);
+                SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), fileInfoFactory, SearchResultMenu.ViewType.List);
                 searchResultMenu.addPopupMenuListener(new PopupMenuListener() {
                     @Override
                     public void popupMenuCanceled(PopupMenuEvent e) {

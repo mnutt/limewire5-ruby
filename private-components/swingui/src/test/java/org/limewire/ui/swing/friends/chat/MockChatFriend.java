@@ -6,13 +6,13 @@ import java.util.Map;
 
 import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.friend.Network;
-import org.limewire.xmpp.api.client.MessageReader;
-import org.limewire.xmpp.api.client.MessageWriter;
-import org.limewire.xmpp.api.client.User;
-import org.limewire.xmpp.api.client.Presence;
-import org.limewire.xmpp.api.client.IncomingChatListener;
+import org.limewire.core.api.friend.client.IncomingChatListener;
+import org.limewire.core.api.friend.client.MessageReader;
+import org.limewire.core.api.friend.client.MessageWriter;
+import org.limewire.xmpp.api.client.XMPPFriend;
+import org.limewire.xmpp.api.client.XMPPPresence;
 import org.limewire.xmpp.api.client.PresenceEvent;
-import org.limewire.xmpp.api.client.Presence.Mode;
+import org.limewire.xmpp.api.client.XMPPPresence.Mode;
 import org.limewire.listener.EventListener;
 
 class MockChatFriend implements ChatFriend {
@@ -28,8 +28,8 @@ class MockChatFriend implements ChatFriend {
     }
     
     @Override
-    public User getUser() {
-        return new User() {
+    public XMPPFriend getFriend() {
+        return new XMPPFriend() {
             @Override
             public String getId() {
                 return name;
@@ -82,7 +82,7 @@ class MockChatFriend implements ChatFriend {
             public void removeChatListener() {}
 
             @Override
-            public Presence getActivePresence() {
+            public XMPPPresence getActivePresence() {
                 return null;
             }
 
@@ -97,7 +97,7 @@ class MockChatFriend implements ChatFriend {
             }
 
             @Override
-            public Map<String, Presence> getPresences() {
+            public Map<String, XMPPPresence> getPresences() {
                 return Collections.emptyMap();
             }
 

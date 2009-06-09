@@ -1,0 +1,307 @@
+package org.limewire.ui.swing.components;
+
+import static org.limewire.ui.swing.util.I18n.tr;
+import static org.limewire.ui.swing.util.I18n.trn;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+
+import org.limewire.collection.MultiIterable;
+import org.limewire.core.api.endpoint.RemoteHost;
+import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
+import org.limewire.ui.swing.search.RemoteHostActions;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+
+/**
+ * A Widget for displaying RemoteHosts associated with a piece of data. 
+ * A drop down menu is displayed that may be actions associated with a 
+ * single RemoteHost, or a list of RemoteHosts each with an action
+ * associated with each Host.
+ */
+public class RemoteHostWidget extends JPanel {
+
+    public static enum RemoteWidgetType {
+        SEARCH_LIST, TABLE, UPLOAD
+    }
+    
+    private final LimeComboBox comboBox;
+    private final JPopupMenu comboBoxMenu;
+    
+    private final Provider<RemoteHostActions> fromActions;
+    
+    private List<RemoteHost> people = new ArrayList<RemoteHost>();
+    private List<RemoteHost> poppedUpPeople = Collections.emptyList();
+    
+    private final RemoteWidgetType type;
+    private RemoteHostActions remoteHostActions;
+    
+    @Inject
+    RemoteHostWidget(ComboBoxDecorator comboBoxDecorator,
+                           Provider<RemoteHostActions> fromActions,
+                           @Assisted RemoteWidgetType type) {
+        
+        this.fromActions = fromActions;
+        this.type = type;
+        
+        comboBox = new LimeComboBox();
+        comboBoxDecorator.decorateMiniComboBox(comboBox);
+        
+        this.comboBoxMenu = new JPopupMenu();
+        this.comboBox.overrideMenu(this.comboBoxMenu);
+        comboBoxMenu.addPopupMenuListener(new PopupMenuListener() {
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+                if(!poppedUpPeople.equals(people)) {
+                    comboBox.setClickForcesVisible(true);
+                }
+            }
+            
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                if(!poppedUpPeople.equals(people)) {
+                    comboBox.setClickForcesVisible(true);
+                }
+            }
+            
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                comboBox.setClickForcesVisible(false);
+                poppedUpPeople = people;
+                updateMenus();
+            }
+        });
+        
+        this.layoutComponents();
+        this.setOpaque(false);
+    }
+    
+    /** A name for actions when they're the only action available on a host. */
+    private static final String SINGULAR_ACTION_NAME = "singularActionName";
+    
+    private Action getChatAction(final RemoteHost person) {
+        return new AbstractAction(tr("Chat")) {
+            {
+                putValue(SINGULAR_ACTION_NAME, tr("Chat with {0}", person.getFriendPresence().getFriend().getRenderName()));
+            }
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getRemoteHostAction().chatWith(person);
+            }
+        };
+    }
+
+    private Action getLibraryAction(final RemoteHost person) {
+        return new AbstractAction(tr("Browse Files")) {
+            {
+                putValue(SINGULAR_ACTION_NAME, tr("Browse Files of {0}", person.getFriendPresence().getFriend().getRenderName()));
+            }
+        
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getRemoteHostAction().viewLibraryOf(person);
+            }
+        };
+    }
+
+    private Action getSharingAction(final RemoteHost person) {
+        return new AbstractAction(tr("What I'm Sharing")) {
+            {
+                putValue(SINGULAR_ACTION_NAME, tr("What I'm Sharing with {0}", person.getFriendPresence().getFriend().getRenderName()));
+            }
+        
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getRemoteHostAction().showFilesSharedBy(person);
+            }
+        };
+    }
+    
+    private RemoteHostActions getRemoteHostAction() {
+        if(remoteHostActions == null)
+            remoteHostActions = fromActions.get();
+        return remoteHostActions;
+    }
+
+    private void layoutComponents() {
+        this.setLayout(new BorderLayout());
+        this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+
+        add(this.comboBox, BorderLayout.WEST);
+    }
+
+    public void setPerson(RemoteHost remoteHost) {
+        this.people.clear();
+        this.people.add(remoteHost);
+        this.comboBox.setText(getFromText());
+    }
+    
+    public void setPeople(Collection<RemoteHost> people) {
+        this.people.clear();
+        this.people.addAll(people);
+        this.comboBox.setText(getFromText());
+    }
+
+    private String getFromText() {
+        if(people.size() == 0) {
+            return tr("nobody");
+        } else if(people.size() == 1 && type == RemoteWidgetType.UPLOAD) { 
+            return people.get(0).getFriendPresence().getFriend().getRenderName();
+        } else {
+            boolean foundFriend = false;
+            boolean foundAnon = false;
+            for(RemoteHost host : people) {
+                if(host.getFriendPresence().getFriend().isAnonymous()) {
+                    foundAnon = true;
+                } else {
+                    foundFriend = true;
+                }
+                
+                if(foundAnon && foundFriend) {
+                    // no need to search anymore.
+                    break;
+                }
+            }
+            if(foundFriend && foundAnon) {
+                if(type == RemoteWidgetType.TABLE) {
+                    return trn("{0} Person", "{0} People", people.size());
+                } else {
+                    return trn("Person", "People", people.size());
+                }
+            } else if(foundFriend) {
+                if(type == RemoteWidgetType.TABLE) {
+                    return trn("{0} Friend", "{0} Friends", people.size());
+                } else {
+                    return trn("Friend", "Friends", people.size());
+                }
+            } else { // foundAnon
+                if(type == RemoteWidgetType.TABLE) {
+                    return trn("{0} P2P User", "{0} P2P Users", people.size());
+                } else {
+                    return trn("P2P User", "P2P Users", people.size());
+                }
+            }
+        }
+    }
+
+    private JMenuItem createItem(Action a) {
+        JMenuItem item = new JMenuItem(a);        
+        comboBox.decorateMenuComponent(item);        
+        return item;
+    }
+    
+    private void updateMenus() {        
+        comboBoxMenu.removeAll();        
+        if (people.size() == 0) {
+            return; // menu has no items
+        }
+
+        if(people.size() == 1 && type == RemoteWidgetType.UPLOAD) {
+            RemoteHost person = people.get(0);
+            if (person.isChatEnabled()) {
+                comboBoxMenu.add(createItem(getChatAction(person)));
+            }
+            // always show the browse host, disable if this action isn't available
+            JMenuItem item = createItem(getLibraryAction(person));
+            item.setEnabled(person.isBrowseHostEnabled());
+            comboBoxMenu.add(item);
+ 
+            if (person.isSharingEnabled()) {
+                comboBoxMenu.add(createItem(getSharingAction(person)));
+            }
+        } else {
+            List<JMenuItem> friends = new ArrayList<JMenuItem>();
+            List<JMenuItem> friendsDisabled = new ArrayList<JMenuItem>();
+            List<JMenuItem> p2pUsers = new ArrayList<JMenuItem>();
+            List<JMenuItem> p2pUsersDisabled = new ArrayList<JMenuItem>();
+            for (RemoteHost person : people) {
+                JMenu submenu = new JMenu(person.getFriendPresence().getFriend().getRenderName());
+                comboBox.decorateMenuComponent(submenu);
+    
+                if (person.isChatEnabled()) {
+                    submenu.add(createItem(getChatAction(person)));
+                }
+                if (person.isBrowseHostEnabled()) {
+                    submenu.add(createItem(getLibraryAction(person)));
+                }
+                if (person.isSharingEnabled()) {
+                    submenu.add(createItem(getSharingAction(person)));
+                }
+    
+                JMenuItem itemToAdd = submenu;
+                // If we only added one item, remove the parent menu and make this it.
+                if (submenu.getMenuComponentCount() == 1) {
+                    itemToAdd = (JMenuItem) submenu.getMenuComponent(0);
+                    Action action = itemToAdd.getAction();
+                    // Replace the name with the singular name.
+                    action.putValue(Action.NAME, action.getValue(SINGULAR_ACTION_NAME));
+                } else if (submenu.getMenuComponentCount() == 0) {
+                    itemToAdd = new JMenuItem(submenu.getText());
+                    itemToAdd.setEnabled(false);
+                }
+    
+                if (person.getFriendPresence().getFriend().isAnonymous()) {
+                    if (itemToAdd.isEnabled()) {
+                        p2pUsers.add(itemToAdd);
+                    } else {
+                        p2pUsersDisabled.add(itemToAdd);
+                    }
+                } else {
+                    if (itemToAdd.isEnabled()) {
+                        friends.add(itemToAdd);
+                    } else {
+                        friendsDisabled.add(itemToAdd);
+                    }
+                }
+            }
+    
+            // Now go back through our submenus & add them in.
+            if (friends.size() + friendsDisabled.size() > 0 &&
+                    p2pUsers.size() + p2pUsersDisabled.size() > 0) {
+                JLabel label = new JLabel(tr("Friends"));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
+                comboBoxMenu.add(label);
+                for (JMenuItem friend : new MultiIterable<JMenuItem>(friends, friendsDisabled)) {
+                    comboBoxMenu.add(friend);
+                }
+                label = new JLabel(tr("P2P Users"));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
+                comboBoxMenu.add(label);
+                for (JMenuItem p2pUser : new MultiIterable<JMenuItem>(p2pUsers, p2pUsersDisabled)) {
+                    comboBoxMenu.add(p2pUser);
+                }
+            } else if (friends.size() + friendsDisabled.size() > 0) {
+                for (JMenuItem friend : new MultiIterable<JMenuItem>(friends, friendsDisabled)) {
+                    comboBoxMenu.add(friend);
+                }
+            } else if (p2pUsers.size() + p2pUsersDisabled.size() > 0) {
+                for (JMenuItem p2pUser : new MultiIterable<JMenuItem>(p2pUsers, p2pUsersDisabled)) {
+                    comboBoxMenu.add(p2pUser);
+                }
+            }
+        }
+    }
+    
+    @Override
+    public String getToolTipText(){
+        return comboBox.getText();
+    }
+}

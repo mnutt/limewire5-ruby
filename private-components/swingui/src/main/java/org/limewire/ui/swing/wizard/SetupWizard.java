@@ -9,20 +9,21 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.IconManager;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class SetupWizard {
     
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     private Wizard wizard;
     
     @Inject
-    public SetupWizard(SetupComponentDecoratorFactory decoratorFactory, 
-            IconManager iconManager,
-            LibraryManager libraryManager){
+    public SetupWizard(Provider<SetupComponentDecoratorFactory> decoratorFactory, 
+            Provider<IconManager> iconManager,
+            Provider<LibraryManager> libraryManager){
         this.iconManager = iconManager;
         
         if (shouldShowWizard()) {
-            createWizard(decoratorFactory, libraryManager.getLibraryData());
+            createWizard(decoratorFactory.get(), libraryManager.get().getLibraryData());
         }
     }
     
@@ -31,13 +32,11 @@ public class SetupWizard {
     }
     
     public void showDialogIfNeeded(Frame owner) {
-        if (shouldShowWizard()) {
-            wizard.showDialogIfNeeded(owner);
-            
-            // Sets the upgraded flag after the setup wizard
-            //  completes
-            InstallSettings.UPGRADED_TO_5.setValue(true);
-        }
+        wizard.showDialogIfNeeded(owner);
+        
+        // Sets the upgraded flag after the setup wizard
+        //  completes
+        InstallSettings.UPGRADED_TO_5.setValue(true);
     }
         
     private void createWizard(SetupComponentDecoratorFactory decoratorFactory, 
@@ -65,6 +64,12 @@ public class SetupWizard {
     }
     
     private boolean needsPage1() {
+        if (!InstallSettings.AUTO_SHARING_OPTION.getValue()) {
+            return true;
+        }
+        if (!InstallSettings.ANONYMOUS_DATA_COLLECTION.getValue()) {
+            return true;
+        }
         if (!InstallSettings.FILTER_OPTION.getValue()) {
             return true;
         }

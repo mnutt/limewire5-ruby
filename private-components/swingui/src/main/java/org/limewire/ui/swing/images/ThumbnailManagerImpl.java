@@ -10,12 +10,12 @@ import javax.swing.JList;
 
 import org.jdesktop.application.Resource;
 import org.limewire.collection.FixedsizeForgetfulHashMap;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.util.GuiUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@LazySingleton
 public class ThumbnailManagerImpl implements ThumbnailManager {
     
     /**

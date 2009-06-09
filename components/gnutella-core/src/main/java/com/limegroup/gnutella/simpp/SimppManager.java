@@ -17,8 +17,6 @@ public interface SimppManager {
      */
     public byte[] getSimppBytes();
 
-    public String getPropsString();
-
     public void addSimppSettingsManager(SimppSettingsManager simppSettingsManager);
 
     public List<SimppSettingsManager> getSimppSettingsManagers();

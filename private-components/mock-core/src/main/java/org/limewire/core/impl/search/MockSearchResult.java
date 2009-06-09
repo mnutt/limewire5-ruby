@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.limewire.core.impl.search;
 
 import java.util.ArrayList;

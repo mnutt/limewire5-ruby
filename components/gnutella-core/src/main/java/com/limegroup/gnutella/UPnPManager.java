@@ -196,7 +196,7 @@ public class UPnPManager  {
         if (!isNATPresent())
             return null;
         
-        Action getIP = _service.getAction("GetExternalIPAddress");
+        Action getIP = getActionFromService(_service, "GetExternalIPAddress");
 		if(getIP == null) {
 		    LOG.debug("Couldn't find GetExternalIPAddress action!");
 		    return null;
@@ -317,6 +317,36 @@ public class UPnPManager  {
         ThreadExecutor.startThread(new StaleCleaner(), "Stale Mapping Cleaner");
 		return port;
 	}
+
+    /**
+     * Gets an action from a service, trimming whitespace if necessary.
+     * see: http://forum.limewire.org/showpost.php?p=21952&postcount=1
+     * for an example router that adds whitespace
+     */
+    private Action getActionFromService(Service service, String actionName) {
+        Action action = service.getAction(actionName);
+	    if(action != null) {
+	        return action;
+	    }
+	    
+	    if(LOG.isDebugEnabled())
+	        LOG.debug("Couldn't find action: " + actionName + ", from direct lookup");
+	    
+	    
+        for(Object actionObj : _service.getActionList()) {
+            if(actionObj instanceof Action) {
+                action = (Action)actionObj;
+                if(action.getName() != null && actionName.equals(action.getName().trim())) {
+                    return action;
+	            }
+            }
+	    }
+        
+        if(LOG.isDebugEnabled())
+            LOG.debug("Couldn't find action: " + actionName + " after iterating");
+        
+        return null;
+	}
 	
 	/**
 	 * @param m Port mapping to send to the NAT
@@ -327,13 +357,11 @@ public class UPnPManager  {
 		if (LOG.isDebugEnabled())
 			LOG.debug("adding "+m);
 		
-		Action add = _service.getAction("AddPortMapping");
+		Action add = getActionFromService(_service, "AddPortMapping");
 		
 		if(add == null) {
-		    LOG.debug("Couldn't find AddPortMapping action!");
 		    return false;
 		}
-		    
 		
 		add.setArgumentValue("NewRemoteHost",m._externalAddress);
 		add.setArgumentValue("NewExternalPort",m._externalPort);
@@ -359,7 +387,7 @@ public class UPnPManager  {
 		if (LOG.isDebugEnabled())
 			LOG.debug("removing "+m);
 		
-		Action remove = _service.getAction("DeletePortMapping");
+		Action remove = getActionFromService(_service, "DeletePortMapping");
 		
 		if(remove == null) {
 		    LOG.debug("Couldn't find DeletePortMapping action!");
@@ -510,7 +538,7 @@ public class UPnPManager  {
 		    LOG.debug("Looking for stale mappings...");
 		    
 			Set<Mapping> mappings = new HashSet<Mapping>();
-			Action getGeneric = _service.getAction("GetGenericPortMappingEntry");
+			Action getGeneric = getActionFromService(_service, "GetGenericPortMappingEntry");
 			
 			if(getGeneric == null) {
 			    LOG.debug("Couldn't find GetGenericPortMappingEntry action!");

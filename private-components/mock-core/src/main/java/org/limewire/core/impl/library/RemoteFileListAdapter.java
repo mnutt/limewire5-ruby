@@ -1,5 +1,7 @@
 package org.limewire.core.impl.library;
 
+import java.util.Collection;
+
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteFileList;
 
@@ -34,6 +36,10 @@ public class RemoteFileListAdapter implements RemoteFileList {
     public int size() {
         // TODO Auto-generated method stub
         return 0;
+    }
+    
+    @Override
+    public void setNewFiles(Collection<RemoteFileItem> file) {
     }
 
 }

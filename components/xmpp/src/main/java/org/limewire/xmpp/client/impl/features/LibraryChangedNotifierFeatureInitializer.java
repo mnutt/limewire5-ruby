@@ -24,7 +24,7 @@ public class LibraryChangedNotifierFeatureInitializer implements FeatureInitiali
 
     @Override
     public void register(FeatureRegistry registry) {
-        registry.add(LibraryChangedNotifierFeature.ID, this);
+        registry.add(LibraryChangedNotifierFeature.ID, this, true);
     }
 
     @Override
@@ -37,7 +37,12 @@ public class LibraryChangedNotifierFeatureInitializer implements FeatureInitiali
         friendPresence.removeFeature(LibraryChangedNotifierFeature.ID);
     }
 
+    @Override
+    public void cleanup() {
+    }
+
     private static class LibraryChangedNotifierImpl implements LibraryChangedNotifier {
+        
         private final String presenceId;
         private final XMPPConnection connection;
 
@@ -47,12 +52,14 @@ public class LibraryChangedNotifierFeatureInitializer implements FeatureInitiali
         }
 
         public void sendLibraryRefresh() {
+            LOG.debug("send library refresh");
             if(connection.isConnected()) {
                 final LibraryChangedIQ libraryChangedIQ = new LibraryChangedIQ();
                 libraryChangedIQ.setType(IQ.Type.SET);
                 libraryChangedIQ.setTo(presenceId);
                 libraryChangedIQ.setPacketID(IQ.nextID());
                 try {
+                    LOG.debugf("sending refresh to {0}", presenceId);
                     connection.sendPacket(libraryChangedIQ);
                 } catch (XMPPException e) {
                     LOG.debugf("library refresh failed", e);

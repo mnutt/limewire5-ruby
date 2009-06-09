@@ -39,7 +39,6 @@ import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.NavItem;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
-import org.limewire.ui.swing.search.advanced.AdvancedSearchPanel;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -102,14 +101,14 @@ public class SearchBar extends JXPanel {
             if(cat != SearchCategory.ALL) {
                 icon = categoryIconManager.getIcon(cat.getCategory());                
             }
-            Action action = new CatagoryAction(cat, icon);
+            Action action = new CategoryAction(cat, icon);
             if (cat == this.categoryToSearch) {
                 actionToSelect = action;
             }
 
             typeActions.add(action);
         }
-        
+
         comboBox = new LimeComboBox(typeActions);
         comboBoxDecorator.decorateLightFullComboBox(comboBox);
         comboBox.setName("SearchBar.comboBox");
@@ -173,11 +172,9 @@ public class SearchBar extends JXPanel {
                 menu.add(new HyperlinkButton(new AbstractAction(I18n.tr("Advanced Search")) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        NavItem item = navigator.getNavItem(NavCategory.LIMEWIRE, AdvancedSearchPanel.NAME);
-                        if(item != null) {
-                            item.select();
-                            menu.setVisible(false);
-                        }
+                        NavItem item = navigator.getNavItem(NavCategory.LIMEWIRE, AdvancedSearchMediator.NAME);
+                        item.select();
+                        menu.setVisible(false);
                     }
                 }));
             }
@@ -216,9 +213,29 @@ public class SearchBar extends JXPanel {
         searchField.setCaretPosition(searchField.getDocument().getLength());
         searchField.selectAll();
     }
-    
+
+    /**
+     * Sets the search text.
+     */
     public void setText(String text) {
         searchField.setText(text);
+    }
+    
+    /**
+     * Sets the selected category in the combo box.
+     */
+    public void setCategory(SearchCategory category) {
+        
+        for ( Action a : comboBox.getActions() ) {
+            if (a instanceof CategoryAction) {
+                CategoryAction categoryAction = (CategoryAction) a;
+                if (categoryAction.getCategory() == category) {
+                    comboBox.setSelectedAction(categoryAction);
+                    categoryAction.actionPerformed(null);
+                    return;
+                }
+            }
+        }
     }
     
     public void addSearchActionListener(ActionListener actionListener) {
@@ -241,10 +258,10 @@ public class SearchBar extends JXPanel {
         return categoryToSearch;
     }
     
-    private class CatagoryAction extends AbstractAction {
+    private class CategoryAction extends AbstractAction {
         private final SearchCategory category;
         
-        CatagoryAction(SearchCategory category, Icon icon) {
+        CategoryAction(SearchCategory category, Icon icon) {
             super(SearchCategoryUtils.getName(category));
             
             putValue(SMALL_ICON, icon);
@@ -255,6 +272,10 @@ public class SearchBar extends JXPanel {
         public void actionPerformed(ActionEvent arg0) {
             categoryToSearch = category;            
             autoCompleter.setSuggestionDictionary(friendAutoCompleterFactory.getDictionary(category));
+        }
+        
+        public SearchCategory getCategory() {
+            return category;
         }
     }
 

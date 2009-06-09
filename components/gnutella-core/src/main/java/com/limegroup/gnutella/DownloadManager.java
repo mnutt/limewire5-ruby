@@ -12,7 +12,6 @@ import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.listener.ListenerSupport;
 
-import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 import com.limegroup.gnutella.downloader.CoreDownloader;
@@ -220,12 +219,6 @@ LWSIntegrationServicesDelegate, PushedSocketHandler, ListenerSupport<DownloadMan
      */
     public Downloader downloadTorrent(File torrentFile, boolean overwrite) throws SaveLocationException;
     
-    /**
-     * Downloads the given torrent specified by the meta info object.
-     */
-    public Downloader downloadTorrent(BTMetaInfo info, boolean overwrite)
-            throws SaveLocationException;
-
     /**
      * Returns <code>true</code> if there already is a download with the same urn. 
      * @param urn may be <code>null</code>, then a check based on the fileName

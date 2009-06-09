@@ -22,20 +22,6 @@ public final class InstallSettings extends LimeWireSettings {
     private InstallSettings() {
         super("installation.props", "LimeWire installs file");
     }
-    
-    /**
-     * Whether or not the 'Choose your Save directory' question has
-     * been asked.
-     */
-    public static final BooleanSetting SAVE_DIRECTORY =
-        FACTORY.createBooleanSetting("SAVE_DIRECTORY", false);
-    
-    /**
-     * Whether or not the 'Choose your speed' question has been asked.
-     */
-    public static final BooleanSetting SPEED =
-        FACTORY.createBooleanSetting("SPEED", false);
-    
     /**
      * Whether or not the 'Scan for files' question has been asked.
      */
@@ -63,6 +49,14 @@ public final class InstallSettings extends LimeWireSettings {
     /** Whether or not the filter question has been asked. */
     public static final BooleanSetting FILTER_OPTION =
         FACTORY.createBooleanSetting("FILTER_OPTION", false);
+    
+    /** Whether Auto-Sharing question has been asked. */
+    public static final BooleanSetting AUTO_SHARING_OPTION =
+        FACTORY.createBooleanSetting("AUTO_SHARING_OPTION", false);
+    
+    /** Whether to allow Anonymous data collection. */
+    public static final BooleanSetting ANONYMOUS_DATA_COLLECTION =
+        FACTORY.createBooleanSetting("ANONYMOUS_DATA_COLLECTION", false);
     
     /** Whether the association option has been asked */
     public static final IntSetting ASSOCIATION_OPTION =

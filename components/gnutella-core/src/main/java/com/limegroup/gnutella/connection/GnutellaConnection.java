@@ -998,42 +998,42 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
         // 3.5) The query originator should not disallow proxying.
         // 4) We must be able to OOB and have great success rate.
         if (getConnectionCapabilities().remoteHostSupportsLeafGuidance() < 1) {
-            LOG.trace("Not OOB proxying: remote host doesn't support leaf guidance");
+            LOG.info("Not OOB proxying: remote host doesn't support leaf guidance");
             return query;
         }
         if (query.desiresOutOfBandRepliesV3()) {
-            LOG.trace("Not OOB proxying: query already requests OOBv3");
+            LOG.info("Not OOB proxying: query already requests OOBv3");
             return query;
         }
 
         if (query.doNotProxy()) {
-            LOG.trace("Not OOB proxying: query says no");
+            LOG.info("Not OOB proxying: query says no");
             return query;
         }
 
         if (_maxDisabledOOBProtocolVersion >= ReplyNumberVendorMessage.VERSION) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Not OOB proxying: disabled version is "
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Not OOB proxying: disabled version is "
                         + _maxDisabledOOBProtocolVersion);
             }
             return query;
         } else {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("query might be proxied for max disabled version "
+            if (LOG.isInfoEnabled()) {
+                LOG.info("query might be proxied for max disabled version "
                         + _maxDisabledOOBProtocolVersion + " " + Arrays.toString(query.getGUID()));
             }
         }
 
         if(!networkManager.isOOBCapable()) {
-            LOG.trace("Not OOB proxying: not OOB capable");
+            LOG.info("Not OOB proxying: not OOB capable");
             return query;
         }
         if(!outOfBandStatistics.isSuccessRateGreat()) {
-            LOG.trace("Not OOB proxying: success rate isn't great");
+            LOG.info("Not OOB proxying: success rate isn't great");
             return query;
         }
         if(!outOfBandStatistics.isOOBEffectiveForProxy()) {
-            LOG.trace("Not OOB proxying: OOB isn't effective enough");
+            LOG.info("Not OOB proxying: OOB isn't effective enough");
             return query;
         }
 

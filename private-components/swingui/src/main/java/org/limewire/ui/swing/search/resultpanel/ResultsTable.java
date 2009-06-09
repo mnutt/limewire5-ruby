@@ -152,7 +152,7 @@ public class ResultsTable<E extends VisualSearchResult> extends MouseableTable {
     public void applySavedColumnSettings(){
         if (columnStateHandler != null) {
             columnStateHandler.setupColumnWidths();
-            columnStateHandler.setupColumnVisibility();
+            columnStateHandler.setupColumnVisibility(false);
             columnStateHandler.setupColumnOrder();
         }
     }

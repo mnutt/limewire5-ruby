@@ -7,8 +7,8 @@ import org.limewire.core.settings.iTunesSettings;
 import org.limewire.listener.EventListener;
 import org.limewire.util.Objects;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
@@ -20,7 +20,8 @@ import com.limegroup.gnutella.downloader.DownloadStateEvent;
 public class ItunesDownloadListener implements EventListener<DownloadStateEvent> {
     private final Downloader downloader;
     private final ItunesMediator itunesMediator;
-    @AssistedInject
+
+    @Inject
     public ItunesDownloadListener(@Assisted Downloader downloader, ItunesMediator itunesMediator) {
         this.downloader = Objects.nonNull(downloader, "downloader");
         this.itunesMediator = itunesMediator;

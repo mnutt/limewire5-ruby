@@ -13,9 +13,6 @@ package org.limewire.io;
  * {@link #hashCode()} implementations.
  */
 public interface Address {
-    enum EventType {
-        ADDRESS_CHANGED
-    }
     
     String getAddressDescription();
     

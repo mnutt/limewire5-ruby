@@ -27,10 +27,14 @@ import org.limewire.ui.swing.library.table.menu.actions.RemoveAction;
 import org.limewire.ui.swing.library.table.menu.actions.SharingActionFactory;
 import org.limewire.ui.swing.library.table.menu.actions.ViewFileInfoAction;
 import org.limewire.ui.swing.player.PlayerUtils;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.xmpp.api.client.XMPPService;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
 
 /**
  * Popup menu implementation for MyLibrary
@@ -39,9 +43,9 @@ public class MyLibraryPopupMenu extends JPopupMenu {
 
     private final LibraryManager libraryManager;
     private final Category category;
-    private final PropertiesFactory<LocalFileItem> propertiesFactory;
+    private final FileInfoDialogFactory fileInfoFactory;
     private final XMPPService xmppService;
-    private final SharingActionFactory sharingActionFactory;   
+    private final Provider<SharingActionFactory> sharingActionFactoryProvider;   
     private final LibraryNavigator libraryNavigator;
     private final PlaylistManager playlistManager;
 
@@ -50,16 +54,17 @@ public class MyLibraryPopupMenu extends JPopupMenu {
     @Resource
     private Color disabledColor;
 
-    public MyLibraryPopupMenu(Category category, LibraryManager libraryManager,
-            SharingActionFactory sharingActionFactory, PropertiesFactory<LocalFileItem> propertiesFactory,
-            XMPPService xmppService, LibraryNavigator libraryNavigator, PlaylistManager playlistManager) {
+    @Inject
+    public MyLibraryPopupMenu(@Assisted Category category, LibraryManager libraryManager,
+            Provider<SharingActionFactory> sharingActionFactory, XMPPService xmppService, LibraryNavigator libraryNavigator, 
+            PlaylistManager playlistManager, FileInfoDialogFactory fileInfoFactory) {
         this.libraryManager = libraryManager;
-        this.sharingActionFactory = sharingActionFactory;
+        this.sharingActionFactoryProvider = sharingActionFactory;
         this.category = category;
-        this.propertiesFactory = propertiesFactory;
         this.xmppService = xmppService;
         this.libraryNavigator = libraryNavigator;
         this.playlistManager = playlistManager;
+        this.fileInfoFactory = fileInfoFactory;
         
         GuiUtils.assignResources(this);
     }
@@ -145,6 +150,8 @@ public class MyLibraryPopupMenu extends JPopupMenu {
 
         addSeparator();
 
+        SharingActionFactory sharingActionFactory = sharingActionFactoryProvider.get();
+        
         boolean isDocumentSharingAllowed = isGnutellaShareAllowed(category) & shareActionEnabled;
         add(sharingActionFactory.createShareGnutellaAction(false, librarySelectable)).setEnabled(isDocumentSharingAllowed);
         add(sharingActionFactory.createUnshareGnutellaAction(false, librarySelectable)).setEnabled(isDocumentSharingAllowed);
@@ -169,7 +176,7 @@ public class MyLibraryPopupMenu extends JPopupMenu {
         add(new DeleteAction(fileItems.toArray(new LocalFileItem[fileItems.size()]), libraryManager)).setEnabled(deleteActionEnabled);
 
         addSeparator();
-        add(new ViewFileInfoAction(firstItem, propertiesFactory)).setEnabled(viewFileInfoEnabled);
+        add(new ViewFileInfoAction(firstItem, fileInfoFactory)).setEnabled(viewFileInfoEnabled);
     }
 
     private boolean isGnutellaShareAllowed(Category category) {

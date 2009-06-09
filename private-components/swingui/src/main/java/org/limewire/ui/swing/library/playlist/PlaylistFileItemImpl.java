@@ -5,9 +5,9 @@ import java.io.File;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
+import org.limewire.core.api.friend.client.FileMetaData;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.playlist.Playlist;
-import org.limewire.xmpp.api.client.FileMetaData;
 
 /**
  * An implementation of PlaylistFileItem.  This decorates a LocalFileItem to

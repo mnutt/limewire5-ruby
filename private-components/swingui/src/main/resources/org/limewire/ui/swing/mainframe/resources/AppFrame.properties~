@@ -846,19 +846,7 @@ LoggedInPanel.itemColor = #313131
 # Props for components that are no longer used or very stale
 ##############################################################
 
-<<<<<<< AppFrame.properties
-# Friend bar should have a completely independent colour scheme?
-BarPainterFactory.friendBarTopBorder1 = #818181
-
-# This component should probably not exist.  Although, not ready to delete it yet.
-LimeCheckBox.checkBorder = #3e3e3e
-
-# Are these still used?
-TopPanel.libraryCollapseIcon = icons/library_toolbar_collapse.png
-TopPanel.libraryExpandIcon = icons/library_toolbar_expand.png
 TopPanel.webIcon = icons/web.png
-=======
->>>>>>> 1.408
 
 # These are bad references to JXHyperLink or cases where people have created custom
 #  hyper link components

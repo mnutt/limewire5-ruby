@@ -5,12 +5,13 @@ import javax.swing.Icon;
 import org.jdesktop.application.Resource;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.PropertiableFile;
+import org.limewire.inject.LazySingleton;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-@Singleton
+@LazySingleton
 public class CategoryIconManager {
     
     private Icon audioIcon;
@@ -39,12 +40,12 @@ public class CategoryIconManager {
     @Resource
     private Icon smallOtherIcon;
     
-    public static CategoryIconManager createTestingCategoryIconManager() {
-        return new CategoryIconManager();
-    }
+    private final Provider<IconManager> iconManager;
     
     @Inject
-    CategoryIconManager() {
+    CategoryIconManager(Provider<IconManager> iconManager) {
+        this.iconManager = iconManager;
+        
         GuiUtils.assignResources(this);
         
         audioIcon = smallAudioIcon;
@@ -105,11 +106,11 @@ public class CategoryIconManager {
      * @param iconManager
      * @return
      */
-    public Icon getIcon(PropertiableFile file, IconManager iconManager) {
+    public Icon getIcon(PropertiableFile file) {
         switch(file.getCategory()) {
         case DOCUMENT:
         case OTHER:
-            return iconManager.getIconForPropertiableFile(file);
+            return iconManager.get().getIconForPropertiableFile(file);
         default:
             return getIcon(file.getCategory());
         }

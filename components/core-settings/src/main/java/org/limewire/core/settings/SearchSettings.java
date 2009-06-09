@@ -352,6 +352,12 @@ public final class SearchSettings extends LimeProps {
     public static final BooleanSetting FRIENDLY_ADDRESS_DESCRIPTIONS =
         FACTORY.createBooleanSetting("FRIENDLY_ADDRESS_DESCRIPTIONS", true);
 
+    /**
+     * How many alt-loc sources to display for each search result
+     */
+    public static final IntSetting ALT_LOCS_TO_DISPLAY =
+        FACTORY.createIntSetting("ALT_LOCS_TO_DISPLAY", 1);
+
 	/**
      * Do not issue query keys more than this often
      */

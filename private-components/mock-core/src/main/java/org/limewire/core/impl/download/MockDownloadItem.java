@@ -4,6 +4,8 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.event.SwingPropertyChangeSupport;
@@ -14,6 +16,7 @@ import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.io.Address;
 
 
@@ -249,5 +252,10 @@ public class MockDownloadItem implements DownloadItem {
     public String getPropertyString(FilePropertyKey filePropertyKey) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public Collection<RemoteHost> getRemoteHosts() {
+        return Collections.emptyList();
     }
 }

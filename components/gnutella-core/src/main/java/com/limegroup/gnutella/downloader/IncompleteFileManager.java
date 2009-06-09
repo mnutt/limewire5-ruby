@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.limewire.bittorrent.TorrentManager;
 import org.limewire.collection.Comparators;
 import org.limewire.collection.Range;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.io.InvalidDataException;
-import org.limewire.util.Base32;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.OSUtils;
@@ -46,6 +46,7 @@ public class IncompleteFileManager  {
     static final String SEPARATOR="-";
     /** The prefix added to preview copies of incomplete files. */
     public static final String PREVIEW_PREFIX="Preview-";
+    public static final String INCOMPLETE_PREFIX="T-";
     
     /**
      * A mapping from incomplete files (File) to the blocks of the file stored
@@ -80,14 +81,16 @@ public class IncompleteFileManager  {
     private final Provider<FileManager> fileManager;
     private final Provider<HashTreeCache> tigerTreeCache;
     private final VerifyingFileFactory verifyingFileFactory;
+    private final Provider<TorrentManager> torrentManager;
     
     @Inject
     public IncompleteFileManager(Provider<FileManager> fileManager,
             Provider<HashTreeCache> tigerTreeCache,
-            VerifyingFileFactory verifyingFileFactory) {
+            VerifyingFileFactory verifyingFileFactory, Provider<TorrentManager> torrentManager) {
         this.fileManager = fileManager;
         this.tigerTreeCache = tigerTreeCache;
         this.verifyingFileFactory = verifyingFileFactory;
+        this.torrentManager = torrentManager;
     }
     
     /**
@@ -332,17 +335,17 @@ public class IncompleteFileManager  {
     private static String tempName(String filename, long size, int suffix) {
         if (suffix<=1) {
             //a) No suffix
-            return "T-"+size+"-"+filename;
+            return INCOMPLETE_PREFIX+size+"-"+filename;
         }
         int i=filename.lastIndexOf('.');
         if (i<0) {
             //b) Suffix, no extension
-            return "T-"+size+"-"+filename+" ("+suffix+")";
+            return INCOMPLETE_PREFIX+size+"-"+filename+" ("+suffix+")";
         } else {
             //c) Suffix, file extension
             String noExtension=filename.substring(0,i);
             String extension=filename.substring(i); //e.g., ".txt"
-            return "T-"+size+"-"+noExtension+" ("+suffix+")"+extension;
+            return INCOMPLETE_PREFIX+size+"-"+noExtension+" ("+suffix+")"+extension;
         }            
     }
 
@@ -418,19 +421,6 @@ public class IncompleteFileManager  {
             registerIncompleteFile(incompleteFile);
     }
     
-    public synchronized void addTorrentEntry(URN urn) {
-    	String torrentDirPath = 
-    		SharingSettings.INCOMPLETE_DIRECTORY.get().getAbsolutePath() +
-    		File.separator +
-    		Base32.encode(urn.getBytes());
-    	File torrentDir = new File(torrentDirPath);
-    	hashes.put(urn, torrentDir);
-    }
-    
-    public synchronized void removeTorrentEntry(URN urn) {
-    	hashes.remove(urn);
-    }
-
     public synchronized VerifyingFile getEntry(File incompleteFile) {
         return blocks.get(incompleteFile);
     }
@@ -483,10 +473,6 @@ public class IncompleteFileManager  {
     public static String getCompletedName(File incompleteFile) 
             throws IllegalArgumentException {
     	
-    	String torrent = getCompletedTorrentName(incompleteFile);
-    	if (torrent != null)
-    		return torrent;
-    	
         //Given T-<size>-<name> return <name>.
         //       i      j
         //This is not as strict as it could be.  TODO: what about (x) suffix?
@@ -502,37 +488,6 @@ public class IncompleteFileManager  {
         return name.substring(j+1);
     }
     
-    private static String getCompletedTorrentName(File incompleteDir) {
-    	if (!isTorrentFolder(incompleteDir))
-    			return null;
-    		
-    	File [] list = incompleteDir.listFiles();
-    	if (list[0].getName().startsWith(".dat"))
-    		return list[1].getName();
-    	else
-    		return list[0].getName();
-    }
-    
-    public static boolean isTorrentFolder(File file) {
-		if (!file.isDirectory() || file.getName().length() != 32)
-			return false;
-		
-		File [] files = file.listFiles();
-		if (files.length != 2)
-			return false;
-		
-		File datFile = files[0];
-		File otherFile = files[1];
-		if (!datFile.getName().startsWith(".dat")) {
-			datFile = files[1];
-			otherFile = files[0];
-		}
-		if (!datFile.getName().startsWith(".dat"))
-			return false;
-		
-		return datFile.getName().equals(".dat"+otherFile.getName());
-    }
-
     /**
      * Returns the size of the complete file associated with the given
      * incomplete file, i.e., the number of bytes in the file when the
@@ -634,18 +589,27 @@ public class IncompleteFileManager  {
                 }
                 
                 String name = incompleteFile.getName();
-                int i = name.indexOf(SEPARATOR);
-                if (i < 0 || i == name.length() - 1) {
-                    return false;
-                }
-                int j = name.indexOf(SEPARATOR, i + 1);
-                if (j < 0 || j == name.length() - 1) {
-                    return false;
-                }                
-                try {
-                    Long.parseLong(name.substring(i + 1, j));
-                } catch (NumberFormatException e) {
-                    return false;
+                
+                if(isTorrentFile(incompleteFile)) {
+                    return !torrentManager.get().isManagedTorrent(incompleteFile);
+                } else {
+                    if(!name.startsWith(INCOMPLETE_PREFIX)) {
+                        return false;
+                    }
+                    
+                    int i = name.indexOf(SEPARATOR);
+                    if (i < 0 || i == name.length() - 1) {
+                        return false;
+                    }
+                    int j = name.indexOf(SEPARATOR, i + 1);
+                    if (j < 0 || j == name.length() - 1) {
+                        return false;
+                    }                
+                    try {
+                        Long.parseLong(name.substring(i + 1, j));
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
                 }
                 
                 synchronized(IncompleteFileManager.this) {
@@ -660,5 +624,8 @@ public class IncompleteFileManager  {
             return Arrays.asList(files);
         }
     }
-    
+
+    public static boolean isTorrentFile(File incompleteFile) {
+        return "torrent".equals(FileUtils.getFileExtension(incompleteFile));
+    }
 }

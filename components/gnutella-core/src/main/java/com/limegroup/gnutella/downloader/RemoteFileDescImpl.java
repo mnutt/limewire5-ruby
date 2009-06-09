@@ -82,7 +82,7 @@ public class RemoteFileDescImpl implements RemoteFileDesc {
     /**
 	 * the spam rating of this rfd.
 	 */
-	private float _spamRating = 0.f;
+	private volatile float _spamRating = 0.f;
     
     /** the security of this RemoteFileDesc. */
     private Status _secureStatus = Status.INSECURE;

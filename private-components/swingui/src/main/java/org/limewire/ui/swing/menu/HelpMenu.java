@@ -7,25 +7,18 @@ import org.limewire.core.api.Application;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.action.MnemonicMenu;
 import org.limewire.ui.swing.event.AboutDisplayEvent;
-import org.limewire.ui.swing.mainframe.StorePanel;
-import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.tray.Notification;
 import org.limewire.ui.swing.tray.TrayNotifier;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 class HelpMenu extends MnemonicMenu {
 
     @Inject
-    public HelpMenu(Application application, final IconManager iconManager,
-            final TrayNotifier trayNotifier, final Navigator navigator, 
-            final StorePanel storePanel) {
+    public HelpMenu(Application application, final TrayNotifier trayNotifier) {
         super(I18n.tr("&Help"));
 
         add(new AbstractAction(I18n.tr("&Using LimeWire")) {

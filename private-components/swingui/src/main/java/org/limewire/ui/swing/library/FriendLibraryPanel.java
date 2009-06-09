@@ -3,9 +3,7 @@ package org.limewire.ui.swing.library;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TooManyListenersException;
 
 import javax.swing.Action;
@@ -22,6 +20,7 @@ import org.limewire.core.api.Category;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendEvent;
+import org.limewire.core.api.friend.FriendManager;
 import org.limewire.core.api.library.FileItem;
 import org.limewire.core.api.library.FriendLibrary;
 import org.limewire.core.api.library.LibraryManager;
@@ -56,6 +55,7 @@ import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 
 /**
@@ -76,6 +76,7 @@ public class FriendLibraryPanel extends AbstractFileListPanel {
     private final LibraryNavigator libraryNavigator;
     private final RemoteLibraryManager remoteLibraryManager;
     private final ShareListManager shareListManager;
+    private final FriendManager friendManager;
     
     private final FriendLibraryListSourceChanger currentFriendFilterChanger;
     
@@ -85,9 +86,6 @@ public class FriendLibraryPanel extends AbstractFileListPanel {
      */
     private final FriendLibraryTransferHandler transferHandler;
     
-    /** Set of all friends that are online or on LimeWire*/
-    private final Set<String> availFriends = new HashSet<String>();
-    
     /** Friend that is currently selected, null if all files are being shown*/
     private Friend currentFriend;
     
@@ -95,13 +93,15 @@ public class FriendLibraryPanel extends AbstractFileListPanel {
     private EmptyFriendLibraryMessagePanel emptyMessagePanel;
     
     @Inject
-    public FriendLibraryPanel(HeaderBarDecorator headerBarFactory,
+    public FriendLibraryPanel(@Assisted PluggableList<RemoteFileItem> baseLibraryList,
+            @Assisted FriendLibraryListSourceChanger currentFriendFilterChanger,
+            HeaderBarDecorator headerBarFactory,
             TextFieldDecorator textFieldDecorator, CategoryIconManager categoryIconManager,
             LibraryTableFactory libraryTableFactory, DownloadListManager downloadListManager,
             LibraryManager libraryManager, LibraryNavigator libraryNavigator,
             final RemoteLibraryManager remoteLibraryManager,
             ShareListManager shareListManager, EmptyFriendLibraryMessagePanel emptyMessagePanel,
-            GhostDragGlassPane ghostGlassPane) {
+            GhostDragGlassPane ghostGlassPane, FriendManager friendManager) {
         super(headerBarFactory, textFieldDecorator);
         
         this.categoryIconManager = categoryIconManager;
@@ -112,9 +112,8 @@ public class FriendLibraryPanel extends AbstractFileListPanel {
         this.remoteLibraryManager = remoteLibraryManager;
         this.shareListManager = shareListManager;
         this.emptyMessagePanel = emptyMessagePanel;
-        
-        final PluggableList<RemoteFileItem> baseLibraryList = new PluggableList<RemoteFileItem>(remoteLibraryManager.getAllFriendsFileList().getModel().getPublisher(), remoteLibraryManager.getAllFriendsFileList().getModel().getReadWriteLock());
-        currentFriendFilterChanger = new FriendLibraryListSourceChanger(baseLibraryList, remoteLibraryManager);
+        this.friendManager = friendManager;
+        this.currentFriendFilterChanger = currentFriendFilterChanger;
         
         createMyCategories(baseLibraryList);
         
@@ -197,7 +196,7 @@ public class FriendLibraryPanel extends AbstractFileListPanel {
                 setLibraryState(friendLibrary.getState());
             else {
                 // no library presence which means they're either offline or not using LW
-                if(availFriends.contains(friend.getId()))
+                if(friendManager.containsAvailableFriend(friend.getId()))
                     emptyMessagePanel.setMessageType(MessageTypes.ONLINE);
                 else
                     emptyMessagePanel.setMessageType(MessageTypes.OFFLINE);
@@ -239,13 +238,11 @@ public class FriendLibraryPanel extends AbstractFileListPanel {
             public void handleEvent(FriendEvent event) {
                 switch(event.getType()) {
                 case ADDED:
-                    availFriends.add(event.getData().getId());
                     //if friend signed on, show online view
                     if(currentFriend != null && event.getData().getId().equals(currentFriend.getId()))
                         updateEmptyMessage(currentFriend);
                     break;
                 case REMOVED:
-                    availFriends.remove(event.getData().getId());
                     //if this friend signed off, show offline view
                     if(currentFriend != null && event.getData().getId().equals(currentFriend.getId()))
                         updateEmptyMessage(currentFriend);

@@ -2,6 +2,8 @@ package org.limewire.ui.swing.nav;
 
 import javax.swing.JComponent;
 
+import org.limewire.ui.swing.library.nav.NavMediator;
+
 /**
  * The main hub for navigation.
  */
@@ -21,7 +23,7 @@ public interface Navigator {
      * 
      * @return A {@link NavItem} that can be used to select or remove the item.
      */
-    public NavItem createNavItem(NavCategory category, String id, JComponent panel);
+    public NavItem createNavItem(NavCategory category, String id, NavMediator navMediator);
 
     /**
      * Returns true if a {@link NavItem} exists in the given category with the given id.

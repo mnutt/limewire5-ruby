@@ -4,8 +4,7 @@ import java.awt.event.ActionEvent;
 
 import org.limewire.core.api.friend.Friend;
 import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.friends.chat.ChatFramePanel;
-import org.limewire.ui.swing.friends.chat.ChatFriendListPane;
+import org.limewire.ui.swing.friends.chat.ChatFrame;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
@@ -14,24 +13,22 @@ import com.google.inject.Inject;
 public class ChatAction extends AbstractAction {
 
     private Friend friend;
-    private final ChatFriendListPane friendsPane;
-    private final ChatFramePanel friendsPanel;
+    private final ChatFrame chatFrame;
 
     @Inject
-    ChatAction(ChatFriendListPane friendsPane, ChatFramePanel friendsPanel) {
+    ChatAction(ChatFrame chatFrame) {
         super(I18n.tr("&Chat"));
-        this.friendsPane = friendsPane;
-        this.friendsPanel = friendsPanel;
-        setEnabled(false);
+        this.chatFrame = chatFrame;
 
+        setEnabled(false);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         Friend friend = getFriend();
         if (friend != null) {
-            friendsPanel.setChatPanelVisible(true);
-            friendsPane.fireConversationStarted(friend.getId());
+            chatFrame.setVisibility(true);
+            chatFrame.fireConversationStarted(friend.getId());
         }
     }
 

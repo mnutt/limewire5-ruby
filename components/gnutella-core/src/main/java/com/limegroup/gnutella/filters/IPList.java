@@ -63,14 +63,19 @@ public class IPList {
         return ips.size();
     }
     
-    public void add(String ipStr) {
+    /**
+     * Parses a string and adds it to the IPList if it represents a valid IP.
+     * @return true if the string is valid, otherwise false.
+     */
+    public boolean add(String ipStr) {
         IP ip;
         try {
             ip = new IP(ipStr);
         } catch (IllegalArgumentException e) {
-            return;
+            return false;
         }
         add(ip);
+        return true;
     }
     
     /** 

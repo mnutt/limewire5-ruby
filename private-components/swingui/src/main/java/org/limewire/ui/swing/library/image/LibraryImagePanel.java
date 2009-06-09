@@ -29,6 +29,8 @@ import org.limewire.ui.swing.library.sharing.ShareWidget;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.SwingUtils;
 
+import com.google.inject.Provider;
+
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GroupingList;
 import ca.odell.glazedlists.event.ListEvent;
@@ -39,7 +41,7 @@ import ca.odell.glazedlists.matchers.Matcher;
 public class LibraryImagePanel extends JPanel
     implements ListEventListener<List<LocalFileItem>>, Disposable, Scrollable, LibraryOperable<LocalFileItem> {
     
-    private LibraryImageSubPanelFactory factory;
+    private final Provider<LibraryImageSubPanelFactory> factory;
     private ShareWidget<File> shareWidget;
     
     private final EventList<LocalFileItem> currentEventList;
@@ -64,10 +66,11 @@ public class LibraryImagePanel extends JPanel
     private final LibraryListSourceChanger listChanger;
     
     private JScrollPane scrollPane;
+    private LibraryImageSubPanelFactory subPanelFactory;
     
     public LibraryImagePanel(String name, EventList<LocalFileItem> eventList, 
             LocalFileList fileList, JScrollPane scrollPane,
-            LibraryImageSubPanelFactory factory,
+            Provider<LibraryImageSubPanelFactory> factory,
             ShareWidget<File> shareWidget,
             LibraryListSourceChanger listChanger) {       
         super(new VerticalLayout());
@@ -130,7 +133,9 @@ public class LibraryImagePanel extends JPanel
     
     
     private void createSubPanel(File parent, EventList<LocalFileItem> list){
-        LibraryImageSubPanel subPanel = factory.createMyLibraryImageSubPanel(parent, list, fileList, shareWidget, listChanger);
+        if(subPanelFactory == null)
+            subPanelFactory = factory.get();
+        LibraryImageSubPanel subPanel = subPanelFactory.createMyLibraryImageSubPanel(parent, list, fileList, shareWidget, listChanger);
         panelMap.put(parent, subPanel);
         add(subPanel);
     }

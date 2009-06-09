@@ -38,6 +38,7 @@ import org.limewire.ui.swing.components.SplashWindow;
 import org.limewire.ui.swing.event.ExceptionPublishingSwingEventService;
 import org.limewire.ui.swing.mainframe.AppFrame;
 import org.limewire.ui.swing.settings.StartupSettings;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LocaleUtils;
 import org.limewire.ui.swing.util.MacOSXUtils;
@@ -266,6 +267,7 @@ public final class Initializer {
             LimeCoreGlue.preinstall();
             stopwatch.resetAndLog("Preinstall");
         } catch(InstallFailedException ife) {
+            GuiUtils.hideAndDisposeAllWindows();
             failPreferencesPermissions();
         }
 
@@ -331,8 +333,10 @@ public final class Initializer {
      */
     private void validateStartup(String[] args) {        
         // check if this version has expired.
-        if (System.currentTimeMillis() > EXPIRATION_DATE) 
+        if (System.currentTimeMillis() > EXPIRATION_DATE) {
+            GuiUtils.hideAndDisposeAllWindows();
             failExpired();
+        }
         
         // Yield so any other events can be run to determine
         // startup status, but only if we're going to possibly
@@ -387,6 +391,7 @@ public final class Initializer {
     private void validateEarlyCore() {        
         // See if our NIODispatcher clunked out.
         if(!nioDispatcher.get().isRunning()) {
+            GuiUtils.hideAndDisposeAllWindows();
             failInternetBlocked();
         }
         stopwatch.resetAndLog("Check for NIO dispatcher");
@@ -617,7 +622,7 @@ public final class Initializer {
     private void failPreferencesPermissions() {
         fail(I18n.tr("LimeWire could not create a temporary preferences folder.\n\nThis is generally caused by a lack of permissions.  Please make sure that LimeWire (and you) have access to create files/folders on your computer.  If the problem persists, please visit www.limewire.com and click the \'Support\' link.\n\nLimeWire will now exit.  Thank You."));
     }
-    
+   
     /** Shows a msg & fails. */
     private void fail(final String msgKey) {
         try {
@@ -640,6 +645,5 @@ public final class Initializer {
         }
         System.exit(1);
     }
-    
 }
 

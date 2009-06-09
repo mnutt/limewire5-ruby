@@ -12,57 +12,65 @@ import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.QueryRequest;
 
 /**
- * A filter that blocks anomalous queries that meet the following criteria:
- * 1) The first four bytes of the GUID match a large fraction of recently
- *    seen queries
- * 2) The query does not ask for OOB replies, so the first four bytes of
- *    the GUID are not being used to encode the OOB reply address
- * 3) There are no flags set in the minimum speed field
+ * A filter that blocks anomalous queries where any four-byte slice of the GUID
+ * matches a large fraction of recently seen queries.
  */
 @Singleton
 public class AnomalousQueryFilter implements SpamFilter {
-    
+
     private static final Log LOG =
         LogFactory.getLog(AnomalousQueryFilter.class);
 
     // Package access for testing
-    static final int PREFIXES_TO_COUNT = 100;
-    static final double MAX_FRACTION_PER_PREFIX = 0.25;
-    
-    private int total = 0;
-    private final LinkedHashMap<Integer, Integer> prefixCounts =
-        new LinkedHashMap<Integer, Integer>(PREFIXES_TO_COUNT, 0.75f, true) {
-            @Override
-            public boolean removeEldestEntry(Map.Entry<Integer, Integer> e) {
-                if(size() > PREFIXES_TO_COUNT) {
-                    total -= e.getValue();
-                    return true;
-                }
-                return false;
+    static final int GUIDS_TO_COUNT = 100;
+    static final float MAX_FRACTION_PER_SLICE = 0.25f;
+
+    private int[] sliceTotals = new int[4];
+    // The keys of this map contain two integer values packed into a long:
+    // the position of the slice within the GUID (0 to 3) and the slice's value
+    private final LinkedHashMap<Long, Integer> sliceCounts =
+        new LinkedHashMap<Long, Integer>(GUIDS_TO_COUNT * 4, 0.75f, true) {
+        @Override
+        // Limited-size map with LRU eviction policy
+        public boolean removeEldestEntry(Map.Entry<Long, Integer> e) {
+            if(size() > GUIDS_TO_COUNT * 4) {
+                int position = (int)(e.getKey() >> 32);
+                sliceTotals[position] -= e.getValue();
+                return true;
             }
-        };
-    
+            return false;
+        }
+    };
+
     @Override
     public boolean allow(Message m) {
         if(m instanceof QueryRequest) {
             QueryRequest q = (QueryRequest)m;
-            // The prefix is the first four bytes of the GUID
-            Integer prefix = ByteUtils.leb2int(q.getGUID(), 0);
-            // Count how often we've seen each prefix recently
-            Integer count = prefixCounts.get(prefix);
-            if(count == null)
-                count = 0;
-            count++;
-            total++;
-            prefixCounts.put(prefix, count);
-            // Drop the query if we've seen enough queries to make a judgement
-            // and the query matches all the criteria 
-            if(total >= PREFIXES_TO_COUNT &&
-                    count > total * MAX_FRACTION_PER_PREFIX &&
-                    !q.desiresOutOfBandReplies() && q.getMinSpeed() == 0) {
+            boolean shouldDrop = false;
+            // Count each four-byte slice of the GUID
+            byte[] guid = q.getGUID();
+            for(int i = 0; i < 4; i++) {
+                int slice = ByteUtils.leb2int(guid, i * 4);
+                // Pack the position and value of the slice into a long
+                Long key = ((long)i << 32) | (slice & 0xFFFFFFFFL);
+                // Count how often we've seen each slice recently
+                Integer count = sliceCounts.get(key);
+                if(count == null)
+                    count = 0;
+                count++;
+                sliceTotals[i]++;
+                sliceCounts.put(key, count);
+                // Drop the query if we've seen enough queries to make a
+                // judgement and it matches a large fraction of recent queries 
+                if(sliceTotals[i] >= GUIDS_TO_COUNT &&
+                        count > sliceTotals[i] * MAX_FRACTION_PER_SLICE) {
+                    // Count the other slices before returning
+                    shouldDrop = true;
+                }
+            }
+            if(shouldDrop) {
                 if(LOG.isDebugEnabled())
-                    LOG.debug("Dropping anomalous query " + q + ", counted " +
-                            count + "/" + total);
+                    LOG.debug("Dropping anomalous query " + q);
                 return false;
             }
         }

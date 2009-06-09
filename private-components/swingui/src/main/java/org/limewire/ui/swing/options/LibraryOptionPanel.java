@@ -63,7 +63,7 @@ import com.google.inject.name.Named;
 /** Library Option View */
 public class LibraryOptionPanel extends OptionPanel {
 
-    private final IconManager iconManager;    
+    private final Provider<IconManager> iconManager;    
     private final Provider<ShareListManager> shareListManager;
     private final Collection<Friend> knownFriends;
     private final LibraryManagerOptionPanel libraryManagerPanel;    
@@ -74,7 +74,7 @@ public class LibraryOptionPanel extends OptionPanel {
     @Inject
     public LibraryOptionPanel(LibraryManager libraryManager, 
             Provider<ShareListManager> shareListManager,
-            IconManager iconManager,
+            Provider<IconManager> iconManager,
             @Named("known") Collection<Friend> knownFriends) {
         this.iconManager = iconManager;
         this.shareListManager = shareListManager;

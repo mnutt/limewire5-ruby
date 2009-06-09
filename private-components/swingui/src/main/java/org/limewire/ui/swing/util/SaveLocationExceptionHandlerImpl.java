@@ -26,13 +26,11 @@ import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.util.FileUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * A universal handler for SaveLocationException messages generated while
  * performing downloads.
  */
-@Singleton
 public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHandler {
     private static final Log LOG = LogFactory.getLog(SaveLocationExceptionHandlerImpl.class);
 
@@ -77,6 +75,8 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
 
         if (sle.getErrorCode() == SaveLocationException.LocationCode.FILE_ALREADY_DOWNLOADING) {
             // ignore, just return because we are already downloading this file
+             downLoadAction.downloadCanceled(sle);
+             showErrorMessage(sle);
             return;
         }
 
@@ -84,12 +84,14 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
         if ((sle.getErrorCode() != SaveLocationException.LocationCode.FILE_ALREADY_EXISTS)
                 && (sle.getErrorCode() != SaveLocationException.LocationCode.FILE_IS_ALREADY_DOWNLOADED_TO)) {
             // Create user message.
+            downLoadAction.downloadCanceled(sle);
             showErrorMessage(sle);
             return;
         } else if (sle.getErrorCode() == SaveLocationException.LocationCode.FILE_IS_ALREADY_DOWNLOADED_TO
                 && !supportNewSaveDir) {
             // prevents infinite loop case where for bit torrent files we can't
             // change the save file at the moment
+            downLoadAction.downloadCanceled(sle);
             showErrorMessage(sle);
             return;
         }
@@ -104,26 +106,32 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
                         .tr("Save File As..."), sle.getFile());
             } else {
                 saveFile = sle.getFile();
+                if (saveFile != null && saveFile.exists()) {
+                    createOverwriteDialogue(saveFile, downLoadAction, sle, supportNewSaveDir);
+                    return;
+                }
             }
 
             if (saveFile == null) {
+                //null saveFile means user selected cancel
+                downLoadAction.downloadCanceled(sle);
                 return;
             }
         }
 
-        // if save file already exists, prompt to overwrite
-        // otherwise download using the supplied download action
-        if (saveFile.exists()) {
-            createOverwriteDialogue(saveFile, downLoadAction, sle, supportNewSaveDir);
-        } else {
-            download(downLoadAction, supportNewSaveDir, saveFile, false);
-        }
+        // if the file already exists at this point, the user has already agreed to overwrite it
+        download(downLoadAction, supportNewSaveDir, saveFile, saveFile.exists());
     }
 
     private void showErrorMessage(final SaveLocationException sle) {
         String message = null;
 
         switch (sle.getErrorCode()) {
+        case FILE_ALREADY_DOWNLOADING:
+            message = I18n.tr("Sorry, this file is already being downloaded.");
+            break;
+        case DIRECTORY_NOT_WRITEABLE:
+        case DIRECTORY_DOES_NOT_EXIST:
         case NOT_A_DIRECTORY:
         case PATH_NAME_TOO_LONG:
             message = I18n.tr("Sorry, you can't download files to this location.");
@@ -203,6 +211,8 @@ public class SaveLocationExceptionHandlerImpl implements SaveLocationExceptionHa
                 dialog.dispose();
                 if (supportNewSaveDir) {
                     handleSaveLocationException(downLoadAction, sle, supportNewSaveDir);
+                } else {
+                    downLoadAction.downloadCanceled(sle);
                 }
             }
         });

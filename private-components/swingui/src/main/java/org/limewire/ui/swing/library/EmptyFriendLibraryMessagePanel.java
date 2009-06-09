@@ -17,8 +17,7 @@ import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.ui.swing.components.HTMLLabel;
 import org.limewire.ui.swing.components.MessageComponent;
-import org.limewire.ui.swing.friends.chat.ChatFramePanel;
-import org.limewire.ui.swing.friends.chat.ChatFriendListPane;
+import org.limewire.ui.swing.friends.chat.ChatFrame;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -57,17 +56,15 @@ public class EmptyFriendLibraryMessagePanel extends JPanel implements ListEventL
     private EventList<LocalFileItem> friendList;
     
     private final LibraryNavigator libraryNavigator;
-    private final ChatFriendListPane friendsPane;
-    private final ChatFramePanel friendsPanel;
+    private final ChatFrame chatFrame;
     private final ShareListManager shareListManager;
     
     @Inject
     public EmptyFriendLibraryMessagePanel(LibraryNavigator libraryNavigator, 
-            ChatFriendListPane friendsPane, ChatFramePanel friendsPanel,
+            ChatFrame chatFrame,
             ShareListManager shareListManager) {
         this.libraryNavigator = libraryNavigator;
-        this.friendsPane = friendsPane;
-        this.friendsPanel = friendsPanel;
+        this.chatFrame = chatFrame;
         this.shareListManager = shareListManager;
         
         GuiUtils.assignResources(this);
@@ -150,8 +147,8 @@ public class EmptyFriendLibraryMessagePanel extends JPanel implements ListEventL
                         if (target.equals("#share")) {
                             libraryNavigator.selectFriendShareList(friend);
                         } else if (target.equals("#chat")) {
-                            friendsPanel.setChatPanelVisible(true);
-                            friendsPane.fireConversationStarted(friend.getId());
+                            chatFrame.setVisibility(true);
+                            chatFrame.fireConversationStarted(friend.getId());
                         } else {
                             throw new IllegalStateException("unknown target: " + target);
                         }

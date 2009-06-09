@@ -8,7 +8,7 @@ import org.limewire.core.api.library.MetaDataManager;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.api.library.ShareListManager;
 import org.limewire.inject.AbstractModule;
-import org.limewire.listener.EventListener;
+import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.EventMulticasterImpl;
 import org.limewire.listener.ListenerSupport;
@@ -28,8 +28,9 @@ public class CoreGlueLibraryModule extends AbstractModule {
         bind(FriendSearcher.class);
         
         EventMulticaster<FriendShareListEvent> friendShareListMulticaster = new EventMulticasterImpl<FriendShareListEvent>(); 
-        bind(new TypeLiteral<EventListener<FriendShareListEvent>>(){}).toInstance(friendShareListMulticaster);
         bind(new TypeLiteral<ListenerSupport<FriendShareListEvent>>(){}).toInstance(friendShareListMulticaster);
+        bind(new TypeLiteral<EventBroadcaster<FriendShareListEvent>>(){}).toInstance(friendShareListMulticaster);
+        
         
         bind(CoreLocalFileItemFactory.class)
                 .toProvider(

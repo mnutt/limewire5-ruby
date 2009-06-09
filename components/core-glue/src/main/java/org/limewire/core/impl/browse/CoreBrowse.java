@@ -14,8 +14,8 @@ import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.util.Objects;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.SearchServices;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -29,7 +29,7 @@ class CoreBrowse implements Browse {
     private volatile byte[] browseGuid;
     private volatile QueryReplyListener listener;
 
-    @AssistedInject
+    @Inject
     public CoreBrowse(@Assisted FriendPresence friendPresence, SearchServices searchServices,
             QueryReplyListenerList listenerList) {
         this.friendPresence = Objects.nonNull(friendPresence, "friendPresence");
@@ -86,8 +86,7 @@ class CoreBrowse implements Browse {
         @Override
         public void handleQueryReply(RemoteFileDesc rfd, QueryReply queryReply,
                 Set<? extends IpPort> locs) {
-            browseListener.handleBrowseResult(new RemoteFileDescAdapter(rfd,
-                    locs));
+            browseListener.handleBrowseResult(new RemoteFileDescAdapter(rfd, locs));
         }
     }
 }

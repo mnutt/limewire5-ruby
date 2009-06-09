@@ -32,6 +32,9 @@ import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.util.FileChooser;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
+import org.limewire.util.OSUtils;
+
+import com.google.inject.Provider;
 
 public class SetupPage2 extends WizardPage {
 
@@ -51,7 +54,8 @@ public class SetupPage2 extends WizardPage {
     private final String manualTextUpgrade = I18n.tr("Manually add files to My Library, but don't share any new files");
     private final String manualExplanation = I18n.tr("Select the folders and categories LimeWire automatically adds to My Library.");
     private final String manualExplanationOpen = I18n.tr("Add the following categories from the folders below to My Library:");
-    private final String bottomText = I18n.tr("You can change this later from Tools > Options");
+    private final String bottomText = OSUtils.isMacOSX() ? I18n.tr("All settings can be changed later from LimeWire > Preferences") :
+                                                    I18n.tr("All settings can be changed later from Tools > Options");
     
     private final LibraryData libraryData;
     
@@ -68,11 +72,11 @@ public class SetupPage2 extends WizardPage {
 
     private final ExcludedFolderCollectionManager excludedFolders = new ExcludedFolderCollectionManagerImpl();
         
-    public SetupPage2(SetupComponentDecorator decorator, IconManager iconManager, LibraryData libraryData) {
+    public SetupPage2(SetupComponentDecorator decorator, Provider<IconManager> iconManager, LibraryData libraryData) {
         this(decorator, iconManager, libraryData, false);
     }
     
-    public SetupPage2(SetupComponentDecorator decorator, IconManager iconManager, LibraryData libraryData,
+    public SetupPage2(SetupComponentDecorator decorator, Provider<IconManager> iconManager, LibraryData libraryData,
             boolean isUpgrade) {
         
         this.libraryData = libraryData;

@@ -1,6 +1,5 @@
 package org.limewire.core.impl.search;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.search.Search;
@@ -24,7 +22,6 @@ import org.limewire.core.api.search.sponsored.SponsoredResultTarget;
 import org.limewire.core.impl.library.CoreRemoteFileItem;
 import org.limewire.core.impl.library.FriendSearcher;
 import org.limewire.core.impl.search.sponsored.CoreSponsoredResult;
-import org.limewire.core.impl.util.FilePropertyKeyPopulator;
 import org.limewire.core.settings.PromotionSettings;
 import org.limewire.geocode.GeocodeInformation;
 import org.limewire.io.GUID;
@@ -34,16 +31,14 @@ import org.limewire.promotion.PromotionSearcher;
 import org.limewire.promotion.PromotionSearcher.PromotionSearchResultsCallback;
 import org.limewire.promotion.containers.PromotionMessageContainer;
 import org.limewire.util.Clock;
-import org.limewire.util.NameValue;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.SearchServices;
 import com.limegroup.gnutella.messages.QueryReply;
-import com.limegroup.gnutella.util.QueryUtils;
 import com.limegroup.gnutella.xml.LimeXMLDocumentFactory;
 
 public class CoreSearch implements Search {
@@ -54,7 +49,6 @@ public class CoreSearch implements Search {
     private final PromotionSearcher promotionSearcher;
     private final FriendSearcher friendSearcher;
     private final Provider<GeocodeInformation> geoLocation;
-    private final LimeXMLDocumentFactory xmlDocumentFactory;
 
     /**
      * A search is considered processed when it is acted upon (started or stopped)
@@ -70,13 +64,14 @@ public class CoreSearch implements Search {
     private final ScheduledExecutorService backgroundExecutor;
     private final EventBroadcaster<SearchEvent> searchEventBroadcaster;
     private final Clock clock;
+    private final AdvancedQueryStringBuilder compositeQueryBuilder;
     
     /**
      * The guid of the last active search
      */
     volatile byte[] searchGuid;
 
-    @AssistedInject
+    @Inject
     public CoreSearch(@Assisted SearchDetails searchDetails,
             SearchServices searchServices,
             QueryReplyListenerList listenerList,
@@ -86,7 +81,8 @@ public class CoreSearch implements Search {
             @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
             EventBroadcaster<SearchEvent> searchEventBroadcaster,
             LimeXMLDocumentFactory xmlDocumentFactory,
-            Clock clock) {
+            Clock clock,
+            AdvancedQueryStringBuilder compositeQueryBuilder) {
         this.searchDetails = searchDetails;
         this.searchServices = searchServices;
         this.listenerList = listenerList;
@@ -95,8 +91,8 @@ public class CoreSearch implements Search {
         this.geoLocation = geoLocation;
         this.backgroundExecutor = backgroundExecutor;
         this.searchEventBroadcaster = searchEventBroadcaster;
-        this.xmlDocumentFactory = xmlDocumentFactory;
         this.clock = clock;
+        this.compositeQueryBuilder = compositeQueryBuilder;
     }
     
     @Override
@@ -167,9 +163,9 @@ public class CoreSearch implements Search {
         Map<FilePropertyKey, String> advancedSearch = searchDetails.getAdvancedDetails();
         if(advancedSearch != null && advancedSearch.size() > 0) {
             if(query == null || query.equals("")) {
-                query = createCompositeQueryFromAdvanced(searchDetails.getSearchCategory().getCategory(), advancedSearch);
+                query = compositeQueryBuilder.createSimpleCompositeQuery(advancedSearch);
             }
-            advancedQuery = createAdvancedQueryString(searchDetails.getSearchCategory().getCategory(), advancedSearch);
+            advancedQuery = compositeQueryBuilder.createXMLQueryString(advancedSearch, searchDetails.getSearchCategory().getCategory());
         }
         
         searchServices.query(searchGuid, query, advancedQuery,
@@ -197,14 +193,14 @@ public class CoreSearch implements Search {
                     String title = result.getTitle();
                     String displayUrl = result.getDisplayUrl();
                     if(displayUrl.isEmpty()) {
-                        displayUrl = stripURL(result.getURL());
+                        displayUrl = SearchUrlUtils.stripUrl(result.getURL());
                     }
                     if(title.isEmpty()) {
                         title = displayUrl;
                     }
                     CoreSponsoredResult coreSponsoredResult = new CoreSponsoredResult(
                             title, result.getDescription(),
-                            displayUrl, createPromotionUrl(result),
+                            displayUrl, SearchUrlUtils.createPromotionUrl(result, clock.now() / 1000),
                             target);
                     handleSponsoredResults(coreSponsoredResult);
                 }
@@ -220,54 +216,6 @@ public class CoreSearch implements Search {
         }
     }
     
-    private String createPromotionUrl(PromotionMessageContainer container) {
-        String url = PromotionSettings.REDIRECT_URL.get();
-        url += "?url=" + container.getURL();
-        url += "&now=" + clock.now() / 1000;
-        url += "&id=" + container.getUniqueID();
-        return url;
-    }
-
-    
-    private String createAdvancedQueryString(Category category, Map<FilePropertyKey, String> advancedSearch) {
-        List<NameValue<String>> nvs = new ArrayList<NameValue<String>>();
-        for(Map.Entry<FilePropertyKey, String> entry : advancedSearch.entrySet()) {
-            String xmlName = FilePropertyKeyPopulator.getLimeXmlName(category, entry.getKey());
-            if(xmlName != null) {
-                nvs.add(new NameValue<String>(xmlName, entry.getValue()));
-            }
-        }
-        if(nvs.isEmpty()) {
-            return "";
-        } else {
-            return xmlDocumentFactory.createLimeXMLDocument(nvs,
-                    FilePropertyKeyPopulator.getLimeXmlSchemaUri(category)).getXMLString();
-        }
-    }
-
-    private String createCompositeQueryFromAdvanced(Category category, Map<FilePropertyKey, String> advancedSearch) {
-        StringBuilder sb = new StringBuilder();
-        for(String value : advancedSearch.values()) {
-            if (value != null && value.trim().length() > 1) {
-                sb.append(value + " ");
-            }
-        }        
-        return QueryUtils.createQueryString(sb.toString().trim(), true);
-    }
-
-    /**
-     * Strips "http://" and anything after ".com" (or .whatever) from the url
-     */
-    private static String stripURL(String url){
-        int dotIndex = url.indexOf('.');
-        int endIndex = url.indexOf('/', dotIndex);
-        endIndex = endIndex == -1 ? url.length() :  endIndex;
-        int startIndex = url.indexOf("//");
-        // this will either be 0 or the first character after "//"
-        startIndex = startIndex == -1 ? 0 :  startIndex + 2;
-        return url.substring(startIndex, endIndex);
-    }
-
     /**
      * Stops current search and repeats search.
      * 

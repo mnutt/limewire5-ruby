@@ -9,12 +9,14 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.jdesktop.swingx.icon.EmptyIcon;
 import org.limewire.ui.swing.util.IconManager;
 
+import com.google.inject.Provider;
+
 class FolderRenderer extends DefaultTreeCellRenderer {
     
     private final Icon emptyIcon;
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     
-    public FolderRenderer(IconManager iconManager) {
+    public FolderRenderer(Provider<IconManager> iconManager) {
         this.iconManager = iconManager;
         this.emptyIcon = new EmptyIcon(16, 16);
     }
@@ -25,7 +27,7 @@ class FolderRenderer extends DefaultTreeCellRenderer {
         if(value instanceof LibraryManagerItem) {
             LibraryManagerItem item = (LibraryManagerItem)value;
             super.getTreeCellRendererComponent(tree, item.displayName(), false, expanded, leaf, row, false);
-            Icon icon = iconManager.getIconForFile(item.getFile());
+            Icon icon = iconManager.get().getIconForFile(item.getFile());
             if(icon == null) {
                 icon = emptyIcon;
             }

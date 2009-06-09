@@ -8,22 +8,25 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.limewire.core.api.friend.Friend;
 import org.limewire.core.api.friend.FriendEvent;
+import org.limewire.core.api.friend.FriendManager;
+import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.friend.FriendPresenceEvent;
+import org.limewire.core.api.friend.feature.features.LimewireFeature;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
-import org.limewire.xmpp.api.client.Presence;
 import org.limewire.xmpp.api.client.PresenceEvent;
 import org.limewire.xmpp.api.client.RosterEvent;
-import org.limewire.xmpp.api.client.User;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
+import org.limewire.xmpp.api.client.XMPPFriend;
+import org.limewire.xmpp.api.client.XMPPPresence;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 @Singleton
-class FriendListListeners {
+class FriendListListeners implements FriendManager {
     
     private final EventBroadcaster<FriendEvent> knownBroadcaster;
     private final EventBroadcaster<FriendEvent> availableBroadcaster;
@@ -46,23 +49,17 @@ class FriendListListeners {
         rosterListeners.addListener(new EventListener<RosterEvent>() {
             @Override
             public void handleEvent(RosterEvent event) {
-                User user = event.getData();
+                Collection<XMPPFriend> xmppFriends = event.getData();
 
                 switch(event.getType()) {
-                case USER_ADDED:
-                    if (user.isSubscribed()) {
-                        addKnownFriend(user);
-                    }
+                case FRIENDS_ADDED:
+                    addFriends(xmppFriends);
                     break;
-                case USER_UPDATED:
-                    if (user.isSubscribed()) {
-                        addKnownFriend(user);
-                    } else {
-                        removeKnownFriend(user, true);
-                    }
+                case FRIENDS_UPDATED:
+                    updateFriends(xmppFriends);
                     break;
-                case USER_DELETED:
-                    removeKnownFriend(user, true);
+                case FRIENDS_DELETED:
+                    removeFriends(xmppFriends);
                     break;
                 }
             }
@@ -73,54 +70,102 @@ class FriendListListeners {
             public void handleEvent(XMPPConnectionEvent event) {
                 switch(event.getType()) {
                 case DISCONNECTED:
-                    for(User user : event.getSource().getUsers()) {
-                        removeKnownFriend(user, false);
+                    for(XMPPFriend friend : event.getSource().getFriends()) {
+                        removeKnownFriend(friend, false);
                     }
                     break;
                 }
             }
         });
     }
-    
-    private void addKnownFriend(User user) {
-        if (knownFriends.putIfAbsent(user.getId(), user) == null) {
-            user.addPresenceListener(presenceListener);
-            knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.ADDED));
-        }
-    }
-    
-    private void removeKnownFriend(User user, boolean delete) {
-        if (knownFriends.remove(user.getId()) != null) {
-            if(delete) {
-                knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.DELETE));
+
+    @Override
+    public FriendPresence getMostRelevantFriendPresence(String id) {
+        Friend friend = availFriends.get(id);
+        if(friend == null) {
+            return null;
+        } else {
+            Collection<FriendPresence> presences = friend.getFriendPresences().values();
+            //TODO: this is not guarenteed to return the correct FriendPresence
+            // if the friend is logged in through two LWs with the same ID
+            // Not really able to fix this without modifying the Browse/File Request
+            for(FriendPresence nextPresence : presences) {
+                if(nextPresence.hasFeatures(LimewireFeature.ID)) {
+                    return nextPresence;
+                }
             }
-            knownBroadcaster.broadcast(new FriendEvent(user, FriendEvent.Type.REMOVED));
+            return null;
         }
     }
     
-    private void updatePresence(Presence presence) {
+    @Override
+    public boolean containsAvailableFriend(String id) {
+        return availFriends.containsKey(id);
+    }
+
+    private void addFriends(Collection<XMPPFriend> friends) {
+        for (XMPPFriend friend : friends) {
+            if (friend.isSubscribed()) {
+                addKnownFriend(friend);
+            }
+        }
+    }
+
+    private void updateFriends(Collection<XMPPFriend> friends) {
+        for (XMPPFriend friend : friends) {
+            if (friend.isSubscribed()) {
+                addKnownFriend(friend);
+            } else {
+                removeKnownFriend(friend, true);
+            }
+        }
+    }
+
+    private void removeFriends(Collection<XMPPFriend> friends) {
+        for (XMPPFriend friend : friends) {
+            removeKnownFriend(friend, true);
+        }
+    }
+
+    private void addKnownFriend(XMPPFriend friend) {
+        if (knownFriends.putIfAbsent(friend.getId(), friend) == null) {
+            friend.addPresenceListener(presenceListener);
+            knownBroadcaster.broadcast(new FriendEvent(friend, FriendEvent.Type.ADDED));
+        }
+    }
+    
+    private void removeKnownFriend(XMPPFriend friend, boolean delete) {
+        if (knownFriends.remove(friend.getId()) != null) {
+            if(delete) {
+                knownBroadcaster.broadcast(new FriendEvent(friend, FriendEvent.Type.DELETE));
+            }
+            knownBroadcaster.broadcast(new FriendEvent(friend, FriendEvent.Type.REMOVED));
+        }
+    }
+    
+    private void updatePresence(XMPPPresence presence) {
         friendPresenceBroadcaster.broadcast(new FriendPresenceEvent(presence, FriendPresenceEvent.Type.UPDATE));
     }
     
-    private void addPresence(Presence presence) {
-        User user = presence.getUser();
-        if(user.getPresences().size() == 1) {
-            availFriends.put(user.getId(), presence.getFriend());
+    private void addPresence(XMPPPresence presence) {
+        XMPPFriend xmppFriend = presence.getXMPPFriend();
+        if(xmppFriend.getPresences().size() == 1) {
+            availFriends.put(xmppFriend.getId(), presence.getFriend());
             availableBroadcaster.broadcast(new FriendEvent(presence.getFriend(), FriendEvent.Type.ADDED));
         }
         friendPresenceBroadcaster.broadcast(new FriendPresenceEvent(presence, FriendPresenceEvent.Type.ADDED));
     }
     
-    private void removePresence(Presence presence) {
-        User user = presence.getUser();
-        if(!user.isSignedIn()) {
-            availFriends.remove(user.getId());
+    private void removePresence(XMPPPresence presence) {
+        XMPPFriend xmppFriend = presence.getXMPPFriend();
+        if(!xmppFriend.isSignedIn()) {
+            availFriends.remove(xmppFriend.getId());
             availableBroadcaster.broadcast(new FriendEvent(presence.getFriend(), FriendEvent.Type.REMOVED));
         }
         friendPresenceBroadcaster.broadcast(new FriendPresenceEvent(presence, FriendPresenceEvent.Type.REMOVED));
     }
 
-    Collection<Friend> getKnownFriends() {
+    public Collection<Friend> getKnownFriends() {
         return Collections.unmodifiableCollection(knownFriends.values());        
     }
 

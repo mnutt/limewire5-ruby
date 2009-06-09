@@ -14,6 +14,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.ExecutionContext;
 import org.limewire.io.IOUtils;
 import org.limewire.nio.AbstractNBSocket;
 import org.limewire.nio.channel.ThrottleWriter;
@@ -35,9 +36,6 @@ public class DefaultDispatchedIOReactor implements DispatchedIOReactor {
     protected volatile IOEventDispatch eventDispatch = null;
     
     private final Executor ioExecutor;
-
-    // copied from DefaultServerIOEventDispatch
-    private static final String NHTTP_CONN = "NHTTP_CONN";
     
     public DefaultDispatchedIOReactor(final HttpParams params, final Executor ioExecutor) {
         if (params == null) {
@@ -85,7 +83,7 @@ public class DefaultDispatchedIOReactor implements DispatchedIOReactor {
         this.eventDispatch.connected(session);
         
         // need to enable access to the channel for throttling support
-        NHttpConnection conn = (NHttpConnection) session.getAttribute(NHTTP_CONN);
+        NHttpConnection conn = (NHttpConnection) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         assert conn != null;
         conn.getContext().setAttribute(IO_SESSION_KEY, session);
         

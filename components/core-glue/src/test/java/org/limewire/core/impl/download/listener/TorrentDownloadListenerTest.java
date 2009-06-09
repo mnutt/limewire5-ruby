@@ -11,18 +11,19 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
+import org.limewire.bittorrent.TorrentManager;
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.util.BaseTestCase;
 
-import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.bittorrent.BTTorrentFileDownloader;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;
+import com.limegroup.gnutella.library.FileManager;
 
 public class TorrentDownloadListenerTest extends BaseTestCase {
 
@@ -39,6 +40,8 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
         final Downloader downloader = context.mock(CoreDownloader.class);
         final DownloadManager downloadManager = context.mock(DownloadManager.class);
         final ActivityCallback activityCallback = context.mock(ActivityCallback.class);
+        final FileManager fileManager = context.mock(FileManager.class);
+        final TorrentManager torrentManager = context.mock(TorrentManager.class);
         final List<DownloadItem> downloadItems = new ArrayList<DownloadItem>();
         context.checking(new Expectations() {
             {
@@ -49,7 +52,8 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
             }
         });
 
-        new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
+        new TorrentDownloadListener(downloadManager, activityCallback, fileManager, torrentManager,
+                downloadItems, downloader);
         context.assertIsSatisfied();
     }
 
@@ -62,6 +66,8 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
         final DownloadManager downloadManager = context.mock(DownloadManager.class);
         final ActivityCallback activityCallback = context.mock(ActivityCallback.class);
         final List<DownloadItem> downloadItems = new ArrayList<DownloadItem>();
+        final FileManager fileManager = context.mock(FileManager.class);
+        final TorrentManager torrentManager = context.mock(TorrentManager.class);
         context.checking(new Expectations() {
             {
                 one(downloader).getState();
@@ -69,7 +75,8 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
             }
         });
 
-        new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
+        new TorrentDownloadListener(downloadManager, activityCallback, fileManager, torrentManager,
+                downloadItems, downloader);
         context.assertIsSatisfied();
     }
 
@@ -85,6 +92,8 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
         final List<DownloadItem> downloadItems = new ArrayList<DownloadItem>();
         final File torrentFile = new File("testTorrentFileDownloadAdded.torrent");
         final DownloadItem downloadItem = context.mock(DownloadItem.class);
+        final FileManager fileManager = context.mock(FileManager.class);
+        final TorrentManager torrentManager = context.mock(TorrentManager.class);
         downloadItems.add(downloadItem);
         context.checking(new Expectations() {
             {
@@ -95,10 +104,13 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
                 one(downloader).getAttribute(DownloadItem.DOWNLOAD_ITEM);
                 will(returnValue(downloadItem));
                 one(downloadManager).downloadTorrent(torrentFile, false);
+                one(torrentManager).isDownloadingTorrent(torrentFile);
+                will(returnValue(false));
             }
         });
 
-        new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
+        new TorrentDownloadListener(downloadManager, activityCallback, fileManager, torrentManager,
+                downloadItems, downloader);
         assertFalse(downloadItems.contains(downloadItem));
         context.assertIsSatisfied();
     }
@@ -118,6 +130,8 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
         final SaveLocationException sle = new SaveLocationException(
                 SaveLocationException.LocationCode.FILE_ALREADY_DOWNLOADING, torrentFile);
         final DownloadItem downloadItem = context.mock(DownloadItem.class);
+        final FileManager fileManager = context.mock(FileManager.class);
+        final TorrentManager torrentManager = context.mock(TorrentManager.class);
         downloadItems.add(downloadItem);
 
         context.checking(new Expectations() {
@@ -136,10 +150,13 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
                         with(new IsEqual<Boolean>(false)));
                 will(new DownloadActionCaller());
                 one(downloadManager).downloadTorrent(torrentFile, true);
+                one(torrentManager).isDownloadingTorrent(torrentFile);
+                will(returnValue(false));
             }
         });
 
-        new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
+        new TorrentDownloadListener(downloadManager, activityCallback, fileManager, torrentManager,
+                downloadItems, downloader);
         assertFalse(downloadItems.contains(downloadItem));
         context.assertIsSatisfied();
     }
@@ -154,23 +171,29 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
         final DownloadManager downloadManager = context.mock(DownloadManager.class);
         final ActivityCallback activityCallback = context.mock(ActivityCallback.class);
         final List<DownloadItem> downloadItems = new ArrayList<DownloadItem>();
-        final BTMetaInfo bMetaInfo = context.mock(BTMetaInfo.class);
         final DownloadItem downloadItem = context.mock(DownloadItem.class);
+        final FileManager fileManager = context.mock(FileManager.class);
+        final TorrentManager torrentManager = context.mock(TorrentManager.class);
         downloadItems.add(downloadItem);
+
+        final File torrentFile = new File("");
 
         context.checking(new Expectations() {
             {
                 one(downloader).getState();
                 will(returnValue(DownloadState.COMPLETE));
-                one(downloader).getBtMetaInfo();
-                will(returnValue(bMetaInfo));
                 one(downloader).getAttribute(DownloadItem.DOWNLOAD_ITEM);
                 will(returnValue(downloadItem));
-                one(downloadManager).downloadTorrent(bMetaInfo, false);
+                one(downloader).getTorrentFile();
+                will(returnValue(torrentFile));
+                one(downloadManager).downloadTorrent(torrentFile, false);
+                one(torrentManager).isDownloadingTorrent(torrentFile);
+                will(returnValue(false));
             }
         });
 
-        new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
+        new TorrentDownloadListener(downloadManager, activityCallback, fileManager, torrentManager,
+                downloadItems, downloader);
         assertFalse(downloadItems.contains(downloadItem));
         context.assertIsSatisfied();
     }
@@ -185,40 +208,45 @@ public class TorrentDownloadListenerTest extends BaseTestCase {
         final DownloadManager downloadManager = context.mock(DownloadManager.class);
         final ActivityCallback activityCallback = context.mock(ActivityCallback.class);
         final List<DownloadItem> downloadItems = new ArrayList<DownloadItem>();
-        final BTMetaInfo bMetaInfo = context.mock(BTMetaInfo.class);
         final SaveLocationException sle = new SaveLocationException(
                 SaveLocationException.LocationCode.FILE_ALREADY_DOWNLOADING, null);
         final DownloadItem downloadItem = context.mock(DownloadItem.class);
+        final FileManager fileManager = context.mock(FileManager.class);
+        final TorrentManager torrentManager = context.mock(TorrentManager.class);
         downloadItems.add(downloadItem);
+
+        final File torrentFile = new File("");
 
         context.checking(new Expectations() {
             {
                 one(downloader).getState();
                 will(returnValue(DownloadState.COMPLETE));
-                one(downloader).getBtMetaInfo();
-                will(returnValue(bMetaInfo));
                 one(downloader).getAttribute(DownloadItem.DOWNLOAD_ITEM);
                 will(returnValue(downloadItem));
-                one(downloadManager).downloadTorrent(bMetaInfo, false);
+                one(downloader).getTorrentFile();
+                will(returnValue(torrentFile));
+                one(downloadManager).downloadTorrent(torrentFile, false);
                 will(throwException(sle));
                 one(activityCallback).handleSaveLocationException(
                         with(new IsAnything<DownloadAction>()),
                         with(new IsEqual<SaveLocationException>(sle)),
                         with(new IsEqual<Boolean>(false)));
                 will(new DownloadActionCaller());
-                one(downloadManager).downloadTorrent(bMetaInfo, true);
+                one(downloadManager).downloadTorrent(torrentFile, true);
+                one(torrentManager).isDownloadingTorrent(torrentFile);
+                will(returnValue(false));
             }
         });
 
-        new TorrentDownloadListener(downloadManager, activityCallback, downloadItems, downloader);
+        new TorrentDownloadListener(downloadManager, activityCallback, fileManager, torrentManager,
+                downloadItems, downloader);
         assertFalse(downloadItems.contains(downloadItem));
         context.assertIsSatisfied();
     }
 
     /**
-     * Used to call the downloadAction when entering the SaveLocationException block.
-     * Uses override = true
-     * saveFile = null 
+     * Used to call the downloadAction when entering the SaveLocationException
+     * block. Uses override = true saveFile = null
      */
     private class DownloadActionCaller implements Action {
 

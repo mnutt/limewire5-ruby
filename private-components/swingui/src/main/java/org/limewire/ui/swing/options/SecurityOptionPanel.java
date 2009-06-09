@@ -204,7 +204,6 @@ public class SecurityOptionPanel extends OptionPanel {
         @Override
         boolean applyOptions() {
             ContentSettings.USER_WANTS_MANAGEMENTS.setValue(copyrightContentCheckBox.isSelected());
-            ContentSettings.CONTENT_MANAGEMENT_ACTIVE.setValue(copyrightContentCheckBox.isSelected());
             
             FilterSettings.FILTER_ADULT.setValue(adultContentCheckBox.isSelected());
             return filterKeywordPanel.applyOptions() || filterFileExtensionPanel.applyOptions();
@@ -213,7 +212,6 @@ public class SecurityOptionPanel extends OptionPanel {
         @Override
         boolean hasChanged() {
             return  ContentSettings.USER_WANTS_MANAGEMENTS.getValue() != copyrightContentCheckBox.isSelected()
-                    ||  ContentSettings.CONTENT_MANAGEMENT_ACTIVE.getValue() != copyrightContentCheckBox.isSelected()
                     ||FilterSettings.FILTER_ADULT.getValue() != adultContentCheckBox.isSelected()
                     || filterKeywordPanel.hasChanged()
                     || filterFileExtensionPanel.hasChanged();
@@ -221,7 +219,7 @@ public class SecurityOptionPanel extends OptionPanel {
 
         @Override
         public void initOptions() {
-            copyrightContentCheckBox.setSelected(ContentSettings.USER_WANTS_MANAGEMENTS.getValue() && ContentSettings.CONTENT_MANAGEMENT_ACTIVE.getValue());
+            copyrightContentCheckBox.setSelected(ContentSettings.USER_WANTS_MANAGEMENTS.getValue());
             adultContentCheckBox.setSelected(FilterSettings.FILTER_ADULT.getValue());
             filterKeywordPanel.initOptions();
             filterFileExtensionPanel.initOptions();

@@ -68,7 +68,7 @@ public class HeaderBar extends JXPanel {
         
         super.setLayout(new MigLayout("insets 0, fill, aligny center","[][]",""));
         super.add(titleComponent, "growy, dock west, gapbefore 5, gapafter 10");
-        super.add(componentContainer, "grow, right");
+        super.add(componentContainer, "grow, push, right");
     }
     
     @Override

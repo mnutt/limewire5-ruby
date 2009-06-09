@@ -8,7 +8,7 @@ import org.limewire.core.api.friend.feature.features.LimewireFeature;
 public class LimewireFeatureInitializer implements FeatureInitializer{
     @Override
     public void register(FeatureRegistry registry) {
-        registry.add(LimewireFeature.ID, this);
+        registry.add(LimewireFeature.ID, this, true);
     }
 
     @Override
@@ -19,5 +19,9 @@ public class LimewireFeatureInitializer implements FeatureInitializer{
     @Override
     public void removeFeature(FriendPresence friendPresence) {
         friendPresence.removeFeature(LimewireFeature.ID);
+    }
+
+    @Override
+    public void cleanup() {
     }
 }

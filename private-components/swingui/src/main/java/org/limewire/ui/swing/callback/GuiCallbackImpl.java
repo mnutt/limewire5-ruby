@@ -21,17 +21,18 @@ import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 import org.limewire.ui.swing.util.SwingUtils;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 @Singleton
 public class GuiCallbackImpl implements GuiCallback {
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
-    private final MagnetHandler magnetHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
+    private final Provider<MagnetHandler> magnetHandler;
 
     @Inject
     public GuiCallbackImpl(GuiCallbackService guiCallbackService,
-            SaveLocationExceptionHandler saveLocationExceptionHandler,
-            MagnetHandler magnetHandler) {
+            Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler,
+            Provider<MagnetHandler> magnetHandler) {
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
         this.magnetHandler = magnetHandler;
         guiCallbackService.setGuiCallback(this);
@@ -40,8 +41,7 @@ public class GuiCallbackImpl implements GuiCallback {
     @Override
     public void handleSaveLocationException(DownloadAction downLoadAction,
             SaveLocationException sle, boolean supportsNewSaveDir) {
-        saveLocationExceptionHandler.handleSaveLocationException(downLoadAction, sle,
-                supportsNewSaveDir);
+        saveLocationExceptionHandler.get().handleSaveLocationException(downLoadAction, sle, supportsNewSaveDir);
     }
 
     private boolean yesNoQuestion(String message) {
@@ -69,7 +69,7 @@ public class GuiCallbackImpl implements GuiCallback {
 
     @Override
     public void handleMagnet(MagnetLink magnetLink) {
-        magnetHandler.handleMagnet(magnetLink);
+        magnetHandler.get().handleMagnet(magnetLink);
     }
 
     @Override

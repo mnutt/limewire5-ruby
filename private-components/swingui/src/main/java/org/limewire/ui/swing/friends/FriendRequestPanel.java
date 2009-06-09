@@ -12,6 +12,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
+import org.limewire.core.api.friend.client.FriendRequest;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.MultiLineLabel;
@@ -19,7 +20,6 @@ import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.util.BackgroundExecutorService;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.xmpp.api.client.FriendRequest;
 
 import com.google.inject.Inject;
 

@@ -44,9 +44,10 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.util.StringUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.internal.Nullable;
 
 public class NavPanel extends JXPanel {
     
@@ -83,9 +84,9 @@ public class NavPanel extends JXPanel {
     
     private final Provider<ChatAction> chatActionProvider;
 
-    @AssistedInject
-    NavPanel(@Assisted Action action,
-             @Assisted Friend friend,
+    @Inject
+    NavPanel(@Nullable @Assisted Action action,
+            @Nullable @Assisted Friend friend,
             RemoteLibraryManager remoteLibraryManager,
             LibraryNavigator libraryNavigator,
             Provider<ChatAction> chatActionProvider) {

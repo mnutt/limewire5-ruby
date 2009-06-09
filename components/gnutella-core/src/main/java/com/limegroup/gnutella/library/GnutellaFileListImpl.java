@@ -45,13 +45,12 @@ class GnutellaFileListImpl extends FriendFileListImpl implements GnutellaFileLis
     }
 
     /**
-     * Called from super constructor. Empty here because gnutella list is populated by file added
-     * events dispatched upon lw startup
+     * Stubbed out because gnutella list is populated by file added
+     * events dispatched upon lw startup.  There are no pending
+     * managed files.
      */
     @Override
-    void initialize() {
-        // no initialization done
-    }
+    protected void addPendingManagedFiles() {}
     
     @Override
     public void clear() {

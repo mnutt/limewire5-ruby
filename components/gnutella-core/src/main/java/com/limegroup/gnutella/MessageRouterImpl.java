@@ -1463,17 +1463,6 @@ public abstract class MessageRouterImpl implements MessageRouter {
     }
 
     /* (non-Javadoc)
-     * @see com.limegroup.gnutella.MessageRouter#sendQueryRequest(com.limegroup.gnutella.messages.QueryRequest, com.limegroup.gnutella.RoutedConnection)
-     */
-    public void sendQueryRequest(QueryRequest request,
-                                 RoutedConnection connection) {        
-        Objects.nonNull(request, "query");
-        Objects.nonNull(connection, "connection");
-        _queryRouteTable.routeReply(request.getGUID(), forMeReplyHandler);
-        connection.send(request);
-    }
-
-    /* (non-Javadoc)
      * @see com.limegroup.gnutella.MessageRouter#broadcastPingRequest(com.limegroup.gnutella.messages.PingRequest)
      */
     public void broadcastPingRequest(PingRequest ping) {

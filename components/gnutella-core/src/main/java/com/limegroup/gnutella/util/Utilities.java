@@ -111,4 +111,12 @@ public class Utilities
             if      (num <      0x20000000) return 28; else return 29;
         else/*if(num <          0x80000000)*/return 30;/*else return 31;*/
     }
+    
+    /** Returns true iff the argument is a power of two */
+    public static boolean isPowerOf2(int x) {
+        if (x<=0)
+            return false;
+        else
+            return (x&(x - 1)) == 0;
+    }
 }

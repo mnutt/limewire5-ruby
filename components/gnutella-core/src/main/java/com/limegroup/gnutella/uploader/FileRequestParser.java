@@ -64,7 +64,8 @@ class FileRequestParser {
         }
     
         FileDesc desc = null;
-        for (SharedFileList fileList : fileListProvider.getFileLists(index == 0 ? null : parseFriendId(uri.substring(0, index)), context)) {
+        String friendID = index == 0 ? null : parseFriendId(uri.substring(0, index));
+        for (SharedFileList fileList : fileListProvider.getFileLists(friendID, context)) {
             desc = fileList.getFileDesc(urn);
             if (desc != null) {
                 break;
@@ -73,7 +74,7 @@ class FileRequestParser {
         if(desc == null) {
             return null;
         } else {
-            return new FileRequest(desc, requestType);
+            return new FileRequest(desc, requestType, friendID);
         }
     }
 
@@ -105,13 +106,16 @@ class FileRequestParser {
     static class FileRequest {
         
         private final FileDesc fileDesc;
+        
+        private final String friendID;
     
         /** Type of the requested resource. */ 
         private final RequestType requestType;
     
-        public FileRequest(FileDesc fileDesc, RequestType requestType) {
+        public FileRequest(FileDesc fileDesc, RequestType requestType, String friendID) {
             this.fileDesc = fileDesc;
             this.requestType = requestType;
+            this.friendID = friendID;
         }
     
         public boolean isThexRequest() {
@@ -120,6 +124,10 @@ class FileRequestParser {
         
         public FileDesc getFileDesc() {
             return fileDesc;
+        }
+        
+        public String getFriendID() {
+            return friendID;
         }
         
         @Override

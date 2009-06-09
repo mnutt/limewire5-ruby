@@ -21,19 +21,10 @@ public class DefaultSearchInfo implements SearchInfo {
     }
     
     /** Creates a new SearchInfo for the given advanced search. */
-    public static DefaultSearchInfo createAdvancedSearch(Map<FilePropertyKey, String> advancedSearch, SearchCategory searchCategory) {
-        return new DefaultSearchInfo(createTitle(advancedSearch), "", advancedSearch, searchCategory, SearchType.KEYWORD);
+    public static DefaultSearchInfo createAdvancedSearch(String title, Map<FilePropertyKey, String> advancedSearch, SearchCategory searchCategory) {
+        return new DefaultSearchInfo(title, "", advancedSearch, searchCategory, SearchType.KEYWORD);
     }
     
-    private static String createTitle(Map<FilePropertyKey, String> advancedSearch) {
-        StringBuilder sb = new StringBuilder();
-        for(String value : advancedSearch.values()) {
-            if (value != null && value.trim().length() > 1) {
-                sb.append(value + " ");
-            }
-        }
-        return sb.toString().trim();
-    }
     
     /** Creates a new SearchInfo for the given What's New search. */
     public static DefaultSearchInfo createWhatsNewSearch(SearchCategory searchCategory) {

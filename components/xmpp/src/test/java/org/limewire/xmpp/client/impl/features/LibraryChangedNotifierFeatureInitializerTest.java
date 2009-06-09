@@ -31,7 +31,7 @@ public class LibraryChangedNotifierFeatureInitializerTest extends BaseTestCase {
         final FeatureRegistry featureRegistry = context.mock(FeatureRegistry.class);
         final LibraryChangedNotifierFeatureInitializer initializer = new LibraryChangedNotifierFeatureInitializer(null);
         context.checking(new Expectations() {{
-            one(featureRegistry).add(LibraryChangedNotifierFeature.ID, initializer);
+            one(featureRegistry).add(LibraryChangedNotifierFeature.ID, initializer, true);
         }});
         initializer.register(featureRegistry);
         context.assertIsSatisfied();

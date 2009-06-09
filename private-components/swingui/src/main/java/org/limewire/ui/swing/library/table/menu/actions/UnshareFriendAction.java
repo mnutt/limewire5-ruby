@@ -15,6 +15,8 @@ import org.limewire.ui.swing.library.sharing.ShareWidgetFactory;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
+import com.google.inject.Provider;
+
 /**
  * Creates a menu action for unsharing files with a friend. This spawns a
  * sharing dialog for choosing multiple friends. A boolean can be set 
@@ -24,11 +26,11 @@ public class UnshareFriendAction extends AbstractAction {
     @Resource
     private Icon friendIcon;
     
-    private final ShareWidgetFactory shareWidgetFactory;
+    private final Provider<ShareWidgetFactory> shareWidgetFactory;
     private final SelectAllable<LocalFileItem> librarySelectable;
     private final boolean isShareAll;
     
-    public UnshareFriendAction(ShareWidgetFactory shareWidgetFactory, SelectAllable<LocalFileItem> librarySelectable, boolean isShareAll) {
+    public UnshareFriendAction(Provider<ShareWidgetFactory> shareWidgetFactory, SelectAllable<LocalFileItem> librarySelectable, boolean isShareAll) {
         GuiUtils.assignResources(this);
         
         if(isShareAll) {
@@ -51,7 +53,7 @@ public class UnshareFriendAction extends AbstractAction {
         List<LocalFileItem> selectedItems = librarySelectable.getSelectedItems();
         
         if (selectedItems.size() > 0) {
-            ShareWidget<LocalFileItem[]> shareWidget = shareWidgetFactory.createMultiFileUnshareWidget();
+            ShareWidget<LocalFileItem[]> shareWidget = shareWidgetFactory.get().createMultiFileUnshareWidget();
             shareWidget.setShareable(selectedItems.toArray(new LocalFileItem[selectedItems.size()]));
             shareWidget.show(GuiUtils.getMainFrame());
         }

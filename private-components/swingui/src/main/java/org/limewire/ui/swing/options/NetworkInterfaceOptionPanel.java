@@ -260,8 +260,12 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 
-            NetworkItem item = (NetworkItem) value;
-            this.setSelected(item.isSelected);
+            if(value instanceof NetworkItem) {
+                NetworkItem item = (NetworkItem) value;
+                this.setSelected(item.isSelected);
+            } else {
+                this.setSelected(false);
+            }
             
             if(isSelected) 
                 setBackground(table.getSelectionBackground());

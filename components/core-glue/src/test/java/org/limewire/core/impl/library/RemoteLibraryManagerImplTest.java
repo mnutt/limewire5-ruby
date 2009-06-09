@@ -41,24 +41,25 @@ public class RemoteLibraryManagerImplTest extends BaseTestCase {
 
         assertFalse(remoteLibraryManagerImpl.hasFriendLibrary(friend1));
 
-        PresenceLibrary presenceLibrary1 = remoteLibraryManagerImpl
-                .addPresenceLibrary(friendPresence1);
+        boolean added = remoteLibraryManagerImpl.addPresenceLibrary(friendPresence1);
+        assertTrue(added);
+        PresenceLibrary presenceLibrary1 = remoteLibraryManagerImpl.getPresenceLibrary(friendPresence1);
 
         assertNotNull(presenceLibrary1);
         assertTrue(remoteLibraryManagerImpl.hasFriendLibrary(friend1));
 
-        PresenceLibrary presenceLibrary1Copy = remoteLibraryManagerImpl
-                .addPresenceLibrary(friendPresence1);
+        added = remoteLibraryManagerImpl.addPresenceLibrary(friendPresence1);
+        assertFalse(added);
 
-        assertNotNull(presenceLibrary1Copy);
-        assertEquals(presenceLibrary1, presenceLibrary1Copy);
         assertTrue(remoteLibraryManagerImpl.hasFriendLibrary(friend1));
 
         remoteLibraryManagerImpl.removePresenceLibrary(friendPresence1);
         assertFalse(remoteLibraryManagerImpl.hasFriendLibrary(friend1));
 
-        presenceLibrary1 = remoteLibraryManagerImpl.addPresenceLibrary(friendPresence1);
-
+        added = remoteLibraryManagerImpl.addPresenceLibrary(friendPresence1);
+        assertTrue(added);
+        presenceLibrary1 = remoteLibraryManagerImpl.getPresenceLibrary(friendPresence1);
+        
         assertNotNull(presenceLibrary1);
         assertTrue(remoteLibraryManagerImpl.hasFriendLibrary(friend1));
 
@@ -198,11 +199,11 @@ public class RemoteLibraryManagerImplTest extends BaseTestCase {
         FileList<RemoteFileItem> allFriendFiles = remoteLibraryManagerImpl.getAllFriendsFileList();
         assertEmpty(allFriendFiles.getModel());
 
-        PresenceLibrary presenceLibrary1 = remoteLibraryManagerImpl
-                .addPresenceLibrary(friendPresence1);
+        remoteLibraryManagerImpl.addPresenceLibrary(friendPresence1);
+        PresenceLibrary presenceLibrary1 = remoteLibraryManagerImpl.getPresenceLibrary(friendPresence1);
 
-        PresenceLibrary presenceLibrary2 = remoteLibraryManagerImpl
-                .addPresenceLibrary(friendPresence2);
+        remoteLibraryManagerImpl.addPresenceLibrary(friendPresence2);
+        PresenceLibrary presenceLibrary2 = remoteLibraryManagerImpl.getPresenceLibrary(friendPresence2);
 
         assertEmpty(allFriendFiles.getModel());
 

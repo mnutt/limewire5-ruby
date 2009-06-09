@@ -15,7 +15,7 @@ import org.limewire.ui.swing.library.table.menu.actions.LocateFileAction;
 import org.limewire.ui.swing.library.table.menu.actions.PlayAction;
 import org.limewire.ui.swing.library.table.menu.actions.ViewFileInfoAction;
 import org.limewire.ui.swing.player.PlayerUtils;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
 import org.limewire.ui.swing.util.I18n;
 
 /**
@@ -25,7 +25,7 @@ public class PlaylistPopupMenu extends JPopupMenu {
 
     private final Playlist playlist;
     private final LibraryNavigator libraryNavigator;
-    private final PropertiesFactory<LocalFileItem> propertiesFactory;
+    private final FileInfoDialogFactory fileInfoFactory;
     
     private List<LocalFileItem> fileItemList;
 
@@ -35,10 +35,10 @@ public class PlaylistPopupMenu extends JPopupMenu {
      */
     public PlaylistPopupMenu(Playlist playlist, 
             LibraryNavigator libraryNavigator,
-            PropertiesFactory<LocalFileItem> propertiesFactory) {
+            FileInfoDialogFactory fileInfoFactory) {
         this.playlist = playlist;
         this.libraryNavigator = libraryNavigator;
-        this.propertiesFactory = propertiesFactory;
+        this.fileInfoFactory = fileInfoFactory;
     }
 
     /**
@@ -82,7 +82,7 @@ public class PlaylistPopupMenu extends JPopupMenu {
         addSeparator();
         LocalFileItem localItem = (firstItem instanceof PlaylistFileItemImpl) ?
                 ((PlaylistFileItemImpl) firstItem).getLocalFileItem() : firstItem;
-        add(new ViewFileInfoAction(localItem, propertiesFactory)).setEnabled(viewFileInfoEnabled);
+        add(new ViewFileInfoAction(localItem, fileInfoFactory)).setEnabled(viewFileInfoEnabled);
     }
 
     /**

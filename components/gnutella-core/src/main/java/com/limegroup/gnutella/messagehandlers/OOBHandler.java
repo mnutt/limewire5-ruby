@@ -20,6 +20,7 @@ import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.io.GUID;
 import org.limewire.io.NetworkInstanceUtils;
+import org.limewire.io.NetworkUtils;
 import org.limewire.security.InvalidSecurityTokenException;
 import org.limewire.security.MACCalculatorRepositoryManager;
 import org.limewire.security.SecurityToken;
@@ -306,7 +307,10 @@ public class OOBHandler implements MessageHandler, Runnable {
                 rp.timestamp = now;
                 return true;
             } else if(rp.port != port) {
-                LOG.debug("Ignoring address with too many ports");
+                if(LOG.isInfoEnabled()) {
+                    String ip = NetworkUtils.ip2string(addr);
+                    LOG.info("Ignoring " + ip + " - too many ports");
+                }
                 // Too many ports - ignore the address for a while
                 rp = new ResponderPort(IGNORE, now);
                 responderPorts.put(address, rp);
@@ -330,7 +334,10 @@ public class OOBHandler implements MessageHandler, Runnable {
         synchronized(responderPorts) {
             ResponderPort rp = responderPorts.get(address);
             if(rp == null || rp.port != IGNORE) {
-                LOG.debug("Ignoring address with too many results");
+                if(LOG.isInfoEnabled()) {
+                    String ip = NetworkUtils.ip2string(addr);
+                    LOG.info("Ignoring " + ip + " - too many results");
+                }
                 // Too many results - ignore the address for a while
                 rp = new ResponderPort(IGNORE, now);
                 responderPorts.put(address, rp);

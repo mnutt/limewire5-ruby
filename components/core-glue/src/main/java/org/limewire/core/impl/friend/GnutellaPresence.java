@@ -74,7 +74,7 @@ public class GnutellaPresence implements FriendPresence {
             "Owl", "Ox", "Oyster", "Panda", "Parrot", "Peafowl", "Penguin", "Pheasant", "Pig",
             "Pigeon", "Platypus", "Porpoise", "PrarieDog", "Pronghorn", "Quail", "Rabbit",
             "Raccoon", "Rat", "Raven", "Reindeer", "Rhinoceros", "Seal", "Seastar", "Serval",
-            "Shark", "Sheep", "Skunk", "Snake", "Snipe", "Sparrow", "Spider", "Squrrel", "Swallow",
+            "Shark", "Sheep", "Skunk", "Snake", "Snipe", "Sparrow", "Spider", "Squirrel", "Swallow",
             "Swan", "Termite", "Tiger", "Toad", "Trout", "Turkey", "Turtle", "Wallaby", "Walrus",
             "Wasp", "Weasel", "Whale", "Wolf", "Wombat", "Woodpecker", "Wren", "Yak", "Zebra",
             "Ball", "Bed", "Book", "Bun", "Can", "Cake", "Cap", "Car", "Cat", "Day", "Fan", "Feet",
@@ -100,15 +100,29 @@ public class GnutellaPresence implements FriendPresence {
     public GnutellaPresence(Address address, String id) {
         this.id = id;
         this.features.put(AddressFeature.ID, new AddressFeature(address));
-        this.friend = new GnutellaFriend(describe(address), id, this);
+        this.friend = new GnutellaFriend(describe(address),
+                describeFriendly(address), id, this);
     }
     
-    
     private String describe(Address address) {
+        if(address instanceof Connectable || address instanceof PushEndpoint) {
+            IpPort ipp = (IpPort)address;
+            InetAddress inetAddr = ipp.getInetAddress();
+            return inetAddr == null ? null : inetAddr.getHostAddress();
+        } else {
+            return address.getAddressDescription();
+        }
+    }
+    
+    private String describeFriendly(Address address) {
+        if(!SearchSettings.FRIENDLY_ADDRESS_DESCRIPTIONS.getValue())
+            return describe(address);
         if(address instanceof Connectable || address instanceof PushEndpoint) {
             // Convert IP addr into a #.
             IpPort ipp = (IpPort)address;
             InetAddress inetAddr = ipp.getInetAddress();
+            if(inetAddr == null)
+                return null;
             byte[] addr = inetAddr.getAddress();
             
             if (addr.length != 4) {
@@ -120,11 +134,7 @@ public class GnutellaPresence implements FriendPresence {
             int i2 = ByteUtils.ubyte2int(addr[1]);
             int i3 = ByteUtils.ubyte2int(addr[2]);
             int i4 = ByteUtils.ubyte2int(addr[3]);
-            
-            if(SearchSettings.FRIENDLY_ADDRESS_DESCRIPTIONS.getValue())
-                return adjs[i1] + nouns[i2] + "-" + i3 + "-" + i4;
-            else
-                return i1 + "." + i2 + "." + i3 + "." + i4;
+            return adjs[i1] + nouns[i2] + "-" + i3 + "-" + i4;
         } else {
             return address.getAddressDescription();
         }

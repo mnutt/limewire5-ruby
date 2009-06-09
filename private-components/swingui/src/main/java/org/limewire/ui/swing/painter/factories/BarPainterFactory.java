@@ -5,12 +5,12 @@ import java.awt.GradientPaint;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.painter.GenericBarPainter;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.PainterUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Creates the various background painters to be used to paint the gradients and borders
@@ -20,7 +20,7 @@ import com.google.inject.Singleton;
  *  two for the two horizontal border lines on the top edge, and two for 
  *  another two horizontal border lines on the bottom edge.
  */
-@Singleton
+@LazySingleton
 public class BarPainterFactory {
 
     @Resource private Color headerBarGradientTop = PainterUtils.TRASPARENT;

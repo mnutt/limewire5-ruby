@@ -24,6 +24,7 @@ import org.limewire.ui.swing.search.model.SearchResultsModelFactory;
 import org.limewire.ui.swing.util.SwingUtils;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 /**
@@ -35,11 +36,14 @@ import com.google.inject.Singleton;
 class TextSearchHandlerImpl implements SearchHandler {
     
     private final SearchFactory searchFactory;
-    private final SearchResultsPanelFactory panelFactory;
+    private final Provider<SearchResultsPanelFactory> searchResultPanelFactory;
     private final SearchNavigator searchNavigator;
-    private final SearchResultsModelFactory searchResultsModelFactory;
+    private final Provider<SearchResultsModelFactory> searchResultsModelFactory;
     private final LifeCycleManager lifeCycleManager;
     private final GnutellaConnectionManager connectionManager;
+    
+    private SearchResultsModelFactory modelFactory;
+    private SearchResultsPanelFactory panelFactory;
     
     /**
      * Constructs a TextSearchHandlerImpl with the specified services and
@@ -47,14 +51,14 @@ class TextSearchHandlerImpl implements SearchHandler {
      */
     @Inject
     TextSearchHandlerImpl(SearchFactory searchFactory,
-            SearchResultsPanelFactory panelFactory,
+            Provider<SearchResultsPanelFactory> searchResultPanelFactory,
             SearchNavigator searchNavigator,
-            SearchResultsModelFactory searchResultsModelFactory,
+            Provider<SearchResultsModelFactory> searchResultsModelFactory,
             LifeCycleManager lifeCycleManager, 
             GnutellaConnectionManager connectionManager) {
         this.searchNavigator = searchNavigator;
         this.searchFactory = searchFactory;
-        this.panelFactory = panelFactory;
+        this.searchResultPanelFactory = searchResultPanelFactory;
         this.searchResultsModelFactory = searchResultsModelFactory;
         this.lifeCycleManager = lifeCycleManager;
         this.connectionManager = connectionManager;
@@ -71,8 +75,12 @@ class TextSearchHandlerImpl implements SearchHandler {
         
         String panelTitle = info.getTitle();
         
+        if(modelFactory == null)
+            modelFactory = searchResultsModelFactory.get();
+        if(panelFactory == null)
+            panelFactory = searchResultPanelFactory.get();
         // Create search results data model and display panel.
-        SearchResultsModel searchModel = searchResultsModelFactory.createSearchResultsModel(info, search);
+        SearchResultsModel searchModel = modelFactory.createSearchResultsModel(info, search);
         SearchResultsPanel searchPanel = panelFactory.createSearchResultsPanel(searchModel);
         
         // Add search results display to the UI, and select its navigation item.

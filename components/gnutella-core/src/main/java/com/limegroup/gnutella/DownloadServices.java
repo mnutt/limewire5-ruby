@@ -1,13 +1,11 @@
 package com.limegroup.gnutella;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.io.GUID;
 
-import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 
@@ -119,17 +117,6 @@ public interface DownloadServices {
     public Downloader download(RemoteFileDesc[] files,
             List<? extends RemoteFileDesc> alts, GUID queryGUID,
             boolean overwrite, File saveDir, String fileName)
-            throws SaveLocationException;
-
-    /**
-     * Starts a torrent download for a given Inputstream to the .torrent file
-     * 
-     * @param is
-     *            the InputStream belonging to the .torrent file
-     * @throws IOException
-     *             in case there was a problem reading the file 
-     */
-    public Downloader downloadTorrent(BTMetaInfo info, boolean overwrite)
             throws SaveLocationException;
 
     /**

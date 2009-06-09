@@ -9,12 +9,11 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
+import org.limewire.core.api.friend.client.FileMetaData;
+import org.limewire.util.Objects;
 import org.limewire.util.StringUtils;
-import org.limewire.xmpp.api.client.FileMetaData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
-import com.google.inject.internal.base.Objects;
 
 public class FileMetaDataImpl implements FileMetaData {
 

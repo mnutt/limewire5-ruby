@@ -30,8 +30,10 @@ public class GnutellaPresenceTest extends BaseTestCase {
 
         context.checking(new Expectations() {
             {
-                one(address1).getAddressDescription();
+                exactly(2).of(address1).getAddressDescription();
                 will(returnValue(description1));
+                
+                allowing(address1);
             }
         });
         GnutellaPresence gnutellaPresence = new GnutellaPresence(address1, id1);

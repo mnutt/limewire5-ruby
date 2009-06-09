@@ -14,6 +14,8 @@ import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
+import com.google.inject.Provider;
+
 /**
  * Table format for the Document Table when it is in My Library
  */
@@ -31,9 +33,9 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
     static final int PATH_INDEX = 10;
 
 	/** Icon manager used to find native file type information. */
-	private IconManager iconManager;
+	private Provider<IconManager> iconManager;
 	
-	public DocumentTableFormat(IconManager iconManager) {
+	public DocumentTableFormat(Provider<IconManager> iconManager) {
 	    super(ACTION_INDEX, "LIBRARY_DOCUMENT_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(ACTION_INDEX, "LIBRARY_DOCUMENT_ACTION", I18n.tr("Sharing"), 61, true, false),
                 new ColumnStateInfo(NAME_INDEX, "LIBRARY_DOCUMENT_NAME", "Name", 493, true, true), 
@@ -65,7 +67,7 @@ public class DocumentTableFormat<T extends LocalFileItem> extends AbstractMyLibr
          case TYPE_INDEX:
              // Use icon manager to return MIME description.
              return (iconManager != null) ?
-                 iconManager.getMIMEDescription(baseObject) : 
+                 iconManager.get().getMIMEDescription(baseObject) : 
                  baseObject.getProperty(FilePropertyKey.DESCRIPTION);
          case HIT_INDEX: return baseObject.getNumHits();
          case UPLOAD_ATTEMPTS_INDEX: return baseObject.getNumUploadAttempts();

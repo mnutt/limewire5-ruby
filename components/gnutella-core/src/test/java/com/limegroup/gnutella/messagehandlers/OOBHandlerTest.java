@@ -999,10 +999,6 @@ public class OOBHandlerTest extends BaseTestCase {
         public void sendPushRequest(PushRequest push) throws IOException {
         }
 
-        public void sendQueryRequest(QueryRequest request,
-                RoutedConnection connection) {
-        }
-
         public void setMessageHandler(Class<? extends Message> clazz,
                 MessageHandler handler) {
         }

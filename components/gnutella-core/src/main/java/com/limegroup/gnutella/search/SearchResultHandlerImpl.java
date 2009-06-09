@@ -331,7 +331,6 @@ final class SearchResultHandlerImpl implements SearchResultHandler {
             }
             rfd.setSecureStatus(secureStatus);
             Set<? extends IpPort> alts = response.getLocations();
-            activityCallback.get().handleQueryResult(rfd, qr, alts);
             
             // Set the spam rating for the RemoteFileDesc
             float spamRating = spamManager.get().calculateSpamRating(rfd);
@@ -339,6 +338,9 @@ final class SearchResultHandlerImpl implements SearchResultHandler {
             // Count non-spam results for dynamic querying
             if(skipSpam || spamRating < spamThreshold)
                 numGoodSentToFrontEnd++;
+            
+            // Send the result to the UI
+            activityCallback.get().handleQueryResult(rfd, qr, alts);
         }
         
         accountAndUpdateDynamicQueriers(qr, numGoodSentToFrontEnd);

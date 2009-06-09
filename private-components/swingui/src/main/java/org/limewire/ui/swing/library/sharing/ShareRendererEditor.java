@@ -32,6 +32,10 @@ public class ShareRendererEditor extends JPanel implements  TableCellEditor, Tab
         add(button, "aligny 50%");
     }
     
+    /**
+     * Returns the SharingTarget currently being edited. Note this may
+     * return null if no SharingTarget exists.
+     */
     public SharingTarget getFriend() {
         return friend;
     }
@@ -43,7 +47,10 @@ public class ShareRendererEditor extends JPanel implements  TableCellEditor, Tab
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value,
             boolean isSelected, int row, int column) {
-        friend = (SharingTarget)value;
+        if(value instanceof SharingTarget)
+            friend = (SharingTarget)value;
+        else
+            friend = null;
         return this;
     }
 

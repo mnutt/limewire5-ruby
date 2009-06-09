@@ -7,17 +7,19 @@ import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.core.api.library.LibraryManager;
+import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.ui.swing.downloads.DownloadItemUtils;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.library.sharing.ShareWidget;
 import org.limewire.ui.swing.library.sharing.ShareWidgetFactory;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
+import org.limewire.ui.swing.properties.FileInfoDialog.FileInfoType;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-@Singleton
 public class DownloadActionHandler {
     
     public final static String PAUSE_COMMAND = "pause";
@@ -40,16 +42,19 @@ public class DownloadActionHandler {
     
     private final LibraryNavigator libraryNavigator;
     private DownloadListManager downloadListManager;
-    private PropertiesFactory<DownloadItem> propertiesFactory;
-    private ShareWidget<File> shareWidget;
+    private ShareWidget<File> shareWidget = null;
+    private LibraryManager libraryManager;
+    private final FileInfoDialogFactory fileInfoFactory;
+    private final Provider<ShareWidgetFactory> shareFactory;
     
     @Inject
-    public DownloadActionHandler(PropertiesFactory<DownloadItem> propertiesFactory, 
-            ShareWidgetFactory shareFactory, DownloadListManager downloadListManager, LibraryNavigator libraryNavigator){
+    public DownloadActionHandler(Provider<ShareWidgetFactory> shareFactory, DownloadListManager downloadListManager, 
+            LibraryNavigator libraryNavigator, LibraryManager libraryManager, FileInfoDialogFactory fileInfoFactory){
         this.downloadListManager = downloadListManager;
-        this.propertiesFactory = propertiesFactory;
-        this.shareWidget = shareFactory.createFileShareWidget();
+        this.shareFactory = shareFactory;
         this.libraryNavigator = libraryNavigator;
+        this.libraryManager = libraryManager;
+        this.fileInfoFactory = fileInfoFactory;
     }
 
     public void performAction(final String actionCommmand, final DownloadItem item){
@@ -71,10 +76,21 @@ public class DownloadActionHandler {
         } else if (actionCommmand == LOCATE_COMMAND){
             NativeLaunchUtils.launchExplorer(item.getDownloadingFile());
         } else if (actionCommmand == PROPERTIES_COMMAND){
-            propertiesFactory.newProperties().showProperties(item);
+            if(item.getState() != DownloadState.DONE) {
+                fileInfoFactory.createFileInfoDialog(item, FileInfoType.DOWNLOADING_FILE);
+            } else {
+                // if finished downloadng, try showing all the information from the localFileItem
+                LocalFileItem localItem = libraryManager.getLibraryManagedList().getFileItem(item.getLaunchableFile());
+                if(localItem != null)
+                    fileInfoFactory.createFileInfoDialog(localItem, FileInfoType.LOCAL_FILE);
+                else  // if can't find the localFileItem, revert to the downloadItem
+                    fileInfoFactory.createFileInfoDialog(item, FileInfoType.DOWNLOADING_FILE);
+            }
         } else if (actionCommmand == REMOVE_COMMAND){
             downloadListManager.remove(item);
         } else if (actionCommmand == SHARE_COMMAND){
+            if(shareWidget == null)
+                shareWidget = shareFactory.get().createFileShareWidget();
             shareWidget.setShareable(item.getDownloadingFile());
             shareWidget.show(null);
         } else if( actionCommmand == LIBRARY_COMMAND) {

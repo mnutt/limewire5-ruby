@@ -26,8 +26,9 @@ import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.MediaType;
 import org.limewire.util.Objects;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * Defines the window panel for the Download Folders dialog, which manages the
@@ -72,9 +73,9 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
      * Constructs a ManageSaveFoldersOptionPanel with the specified managers
      * and actions.
      */
-    @AssistedInject
+    @Inject
     public ManageSaveFoldersOptionPanel(CategoryIconManager categoryIconManager,
-            @Assisted Action okAction, @Assisted CancelDialogAction cancelAction, IconManager iconManager) {
+            @Assisted Action okAction, @Assisted CancelDialogAction cancelAction, Provider<IconManager> iconManager) {
 
         GuiUtils.assignResources(this);
 

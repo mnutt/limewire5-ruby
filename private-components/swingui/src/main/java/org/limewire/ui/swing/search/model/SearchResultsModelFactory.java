@@ -12,12 +12,11 @@ import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 import ca.odell.glazedlists.EventList;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
 /**
  * Implements a factory for creating the search results data model.
  */
-@Singleton
 public class SearchResultsModelFactory {
     
     private final SpamManager spamManager;
@@ -28,9 +27,9 @@ public class SearchResultsModelFactory {
 
     private final DownloadListManager downloadListManager;
 
-    private final PropertiableHeadings propertiableHeadings;
+    private final Provider<PropertiableHeadings> propertiableHeadings;
 
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
 
     /**
      * Constructs a SearchResultsModelFactory with the specified factories,
@@ -39,8 +38,8 @@ public class SearchResultsModelFactory {
     @Inject
     public SearchResultsModelFactory(SimilarResultsDetectorFactory similarResultsDetectorFactory,
             SpamManager spamManager, LibraryManager libraryManager,
-            DownloadListManager downloadListManager, PropertiableHeadings propertiableHeadings,
-            SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            DownloadListManager downloadListManager, Provider<PropertiableHeadings> propertiableHeadings,
+            Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler) {
         this.similarResultsDetectorFactory = similarResultsDetectorFactory;
         this.spamManager = spamManager;
         this.libraryManager = libraryManager;

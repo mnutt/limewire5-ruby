@@ -11,8 +11,8 @@ import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
+import org.limewire.core.api.friend.client.FileMetaData;
 import org.limewire.core.impl.URNImpl;
-import org.limewire.xmpp.api.client.FileMetaData;
 
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.library.CreationTimeCache;

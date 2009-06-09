@@ -54,7 +54,11 @@ abstract class AbstractFileList implements SharedFileList, Inspectable {
         this.fileDescIndexes = new IntSet(); 
         this.listenerSupport = new EventMulticasterImpl<FileListChangedEvent>();
         this.managedListListener = new ManagedListSynchronizer();
-        this.managedList.addFileListListener(managedListListener);
+    }
+    
+    /** Initializes this list.  Until the list is initialized, it is not valid. */
+    protected void initialize() {
+        managedList.addFileListListener(managedListListener);
     }
     
     @Override

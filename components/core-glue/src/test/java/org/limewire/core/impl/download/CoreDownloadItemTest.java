@@ -91,7 +91,7 @@ public class CoreDownloadItemTest extends BaseTestCase {
             }
         });
 
-        coreDownloadItem = new CoreDownloadItem(downloader, queueTimeCalculator);
+        coreDownloadItem = new CoreDownloadItem(downloader, queueTimeCalculator, null);
 
     }
 
@@ -100,7 +100,7 @@ public class CoreDownloadItemTest extends BaseTestCase {
      * downloaders stop method is called. Ensures that a property change event
      * is fired on the state property with a DownloadState of Cancelled.
      */
-    public void testCancel() {
+    public void testCancel() throws Exception {
         TestPropertyChangeListener listener = new TestPropertyChangeListener();
         coreDownloadItem.addPropertyChangeListener(listener);
 
@@ -120,6 +120,7 @@ public class CoreDownloadItemTest extends BaseTestCase {
         assertEquals("state", propertyChangeEvent.getPropertyName());
         DownloadState downloadState = (DownloadState) propertyChangeEvent.getNewValue();
         assertEquals(DownloadState.CANCELLED, downloadState);
+        Thread.sleep(1000);
         context.assertIsSatisfied();
     }
 
@@ -367,11 +368,11 @@ public class CoreDownloadItemTest extends BaseTestCase {
             {
                 one(downloader).getAttribute("LimeXMLDocument");
                 will(returnValue(document));
-                one(downloader).getSaveFile();
+                allowing(downloader).getSaveFile();
                 will(returnValue(new File("test.mp3")));
-                one(downloader).getFile();
+                allowing(downloader).getFile();
                 will(returnValue(new File("test.mp3")));
-                one(downloader).getContentLength();
+                allowing(downloader).getContentLength();
                 will(returnValue(1234L));
             }
         });
@@ -404,11 +405,11 @@ public class CoreDownloadItemTest extends BaseTestCase {
             {
                 one(downloader).getAttribute("LimeXMLDocument");
                 will(returnValue(document));
-                one(downloader).getSaveFile();
+                allowing(downloader).getSaveFile();
                 will(returnValue(new File("test.mp3")));
-                one(downloader).getFile();
+                allowing(downloader).getFile();
                 will(returnValue(new File("test.mp3")));
-                one(downloader).getContentLength();
+                allowing(downloader).getContentLength();
                 will(returnValue(1234L));
             }
         });
@@ -437,7 +438,7 @@ public class CoreDownloadItemTest extends BaseTestCase {
         context.assertIsSatisfied();
     }
 
-    public void testGetState() {
+    public void testGetState() throws Exception {
         context.checking(new Expectations() {
             {
                 one(downloader).getState();
@@ -674,6 +675,7 @@ public class CoreDownloadItemTest extends BaseTestCase {
             }
         });
         coreDownloadItem.cancel();
+        Thread.sleep(1000);
         assertEquals(DownloadState.CANCELLED, coreDownloadItem.getState());
 
         context.assertIsSatisfied();

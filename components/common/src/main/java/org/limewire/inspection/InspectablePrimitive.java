@@ -17,5 +17,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface InspectablePrimitive {
-    String value(); 
+    String value();
+    InspectionRequirements[] requires() default {};
 }

@@ -564,6 +564,7 @@ public class HostCatcher implements Service, Bootstrapper.Listener {
                 if(line == null)
                     break;
                 try {
+                    // Resolve hostnames later
                     ExtendedEndpoint e = ExtendedEndpoint.read(line); 
                     if(e.isUDPHostCache()) {
                         bootstrapper.addUDPHostCache(e);

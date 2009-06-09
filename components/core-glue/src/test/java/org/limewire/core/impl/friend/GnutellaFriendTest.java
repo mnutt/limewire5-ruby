@@ -17,6 +17,7 @@ public class GnutellaFriendTest extends BaseTestCase {
         Mockery context = new Mockery();
         final FriendPresence friendPresence1 = context.mock(FriendPresence.class);
         final String name1 = "name1";
+        final String renderName1 = "renderName1";
         final String id1 = "id1";
         final String presenceId1 = "presenceId1";
 
@@ -27,12 +28,13 @@ public class GnutellaFriendTest extends BaseTestCase {
             }
         });
 
-        GnutellaFriend gnutellaFriend = new GnutellaFriend(name1, id1, friendPresence1);
+        GnutellaFriend gnutellaFriend =
+            new GnutellaFriend(name1, renderName1, id1, friendPresence1);
         
         assertTrue(gnutellaFriend.isAnonymous());
         assertEquals(name1, gnutellaFriend.getFirstName());
         assertEquals(name1, gnutellaFriend.getName());
-        assertEquals(name1, gnutellaFriend.getRenderName());
+        assertEquals(renderName1, gnutellaFriend.getRenderName());
         assertEquals(id1, gnutellaFriend.getId());
         assertNull(gnutellaFriend.getNetwork());
         Map<String, FriendPresence> friendPresences = gnutellaFriend.getFriendPresences();

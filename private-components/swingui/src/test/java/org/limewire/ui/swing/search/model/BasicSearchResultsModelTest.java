@@ -7,6 +7,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import junit.framework.Assert;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.PropertiableFile;
@@ -19,6 +21,10 @@ import org.limewire.ui.swing.search.SearchInfo;
 import org.limewire.ui.swing.util.PropertiableHeadings;
 import org.limewire.util.BaseTestCase;
 
+import com.google.inject.Provider;
+
+import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
+import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;
 
 /**
@@ -27,7 +33,9 @@ import ca.odell.glazedlists.matchers.TextMatcherEditor;
 public class BasicSearchResultsModelTest extends BaseTestCase {
     /** Instance of class being tested. */
     private BasicSearchResultsModel model;
-
+    private Provider<PropertiableHeadings> provider;
+    private Mockery context;
+    
     /**
      * Constructs a test case for the specified method name.
      */
@@ -35,12 +43,15 @@ public class BasicSearchResultsModelTest extends BaseTestCase {
         super(name);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        context = new Mockery();
+        provider = context.mock(Provider.class);
         // Create test instance.
         model = new BasicSearchResultsModel(new TestSearchInfo(), 
-                new TestSearch(), new TestPropertiableHeadings(), null, null);
+                new TestSearch(), provider, null, null);
     }
     
     @Override
@@ -576,8 +587,8 @@ public class BasicSearchResultsModelTest extends BaseTestCase {
         Assert.assertEquals(group0, group1.getSimilarityParent());
     }
 
-    /** Tests method to retrieve filtered search results by category. */
-    public void testGetCategorySearchResults() {
+    /** Tests method to retrieve filtered search results. */
+    public void testGetFilteredSearchResults() {
         // Create test search results.
         TestSearchResult testResult1 = new TestSearchResult("1", "xray");
         TestSearchResult testResult2 = new TestSearchResult("2", "zulu");
@@ -590,18 +601,51 @@ public class BasicSearchResultsModelTest extends BaseTestCase {
         model.addSearchResult(testResult2);
         model.addSearchResult(testResult3);
         model.addSearchResult(testResult4);
-
-        // Get category search results.
-        List<VisualSearchResult> categoryList = model.getCategorySearchResults(SearchCategory.VIDEO);
         
-        // Verify category list.
+        // Apply category filter.
+        model.setFilterEditor(new AbstractMatcherEditor<VisualSearchResult>() {
+            Matcher<VisualSearchResult> matcher = new Matcher<VisualSearchResult>() {
+                @Override
+                public boolean matches(VisualSearchResult item) {
+                    return item.getCategory() == Category.VIDEO;
+                }
+            };
+            
+            @Override
+            public Matcher<VisualSearchResult> getMatcher() {
+                return matcher;
+            }
+        });
+        
+        // Get filtered search results.
+        List<VisualSearchResult> filteredList = model.getFilteredSearchResults();
+        
+        // Verify filtered list.
         int expectedSize = 1;
-        int actualSize = categoryList.size();
-        assertEquals("category list size", expectedSize, actualSize);
+        int actualSize = filteredList.size();
+        assertEquals("filtered list size", expectedSize, actualSize);
     }
     
     /** Tests method to retrieve sorted and filtered search results. */
     public void testGetSortedSearchResults() {
+        
+        final PropertiableHeadings propertiableHeadings = context.mock(PropertiableHeadings.class);
+
+        context.checking(new Expectations(){
+            {
+                allowing(provider).get();
+                will(returnValue(propertiableHeadings));
+                one(propertiableHeadings).getHeading(with(any(PropertiableFile.class)));
+                will(returnValue("xray"));
+                one(propertiableHeadings).getHeading(with(any(PropertiableFile.class)));
+                will(returnValue("zulu"));
+                one(propertiableHeadings).getHeading(with(any(PropertiableFile.class)));
+                will(returnValue("whiskey"));
+                one(propertiableHeadings).getHeading(with(any(PropertiableFile.class)));
+                will(returnValue("yankee"));
+            }
+        });
+        
         // Create test search results.
         TestSearchResult testResult1 = new TestSearchResult("1", "xray");
         TestSearchResult testResult2 = new TestSearchResult("2", "zulu");
@@ -616,7 +660,7 @@ public class BasicSearchResultsModelTest extends BaseTestCase {
         // Get sorted search results.
         model.setSelectedCategory(SearchCategory.ALL);
         List<VisualSearchResult> sortedList = model.getSortedSearchResults();
-        
+
         // Verify unsorted order.
         String expectedReturn = "xray";
         String actualReturn = sortedList.get(0).getHeading();
@@ -645,7 +689,7 @@ public class BasicSearchResultsModelTest extends BaseTestCase {
         model.addSearchResult(testResult4);
         
         // Get all search results.
-        List<VisualSearchResult> filteredList = model.getCategorySearchResults(SearchCategory.ALL);
+        List<VisualSearchResult> filteredList = model.getFilteredSearchResults();
         
         // Verify unfiltered list.
         int expectedSize = 4;
@@ -663,40 +707,7 @@ public class BasicSearchResultsModelTest extends BaseTestCase {
         actualSize = filteredList.size();
         assertEquals("filtered list size", expectedSize, actualSize);
     }
-
-    /**
-     * Test implementation of PropertiableHeadings.
-     */
-    private static class TestPropertiableHeadings implements PropertiableHeadings {
-
-        @Override
-        public String getHeading(PropertiableFile propertiable) {
-            Object name = propertiable.getProperty(FilePropertyKey.NAME);
-            return (name == null) ? "" : name.toString();
-        }
-
-        @Override
-        public String getSubHeading(PropertiableFile propertiable) {
-            Object name = propertiable.getProperty(FilePropertyKey.AUTHOR);
-            return (name == null) ? "" : name.toString();
-        }
-        
-        @Override
-        public String getFileSize(PropertiableFile propertiable) {
-            return "0";
-        }
-
-        @Override
-        public String getLength(PropertiableFile propertiable) {
-            return "0";
-        }
-
-        @Override
-        public String getQualityScore(PropertiableFile propertiableFile) {
-            return "0";
-        }
-    }
-    
+   
     /**
      * Test implementation of Search.
      */

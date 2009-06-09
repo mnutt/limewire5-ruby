@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+import org.limewire.ui.swing.library.nav.NavMediator;
 import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.NavComponent;
 import org.limewire.ui.swing.nav.NavItem;
@@ -26,7 +27,7 @@ public class MainPanel extends JPanel {
     
     private static final Log LOG = LogFactory.getLog(MainPanel.class);
     
-    private final Map<String, JComponent> keyToComponents = new HashMap<String, JComponent>();
+    private final Map<String, JComponent> loadedComponents = new HashMap<String, JComponent>();
     private final CardLayout cardLayout;    
     private final Navigator navigator;
     
@@ -56,25 +57,32 @@ public class MainPanel extends JPanel {
 
         navigator.addNavigationListener(new NavigationListener() {
             @Override
-            public void itemAdded(NavCategory category, NavItem navItem, JComponent panel) {
-                LOG.debugf("Added item {0}", navItem);
-                keyToComponents.put(asString(navItem), panel);
-                add(panel, asString(navItem));
+            public void itemAdded(NavCategory category, NavItem navItem) {
             }
 
             @Override
-            public void itemRemoved(NavCategory category, NavItem navItem, JComponent panel) {
+            public void itemRemoved(NavCategory category, NavItem navItem) {
                 LOG.debugf("Removed item {0}", navItem);
-                remove(keyToComponents.remove(asString(navItem)));
+                JComponent component = loadedComponents.get(asString(navItem));
+                if(component != null){
+                    remove(component);
+                    loadedComponents.remove(asString(navItem));
+                }
             }
             @Override
             public void itemSelected(NavCategory category, NavItem navItem,
-                    NavSelectable selectable, JComponent panel) {
+                    NavSelectable selectable, NavMediator navMediator) {
                 LOG.debugf("Selected item {0}", navItem);
                 if (navItem != null) {
                     if(temporaryPanel != null) {
                         remove(temporaryPanel);
                         temporaryPanel = null;                        
+                    }
+                    JComponent panel = loadedComponents.get(asString(navItem));
+                    if(panel == null) {
+                        panel = navMediator.getComponent();
+                        loadedComponents.put(asString(navItem), panel);
+                        add(panel, asString(navItem));
                     }
                     cardLayout.show(MainPanel.this, asString(navItem));
                     if (selectable != null && panel instanceof NavComponent) {

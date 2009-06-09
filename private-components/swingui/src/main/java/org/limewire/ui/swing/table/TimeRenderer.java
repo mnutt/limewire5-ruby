@@ -5,14 +5,19 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
 import org.limewire.util.CommonUtils;
+
+import com.google.inject.Inject;
 
 /**
  * Display the length of an audio/video file in hours:minutes:seconds
  */
+@LazySingleton
 public class TimeRenderer extends DefaultLibraryRenderer {
     
+    @Inject
     public TimeRenderer(){
         setHorizontalAlignment(SwingConstants.RIGHT);
     }

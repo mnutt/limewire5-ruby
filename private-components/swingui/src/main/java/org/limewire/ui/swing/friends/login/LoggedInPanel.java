@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -29,7 +30,6 @@ import org.limewire.ui.swing.components.LimeComboBox;
 import org.limewire.ui.swing.components.decorators.ButtonDecorator;
 import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
 import org.limewire.ui.swing.friends.AddFriendDialog;
-import org.limewire.ui.swing.friends.chat.IconLibrary;
 import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -56,29 +56,31 @@ class LoggedInPanel extends JXPanel {
     private final LimeComboBox optionsBox;
     private final LimeComboBox signoutBox;
     private final FriendActions friendActions;
-    private final IconLibrary iconLibrary;
 
     @Resource private Font headingFont;
     @Resource private Font itemFont;
     @Resource private Color headingColor;
     @Resource private Color itemColor;
+    @Resource private Icon offlineIcon;
+    @Resource private Icon availableIcon;
+    @Resource private Icon doNotDisturbIcon;
+    @Resource private Icon awayIcon;
 
     @Inject
     LoggedInPanel(ComboBoxDecorator comboDecorator,
             FriendActions friendActions, BarPainterFactory barPainterFactory,
             ButtonDecorator buttonDecorator,
-            StatusActions statusActions, XMPPService xmppService, IconLibrary iconLibrary) {
+            StatusActions statusActions, XMPPService xmppService) {
         GuiUtils.assignResources(this);
         setLayout(new MigLayout("insets 0, gapx 8:8:8, hidemode 3, fill"));
 
         this.friendActions = friendActions;
-        this.iconLibrary = iconLibrary;
         optionsBox = new LimeComboBox();
         comboDecorator.decorateMiniComboBox(optionsBox);
         signoutBox = new LimeComboBox();
         comboDecorator.decorateMiniComboBox(signoutBox);
         statusMenuLabel = new JLabel();
-        currentUser = new JLabel(iconLibrary.getOffline());
+        currentUser = new JLabel(offlineIcon);
         loggingInLabel = new JLabel(I18n.tr("Signing in..."));
         signInButton = new JXButton();
         buttonDecorator.decorateMiniButton(signInButton);
@@ -106,7 +108,7 @@ class LoggedInPanel extends JXPanel {
         showOfflineFriends.setSelected(SwingUiSettings.XMPP_SHOW_OFFLINE.getValue());
         showOfflineFriends.setAction(new AbstractAction(I18n.tr("Offline Friends")) {
             {
-                putValue(Action.SMALL_ICON, iconLibrary.getOffline());
+                putValue(Action.SMALL_ICON, offlineIcon);
             }
 
             @Override
@@ -183,11 +185,11 @@ class LoggedInPanel extends JXPanel {
                 switch (event.getType()) {
                 case CONNECTED:
                 case CONNECTING:
-                    currentUser.setIcon(XMPPSettings.XMPP_DO_NOT_DISTURB.getValue() ? iconLibrary.getDoNotDisturb() : iconLibrary.getAvailable());
+                    currentUser.setIcon(XMPPSettings.XMPP_DO_NOT_DISTURB.getValue() ? doNotDisturbIcon : availableIcon);
                     break;
                 case CONNECT_FAILED:
                 case DISCONNECTED:
-                    currentUser.setIcon(iconLibrary.getOffline());
+                    currentUser.setIcon(offlineIcon);
                     break;
                 }
             }
@@ -203,7 +205,7 @@ class LoggedInPanel extends JXPanel {
                SwingUtils.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        currentUser.setIcon(XMPPSettings.XMPP_DO_NOT_DISTURB.getValue() ? iconLibrary.getDoNotDisturb() : iconLibrary.getAvailable());
+                        currentUser.setIcon(XMPPSettings.XMPP_DO_NOT_DISTURB.getValue() ? doNotDisturbIcon : availableIcon);
                     } 
                });
             } 
@@ -223,10 +225,10 @@ class LoggedInPanel extends JXPanel {
             public void handleEvent(XmppActivityEvent event) {
                 switch(event.getSource()) {
                 case Idle:
-                    currentUser.setIcon(iconLibrary.getAway());
+                    currentUser.setIcon(awayIcon);
                     break;
                 case Active:
-                    currentUser.setIcon(XMPPSettings.XMPP_DO_NOT_DISTURB.getValue() ? iconLibrary.getDoNotDisturb() : iconLibrary.getAvailable());
+                    currentUser.setIcon(XMPPSettings.XMPP_DO_NOT_DISTURB.getValue() ? doNotDisturbIcon : availableIcon);
                 }
             }
         });

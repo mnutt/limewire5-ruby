@@ -14,6 +14,7 @@ import org.limewire.core.api.browse.Browse;
 import org.limewire.core.api.browse.BrowseFactory;
 import org.limewire.core.api.browse.BrowseListener;
 import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.client.LibraryChangedEvent;
 import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.library.FriendLibrary;
 import org.limewire.core.api.library.LibraryState;
@@ -32,7 +33,6 @@ import org.limewire.logging.LogFactory;
 import org.limewire.net.ConnectivityChangeEvent;
 import org.limewire.net.SocketsManager;
 import org.limewire.net.address.AddressResolutionObserver;
-import org.limewire.xmpp.api.client.LibraryChangedEvent;
 import org.limewire.xmpp.api.client.XMPPAddress;
 
 import ca.odell.glazedlists.EventList;
@@ -125,8 +125,21 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
 
     @Override
     public void handleEvent(LibraryChangedEvent event) {
-        remoteLibraryManager.removePresenceLibrary(event.getData());
-        remoteLibraryManager.addPresenceLibrary(event.getData());
+        // The idea behind this is that we want to provide incremental updates to 
+        // a PresenceLibrary, without requiring the entire library disappear
+        // and reappear.  We need to know if adding the presence library succeeded,
+        // but also need to trigger a browse if it didn't (because it already existed).
+        FriendPresence friend = event.getData();
+        PresenceLibrary existingLibrary = remoteLibraryManager.getPresenceLibrary(friend);
+        if(!remoteLibraryManager.addPresenceLibrary(friend) && existingLibrary != null) {
+            LOG.debugf("Library changed event for {0}, but existing library -- rebrowsing into existing library", friend);
+            // the library already existed for this presence --
+            // we need to trigger our own browse.
+            // There's a small chance the existingLibrary is an older version of
+            // a PresenceLibrary (not the current one) -- if that does happen,
+            // the worst this will do is cause a second browse to happen.
+            tryToResolveAndBrowse(existingLibrary, latestConnectivityEventRevision);
+        }
     }
     
     void browse(final PresenceLibrary presenceLibrary) {
@@ -155,6 +168,11 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
         // TODO: We need to capture the Browse and call stop on it when the library is removed,
         //       otherwise the browse can be lingering in the background.
         browse.start(new BrowseListener() {
+            // If the library already has items in it, build up an in-transit
+            // list and do a retainAll at the end.
+            private List<RemoteFileItem> transitList = 
+                presenceLibrary.size() != 0 ? new ArrayList<RemoteFileItem>() : null;
+            
             public void handleBrowseResult(SearchResult searchResult) {
                 LOG.debugf("browse result: {0}, {1}", searchResult.getUrn(), searchResult.getSize());
                 RemoteFileDescAdapter remoteFileDescAdapter = (RemoteFileDescAdapter)searchResult;
@@ -165,10 +183,21 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
                     	new IpPortSet(remoteFileDescAdapter.getAlts()), friendPresence);
                 }
                 RemoteFileItem file = new CoreRemoteFileItem(remoteFileDescAdapter);
-                presenceLibrary.addFile(file);
+                if(transitList != null) {
+                    transitList.add(file);
+                } else {
+                    presenceLibrary.addFile(file);
+                }
             }
             @Override
             public void browseFinished(boolean success) {
+                if(transitList != null) {
+                    LOG.debugf("Finished browse of {0}, setting resulting files into existing list", friendPresence);
+                    presenceLibrary.setNewFiles(transitList);
+                } else {
+                    LOG.debugf("Finished browse of {0}, no in-transit list.", friendPresence);
+                }
+                
                 if(success) {
                     presenceLibrary.setState(LibraryState.LOADED);
                 } else {

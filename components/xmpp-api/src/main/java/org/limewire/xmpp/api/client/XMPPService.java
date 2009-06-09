@@ -1,7 +1,7 @@
 package org.limewire.xmpp.api.client;
 
 import org.limewire.concurrent.ListeningFuture;
-import org.limewire.xmpp.api.client.Presence.Mode;
+import org.limewire.xmpp.api.client.XMPPPresence.Mode;
 
 
 /**

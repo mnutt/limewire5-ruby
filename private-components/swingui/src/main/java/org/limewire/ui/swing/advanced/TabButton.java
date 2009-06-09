@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
+import org.limewire.ui.swing.components.ButtonMattePainter;
 
 /**
  * A tab button that is used in a window with multiple tabs.  A TabButton
@@ -68,12 +69,11 @@ public class TabButton extends JXButton {
             topGradient, new Point2D.Double(0, 1), bottomGradient, false);
         
         // Set background painter using gradient.
-        setBackgroundPainter(new MattePainter<JXButton>(gradientPaint, true) {
+        setBackgroundPainter(new ButtonMattePainter(new MattePainter(gradientPaint, true)) {
             @Override
-            public void doPaint(Graphics2D g, JXButton component, int width,
-                int height) {
+            public void paint(Graphics2D g, JXButton component, int width, int height) {
                 if (Boolean.TRUE.equals(getAction().getValue(Action.SELECTED_KEY))) {
-                    super.doPaint(g, component, width, height-1);
+                    super.paint(g, component, width, height-1);
                 } else {
                     oldPainter.paint(g, component, width, height);
                 }

@@ -3,19 +3,25 @@ package org.limewire.xmpp.client.impl.messages.nosave;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collections;
 
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.limewire.util.Objects;
 import org.limewire.xmpp.client.impl.messages.InvalidIQException;
+import org.limewire.core.api.friend.feature.features.NoSave;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class NoSaveIQ extends IQ {
     
-    private final Map<String, Boolean> items = new HashMap<String, Boolean>();
-    
-    public NoSaveIQ(XmlPullParser parser) throws IOException, XmlPullParserException, InvalidIQException {
+    private final Map<String, NoSave> items = new HashMap<String, NoSave>();
+
+    public static final String ELEMENT_NAME = "query";
+    public static final String NAME_SPACE = "google:nosave";
+
+
+    NoSaveIQ(XmlPullParser parser) throws IOException, XmlPullParserException, InvalidIQException {
         do {
             int eventType = parser.getEventType();
             if(eventType == XmlPullParser.START_TAG) {
@@ -29,7 +35,7 @@ public class NoSaveIQ extends IQ {
                     if (value == null) {
                         throw new InvalidIQException("no value in value attribute");
                     }
-                    items.put(jid, Boolean.valueOf(value));
+                    items.put(jid, value.equals(NoSave.ENABLED.getPacketIdentifier()) ? NoSave.ENABLED : NoSave.DISABLED);
                 }
             } else if(eventType == XmlPullParser.END_TAG) {
                 if(parser.getName().equals("query")) {
@@ -39,15 +45,47 @@ public class NoSaveIQ extends IQ {
         } while (parser.nextTag() != XmlPullParser.END_DOCUMENT);
     }
 
-    public NoSaveIQ(String jid, Boolean value) {
-        items.put(Objects.nonNull(jid, "jid"), Objects.nonNull(value, "value"));
+    private NoSaveIQ(String jid, NoSave value) {
+        items.put(Objects.nonNull(jid, "jid"), value);
+    }
+
+    private NoSaveIQ() { }
+
+
+    
+    /**
+     * Create a NoSaveIQ message which sets a given user's nosave status.
+     *
+     * @param userId String representing ID of contact
+     * @param value nosave boolean value to set
+     * @return NoSaveIQ message
+     */
+    public static NoSaveIQ getNoSaveSetMessage(String userId, NoSave value) {
+        NoSaveIQ setMsg = new NoSaveIQ(userId, value);
+        setMsg.setType(Type.SET);
+        return setMsg;
+    }
+
+    /**
+     * Create a NoSaveIQ message which gets the nosave state for all users
+     * on the roster.
+     *
+     * @return NoSaveIQ message to request nosave state for all friends
+     */
+    public static NoSaveIQ getNoSaveStatesMessage() {
+        return new NoSaveIQ();
+    }
+
+    public Map<String, NoSave> getNoSaveUsers() {
+        return Collections.unmodifiableMap(items);
     }
 
     @Override
     public String getChildElementXML() {
         StringBuilder s = new StringBuilder("<query xmlns='google:nosave'>");
-        for(Map.Entry<String, Boolean> entry : items.entrySet()) {
-            s.append("<item xmlns='google:nosave' jid='").append(entry.getKey()).append("' value='").append(entry.getValue()).append("'/>");
+        for(Map.Entry<String, NoSave> entry : items.entrySet()) {
+            s.append("<item xmlns='google:nosave' jid='").append(entry.getKey()).append("' value='")
+                    .append(entry.getValue().getPacketIdentifier()).append("'/>");
         }
         s.append("</query>");
         return s.toString();

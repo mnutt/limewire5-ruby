@@ -1,5 +1,4 @@
 /.cvsignore/1.2/Tue Jun 21 20:07:14 2005//
-/AbstractFileList.java/1.19/Wed Mar 11 19:43:50 2009//
 /Container.java/1.12/Mon Oct 27 22:29:32 2008//
 /CreationTimeCache.java/1.11/Thu Mar 12 20:11:04 2009//
 /FileDesc.java/1.7/Thu Feb  5 21:19:47 2009//
@@ -13,9 +12,7 @@
 /FileListIterator.java/1.4/Mon Dec 22 17:15:49 2008//
 /FileManager.java/1.12/Mon Dec 15 23:32:52 2008//
 /FriendFileList.java/1.6/Tue Jan 13 17:18:02 2009//
-/FriendFileListImpl.java/1.22/Wed Feb  4 20:51:12 2009//
 /GnutellaFileList.java/1.7/Fri Dec 12 21:40:36 2008//
-/GnutellaFileListImpl.java/1.11/Fri Feb 27 23:02:32 2009//
 /IncompleteFileDesc.java/1.2/Fri Oct 17 22:07:06 2008//
 /IncompleteFileDescImpl.java/1.4/Thu Mar 19 22:36:00 2009//
 /IncompleteFileList.java/1.2/Sun Nov  2 04:53:09 2008//
@@ -32,11 +29,14 @@
 /SharedFileList.java/1.3/Wed Nov  5 21:05:43 2008//
 /SharedFilesKeywordIndex.java/1.2/Fri Oct 17 19:19:34 2008//
 /ThreadSafeFileListIterator.java/1.3/Sun Nov  2 04:53:09 2008//
-/FileManagerImpl.java/1.24/Mon Apr  6 16:05:32 2009//
 /LibraryConverter.java/1.8/Mon Apr  6 16:05:32 2009//
-/LibraryFileData.java/1.19/Mon Apr  6 16:05:32 2009//
-/OldLibraryData.java/1.3/Mon Apr  6 16:05:32 2009//
 /RareFileStrategyImpl.java/1.2/Mon Apr  6 16:05:32 2009//
 /SharedFilesKeywordIndexImpl.java/1.16/Mon Apr  6 16:05:32 2009//
 /UrnCache.java/1.11/Mon Apr  6 16:05:32 2009//
+/AbstractFileList.java/1.20/Mon Jun  8 18:08:06 2009//
+/FileManagerImpl.java/1.25/Mon Jun  8 18:08:06 2009//
+/FriendFileListImpl.java/1.23/Mon Jun  8 18:08:06 2009//
+/GnutellaFileListImpl.java/1.12/Mon Jun  8 18:08:06 2009//
+/LibraryFileData.java/1.21/Mon Jun  8 18:08:06 2009//
+/OldLibraryData.java/1.4/Mon Jun  8 18:08:06 2009//
 D

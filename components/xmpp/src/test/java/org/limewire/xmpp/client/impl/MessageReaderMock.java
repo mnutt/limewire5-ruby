@@ -2,8 +2,8 @@ package org.limewire.xmpp.client.impl;
 
 import java.util.ArrayList;
 
-import org.limewire.xmpp.api.client.MessageReader;
-import org.limewire.xmpp.api.client.ChatState;
+import org.limewire.core.api.friend.client.ChatState;
+import org.limewire.core.api.friend.client.MessageReader;
 
 class MessageReaderMock implements MessageReader {
     ArrayList<String> messages = new ArrayList<String>();

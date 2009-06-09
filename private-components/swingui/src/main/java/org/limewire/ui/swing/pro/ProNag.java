@@ -109,8 +109,8 @@ class ProNag extends JXPanel implements Resizable {
     }
     
     
-    public ListeningFuture<Void> loadContents() {
-        return editorPane.setPageAsynchronous(application.getUniqueUrl("http://client-data.limewire.com/client_startup/nag/?html32=true"), createDefaultPage());
+    public ListeningFuture<Void> loadContents(boolean firstLaunch) {
+        return editorPane.setPageAsynchronous(application.getUniqueUrl("http://client-data.limewire.com/client_startup/nag/?html32=true&fromFirstRun=" + firstLaunch), createDefaultPage());
     }
     
     private String createDefaultPage() {

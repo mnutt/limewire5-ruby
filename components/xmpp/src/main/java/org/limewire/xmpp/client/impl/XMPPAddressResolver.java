@@ -22,7 +22,7 @@ import org.limewire.net.SocketsManager;
 import org.limewire.net.address.AddressResolutionObserver;
 import org.limewire.net.address.AddressResolver;
 import org.limewire.net.address.FirewalledAddress;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPFriend;
 import org.limewire.xmpp.api.client.XMPPAddress;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPService;
@@ -89,9 +89,9 @@ public class XMPPAddressResolver implements AddressResolver {
         XMPPConnection connection = xmppService.getActiveConnection();
         if(connection == null)
             return null;
-        User user = connection.getUser(id);
-        if(user != null) {
-            for(Entry<String, FriendPresence> entry : user.getFriendPresences().entrySet()) {
+        XMPPFriend friend = connection.getFriend(id);
+        if(friend != null) {
+            for(Entry<String, FriendPresence> entry : friend.getFriendPresences().entrySet()) {
                 FriendPresence resolvedPresence =
                     getMatchingPresence(address, entry.getKey(), entry.getValue());
                 if(resolvedPresence != null) {

@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -114,13 +115,28 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     }
     
     @Override
-    public PresenceLibrary addPresenceLibrary(FriendPresence presence) {
+    public boolean addPresenceLibrary(FriendPresence presence) {
         lock.writeLock().lock();
         try {
             FriendLibraryImpl friendLibrary = getOrCreateFriendLibrary(presence.getFriend());
-            return friendLibrary.getOrCreatePresenceLibrary(presence);
+            return friendLibrary.addPresenceLibrary(presence);
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+    
+    @Override
+    public PresenceLibrary getPresenceLibrary(FriendPresence presence) {
+        lock.readLock().lock();
+        try {
+            FriendLibraryImpl friendLibrary = getFriendLibrary(presence.getFriend());
+            if(friendLibrary != null) {
+                return friendLibrary.getPresenceLibrary(presence);
+            } else {
+                return null;
+            }
+        } finally {
+            lock.readLock().unlock();
         }
     }
     
@@ -186,7 +202,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     }
     
     @Override
-    public FriendLibrary getFriendLibrary(Friend friend) {
+    public FriendLibraryImpl getFriendLibrary(Friend friend) {
         return findFriendLibrary(friend);
     }
     
@@ -328,7 +344,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             return friend;
         }
         
-        private PresenceLibraryImpl findPresenceLibrary(FriendPresence presence) {
+        private PresenceLibraryImpl getPresenceLibrary(FriendPresence presence) {
             for(PresenceLibrary library : allPresenceLibraries) {
                 if(library.getPresence().getPresenceId().equals(presence.getPresenceId())) {
                     return (PresenceLibraryImpl)library;
@@ -337,20 +353,22 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             return null;
         }
 
-        private PresenceLibraryImpl getOrCreatePresenceLibrary(FriendPresence presence) {
-            PresenceLibraryImpl library = findPresenceLibrary(presence);
+        private boolean addPresenceLibrary(FriendPresence presence) {
+            PresenceLibraryImpl library = getPresenceLibrary(presence);
             if(library == null) {
                 LOG.debugf("adding presence library for {0}", presence);
                 library = new PresenceLibraryImpl(presence, createMemberList());
                 allPresenceLibraries.add(library);
                 addMemberList(library);
                 library.commit();
-            }            
-            return library;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         private void removePresenceLibrary(FriendPresence presence) {
-            PresenceLibraryImpl presenceLibrary = findPresenceLibrary(presence);
+            PresenceLibraryImpl presenceLibrary = getPresenceLibrary(presence);
             if(presenceLibrary != null) {
                 LOG.debugf("removing presence library for {0}", presence);
                 allPresenceLibraries.remove(presenceLibrary);
@@ -396,6 +414,11 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         }
 
         public void removeFile(RemoteFileItem file) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public void setNewFiles(Collection<RemoteFileItem> file) {
             throw new UnsupportedOperationException();
         }
 
@@ -482,6 +505,17 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
 
         public void removeFile(RemoteFileItem file) {
             eventList.remove(file);
+        }
+        
+        @Override
+        public void setNewFiles(Collection<RemoteFileItem> files) {
+            eventList.getReadWriteLock().writeLock().lock();
+            try {
+                eventList.clear();
+                eventList.addAll(files);
+            } finally {
+                eventList.getReadWriteLock().writeLock().unlock();
+            }
         }
 
         @Override

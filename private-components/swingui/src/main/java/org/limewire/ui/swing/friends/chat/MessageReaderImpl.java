@@ -1,7 +1,7 @@
 package org.limewire.ui.swing.friends.chat;
 
-import org.limewire.xmpp.api.client.MessageReader;
-import org.limewire.xmpp.api.client.ChatState;
+import org.limewire.core.api.friend.client.ChatState;
+import org.limewire.core.api.friend.client.MessageReader;
 
 class MessageReaderImpl implements MessageReader {
     private final ChatFriend chatFriend;

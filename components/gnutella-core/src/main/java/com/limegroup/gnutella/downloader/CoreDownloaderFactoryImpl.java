@@ -1,6 +1,7 @@
 package com.limegroup.gnutella.downloader;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +14,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.limegroup.bittorrent.BTDownloader;
-import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.bittorrent.BTTorrentFileDownloader;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.browser.MagnetOptions;
@@ -104,9 +104,9 @@ public class CoreDownloaderFactoryImpl implements CoreDownloaderFactory {
         return sd;
     }
 
-    public BTDownloader createBTDownloader(BTMetaInfo info) {
+    public BTDownloader createBTDownloader(File torrent) throws IOException {
         BTDownloader bd = btDownloaderFactory.get();
-        bd.initBtMetaInfo(info);
+        bd.init(torrent);
         return bd;
     }
     
@@ -123,8 +123,8 @@ public class CoreDownloaderFactoryImpl implements CoreDownloaderFactory {
             CoreDownloader downloader = coreFactory.get();
             downloader.initFromMemento(memento);
             return downloader;
-        } catch (ClassCastException cce) {
-            throw new InvalidDataException("invalid memento!", cce);
+        } catch (Throwable t) {
+            throw new InvalidDataException("invalid memento!", t);
         }
     }
 

@@ -1,4 +1,11 @@
 A D/reader////
 A D/tracking////
 R D/tracking////
+R D/swarm////
 R D/reader////
+R D/messages////
+R D/handshaking////
+R D/disk////
+R D/dht////
+R D/choking////
+R D/bencoding////

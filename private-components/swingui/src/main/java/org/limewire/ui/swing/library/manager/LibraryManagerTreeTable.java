@@ -20,6 +20,8 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.FileUtils;
 
+import com.google.inject.Provider;
+
 /**
  * Tree table component used to display the library folders.
  */
@@ -31,7 +33,7 @@ public class LibraryManagerTreeTable extends MouseableTreeTable {
     /**
      * Constructs a LibraryManagerTreeTable with the specified services.
      */
-    public LibraryManagerTreeTable(IconManager iconManager, LibraryData libraryData, ExcludedFolderCollectionManager excludedFolders) {
+    public LibraryManagerTreeTable(Provider<IconManager> iconManager, LibraryData libraryData, ExcludedFolderCollectionManager excludedFolders) {
         setTableHeader(null); // No table header for this table.
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setSelectionBackground(getBackground());

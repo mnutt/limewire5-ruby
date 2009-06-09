@@ -48,17 +48,14 @@ class LibraryFileData extends AbstractSettingsGroup {
     
     /** Default file extensions. */
     private final String DEFAULT_MANAGED_EXTENSIONS_STRING =
-        "asx;html;htm;xml;txt;pdf;ps;rtf;doc;tex;mp3;mp4;wav;wax;au;aif;aiff;"+
+        "asx;html;htm;xml;txt;pdf;ps;rtf;tex;mp3;mp4;wav;wax;au;aif;aiff;"+
         "ra;ram;wma;wm;wmv;mp2v;mlv;mpa;mpv2;mid;midi;rmi;aifc;snd;flac;fla;flv;"+
         "mpg;mpeg;asf;qt;mov;avi;mpe;swf;dcr;gif;jpg;jpeg;jpe;png;tif;tiff;bmp;"+
-        "exe;zip;gz;gzip;hqx;tar;tgz;z;rmj;lqt;rar;ace;sit;smi;img;ogg;rm;"+
+        "zip;gz;gzip;hqx;tar;tgz;z;rmj;lqt;rar;ace;sit;smi;img;ogg;rm;"+
         "bin;dmg;jve;nsv;med;mod;7z;iso;lwtp;pmf;m4a;bz2;sea;pf;arc;arj;"+
         "bz;tbz;mime;taz;ua;toast;lit;rpm;deb;pkg;sxw;l6t;srt;sub;idx;mkv;"+
         "ogm;shn;dvi;rmvp;kar;cdg;ccd;cue;c;h;m;java;jar;pl;py;pyc;"+
-        "pyo;pyz;" +
-        // Formerly sensitive extensions..
-        "doc;pdf;xls;rtf;bak;csv;dat;docx;xlsx;xlam;xltx;xltm;xlsm;xlsb;dotm;" +
-        "docm;dotx;dot;qdf;qtx;qph;qel;qdb;qsd;qif;mbf;mny";
+        "pyo;pyz;latex";
     
     private final Collection<String> DEFAULT_MANAGED_EXTENSIONS =
         Collections.unmodifiableList(Arrays.asList(DEFAULT_MANAGED_EXTENSIONS_STRING.split(";")));

@@ -26,7 +26,7 @@ public class MockFriend implements Friend {
     
     @Override
     public String getId() {
-        return null;
+        return localID;
     }
 
     @Override

@@ -4,6 +4,7 @@
 package org.limewire.xmpp.client.impl;
 
 import org.limewire.concurrent.ThreadExecutor;
+import org.limewire.core.api.friend.client.FriendException;
 import org.limewire.listener.EventListener;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
@@ -11,7 +12,6 @@ import org.limewire.util.DebugRunnable;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
-import org.limewire.xmpp.api.client.XMPPException;
 
 /**
  * Different implementation from {@link org.jivesoftware.smack.ReconnectionManager}
@@ -55,7 +55,7 @@ class ReconnectionManager implements EventListener<XMPPConnectionEvent> {
                             try {
                                 LOG.debugf("attempting to reconnect to {0} ..." + configuration.getServiceName());
                                 newConnection = serviceImpl.loginImpl(configuration, true);
-                            } catch (XMPPException e) {
+                            } catch (FriendException e) {
                                 // Ignored
                             }
                             try {

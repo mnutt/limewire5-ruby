@@ -15,7 +15,6 @@ import java.awt.event.WindowListener;
 import java.util.EnumMap;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -29,6 +28,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
+import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.LimeJFrame;
 import org.limewire.ui.swing.options.TabItemListener;
 import org.limewire.ui.swing.painter.factories.BarPainterFactory;
@@ -223,6 +223,9 @@ public class AdvancedToolsPanel extends JPanel {
                     Math.max(mainSize.width - 60, 800),
                     Math.max(mainSize.height - 60, 600));
             frame.setPreferredSize(prefSize);
+            
+            frame.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0), "escapeAction");
+            frame.getRootPane().getActionMap().put("escapeAction", new CloseFrameAction(frame));
             
             // Add listeners to handle system menu close action.
             frame.addWindowListener(windowListener);
@@ -534,5 +537,20 @@ public class AdvancedToolsPanel extends JPanel {
         public void windowIconified(WindowEvent e) {
             minimizeWindow(e.getWindow().isVisible());
         }
+    }
+    
+    private static class CloseFrameAction extends AbstractAction {
+        private JFrame frame;
+
+        public CloseFrameAction(JFrame frame){
+            this.frame = frame;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            frame.setVisible(false);
+        }
+        
+        
     }
 }

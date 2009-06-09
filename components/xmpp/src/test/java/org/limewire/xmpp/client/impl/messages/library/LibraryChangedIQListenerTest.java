@@ -7,12 +7,12 @@ import org.jivesoftware.smack.packet.IQ.Type;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.client.LibraryChanged;
+import org.limewire.core.api.friend.client.LibraryChangedEvent;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.util.AssignParameterAction;
 import org.limewire.util.BaseTestCase;
-import org.limewire.xmpp.api.client.LibraryChanged;
-import org.limewire.xmpp.api.client.LibraryChangedEvent;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPFriend;
 import org.limewire.xmpp.api.client.XMPPConnection;
 
 public class LibraryChangedIQListenerTest extends BaseTestCase {
@@ -41,12 +41,12 @@ public class LibraryChangedIQListenerTest extends BaseTestCase {
         libraryChangedIQ.setType(Type.SET);
         libraryChangedIQ.setFrom("me@you.com/ldkfjd");
         
-        final User user = context.mock(User.class);
+        final XMPPFriend user = context.mock(XMPPFriend.class);
         final FriendPresence friendPresence = context.mock(FriendPresence.class);
 
         final AtomicReference<LibraryChangedEvent> event = new AtomicReference<LibraryChangedEvent>();
         context.checking(new Expectations() {{
-            one(connection).getUser("me@you.com");
+            one(connection).getFriend("me@you.com");
             will(returnValue(user));
             one(user).getFriendPresences();
             will(returnValue(Collections.singletonMap("me@you.com/ldkfjd", friendPresence)));

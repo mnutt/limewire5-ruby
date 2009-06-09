@@ -12,6 +12,8 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.concurrent.ListeningExecutorService;
 import org.limewire.concurrent.ListeningFuture;
+import org.limewire.core.api.friend.client.ConnectBackRequestSender;
+import org.limewire.core.api.friend.client.FriendException;
 import org.limewire.core.api.friend.feature.features.ConnectBackRequestFeature;
 import org.limewire.core.api.friend.feature.features.LimewireFeature;
 import org.limewire.inspection.Inspectable;
@@ -28,15 +30,13 @@ import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.xmpp.activity.XmppActivityEvent;
-import org.limewire.xmpp.api.client.ConnectBackRequestSender;
 import org.limewire.xmpp.api.client.JabberSettings;
-import org.limewire.xmpp.api.client.Presence;
-import org.limewire.xmpp.api.client.Presence.Mode;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPPresence;
+import org.limewire.xmpp.api.client.XMPPPresence.Mode;
+import org.limewire.xmpp.api.client.XMPPFriend;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 import org.limewire.xmpp.api.client.XMPPConnectionEvent;
-import org.limewire.xmpp.api.client.XMPPException;
 import org.limewire.xmpp.api.client.XMPPService;
 import org.limewire.xmpp.client.impl.messages.connectrequest.ConnectBackRequestIQ;
 
@@ -75,10 +75,10 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
                 XMPPConnection connection = getActiveConnection();
                 InspectionHistogram<Integer> presencesHistogram = new InspectionHistogram<Integer>();
                 if (connection != null) {
-                    for (User user : connection.getUsers()) {
-                        Map<String, Presence> presences = user.getPresences();
+                    for (XMPPFriend user : connection.getFriends()) {
+                        Map<String, XMPPPresence> presences = user.getPresences();
                         presencesHistogram.count(presences.size());
-                        for (Presence presence : presences.values()) {
+                        for (XMPPPresence presence : presences.values()) {
                             if (presence.hasFeatures(LimewireFeature.ID)) {
                                 count++;
                                 // break from inner presence loop, count each user only once
@@ -127,14 +127,14 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
                 case Idle:
                     try {
                         setModeImpl(Mode.xa);
-                    } catch (XMPPException e) {
+                    } catch (FriendException e) {
                         LOG.debugf(e, "couldn't set mode based on {0}", event);
                     }
                     break;
                 case Active:
                     try {
                         setModeImpl(jabberSettings.isDoNotDisturbSet() ? Mode.dnd : Mode.available);
-                    } catch (XMPPException e) {
+                    } catch (FriendException e) {
                         LOG.debugf(e, "couldn't set mode based on {0}", event);
                     }
                 }
@@ -174,11 +174,11 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
         }); 
     }
 
-    XMPPConnection loginImpl(XMPPConnectionConfiguration configuration) throws XMPPException {
+    XMPPConnection loginImpl(XMPPConnectionConfiguration configuration) throws FriendException {
         return loginImpl(configuration, false);
     }
 
-    XMPPConnection loginImpl(XMPPConnectionConfiguration configuration, boolean isReconnect) throws XMPPException {
+    XMPPConnection loginImpl(XMPPConnectionConfiguration configuration, boolean isReconnect) throws FriendException {
         synchronized (this) {
             if(!multipleConnectionsAllowed) {
                 XMPPConnection activeConnection = getActiveConnection();
@@ -201,12 +201,12 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
                 connections.add(connection);
                 connection.loginImpl();
                 //maintain the last set login state available or do not disturb
-                connection.setModeImpl(jabberSettings.isDoNotDisturbSet() ? Presence.Mode.dnd : Presence.Mode.available);
+                connection.setModeImpl(jabberSettings.isDoNotDisturbSet() ? XMPPPresence.Mode.dnd : XMPPPresence.Mode.available);
                 return connection;
-            } catch(XMPPException e) {
+            } catch(FriendException e) {
                 connections.remove(connection);
                 LOG.debug(e.getMessage(), e);
-                throw new XMPPException(e);
+                throw new FriendException(e);
             }
         }
     }
@@ -279,11 +279,11 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
         if (connection == null) {
             return false;
         }
-        User user = connection.getUser(StringUtils.parseBareAddress(userId));
+        XMPPFriend user = connection.getFriend(StringUtils.parseBareAddress(userId));
         if (user == null) {
             return false;
         }
-        Presence presence = user.getPresences().get(userId);
+        XMPPPresence presence = user.getPresences().get(userId);
         if (presence == null) {
             return false;
         }
@@ -296,7 +296,7 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
             connectRequest.setFrom(connection.getLocalJid());
             LOG.debugf("sending request: {0}", connectRequest);
             connection.sendPacket(connectRequest);
-        } catch (XMPPException e) {
+        } catch (FriendException e) {
             LOG.debug("sending connect back request failed", e);
             return false;
         }
@@ -314,7 +314,7 @@ public class XMPPServiceImpl implements Service, XMPPService, ConnectBackRequest
         }); 
     }
 
-    private void setModeImpl(Mode mode) throws XMPPException {
+    private void setModeImpl(Mode mode) throws FriendException {
         for(XMPPConnectionImpl connection : connections) {
             connection.setModeImpl(mode);
         }

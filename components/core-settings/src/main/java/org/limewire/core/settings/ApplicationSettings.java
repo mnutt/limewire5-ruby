@@ -142,6 +142,13 @@ public class ApplicationSettings extends LimeProps {
     public static final BooleanSetting USE_SECURE_RESULTS =
         FACTORY.createBooleanSetting("USE_SECURE_RESULTS", true);
     
+    /**
+     * Returns true if the user has agreed to allow LimeWire to anonymously
+     * gather statics.
+     */
+    public static final BooleanSetting ALLOW_ANONYMOUS_STATISTICS_GATHERING =
+        FACTORY.createBooleanSetting("ALLOW_ANONYMOUS_STATISTICS_GATHERING", true);
+    
     /** If simpp should be initialized when core is initialized. */
     public static final BooleanSetting INITIALIZE_SIMPP =
         FACTORY.createBooleanSetting("INITIALIZE_SIMPP", true);

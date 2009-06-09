@@ -6,6 +6,7 @@ import java.util.Comparator;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.jdesktop.swingx.decorator.SortController;
 import org.limewire.core.api.library.LocalFileItem;
@@ -24,6 +25,8 @@ import org.limewire.ui.swing.table.QualityRenderer;
 import org.limewire.ui.swing.table.TableCellHeaderRenderer;
 import org.limewire.ui.swing.table.TimeRenderer;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
+
+import com.google.inject.Provider;
 
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.event.ListEvent;
@@ -44,9 +47,11 @@ public class PlaylistLibraryTable<T extends LocalFileItem> extends LibraryTable<
      */
     public PlaylistLibraryTable(Playlist playlist, SortedList<T> libraryItems,
             LibraryTableFormat<T> format, AudioPlayer player, 
-            SaveLocationExceptionHandler saveLocationExceptionHandler, 
-            ShareTableRendererEditorFactory shareTableRendererEditorFactory) {
-        super(libraryItems, format, saveLocationExceptionHandler, shareTableRendererEditorFactory);
+            Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler, 
+            ShareTableRendererEditorFactory shareTableRendererEditorFactory, Provider<TimeRenderer> timeRenderer,
+            Provider<FileSizeRenderer> fileSizeRenderer, Provider<NameRenderer> nameRenderer, 
+            Provider<QualityRenderer> qualityRenderer, DefaultTableCellRenderer defaultTableCellRenderer) {
+        super(libraryItems, format, saveLocationExceptionHandler, shareTableRendererEditorFactory, defaultTableCellRenderer);
         
         // Multiple selection is allowed so mouse press/drag selects multiple
         // cells, and a second mouse press is needed to start a drag operation.
@@ -71,6 +76,10 @@ public class PlaylistLibraryTable<T extends LocalFileItem> extends LibraryTable<
         getColumnModel().getColumn(PlaylistTableFormat.PLAY_INDEX).setCellRenderer(playRenderer);
         getColumnModel().getColumn(PlaylistTableFormat.PLAY_INDEX).setMaxWidth(14);
         getColumnModel().getColumn(PlaylistTableFormat.PLAY_INDEX).setMinWidth(14);
+        getColumnModel().getColumn(PlaylistTableFormat.LENGTH_INDEX).setCellRenderer(timeRenderer.get());
+        getColumnModel().getColumn(PlaylistTableFormat.SIZE_INDEX).setCellRenderer(fileSizeRenderer.get());
+        getColumnModel().getColumn(PlaylistTableFormat.TITLE_INDEX).setCellRenderer(nameRenderer.get());
+        getColumnModel().getColumn(PlaylistTableFormat.QUALITY_INDEX).setCellRenderer(qualityRenderer.get());
     }
 
     @Override
@@ -81,11 +90,8 @@ public class PlaylistLibraryTable<T extends LocalFileItem> extends LibraryTable<
         getColumnModel().getColumn(PlaylistTableFormat.LENGTH_INDEX).setHeaderRenderer(new TableCellHeaderRenderer(JLabel.TRAILING));
 
         // Set column cell renderers.
-        getColumnModel().getColumn(PlaylistTableFormat.LENGTH_INDEX).setCellRenderer(new TimeRenderer());
-        getColumnModel().getColumn(PlaylistTableFormat.SIZE_INDEX).setCellRenderer(new FileSizeRenderer());
-        getColumnModel().getColumn(PlaylistTableFormat.TITLE_INDEX).setCellRenderer(new NameRenderer());
         getColumnModel().getColumn(PlaylistTableFormat.NUMBER_INDEX).setCellRenderer(new PositionRenderer());
-        getColumnModel().getColumn(PlaylistTableFormat.QUALITY_INDEX).setCellRenderer(new QualityRenderer());
+
     }
 
     @Override

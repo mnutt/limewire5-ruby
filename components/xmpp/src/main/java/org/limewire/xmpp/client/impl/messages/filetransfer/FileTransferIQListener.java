@@ -8,9 +8,9 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
+import org.limewire.core.api.friend.client.FileOffer;
+import org.limewire.core.api.friend.client.FileOfferEvent;
 import org.limewire.listener.EventBroadcaster;
-import org.limewire.xmpp.api.client.FileOffer;
-import org.limewire.xmpp.api.client.FileOfferEvent;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class FileTransferIQListener implements PacketListener {

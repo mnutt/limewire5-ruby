@@ -20,7 +20,7 @@ import org.limewire.ui.swing.library.table.menu.actions.LocateFileAction;
 import org.limewire.ui.swing.library.table.menu.actions.PlayAction;
 import org.limewire.ui.swing.library.table.menu.actions.RemoveAction;
 import org.limewire.ui.swing.library.table.menu.actions.ViewFileInfoAction;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
@@ -34,21 +34,20 @@ public class ShareLibraryPopupMenu extends JPopupMenu {
     private final LibraryManager libraryManager;
 
     private final Category category;
-
-    private final PropertiesFactory<LocalFileItem> propertiesFactory;
+    
+    private final FileInfoDialogFactory fileInfoFactory;
 
     private final LocalFileList friendFileList;
     
     private final LibraryNavigator libraryNavigator;
 
     public ShareLibraryPopupMenu(LocalFileList friendFileList, Category category,
-            LibraryManager libraryManager, PropertiesFactory<LocalFileItem> propertiesFactory,
-            LibraryNavigator libraryNavigator) {
+            LibraryManager libraryManager, LibraryNavigator libraryNavigator, FileInfoDialogFactory fileInfoFactory) {
         this.friendFileList = friendFileList;
         this.libraryManager = libraryManager;
         this.category = category;
-        this.propertiesFactory = propertiesFactory;
         this.libraryNavigator = libraryNavigator;
+        this.fileInfoFactory = fileInfoFactory;
     }
 
     public void setFileItems(List<LocalFileItem> items) {
@@ -116,7 +115,7 @@ public class ShareLibraryPopupMenu extends JPopupMenu {
         add(new DeleteAction(createFileItemArray(), libraryManager)).setEnabled(deleteActionEnabled);
 
         addSeparator();
-        add(new ViewFileInfoAction(firstItem, propertiesFactory)).setEnabled(viewFileInfoEnabled);
+        add(new ViewFileInfoAction(firstItem, fileInfoFactory)).setEnabled(viewFileInfoEnabled);
     }
 
     LocalFileItem[] createFileItemArray() {

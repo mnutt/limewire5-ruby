@@ -16,6 +16,7 @@ import org.limewire.core.impl.callback.MockGuiCallbackService;
 import org.limewire.core.impl.connection.MockConnectionModule;
 import org.limewire.core.impl.daap.MockDaapModule;
 import org.limewire.core.impl.download.MockDownloadModule;
+import org.limewire.core.impl.friend.MockFriendModule;
 import org.limewire.core.impl.library.MockLibraryModule;
 import org.limewire.core.impl.mojito.MockMojitoModule;
 import org.limewire.core.impl.monitor.MockMonitorModule;
@@ -64,6 +65,7 @@ public class MockModule extends AbstractModule {
         install(new MockSearchModule());
         install(new MockNetworkModule());
         install(new MockDownloadModule());
+        install(new MockFriendModule());
         install(new MockLibraryModule());
         install(new MockMojitoModule());
         install(new MockMonitorModule());

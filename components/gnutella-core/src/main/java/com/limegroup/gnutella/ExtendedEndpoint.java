@@ -123,14 +123,25 @@ public class ExtendedEndpoint extends Endpoint {
      */
     public ExtendedEndpoint(String host, int port) { 
         super(host, port);
-        this.dailyUptime=-1;
-        this.timeRecorded=now();
+        dailyUptime = -1;
+        timeRecorded = now();
     }
     
     public ExtendedEndpoint(InetAddress addr, int port) { 
         super(addr, port);
-        this.dailyUptime=-1;
-        this.timeRecorded=now();
+        dailyUptime = -1;
+        timeRecorded = now();
+    }
+    
+    /**
+     * Creates a new ExtendedEndpoint without extended uptime information.
+     * If strict is true, this does a DNS lookup against the name, failing
+     * if the lookup couldn't complete.
+     */
+    public ExtendedEndpoint(String host, int port, boolean strict) {
+        super(host, port, strict);
+        dailyUptime = -1;
+        timeRecorded = now();
     }
     
     /**

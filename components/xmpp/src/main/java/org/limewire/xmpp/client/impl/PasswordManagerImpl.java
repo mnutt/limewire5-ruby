@@ -5,8 +5,8 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.util.prefs.Preferences;
 
+import org.limewire.core.api.friend.client.PasswordManager;
 import org.limewire.security.certificate.CipherProvider;
-import org.limewire.xmpp.api.client.PasswordManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

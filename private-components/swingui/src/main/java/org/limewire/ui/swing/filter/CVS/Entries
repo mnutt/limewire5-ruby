@@ -1,0 +1,27 @@
+/AbstractFilter.java/1.5/Wed Jun  3 20:11:45 2009//
+/ActiveFilterPanel.java/1.5/Fri May 29 21:17:10 2009//
+/AdvancedFilterPanel.java/1.12/Wed Jun  3 20:09:12 2009//
+/AdvancedFilterPanelFactory.java/1.2/Thu May  7 20:53:50 2009//
+/BitRateFilterFormat.java/1.3/Mon May 18 16:24:12 2009//
+/CategoryDetector.java/1.4/Thu Jun  4 17:06:28 2009//
+/CategoryFilter.java/1.6/Wed Jun  3 20:11:45 2009//
+/CategoryMatcher.java/1.2/Thu May  7 20:53:50 2009//
+/FileSizeFilterFormat.java/1.3/Mon May 18 16:24:12 2009//
+/Filter.java/1.2/Thu May  7 20:53:50 2009//
+/FilterDebugger.java/1.1/Mon Jun  1 16:12:13 2009//
+/FilterListener.java/1.2/Thu May  7 20:53:50 2009//
+/FilterManager.java/1.4/Mon Jun  1 16:10:43 2009//
+/FilterMatcherEditor.java/1.2/Thu May  7 20:53:50 2009//
+/FilterType.java/1.2/Thu May  7 20:53:50 2009//
+/FilterableItem.java/1.2/Thu May  7 20:53:50 2009//
+/FilterableItemTextFilterator.java/1.2/Thu May  7 20:53:50 2009//
+/FilterableSource.java/1.3/Mon Jun  1 16:14:40 2009//
+/LengthFilterFormat.java/1.3/Mon May 18 16:24:12 2009//
+/PropertyFilter.java/1.8/Wed Jun  3 20:11:45 2009//
+/PropertyMatcher.java/1.4/Tue May 26 21:09:48 2009//
+/QualityFilterFormat.java/1.3/Mon May 18 16:24:12 2009//
+/RangeFilter.java/1.5/Mon Jun  1 16:07:13 2009//
+/RangeFilterFormat.java/1.3/Mon May 18 16:24:12 2009//
+/SourceFilter.java/1.7/Wed Jun  3 20:11:45 2009//
+/SourceMatcher.java/1.2/Thu May  7 20:53:50 2009//
+D

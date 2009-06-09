@@ -3,7 +3,8 @@ package org.limewire.ui.swing.search.model;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchListener;
 import org.limewire.core.api.search.SearchResult;
-import org.limewire.ui.swing.components.Disposable;
+import org.limewire.ui.swing.components.DisposalListenerList;
+import org.limewire.ui.swing.filter.FilterableSource;
 import org.limewire.ui.swing.search.resultpanel.DownloadHandler;
 
 import ca.odell.glazedlists.EventList;
@@ -12,7 +13,7 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
 /**
  * Defines a data model containing the results of a search.
  */
-public interface SearchResultsModel extends DownloadHandler, Disposable {
+public interface SearchResultsModel extends FilterableSource<VisualSearchResult>, DownloadHandler, DisposalListenerList {
 
     /**
      * Installs the specified search listener and starts the search.  The
@@ -32,6 +33,11 @@ public interface SearchResultsModel extends DownloadHandler, Disposable {
     String getSearchQuery();
     
     /**
+     * Returns the title string for the search.
+     */
+    String getSearchTitle();
+    
+    /**
      * Returns the total number of results in the search.
      */
     int getResultCount();
@@ -49,9 +55,9 @@ public interface SearchResultsModel extends DownloadHandler, Disposable {
     EventList<VisualSearchResult> getObservableSearchResults();
 
     /**
-     * Returns a list of filtered results for the specified search category.
+     * Returns a list of filtered results in the search.
      */
-    EventList<VisualSearchResult> getCategorySearchResults(SearchCategory category);
+    EventList<VisualSearchResult> getFilteredSearchResults();
 
     /**
      * Returns a list of sorted and filtered results for the selected search

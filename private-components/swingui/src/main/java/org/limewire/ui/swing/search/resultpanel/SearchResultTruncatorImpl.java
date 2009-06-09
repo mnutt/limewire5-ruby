@@ -2,9 +2,9 @@ package org.limewire.ui.swing.search.resultpanel;
 
 import java.util.regex.Pattern;
 
-import com.google.inject.Singleton;
+import org.limewire.inject.LazySingleton;
 
-@Singleton
+@LazySingleton
 public class SearchResultTruncatorImpl implements SearchResultTruncator {
     private static final String SINGLE_SPACE = " ";
     private static final String EMPTY_STRING = "";

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -63,9 +64,31 @@ public class FriendLibraries {
             propertiesIndexes = new ConcurrentHashMap<FilePropertyKey, RemoteFileItemStringTrie>();
             suggestionPropertiesIndexes = new ConcurrentHashMap<FilePropertyKey, RemoteFileItemStringTrie>();
         }
+        
+        public void clear() {
+            suggestionsIndex.lock.writeLock().lock();
+            try {
+                suggestionsIndex.clear();
+            } finally {
+                suggestionsIndex.lock.writeLock().unlock();
+            }
+            fileNameIndex.lock.writeLock().lock();
+            try {
+                fileNameIndex.clear();
+            } finally {
+                fileNameIndex.lock.writeLock().unlock();
+            }
+
+            synchronized(propertiesIndexes) {
+                propertiesIndexes.clear();
+            }
+            synchronized(suggestionPropertiesIndexes) {
+                suggestionPropertiesIndexes.clear();
+            }
+            
+        }
 
         public RemoteFileItemStringTrie getOrCreateFilePropertyIndex(FilePropertyKey filePropertyKey) {
-
             RemoteFileItemStringTrie propertiesIndex = propertiesIndexes.get(filePropertyKey);
             if (propertiesIndex == null) {
                 synchronized (propertiesIndexes) {
@@ -83,11 +106,8 @@ public class FriendLibraries {
             return propertiesIndexes.get(filePropertyKey);
         }
 
-        public RemoteFileItemStringTrie getOrCreateSuggestionPropertyIndex(
-                FilePropertyKey filePropertyKey) {
-
-            RemoteFileItemStringTrie propertiesIndex = suggestionPropertiesIndexes
-                    .get(filePropertyKey);
+        public RemoteFileItemStringTrie getOrCreateSuggestionPropertyIndex(FilePropertyKey filePropertyKey) {
+            RemoteFileItemStringTrie propertiesIndex = suggestionPropertiesIndexes.get(filePropertyKey);
             if (propertiesIndex == null) {
                 synchronized (suggestionPropertiesIndexes) {
                     propertiesIndex = suggestionPropertiesIndexes.get(filePropertyKey);
@@ -165,9 +185,7 @@ public class FriendLibraries {
 
             getSuggestionsIndex().lock.writeLock().lock();
             try {
-                // indexes the whole string so suggestions return the
-                // whole
-                // name back
+                // indexes the whole string so suggestions return the whole name back
                 getSuggestionsIndex().addWordToIndex(newFile, phrase);
             } finally {
                 getSuggestionsIndex().lock.writeLock().unlock();
@@ -202,8 +220,7 @@ public class FriendLibraries {
                                             EventList<PresenceLibrary> source) {
                                         String presenceId = item.getPresence().getPresenceId();
                                         Library library = new Library(presenceId);
-                                        LOG.debugf("adding library for presence {0} to index",
-                                                presenceId);
+                                        LOG.debugf("adding library for presence {0} to index", presenceId);
                                         libraries.put(item.getPresence().getPresenceId(), library);
                                         LibraryListener listener = new LibraryListener(library);
                                         listeners.put(item.getPresence().getPresenceId(), listener);
@@ -426,8 +443,7 @@ public class FriendLibraries {
         }
     }
 
-    private static class RemoteFileItemStringTrie extends
-            PatriciaTrie<String, Collection<RemoteFileItem>> {
+    private static class RemoteFileItemStringTrie extends PatriciaTrie<String, Collection<RemoteFileItem>> {
         private final ReadWriteLock lock;
 
         public RemoteFileItemStringTrie() {
@@ -454,8 +470,7 @@ public class FriendLibraries {
         }
 
         @Override
-        public SortedMap<String, Collection<RemoteFileItem>> getPrefixedBy(String key, int offset,
-                int length) {
+        public SortedMap<String, Collection<RemoteFileItem>> getPrefixedBy(String key, int offset, int length) {
             return super.getPrefixedBy(canonicalize(key), offset, length);
         }
 
@@ -550,15 +565,32 @@ public class FriendLibraries {
         }
 
         public void listChanged(ListEvent<RemoteFileItem> listChanges) {
-            while (listChanges.next()) {
-                if (listChanges.getType() == ListEvent.INSERT) {
-                    RemoteFileItem newFile = listChanges.getSourceList()
-                            .get(listChanges.getIndex());
-                    index(newFile);
+            // optimization:  if we know the ultimate list is size 0, clear & exit
+            if(listChanges.getSourceList().size() == 0) {
+                library.clear();
+            } else {
+                while (listChanges.next()) {
+                    switch(listChanges.getType()) {
+                    case ListEvent.INSERT:
+                        RemoteFileItem newFile = listChanges.getSourceList().get(listChanges.getIndex());
+                        index(newFile);                    
+                        break;
+                    case ListEvent.DELETE:
+                    case ListEvent.UPDATE:
+                        // TODO: if glazedlists supported retrieving the removed items,
+                        //       we could just update the one element -- instead,
+                        //       we need to rebuild the whole thing.
+                        rebuild(listChanges.getSourceList());
+                        return;
+                    }
                 }
-                // TODO if we move to having presence updates be piecemeal
-                // instead of replacing the whole list
-                // we will need to support updates and deletes as well.
+            }
+        }
+        
+        private void rebuild(List<RemoteFileItem> files) {
+            library.clear();
+            for(RemoteFileItem item : files) {
+                index(item);
             }
         }
 

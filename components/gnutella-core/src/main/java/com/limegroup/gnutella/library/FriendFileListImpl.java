@@ -77,13 +77,19 @@ class FriendFileListImpl extends AbstractFileList implements FriendFileList {
         }
     }
 
+    @Override
+    protected void initialize() {
+        super.initialize();
+        addPendingManagedFiles();
+    }
+    
     /**
      * This method initializes the friend file list.  It adds the files
      * that are shared with the friend represented by this list.  This
      * is necessary because friend file lists are populated/unpopulated when
      * needed, not upon startup.
      */
-    void initialize() {
+    protected void addPendingManagedFiles() {
         // add files from the MASTER list which are for the current friend
         // normally we would not want to lock the master list while adding
         // items internally... but it's OK here because we're guaranteed

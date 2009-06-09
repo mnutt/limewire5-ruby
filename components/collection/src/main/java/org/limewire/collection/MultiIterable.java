@@ -57,7 +57,6 @@ public class MultiIterable<T> implements Iterable<T> {
         this.iterables = iterables;
     }
     
-    @SuppressWarnings("unchecked")
     public Iterator<T> iterator() {
         List<Iterator<? extends T>> iterators = new ArrayList<Iterator<? extends T>>();
         for(Iterable<? extends T> iterable : iterables) {

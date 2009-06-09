@@ -16,17 +16,20 @@ PLATFORM=`uname`
 case ${PLATFORM} in 
     Linux)
         OPTS="${OPTS} -Djava.library.path=lib/native/linux";
+        OPTS="${OPTS} -Djna.library.path=lib/native/linux";
         export PATH="${PATH}:lib/native/linux";
         ADDITIONAL=linux
     ;;
     Darwin)
         CLASSPATH="${CLASSPATH}:/System/Library/Java";
         OPTS="${OPTS} -Djava.library.path=lib/native/osx";
+        OPTS="${OPTS} -Djna.library.path=lib/native/osx";
         OPTS="${OPTS} -Djava.endorsed.dirs=\"\"";
         OPTS="${OPTS} -Xdock:icon=LimeWire.icns";
         ADDITIONAL=osx
     ;;
     CYGWIN*)
+    	OPTS="${OPTS} -Djna.library.path=lib/native/windows";
         PS=";"
         export PATH=$PATH:lib/native/windows
         ADDITIONAL=windows

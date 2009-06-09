@@ -90,22 +90,28 @@ public final class NativeLaunchUtils {
 	 *
 	 * @param url  The url to open
 	 */
-	public static void openURL(String url) {
-	    try {
-	        Desktop.getDesktop().browse(new URI(url));
-        } catch (Throwable t) {
-    	    try {
-                if (OSUtils.isWindows()) {
-                    openURLWindows(url);
-                } else if (OSUtils.isMacOSX()) {
-                    openURLMac(url);
-                } else {
-                    openURLLinux(url);
-                }
-            } catch (IOException iox) {
-                logException(I18n.tr("Unable to open URL"), I18n.tr("Open URL"), iox);
-            }
-        } 
+	public static void openURL(final String url) {
+	    ManagedThread managedThread = new ManagedThread( new Runnable() {
+	        @Override
+	        public void run() {
+	            try {
+	                Desktop.getDesktop().browse(new URI(url));
+                } catch (Throwable t) {
+                    try {
+                        if (OSUtils.isWindows()) {
+                            openURLWindows(url);
+                        } else if (OSUtils.isMacOSX()) {
+                            openURLMac(url);
+                        } else {
+                            openURLLinux(url);
+                        }
+                    } catch (IOException iox) {
+                        logException(I18n.tr("Unable to open URL"), I18n.tr("Open URL"), iox);
+                    }
+                } 
+	        }
+	    });
+	    managedThread.start();
     }
 
 	/**

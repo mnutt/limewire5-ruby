@@ -193,6 +193,25 @@ public class GuiUtils {
     }
     
     /**
+     * Converts the passed in number of bytes into a byte-size string.
+     * The returned String is always a locale-dependant thousand separated
+     * String of bytes.
+     */
+    public static String toBytes(long bytes) {
+        if (bytes < 0) {
+            return "? " + GENERAL_UNIT_KILOBYTES;
+        }
+        
+        NumberFormat numberFormat = NUMBER_FORMAT0;
+        try {
+            return numberFormat.format(bytes) + " " + GENERAL_UNIT_BYTES;
+        } catch(ArithmeticException ae) {
+            return "0 " + GENERAL_UNIT_BYTES;
+            // internal java error, just return 0.
+        }
+    }
+    
+    /**
      * Converts an rate into a human readable and localized KB/s speed.
      */
     public static String rate2speed(double rate) {
@@ -517,4 +536,18 @@ public class GuiUtils {
         else
             return false;
     }
+    
+    /**
+     * Iterates over all the windows owned by this process then hides and 
+     *  disposes them.
+     */
+    public static void hideAndDisposeAllWindows() {
+        for(Window window : Window.getWindows()) {
+            try {
+                window.setVisible(false);
+                window.dispose();
+            } catch(Throwable ignored) {}
+        }
+    }
+
 }

@@ -14,6 +14,12 @@ import ca.odell.glazedlists.EventList;
 public class MockRemoteLibraryManager implements RemoteLibraryManager {
     
     @Override
+    public PresenceLibrary getPresenceLibrary(FriendPresence presence) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
     public FileList<RemoteFileItem> getAllFriendsFileList() {
         return new RemoteFileListAdapter();
     }
@@ -35,9 +41,8 @@ public class MockRemoteLibraryManager implements RemoteLibraryManager {
     }
     
     @Override
-    public PresenceLibrary addPresenceLibrary(FriendPresence presence) {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean addPresenceLibrary(FriendPresence presence) {
+        return false;
     }
     
     @Override

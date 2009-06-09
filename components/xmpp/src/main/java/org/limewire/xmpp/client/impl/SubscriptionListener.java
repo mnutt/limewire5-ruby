@@ -10,12 +10,12 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
 import org.jivesoftware.smack.util.StringUtils;
+import org.limewire.core.api.friend.client.FriendRequest;
+import org.limewire.core.api.friend.client.FriendRequestDecisionHandler;
+import org.limewire.core.api.friend.client.FriendRequestEvent;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.xmpp.api.client.FriendRequest;
-import org.limewire.xmpp.api.client.FriendRequestDecisionHandler;
-import org.limewire.xmpp.api.client.FriendRequestEvent;
 
 /**
  * Handles presence subscriptions and unsubscriptions on an XMPP connection

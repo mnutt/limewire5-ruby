@@ -9,26 +9,27 @@ import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.magnet.MagnetLink;
 import org.limewire.core.api.search.SearchCategory;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.search.DefaultSearchInfo;
 import org.limewire.ui.swing.search.SearchHandler;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-@Singleton
+@LazySingleton
 class MagnetHandlerImpl implements MagnetHandler {
 
     private final DownloadListManager downloadListManager;
 
     private final SearchHandler searchHandler;
 
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
     
     @Inject
     MagnetHandlerImpl(SearchHandler searchHandler,
             DownloadListManager downloadListManager,
-            SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler) {
         this.downloadListManager = downloadListManager;
         this.searchHandler = searchHandler;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
@@ -58,16 +59,22 @@ class MagnetHandlerImpl implements MagnetHandler {
     }
 
     private void downloadMagnet(final DownloadListManager downloadListManager,
-            final SaveLocationExceptionHandler saveLocationExceptionHandler, final MagnetLink magnet) {
+            final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler, final MagnetLink magnet) {
         try {
             downloadListManager.addDownload(magnet, null, false);
         } catch (SaveLocationException e1) {
-            saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+            saveLocationExceptionHandler.get().handleSaveLocationException(new DownloadAction() {
                 @Override
                 public void download(File saveFile, boolean overwrite) throws SaveLocationException {
                     downloadListManager
                             .addDownload(magnet, saveFile, overwrite);
                 }
+
+                @Override
+                public void downloadCanceled(SaveLocationException sle) {
+                    //nothing to do                    
+                }
+
             }, e1, true);
         }
     }

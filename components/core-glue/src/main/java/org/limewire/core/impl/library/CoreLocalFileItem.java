@@ -11,14 +11,14 @@ import java.util.StringTokenizer;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
+import org.limewire.core.api.friend.client.FileMetaData;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.impl.URNImpl;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
 import org.limewire.util.FileUtils;
-import org.limewire.xmpp.api.client.FileMetaData;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.FileDetails;
 import com.limegroup.gnutella.URN;
@@ -42,7 +42,7 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
 
     private final CreationTimeCache creationTimeCache;
 
-    @AssistedInject
+    @Inject
     public CoreLocalFileItem(@Assisted FileDesc fileDesc, LocalFileDetailsFactory detailsFactory,
             CreationTimeCache creationTimeCache) {
         this.fileDesc = fileDesc;

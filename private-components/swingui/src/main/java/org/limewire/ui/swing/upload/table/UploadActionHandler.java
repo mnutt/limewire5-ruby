@@ -2,9 +2,11 @@ package org.limewire.ui.swing.upload.table;
 
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadListManager;
+import org.limewire.core.api.upload.UploadState;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.player.PlayerUtils;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
+import org.limewire.ui.swing.properties.FileInfoDialog.FileInfoType;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 
 public class UploadActionHandler {
@@ -19,24 +21,27 @@ public class UploadActionHandler {
     
     
     private UploadListManager uploadListManager;
-    private PropertiesFactory<UploadItem> propertiesFactory;
+    private FileInfoDialogFactory fileInfoFactory;
     private LibraryNavigator libraryNavigator;
     
-    public UploadActionHandler(UploadListManager uploadListManager, PropertiesFactory<UploadItem> propertiesFactory, LibraryNavigator libraryNavigator){
+    public UploadActionHandler(UploadListManager uploadListManager, LibraryNavigator libraryNavigator,
+            FileInfoDialogFactory fileInfoFactory){
         this.uploadListManager = uploadListManager;
-        this.propertiesFactory = propertiesFactory;
         this.libraryNavigator = libraryNavigator;
+        this.fileInfoFactory = fileInfoFactory;
     }
 
     public void performAction(final String actionCommmand, final UploadItem item){
         if (actionCommmand == CANCEL_COMMAND) {
-            //canceled upload items end up in the DONE state so they need to be manually removed.
-            uploadListManager.remove(item);
             item.cancel();
+            //canceled upload items end up in the DONE state so they need to be manually removed.
+            if (item.getState() == UploadState.CANCELED || item.getState() == UploadState.DONE) {
+                uploadListManager.remove(item);
+            }
         } else if (actionCommmand == LOCATE_ON_DISK_COMMAND){
             NativeLaunchUtils.launchExplorer(item.getFile());
         } else if (actionCommmand == PROPERTIES_COMMAND){
-            propertiesFactory.newProperties().showProperties(item);
+            fileInfoFactory.createFileInfoDialog(item, FileInfoType.LOCAL_FILE);
         } else if (actionCommmand == REMOVE_COMMAND){
             uploadListManager.remove(item);
         } else if (actionCommmand == LIBRARY_COMMAND){

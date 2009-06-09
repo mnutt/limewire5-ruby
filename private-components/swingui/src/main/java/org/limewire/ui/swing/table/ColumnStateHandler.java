@@ -34,6 +34,7 @@ public class ColumnStateHandler implements TableColumnModelListener, MouseListen
     
     
     private boolean columnMoved = false;
+    private boolean visibleChangeEnabled = true;
     
     public ColumnStateHandler(JXTable table, VisibleTableFormat format) {
         this.table = table;
@@ -220,6 +221,22 @@ public class ColumnStateHandler implements TableColumnModelListener, MouseListen
     }
 
     public void setupColumnVisibility() {
+        setupColumnVisibility(true);
+    }
+    
+    /**
+     * Applies the column visibility attributes to the table columns.  If 
+     * <code>propertyChangeEnabled</code> is false, then changes to the visible
+     * property in the columns are NOT handled.  This is useful in situations
+     * where the column visibility is initialized before the column order has
+     * been set up.  (This occurs when the search results table format changes.)
+     * In this situation, handling the visible property change would cause the 
+     * default column order to be saved, thereby overwriting any custom column
+     * reordering done by the user.
+     * @see #propertyChange(PropertyChangeEvent)
+     */
+    public void setupColumnVisibility(boolean propertyChangeEnabled) {
+        visibleChangeEnabled = propertyChangeEnabled;
         stopListening();
 
         for(int i = format.getColumnCount()-1; i >= 0; i--) {
@@ -228,6 +245,7 @@ public class ColumnStateHandler implements TableColumnModelListener, MouseListen
         }
 
         startListening();
+        visibleChangeEnabled = true;
     }
     
     private void setVisibility(ColumnStateInfo info, boolean isVisible) {
@@ -256,7 +274,7 @@ public class ColumnStateHandler implements TableColumnModelListener, MouseListen
         }
         
         //visibility changed
-        if(evt.getPropertyName().equals("visible") && table.isShowing()) {
+        if(evt.getPropertyName().equals("visible") && table.isShowing() && visibleChangeEnabled) {
             ColumnStateInfo info = format.getColumnInfo(((TableColumnExt)evt.getSource()).getModelIndex());
             setVisibility(info, Boolean.TRUE.equals(evt.getNewValue()));
             

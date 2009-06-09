@@ -33,26 +33,18 @@ import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.LimeComboBox;
-import org.limewire.ui.swing.components.PromptTextField;
 import org.limewire.ui.swing.components.LimeComboBox.SelectionListener;
 import org.limewire.ui.swing.components.decorators.ButtonDecorator;
 import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
 import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
-import org.limewire.ui.swing.components.decorators.TextFieldDecorator;
-import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.painter.ButtonBackgroundPainter.DrawMode;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
 import org.limewire.ui.swing.search.model.SortOption;
-import org.limewire.ui.swing.search.model.VisualSearchResult;
-import org.limewire.ui.swing.search.model.VisualSearchResultTextFilterator;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 
-import ca.odell.glazedlists.matchers.MatcherEditor;
-import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
-
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * This class manages the UI components for filtering and sorting
@@ -78,7 +70,6 @@ public class SortAndFilterPanel implements Disposable {
     private final LimeComboBox sortCombo;
     
     private final JLabel sortLabel = new JLabel(tr("Sort by:"));
-    private final PromptTextField filterBox = new PromptTextField(tr("Refine results..."));
     private final JXButton listViewToggleButton = new JXButton();
     private final JXButton tableViewToggleButton = new JXButton();
     
@@ -91,18 +82,17 @@ public class SortAndFilterPanel implements Disposable {
      * Constructs a SortAndFilterPanel with the specified search results data
      * model and UI decorators.
      */
-    @AssistedInject
+    @Inject
     SortAndFilterPanel(
             @Assisted SearchResultsModel searchResultsModel,
-            ComboBoxDecorator comboBoxDecorator, TextFieldDecorator textFieldDecorator, 
-            ButtonDecorator buttonDecorator, HeaderBarDecorator headerBarFactory) {
+            ComboBoxDecorator comboBoxDecorator, 
+            ButtonDecorator buttonDecorator, 
+            HeaderBarDecorator headerBarFactory) {
         
         GuiUtils.assignResources(this);
         
         this.buttonDecorator = buttonDecorator;
         this.searchResultsModel = searchResultsModel;
-        
-        textFieldDecorator.decorateClearablePromptField(filterBox, AccentType.SHADOW);
         
         // Initialize sort actions.
         populateActionList();
@@ -261,14 +251,8 @@ public class SortAndFilterPanel implements Disposable {
      * Configures the sort and filter components to work with the data model.
      */
     private void configureSortFilter() {
-        // Create text filter with "live" filtering.
-        MatcherEditor<VisualSearchResult> editor =
-            new TextComponentMatcherEditor<VisualSearchResult>(
-                filterBox, new VisualSearchResultTextFilterator(), true);
-        
-        // Initialize sort option and filter in data model.
+        // Initialize sort option in data model.
         searchResultsModel.setSortOption(SortOption.getDefault());
-        searchResultsModel.setFilterEditor(editor);
         
         // Install combobox listener to update sort order.
         SelectionListener listener = new SelectionListener() {
@@ -294,7 +278,6 @@ public class SortAndFilterPanel implements Disposable {
     public void layoutComponents(JPanel panel) {
         panel.setLayout(new MigLayout("insets 0, filly, gapx 0", "push[][][][][]"));
         
-        panel.add(filterBox, "gapafter 10");
         panel.add(sortLabel, "gapafter 10, hidemode 3");
         panel.add(sortCombo, "gapafter 10, hidemode 3");
         panel.add(listViewToggleButton);
@@ -303,10 +286,10 @@ public class SortAndFilterPanel implements Disposable {
 
     /**
      * Clears the filter text field.
-     */
+     *
     public void clearFilterBox() {
         filterBox.setText("");
-    }
+    }*/
     
     /**
      * Sets the state of the view toggle buttons.

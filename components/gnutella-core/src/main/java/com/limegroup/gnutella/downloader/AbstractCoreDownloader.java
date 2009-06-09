@@ -43,7 +43,7 @@ public abstract class AbstractCoreDownloader implements CoreDownloader {
 	 * The save file this download should be saved too.
 	 * If null, the subclass should return a suggested location.
 	 */
-	private File saveFile;
+	protected File saveFile;
 	
 	/** The default fileName this should use. */
 	private String defaultFileName;

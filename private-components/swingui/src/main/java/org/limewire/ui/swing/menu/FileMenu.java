@@ -12,9 +12,7 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 public class FileMenu extends MnemonicMenu {
     @Inject
     public FileMenu(OpenFileAction openFileAction, OpenLinkAction openLinkAction,

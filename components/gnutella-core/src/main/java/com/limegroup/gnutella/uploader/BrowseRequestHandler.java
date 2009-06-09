@@ -106,7 +106,7 @@ public class BrowseRequestHandler extends SimpleNHttpRequestHandler {
                 friendID = getFriend(request);
                 tracker.browsed(friendID);
                 uploader = sessionManager.getOrCreateUploader(request,
-                        context, UploadType.BROWSE_HOST, friendID);
+                        context, UploadType.BROWSE_HOST, friendID, friendID);
             }
             uploader.setState(UploadStatus.BROWSE_HOST);
             Iterable<SharedFileList> lists = browseRequestFileListProvider.getFileLists(friendID, context);

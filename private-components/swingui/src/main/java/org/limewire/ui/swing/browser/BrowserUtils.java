@@ -16,6 +16,7 @@ import org.mozilla.interfaces.nsIWebBrowserChrome;
 import org.w3c.dom.Node;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class BrowserUtils {
 
@@ -42,7 +43,7 @@ public class BrowserUtils {
 
     @Inject
     public static void registerMagnetProtocol(final MagnetFactory magnetFactory,
-            final MagnetHandler magnetHandler) {
+            final Provider<MagnetHandler> magnetHandler) {
         addProcotolHandlerAction("magnet", new UriAction() {
             @Override
             public boolean uriClicked(TargetedUri targetedUrl) {
@@ -50,7 +51,7 @@ public class BrowserUtils {
                     URI uri = URIUtils.toURI(targetedUrl.getUri());
                     MagnetLink[] magnetLinks = magnetFactory.parseMagnetLink(uri);
                     for (MagnetLink magnetLink : magnetLinks) {
-                        magnetHandler.handleMagnet(magnetLink);
+                        magnetHandler.get().handleMagnet(magnetLink);
                     }
                 } catch (URISyntaxException e) {
                     return false;
@@ -61,8 +62,7 @@ public class BrowserUtils {
     }
     
     @Inject
-    public static void registerMailToProtocol(final MagnetFactory magnetFactory,
-            final MagnetHandler magnetHandler) {
+    public static void registerMailToProtocol(final MagnetFactory magnetFactory) {
         addProcotolHandlerAction("mailto", new UriAction() {
             @Override
             public boolean uriClicked(final TargetedUri targetedUrl) {

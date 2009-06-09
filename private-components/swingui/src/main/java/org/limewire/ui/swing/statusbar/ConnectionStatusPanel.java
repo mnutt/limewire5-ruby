@@ -22,9 +22,7 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 class ConnectionStatusPanel extends JXPanel {
     
     private final String connectingText = I18n.tr("Connecting");
@@ -67,7 +65,7 @@ class ConnectionStatusPanel extends JXPanel {
         connectionStatusLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,4));
         connectionStatusLabel.setFont(font);
         connectionStatusLabel.setForeground(this.getForeground());
-        tryAgainButton = new HyperlinkButton("Try Again");
+        tryAgainButton = new HyperlinkButton(I18n.tr("Try Again"));
         tryAgainButton.setFont(font);
         tryAgainButton.setVisible(false);
         

@@ -9,16 +9,16 @@ import javax.swing.SwingUtilities;
 
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.api.library.PropertiableFile;
+import org.limewire.inject.LazySingleton;
 import org.limewire.util.FileUtils;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Manages finding native icons for files and file types.
  */
-@Singleton
+@LazySingleton
 public class IconManager {
     
     /** The original basic file icon controller **/

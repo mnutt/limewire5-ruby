@@ -4,10 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.limewire.ui.swing.downloads.MainDownloadPanel;
+import org.limewire.ui.swing.event.SelectAndScrollDownloadEvent;
 import org.limewire.ui.swing.library.nav.LibraryNavigator;
-import org.limewire.ui.swing.nav.NavCategory;
-import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
@@ -16,16 +14,14 @@ class DownloadHandlerImpl implements DownloadHandler {
     
     private final SearchResultsModel searchResultsModel;
     private List<DownloadPreprocessor> downloadPreprocessors = new ArrayList<DownloadPreprocessor>();
-    private Navigator navigator;
     private LibraryNavigator libraryNavigator;
     
     /**
      * Starts all downloads from searches.  Navigates to Library or Downloads without downloading if the file is in either of those locations.
      */
     public DownloadHandlerImpl(SearchResultsModel searchResultsModel,
-            Navigator navigator, LibraryNavigator libraryNavigator) {
+            LibraryNavigator libraryNavigator) {
         this.searchResultsModel = searchResultsModel;
-        this.navigator = navigator;
         this.libraryNavigator = libraryNavigator;
 
         this.downloadPreprocessors.add(new LicenseWarningDownloadPreprocessor());
@@ -63,7 +59,7 @@ class DownloadHandlerImpl implements DownloadHandler {
     private boolean maybeNavigate(VisualSearchResult vsr) {
         if (vsr.getDownloadState() == BasicDownloadState.DOWNLOADED
                 || vsr.getDownloadState() == BasicDownloadState.DOWNLOADING) {
-            navigator.getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME).select(vsr);
+            new SelectAndScrollDownloadEvent(vsr.getUrn()).publish();
             return true;
         } else if (vsr.getDownloadState() == BasicDownloadState.LIBRARY) {
             libraryNavigator.selectInLibrary(vsr.getUrn(), vsr.getCategory());

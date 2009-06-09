@@ -1,9 +1,9 @@
 package org.limewire.ui.swing.friends.chat;
 
 import org.limewire.concurrent.ThreadExecutor;
-import org.limewire.xmpp.api.client.ChatState;
-import org.limewire.xmpp.api.client.MessageWriter;
-import org.limewire.xmpp.api.client.XMPPException;
+import org.limewire.core.api.friend.client.ChatState;
+import org.limewire.core.api.friend.client.MessageWriter;
+import org.limewire.core.api.friend.client.FriendException;
 
 class MessageWriterImpl implements MessageWriter {
     private final String localID;
@@ -17,13 +17,13 @@ class MessageWriterImpl implements MessageWriter {
     }
 
     @Override
-    public void writeMessage(final String message) throws XMPPException {
+    public void writeMessage(final String message) throws FriendException {
         ThreadExecutor.startThread(new Runnable() {
             @Override
             public void run() {
                 try {
                     writer.writeMessage(message);
-                } catch (XMPPException e) {
+                } catch (FriendException e) {
                     e.printStackTrace();
                 }
             }
@@ -36,7 +36,7 @@ class MessageWriterImpl implements MessageWriter {
     }
 
     @Override
-    public void setChatState(ChatState chatState) throws XMPPException {
+    public void setChatState(ChatState chatState) throws FriendException {
         writer.setChatState(chatState);
     }
 }

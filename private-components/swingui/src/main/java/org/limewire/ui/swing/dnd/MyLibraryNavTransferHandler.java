@@ -17,16 +17,18 @@ import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.ui.swing.util.DNDUtils;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
+import com.google.inject.Provider;
+
 public class MyLibraryNavTransferHandler extends TransferHandler {
 
     private DownloadListManager downloadListManager;
 
     private LibraryFileList library;
 
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
     
     public MyLibraryNavTransferHandler(DownloadListManager downloadListManager,
-            LibraryFileList library, SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            LibraryFileList library, Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler) {
         this.downloadListManager = downloadListManager;
         this.library = library;
         this.saveLocationExceptionHandler = saveLocationExceptionHandler;
@@ -59,12 +61,18 @@ public class MyLibraryNavTransferHandler extends TransferHandler {
                 try {
                     downloadListManager.addDownload(file);
                 } catch (SaveLocationException e) {
-                    saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+                    saveLocationExceptionHandler.get().handleSaveLocationException(new DownloadAction() {
                         @Override
                         public void download(File saveFile, boolean overwrite)
                                 throws SaveLocationException {
                             downloadListManager.addDownload(file, saveFile, overwrite);
                         }
+
+                        @Override
+                        public void downloadCanceled(SaveLocationException sle) {
+		                    //nothing to do                            
+                        }
+
                     }, e, true);
                 }
             }

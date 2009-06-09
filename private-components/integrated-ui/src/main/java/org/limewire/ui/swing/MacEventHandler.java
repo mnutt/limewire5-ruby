@@ -131,6 +131,12 @@ public class MacEventHandler {
                                 throws SaveLocationException {
                             downloadManager.downloadTorrent(file, overwrite);
                         }
+
+                        @Override
+                        public void downloadCanceled(SaveLocationException sle) {
+                            //nothing to do
+                        }
+
                     }, e, false);
 
                 }

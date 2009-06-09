@@ -15,7 +15,6 @@ import com.limegroup.gnutella.URN;
  * It also stubs out some methods.  Feel free to stub out more methods as
  * need arises.
  */
-@SuppressWarnings("unchecked")
 public class IncompleteFileDescStub extends FileDescStub implements IncompleteFileDesc {
 	public static final String urnString = "urn:sha1:PLSTHIPQGSSZTS5FJUPAKUZWUGYQYPFB";
 	private static final URN urn;

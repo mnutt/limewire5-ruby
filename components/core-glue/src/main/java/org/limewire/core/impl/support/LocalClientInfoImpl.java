@@ -21,8 +21,9 @@ import org.limewire.util.CommonUtils;
 import org.limewire.util.OSUtils;
 import org.limewire.util.VersionUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.internal.Nullable;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 /**
@@ -39,10 +40,10 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
 	/**
 	 * Creates information about this bug from the bug, thread, and detail.
 	 */
-    @AssistedInject
+    @Inject
 	public LocalClientInfoImpl(@Assisted Throwable bug, 
-	                           @Assisted String threadName, 
-	                           @Assisted String detail, 
+	                           @Nullable @Assisted("threadName") String threadName, 
+	                           @Nullable @Assisted("detail") String detail, 
 	                           @Assisted boolean fatal, 
 	                           SessionInfo sessionInfo) {
 	    //Store the basic information ...	    

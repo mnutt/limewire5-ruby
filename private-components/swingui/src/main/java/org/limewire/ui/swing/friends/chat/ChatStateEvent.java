@@ -1,7 +1,7 @@
 package org.limewire.ui.swing.friends.chat;
 
+import org.limewire.core.api.friend.client.ChatState;
 import org.limewire.ui.swing.event.AbstractEDTEvent;
-import org.limewire.xmpp.api.client.ChatState;
 
 public class ChatStateEvent extends AbstractEDTEvent {
     private static final String TOPIC_PREFIX = "chatstate-";

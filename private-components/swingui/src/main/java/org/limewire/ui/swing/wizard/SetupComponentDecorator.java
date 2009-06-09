@@ -24,7 +24,7 @@ import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.PainterUtils;
 
-import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.Inject;
 
 /**
  * A non singleton decorator class for the special components
@@ -56,7 +56,7 @@ public class SetupComponentDecorator {
     
     private final GenericBarPainter<JXPanel> pooledBarPainter;
     
-    @AssistedInject
+    @Inject
     SetupComponentDecorator(ButtonDecorator plainButtonDecorator) {
         
         GuiUtils.assignResources(this);

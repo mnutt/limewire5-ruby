@@ -11,8 +11,6 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -41,6 +39,8 @@ import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.IOUtils;
 import org.limewire.io.NetworkUtils;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.net.BlockingConnectObserver;
 import org.limewire.net.SocketsManager;
 import org.limewire.util.StringUtils;
@@ -138,16 +138,16 @@ public class BrowseHostHandler {
                 return;
             }
         } catch (IOException ie) {
-            if (LOG.isDebugEnabled())
-                LOG.debug("Error during browse host: " + friendPresence, ie);
+            if (LOG.isInfoEnabled())
+                LOG.info("Error during browse host: " + friendPresence, ie);
         } catch (URISyntaxException e) {
-            LOG.debug("Error during browse host", e);
+            LOG.info("Error during browse host", e);
         } catch (HttpException e) {
-            LOG.debug("Error during browse host", e);
+            LOG.info("Error during browse host", e);
         } catch (InterruptedException e) {
-            LOG.debug("Error during browse host", e);
+            LOG.info("Error during browse host", e);
         } catch (TimeoutException e) {
-            LOG.debug("Error during browse host", e);
+            LOG.info("Error during browse host", e);
         }
         browseListener.browseFinished(false);
         failed();
@@ -225,8 +225,7 @@ public class BrowseHostHandler {
                 String password = StringUtils.getUTF8String(authTokenFeature.getFeature());
                 client.setCredentials(new UsernamePasswordCredentials(username, password));
             } else {
-                if (LOG.isDebugEnabled())
-                    LOG.debug("no auth token for: " + friendPresence);
+                LOG.infof("no auth token for: {0}", friendPresence);
             }
         }
         // hardcoding to "http" should work;
@@ -290,7 +289,7 @@ public class BrowseHostHandler {
             try {
                 in = response.getEntity().getContent();
             } catch (IOException e) {
-                LOG.debug("Unable to read a single message", e);
+                LOG.info("Unable to read a single message", e);
                 return;
             }
             Message m = null;

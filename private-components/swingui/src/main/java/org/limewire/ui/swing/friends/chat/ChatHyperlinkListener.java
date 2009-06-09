@@ -1,32 +1,35 @@
 package org.limewire.ui.swing.friends.chat;
 
-import java.net.URLDecoder;
-import java.net.URL;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Map;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
+
+import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.html.FormSubmitEvent;
-import javax.swing.JOptionPane;
 
-import org.limewire.core.api.download.DownloadItem;
-import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.download.DownloadAction;
+import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
 import org.limewire.core.api.download.ResultDownloader;
+import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.xmpp.RemoteFileItemFactory;
 import org.limewire.io.InvalidDataException;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.components.FocusJOptionPane;
+import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
-import org.limewire.ui.swing.library.nav.LibraryNavigator;
-import org.limewire.logging.Log;
-import org.limewire.logging.LogFactory;
-import com.google.inject.assistedinject.AssistedInject;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 
 /**
@@ -40,13 +43,13 @@ public class ChatHyperlinkListener implements javax.swing.event.HyperlinkListene
 
     private final ResultDownloader downloader;
     private final RemoteFileItemFactory remoteFileItemFactory;
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler;
     private final LibraryNavigator libraryNavigator;
 
-    @AssistedInject
+    @Inject
     public ChatHyperlinkListener(@Assisted Conversation conversation, ResultDownloader downloader,
                                  RemoteFileItemFactory remoteFileItemFactory,
-                                 SaveLocationExceptionHandler saveLocationExceptionHandler,
+                                 Provider<SaveLocationExceptionHandler> saveLocationExceptionHandler,
                                  LibraryNavigator libraryNavigator) {
 
         this.conversation = conversation;
@@ -100,13 +103,19 @@ public class ChatHyperlinkListener implements javax.swing.event.HyperlinkListene
         } catch (SaveLocationException sle) {
             final RemoteFileItem remoteFileItem = file;
             final MessageFileOffer messageFileOffer = msgWithfileOffer;
-            saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+            saveLocationExceptionHandler.get().handleSaveLocationException(new DownloadAction() {
                 @Override
                 public void download(File saveFile, boolean overwrite)
                         throws SaveLocationException {
                     DownloadItem dl = downloader.addDownload(remoteFileItem, saveFile, overwrite);
                     addPropertyListener(dl, messageFileOffer);
                 }
+
+                @Override
+                public void downloadCanceled(SaveLocationException sle) {
+                    //nothing to do                    
+                }
+
             }, sle, true);
         } catch (InvalidDataException ide) {
             // this means the FileMetaData we received isn't well-formed.
@@ -122,7 +131,7 @@ public class ChatHyperlinkListener implements javax.swing.event.HyperlinkListene
         if (ChatDocumentBuilder.LIBRARY_LINK.equals(linkDescription)) {
             ChatFriend libraryChatFriend = conversation.getChatFriend();
             LOG.debugf("Opening a view to {0}'s library", libraryChatFriend.getName());
-            libraryNavigator.selectFriendLibrary(libraryChatFriend.getUser());
+            libraryNavigator.selectFriendLibrary(libraryChatFriend.getFriend());
 
         } else if (ChatDocumentBuilder.MY_LIBRARY_LINK.equals(linkDescription)) {
             LOG.debugf("Opening a view to my library");

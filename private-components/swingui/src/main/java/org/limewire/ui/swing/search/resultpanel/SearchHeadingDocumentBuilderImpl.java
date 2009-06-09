@@ -6,12 +6,11 @@ import java.awt.Font;
 import java.text.MessageFormat;
 
 import org.jdesktop.application.Resource;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.util.GuiUtils;
 
-import com.google.inject.Singleton;
-
-@Singleton
+@LazySingleton
 public class SearchHeadingDocumentBuilderImpl implements SearchHeadingDocumentBuilder {
     private final static String DOCUMENT_START = 
         "<html>" +

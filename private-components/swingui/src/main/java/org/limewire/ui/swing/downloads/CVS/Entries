@@ -1,10 +1,6 @@
 D/table////
-/AllDownloadPanel.java/1.10/Thu Jan 22 05:05:32 2009//
-/AllDownloadPanelFactory.java/1.1/Thu Jan 22 05:05:32 2009//
-/CategoryDownloadPanelFactory.java/1.1/Thu Jan 22 05:05:32 2009//
 /DownloadItemUtils.java/1.1/Thu Jan 22 05:05:32 2009//
-/DownloadMediator.java/1.29/Tue Feb 10 21:11:53 2009//
-/LimeWireUiDownloadsModule.java/1.1/Thu Jan 22 05:05:32 2009//
-/MainDownloadPanel.java/1.55/Tue Feb 10 21:11:53 2009//
-/CategoryDownloadPanel.java/1.35/Mon Apr  6 16:05:45 2009//
-/DownloadSummaryPanel.java/1.98/Mon Apr  6 16:05:45 2009//
+/DownloadHeaderPanel.java/1.3/Fri May 22 17:52:10 2009//
+/DownloadMediator.java/1.31/Mon Jun  8 18:08:27 2009//
+/LimeWireUiDownloadsModule.java/1.2/Mon Jun  8 18:08:27 2009//
+/MainDownloadPanel.java/1.57/Mon Jun  8 18:08:27 2009//

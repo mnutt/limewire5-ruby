@@ -122,8 +122,10 @@ public class ConnectionSummaryPanel extends JPanel {
         summaryLabel.setText(CONNECTED_TO);
 
         summaryTable.setModel(summaryTableModel);
+        summaryTable.setSelectionForeground(Color.BLACK);
         summaryTable.setPreferredSize(new Dimension(120, 120));
         summaryTable.setShowGrid(false);
+        summaryTable.setFocusable(false);
 
         // Set column widths.
         summaryTable.getColumnModel().getColumn(0).setPreferredWidth(24);
@@ -155,6 +157,7 @@ public class ConnectionSummaryPanel extends JPanel {
         super.setBackground(bgColor);
         if (summaryTable != null) {
             summaryTable.setBackground(bgColor);
+            summaryTable.setSelectionBackground(bgColor);
         }
     }
     
@@ -228,13 +231,13 @@ public class ConnectionSummaryPanel extends JPanel {
     private String getReasonText(FWTStatusReason reason) {
         switch (reason) {
         case INVALID_EXTERNAL_ADDRESS:
-            return I18n.tr("Invalid external address");
+            return I18n.tr("LimeWire has not been able to determine the external IP address of your NAT or firewall");
         case NO_SOLICITED_INCOMING_MESSAGES:
-            return I18n.tr("No solicited incoming messages");
+            return I18n.tr("LimeWire has not received any incoming UDP messages");
         case REUSING_STATUS_FROM_PREVIOUS_SESSION:
-            return I18n.tr("Reusing status from previous session");
+            return I18n.tr("LimeWire was not able to support firewall transfers in a previous session");
         case PORT_UNSTABLE:
-            return I18n.tr("Port unstable");
+            return I18n.tr("LimeWire is behind a NAT or firewall that assigns a different external port to each connection");
         case UNKNOWN:
         default:
             return I18n.tr("Unknown");

@@ -87,7 +87,7 @@
     
     <macrodef name="do.setup-properties" description="Sets up common properties every macro uses.">
         <sequential>
-            <ivy:configure file="${limewire.ivy.home}/ivysettings.xml" override="true"/>
+            <ivy:configure file="${limewire.ivy.settings.file}" override="true"/>
         
             <property name="initialized.${component}" value="true"/>
             
@@ -150,12 +150,16 @@
                       location="${limewire.components.this.home}/dist"/>
             <property name="dist.limewire.components.this.javadoc"
             		  location="${dist.limewire.components.this.home}/javadoc"/>
+            <property name="dist.limewire.components.this.src.jar.dir"
+                      location="${dist.limewire.components.this.home}/main"/>
             <property name="dist.limewire.components.this.src.jar"
-            		  location="${dist.limewire.components.this.home}/${component}.jar"/>
+            		  location="${dist.limewire.components.this.src.jar.dir}/${component}.jar"/>
             <!--<property name="dist.limewire.components.this.api.jar"
                       location="${dist.limewire.components.this.home}/${component}-api.jar"/> -->
+            <property name="dist.limewire.components.this.test-common.jar.dir"
+                      location="${dist.limewire.components.this.home}/test/"/>
             <property name="dist.limewire.components.this.test-common.jar"
-                      location="${dist.limewire.components.this.home}/${component}-test-common.jar"/>
+                      location="${dist.limewire.components.this.test-common.jar.dir}/${component}-test-common.jar"/>
             
             <!-- whether or not to write tests to file instead of stdout. -->
             <property name="tests.writetofileonly" value="false"/>
@@ -386,8 +390,10 @@
         <sequential>
             <ivy:publish resolver="local"
                          overwrite="true"
-                         forcedeliver="true"                         
-                         artifactspattern="${dist.limewire.components.this.home}/[artifact].[ext]"/>
+                         forcedeliver="true">
+                <artifacts pattern="${dist.limewire.components.this.test-common.jar.dir}/[artifact].[ext]"/>
+                <artifacts pattern="${dist.limewire.components.this.src.jar.dir}/[artifact].[ext]"/>
+            </ivy:publish>
         </sequential>
     </macrodef>
     
@@ -464,6 +470,7 @@
 	        	   timeout="1200000"
 	    	>
 	            <sysproperty key="java.library.path"      		 value="${@{nativePathRefId}}"/>
+	        	<sysproperty key="jna.library.path"              value="${@{nativePathRefId}}"/>
 	    		<sysproperty key="junit.test.method"      		 value="${method}"/>
 	    		<sysproperty key="junit.test.times"        		 value="${times}"/>
 	    	    <sysproperty key="junit.test.hidetestname"		 value="${hidetestname}"/>
@@ -512,6 +519,8 @@
     <macrodef name="do.dist-init" description="Initializes directories for distribution.">    	
     	<sequential>
     	    <mkdir dir="${dist.limewire.components.this.home}"/>
+    	    <mkdir dir="${dist.limewire.components.this.src.jar.dir}"/>
+    	    <mkdir dir="${dist.limewire.components.this.test-common.jar.dir}"/>
     	</sequential>
     </macrodef>
 	

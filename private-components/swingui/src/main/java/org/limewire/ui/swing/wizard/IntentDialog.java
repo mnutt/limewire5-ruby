@@ -68,18 +68,6 @@ public class IntentDialog extends LimeJDialog {
     private final String licenseURL = "http://www.limewire.com/learnmore/agreement";
     private final String privacyURL = "http://www.limewire.com/learnmore/privacy";
     
-    private final Action urlAction = new AbstractAction(){
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if(e.getSource().equals(copyrightButton))
-                NativeLaunchUtils.openURL(copyrightURL);
-            else if(e.getSource().equals(licenseButton))
-                NativeLaunchUtils.openURL(licenseURL);
-            else if(e.getSource().equals(privacyButton))
-                NativeLaunchUtils.openURL(privacyURL);
-        }
-    };
-    
     private boolean agreed = false;
     
     public IntentDialog(String version){
@@ -103,17 +91,17 @@ public class IntentDialog extends LimeJDialog {
         agreeLabel = new MultiLineLabel("", 500);
         agreeLabel.setFont(smallFont);
         //FontUtils.bold(agreeLabel);
-        copyrightButton = new HyperlinkButton(urlAction);
+        copyrightButton = new HyperlinkButton(new UrlAction(copyrightURL));
         copyrightButton.setFocusPainted(false);
         copyrightButton.setFont(smallFont);
         FontUtils.underline(copyrightButton);
         copyrightButton.setForeground(new Color(0x2152a6));
-        licenseButton = new HyperlinkButton(urlAction);
+        licenseButton = new HyperlinkButton(new UrlAction(licenseURL));
         licenseButton.setFocusPainted(false);
         licenseButton.setFont(smallFont);
         FontUtils.underline(licenseButton);
         licenseButton.setForeground(new Color(0x2152a6));
-        privacyButton = new HyperlinkButton(urlAction);
+        privacyButton = new HyperlinkButton(new UrlAction(privacyURL));
         privacyButton.setFocusPainted(false);
         privacyButton.setFont(smallFont);
         FontUtils.underline(privacyButton);
@@ -264,7 +252,6 @@ public class IntentDialog extends LimeJDialog {
      *  on the language selected in the combo box.
      */
     private void setTextContents() {
-
         String heading  = I18n.tr("Some Legal Stuff");
         String bodyText1
         = I18n.tr("LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only. Copyright laws may forbid obtaining or distributing certain copyrighted content. Learn more about your rights below:");
@@ -298,5 +285,19 @@ public class IntentDialog extends LimeJDialog {
         languageLabel.setText(languageText);
         exitButton.setAction(exitAction);
         agreeButton.setAction(agreeAction);
+    }
+    
+    private static class UrlAction extends AbstractAction {
+        private final String url;
+        
+        public UrlAction(String url) {
+            this.url = url;
+            putValue(Action.SHORT_DESCRIPTION, url);
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            NativeLaunchUtils.openURL(url);
+        }
     }
 }

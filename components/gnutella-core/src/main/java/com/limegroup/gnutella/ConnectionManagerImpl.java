@@ -127,7 +127,7 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
      */
     static final int MAX_TCP_CONNECT_BACK_ATTEMPTS = 10;
     
-    // for inspection...
+    // Older leaves will report the same connections for both inspection points
     @SuppressWarnings("unused")
     @InspectionPoint("leaf connections")
     private final Inspectable LEAF = new LegacyConnectionStats(true);
@@ -2591,9 +2591,10 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
         
         @Override
         public Object inspect() {
+            if(leaf && !isSupernode())
+                return Collections.EMPTY_MAP;
             List<RoutedConnection> conns = getConnections();
-            
-            Map<String,Object> ret = new HashMap<String,Object>(conns.size()*2);
+            Map<String,Object> ret = new HashMap<String,Object>(conns.size());
             for(RoutedConnection mc : conns) {
                 if (isSupernode()) {
                     if (leaf && mc.getConnectionCapabilities().isSupernodeConnection())

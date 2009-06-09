@@ -12,25 +12,25 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
 import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.client.FriendException;
 import org.limewire.core.api.friend.feature.FeatureInitializer;
 import org.limewire.core.api.friend.feature.FeatureRegistry;
 import org.limewire.core.api.friend.feature.features.AuthTokenFeature;
+import org.limewire.core.api.friend.impl.DefaultFriendAuthenticator;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.xmpp.api.client.User;
-import org.limewire.xmpp.api.client.XMPPException;
-import org.limewire.xmpp.client.impl.XMPPAuthenticator;
+import org.limewire.xmpp.api.client.XMPPFriend;
 import org.limewire.xmpp.client.impl.XMPPConnectionImpl;
 
 public class AuthTokenIQListener implements PacketListener {
     private static final Log LOG = LogFactory.getLog(AuthTokenIQListener.class);
 
     private final XMPPConnectionImpl connection;
-    private final XMPPAuthenticator authenticator;
+    private final DefaultFriendAuthenticator authenticator;
     private final Map<String, byte []> pendingAuthTokens;
 
     public AuthTokenIQListener(XMPPConnectionImpl connection,
-                               XMPPAuthenticator authenticator,
+                               DefaultFriendAuthenticator authenticator,
                                FeatureRegistry featureRegistry) {
         this.connection = connection;
         this.authenticator = authenticator;
@@ -51,7 +51,7 @@ public class AuthTokenIQListener implements PacketListener {
 
     private void handleAuthTokenUpdate(AuthTokenIQ iq) {
         synchronized (this) {
-            User user = connection.getUser(StringUtils.parseBareAddress(iq.getFrom()));
+            XMPPFriend user = connection.getFriend(StringUtils.parseBareAddress(iq.getFrom()));
             if (user != null) {
                 FriendPresence presence = user.getFriendPresences().get(iq.getFrom());
                 if(presence != null) {
@@ -65,10 +65,10 @@ public class AuthTokenIQListener implements PacketListener {
         }
     }
 
-    private void sendResult(FriendPresence presence) throws XMPPException {
-        byte [] authToken = authenticator.getAuthToken(StringUtils.parseBareAddress(presence.getPresenceId())).getBytes(Charset.forName("UTF-8"));
+    private void sendResult(String presenceId) throws FriendException {
+        byte [] authToken = authenticator.getAuthToken(StringUtils.parseBareAddress(presenceId)).getBytes(Charset.forName("UTF-8"));
         AuthTokenIQ queryResult = new AuthTokenIQ(authToken);
-        queryResult.setTo(presence.getPresenceId());
+        queryResult.setTo(presenceId);
         queryResult.setFrom(connection.getLocalJid());
         queryResult.setType(IQ.Type.SET);
         connection.sendPacket(queryResult);
@@ -85,15 +85,15 @@ public class AuthTokenIQListener implements PacketListener {
     private class AuthTokenFeatureInitializer implements FeatureInitializer {
         @Override
         public void register(FeatureRegistry registry) {
-            registry.add(AuthTokenFeature.ID, this);
+            registry.add(AuthTokenFeature.ID, this, true);
         }
 
         @Override
         public void initializeFeature(FriendPresence friendPresence) {
             synchronized (AuthTokenIQListener.this) {
                 try {
-                    sendResult(friendPresence);
-                } catch (XMPPException e) {
+                    sendResult(friendPresence.getPresenceId());
+                } catch (FriendException e) {
                     LOG.debugf(e, "couldn't send auth token to {0} " + friendPresence);
                 }
                 if (pendingAuthTokens.containsKey(friendPresence.getPresenceId())) {
@@ -113,6 +113,10 @@ public class AuthTokenIQListener implements PacketListener {
         @Override
         public void removeFeature(FriendPresence friendPresence) {
             friendPresence.removeFeature(AuthTokenFeature.ID);
+        }
+
+        @Override
+        public void cleanup() {
         }
     }
 }

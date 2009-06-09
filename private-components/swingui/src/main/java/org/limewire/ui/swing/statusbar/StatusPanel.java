@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
@@ -14,9 +13,6 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.connection.ConnectionStrength;
 import org.limewire.core.api.connection.GnutellaConnectionManager;
-import org.limewire.player.api.AudioPlayer;
-import org.limewire.ui.swing.library.nav.LibraryNavigator;
-import org.limewire.ui.swing.painter.StatusBarSectionPainter;
 import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.player.MiniPlayerPanel;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -34,8 +30,8 @@ public class StatusPanel extends JXPanel {
     private final DownloadCountPanel downloadCountPanel;
     
     @Inject
-    public StatusPanel(GnutellaConnectionManager connectionManager, AudioPlayer player, 
-            FriendStatusPanel friendStatusPanel, LibraryNavigator libraryNavigator,
+    public StatusPanel(GnutellaConnectionManager connectionManager, MiniPlayerPanel miniPlayerPanel, 
+            FriendStatusPanel friendStatusPanel, 
             ConnectionStatusPanel connectionStatus, ProStatusPanel proStatusPanel,
             SharedFileCountPanel sharedFileCountPanel, DownloadCountPanel downloadCountPanel,
             BarPainterFactory barPainterFactory) {
@@ -50,17 +46,12 @@ public class StatusPanel extends JXPanel {
         
         setBackgroundPainter(barPainterFactory.createStatusBarPainter());
  
-        StatusBarSectionPainter<JComponent> sectionPainter = new StatusBarSectionPainter<JComponent>();
-        sharedFileCountPanel.setBackgroundPainter(sectionPainter);
-        downloadCountPanel.setBackgroundPainter(sectionPainter);
-        
-        MiniPlayerPanel miniPlayerPanel = new MiniPlayerPanel(player, libraryNavigator);
         miniPlayerPanel.setVisible(false);
         
         Component chatButton = friendStatusPanel.getComponent();
         chatButton.setVisible(false);
         
-        JPanel leftPanel = new JPanel(new MigLayout("insets 0, gap 0, nogrid, hidemode 3"));
+        JPanel leftPanel = new JPanel(new MigLayout("insets 0, gap 0, filly, nogrid, hidemode 3"));
         JPanel centerPanel = new JPanel(new MigLayout("insets 0, gap 0, filly, nogrid, alignx 40%, hidemode 3"));
         JPanel rightPanel = new JPanel(new MigLayout("insets 0, gap 0, fill, nogrid, hidemode 3"));
         
@@ -68,9 +59,9 @@ public class StatusPanel extends JXPanel {
         centerPanel.setOpaque(false);
         rightPanel.setOpaque(false);
         
-        leftPanel.add(connectionStatus, "growy, gapbefore 2, gaptop 2");
-        leftPanel.add(sharedFileCountPanel, "growy, gaptop 2");
-        leftPanel.add(downloadCountPanel, "growy, gaptop 2");
+        leftPanel.add(connectionStatus, "growy, gapbefore 2, gaptop 2, gapbottom 2");
+        leftPanel.add(sharedFileCountPanel, "growy, gaptop 0, gapbottom 0");
+        leftPanel.add(downloadCountPanel, "growy, gaptop 2, gapbottom 2");
         centerPanel.add(proStatusPanel, "growy, gaptop 2");
         rightPanel.add(miniPlayerPanel, "gapafter 4");
         rightPanel.add(chatButton, "growy");

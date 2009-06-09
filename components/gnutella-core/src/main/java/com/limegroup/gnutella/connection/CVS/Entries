@@ -18,7 +18,6 @@
 /ConnectionRoutingStatistics.java/1.2/Tue Oct 30 18:29:28 2007//
 /ConnectionStats.java/1.8/Tue Feb  3 17:20:45 2009//
 /GnetConnectObserver.java/1.4/Fri Jan 19 18:48:51 2007//
-/GnutellaConnection.java/1.55/Wed Mar 18 16:17:11 2009//
 /GnutellaConnectionEvent.java/1.5/Fri Feb 13 20:59:30 2009//
 /MessageQueue.java/1.9/Mon Dec 31 05:34:09 2007//
 /MessageReader.java/1.12/Thu Dec  6 15:49:54 2007//
@@ -37,6 +36,7 @@
 /UDPConnectionChecker.java/1.1/Fri Sep 21 15:24:22 2007//
 /UDPConnectionCheckerImpl.java/1.2/Mon Mar  2 17:02:01 2009//
 /AbstractConnection.java/1.19/Mon Apr  6 16:05:31 2009//
-/ConnectionReporter.java/1.3/Thu Mar 26 16:12:42 2009//
 /LimeWireCoreConnectionModule.java/1.1/Tue Mar 24 18:38:04 2009//
+/ConnectionReporter.java/1.4/Mon Jun  8 18:08:06 2009//
+/GnutellaConnection.java/1.56/Mon Jun  8 18:08:06 2009//
 D

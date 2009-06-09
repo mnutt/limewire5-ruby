@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.limewire.core.api.friend.client.ConnectBackRequestSender;
 import org.limewire.core.impl.xmpp.XMPPFirewalledAddressConnector.PushedSocketConnectObserver;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
@@ -25,7 +26,6 @@ import org.limewire.rudp.AbstractNBSocketChannel;
 import org.limewire.rudp.UDPSelectorProvider;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.MatchAndCopy;
-import org.limewire.xmpp.api.client.ConnectBackRequestSender;
 import org.limewire.xmpp.api.client.XMPPAddress;
 import org.limewire.xmpp.client.impl.XMPPFirewalledAddress;
 

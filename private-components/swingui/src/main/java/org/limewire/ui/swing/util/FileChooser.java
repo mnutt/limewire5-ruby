@@ -411,7 +411,9 @@ public final class FileChooser {
 
             dialog.setVisible(true);
             String dir = dialog.getDirectory();
-            setLastInputDirectory(new File(dir));
+            if(dir != null) {
+                setLastInputDirectory(new File(dir));
+            }
             String file = dialog.getFile();
             if ((dir != null) && (file != null)) {
                 File f = new File(dir, file);

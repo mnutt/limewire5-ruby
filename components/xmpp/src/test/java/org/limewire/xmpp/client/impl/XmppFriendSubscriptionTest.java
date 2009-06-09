@@ -3,11 +3,11 @@ package org.limewire.xmpp.client.impl;
 import java.util.concurrent.ExecutionException;
 
 import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
-import org.limewire.xmpp.api.client.FriendRequestEvent;
-import org.limewire.xmpp.api.client.FriendRequest;
 import org.limewire.xmpp.api.client.XMPPConnection;
-import org.limewire.xmpp.api.client.XMPPException;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPFriend;
+import org.limewire.core.api.friend.client.FriendRequest;
+import org.limewire.core.api.friend.client.FriendRequestEvent;
+import org.limewire.core.api.friend.client.FriendException;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.EventListener;
 import com.google.inject.TypeLiteral;
@@ -63,8 +63,8 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
     @Override
     protected void tearDown() throws Exception {
         removeFriendRequestListener();
-        connectionFive.removeUser(USERNAME_6);
-        connectionSix.removeUser(USERNAME_5);
+        connectionFive.removeFriend(USERNAME_6);
+        connectionSix.removeFriend(USERNAME_5);
         super.tearDown();
     }
 
@@ -101,7 +101,7 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
         setFriendRequestListener(USERNAME_5, true);
 
         // automatedtestfriend5 requests automatedtestfriend6
-        connectionFive.addUser(USERNAME_6, USERNAME_6).get();
+        connectionFive.addFriend(USERNAME_6, USERNAME_6).get();
 
         // sleep to wait for automatedtestfriend6 to confirm, friends to exchange roster packets, etc
         Thread.sleep(SLEEP);
@@ -126,7 +126,7 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
         setFriendRequestListener(USERNAME_5, false);
 
         // automatedtestfriend5 requests automatedtestfriend6
-        connectionFive.addUser(USERNAME_6, USERNAME_6).get();
+        connectionFive.addFriend(USERNAME_6, USERNAME_6).get();
 
         // sleep to wait for friend6 to deny
         Thread.sleep(SLEEP);
@@ -169,7 +169,7 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
         setFriendRequestListener(USERNAME_5, true);
 
         // automatedtestfriend5 requests automatedtestfriend6
-        connectionFive.addUser(USERNAME_6, USERNAME_6).get();
+        connectionFive.addFriend(USERNAME_6, USERNAME_6).get();
 
         // sleep to wait for automatedtestfriend6 to confirm, friends to exchange roster packets, etc
         Thread.sleep(SLEEP);
@@ -181,7 +181,7 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
         assertEquals(USERNAME_5, autoSixRosterListener.getFirstRosterEntry());
 
         // test friend removal
-        connectionFive.removeUser(USERNAME_6).get();
+        connectionFive.removeFriend(USERNAME_6).get();
         Thread.sleep(SLEEP);
 
         service.logout();
@@ -206,9 +206,9 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
         assertNull(autoSixRosterListener.getFirstPresence(USERNAME_5));
     }
 
-    private void removeAllUsersFromRoster(XMPPConnection conn) throws XMPPException, ExecutionException, InterruptedException {
-        for (User user : conn.getUsers()) {
-            conn.removeUser(user.getId()).get();
+    private void removeAllUsersFromRoster(XMPPConnection conn) throws FriendException, ExecutionException, InterruptedException {
+        for (XMPPFriend friend : conn.getFriends()) {
+            conn.removeFriend(friend.getId()).get();
         }
     }
 }

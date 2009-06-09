@@ -11,17 +11,17 @@ import java.util.Map;
 import javax.swing.Icon;
 
 import org.jdesktop.application.Resource;
+import org.limewire.core.api.friend.client.PasswordManager;
 import org.limewire.core.api.xmpp.XMPPResourceFactory;
+import org.limewire.inject.LazySingleton;
 import org.limewire.io.UnresolvedIpPort;
 import org.limewire.io.UnresolvedIpPortImpl;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.xmpp.api.client.PasswordManager;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@LazySingleton
 public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigurationManager {
     
     private final PasswordManager passwordManager;
@@ -30,20 +30,43 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
     
     private XMPPAccountConfiguration autoLoginConfig = null;
     
+    /**
+     * If the login configs have been loaded yet.
+     */
+    private boolean loaded = false;
+    
     @Resource private Icon gmailIcon;
     @Resource private Icon ljIcon;
     
     @Inject
     public XMPPAccountConfigurationManagerImpl(PasswordManager passwordManager,
             XMPPResourceFactory xmppResourceFactory) {
+        
         GuiUtils.assignResources(this);
         this.passwordManager = passwordManager;
         configs = new HashMap<String,XMPPAccountConfiguration>();
         resource = xmppResourceFactory.getResource();
+    }
+
+    /**
+     * Loads the configs for the servers on demand.
+     */
+    private void init() {
         loadWellKnownServers();
         loadCustomServer();
     }
-
+    
+    /**
+     * Used to get the config map, loading it if necessary.
+     */
+    private Map<String,XMPPAccountConfiguration> getRawConfigs() {
+        if (!loaded) {
+            init();
+        }
+        
+        return configs;
+    }
+    
     private void loadCustomServer() {
         String custom = SwingUiSettings.USER_DEFINED_JABBER_SERVICENAME.get();
         XMPPAccountConfigurationImpl customConfig =
@@ -100,12 +123,12 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
 
     @Override
     public XMPPAccountConfiguration getConfig(String label) {
-        return configs.get(label);
+        return getRawConfigs().get(label);
     }
     
     @Override
     public List<XMPPAccountConfiguration> getConfigurations() {
-        ArrayList<XMPPAccountConfiguration> configurations = new ArrayList<XMPPAccountConfiguration>(configs.values());
+        ArrayList<XMPPAccountConfiguration> configurations = new ArrayList<XMPPAccountConfiguration>(getRawConfigs().values());
         Collections.sort(configurations, new Comparator<XMPPAccountConfiguration>() {
             @Override
             public int compare(XMPPAccountConfiguration o1, XMPPAccountConfiguration o2) {
@@ -118,7 +141,7 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
     @Override
     public List<String> getLabels() {
         ArrayList<String> labels = new ArrayList<String>();
-        for(XMPPAccountConfiguration config : configs.values())
+        for(XMPPAccountConfiguration config : getRawConfigs().values())
             labels.add(config.getLabel());
         Collections.sort(labels);
         return labels;
@@ -126,6 +149,10 @@ public class XMPPAccountConfigurationManagerImpl implements XMPPAccountConfigura
     
     @Override
     public XMPPAccountConfiguration getAutoLoginConfig() {
+        if (!loaded) {
+            init();
+        }
+        
         return autoLoginConfig;
     }
     

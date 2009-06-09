@@ -9,7 +9,6 @@ import org.limewire.io.GUID;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 
@@ -99,14 +98,6 @@ public class DownloadServicesImpl implements DownloadServices {
     	throws SaveLocationException {
     	return downloadManager.get().download(files, alts, queryGUID, overwrite, saveDir,
     							   fileName);
-    }
-
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.DownloadServices#downloadTorrent(com.limegroup.bittorrent.BTMetaInfo, boolean)
-     */
-    public Downloader downloadTorrent(BTMetaInfo info, boolean overwrite)
-    		throws SaveLocationException {
-    	return downloadManager.get().downloadTorrent(info, overwrite);
     }
 
     /* (non-Javadoc)

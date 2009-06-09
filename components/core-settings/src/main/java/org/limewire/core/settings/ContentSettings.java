@@ -7,8 +7,6 @@ import org.limewire.setting.StringArraySetting;
 public class ContentSettings extends LimeProps {    
     private ContentSettings() {}
     
-    public static String LEARN_MORE_URL = "http://filtered.limewire.com/learnmore/contentFiltering";
-    
     /** The list of default content authorities. */
     public static final StringArraySetting AUTHORITIES =
         FACTORY.createRemoteStringArraySetting("CONTENT_AUTHORITIES", new String[0], "content.authorities");

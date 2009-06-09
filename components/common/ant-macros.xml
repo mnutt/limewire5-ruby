@@ -39,7 +39,7 @@
                  uri="antlib:org.apache.ivy.ant"
                  classpath="${limewire.lib.jars.ant}/ivy-2.0.0.jar"
         />
-        <ivy:configure file="${limewire.ivy.home}/ivysettings.xml"/>
+        <ivy:configure file="${limewire.ivy.settings.file}"/>
     </target>
     
     <macrodef name="do.subant" description="calculate dependancies and run an ant task">

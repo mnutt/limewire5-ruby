@@ -31,6 +31,8 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.xmpp.api.client.XMPPService;
 
+import com.google.inject.Provider;
+
 /**
  * Share All combo Box. In My Library view allows the user
  * to share/unshare all the files with Gnutella or a Friend
@@ -54,7 +56,7 @@ public class ShareAllComboBox extends LimeComboBox {
     
     private final XMPPService xmppService;
     private final FriendsSignInPanel friendsSignInPanel;
-    private final ShareWidgetFactory shareWidgetFactory;
+    private final Provider<ShareWidgetFactory> shareWidgetFactory;
     private final MyLibraryPanel myLibraryPanel;
     private final ShareListManager shareListManager;
     
@@ -66,7 +68,7 @@ public class ShareAllComboBox extends LimeComboBox {
     private AbstractAction unshareAllFriendAction;
     private AbstractAction signedOutAction;
     
-    public ShareAllComboBox(XMPPService xmppService, ShareWidgetFactory shareWidgetFactory,
+    public ShareAllComboBox(XMPPService xmppService, Provider<ShareWidgetFactory> shareWidgetFactory,
             MyLibraryPanel myLibraryPanel, FriendsSignInPanel friendsSignInPanel, ShareListManager shareListManager) {
         this.xmppService = xmppService;
         this.friendsSignInPanel = friendsSignInPanel;
@@ -188,7 +190,7 @@ public class ShareAllComboBox extends LimeComboBox {
             // if category sharing is enabled, show the category sharing widget
             if((currentCategory == Category.AUDIO || currentCategory == Category.IMAGE || currentCategory == Category.VIDEO)
                     && LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue() != true) {
-                ShareWidget<Category> shareWidget = shareWidgetFactory.createCategoryShareWidget();
+                ShareWidget<Category> shareWidget = shareWidgetFactory.get().createCategoryShareWidget();
                 shareWidget.setShareable(currentCategory);
                 shareWidget.show(GuiUtils.getMainFrame());
             } else {  
@@ -197,7 +199,7 @@ public class ShareAllComboBox extends LimeComboBox {
                     selectAllable.selectAll();
                     List<LocalFileItem> selectedItems = selectAllable.getSelectedItems();                
                     if (selectedItems.size() > 0) {
-                        ShareWidget<LocalFileItem[]> shareWidget = shareWidgetFactory.createMultiFileShareWidget();
+                        ShareWidget<LocalFileItem[]> shareWidget = shareWidgetFactory.get().createMultiFileShareWidget();
                         shareWidget.setShareable(selectedItems.toArray(new LocalFileItem[selectedItems.size()]));
                         shareWidget.show(GuiUtils.getMainFrame());
                     } 
@@ -235,7 +237,7 @@ public class ShareAllComboBox extends LimeComboBox {
             
             if(LibrarySettings.SNAPSHOT_SHARING_ENABLED.getValue() != true && 
                     (currentCategory == Category.AUDIO || currentCategory == Category.IMAGE || currentCategory == Category.VIDEO)) {
-                ShareWidget<Category> shareWidget = shareWidgetFactory.createCategoryShareWidget();
+                ShareWidget<Category> shareWidget = shareWidgetFactory.get().createCategoryShareWidget();
                 shareWidget.setShareable(currentCategory);
                 shareWidget.show(GuiUtils.getMainFrame());
             } else {    
@@ -244,7 +246,7 @@ public class ShareAllComboBox extends LimeComboBox {
                     selectAllable.selectAll();
                     List<LocalFileItem> selectedItems = selectAllable.getSelectedItems();                
                     if (selectedItems.size() > 0) {
-                        ShareWidget<LocalFileItem[]> shareWidget = shareWidgetFactory.createMultiFileUnshareWidget();
+                        ShareWidget<LocalFileItem[]> shareWidget = shareWidgetFactory.get().createMultiFileUnshareWidget();
                         shareWidget.setShareable(selectedItems.toArray(new LocalFileItem[selectedItems.size()]));
                         shareWidget.show(GuiUtils.getMainFrame());
                     }

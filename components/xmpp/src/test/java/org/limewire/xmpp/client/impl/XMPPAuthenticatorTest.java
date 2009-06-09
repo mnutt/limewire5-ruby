@@ -1,11 +1,12 @@
 package org.limewire.xmpp.client.impl;
 
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.limewire.core.api.friend.impl.DefaultFriendAuthenticator;
 import org.limewire.util.BaseTestCase;
 
 public class XMPPAuthenticatorTest extends BaseTestCase {
 
-    private XMPPAuthenticator authenticator;
+    private DefaultFriendAuthenticator authenticator;
 
     public XMPPAuthenticatorTest(String name) {
         super(name);
@@ -13,7 +14,7 @@ public class XMPPAuthenticatorTest extends BaseTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        authenticator = new XMPPAuthenticator();
+        authenticator = new DefaultFriendAuthenticator();
     }
     
     public void testAuthenticatesItsAuthToken() {

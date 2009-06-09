@@ -11,10 +11,12 @@ import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.core.api.friend.feature.features.LimewireFeature;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.impl.URNImpl;
 import org.limewire.core.impl.friend.GnutellaPresence;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
+import org.limewire.core.settings.SearchSettings;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
@@ -204,7 +206,8 @@ public class RemoteFileDescAdapter implements SearchResult {
     }
     
     /**
-     * @return the GUI relevant sources.  Includes friends plus at most two anonymous sources. 
+     * @return the sources that should be shown in the UI. Includes a limited
+     * number of alt-locs. 
      */
     @Override
     public List<RemoteHost> getSources() {
@@ -217,14 +220,13 @@ public class RemoteFileDescAdapter implements SearchResult {
         // Initialise a new list
         remoteHosts = new ArrayList<RemoteHost>();
         
-        // TODO: setting?
-        int maxAltSourcesToAdd = 1;
+        int maxAltSourcesToAdd = SearchSettings.ALT_LOCS_TO_DISPLAY.getValue();
         
         // Add the RfdRemoteHost for the FriendPresence
         remoteHosts.add(new RfdRemoteHost());
         
         // Add a specific number of the altlocs
-        for( int i=0 ; i < maxAltSourcesToAdd && i<locs.size() ; i++ ) {
+        for(int i = 0; i < maxAltSourcesToAdd && i < locs.size(); i++) {
             remoteHosts.add(new AltLocRemoteHost(locs.get(i)));
         }
     
@@ -261,24 +263,32 @@ public class RemoteFileDescAdapter implements SearchResult {
     class RfdRemoteHost implements RelevantRemoteHost {
         @Override
         public boolean isBrowseHostEnabled() {
-            return rfd.isBrowseHostEnabled();
+            if(friendPresence.getFriend().isAnonymous()) {
+                return rfd.isBrowseHostEnabled();
+            } else {
+                //ensure friend/user still logged in through LW
+                return friendPresence.hasFeatures(LimewireFeature.ID);
+            }
         }
 
         @Override
         public boolean isChatEnabled() {
-            if (!friendPresence.getFriend().isAnonymous()) {
-                return true;
+            if(friendPresence.getFriend().isAnonymous()) {
+                return false;
+            } else {
+                //ensure friend/user still logged in through LW
+                return friendPresence.hasFeatures(LimewireFeature.ID);
             }
-            return false;
         }
 
         @Override
         public boolean isSharingEnabled() {
-            if (!friendPresence.getFriend().isAnonymous()) {
-                return true;
+            if(friendPresence.getFriend().isAnonymous()) {
+                return false;
+            } else {
+                //ensure friend/user still logged in through LW
+                return friendPresence.hasFeatures(LimewireFeature.ID);
             }
-
-            return false;
         }
 
         @Override

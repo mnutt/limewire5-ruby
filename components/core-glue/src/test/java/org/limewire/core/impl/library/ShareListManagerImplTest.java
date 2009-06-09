@@ -21,6 +21,7 @@ import org.limewire.core.api.library.FriendShareListEvent;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
+import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.util.AssignParameterAction;
@@ -49,8 +50,8 @@ public class ShareListManagerImplTest extends BaseTestCase {
         final FileManager fileManager = context.mock(FileManager.class);
         final CoreLocalFileItemFactory coreLocalFileItemFactory = context
                 .mock(CoreLocalFileItemFactory.class);
-        final EventListener<FriendShareListEvent> friendShareListEventListener = context
-                .mock(EventListener.class);
+        final EventBroadcaster<FriendShareListEvent> friendShareListEventBroadcaster = context
+                .mock(EventBroadcaster.class);
         final TestListenerSupport listenerSupport = new TestListenerSupport();
         final LibraryManager libraryManager = context.mock(LibraryManager.class);
 
@@ -83,7 +84,7 @@ public class ShareListManagerImplTest extends BaseTestCase {
             }
         });
         ShareListManagerImpl shareListManagerImpl = new ShareListManagerImpl(fileManager,
-                coreLocalFileItemFactory, friendShareListEventListener, libraryManager);
+                coreLocalFileItemFactory, friendShareListEventBroadcaster, libraryManager);
         shareListManagerImpl.register(listenerSupport);
 
         FriendFileList testFriendFileList1 = shareListManagerImpl.getFriendShareList(friend1);
@@ -91,8 +92,8 @@ public class ShareListManagerImplTest extends BaseTestCase {
 
         context.checking(new Expectations() {
             {
-                one(friendShareListEventListener)
-                        .handleEvent(
+                one(friendShareListEventBroadcaster)
+                        .broadcast(
                                 with(new FriendShareListEventMatcher(new FriendShareListEvent(
                                         FriendShareListEvent.Type.FRIEND_SHARE_LIST_ADDED, null,
                                         friend1))));
@@ -115,8 +116,8 @@ public class ShareListManagerImplTest extends BaseTestCase {
         final FileManager fileManager = context.mock(FileManager.class);
         final CoreLocalFileItemFactory coreLocalFileItemFactory = context
                 .mock(CoreLocalFileItemFactory.class);
-        final EventListener<FriendShareListEvent> friendShareListEventListener = context
-                .mock(EventListener.class);
+        final EventBroadcaster<FriendShareListEvent> friendShareListEventBroadcaster = context
+                .mock(EventBroadcaster.class);
         final TestListenerSupport listenerSupport = new TestListenerSupport();
 
         final Friend friend1 = context.mock(Friend.class);
@@ -147,15 +148,15 @@ public class ShareListManagerImplTest extends BaseTestCase {
                 will(returnValue(lock1));
                 one(friendFileList1).iterator();
                 will(returnValue(iterator1));
-                one(friendShareListEventListener)
-                        .handleEvent(
+                one(friendShareListEventBroadcaster)
+                        .broadcast(
                                 with(new FriendShareListEventMatcher(new FriendShareListEvent(
                                         FriendShareListEvent.Type.FRIEND_SHARE_LIST_ADDED, null,
                                         friend1))));
             }
         });
         ShareListManagerImpl shareListManagerImpl = new ShareListManagerImpl(fileManager,
-                coreLocalFileItemFactory, friendShareListEventListener, libraryManager);
+                coreLocalFileItemFactory, friendShareListEventBroadcaster, libraryManager);
         shareListManagerImpl.register(listenerSupport);
 
         FriendFileList testFriendFileList1 = shareListManagerImpl
@@ -166,7 +167,7 @@ public class ShareListManagerImplTest extends BaseTestCase {
         context.checking(new Expectations() {
             {
                 one(fileManager).unloadFilesForFriend(friendId1);
-                one(friendShareListEventListener).handleEvent(
+                one(friendShareListEventBroadcaster).broadcast(
                         with(new FriendShareListEventMatcher(new FriendShareListEvent(
                                 FriendShareListEvent.Type.FRIEND_SHARE_LIST_REMOVED,
                                 friendFileListForEvent, friend1))));
@@ -191,8 +192,8 @@ public class ShareListManagerImplTest extends BaseTestCase {
         final FileManager fileManager = context.mock(FileManager.class);
         final CoreLocalFileItemFactory coreLocalFileItemFactory = context
                 .mock(CoreLocalFileItemFactory.class);
-        final EventListener<FriendShareListEvent> friendShareListEventListener = context
-                .mock(EventListener.class);
+        final EventBroadcaster<FriendShareListEvent> friendShareListEventBroadcaster = context
+                .mock(EventBroadcaster.class);
         final TestListenerSupport listenerSupport = new TestListenerSupport();
 
         final Friend friend1 = context.mock(Friend.class);
@@ -223,15 +224,15 @@ public class ShareListManagerImplTest extends BaseTestCase {
                 will(returnValue(lock1));
                 one(friendFileList1).iterator();
                 will(returnValue(iterator1));
-                one(friendShareListEventListener)
-                        .handleEvent(
+                one(friendShareListEventBroadcaster)
+                        .broadcast(
                                 with(new FriendShareListEventMatcher(new FriendShareListEvent(
                                         FriendShareListEvent.Type.FRIEND_SHARE_LIST_ADDED, null,
                                         friend1))));
             }
         });
         ShareListManagerImpl shareListManagerImpl = new ShareListManagerImpl(fileManager,
-                coreLocalFileItemFactory, friendShareListEventListener, libraryManager);
+                coreLocalFileItemFactory, friendShareListEventBroadcaster, libraryManager);
         shareListManagerImpl.register(listenerSupport);
 
         FriendFileList testFriendFileList1 = shareListManagerImpl
@@ -243,7 +244,7 @@ public class ShareListManagerImplTest extends BaseTestCase {
         context.checking(new Expectations() {
             {
                 one(fileManager).removeFriendFileList(friendId1);
-                one(friendShareListEventListener).handleEvent(
+                one(friendShareListEventBroadcaster).broadcast(
                         with(new FriendShareListEventMatcher(new FriendShareListEvent(
                                 FriendShareListEvent.Type.FRIEND_SHARE_LIST_DELETED,
                                 friendFileListForEvent, friend1))));
@@ -271,8 +272,8 @@ public class ShareListManagerImplTest extends BaseTestCase {
         final FileManager fileManager = context.mock(FileManager.class);
         final CoreLocalFileItemFactory coreLocalFileItemFactory = context
                 .mock(CoreLocalFileItemFactory.class);
-        final EventListener<FriendShareListEvent> friendShareListEventListener = context
-                .mock(EventListener.class);
+        final EventBroadcaster<FriendShareListEvent> friendShareListEventBroadcaster = context
+                .mock(EventBroadcaster.class);
         final TestListenerSupport listenerSupport = new TestListenerSupport();
 
         final Friend friend1 = context.mock(Friend.class);
@@ -307,15 +308,15 @@ public class ShareListManagerImplTest extends BaseTestCase {
                 will(returnValue(lock1));
                 one(friendFileList1).iterator();
                 will(returnValue(iterator1));
-                one(friendShareListEventListener)
-                        .handleEvent(
+                one(friendShareListEventBroadcaster)
+                        .broadcast(
                                 with(new FriendShareListEventMatcher(new FriendShareListEvent(
                                         FriendShareListEvent.Type.FRIEND_SHARE_LIST_ADDED, null,
                                         friend1))));
             }
         });
         ShareListManagerImpl shareListManagerImpl = new ShareListManagerImpl(fileManager,
-                coreLocalFileItemFactory, friendShareListEventListener, libraryManager);
+                coreLocalFileItemFactory, friendShareListEventBroadcaster, libraryManager);
         shareListManagerImpl.register(listenerSupport);
 
         FriendFileList testFriendFileList1 = shareListManagerImpl
@@ -375,8 +376,8 @@ public class ShareListManagerImplTest extends BaseTestCase {
                 will(returnValue(lock1));
                 one(friendFileList2).iterator();
                 will(returnValue(iterator2));
-                one(friendShareListEventListener)
-                        .handleEvent(
+                one(friendShareListEventBroadcaster)
+                        .broadcast(
                                 with(new FriendShareListEventMatcher(new FriendShareListEvent(
                                         FriendShareListEvent.Type.FRIEND_SHARE_LIST_ADDED, null,
                                         friend2))));

@@ -3,13 +3,13 @@ package com.limegroup.gnutella;
 import java.io.File;
 import java.util.Set;
 
+import org.limewire.bittorrent.Torrent;
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.i18n.I18nMarker;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 
-import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -109,8 +109,7 @@ public interface ActivityCallback extends DownloadCallback
      *    without cancelling the download.
      * 2) If the torrent is seeding, but the seed ratio is low, the user may 
      *    wish to seed to at least 100% to be a good samaritan. 
-     * @param torrent 
      */
-    void promptTorrentUploadCancel(ManagedTorrent torrent);
+    boolean promptTorrentUploadCancel(Torrent torrent);
 
 }

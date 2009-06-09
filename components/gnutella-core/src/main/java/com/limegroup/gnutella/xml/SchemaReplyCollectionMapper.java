@@ -35,9 +35,7 @@ public class SchemaReplyCollectionMapper {
     protected final LimeXMLReplyCollectionFactory limeXMLReplyCollectionFactory;
     protected final Provider<LimeXMLSchemaRepository> limeXMLSchemaRepository;
     
-
-    @Inject @SuppressWarnings("unused")
-    private SchemaReplyCollectionMapper(LimeXMLReplyCollectionFactory limeXMLReplyCollectionFactory,
+    @Inject SchemaReplyCollectionMapper(LimeXMLReplyCollectionFactory limeXMLReplyCollectionFactory,
             Provider<LimeXMLSchemaRepository> limeXMLSchemaRepository) {
         this.limeXMLReplyCollectionFactory = limeXMLReplyCollectionFactory;
         this.limeXMLSchemaRepository = limeXMLSchemaRepository;

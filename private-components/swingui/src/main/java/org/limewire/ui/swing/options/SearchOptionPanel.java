@@ -22,13 +22,11 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.SearchSettingListener;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
  * Search Option View
  */
-@Singleton
 public class SearchOptionPanel extends OptionPanel {
 
     private final AutoCompleteDictionary searchHistory;

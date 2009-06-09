@@ -28,10 +28,10 @@ import org.limewire.ui.swing.action.PasteAction;
 import org.limewire.ui.swing.action.PopupUtil;
 import org.limewire.ui.swing.action.SelectAllAction;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.xmpp.api.client.ChatState;
-import org.limewire.xmpp.api.client.MessageWriter;
-import org.limewire.xmpp.api.client.XMPPException;
 import org.limewire.collection.Periodic;
+import org.limewire.core.api.friend.client.ChatState;
+import org.limewire.core.api.friend.client.MessageWriter;
+import org.limewire.core.api.friend.client.FriendException;
 
 class ResizingInputPanel extends JPanel implements Displayable {
     private static final Log LOG = LogFactory.getLog(ResizingInputPanel.class);
@@ -111,7 +111,7 @@ class ResizingInputPanel extends JPanel implements Displayable {
                     resizeTextBox(2);
                     chatStateManager.updateChatState(ChatState.active);
                 }
-            } catch (XMPPException e1) {
+            } catch (FriendException e1) {
                 LOG.error("Unable to write message", e1);
             }
         }
@@ -138,7 +138,7 @@ class ResizingInputPanel extends JPanel implements Displayable {
                 currentInputChatState = state;
                 try {
                     writer.setChatState(currentInputChatState);
-                } catch (XMPPException e) {
+                } catch (FriendException e) {
                     LOG.error("Unable to set chat state", e);
                 }
             }

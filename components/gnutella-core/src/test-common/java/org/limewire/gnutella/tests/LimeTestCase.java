@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.limewire.core.settings.ApplicationSettings;
+import org.limewire.core.settings.BittorrentSettings;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.ContentSettings;
 import org.limewire.core.settings.DaapSettings;
@@ -208,6 +209,7 @@ public abstract class LimeTestCase extends BaseTestCase implements ErrorCallback
         ContentSettings.CONTENT_MANAGEMENT_ACTIVE.setValue(false);
         ContentSettings.USER_WANTS_MANAGEMENTS.setValue(false);
         DaapSettings.DAAP_ENABLED.setValue(false);
+        BittorrentSettings.LIBTORRENT_ENABLED.setValue(false);
         _incompleteDir = SharingSettings.INCOMPLETE_DIRECTORY.get();
     }
     
@@ -269,7 +271,7 @@ public abstract class LimeTestCase extends BaseTestCase implements ErrorCallback
         for (int i = 0; i < packageDepth + 1; i++) {
             f = f.getParentFile();
         }
-        //      build/          tests/          
+        //      build/             component/          
         return f.getParentFile().getParentFile();
     }
 }       

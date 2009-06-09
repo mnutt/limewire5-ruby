@@ -60,7 +60,7 @@ public abstract class PeerTestCase extends LimeTestCase {
         super(name);
     }
     
-    @SuppressWarnings({ "unused", "deprecation" })
+    @SuppressWarnings({ "unused" })
     private static void doSettings() throws Exception {
         String localIP = InetAddress.getLocalHost().getHostAddress();
         FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(

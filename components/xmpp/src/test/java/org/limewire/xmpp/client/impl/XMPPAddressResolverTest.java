@@ -19,7 +19,7 @@ import org.limewire.net.address.AddressResolutionObserver;
 import org.limewire.net.address.BlockingAddressResolutionObserver;
 import org.limewire.net.address.FirewalledAddress;
 import org.limewire.util.BaseTestCase;
-import org.limewire.xmpp.api.client.User;
+import org.limewire.xmpp.api.client.XMPPFriend;
 import org.limewire.xmpp.api.client.XMPPAddress;
 import org.limewire.xmpp.api.client.XMPPConnection;
 import org.limewire.xmpp.api.client.XMPPService;
@@ -31,7 +31,7 @@ public class XMPPAddressResolverTest extends BaseTestCase {
     private XMPPConnection connection;
     private SocketsManager socketsManager;
     private XMPPAddressRegistry addressRegistry;
-    private User user;
+    private XMPPFriend user;
     private FriendPresence friendPresence;
     private XMPPAddressResolver xmppAddressResolver;
 
@@ -46,15 +46,15 @@ public class XMPPAddressResolverTest extends BaseTestCase {
         connection = context.mock(XMPPConnection.class);  
         socketsManager = context.mock(SocketsManager.class);
         addressRegistry = new XMPPAddressRegistry();
-        user = context.mock(User.class);
+        user = context.mock(XMPPFriend.class);
         friendPresence = context.mock(FriendPresence.class);
         
         context.checking(new Expectations() {{
             allowing(xmppService).getActiveConnection();
             will(returnValue(connection));
-            allowing(connection).getUser("me@you.com");
+            allowing(connection).getFriend("me@you.com");
             will(returnValue(user));
-            allowing(connection).getUser(with(any(String.class)));
+            allowing(connection).getFriend(with(any(String.class)));
             will(returnValue(null));
             allowing(user).getFriendPresences();
             will(returnValue(Collections.singletonMap("me@you.com/resource", friendPresence)));
