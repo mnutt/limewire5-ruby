@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<stringAttribute key="bad_container_name" value="/LimeWire5/N"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/LimeWire5/private-components/integrated-ui/src/main/java/org/limewire/ui/swing/NoUI.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.limewire.ui.swing.NoUI"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="LimeWire5"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;${workspace_loc:LimeWire5/lib/native/osx}&quot; -Djna.library.path=&quot;${workspace_loc:LimeWire5/lib/native/osx}&quot; -Djava.net.preferIPv4stack=true -Djava.net.preferIPv6Addresses=false -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -Xmx256m -ea -da:ca.odell.glazedlists... -Djava.library.path=&quot;${workspace_loc:LimeWire5/lib/native/osx}&quot; -Djna.library.path=&quot;${workspace_loc:LimeWire5/lib/native/osx}&quot; -Djava.net.preferIPv4stack=true -Djava.net.preferIPv6Addresses=false -ea -da:ca.odell.glazedlists..."/>
+</launchConfiguration>
