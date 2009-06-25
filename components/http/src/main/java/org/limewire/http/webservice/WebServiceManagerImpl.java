@@ -86,13 +86,13 @@ class WebServiceManagerImpl implements WebServiceManager {
     public void loadWebService(String railsRoot) {
         System.out.println("Jetty starting.");
 
-        Server server = new Server(8080);
+        Server server = new Server(4422);
         QueuedThreadPool threadPool = new QueuedThreadPool();
         threadPool.setMinThreads(1);
         threadPool.setMaxThreads(10);
         server.setThreadPool(threadPool);
         SelectChannelConnector connector = new SelectChannelConnector();
-        connector.setPort(8080);
+        connector.setPort(4422);
         
         Context context = new Context(null, "/", Context.NO_SESSIONS);
         context.addFilter("org.jruby.rack.RackFilter", "/*", Handler.DEFAULT);
