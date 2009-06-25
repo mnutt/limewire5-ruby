@@ -39,9 +39,12 @@ puts `cp deploy/*.jar #{release_dir}/LimeWire.app/Contents/Resources/Java/`
 raise "Could not copy jars" unless File.exist?("#{release_dir}/LimeWire.app/Contents/Resources/Java/LimeWire.jar")
 
 # Optionally copy rails to skeleton
-scripting_dir = "#{release_dir}/LimeWire.app/Contents/Resources/Java/scripting"
-if(File.exist?(scripting_dir))
-  `rm -Rf #{scripting_dir}`
+if ENV['INCLUDE_RAILS']
+  scripting_dir = "#{release_dir}/LimeWire.app/Contents/Resources/Java/rails"
+  if(File.exist?(scripting_dir))
+    `rm -Rf #{scripting_dir}`
+  end
+  puts `cp -R rails #{scripting_dir}`
 end
 
 puts "Compressing archive..."
