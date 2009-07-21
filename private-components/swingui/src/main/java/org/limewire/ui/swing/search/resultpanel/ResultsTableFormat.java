@@ -1,11 +1,13 @@
 package org.limewire.ui.swing.search.resultpanel;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
 import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
+import org.limewire.friend.api.Friend;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.AbstractColumnStateFormat;
@@ -98,7 +100,7 @@ public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T>
     /**
      * If the FromColumn is sorted, use a custom column sorter
      * otherwise it is assumed the column returns a value that 
-     * implements the Comparable interface
+     * implements the Comparable interface.
      */
     @Override
     public Comparator getColumnComparator(int index) {
@@ -149,12 +151,30 @@ public abstract class ResultsTableFormat<T> extends AbstractColumnStateFormat<T>
             int size1 = o1.getSources().size();
             int size2 = o2.getSources().size();
             
-            if(size1 == size2)
+            if(size1 == size2) {
+                // Special case: if each search result comes from one source,
+                // use alphabetical order to break the tie.
+                if(size1 == 1) {
+                    Collection<Friend> friends1 = o1.getFriends();
+                    String name1 = null;
+                    if(friends1.size() == 1)
+                        name1 = friends1.iterator().next().getRenderName();
+                    else
+                        return 1; // Keep P2P results together 
+                    Collection<Friend> friends2 = o2.getFriends();
+                    String name2 = null;
+                    if(friends2.size() == 1)
+                        name2 = friends2.iterator().next().getRenderName();
+                    else
+                        return -1; // Keep P2P results together
+                    return name1.compareToIgnoreCase(name2);
+                }
                 return 0;
-            else if(size1 > size2)
+            } else if(size1 > size2) {
                 return 1;
-            else 
+            } else { 
                 return -1;
+            }
         }
     }
     

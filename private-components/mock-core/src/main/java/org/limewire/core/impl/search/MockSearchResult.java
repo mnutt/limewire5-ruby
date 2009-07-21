@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.limewire.core.impl.search;
 
 import java.util.ArrayList;
@@ -63,13 +60,8 @@ public class MockSearchResult implements Cloneable, SearchResult {
     }
 
     @Override
-    public Map<FilePropertyKey, Object> getProperties() {
-        return properties;
-    }
-
-    @Override
     public Object getProperty(FilePropertyKey key) {
-        return getProperties().get(key);
+        return properties.get(key);
     }
 
     @Override
@@ -133,6 +125,11 @@ public class MockSearchResult implements Cloneable, SearchResult {
             fileName += "." + getFileExtension();
         }
         return fileName;
+    }
+    
+    @Override
+    public String getFileNameWithoutExtension() {
+        return (String)getProperty(FilePropertyKey.NAME);
     }
 
     public void setUrn(String string) {

@@ -138,7 +138,6 @@ public class CheckBoxList<E> extends BoxPanel {
      * @param elements the collection of objects to be displayed in the checkbox list
      * @param provider the provider that retrieves the textual display information 
      * from the objects
-     * @param selected whether or not the checkboxes should be selected initially
      * @throws NullPointerException if the text provider is <code>null</code>
      */
     public CheckBoxList(Collection<E> elements, Collection<E> notCheckedElements, TextProvider<E> provider, ExtrasProvider<E> separatorProvider, int mode) {
@@ -235,14 +234,14 @@ public class CheckBoxList<E> extends BoxPanel {
     
     
     /**
-     * Force updates every item in the list
+     * Force updates every item in the list.
      */
     public void update() {
         ((DefaultTableModel)this.checkBoxList.getModel()).fireTableStructureChanged();
     }
      
     /**
-     * Deletes an item from the list with key "key"
+     * Deletes an item from the list with key "key".
      */
     public void removeItem(E key) {
         Set<E> newElements = new HashSet<E>(this.elements);
@@ -262,7 +261,7 @@ public class CheckBoxList<E> extends BoxPanel {
     }
    
     /**
-     * Enables or disables the delete buttons on each row
+     * Enables or disables the delete buttons on each row.
      */
     public void setAllRemovable(boolean state) {
         this.areAllRemoveable = state;
@@ -270,7 +269,7 @@ public class CheckBoxList<E> extends BoxPanel {
     }
     
     /**
-     * Sets a specific element as removable or not
+     * Sets a specific element as removable or not.
      */
     public void setRemovable(E key, boolean state) {
         if (state) {
@@ -298,14 +297,14 @@ public class CheckBoxList<E> extends BoxPanel {
     }
     
     /**
-     * Sets the custom tooltip for disabled items
+     * Sets the custom tooltip for disabled items.
      */
     public void setDisabledTooltip(String tooltip) {
         this.disabledTooltip = tooltip;        
     }
     
     /**
-     * Gets the custom tooltip for disabled items
+     * Gets the custom tooltip for disabled items.
      */
     public String getDisabledTooltip() {
         return this.disabledTooltip;        
@@ -398,7 +397,7 @@ public class CheckBoxList<E> extends BoxPanel {
     
     
     /** 
-     * Disable or enable a set of items
+     * Disable or enable a set of items.
      */
     public void setItemsEnabled(Set<E> keys, boolean state) {
         if (state) {
@@ -419,7 +418,7 @@ public class CheckBoxList<E> extends BoxPanel {
     }
     
     /** 
-     * Check or uncheck a set of items
+     * Check or uncheck a set of items.
      */
     public void setItemsChecked(Set<E> keys, boolean state) {
         if (state) {
@@ -444,7 +443,6 @@ public class CheckBoxList<E> extends BoxPanel {
     
     /**
      * Sets the preferred number of visible rows. 
-     * @param rows
      */
     public void setVisibleRowCount(int rows) {
         this.visibleRowCount = rows;
@@ -483,7 +481,7 @@ public class CheckBoxList<E> extends BoxPanel {
     
     /**
      * Returns the typed array of selected objects taking
-     *  enable/disable into account
+     *  enable/disable into account.
      */
     public List<E> getCheckedElements() {
         if (this.checkBoxList.isEnabled() && this.checked.size() > 0) {
@@ -499,7 +497,7 @@ public class CheckBoxList<E> extends BoxPanel {
     
     /**
      * Returns the typed array of unselected objects taking
-     *  enable/disable into account
+     *  enable/disable into account.
      */
     public List<E> getUncheckedElements() {
         if (!this.checkBoxList.isEnabled()) {
@@ -522,7 +520,7 @@ public class CheckBoxList<E> extends BoxPanel {
 
     
     /**
-     * Returns a new list of the total elements contained
+     * Returns a new list of the total elements contained.
      */
     public Set<E> getElements() {
         return new HashSet<E>(this.elements);
@@ -531,7 +529,7 @@ public class CheckBoxList<E> extends BoxPanel {
     /**
      * Returns a new list of the unchecked elements
      *  without regards to the enabled/disabled status
-     *  of the component or elements
+     *  of the component or elements.
      */
     public Set<E> getRawUncheckedElementsAsSet() {
         return new HashSet<E>(this.unchecked);
@@ -574,7 +572,7 @@ public class CheckBoxList<E> extends BoxPanel {
     
     
     /**
-     * Updates the row height appropriately
+     * Updates the row height appropriately.
      */
     private void updateRowHeight() {
      /*   int increment = ThemeSettings.FONT_SIZE_INCREMENT.getValue();
@@ -817,7 +815,7 @@ public class CheckBoxList<E> extends BoxPanel {
         
         /**
          * The custom table editor model to implement focus selection and all the checkbox
-         *  update control 
+         *  update control.
          */
         private class CustomEditorDelegate extends EditorDelegate implements MouseListener {
             
@@ -906,8 +904,8 @@ public class CheckBoxList<E> extends BoxPanel {
             
             
             /**
-             * Overriden to allow disable selection so the custom
-             *  selection model can be used
+             * Overridden to allow disable selection so the custom
+             *  selection model can be used.
              */
             @Override
             public boolean shouldSelectCell(EventObject anEvent) {
@@ -940,7 +938,7 @@ public class CheckBoxList<E> extends BoxPanel {
 
     
     /**
-     * Stores selection change events
+     * Stores selection change events.
      */
     public static class CheckBoxListSelectionEvent extends EventObject{
         private Object selected;
@@ -951,7 +949,7 @@ public class CheckBoxList<E> extends BoxPanel {
         }
         
         /**
-         * Gets the item that has just been selected
+         * Gets the item that has just been selected.
          * @return selected item
          */
         public Object getSelected() {
@@ -961,7 +959,7 @@ public class CheckBoxList<E> extends BoxPanel {
 
 
     /**
-     * Stores check/uncheck events 
+     * Stores check/uncheck events .
      */
     public static class CheckBoxListCheckChangeEvent<E> extends EventObject{
         private E selected;
@@ -974,7 +972,7 @@ public class CheckBoxList<E> extends BoxPanel {
         }
         
         /**
-         * Gets the item that was changed
+         * Gets the item that was changed.
          * @return The item changed
          */
         public E getSelected() {
@@ -982,7 +980,7 @@ public class CheckBoxList<E> extends BoxPanel {
         }
         
         /**
-         * Gets the check state of the change
+         * Gets the check state of the change.
          * @return the check state of the change
          */
         public boolean getChecked() {
@@ -992,7 +990,7 @@ public class CheckBoxList<E> extends BoxPanel {
 
     /**
      * Defines the listener to notify item a change in list selection
-     *  if select first mode is enabled
+     *  if select first mode is enabled.
      */
     public static interface CheckBoxListSelectionListener {
         public void valueChanged(CheckBoxListSelectionEvent e);        
@@ -1000,7 +998,7 @@ public class CheckBoxList<E> extends BoxPanel {
         
     /**
      * Defines the listener to notify item check/uncheck
-     *  events in the list
+     *  events in the list.
      */
     public static interface CheckBoxListCheckChangeListener<E> {
         public void valueChanged(CheckBoxListCheckChangeEvent<E> e);        
@@ -1025,13 +1023,11 @@ public class CheckBoxList<E> extends BoxPanel {
         /**
          * Returns the label text displayed next to the checkbox. 
          * @param obj the underlying data object
-         * @return
          */
         String getText(E obj);
         /**
          * Returns the tooltip text for the checkbox item.
          * @param obj the underlying data object
-         * @return
          */
         String getToolTipText(E obj);
         /**
@@ -1042,7 +1038,7 @@ public class CheckBoxList<E> extends BoxPanel {
     
     
     /**
-     *  Composite class to make a check box with an icon along with the text
+     *  Composite class to make a check box with an icon along with the text.
      *      
      */
     private class IconDataCheckBox extends BoxPanel {

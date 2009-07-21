@@ -6,10 +6,10 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.limewire.core.api.browse.BrowseListener;
-import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.impl.search.QueryReplyListener;
 import org.limewire.core.impl.search.QueryReplyListenerList;
+import org.limewire.friend.api.FriendPresence;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.util.BaseTestCase;
@@ -27,7 +27,7 @@ public class CoreBrowseTest extends BaseTestCase {
 
     /**
      * Tests that the supplied browse listener is populated with search results
-     * as handleBrowseResult is called on the internal {@link BrowseListeer} of the
+     * as handleBrowseResult is called on the internal {@link BrowseListener} of the
      * {@link CoreBrowse} object.
      */
     public void testBasicBrowseListenerPopulation() {
@@ -75,8 +75,6 @@ public class CoreBrowseTest extends BaseTestCase {
                 
                 Sequence sequence1 = context.sequence("seq");
                 exactly(1).of(testBrowseListener).browseFinished(false);
-                inSequence(sequence1);
-                exactly(1).of(testBrowseListener).browseFinished(true);
                 inSequence(sequence1);
             }
         });

@@ -20,7 +20,7 @@
 package org.limewire.mojito.util;
 
 /**
- * Miscellaneous utilities for Exceptions
+ * Miscellaneous utilities for Exceptions.
  */
 public class ExceptionUtils {
     
@@ -28,7 +28,7 @@ public class ExceptionUtils {
     
     /**
      * Returns true if Throwable <tt>t</tt> was caused by an another
-     * Exception that is of type <tt>clazz</tt>
+     * Exception that is of type <tt>clazz</tt>.
      */
     public static boolean isCausedBy(Throwable t, Class<? extends Throwable> clazz) {
         return getCause(t, clazz) != null;

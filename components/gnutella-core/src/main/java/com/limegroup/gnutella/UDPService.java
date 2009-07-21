@@ -27,7 +27,7 @@ import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.io.NetworkUtils;
-import org.limewire.listener.EventBroadcaster;
+import org.limewire.listener.AsynchronousEventBroadcaster;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.nio.NIODispatcher;
@@ -47,11 +47,11 @@ import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.guess.GUESSEndpoint;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
+import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.PingReply;
 import com.limegroup.gnutella.messages.PingRequest;
 import com.limegroup.gnutella.messages.PingRequestFactory;
-import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.ReplyNumberVendorMessage;
 
 /**
@@ -184,7 +184,7 @@ public class UDPService implements ReadWriteObserver {
     private final MessageFactory messageFactory;
     private final PingRequestFactory pingRequestFactory;
     private final NetworkInstanceUtils networkInstanceUtils;
-    private final EventBroadcaster<FirewallTransferStatusEvent> fwtStatusBroadcaster;
+    private final AsynchronousEventBroadcaster<FirewallTransferStatusEvent> fwtStatusBroadcaster;
 
     @InspectionPoint("udp sent messages")
     private final Message.MessageCounter sentMessageCounter = new Message.MessageCounter(50);
@@ -210,7 +210,7 @@ public class UDPService implements ReadWriteObserver {
             MessageFactory messageFactory,
             PingRequestFactory pingRequestFactory,
             NetworkInstanceUtils networkInstanceUtils,
-            EventBroadcaster<FirewallTransferStatusEvent> fwtStatusBroadcaster,
+            AsynchronousEventBroadcaster<FirewallTransferStatusEvent> fwtStatusBroadcaster,
             ListenerSupport<UDPSocketChannelConnectionEvent> channelEventListenerSupport) {
         this.networkManager = networkManager;
         this.messageDispatcher = messageDispatcher;

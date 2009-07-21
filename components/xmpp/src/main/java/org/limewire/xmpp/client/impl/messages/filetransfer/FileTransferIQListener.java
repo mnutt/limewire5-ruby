@@ -8,18 +8,26 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
-import org.limewire.listener.EventBroadcaster;
-import org.limewire.xmpp.api.client.FileOffer;
-import org.limewire.xmpp.api.client.FileOfferEvent;
+import org.limewire.friend.api.FileMetaData;
+import org.limewire.friend.api.FriendException;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.feature.FeatureTransport;
+import org.limewire.xmpp.client.impl.XMPPFriendConnectionImpl;
 import org.xmlpull.v1.XmlPullParserException;
 
-public class FileTransferIQListener implements PacketListener {
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
+public class FileTransferIQListener implements PacketListener, FeatureTransport<FileMetaData> {
     private static final Log LOG = LogFactory.getLog(FileTransferIQListener.class);
+    private final XMPPFriendConnectionImpl connection;
+    private final Handler<FileMetaData> fileMetaDataHandler;
 
-    private final EventBroadcaster<FileOfferEvent> fileOfferBroadcaster;
-
-    public FileTransferIQListener(EventBroadcaster<FileOfferEvent> fileOfferBroadcaster) {
-        this.fileOfferBroadcaster = fileOfferBroadcaster;
+    @Inject
+    public FileTransferIQListener(@Assisted XMPPFriendConnectionImpl connection,
+                                  FeatureTransport.Handler<FileMetaData> fileMetaDataHandler) {
+        this.connection = connection;
+        this.fileMetaDataHandler = fileMetaDataHandler;
     }
 
     public void processPacket(Packet packet) {
@@ -27,14 +35,6 @@ public class FileTransferIQListener implements PacketListener {
         try {
             if(iq.getType().equals(IQ.Type.GET)) {
                 handleGet(iq);
-            } else if(iq.getType().equals(IQ.Type.RESULT)) {
-                //handleResult(iq);
-            } else if(iq.getType().equals(IQ.Type.SET)) {
-                //handleSet(iq);
-            } else if(iq.getType().equals(IQ.Type.ERROR)) {
-                //handleError(iq);
-            } else {
-                //sendError(packet);
             }
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
@@ -49,11 +49,19 @@ public class FileTransferIQListener implements PacketListener {
         if(LOG.isDebugEnabled()) {
             LOG.debug("handling file transfer get " + packet.getPacketID());
         }
-        // TODO async?
-        String fromJid = packet.getFrom();
-        fileOfferBroadcaster.broadcast(new FileOfferEvent(new FileOffer(packet.getFileMetaData(), fromJid), FileOfferEvent.Type.OFFER));
-        // TODO send acceptance or rejection;
-        // TODO only needed for user feedback
+        fileMetaDataHandler.featureReceived(packet.getFrom(), packet.getFileMetaData());
+    }
+
+    @Override
+    public void sendFeature(FriendPresence presence, FileMetaData localFeature) throws FriendException {
+        if(LOG.isInfoEnabled()) {
+            LOG.info("offering file " + localFeature.toString() + " to " + presence.getPresenceId());
+        }
+        final FileTransferIQ transferIQ = new FileTransferIQ(localFeature, FileTransferIQ.TransferType.OFFER);
+        transferIQ.setType(IQ.Type.GET);
+        transferIQ.setTo(presence.getPresenceId());
+        transferIQ.setPacketID(IQ.nextID());
+        connection.sendPacket(transferIQ);
     }
 
     public PacketFilter getPacketFilter() {

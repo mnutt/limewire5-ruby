@@ -30,9 +30,11 @@ import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Stage;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.limegroup.gnutella.Acceptor;
 import com.limegroup.gnutella.ActivityCallback;
@@ -40,7 +42,6 @@ import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.DownloadServices;
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.PushEndpoint;
@@ -48,11 +49,16 @@ import com.limegroup.gnutella.PushEndpointFactory;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.UDPService;
 import com.limegroup.gnutella.URN;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.altlocs.AltLocManager;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.browser.MagnetOptions;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileCollection;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.IncompleteFileCollection;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.vendor.HeadPongFactory;
 import com.limegroup.gnutella.stubs.ConnectionManagerStub;
@@ -91,46 +97,52 @@ public abstract class DownloadTestCase extends LimeTestCase {
 
     protected Set invalidAlts = null;
 
-    protected Injector injector;
+    @Inject protected Injector injector;
 
-    protected DownloadManager downloadManager;
+    @Inject protected DownloadManager downloadManager;
 
     protected ActivityCallbackStub activityCallback;
 
     protected ManagedDownloaderImpl managedDownloader;
 
-    protected HashTreeCache tigerTreeCache;
+    @Inject protected HashTreeCache tigerTreeCache;
 
-    protected DownloadServices downloadServices;
+    @Inject protected DownloadServices downloadServices;
 
-    protected AlternateLocationFactory alternateLocationFactory;
+    @Inject protected AlternateLocationFactory alternateLocationFactory;
 
     protected NetworkManagerStub networkManager;
 
-    protected UDPService udpService;
+    @Inject protected UDPService udpService;
 
-    protected PushEndpointFactory pushEndpointFactory;
+    @Inject protected PushEndpointFactory pushEndpointFactory;
 
-    protected Acceptor acceptor;
+    @Inject protected Acceptor acceptor;
 
-    protected VerifyingFileFactory verifyingFileFactory;
+    @Inject protected VerifyingFileFactory verifyingFileFactory;
 
-    protected AltLocManager altLocManager;
+    @Inject protected AltLocManager altLocManager;
 
-    protected FileManager fileManager;
+    @Inject protected Library library;
 
-    protected SourceRankerFactory sourceRankerFactory;
+    @Inject protected SourceRankerFactory sourceRankerFactory;
 
-    protected ContentManager contentManager;
+    @Inject protected ContentManager contentManager;
 
-    protected HeadPongFactory headPongFactory;
+    @Inject protected HeadPongFactory headPongFactory;
 
-    protected SocketsManager socketsManager;
+    @Inject protected SocketsManager socketsManager;
 
-    protected MessageFactory messageFactory;
+    @Inject protected MessageFactory messageFactory;
+
+    @Inject private LifecycleManager lifecycleManager;
     
-    protected RemoteFileDescFactory remoteFileDescFactory;
-    protected DownloadStatsTracker statsTracker;
+    @Inject protected RemoteFileDescFactory remoteFileDescFactory;
+    @Inject protected DownloadStatsTracker statsTracker;
+    @Inject @GnutellaFiles protected FileView gnutellaFileView;
+    @Inject @GnutellaFiles protected FileCollection gnutellaFileCollection;
+    @Inject protected IncompleteFileCollection incompleteFileCollection;
+    @Inject @Named("backgroundExecutor") ScheduledExecutorService scheduledExecutorService;
 
     protected DownloadTestCase(String name) {
         super(name);
@@ -154,9 +166,7 @@ public abstract class DownloadTestCase extends LimeTestCase {
                 bind(ActivityCallback.class).toInstance(activityCallback);
                 bind(ConnectionManager.class).to(ConnectionManagerStub.class);
             }
-        });
-        
-        remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
+        }, LimeTestUtils.createModule(this));
 
         networkManager = (NetworkManagerStub) injector.getInstance(NetworkManager.class);
         networkManager.setAcceptedIncomingConnection(true);
@@ -169,7 +179,6 @@ public abstract class DownloadTestCase extends LimeTestCase {
                 .getInstance(ConnectionManager.class);
         connectionManager.setConnected(true);
 
-        downloadManager = injector.getInstance(DownloadManager.class);
         downloadManager.start();
 
         Runnable click = new Runnable() {
@@ -178,14 +187,8 @@ public abstract class DownloadTestCase extends LimeTestCase {
             }
         };
 
-        ScheduledExecutorService scheduledExecutorService = injector.getInstance(Key.get(
-                ScheduledExecutorService.class, Names.named("backgroundExecutor")));
         scheduledExecutorService.scheduleWithFixedDelay(click, 0, 1000, TimeUnit.MILLISECONDS);
-
-        lifecycleManager = injector.getInstance(LifecycleManager.class);
         lifecycleManager.start();
-
-        acceptor = injector.getInstance(Acceptor.class);
         networkManager.setPort(acceptor.getPort(false));
 
         managedDownloader = null;
@@ -214,20 +217,6 @@ public abstract class DownloadTestCase extends LimeTestCase {
 
         tigerTreeCache = injector.getInstance(HashTreeCache.class);
         tigerTreeCache.purgeTree(TestFile.hash());
-
-        downloadServices = injector.getInstance(DownloadServices.class);
-        alternateLocationFactory = injector.getInstance(AlternateLocationFactory.class);
-        udpService = injector.getInstance(UDPService.class);
-        pushEndpointFactory = injector.getInstance(PushEndpointFactory.class);
-        verifyingFileFactory = injector.getInstance(VerifyingFileFactory.class);
-        altLocManager = injector.getInstance(AltLocManager.class);
-        fileManager = injector.getInstance(FileManager.class);
-        sourceRankerFactory = injector.getInstance(SourceRankerFactory.class);
-        contentManager = injector.getInstance(ContentManager.class);
-        headPongFactory = injector.getInstance(HeadPongFactory.class);
-        socketsManager = injector.getInstance(SocketsManager.class);
-        messageFactory = injector.getInstance(MessageFactory.class);
-        statsTracker = injector.getInstance(DownloadStatsTracker.class);
     }
 
     @Override
@@ -439,8 +428,6 @@ public abstract class DownloadTestCase extends LimeTestCase {
     protected final int COMPLETE = 2;
 
     protected final int INVALID = 3;
-
-    private LifecycleManager lifecycleManager;
 
     protected void waitForComplete(boolean corrupt) {
         waitForCompleteImpl(corrupt ? CORRUPT : COMPLETE);

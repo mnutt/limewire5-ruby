@@ -8,7 +8,7 @@ import org.limewire.util.URIUtils;
 
 
 /**
- * helps to migrate persistant org.apache.commons.httpclient.URI's to java.net.URI's
+ * Helps to migrate persistent org.apache.commons.httpclient.URI's to java.net.URI's.
  */
 @SuppressWarnings("unused")
 public class SerialOldURI implements Serializable {

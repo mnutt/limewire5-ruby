@@ -7,8 +7,9 @@ import java.io.InputStreamReader;
 import java.util.Set;
 import java.util.Vector;
 
+import org.limewire.bittorrent.Torrent;
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.net.SocketsManager.ConnectType;
@@ -18,7 +19,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
-import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.connection.RoutedConnection;
@@ -189,13 +189,6 @@ public class Main {
     //      }
     //     }
     
-        public void handleQueryResult(RemoteFileDesc rfd , QueryReply queryReply, Set<? extends IpPort> loc) {
-            synchronized(System.out) {
-                System.out.println("Query hit from "+rfd.getAddress() + ":");
-                System.out.println("   "+rfd.getFileName());
-            }
-        }
-    
         /**
          *  Add a query string to the monitor screen
          */
@@ -293,14 +286,23 @@ public class Main {
         public String translate(String s) { return s;}
 
         @Override
-        public void handleSaveLocationException(DownloadAction downLoadAction,
-                SaveLocationException sle, boolean supportsNewSaveDir) {
+        public void handleDownloadException(DownloadAction downLoadAction,
+                DownloadException e, boolean supportsNewSaveDir) {
             
         }
 
         @Override
-        public void promptTorrentUploadCancel(ManagedTorrent torrent) {
-            
+        public boolean promptTorrentUploadCancel(Torrent torrent) {
+            return true;
+        }
+
+        @Override
+        public void handleQueryResult(RemoteFileDesc rfd, QueryReply queryReply,
+                Set<? extends IpPort> locs) {
+            synchronized(System.out) {
+                System.out.println("Query hit from "+rfd.getAddress() + ":");
+                System.out.println("   "+rfd.getFileName());
+            }
         }
     }
 }

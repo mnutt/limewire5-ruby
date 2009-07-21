@@ -28,6 +28,12 @@ public class MockHTTPUploadSessionManager implements HTTPUploadSessionManager {
         return uploader;
     }
 
+    @Override
+    public HTTPUploader getOrCreateUploader(HttpRequest request, HttpContext context,
+            UploadType type, String filename, String friendID) {
+        return uploader;
+    }
+    
     public void handleFreeLoader(HttpRequest request,
             HttpResponse response, HttpContext context,
             HTTPUploader uploader) throws HttpException, IOException {
@@ -35,5 +41,4 @@ public class MockHTTPUploadSessionManager implements HTTPUploadSessionManager {
 
     public void sendResponse(HTTPUploader uploader, HttpResponse response) {
     }
-    
 }

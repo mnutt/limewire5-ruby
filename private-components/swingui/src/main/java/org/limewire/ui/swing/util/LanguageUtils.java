@@ -64,7 +64,7 @@ public class LanguageUtils {
     /**
      * Returns an array of supported language as a LanguageInfo[], always having
      * the English language as the first element.
-     * 
+     * <p>
      * This will only include languages that can be displayed using the given
      * font. If the font is null, all languages are returned.
      */
@@ -107,7 +107,7 @@ public class LanguageUtils {
     }
 
     /**
-     * Returns the languages as found from the classpath in messages.jar
+     * Returns the languages as found from the classpath in messages.jar.
      */
     static void addLocalesFromJar(List<Locale> locales, File jar) {
         ZipFile zip = null;
@@ -183,8 +183,8 @@ public class LanguageUtils {
     /**
      * Uses the guess mechanism to attempt to guess the current locale.  The guess
      *  is then compared to the given list of available languages and the closest
-     *  match is returned.  If no match is found english is defaulted since
-     *  english will always be available.
+     *  match is returned.  If no match is found English is defaulted since
+     *  English will always be available.
      */
     public static Locale guessBestAvailableLocale(Locale... locales) {
         Locale guessLocale = guessLocale();

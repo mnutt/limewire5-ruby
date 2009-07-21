@@ -98,7 +98,7 @@ public interface Message extends Comparable<Message> {
     /** Returns the length of this' payload, in bytes. */
     public int getLength();
 
-    /** Returns the total length of this, in bytes */
+    /** Returns the total length of this, in bytes. */
     public int getTotalLength();
 
     /** @modifies this

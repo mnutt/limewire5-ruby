@@ -28,7 +28,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Stores a XML schema, and provides access to various components
- * of schema
+ * of schema.
  * @author asingla
  */
 public class LimeXMLSchema {
@@ -57,9 +57,9 @@ public class LimeXMLSchema {
     
 
     /** 
-     * Creates new LimeXMLSchema 
-     * @param schemaUrl The url from where to read the schema definition
-     * @exception IOException If the specified schemaFile doesnt exist, or isnt
+     * Creates new LimeXMLSchema .
+     * @param schemaUrl the URL from where to read the schema definition
+     * @exception IOException If the specified schemaFile doesn't exist, or isn't
      * a valid schema file
      */
     public LimeXMLSchema(URL schemaUrl) throws IOException {
@@ -67,10 +67,10 @@ public class LimeXMLSchema {
     }
     
     /** 
-     * Creates new LimeXMLSchema 
+     * Creates new LimeXMLSchema.
      * @param inputSource The source representing the XML schema definition
      * to be parsed
-     * @exception IOException If the specified schemaFile doesnt exist, or isnt
+     * @exception IOException If the specified schemaFile doesn't exist, or isn't
      * a valid schema file
      */
     public LimeXMLSchema(InputSource inputSource) throws IOException {
@@ -85,7 +85,7 @@ public class LimeXMLSchema {
     }
     
     /**
-     * Initilizes the schema after parsing it from the input source
+     * Initializes the schema after parsing it from the input source
      * @param schemaInputSource The source representing the XML schema definition
      * to be parsed
      */
@@ -120,11 +120,11 @@ public class LimeXMLSchema {
     }
     
     /**
-     * Returns the URI of the schema represented in the passed document
-     * @param document The document representing the XML Schema whose URI is to
+     * Returns the URI of the schema represented in the passed document.
+     * @param document the document representing the XML Schema whose URI is to
      * be retrieved
-     * @return The schema URI
-     * @requires The document be a parsed form of valid xml schema
+     * @return the schema URI
+     * @requires the document be a parsed form of valid xml schema
      */
     private static String retrieveSchemaURI(Document document) {
         //get the root element which should be "xsd:schema" element (provided
@@ -165,8 +165,7 @@ public class LimeXMLSchema {
     }
     
     /**
-     * Returns the unique identifier which identifies this particular schema
-     * @return the unique identifier which identifies this particular schema
+     * Returns the unique identifier which identifies this particular schema.
      */
     public String getSchemaURI() {
         return _schemaURI;
@@ -196,11 +195,13 @@ public class LimeXMLSchema {
      * In case of multiple structured values with same name, 
      * as might occur while using + or * in the regular expressions in schema,
      * those should be represented as using the array index using the __ 
-     * notation (withouth the square brackets)
-     * for e.g. myarray[0].name ==> myarray__0__name
-     *     
-     * attribute names for an element in the XML schema should be postfixed 
+     * notation (without the square brackets).
+     * <p>
+     * For e.g. myarray[0].name ==> myarray__0__name
+     * <p>
+     * Attribute names for an element in the XML schema should be postfixed 
      * with __ (double underscore).
+     * <p>
      * So element.attribute ==> element__attribute__
      *
      * @return unmodifiable list (of SchemaFieldInfo) of all the fields 
@@ -212,7 +213,7 @@ public class LimeXMLSchema {
     
     
     /**
-     * Returns only those fields which are of enumeration type
+     * Returns only those fields which are of enumeration type.
      */
     public List<SchemaFieldInfo> getEnumerationFields() {
         //create a new list
@@ -250,11 +251,13 @@ public class LimeXMLSchema {
      * In case of multiple structured values with same name, 
      * as might occur while using + or * in the regular expressions in schema,
      * those should be represented as using the array index using the __ 
-     * notation (withouth the square brackets)
-     * for e.g. myarray[0].name ==> myarray__0__name
-     *     
-     * attribute names for an element in the XML schema should be postfixed 
+     * notation (without the square brackets).
+     * <p>
+     * For e.g. myarray[0].name ==> myarray__0__name
+     * <p>   
+     * Attribute names for an element in the XML schema should be postfixed 
      * with __ (double underscore).
+     * <p>
      * So element.attribute ==> element__attribute__
      *
      * @return list (Strings) of all the field names in this schema.
@@ -293,7 +296,7 @@ public class LimeXMLSchema {
     }
 
     /**
-     * Utility method to be used in the gui to display schemas
+     * Utility method to be used in the GUI to display schemas.
      */
     public static String getDisplayString(String schemaURI)
     {

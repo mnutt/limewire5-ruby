@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.altlocs.AltLocManager;
-import com.limegroup.gnutella.uploader.authentication.HttpRequestFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.HttpRequestFileViewProvider;
 
 @Singleton
 public class HttpRequestHandlerFactoryImpl implements HttpRequestHandlerFactory {
@@ -38,7 +38,7 @@ public class HttpRequestHandlerFactoryImpl implements HttpRequestHandlerFactory 
      * 
      * @see com.limegroup.gnutella.uploader.HttpRequestHandlerFactory#createFileRequestHandler()
      */
-    public FileRequestHandler createFileRequestHandler(HttpRequestFileListProvider provider, boolean requiresAuthentication) {
+    public FileRequestHandler createFileRequestHandler(HttpRequestFileViewProvider provider, boolean requiresAuthentication) {
         return fileRequestHandlerProvider.get().createFileRequestHandler(provider, requiresAuthentication);
     }
 
@@ -46,7 +46,7 @@ public class HttpRequestHandlerFactoryImpl implements HttpRequestHandlerFactory 
      * @see com.limegroup.gnutella.uploader.HttpRequestHandlerFactory#createBrowseRequestHandler()
      */
     @Override
-    public BrowseRequestHandler createBrowseRequestHandler(HttpRequestFileListProvider browseRequestFileListProvider, boolean requiresAuthentication) {
+    public BrowseRequestHandler createBrowseRequestHandler(HttpRequestFileViewProvider browseRequestFileListProvider, boolean requiresAuthentication) {
         return browseRequestHandlerFactory.get().createBrowseRequestHandler(browseRequestFileListProvider, requiresAuthentication);
     }
 

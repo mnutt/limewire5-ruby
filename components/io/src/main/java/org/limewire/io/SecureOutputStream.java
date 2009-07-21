@@ -91,14 +91,14 @@ public class SecureOutputStream extends FilterOutputStream {
     }
     
     /**
-     * Returns the block (buffer) size of the stream
+     * Returns the block (buffer) size of the stream.
      */
     public int getBlockSize() {
         return dataSize + md.getDigestLength();
     }
     
     /**
-     * Returns the MessageDigest
+     * Returns the MessageDigest.
      */
     public MessageDigest getMessageDigest() {
         return md;

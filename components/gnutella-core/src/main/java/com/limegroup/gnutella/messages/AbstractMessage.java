@@ -93,14 +93,18 @@ public abstract class AbstractMessage implements Message {
      */
     protected AbstractMessage(byte[] guid, byte func, byte ttl,
               byte hops, int length, Network network) {
-		if(guid.length != 16) {
-			throw new IllegalArgumentException("invalid guid length: "+guid.length);
-		} 		
-        this.guid=guid; this.func=func; this.ttl=ttl;
-        this.hops=hops; this.length=length; this.network = network;
-        //repOk();
+        if (guid.length != 16) {
+            throw new IllegalArgumentException("invalid guid length: " + guid.length);
+        }
+        this.guid = guid;
+        this.func = func;
+        this.ttl = ttl;
+        this.hops = hops;
+        this.length = length;
+        this.network = network;
+        // repOk();
     }
-	
+
     /**
      * Writes a message quickly, without using temporary buffers or crap.
      */
@@ -189,7 +193,7 @@ public abstract class AbstractMessage implements Message {
      * Sets the guid for this message. Is needed, when we want to cache 
      * query replies or other messages, and change the GUID as per the 
      * request
-     * @param guid The guid to be set
+     * @param guid the guid to be set
      */
     protected void setGUID(GUID guid) {
         this.guid = guid.bytes();
@@ -221,7 +225,7 @@ public abstract class AbstractMessage implements Message {
         length=l;
     }
 
-    /** Returns the total length of this, in bytes */
+    /** Returns the total length of this, in bytes. */
     public int getTotalLength() {
         //Header is 23 bytes.
         return 23+length;
@@ -276,16 +280,17 @@ public abstract class AbstractMessage implements Message {
              +", hops="+hops
              +", priority="+getPriority()+"}";
     }
-	
-	/**
-	 * Should return the most specific message interface that his class implements.
-	 * <p>
-	 * This is needed since listeners register themselves on the interface class id.
-	 * It can go away once listeners subscribe to the message id or instance of checks
-	 * are used.
-	 * </p>
-	 */
-	public Class<? extends Message> getHandlerClass() {
-	    return getClass();
-	}
+
+    /**
+     * Should return the most specific message interface that his class
+     * implements.
+     * <p>
+     * This is needed since listeners register themselves on the interface class
+     * id. It can go away once listeners subscribe to the message id or instance
+     * of checks are used.
+     * </p>
+     */
+    public Class<? extends Message> getHandlerClass() {
+        return getClass();
+    }
 }

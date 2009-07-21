@@ -18,7 +18,7 @@ import com.limegroup.gnutella.metadata.audio.AudioMetaData;
 
 /**
  *  Handles the reading of most audio files. All file types supported by 
- *  jAudioTagger can use this class to read their meta data
+ *  jAudioTagger can use this class to read their meta data.
  */
 public class AudioDataReader implements MetaReader {
 
@@ -29,7 +29,7 @@ public class AudioDataReader implements MetaReader {
     /**
      * Reads header information about the file. All audio formats contain
      * some sort of header information to describe how the audio file is encoded.
-     * This typically includes sample rate, bit rate, length, encoding scheme, etc..
+     * This typically includes sample rate, bit rate, length, encoding scheme, etc.
      */
     private void readHeader(AudioMetaData audioData, AudioHeader header) {
         audioData.setVBR(header.isVariableBitRate());
@@ -58,9 +58,9 @@ public class AudioDataReader implements MetaReader {
     }
     
     /**
-     * Handles the reading and parsing of this file
-     * @param file - file to read
-     * @throws IOException - thrown if the file can't be read, is corrupted, etc..
+     * Handles the reading and parsing of this file.
+     * @param file file to read
+     * @throws IOException - thrown if the file can't be read, is corrupted, etc.
      */
     @Override
     public AudioMetaData parse(File file) throws IOException { 

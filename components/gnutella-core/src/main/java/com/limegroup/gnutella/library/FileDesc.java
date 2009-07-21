@@ -60,9 +60,9 @@ public interface FileDesc extends StringLookup, ListenerSupport<FileDescChangeEv
     public URN getSHA1Urn();
 
     /**
-     * updates this FD as carrying a ttroot.
+     * Adds a new URN to this filedesc.
      */
-    public void setTTRoot(URN ttroot);
+    public void addUrn(URN urn);
 
     /**
      * Returns a new <tt>Set</tt> instance containing the <tt>URN</tt>s
@@ -147,7 +147,7 @@ public interface FileDesc extends StringLookup, ListenerSupport<FileDescChangeEv
     public int getHitCount();
 
     /**
-     * Increase & return the new attempted uploads
+     * Increase & return the new attempted uploads.
      * @return the new attempted upload count
      */
     public int incrementAttemptedUploads();
@@ -158,12 +158,12 @@ public interface FileDesc extends StringLookup, ListenerSupport<FileDescChangeEv
     public int getAttemptedUploads();
 
     /**
-     * Returns the time when the last upload attempt was made
+     * Returns the time when the last upload attempt was made.
      */
     public long getLastAttemptedUploadTime();
 
     /**
-     * Increase & return the new completed uploads
+     * Increase & return the new completed uploads.
      * @return the new completed upload count
      */
     public int incrementCompletedUploads();
@@ -172,18 +172,6 @@ public interface FileDesc extends StringLookup, ListenerSupport<FileDescChangeEv
      * @return the current completed uploads
      */
     public int getCompletedUploads();
-
-    public void incrementShareListCount();
-
-    public void decrementShareListCount();
-
-    public int getShareListCount();
-
-    public void setSharedWithGnutella(boolean b);
-
-    public boolean isSharedWithGnutella();
-
-    public void setStoreFile(boolean b);
 
     public boolean isStoreFile();
     

@@ -1,8 +1,6 @@
 package com.limegroup.gnutella.library;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import junit.framework.Test;
 
@@ -56,11 +54,7 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
         File f1 = createNewNamedTestFile(10, "meaningless");
         LimeXMLDocument d1 = limeXMLDocumentFactory.createLimeXMLDocument(FileManagerTestUtils.buildAudioXMLString(
                 "artist=\"Sammy B\" album=\"Jazz in A minor\" genre=\"mean Median Standard Deviation\" "));
-        List<LimeXMLDocument> l1 = new ArrayList<LimeXMLDocument>();
-        l1.add(d1);
-        FileListChangedEvent result = addIfShared(f1, l1);
-        assertTrue(result.toString(), result.getType() == FileListChangedEvent.Type.ADDED);
-        assertEquals(d1, result.getFileDesc().getLimeXMLDocuments().get(0));
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, f1, d1);
 
         // test exact match of keywords in metadata
         Response[] responses = keywordIndex.query(queryRequestFactory.createRequery("Sammy B"));
@@ -131,7 +125,7 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
         assertEquals(0, responses.length);
 
         // remove file
-        fman.getManagedFileList().remove(f1);
+        library.remove(f1);
 
         // no more matches
         responses = keywordIndex.query(queryRequestFactory.createQuery("Sammy B"));
@@ -175,32 +169,24 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
         File eightFourSixFile = createNewNamedTestFile(10, "eight four six.mp3");
         LimeXMLDocument eightFourSixXml = limeXMLDocumentFactory.createLimeXMLDocument(
             FileManagerTestUtils.buildAudioXMLString("artist=\"sixty seven\" album=\"zero one\" genre=\"five numerically\" "));
-        List<LimeXMLDocument> l1 = new ArrayList<LimeXMLDocument>();
-        l1.add(eightFourSixXml);
-        addIfShared(eightFourSixFile, l1);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, eightFourSixFile, eightFourSixXml);
 
         File f2 = createNewNamedTestFile(10, "seven.txt");
         LimeXMLDocument seven = limeXMLDocumentFactory.createLimeXMLDocument(
             FileManagerTestUtils.buildDocumentXMLString("title=\"front page stuff\" author=\"special writer\" " +
                         "topic=\"interesting stuff\""));
-        List<LimeXMLDocument> l2 = new ArrayList<LimeXMLDocument>();
-        l2.add(seven);
-        addIfShared(f2, l2);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, f2, seven);
 
         File f3 = createNewNamedTestFile(10, "nine.avi");
         LimeXMLDocument nine = limeXMLDocumentFactory.createLimeXMLDocument(
             FileManagerTestUtils.buildVideoXMLString("director=\"one interesting tree\" title=\"Eight Four David\""));
-        List<LimeXMLDocument> l3 = new ArrayList<LimeXMLDocument>();
-        l3.add(nine);
-        addIfShared(f3, l3);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, f3, nine);
         
         File algebraFile = createNewNamedTestFile(10, "class time.txt");
         LimeXMLDocument algebraXml = limeXMLDocumentFactory.createLimeXMLDocument(
                 FileManagerTestUtils.buildDocumentXMLString("title=\"plus minus\" " +
                         "author=\"equals\" " + "topic=\"matrix eigenvalue\""));
-        List<LimeXMLDocument> l4 = new ArrayList<LimeXMLDocument>();
-        l4.add(algebraXml);
-        addIfShared(algebraFile, l4);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, algebraFile, algebraXml);
 
         
         // 1. All keywords in search term match file name
@@ -241,7 +227,7 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
         assertTrue(responsesContain(algebraXml, nine, eightFourSixXml));
 
         // remove a file for which "eig" matches in the metadata
-        fman.getManagedFileList().remove(algebraFile);
+        library.remove(algebraFile);
 
         // 9. Perform same query as before, and while the other files should still match,
         //    the removed file should no longer match
@@ -268,9 +254,7 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
         File eightFourSixFile = createNewNamedTestFile(10, "eight four six.mp3");
         LimeXMLDocument eightFourSixXml = limeXMLDocumentFactory.createLimeXMLDocument(
             FileManagerTestUtils.buildAudioXMLString("artist=\"sixty seven\" album=\"zero one\" genre=\"five nine sixty\" "));
-        List<LimeXMLDocument> l1 = new ArrayList<LimeXMLDocument>();
-        l1.add(eightFourSixXml);
-        addIfShared(eightFourSixFile, l1);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, eightFourSixFile, eightFourSixXml);
 
         responses = keywordIndex.query(queryRequestFactory.createQuery("", FileManagerTestUtils.buildAudioXMLString("genre=\"nine\"")));
         assertEquals(1, responses.length);
@@ -305,10 +289,8 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
         File eightFourSixFile = createNewNamedTestFile(10, "matching file.mp3");
         LimeXMLDocument eightFourSixXml = limeXMLDocumentFactory.createLimeXMLDocument(
             FileManagerTestUtils.buildAudioXMLString("artist=\"sixty seven\" album=\"blah blah\" genre=\"blah blah file\" "));
-        List<LimeXMLDocument> l1 = new ArrayList<LimeXMLDocument>();
-        l1.add(eightFourSixXml);
-        FileListChangedEvent fileAdded = addIfShared(eightFourSixFile, l1);
-        FileDesc fileAddedDesc = fileAdded.getFileDesc();
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, eightFourSixFile, eightFourSixXml);
+        FileDesc fileAddedDesc = gnutellaFileCollection.getFileDesc(eightFourSixFile);
         int fileDescHitCount = 0;
 
         assertEquals(0, fileAddedDesc.getHitCount());
@@ -355,18 +337,13 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
         File f1 = createNewNamedTestFile(10, "audioFile");
         LimeXMLDocument audioMetaData = limeXMLDocumentFactory.createLimeXMLDocument(FileManagerTestUtils.buildAudioXMLString(
                 "artist=\"one two tree\" album=\"Jazz in A minor\" genre=\"mean\" "));
-        List<LimeXMLDocument> l1 = new ArrayList<LimeXMLDocument>();
 
         File f2 = createNewNamedTestFile(10, "videoFile");
         LimeXMLDocument videoMetaData = limeXMLDocumentFactory.createLimeXMLDocument(
                 FileManagerTestUtils.buildVideoXMLString("director=\"one two tree\" title=\"Four five Six\""));
-        List<LimeXMLDocument> l2 = new ArrayList<LimeXMLDocument>();
 
-        l1.add(audioMetaData);
-        l2.add(videoMetaData);
-
-        addIfShared(f1, l1);
-        addIfShared(f2, l2);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, f1, audioMetaData);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, f2, videoMetaData);
 
         // A query request with query string "one two three four" and
         // media type "audio" should only match the file named "audioFile".
@@ -408,9 +385,7 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
         File f1 = createNewNamedTestFile(10, "meaningless");
         LimeXMLDocument d1 = limeXMLDocumentFactory.createLimeXMLDocument(FileManagerTestUtils.buildAudioXMLString(
                 "artist=\"Sammy B\" album=\"Jazz in A minor\" genre=\"mean\" "));
-        List<LimeXMLDocument> l1 = new ArrayList<LimeXMLDocument>();
-        l1.add(d1);
-        addIfShared(f1, l1);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, f1, d1);
 
 
         assertTrue(SearchSettings.INCLUDE_METADATA_IN_PLAINTEXT_SEARCH.getValue());
@@ -516,13 +491,8 @@ public class KeywordIndexFileManagerIntegrationTest extends FileManagerTestCase 
 
     private void addFileWithMetaDataToFileManager(String name, String xml) throws Exception {
         File f1 = createNewNamedTestFile(10, name);
-
         LimeXMLDocument metaData = limeXMLDocumentFactory.createLimeXMLDocument(xml);
-        List<LimeXMLDocument> l1 = new ArrayList<LimeXMLDocument>();
-
-        l1.add(metaData);
-        addIfShared(f1, l1);
-        Thread.sleep(500);
+        FileManagerTestUtils.assertAdds(gnutellaFileCollection, f1, metaData);
     }
 
 }

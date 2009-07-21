@@ -18,7 +18,7 @@ import org.limewire.nio.observer.Shutdownable;
  * When activate is called, it updates the 'check time' to be
  * DELAY_TIME plus the current time and also schedules the task
  * if necessary.
- * To deactive the stall-checking, you must call 'deactivate'.
+ * To de-active the stall-checking, you must call 'deactivate'.
  * Deactivate does NOT remove the task from the RouterService's schedule,
  * but it does tell the checker to not kill the output stream when
  * it is run.<p>
@@ -40,7 +40,7 @@ public final class StalledUploadWatchdog extends Periodic {
     /**
      * The amount of time to wait before we close this connection
      * if nothing has been written to the socket.
-     *
+     * <p>
      * Non final for testing.
      */
     public static long DELAY_TIME = 1000 * 60 * 2; //2 minutes    
@@ -51,17 +51,17 @@ public final class StalledUploadWatchdog extends Periodic {
     
     
     public StalledUploadWatchdog(long delayTime, ScheduledExecutorService service) {
-    	super(new Closer(), service);
-    	this.closer = (Closer)getRunnable();
-    	this.delayTime = delayTime;
+        super(new Closer(), service);
+        this.closer = (Closer)getRunnable();
+        this.delayTime = delayTime;
     }
     
     /**
-     * Deactives the killing of the NormalUploadState
+     * De-activates the killing of the NormalUploadState.
      */
     public boolean deactivate() {
-    	if (LOG.isDebugEnabled())
-    		LOG.debug("Deactivated on "+closer.shutdownable);
+        if (LOG.isDebugEnabled())
+            LOG.debug("Deactivated on "+closer.shutdownable);
         unschedule();
         closer.shutdownable = null;
         return closer.closed;
@@ -86,17 +86,17 @@ public final class StalledUploadWatchdog extends Periodic {
     private static class Closer implements Runnable {
         private volatile Shutdownable shutdownable;
         private volatile boolean closed;
-    	public void run() {
-    		closed = true;
-    		// If it was null, it was already closed
-    		// by an outside source.
-    		Shutdownable toShut = shutdownable;
-    		if( toShut != null ) {
-    			if(LOG.isDebugEnabled())
-    				LOG.debug("STALLED!  Killing: " + toShut);                    
-    			toShut.shutdown();
-    			shutdownable = null;
-    		}
-    	}
+        public void run() {
+            closed = true;
+            // If it was null, it was already closed
+            // by an outside source.
+            Shutdownable toShut = shutdownable;
+            if( toShut != null ) {
+                if(LOG.isDebugEnabled())
+                    LOG.debug("STALLED!  Killing: " + toShut);                    
+                toShut.shutdown();
+                shutdownable = null;
+            }
+        }
     }
 }

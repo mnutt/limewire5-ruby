@@ -24,18 +24,23 @@ import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.PainterUtils;
 
-import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.Inject;
 
 /**
  * A non singleton decorator class for the special components
- *  used during the setup wizard
+ *  used during the setup wizard.
  */
 public class SetupComponentDecorator {
     
     private final ButtonDecorator plainButtonDecorator;
     
     @Resource private Font headingFont;
+    @Resource private Color headingFontColor;
     @Resource private Font normalFont;
+    @Resource private Color normalFontColor;
+    @Resource private Font  subHeadingFont;
+    @Resource private Color subHeadingFontColor;
+    @Resource private Font  linkFont;
 
     @Resource private Color greenButtonForeground;
     @Resource private Font greenButtonFont;
@@ -56,7 +61,7 @@ public class SetupComponentDecorator {
     
     private final GenericBarPainter<JXPanel> pooledBarPainter;
     
-    @AssistedInject
+    @Inject
     SetupComponentDecorator(ButtonDecorator plainButtonDecorator) {
         
         GuiUtils.assignResources(this);
@@ -100,6 +105,8 @@ public class SetupComponentDecorator {
     }
     
     public void decorateLink(JComponent link) {
+        link.setOpaque(false);
+        link.setFont(linkFont);
     }
     
     public void decoratePlainButton(JXButton button) {
@@ -113,18 +120,25 @@ public class SetupComponentDecorator {
     
     public void decorateHeadingText(JComponent component) {
         component.setFont(headingFont);
+        component.setForeground(headingFontColor);
         component.setOpaque(false);
     }
     
     public void decorateNormalText(JComponent component) {
         component.setFont(normalFont);
+        component.setForeground(normalFontColor);
         component.setOpaque(false);
-
+    }
+    
+    public void decorateSubHeading(JComponent component) {
+        component.setFont(subHeadingFont);
+        component.setForeground(subHeadingFontColor);
+        component.setOpaque(false);
     }
 
     /**
      * A listener that extends toggle capability to a peer component of a check box or radio button.
-     *  Useful when using alternate components such as multiline labels to display text for
+     *  Useful when using alternate components such as multi-line labels to display text for
      *  those toggle components.
      */
     public static class ToggleExtenderListener implements MouseListener {

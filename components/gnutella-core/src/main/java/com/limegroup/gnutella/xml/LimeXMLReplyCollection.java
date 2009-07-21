@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,16 +25,18 @@ import org.limewire.collection.IdentityHashSet;
 import org.limewire.collection.StringTrie;
 import org.limewire.io.IOUtils;
 import org.limewire.util.ConverterObjectInputStream;
+import org.limewire.util.FileUtils;
 import org.limewire.util.GenericsUtils;
 import org.limewire.util.I18NConvert;
 import org.limewire.util.NameValue;
+import org.limewire.util.Objects;
 import org.limewire.util.StringUtils;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Provider;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.licenses.LicenseType;
 import com.limegroup.gnutella.metadata.MetaData;
 import com.limegroup.gnutella.metadata.MetaDataFactory;
@@ -56,7 +59,7 @@ public class LimeXMLReplyCollection {
     
     /**
      * A map of File -> LimeXMLDocument for each shared file that contains XML.
-     *
+     * <p>
      * SYNCHRONIZATION: Synchronize on LOCK when accessing, 
      *  adding or removing.
      */
@@ -64,7 +67,7 @@ public class LimeXMLReplyCollection {
     
     /**
      * The old map that was read off disk.
-     *
+     * <p>
      * Used while initially processing FileDescs to add.
      */
     private final Map<?, LimeXMLDocument> oldMap;
@@ -72,10 +75,10 @@ public class LimeXMLReplyCollection {
     /**
      * A mapping of fields in the LimeXMLDocument to a Trie
      * that has a lookup table for the values of that field.
-     *
+     * <p>
      * The Trie value is a mapping of keywords in LimeXMLDocuments
      * to the list of documents that have that keyword.
-     *
+     * <p>
      * SYNCHRONIZATION: Synchronize on LOCK when accessing,
      *  adding or removing.
      */
@@ -105,7 +108,7 @@ public class LimeXMLReplyCollection {
         INCORRECT_FILETYPE;
     }
 
-    private final Provider<FileManager> fileManager;
+    private final Provider<Library> library;
 
     private final LimeXMLDocumentFactory limeXMLDocumentFactory;
 
@@ -119,18 +122,18 @@ public class LimeXMLReplyCollection {
      * Creates a new LimeXMLReplyCollection.  The reply collection
      * will retain only those XMLDocs that match the given schema URI.
      *
-     * @param URI This collection's schema URI
+     * @param URI this collection's schema URI
      * @param path directory where the xml documents are stored
-     * @param fileManager guice provider used for {@link FileManager}
+     * @param library guice provider used for {@link Library}
      * @param limeXMLDocumentFactory factory object for {@link LimeXMLDocument}
      * @param metaDataReader also used to construct {@link LimeXMLDocument}
      * @param metaDataFactory the MetaDataFactory used in this class
      */
-    LimeXMLReplyCollection(String URI, File path, Provider<FileManager> fileManager,
+    LimeXMLReplyCollection(String URI, File path, Provider<Library> library,
             LimeXMLDocumentFactory limeXMLDocumentFactory, MetaDataReader metaDataReader,
             MetaDataFactory metaDataFactory) {
         this.schemaURI = URI;
-        this.fileManager = fileManager;
+        this.library = library;
         this.limeXMLDocumentFactory = limeXMLDocumentFactory;
         this.metaDataReader = metaDataReader;
         this.metaDataFactory = metaDataFactory;
@@ -144,7 +147,7 @@ public class LimeXMLReplyCollection {
      * Initializes the map using either LimeXMLDocuments in the list of potential
      * documents, or elements stored in oldMap.  Items in potential take priority.
      */
-    public LimeXMLDocument initialize(FileDesc fd, List<? extends LimeXMLDocument> potential) {
+    LimeXMLDocument initialize(FileDesc fd, Collection<? extends LimeXMLDocument> potential) {
         LimeXMLDocument doc = null;
         
         // First try to get a doc from the potential list.
@@ -185,16 +188,30 @@ public class LimeXMLReplyCollection {
     public LimeXMLDocument createIfNecessary(FileDesc fd) {
         LimeXMLDocument doc = null;
 
+        boolean needsXml = false;
+        File file = fd.getFile();
+        FileAndUrn fileAndUrn = new FileAndUrn(fd);
         synchronized(LOCK) {
-            if(!mainMap.containsKey(new FileAndUrn(fd))) {
-                File file = fd.getFile();
+            if(!mainMap.containsKey(fileAndUrn)) {
                 // If we have no documents for this FD attempt to parse the file.
                 if(fd.getLimeXMLDocuments().size() == 0) {
-                    doc = constructDocument(file);
-                    if(doc != null) {
-                        if(LOG.isDebugEnabled())
-                            LOG.debug("Adding newly constructed document for file: " + file + ", document: " + doc);
-                        addReply(fd, doc);
+                    needsXml = true;
+                }
+            }
+        }
+        
+        if(needsXml) {
+            // Create the doc outside of the lock.
+            doc = constructDocument(file);
+            if(doc != null) {
+                synchronized(LOCK) {
+                    // If we still need the doc, set it!
+                    if(!mainMap.containsKey(fileAndUrn)) {
+                        if(fd.getLimeXMLDocuments().size() == 0) {
+                            if(LOG.isDebugEnabled())
+                                LOG.debug("Adding newly constructed document for file: " + file + ", document: " + doc);
+                            addReply(fd, doc);
+                        }
                     }
                 }
             }
@@ -218,31 +235,24 @@ public class LimeXMLReplyCollection {
     
     /**
      * Validates a LimeXMLDocument.
-     *
+     * <pre>
      * This checks:
      * 1) If it's current (if not, it attempts to reparse.  If it can't, keeps the old one).
      * 2) If it's valid (if not, attempts to reparse it.  If it can't, drops it).
      * 3) If it's corrupted (if so, fixes & writes the fixed one to disk).
+     * </pre>
      */
     private LimeXMLDocument validate(LimeXMLDocument doc, FileDesc fd) {
-        if(!doc.isCurrent()) {
+        if(!((GenericXmlDocument)doc).isCurrent()) {
             if(LOG.isDebugEnabled())
                 LOG.debug("reconstructing old document: " + fd.getFile());
             LimeXMLDocument tempDoc = constructDocument(fd.getFile());
             if (tempDoc != null) {
                 doc = update(doc, tempDoc);
             } else {
-                doc.setCurrent();
+                ((GenericXmlDocument)doc).setCurrent();
             }
         }
-        
-        // Verify the doc has information in it.
-        if(!doc.isValid()) {
-            //If it is invalid, try and rebuild it.
-            doc = constructDocument(fd.getFile());
-            if(doc == null)
-                return null;
-        }   
             
         // check to see if it's corrupted and if so, fix it.
         if( AudioMetaData.isCorrupted(doc) ) {
@@ -275,6 +285,12 @@ public class LimeXMLReplyCollection {
         
         return limeXMLDocumentFactory.createLimeXMLDocument(nameValues, newer.getSchemaURI());
      }
+    
+    /** Returns true if a document can be created for this file. */
+    boolean canCreateDocument(File file) {
+        return LimeXMLNames.AUDIO_SCHEMA.equals(schemaURI) && metaDataFactory.containsAudioReader(file)
+                || LimeXMLNames.VIDEO_SCHEMA.equals(schemaURI) && metaDataFactory.containsVideoReader(file);
+    }
         
     
     /**
@@ -283,8 +299,7 @@ public class LimeXMLReplyCollection {
      *  <tt>LimeXMLDocument</tt> otherwise.
      */
     private LimeXMLDocument constructDocument(File file) { 
-        if(LimeXMLNames.AUDIO_SCHEMA.equals(schemaURI) && metaDataFactory.containsAudioReader(file)
-                || LimeXMLNames.VIDEO_SCHEMA.equals(schemaURI) && metaDataFactory.containsVideoReader(file)) {
+        if(canCreateDocument(file)) {
             try {
                 // Documents with multiple file formats may be the wrong type.
                 LimeXMLDocument document = metaDataReader.readDocument(file);
@@ -393,13 +408,13 @@ public class LimeXMLReplyCollection {
     }
     
     /**
-     * Determines if the XMLDocument is from the LWS
+     * Determines if the XMLDocument is from the LWS.
      * @return true if this document contains a LWS license, false otherwise
      */
     public boolean isLWSDoc(LimeXMLDocument doc) {
-    	if( doc != null && doc.getLicenseString() != null && doc.getLicenseString().equals(LicenseType.LIMEWIRE_STORE_PURCHASE.toString()))
-    		return true;
-    	return false;
+        if( doc != null && doc.getLicenseString() != null && doc.getLicenseString().equals(LicenseType.LIMEWIRE_STORE_PURCHASE.toString()))
+            return true;
+        return false;
     }
 
     /**
@@ -414,8 +429,9 @@ public class LimeXMLReplyCollection {
     /**
      * Returns all documents that match the particular query.
      * If no documents match, this returns an empty list.
-     *
+     * <p>
      * This goes through the following methodology:
+     * <pre>
      * 1) Looks in the index trie to determine if ANY
      *    of the values in the query's document match.
      *    If they do, adds the document to a set of
@@ -427,6 +443,7 @@ public class LimeXMLReplyCollection {
      *    matching techniques.
      * 4) Returns an empty list if nothing matched or
      *    a list of the matching documents.
+     * </pre>
      */    
     public Set<LimeXMLDocument> getMatchingDocuments(LimeXMLDocument query) {
         // First get a list of anything that could possibly match.
@@ -561,8 +578,8 @@ public class LimeXMLReplyCollection {
      * @return the older document, which is being replaced. Can be null.
      */
     public LimeXMLDocument replaceDoc(FileDesc fd, LimeXMLDocument newDoc) {
-    	assert getSchemaURI().equals(newDoc.getSchemaURI());
-    	
+        assert getSchemaURI().equals(newDoc.getSchemaURI());
+
         if(LOG.isTraceEnabled())
             LOG.trace("Replacing doc in FD (" + fd + ") with new doc (" + newDoc + ")");
         
@@ -572,8 +589,8 @@ public class LimeXMLReplyCollection {
             oldDoc = mainMap.put(new FileAndUrn(fd),newDoc);
             assert oldDoc != null : "attempted to replace doc that did not exist!!";
             removeKeywords(oldDoc);
-	        if(!isLWSDoc(newDoc))
-            	addKeywords(newDoc);
+            if(!isLWSDoc(newDoc))
+                addKeywords(newDoc);
         }
        
         boolean replaced = fd.replaceLimeXMLDocument(oldDoc, newDoc);
@@ -621,18 +638,18 @@ public class LimeXMLReplyCollection {
         if (writer != null)  {
             writeState = commitMetaData(fd, writer);
         }
-        assert writeState != MetaDataState.INCORRECT_FILETYPE : "trying to write data to unwritable file";
+        assert writeState != MetaDataState.INCORRECT_FILETYPE : "trying to write data to unwritable file of type " + FileUtils.getFileExtension(fd.getFile());
 
         return writeState;
     }
 
     /**
      * Determines whether or not this LimeXMLDocument can or should be
-     * commited to disk to replace the ID3 tags in the audioFile.
+     * committed to disk to replace the ID3 tags in the audioFile.
      * If the ID3 tags in the file are the same as those in document,
      * this returns null (indicating no changes required).
      * @return An Editor to use when committing or null if nothing 
-     *  should be editted.
+     *  should be edited.
      */
     private MetaDataWriter getEditorIfNeeded(File file, LimeXMLDocument doc) {
         // check if an editor exists for this file, if no editor exists
@@ -702,7 +719,7 @@ public class LimeXMLReplyCollection {
         //to other schemas will be lost unless we update those tables
         //with the new hashValue. 
         //NOTE:This is the only time the hash will change-(mp3 and audio)
-        fileManager.get().getManagedFileList().fileChanged(fd.getFile(), currentXmlDocs);
+        library.get().fileChanged(fd.getFile(), currentXmlDocs);
         
         return retVal;
     }
@@ -767,7 +784,7 @@ public class LimeXMLReplyCollection {
             
             xmlMap = new HashMap<FileAndUrn, String>(mainMap.size());
             for(Map.Entry<FileAndUrn, LimeXMLDocument> entry : mainMap.entrySet())
-                xmlMap.put(entry.getKey(), entry.getValue().getXmlWithVersion());
+                xmlMap.put(entry.getKey(), ((GenericXmlDocument)entry.getValue()).getXmlWithVersion());
             
             dirty = false;
         }
@@ -950,7 +967,7 @@ public class LimeXMLReplyCollection {
                 return true;
             } else if(obj instanceof FileAndUrn) {
                 FileAndUrn o2 = (FileAndUrn)obj;
-                return o2.urn.equals(urn) &&
+                return Objects.equalOrNull(urn, o2.urn) &&
                        o2.file.equals(file);
             } else {
                 return false;

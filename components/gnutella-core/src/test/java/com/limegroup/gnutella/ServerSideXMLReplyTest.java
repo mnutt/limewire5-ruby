@@ -9,7 +9,7 @@ import junit.framework.Test;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.TestUtils;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -32,7 +32,7 @@ import com.limegroup.gnutella.routing.RouteTableMessage;
  */
 public final class ServerSideXMLReplyTest extends ServerSideTestCase {
 
-    private QueryRequestFactory queryRequestFactory;
+    @Inject private QueryRequestFactory queryRequestFactory;
 
     public ServerSideXMLReplyTest(String name) {
         super(name);
@@ -80,13 +80,11 @@ public final class ServerSideXMLReplyTest extends ServerSideTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
-        super.setUp(injector);
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
+        super.setUp(LimeTestUtils.createInjector(Stage.PRODUCTION));
         
         // get the resource file for com/limegroup/gnutella
         File file = TestUtils.getResourceFile("com/limegroup/gnutella/metadata/ID3V24.mp3");
-        assertNotNull(fileManager.getGnutellaFileList().add(file).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(file).get(1, TimeUnit.SECONDS));
     }
     
     public void testXMLReturned1() throws Exception {

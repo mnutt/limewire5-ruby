@@ -1,14 +1,10 @@
 package org.limewire.core.impl.util;
 
-import java.util.Map;
-
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.util.CommonUtils;
-import org.limewire.util.FileUtils;
 import org.limewire.util.I18NConvert;
 
-import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 import com.limegroup.gnutella.xml.LimeXMLNames;
 
@@ -17,111 +13,99 @@ import com.limegroup.gnutella.xml.LimeXMLNames;
  * converting limexml values to the appropriate FilePropertyKey.
  */
 public class FilePropertyKeyPopulator {
-    public static void populateProperties(String fileName, long fileSize, long creationTime,
-            Map<FilePropertyKey, Object> properties, LimeXMLDocument doc) {
-
-        properties.put(FilePropertyKey.NAME, ""); // Make sure name defaults to empty.
-        set(properties, FilePropertyKey.NAME, FileUtils.getFilenameNoExtension(fileName));
-        set(properties, FilePropertyKey.DATE_CREATED, creationTime);
-        set(properties, FilePropertyKey.FILE_SIZE, fileSize);
-
-        String extension = FileUtils.getFileExtension(fileName);
-        Category category = CategoryConverter.categoryForExtension(extension);
-
-        if (doc != null) {
-            for (FilePropertyKey filePropertyKey : FilePropertyKey.values()) {
-                set(properties, doc, category, filePropertyKey);
+    
+    /** Returns the quality, based on all the supplied factors. */
+    public static int calculateQuality(Category category, String extension, long fileSize, LimeXMLDocument document) {
+        Long bitrate = null, length = null, height = null, width = null;
+        switch(category) {
+        case AUDIO:
+            if(document != null) {
+                bitrate = CommonUtils.parseLongNoException(document.getValue(LimeXMLNames.AUDIO_BITRATE));
+                length = CommonUtils.parseLongNoException(document.getValue(LimeXMLNames.AUDIO_SECONDS));
             }
-
-            Long bitrate, length;
-            Long quality;
-            switch(category) {
-            case AUDIO:
-                bitrate = CommonUtils.parseLongNoException(doc.getValue(LimeXMLNames.AUDIO_BITRATE));
-                length = CommonUtils.parseLongNoException(doc.getValue(LimeXMLNames.AUDIO_SECONDS));
-                quality = toAudioQualityScore(extension, fileSize, bitrate, length);
-                set(properties, FilePropertyKey.QUALITY, quality);
-                break;
-            case VIDEO:
-                bitrate = CommonUtils.parseLongNoException(doc.getValue(LimeXMLNames.VIDEO_BITRATE));
-                length = CommonUtils.parseLongNoException(doc.getValue(LimeXMLNames.VIDEO_LENGTH));
-                Long height = CommonUtils.parseLongNoException(doc.getValue(LimeXMLNames.VIDEO_HEIGHT));
-                Long width = CommonUtils.parseLongNoException(doc.getValue(LimeXMLNames.VIDEO_WIDTH));
-                quality = toVideoQualityScore(extension, fileSize, bitrate, length, height, width);
-                set(properties, FilePropertyKey.QUALITY, quality);
-                break;
+            return toAudioQualityScore(extension, fileSize, bitrate, length);
+        case VIDEO:
+            if(document != null) {
+                bitrate = CommonUtils.parseLongNoException(document.getValue(LimeXMLNames.VIDEO_BITRATE));
+                length = CommonUtils.parseLongNoException(document.getValue(LimeXMLNames.VIDEO_LENGTH));
+                height = CommonUtils.parseLongNoException(document.getValue(LimeXMLNames.VIDEO_HEIGHT));
+                width = CommonUtils.parseLongNoException(document.getValue(LimeXMLNames.VIDEO_WIDTH));
+            }
+            return toVideoQualityScore(extension, fileSize, bitrate, length, height, width);
+        }
+        
+        return -1;
+    }
+    
+    /** Gets an object that is the correct value for FilePropertyKey & Category. */
+    public static Object get(Category category, FilePropertyKey property, LimeXMLDocument document) {
+        if(document != null) {
+            String limeXmlName = getLimeXmlName(category, property);
+            if (limeXmlName != null) {
+                Object value = document.getValue(limeXmlName);
+                value = sanitizeValue(property, value);
+                if(value != null) {
+                    return value;
+                }
             }
         }
+        
+        return null;
     }
-
-    /**
-     * Sets the given value for the supplied property key. Nothing is set if the
-     * value is empty or null. If the supplied value is a String, it is passed
-     * through the I18NConvert.compose method before being set.
-     */
-    public static void set(Map<FilePropertyKey, Object> map, FilePropertyKey property, Object value) {
+    
+    /** Sanitizes the value, according to the property. */
+    public static Object sanitizeValue(FilePropertyKey property, Object value) {
         // Insert nothing if value is null|empty.
         if (value != null && !value.toString().isEmpty()) {
             if (value instanceof String) {
                 if (FilePropertyKey.isLong(property)) {
-                    value = CommonUtils.parseLongNoException((String)value);
+                    return CommonUtils.parseLongNoException((String)value);
                 } else {
-                    value = I18NConvert.instance().compose((String) value).intern();
+                    return I18NConvert.instance().compose((String) value).intern();
                 }
+            } else {
+                return value;
             }
-            map.put(property, value);
+        } else {
+            return null;
         }
     }
 
-    /**
-     * Sets the correct value in the map, retrieving the value from the
-     * {@link LimeXMLDocument}. The value retrieved from the document is based
-     * on the {@link Category} and {@link FilePropertyKey}.
-     */
-    public static void set(Map<FilePropertyKey, Object> map, LimeXMLDocument doc, Category category, FilePropertyKey property) {
-        String limeXmlName = getLimeXmlName(category, property);
-        if (limeXmlName != null) {
-            Object value = doc.getValue(limeXmlName);
-            set(map, property, value);
-        }
-    }
-
-    /**
+    /*
      * TODO use a better analysis to map bit rates and file types to quality,
      * for now using the following articles as a guide for now.
-     * 
+     * <p>
      * http://www.extremetech.com/article2/0,2845,1560793,00.asp
-     * 
+     * <p>
      * http://www.cdburner.ca/digital-audio-formats-article/digital-audio-
      * comparison.htm
-     * 
+     * <p>
      * http://ipod.about.com/od/introductiontoitunes/a/sound_qual_test.htm
-     * 
+     * <p>
      * Returns 1 of 4 quality scores.
-     * 
+     * <p>
      * null - unscored 1 - poor 2 - good 3 - excellent
      */
-    private static Long toAudioQualityScore(String fileExtension, Long fileSize, Long bitrate,
-            Long length) {
-        Long quality = null;
+    private static int toAudioQualityScore(String fileExtension, long fileSize, Long bitrate, Long length) {
+        int quality = -1;
         if ("wav".equalsIgnoreCase(fileExtension) || "flac".equalsIgnoreCase(fileExtension)) {
-            quality = 3L;
+            quality = 3;
         } else if (bitrate != null) {
             if ("mp3".equalsIgnoreCase(fileExtension)) {
                 if (bitrate < 96) {
-                    quality = 1L;
+                    quality = 1;
                 } else if (bitrate < 192) {
-                    quality = 2L;
+                    quality = 2;
                 } else {
-                    quality = 3L;
+                    quality = 3;
                 }
             } else if ("wma".equalsIgnoreCase(fileExtension)) {
                 if (bitrate < 64) {
-                    quality = 1L;
+                    quality = 1;
                 } else if (bitrate < 128) {
-                    quality = 2L;
+                    quality = 2;
                 } else {
-                    quality = 3L;
+                    quality = 3;
                 }
             } else if ("aac".equalsIgnoreCase(fileExtension)
                     || "m4a".equalsIgnoreCase(fileExtension)
@@ -130,69 +114,68 @@ public class FilePropertyKeyPopulator {
                     || "m4v".equalsIgnoreCase(fileExtension)
                     || "mp4".equalsIgnoreCase(fileExtension)) {
                 if (bitrate < 64) {
-                    quality = 1L;
+                    quality = 1;
                 } else if (bitrate < 128) {
-                    quality = 2L;
+                    quality = 2;
                 } else {
-                    quality = 3L;
+                    quality = 3;
                 }
             } else if ("ogg".equalsIgnoreCase(fileExtension)
                     || "ogv".equalsIgnoreCase(fileExtension)
                     || "oga".equalsIgnoreCase(fileExtension)
                     || "ogx".equalsIgnoreCase(fileExtension)) {
                 if (bitrate < 48) {
-                    quality = 1L;
+                    quality = 1;
                 } else if (bitrate < 96) {
-                    quality = 2L;
+                    quality = 2;
                 } else {
-                    quality = 3L;
+                    quality = 3;
                 }
-            } else if (length != null && length < 30) {
-                quality = 1L;
-            } else if (fileSize != null) {
-                if (fileSize < (1 * 1024 * 1024)) {
-                    quality = 1L;
-                } else if (fileSize < (3 * 1024 * 1024)) {
-                    quality = 2L;
-                } else {
-                    quality = 3L;
-                }
+            }
+        } else if (length != null && length < 30) {
+            quality = 1;
+        } else {
+            if (fileSize < (1 * 1024 * 1024)) {
+                quality = 1;
+            } else if (fileSize < (3 * 1024 * 1024)) {
+                quality = 2;
+            } else {
+                quality = 3;
             }
         }
         return quality;
     }
 
-    /**
+    /*
      * TODO use a better analysis to map video attributes to quality for now
      * using the following articles as a guide for now.
-     * 
+     * <p>
      * Right now the scoring is somewhat arbitrary.
-     * 
+     * <p>
      * Returns 1 of 4 quality scores.
-     * 
+     * <p>
      * null - unscored 1 - poor 2 - good 3 - excellent
      */
-    private static Long toVideoQualityScore(String fileExtension, Long fileSize, Long bitrate,
-            Long length, Long height, Long width) {
-        Long quality = null;
+    private static int toVideoQualityScore(String fileExtension, long fileSize, Long bitrate, Long length, Long height, Long width) {
+        int quality = -1;
 
         if ("mpg".equalsIgnoreCase(fileExtension) && height != null && width != null) {
             if ((height * width) < (352 * 240)) {
-                quality = 1L;
+                quality = 1;
             } else if ((height * width) < (352 * 480)) {
-                quality = 2L;
+                quality = 2;
             } else {
-                quality = 3L;
+                quality = 3;
             }
         } else if (length != null && length < 60) {
-            quality = 1L;
-        } else if (fileSize != null) {
+            quality = 1;
+        } else {
             if (fileSize < (5 * 1024 * 1024)) {
-                quality = 1L;
+                quality = 1;
             } else if (fileSize < (100 * 1024 * 1024)) {
-                quality = 2L;
+                quality = 2;
             } else {
-                quality = 3L;
+                quality = 3;
             }
         }
         return quality;

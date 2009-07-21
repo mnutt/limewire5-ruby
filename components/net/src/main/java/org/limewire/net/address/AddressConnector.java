@@ -7,7 +7,7 @@ import org.limewire.nio.observer.ConnectObserver;
 /**
  * Defines the requirements for an entity that can connect to an address
  * and create a socket.
- * 
+ * <p>
  * Address connectors can optionally notify sockets manager when their 
  * connectivity has changed by firing an event on EventMulticaster<ConnectivityChangeEvent>
  * which they can have injected.
@@ -15,7 +15,7 @@ import org.limewire.nio.observer.ConnectObserver;
 public interface AddressConnector {
     
     /**
-     * Logging category name for AddressConnector's to use
+     * Logging category name for AddressConnector's to use.
      */
     public static final String LOGGING_CATEGORY = AddressConnectingLoggingCategory.CATEGORY;
 

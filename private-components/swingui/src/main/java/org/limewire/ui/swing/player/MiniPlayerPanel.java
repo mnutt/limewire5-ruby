@@ -18,7 +18,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
-import org.limewire.core.api.Category;
 import org.limewire.player.api.AudioPlayer;
 import org.limewire.player.api.AudioPlayerEvent;
 import org.limewire.player.api.AudioPlayerListener;
@@ -27,11 +26,13 @@ import org.limewire.player.api.PlayerState;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.MarqueeButton;
-import org.limewire.ui.swing.library.nav.LibraryNavigator;
+import org.limewire.ui.swing.library.LibraryMediator;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.CommonUtils;
+
+import com.google.inject.Inject;
 
 public class MiniPlayerPanel extends JPanel {
   
@@ -57,13 +58,14 @@ public class MiniPlayerPanel extends JPanel {
     private MarqueeButton statusButton;
     
     private final AudioPlayer player;
-    private final LibraryNavigator libraryNavigator;
+    private final LibraryMediator libraryMediator;
 
-    public MiniPlayerPanel(AudioPlayer player, LibraryNavigator libraryNavigator) {
+    @Inject
+    public MiniPlayerPanel(AudioPlayer player, LibraryMediator libraryMediator) {
         GuiUtils.assignResources(this);
         
         this.player = player;
-        this.libraryNavigator = libraryNavigator;
+        this.libraryMediator = libraryMediator;
         
         setLayout(new MigLayout("insets 0", "4[][]", "0[]0"));
         setOpaque(false);
@@ -115,7 +117,7 @@ public class MiniPlayerPanel extends JPanel {
             AudioSource currentSource = player.getCurrentSong();
             
             if (currentSource != null) { 
-                libraryNavigator.selectInLibrary(currentSource.getFile(), Category.AUDIO);
+                libraryMediator.selectInLibrary(currentSource.getFile());
             }
         }
     }
@@ -176,8 +178,9 @@ public class MiniPlayerPanel extends JPanel {
             } 
             else {
                 String text = null;
-                if (player.getCurrentSong() != null) {
-                    File file = player.getCurrentSong().getFile();
+                AudioSource currentSource = player.getCurrentSong();
+                if (currentSource != null) {
+                    File file = currentSource.getFile();
                     if (file !=null) {
                         text = file.getName();
                     }
@@ -212,10 +215,12 @@ public class MiniPlayerPanel extends JPanel {
                 playPauseButton.setIcon(pauseIcon);
                 playPauseButton.setRolloverIcon(pauseIconRollover);
                 playPauseButton.setPressedIcon(pauseIconPressed);
+                statusButton.start();
+                
             } else if (player.getStatus() == PlayerState.STOPPED) {
                 setVisible(false);
-            }
-            else {
+                
+            } else {
                 playPauseButton.setIcon(playIcon);
                 playPauseButton.setRolloverIcon(playIconRollover);
                 playPauseButton.setPressedIcon(playIconPressed);

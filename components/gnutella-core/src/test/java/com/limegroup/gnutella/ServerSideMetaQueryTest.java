@@ -15,16 +15,16 @@ import org.limewire.io.GUID;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
 import com.limegroup.gnutella.messages.FeatureSearchData;
-import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
+import com.limegroup.gnutella.messages.Message.Network;
 
 /**
  * Checks whether Meta-Queries are correctly answered, etc.
@@ -32,7 +32,7 @@ import com.limegroup.gnutella.messages.QueryRequestFactory;
 @SuppressWarnings( { "unchecked", "cast" } )
 public class ServerSideMetaQueryTest extends ClientSideTestCase {
 
-    private QueryRequestFactory queryRequestFactory;
+    @Inject private QueryRequestFactory queryRequestFactory;
 
     public ServerSideMetaQueryTest(String name) {
         super(name);
@@ -60,19 +60,17 @@ public class ServerSideMetaQueryTest extends ClientSideTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, MyCallback.class);
+        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, MyCallback.class, LimeTestUtils.createModule(this));
         super.setUp(injector);
         
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        FileManager fm = injector.getInstance(FileManager.class);
-        FileManagerTestUtils.waitForLoad(fm, 500);
+        FileManagerTestUtils.waitForLoad(library, 500);
         LibrarySettings.ALLOW_PROGRAMS.setValue(true);
-        assertNotNull(fm.getGnutellaFileList().add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/berkeley.mp3")).get(1, TimeUnit.SECONDS));
-        assertNotNull(fm.getGnutellaFileList().add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta audio.mp3")).get(1, TimeUnit.SECONDS));
-        assertNotNull(fm.getGnutellaFileList().add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta video.wmv")).get(1, TimeUnit.SECONDS));
-        assertNotNull(fm.getGnutellaFileList().add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta doc.txt")).get(1, TimeUnit.SECONDS));
-        assertNotNull(fm.getGnutellaFileList().add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta image.png")).get(1, TimeUnit.SECONDS));
-        assertNotNull(fm.getGnutellaFileList().add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta program txt.bin")).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/berkeley.mp3")).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta audio.mp3")).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta video.wmv")).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta doc.txt")).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta image.png")).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(TestUtils.getResourceFile("com/limegroup/gnutella/resources/meta program txt.bin")).get(1, TimeUnit.SECONDS));
     }
     
     @Singleton

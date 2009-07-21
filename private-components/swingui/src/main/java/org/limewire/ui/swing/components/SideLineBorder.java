@@ -40,13 +40,13 @@ public class SideLineBorder extends AbstractBorder {
             g.fillRect(x, y, width - 1, thickness);
             break;
         case LEFT:
-            g.fillRect(x, y, thickness, height - 1);
+            g.fillRect(x, y, thickness, height);
             break;
         case BOTTOM:
             g.fillRect(x, y + height - 1 - thickness, width - 1, thickness);
             break;
         case RIGHT:
-            g.fillRect(x + width - 1 - thickness, y, thickness, height - 1);
+            g.fillRect(x + width - thickness, y, thickness, height);
             break;
         }
         g.setColor(oldColor);

@@ -11,12 +11,12 @@ import org.limewire.util.ByteUtils;
 
 
 /**
- * An implementation of DHTValue for for Gnutella Alternate Locations
+ * An implementation of DHTValue for for Gnutella Alternate Locations.
  */
 public abstract class AbstractAltLocValue implements AltLocValue {
     
     /**
-     * DHTValueType for AltLocs
+     * DHTValueType for AltLocs.
      */
     public static final DHTValueType ALT_LOC = DHTValueType.valueOf("Gnutella Alternate Location", "ALOC");
     
@@ -34,13 +34,10 @@ public abstract class AbstractAltLocValue implements AltLocValue {
      * Incoming TLS support (optional)
      */
     
-    /**
-     * 
-     */
     public static final Version VERSION_ONE = Version.valueOf(1);
     
     /**
-     * Version of AltLocDHTValue
+     * Version of AltLocDHTValue.
      */
     public static final Version VERSION = VERSION_ONE;
     
@@ -173,7 +170,7 @@ public abstract class AbstractAltLocValue implements AltLocValue {
     }
     
     /**
-     * A helper method to serialize AltLocValues
+     * A helper method to serialize AltLocValues.
      */
     protected static byte[] serialize(AbstractAltLocValue value) {
         Version version = value.getVersion();

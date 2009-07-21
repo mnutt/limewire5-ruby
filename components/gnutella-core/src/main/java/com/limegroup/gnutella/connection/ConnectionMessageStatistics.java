@@ -19,10 +19,10 @@ public interface ConnectionMessageStatistics {
      */
     public void countDroppedMessage();
 
-    /** Returns the number of messages sent on this connection */
+    /** Returns the number of messages sent on this connection. */
     public int getNumMessagesSent();
 
-    /** Returns the number of messages received on this connection */
+    /** Returns the number of messages received on this connection. */
     public int getNumMessagesReceived();
 
     /**

@@ -1,9 +1,13 @@
 package org.limewire.ui.swing.search.model;
 
+import java.util.Collection;
+
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchListener;
 import org.limewire.core.api.search.SearchResult;
-import org.limewire.ui.swing.components.Disposable;
+import org.limewire.core.api.search.SearchDetails.SearchType;
+import org.limewire.ui.swing.components.DisposalListenerList;
+import org.limewire.ui.swing.filter.FilterableSource;
 import org.limewire.ui.swing.search.resultpanel.DownloadHandler;
 
 import ca.odell.glazedlists.EventList;
@@ -12,7 +16,9 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
 /**
  * Defines a data model containing the results of a search.
  */
-public interface SearchResultsModel extends DownloadHandler, Disposable {
+public interface SearchResultsModel extends FilterableSource<VisualSearchResult>, 
+                                            DownloadHandler, 
+                                            DisposalListenerList {
 
     /**
      * Installs the specified search listener and starts the search.  The
@@ -32,26 +38,19 @@ public interface SearchResultsModel extends DownloadHandler, Disposable {
     String getSearchQuery();
     
     /**
+     * Returns the title string for the search.
+     */
+    String getSearchTitle();
+    
+    /**
      * Returns the total number of results in the search.
      */
     int getResultCount();
 
     /**
-     * Returns a list of grouped results in the search.
+     * Returns a list of filtered results in the search.
      */
-    EventList<VisualSearchResult> getGroupedSearchResults();
-
-    /**
-     * Returns an observable list of grouped results in the search.  The 
-     * observable list fires update events whenever a result is modified in 
-     * place. 
-     */
-    EventList<VisualSearchResult> getObservableSearchResults();
-
-    /**
-     * Returns a list of filtered results for the specified search category.
-     */
-    EventList<VisualSearchResult> getCategorySearchResults(SearchCategory category);
+    EventList<VisualSearchResult> getFilteredSearchResults();
 
     /**
      * Returns a list of sorted and filtered results for the selected search
@@ -83,10 +82,20 @@ public interface SearchResultsModel extends DownloadHandler, Disposable {
      * Adds the specified search result to the results list.
      */
     void addSearchResult(SearchResult result);
+    
+    /**
+     * Adds all the search results to the results list.
+     */
+    void addSearchResults(Collection<? extends SearchResult> result);
+    
+    /**
+     * Removes all results from the model
+     */
+    void clear();
 
     /**
-     * Removes the specified search result from the results list.
+     * @return The type of the search
      */
-    void removeSearchResult(SearchResult result);
+    SearchType getSearchType();
     
 }

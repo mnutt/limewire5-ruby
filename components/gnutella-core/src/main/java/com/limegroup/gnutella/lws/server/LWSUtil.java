@@ -18,11 +18,6 @@ public final class LWSUtil {
      * <code>true</code> is this value was found. The action is used to make
      * an error message, which is contained in {@link Tagged#getValue()} is not
      * found.
-     * 
-     * @param args
-     * @param name
-     * @param action
-     * @return
      */
     public static Tagged<String> getArg(Map<String, String> args, String name, String action) {
         String res = args.get(name);

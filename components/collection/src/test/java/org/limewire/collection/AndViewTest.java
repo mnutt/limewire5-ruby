@@ -15,14 +15,6 @@ public class AndViewTest extends BaseTestCase {
         return buildTestSuite(AndViewTest.class);
     }
 
-    /**
-     * 
-     * <pre>
-     * Output: bf1: 1100 
-     *         bf2: 1010 
-     *         av:  1000
-     * </pre>
-     */
     public void testBasic() {
         BitSet bitSet1 = new BitSet(4);
         bitSet1.flip(0);

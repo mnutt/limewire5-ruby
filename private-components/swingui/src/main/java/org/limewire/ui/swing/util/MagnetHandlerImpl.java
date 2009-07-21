@@ -6,32 +6,33 @@ import javax.swing.JOptionPane;
 
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadListManager;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.magnet.MagnetLink;
 import org.limewire.core.api.search.SearchCategory;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.search.DefaultSearchInfo;
 import org.limewire.ui.swing.search.SearchHandler;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-@Singleton
+@LazySingleton
 class MagnetHandlerImpl implements MagnetHandler {
 
     private final DownloadListManager downloadListManager;
 
     private final SearchHandler searchHandler;
 
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<DownloadExceptionHandler> downloadExceptionHandler;
     
     @Inject
     MagnetHandlerImpl(SearchHandler searchHandler,
             DownloadListManager downloadListManager,
-            SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            Provider<DownloadExceptionHandler> downloadExceptionHandler) {
         this.downloadListManager = downloadListManager;
         this.searchHandler = searchHandler;
-        this.saveLocationExceptionHandler = saveLocationExceptionHandler;
+        this.downloadExceptionHandler = downloadExceptionHandler;
     }
 
     /**
@@ -43,7 +44,7 @@ class MagnetHandlerImpl implements MagnetHandler {
             @Override
             public void run() {
                 if (magnet.isDownloadable()) {
-                    downloadMagnet(downloadListManager, saveLocationExceptionHandler, magnet);
+                    downloadMagnet(downloadListManager, downloadExceptionHandler, magnet);
                 } else if (magnet.isKeywordTopicOnly()) {
                     searchHandler.doSearch(DefaultSearchInfo.createKeywordSearch(magnet
                             .getQueryString(), SearchCategory.ALL));
@@ -58,16 +59,22 @@ class MagnetHandlerImpl implements MagnetHandler {
     }
 
     private void downloadMagnet(final DownloadListManager downloadListManager,
-            final SaveLocationExceptionHandler saveLocationExceptionHandler, final MagnetLink magnet) {
+            final Provider<DownloadExceptionHandler> downloadExceptionHandler, final MagnetLink magnet) {
         try {
             downloadListManager.addDownload(magnet, null, false);
-        } catch (SaveLocationException e1) {
-            saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+        } catch (DownloadException e1) {
+            downloadExceptionHandler.get().handleDownloadException(new DownloadAction() {
                 @Override
-                public void download(File saveFile, boolean overwrite) throws SaveLocationException {
+                public void download(File saveFile, boolean overwrite) throws DownloadException {
                     downloadListManager
                             .addDownload(magnet, saveFile, overwrite);
                 }
+
+                @Override
+                public void downloadCanceled(DownloadException ignored) {
+                    //nothing to do                    
+                }
+
             }, e1, true);
         }
     }

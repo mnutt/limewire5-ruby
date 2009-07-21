@@ -11,8 +11,8 @@ import javax.swing.JList;
  */
 public interface ThumbnailManager {
     
-    public static final int WIDTH = 120;
-    public static final int HEIGHT = 90;
+    public static final int WIDTH = 116;
+    public static final int HEIGHT = 86;
 
     /**
      * Returns the thumbnail for this file. If this file is not immediately 
@@ -27,11 +27,11 @@ public interface ThumbnailManager {
      * available, it returns a place holder and lazily loads the image in
      * the background. Once the image has been loaded, subsequent requests 
      * for the image will return the thumbnail immediately.
-     * 
+     * <p>
      * Once the thumbnail has been loaded, if the component is still showing, 
      * it will cause a repaint at which time the correct image should replace
      * the place holder image.
-     * 
+     * <p>
      * NOTE: the component must be visible at the time the thumbnail will 
      * be created. If the component is no longer visible, the thumbnail
      * will not be created.
@@ -43,11 +43,11 @@ public interface ThumbnailManager {
      * available, it returns a place holder and lazily loads the image in
      * the background. Once the image has been loaded, subsequent requests 
      * for the image will return the thumbnail immediately.
-     * 
+     * <p>
      * Once the thumbnail has been loaded, if the component is still showing, 
      * it will cause a repaint at which time the correct image should replace
      * the place holder image.
-     * 
+     * <p>
      * NOTE: the JList must be visible at the time the thumbnail will 
      * be created. If the JList is no longer visible, the thumbnail
      * will not be created. Or if the index is no longer visible 

@@ -21,7 +21,7 @@ public class ApplicationImplTest extends BaseTestCase {
      * Tests the getUniqueUrl() method and ensure it returns a consistent 
      *  URL based on the GUID and original URL.
      */
-    public void testGetUniqueUrl() {
+    public void testAddClientInfoToUrl() {
         Mockery context = new Mockery();
         
         final ApplicationServices applicationServices = context.mock(ApplicationServices.class); 
@@ -33,11 +33,11 @@ public class ApplicationImplTest extends BaseTestCase {
             will(returnValue(new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}));
         }});
         
-        String urlOne = applicationImpl.getUniqueUrl("hello");
-        String urlTwo = applicationImpl.getUniqueUrl("%Q#$@#$%testan");
+        String urlOne = applicationImpl.addClientInfoToUrl("hello");
+        String urlTwo = applicationImpl.addClientInfoToUrl("%Q#$@#$%testan");
         
         // Ensure the return is consistent
-        assertEquals(urlOne, applicationImpl.getUniqueUrl("hello"));
+        assertEquals(urlOne, applicationImpl.addClientInfoToUrl("hello"));
         
         // Should at least have the original url
         assertTrue(urlOne.startsWith("hello"));

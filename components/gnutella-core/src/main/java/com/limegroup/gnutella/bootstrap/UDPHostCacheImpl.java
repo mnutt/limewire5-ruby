@@ -320,7 +320,8 @@ class UDPHostCacheImpl implements UDPHostCache {
     @SuppressWarnings("unused")
     private void createAndAdd(String host, int port) {
         try {
-            add(new ExtendedEndpoint(host, port).setUDPHostCache(true));
+        	// Resolve hostnames later
+            add(new ExtendedEndpoint(host, port, false).setUDPHostCache(true));
         } catch(IllegalArgumentException ignored) {}
     }
 

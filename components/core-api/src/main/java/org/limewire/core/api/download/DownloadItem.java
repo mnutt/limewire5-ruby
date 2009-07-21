@@ -2,9 +2,12 @@ package org.limewire.core.api.download;
 
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.limewire.core.api.Category;
+import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.library.PropertiableFile;
 import org.limewire.i18n.I18nMarker;
 import org.limewire.io.Address;
@@ -15,6 +18,7 @@ import org.limewire.io.Address;
 public interface DownloadItem extends PropertiableFile {	
 
     public static final String DOWNLOAD_ITEM = "limewire.download.glueItem";
+    public static final String DOWNLOAD_START_DATE = "limewire.download.startDate";
 
     /**
      * Amalgamates the various specific error messages that a downloader could encounter
@@ -119,6 +123,12 @@ public interface DownloadItem extends PropertiableFile {
      * @return speed in kb/s or 0 if speed could not be measured
      */
 	public float getDownloadSpeed();
+	
+	/** 
+	 * Returns a Collection of sources that support this download item. Each
+	 * soure is represented by a RemoteHost object.
+	 */
+	public Collection<RemoteHost> getRemoteHosts();
 
 	/**
      * Returns the position of the download on the uploader, relevant only if
@@ -136,7 +146,7 @@ public interface DownloadItem extends PropertiableFile {
     public boolean isLaunchable();
     
     /**
-     * Returns the File that is being downloaded to.
+     * @return the File that is being downloaded to.
      * This call never blocks, but may return a file
      * that is locked and cannot be used by other programs.
      */
@@ -151,8 +161,26 @@ public interface DownloadItem extends PropertiableFile {
     /**
      * Sets the destination path and file name for the download.
      */
-    void setSaveFile(File saveFile, boolean overwrite) throws SaveLocationException;
+    void setSaveFile(File saveFile, boolean overwrite) throws DownloadException;
+    
+    /** Returns the file under which the download will be saved when complete.  
+     * Counterpart to setSaveFile. */
+    public File getSaveFile();
 
-    /** Returns true if {@link #resume()} will search for more sources. */
-    boolean isSearchAgainEnabled(); 
+    /** @return true if {@link #resume()} will search for more sources. */
+    boolean isTryAgainEnabled(); 
+    
+    /**@return The date the download started*/
+    Date getStartDate();
+    
+    /** @return true if this is a download from the LimeWire Store. */
+    boolean isStoreDownload();
+    
+    /** @return true if this can have its saveLocation changed. */
+    public boolean isRelocatable();
+
+    /**
+     * Returns a list of the completed download files for this DownloadItem. 
+     */
+    public Collection<File> getCompleteFiles();
 }

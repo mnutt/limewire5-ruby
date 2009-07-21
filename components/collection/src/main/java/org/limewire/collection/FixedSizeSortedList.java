@@ -65,7 +65,6 @@ public class FixedSizeSortedList<E> extends SortedList<E> {
      * element is ordered above any existing element, the new element is
      * inserted and the lowest-ordered element is removed and returned. If the
      * list is not full, the new element is inserted and null is returned.
-     * Got that? Gooood.
      * 
      *  @return null, the new element, or an existing element that was removed
      */

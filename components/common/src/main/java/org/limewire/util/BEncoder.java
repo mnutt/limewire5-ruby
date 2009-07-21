@@ -11,16 +11,16 @@ import java.util.TreeMap;
 
 /**
  * Convert Java objects into bencoded data.
- * 
+ * <p>
  * Call BEncoder.encode(OutputStream, Object) to bencode a given Object and write the bencoded data to the given OutputStream.
- * 
+ * <p>
  * Bencoded data is composed of strings, numbers, lists, and dictionaries.
  * Strings are prefixed by their length, like "5:hello".
  * Numbers are written as text numerals between the letters "i" and "e", like "i87e".
  * You can list any number of bencoded pieces of data between "l" for list and "e" for end.
  * A dictionary is a list of key and value pairs between "d" and "e".
  * The keys have to be strings, and they have to be in alphabetical order.
- * 
+ * <p>
  * BitTorrent uses a simple and extensible data format called bencoding.
  * More information on bencoding is on the Web at:
  * http://en.wikipedia.org/wiki/Bencoding
@@ -104,12 +104,11 @@ public class BEncoder {
     
     /**
      * Bencodes the given byte array to the given OutputStream.
-     * 
+     * <p>
      * Writes the length, a colon, and then the text.
      * For example, the byte array ['h', 'e', 'l', 'l', 'o'] becomes the bencoded bytes "5:hello".
      * 
-     * @param output An OutputStream for this method to write bencoded data to
-     * @param b      The byte array to bencode and write
+     * @param b      the byte array to bencode and write
      */
     public void encodeByteArray(byte[] b) throws IOException {
         String length = String.valueOf(b.length);
@@ -120,12 +119,11 @@ public class BEncoder {
 
     /**
      * Bencodes the given Number to the given OutputStream.
-     * 
+     * <p>
      * Writes the base 10 digits of the number between the letters "i" and "e".
      * For example, the number 87 becomes the bencoded ASCII bytes "i87e".
      * 
-     * @param output An OutputStream for this method to write bencoded data to
-     * @param n      The number to bencode and write
+     * @param n      the number to bencode and write
      */
     public void encodeInt(Number n) throws IOException {
         String numerals = String.valueOf(n.longValue());
@@ -137,12 +135,11 @@ public class BEncoder {
 
     /**
      * Bencodes the given Rational Number to the given OutputStream.
-     * 
+     * <p>
      * Writes the base 10 digits of the number's internal memory representation
      * between the letters "r" and "e".
      * 
-     * @param output An OutputStream for this method to write bencoded data to
-     * @param n      The number to bencode and write
+     * @param n      the number to bencode and write
      */
     public void encodeRational(Number n) throws IOException {
         String numerals = String.valueOf(Double.doubleToLongBits(n.doubleValue()));
@@ -153,12 +150,10 @@ public class BEncoder {
 
     /**
      * Bencodes the given Iterable to the given OutputStream.
-     * 
+     * <p>
      * Writes "l" for list, the bencoded-form of each of the given objects, and then "e" for end.
      * 
-     * @param output An OutputStream for this method to write bencoded data to
-     * @param iterable   A Java Iterable object to bencode and write
-     * @param encoding the encoding to apply to string objects.
+     * @param iterable   a Java Iterable object to bencode and write
      */
     public void encodeList(Iterable<?> iterable) throws IOException {
         output.write(L);
@@ -170,22 +165,21 @@ public class BEncoder {
     /**
      * Bencodes the given Map to the given OutputStream.  Any String objects
      * are encoded using ASCII.
-     * 
+     * <p>
      * Writes a bencoded dictionary, which is a list of keys and values which looks like this:
-     * 
+     * <pre>
      * d
      * 5:color  5:green
      * 6:flavor 4:lime
      * 5:shape  5:round
      * e
-     * 
+     * </pre>
      * The bencoded data starts "d" for dictionary and ends "e" for end.
      * In the middle are pairs of bencoded values.
      * The keys have to be strings, while the values can be strings, numbers, lists, or more dictionaries.
      * The keys have to be in alphabetical order.
      * 
-     * @param o   An OutputStream for this method to write bencoded data to
-     * @param map The Java Map object to bencode and write
+     * @param map the Java Map object to bencode and write
      */
     public void encodeDict(Map<?, ?> map) throws IOException {
 
@@ -207,15 +201,14 @@ public class BEncoder {
 
     /**
      * Describes a given object using bencoding, and writes the bencoded data to the given stream.
-     * 
+     * <p>
      * To write a bencoded dictionary, pass a Map object.
      * To write a bencoded list, pass a List object.
      * To write a bencoded number, pass a Number object.
      * To write a bencoded string, pass a String or just a byte array.
      * 
-     * @param  output                   An OutputStream for this method to write bencoded data to.
-     * @param  object                   The Java Object to bencode and write.
-     * @throws IOException              If there was a problem reading from the OutputStream.
+     * @param  object                   the Java Object to bencode and write.
+     * @throws IOException              if there was a problem reading from the OutputStream.
      *         IllegalArgumentException If you pass an object that isn't a Map, List, Number, String, or byte array.
      */
     private void encode(Object object) throws IOException {

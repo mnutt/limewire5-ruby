@@ -258,7 +258,7 @@ public abstract class AbstractNBSocket extends NBSocket implements ConnectObserv
     
     /**
      * Notification that a read can occur.
-     * 
+     * <p>
      * This passes it off to the delegating reader.
      */
     public final void handleRead() throws IOException {
@@ -267,7 +267,7 @@ public abstract class AbstractNBSocket extends NBSocket implements ConnectObserv
     
     /**
      * Notification that a write can occur.
-     *
+     * <p>
      * This passes it off to the delegating writer.
      */
     public final boolean handleWrite() throws IOException {
@@ -280,13 +280,13 @@ public abstract class AbstractNBSocket extends NBSocket implements ConnectObserv
         shutdown();
     }
     
-    /** Connects to <code>addr</code> with no timeout */
+    /** Connects to <code>addr</code> with no timeout. */
     @Override
     public final void connect(SocketAddress addr) throws IOException {
         connect(addr, 0);
     }
     
-    /** Connects to <code>addr</code> with the given timeout (in milliseconds) */
+    /** Connects to <code>addr</code> with the given timeout (in milliseconds). */
     @Override
     public final void connect(SocketAddress addr, int timeout) throws IOException {
         if (timeout < 0) {
@@ -394,7 +394,7 @@ public abstract class AbstractNBSocket extends NBSocket implements ConnectObserv
     
     /**
      * Returns the <code>InputStream</code> from the <code>NIOInputStream</code>.
-     *
+     * <p>
      * Internally, this is a blocking Pipe from the non-blocking <code>SocketChannel</code>.
      */
     @Override
@@ -438,7 +438,7 @@ public abstract class AbstractNBSocket extends NBSocket implements ConnectObserv
     
     /**
      * Returns the <code>OutputStream</code> from the <code>NIOOutputStream</code>.
-     *
+     * <p>
      * Internally, this is a blocking Pipe from the non-blocking SocketChannel.
      */
     @Override

@@ -1,8 +1,8 @@
 package org.limewire.ui.swing.search.model;
 
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +12,7 @@ import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.friend.api.Friend;
 
 public class MockVisualSearchResult implements VisualSearchResult {
     private List<VisualSearchResult> similarResults = new ArrayList<VisualSearchResult>();
@@ -21,7 +22,7 @@ public class MockVisualSearchResult implements VisualSearchResult {
     private VisualSearchResult similarityParent;
     private boolean spam;
     private HashMap<FilePropertyKey, Object> properties = new HashMap<FilePropertyKey, Object>();
-    private double relevance = 0;
+    private int relevance = 0;
     
     public MockVisualSearchResult(String name) {
         this.name = name;
@@ -33,6 +34,11 @@ public class MockVisualSearchResult implements VisualSearchResult {
         parent.getSimilarResults().add(this);
     }
 
+    @Override
+    public boolean isAnonymous() {
+        return true;
+    }
+    
     @Override
     public Category getCategory() {
         return Category.AUDIO;
@@ -56,6 +62,10 @@ public class MockVisualSearchResult implements VisualSearchResult {
     }
 
     @Override
+    public Collection<Friend> getFriends() {
+        return Collections.emptySet();
+    }
+
     public Map<FilePropertyKey, Object> getProperties() {
         return properties;
     }
@@ -119,18 +129,6 @@ public class MockVisualSearchResult implements VisualSearchResult {
 
     @Override
     public void setVisible(boolean visible) {
-        // TODO Auto-generated method stub
-        
-    }
-    
-    @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
         // TODO Auto-generated method stub
         
     }
@@ -205,11 +203,11 @@ public class MockVisualSearchResult implements VisualSearchResult {
     }
 
     @Override
-    public double getRelevance() {
+    public int getRelevance() {
         return relevance;
     }
     
-    public void setRelevance(double relevance) {
+    public void setRelevance(int relevance) {
         this.relevance = relevance;
     }
 
@@ -236,18 +234,6 @@ public class MockVisualSearchResult implements VisualSearchResult {
 
     @Override
     public void toggleChildrenVisibility() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public boolean isShowingContextOptions() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void setShowingContextOptions(boolean showing) {
         // TODO Auto-generated method stub
         
     }

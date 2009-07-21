@@ -1,24 +1,25 @@
 package org.limewire.ui.swing.library.table;
 
-import org.limewire.core.api.library.FileItem;
+import org.limewire.core.api.library.LocalFileItem;
 
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.gui.TableFormat;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
-public class LibraryTableModel<T extends FileItem>  extends EventTableModel<T> {
+public class LibraryTableModel extends DefaultEventTableModel<LocalFileItem> {
 
-    private final EventList<T> libraryItems;
+    private final EventList<LocalFileItem> libraryItems;
 
-    public LibraryTableModel(EventList<T> libraryItems, LibraryTableFormat<T> format) {
-        super(libraryItems, format, false);
+    public LibraryTableModel(EventList<LocalFileItem> libraryItems, TableFormat<LocalFileItem> tableFormat) {
+        super(libraryItems, tableFormat);
         this.libraryItems = libraryItems;
     }
     
-    public T getFileItem(int index) {
+    public LocalFileItem getFileItem(int index) {
         return libraryItems.get(index);
     }
     
-    public EventList<T> getAllItems() {
+    public EventList<LocalFileItem> getAllItems() {
         return libraryItems;
     }
 }

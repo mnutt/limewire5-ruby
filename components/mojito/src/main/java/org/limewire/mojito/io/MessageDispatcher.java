@@ -80,15 +80,15 @@ public abstract class MessageDispatcher {
     private static final Log LOG = LogFactory.getLog(MessageDispatcher.class);
     
     /** 
-     * The maximum size of a serialized Message we can send 
+     * The maximum size of a serialized Message we can send.
      */
     private static final int MAX_MESSAGE_SIZE
         = NetworkSettings.MAX_MESSAGE_SIZE.getValue();
     
-    /** Map of Messages (responses) we're awaiting */
+    /** Map of Messages (responses) we're awaiting. */
     private final ReceiptMap receiptMap = new ReceiptMap(512);
     
-    /** Handle of the Context */
+    /** Handle of the Context. */
     protected final Context context;
     
     private final DefaultMessageHandler defaultHandler;
@@ -99,7 +99,7 @@ public abstract class MessageDispatcher {
     private final StatsRequestHandler statsHandler;
     
     /**
-     * Handle of the cleanup task future
+     * Handle of the cleanup task future.
      */
     private ScheduledFuture cleanupTaskFuture;
     
@@ -190,7 +190,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Closes the MessageDispatcher and releases all resources
+     * Closes the MessageDispatcher and releases all resources.
      */
     public void close() {
         stop();
@@ -349,19 +349,19 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Enqueues Tag to the Output queue
+     * Enqueues Tag to the Output queue.
      */
     protected abstract boolean submit(Tag tag);
     
     /**
-     * A helper method to serialize DHTMessage(s)
+     * A helper method to serialize DHTMessage(s).
      */
     protected ByteBuffer serialize(SocketAddress dst, DHTMessage message) throws IOException {
         return context.getMessageFactory().writeMessage(dst, message);
     }
     
     /**
-     * A helper method to deserialize DHTMessage(s)
+     * A helper method to deserialize DHTMessage(s).
      */
     protected DHTMessage deserialize(SocketAddress src, ByteBuffer data) 
             throws MessageFormatException, IOException {
@@ -369,7 +369,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Handles a DHTMessage as read from Network
+     * Handles a DHTMessage as read from Network.
      */
     protected void handleMessage(DHTMessage message) {
         
@@ -472,7 +472,7 @@ public abstract class MessageDispatcher {
                     // The SecurityToken check should catch all malicious
                     // and some buggy Nodes. Do some additional sanity
                     // checks to make sure the NodeID, IP:Port and 
-                    // response type have the extpected values.
+                    // response type have the expected values.
                     if (!receipt.sanityCheck(response)) {
                         if (LOG.isWarnEnabled()) {
                             LOG.warn("Response from " + response.getContact() 
@@ -523,7 +523,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Starts a new ResponseProcessor
+     * Starts a new ResponseProcessor.
      */
     private void processResponse(Receipt receipt, ResponseMessage response) {
         ResponseProcessor processor = new ResponseProcessor(receipt, response);
@@ -535,7 +535,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Starts a new RequestProcessor
+     * Starts a new RequestProcessor.
      */
     private void processRequest(RequestMessage request) {
         RequestProcessor processor = new RequestProcessor(request);
@@ -589,7 +589,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Clears the output queue and receipt map
+     * Clears the output queue and receipt map.
      */
     protected void clear() {
         synchronized (receiptMap) {
@@ -642,7 +642,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * A map of MessageID -> Receipts
+     * A map of MessageID -> Receipts.
      */
     @SuppressWarnings("serial")
     private class ReceiptMap extends FixedSizeHashMap<MessageID, Receipt> {
@@ -693,7 +693,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Calls submit(Tag) from the processor Thread
+     * Calls submit(Tag) from the processor Thread.
      */
     private class SubmitProcessor implements Runnable {
         
@@ -709,7 +709,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Calls ReceiptMap.add(Receipt) from the processor Thread
+     * Calls ReceiptMap.add(Receipt) from the processor Thread.
      */
     private class RegisterProcessor implements Runnable {
         
@@ -727,7 +727,7 @@ public abstract class MessageDispatcher {
     }
     
     /**
-     * Calls ReceiptMap.cleanup() from the processor Thread
+     * Calls ReceiptMap.cleanup() from the processor Thread.
      */
     private class CleanupProcessor implements Runnable {
         
@@ -769,7 +769,7 @@ public abstract class MessageDispatcher {
         }
         
         /**
-         * Processes a regular response
+         * Processes a regular response.
          */
         private void processResponse() {
             try {
@@ -786,7 +786,7 @@ public abstract class MessageDispatcher {
          * We rely on the fact that MessageIDs are tagged with a AddressSecurityToken
          * so that we can still figure out if we've ever send a request
          * to the remote Node.
-         * 
+         * <p>
          * The fact that the remote Node respond is a valuable information
          * and we'll use a higher timeout next time.
          */
@@ -884,7 +884,7 @@ public abstract class MessageDispatcher {
     /**
      * An implementation of Runnable to handle Timeouts. The eviction
      * of ResponseHandlers (we send too many requests and we hit the
-     * ReceiptMap limit) is also treated as a timeout
+     * ReceiptMap limit) is also treated as a timeout.
      */
     private class TimeoutProcessor implements Runnable {
         
@@ -962,9 +962,9 @@ public abstract class MessageDispatcher {
     public static interface MessageDispatcherListener {
         
         /**
-         * Invoked when an event occurs
+         * Invoked when an event occurs.
          * 
-         * @param evt The event that occurred
+         * @param evt the event that occurred
          */
         public void handleMessageDispatcherEvent(MessageDispatcherEvent evt);
     }

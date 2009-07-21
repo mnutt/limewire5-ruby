@@ -20,11 +20,13 @@ import java.util.List;
  * In case of multiple structured values with same name, 
  * as might occur while using + or * in the regular expressions in schema,
  * those should be represented as using the array index using the __ 
- * notation (withouth the square brackets)
- * for e.g. myarray[0].name ==> myarray__0__name
+ * notation (without the square brackets)
+ * <p>
+ * Tor e.g. myarray[0].name ==> myarray__0__name
  * <p>    
- * attribute names for an element in the XML schema should be postfixed 
+ * Attribute names for an element in the XML schema should be postfixed 
  * with __ (double underscore).
+ * <p>
  * So element.attribute ==> element__attribute__
  * @author  asingla
  */
@@ -32,7 +34,7 @@ public class XMLStringUtils {
     
     /**
      * Delimiter used to preserve the structural information in the
-     * canonicalized xml field strings
+     * canonicalized xml field strings.
      */
     public static final String DELIMITER = "__";
     
@@ -40,7 +42,7 @@ public class XMLStringUtils {
      * Breaks the given string (which confirms to the pattern defined above
      * in the class description) into a list (of strings) such that the 
      * first element in the list is the top most structural element, 
-     * and the last one the actual field/attribute name
+     * and the last one the actual field/attribute name.
      *
      * @param canonicalizedField The string thats needed to be split
      *

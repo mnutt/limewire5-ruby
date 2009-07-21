@@ -23,7 +23,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 /**
- * An adapter implementation of DHTFutureListener
+ * An adapter implementation of DHTFutureListener.
  */
 public class DHTFutureAdapter<T> implements DHTFutureListener<T> {
 

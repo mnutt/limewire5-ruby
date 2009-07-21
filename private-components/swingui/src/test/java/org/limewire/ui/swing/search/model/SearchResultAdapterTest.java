@@ -1,28 +1,46 @@
 package org.limewire.ui.swing.search.model;
 
-import java.util.Arrays;
-
 import junit.framework.TestCase;
 
-import org.limewire.core.api.search.SearchResult;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.limewire.core.impl.search.MockSearchResult;
+import org.limewire.ui.swing.util.PropertiableHeadings;
+
+import com.google.inject.Provider;
 
 public class SearchResultAdapterTest extends TestCase {
     
     private MockSearchResult result;
     private MockPropertiableHeadings propertiableHeadings;
     private SearchResultAdapter adapter;
+    private Provider<PropertiableHeadings> provider;
+    private Mockery context;
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void setUp() {
         result = new MockSearchResult();
         propertiableHeadings = new MockPropertiableHeadings();
-        adapter = new SearchResultAdapter(Arrays.asList(new SearchResult[] { result }), propertiableHeadings);
+        context = new Mockery();
+        provider = context.mock(Provider.class);
+        adapter = new SearchResultAdapter(result, provider, new VisualSearchResultStatusListener() {
+            @Override public void resultChanged(VisualSearchResult vsr, String propertyName, Object oldValue, Object newValue) {}
+            @Override public void resultCreated(VisualSearchResult vsr) {}
+            @Override public void resultsCleared() {}
+        });
     }
 
     public void testHeadingAndSubHeadingCached() {
         propertiableHeadings.heading = "foo";
         propertiableHeadings.subheading = "bar";
+        
+        context.checking(new Expectations(){
+            {
+                allowing(provider).get();
+                will(returnValue(propertiableHeadings));
+            }
+        });
         
         assertEquals("foo", adapter.getHeading());
         assertEquals("bar", adapter.getSubHeading());
@@ -38,6 +56,13 @@ public class SearchResultAdapterTest extends TestCase {
     public void testHeadingWithHTMLIsAutomaticallySanitizedAndMarkedAsSpam() {
         propertiableHeadings.heading = "<html><b>foo</b></html>";
         
+        context.checking(new Expectations(){
+            {
+                allowing(provider).get();
+                will(returnValue(propertiableHeadings));
+            }
+        });
+        
         assertEquals("foo", adapter.getHeading());
         assertTrue(adapter.isSpam());
         
@@ -46,12 +71,26 @@ public class SearchResultAdapterTest extends TestCase {
     public void testHeadingWithAnyMarkupIsAutomaticallySanitizedAndMarkedAsSpam() {
         propertiableHeadings.heading = "<html><a href=\"http://www.booya.com/&?foo:#23432-heynow\">foo</a></html>";
         
+        context.checking(new Expectations(){
+            {
+                allowing(provider).get();
+                will(returnValue(propertiableHeadings));
+            }
+        });
+        
         assertEquals("foo", adapter.getHeading());
         assertTrue(adapter.isSpam());
     }
 
     public void testSubHeadingWithHTMLIsAutomaticallySanitizedAndMarkedAsSpam() {
         propertiableHeadings.subheading = "<html><b>foo</b></html>";
+        
+        context.checking(new Expectations(){
+            {
+                allowing(provider).get();
+                will(returnValue(propertiableHeadings));
+            }
+        });
         
         assertEquals("foo", adapter.getSubHeading());
         assertTrue(adapter.isSpam());

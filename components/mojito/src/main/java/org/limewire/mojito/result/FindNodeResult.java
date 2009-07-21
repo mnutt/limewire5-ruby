@@ -33,7 +33,7 @@ import org.limewire.security.SecurityToken;
 
 /**
  * The FindNodeResult is fired when a FIND_NODE lookup
- * finishes
+ * finishes.
  */
 public class FindNodeResult extends LookupResult {
     
@@ -96,14 +96,14 @@ public class FindNodeResult extends LookupResult {
     }
     
     /**
-     * Returns a Collection of Contacts that collide with our local Node ID
+     * Returns a Collection of Contacts that collide with our local Node ID.
      */
     public Collection<? extends Contact> getCollisions() {
         return collisions;
     }
     
     /**
-     * Returns all KUIDs that were queried during the lookup
+     * Returns all KUIDs that were queried during the lookup.
      */
     public Set<KUID> getQueried() {
         return queried;
@@ -111,14 +111,14 @@ public class FindNodeResult extends LookupResult {
     
     /**
      * Returns the amount of time it took to find the
-     * k-closest Nodes
+     * k-closest Nodes.
      */
     public long getTime() {
         return time;
     }
     
     /**
-     * Returns the hop at which the lookup terminated
+     * Returns the hop at which the lookup terminated.
      */
     public int getHop() {
         return hop;

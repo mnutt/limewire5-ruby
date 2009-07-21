@@ -1,7 +1,7 @@
 package org.limewire.net;
 
 /**
- * Service to manage software firewalls
+ * Service to manage software firewalls.
  */
 public interface FirewallService {
 
@@ -12,7 +12,7 @@ public interface FirewallService {
     public boolean isProgrammaticallyConfigurable();
 
     /**
-     * add an entry in the firewall for Limewire
+     * Add an entry in the firewall for LimeWire.
      * @return true if successful
      */
     public boolean addToFirewall();

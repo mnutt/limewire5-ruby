@@ -15,7 +15,7 @@ public class XMPPResourceFactoryImplTest extends BaseTestCase  {
     /**
      * Test the return from getResource is
      *  non null, non empty, and equal
-     *  across like invocations with the same guid
+     *  across like invocations with the same guid.
      */
     public void testGetResourceSane() {
         Mockery context = new Mockery();
@@ -47,7 +47,7 @@ public class XMPPResourceFactoryImplTest extends BaseTestCase  {
     /**
      * Test the return from getResource is
      *  non null, non empty, and unique
-     *  across invocations with different guids
+     *  across invocations with different guids.
      */
     public void testGetResourceUniqueness() {
         Mockery context = new Mockery();

@@ -23,14 +23,14 @@ public class ThreadExecutor {
         ExecutorsHelper.newThreadPool(FACTORY);
     
     /**
-     * A static helper Method to create Threads
+     * A static helper Method to create Threads.
      */
     public static Thread newManagedThread(Runnable r) {
         return FACTORY.newThread(r);
     }
 
     /**
-     * A static helper Method to create Threads
+     * A static helper Method to create Threads.
      */
     public static Thread newManagedThread(Runnable r, String name) {
         Thread thread = newManagedThread(r);
@@ -39,7 +39,7 @@ public class ThreadExecutor {
     }
 
     /**
-     * Adds and runs the given named Runnable on a ThreadPool
+     * Adds and runs the given named Runnable on a ThreadPool.
      */
     public static void startThread(final Runnable runner, final String name) {
         THREAD_POOL.execute(new Runnable() {

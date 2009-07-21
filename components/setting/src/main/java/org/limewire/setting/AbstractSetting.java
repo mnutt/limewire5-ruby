@@ -27,7 +27,7 @@ import org.limewire.setting.evt.SettingEvent.EventType;
  * For example, if your subclass is for an integer setting you can
  * have a integer field i.e. <code>myIntValue</code>, in the class. Then you 
  * would set <code>myIntValue</code> with the integer converted 
- * <code>String<code> argument, for example: 
+ * <code>String</code> argument, for example: 
  <pre> 
    protected void loadValue(String sValue) {
         try {
@@ -53,69 +53,69 @@ import org.limewire.setting.evt.SettingEvent.EventType;
  */
 public abstract class AbstractSetting<T> implements Setting<T> {
     
-	/**
-	 * Protected default <tt>Properties</tt> instance for subclasses.
-	 */
-	protected final Properties DEFAULT_PROPS;
+    /**
+     * Protected default <tt>Properties</tt> instance for subclasses.
+     */
+    protected final Properties DEFAULT_PROPS;
 
-	/**
-	 * Protected <tt>Properties</tt> instance containing properties for any
-	 * subclasses.
-	 */
-	protected final Properties PROPS;
+    /**
+     * Protected <tt>Properties</tt> instance containing properties for any
+     * subclasses.
+     */
+    protected final Properties PROPS;
 
-	/**
-	 * The constant key for this property, specified upon construction.
-	 */
-	protected final String KEY;
+    /**
+     * The constant key for this property, specified upon construction.
+     */
+    protected final String KEY;
 
-	/**
-	 * Constant for the default value for this <tt>Setting</tt>.
-	 */
-	protected final String DEFAULT_VALUE;
+    /**
+     * Constant for the default value for this <tt>Setting</tt>.
+     */
+    protected final String DEFAULT_VALUE;
     
-	/**
-	 * Value for whether or not this setting should always save.
-	 */
-	private boolean alwaysSave = false;
-	
-	/**
-	 * Setting for whether or not this setting is private and should
-	 * not be reported in bug reports.
-	 */
-	private boolean isPrivate = false;
+    /**
+     * Value for whether or not this setting should always save.
+     */
+    private boolean alwaysSave = false;
+    
+    /**
+     * Setting for whether or not this setting is private and should
+     * not be reported in bug reports.
+     */
+    private boolean isPrivate = false;
 
-	/**
-	 * List of {@link SettingListener}
-	 */
+    /**
+     * List of {@link SettingListener}.
+     */
     private Collection<SettingListener> listeners = null;
     
-	/**
-	 * Constructs a new setting with the specified key and default
-	 * value.  Private access ensures that only this class can construct
-	 * new <tt>Setting</tt>s.
-	 *
-	 * @param key the key for the setting
-	 * @param defaultValue the defaultValue for the setting
-	 * @throws <tt>IllegalArgumentException</tt> if the key for this 
-	 *  setting is already contained in the map of default settings
-	 */
-	protected AbstractSetting(Properties defaultProps, Properties props, String key, 
+    /**
+     * Constructs a new setting with the specified key and default
+     * value.  Private access ensures that only this class can construct
+     * new <tt>Setting</tt>s.
+     *
+     * @param key the key for the setting
+     * @param defaultValue the defaultValue for the setting
+     * @throws <tt>IllegalArgumentException</tt> if the key for this 
+     *  setting is already contained in the map of default settings
+     */
+    protected AbstractSetting(Properties defaultProps, Properties props, String key, 
                 String defaultValue) {
-		DEFAULT_PROPS = defaultProps;
-		PROPS = props;
-		KEY = key;
-		DEFAULT_VALUE = defaultValue;
-		if(DEFAULT_PROPS.containsKey(key)) 
-			throw new IllegalArgumentException("duplicate setting key: " + key);
-		DEFAULT_PROPS.put(KEY, defaultValue);
+        DEFAULT_PROPS = defaultProps;
+        PROPS = props;
+        KEY = key;
+        DEFAULT_VALUE = defaultValue;
+        if(DEFAULT_PROPS.containsKey(key)) 
+            throw new IllegalArgumentException("duplicate setting key: " + key);
+        DEFAULT_PROPS.put(KEY, defaultValue);
         loadValue(defaultValue);
-	}
+    }
     
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.limewire.setting.Setting#addSettingListener(org.limewire.setting.evt.SettingListener)
      */
-	public void addSettingListener(SettingListener l) {
+    public void addSettingListener(SettingListener l) {
         if (l == null) {
             throw new NullPointerException("SettingListener is null");
         }
@@ -128,7 +128,7 @@ public abstract class AbstractSetting<T> implements Setting<T> {
         }        
     }
     
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.limewire.setting.Setting#removeSettingListener(org.limewire.setting.evt.SettingListener)
      */
     public void removeSettingListener(SettingListener l) {
@@ -181,19 +181,19 @@ public abstract class AbstractSetting<T> implements Setting<T> {
         fireSettingEvent(EventType.RELOAD);
     }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.limewire.setting.Setting#revertToDefault()
      */
-	public boolean revertToDefault() {
-	    if (!isDefault()) {
-	        setValueInternal(DEFAULT_VALUE);
-	        fireSettingEvent(EventType.REVERT_TO_DEFAULT);
-	        return true;
-	    }
-	    return false;
-	}
-	
-	/* (non-Javadoc)
+    public boolean revertToDefault() {
+        if (!isDefault()) {
+            setValueInternal(DEFAULT_VALUE);
+            fireSettingEvent(EventType.REVERT_TO_DEFAULT);
+            return true;
+        }
+        return false;
+    }
+
+    /* (non-Javadoc)
      * @see org.limewire.setting.Setting#shouldAlwaysSave()
      */
     public boolean shouldAlwaysSave() {
@@ -228,7 +228,7 @@ public abstract class AbstractSetting<T> implements Setting<T> {
     public boolean isPrivate() {
         return isPrivate;
     }
-	
+
     /* (non-Javadoc)
      * @see org.limewire.setting.Setting#isDefault()
      */
@@ -255,12 +255,12 @@ public abstract class AbstractSetting<T> implements Setting<T> {
     }
     
     /**
-     * Set new property value
-     * @param value new property value
-     * 
+     * Set new property value.
+     * <p>
      * NOTE: This is protected so that only this package
      * can update all kinds of settings using a String value.
      * StringSetting updates the access to public.
+     * @param value new property value
      */
     protected void setValueInternal(String value) {
         String old = PROPS.getProperty(KEY);
@@ -272,7 +272,7 @@ public abstract class AbstractSetting<T> implements Setting<T> {
     }
 
     /**
-     * Load value from property string value
+     * Load value from property string value.
      * @param sValue property string value
      */
     abstract protected void loadValue(String sValue);    
@@ -283,14 +283,14 @@ public abstract class AbstractSetting<T> implements Setting<T> {
     }
     
     /**
-     * Fires a SettingEvent
+     * Fires a SettingEvent.
      */
     protected void fireSettingEvent(EventType type) {
         fireSettingEvent(new SettingEvent(type, this));
     }
     
     /**
-     * Fires a SettingEvent
+     * Fires a SettingEvent.
      */
     protected void fireSettingEvent(final SettingEvent evt) {
         if (evt == null) {

@@ -12,8 +12,6 @@ import org.limewire.ui.swing.util.DNDUtils;
 
 public class LocalFileTransferable implements Transferable {
     
-    public static final DataFlavor LOCAL_FILE_DATA_FLAVOR = new DataFlavor(File[].class, "Local File array");
-    
     private File[] files;
     
     public LocalFileTransferable(File[] files){
@@ -22,15 +20,14 @@ public class LocalFileTransferable implements Transferable {
 
     @Override
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-        if(flavor.equals(LOCAL_FILE_DATA_FLAVOR)){
-            return files;
-        } else if( flavor.equals(DNDUtils.URIFlavor)) {
+        if( flavor.equals(DNDUtils.URIFlavor)) {
             String seperator = System.getProperty("line.separator"); 
             StringBuffer lines = new StringBuffer();
             for(File file : files) {
                 lines.append(file.toURI().toString());
                 lines.append(seperator);
             }
+            lines.append(seperator);
             return lines.toString();
         } else if(flavor.equals(DataFlavor.javaFileListFlavor)) {
             return Arrays.asList(files);

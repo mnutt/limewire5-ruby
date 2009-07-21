@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -21,10 +22,10 @@ import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.FriendLibrary;
 import org.limewire.core.api.library.PresenceLibrary;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
+import org.limewire.core.api.search.SearchResult;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 
@@ -48,30 +49,52 @@ public class FriendLibraries {
     private static class Library {
         private final String presenceId;
 
-        private final RemoteFileItemStringTrie suggestionsIndex;
+        private final SearchResultTrie suggestionsIndex;
 
-        private final RemoteFileItemStringTrie fileNameIndex;
+        private final SearchResultTrie fileNameIndex;
 
-        private final Map<FilePropertyKey, RemoteFileItemStringTrie> propertiesIndexes;
+        private final Map<FilePropertyKey, SearchResultTrie> propertiesIndexes;
 
-        private final Map<FilePropertyKey, RemoteFileItemStringTrie> suggestionPropertiesIndexes;
+        private final Map<FilePropertyKey, SearchResultTrie> suggestionPropertiesIndexes;
 
         public Library(String presenceId) {
             this.presenceId = presenceId;
-            suggestionsIndex = new RemoteFileItemStringTrie();
-            fileNameIndex = new RemoteFileItemStringTrie();
-            propertiesIndexes = new ConcurrentHashMap<FilePropertyKey, RemoteFileItemStringTrie>();
-            suggestionPropertiesIndexes = new ConcurrentHashMap<FilePropertyKey, RemoteFileItemStringTrie>();
+            suggestionsIndex = new SearchResultTrie();
+            fileNameIndex = new SearchResultTrie();
+            propertiesIndexes = new ConcurrentHashMap<FilePropertyKey, SearchResultTrie>();
+            suggestionPropertiesIndexes = new ConcurrentHashMap<FilePropertyKey, SearchResultTrie>();
+        }
+        
+        public void clear() {
+            suggestionsIndex.lock.writeLock().lock();
+            try {
+                suggestionsIndex.clear();
+            } finally {
+                suggestionsIndex.lock.writeLock().unlock();
+            }
+            fileNameIndex.lock.writeLock().lock();
+            try {
+                fileNameIndex.clear();
+            } finally {
+                fileNameIndex.lock.writeLock().unlock();
+            }
+
+            synchronized(propertiesIndexes) {
+                propertiesIndexes.clear();
+            }
+            synchronized(suggestionPropertiesIndexes) {
+                suggestionPropertiesIndexes.clear();
+            }
+            
         }
 
-        public RemoteFileItemStringTrie getOrCreateFilePropertyIndex(FilePropertyKey filePropertyKey) {
-
-            RemoteFileItemStringTrie propertiesIndex = propertiesIndexes.get(filePropertyKey);
+        public SearchResultTrie getOrCreateFilePropertyIndex(FilePropertyKey filePropertyKey) {
+            SearchResultTrie propertiesIndex = propertiesIndexes.get(filePropertyKey);
             if (propertiesIndex == null) {
                 synchronized (propertiesIndexes) {
                     propertiesIndex = propertiesIndexes.get(filePropertyKey);
                     if (propertiesIndex == null) {
-                        propertiesIndex = new RemoteFileItemStringTrie();
+                        propertiesIndex = new SearchResultTrie();
                         propertiesIndexes.put(filePropertyKey, propertiesIndex);
                     }
                 }
@@ -79,20 +102,17 @@ public class FriendLibraries {
             return propertiesIndex;
         }
 
-        public RemoteFileItemStringTrie getFilePropertyIndex(FilePropertyKey filePropertyKey) {
+        public SearchResultTrie getFilePropertyIndex(FilePropertyKey filePropertyKey) {
             return propertiesIndexes.get(filePropertyKey);
         }
 
-        public RemoteFileItemStringTrie getOrCreateSuggestionPropertyIndex(
-                FilePropertyKey filePropertyKey) {
-
-            RemoteFileItemStringTrie propertiesIndex = suggestionPropertiesIndexes
-                    .get(filePropertyKey);
+        public SearchResultTrie getOrCreateSuggestionPropertyIndex(FilePropertyKey filePropertyKey) {
+            SearchResultTrie propertiesIndex = suggestionPropertiesIndexes.get(filePropertyKey);
             if (propertiesIndex == null) {
                 synchronized (suggestionPropertiesIndexes) {
                     propertiesIndex = suggestionPropertiesIndexes.get(filePropertyKey);
                     if (propertiesIndex == null) {
-                        propertiesIndex = new RemoteFileItemStringTrie();
+                        propertiesIndex = new SearchResultTrie();
                         suggestionPropertiesIndexes.put(filePropertyKey, propertiesIndex);
                     }
                 }
@@ -100,15 +120,15 @@ public class FriendLibraries {
             return propertiesIndex;
         }
 
-        public RemoteFileItemStringTrie getSuggestionPropertyIndex(FilePropertyKey filePropertyKey) {
+        public SearchResultTrie getSuggestionPropertyIndex(FilePropertyKey filePropertyKey) {
             return suggestionPropertiesIndexes.get(filePropertyKey);
         }
 
-        public RemoteFileItemStringTrie getFileNameIndex() {
+        public SearchResultTrie getFileNameIndex() {
             return fileNameIndex;
         }
 
-        public RemoteFileItemStringTrie getSuggestionsIndex() {
+        public SearchResultTrie getSuggestionsIndex() {
             return suggestionsIndex;
         }
 
@@ -118,11 +138,10 @@ public class FriendLibraries {
          * filename indexes the phrase by breaking it apart into all the words
          * within.
          */
-        private void indexFileName(RemoteFileItem newFile) {
-            String fileName = newFile.getName();
+        private void indexFileName(SearchResult newFile) {
+            String fileName = newFile.getFileNameWithoutExtension();
             if (fileName != null) {
-                LOG.debugf("adding file {0} for {1}, indexing under:", newFile.getName(),
-                        presenceId);
+                LOG.debugf("adding file {0} for {1}, indexing under:", fileName, presenceId);
 
                 getSuggestionsIndex().lock.writeLock().lock();
                 try {
@@ -145,15 +164,14 @@ public class FriendLibraries {
 
         /**
          * Indexes properties in both the suggestions and properties indexes.
-         * 
+         * <p>
          * The suggestions index only indexes the phrase as a whole. While the
          * filename indexes the phrase by breaking it apart into all the words
          * within.
          */
-        private void indexProperty(RemoteFileItem newFile, FilePropertyKey filePropertyKey,
-                String phrase) {
+        private void indexProperty(SearchResult newFile, FilePropertyKey filePropertyKey, String phrase) {
 
-            RemoteFileItemStringTrie filePropertyIndex = getOrCreateFilePropertyIndex(filePropertyKey);
+            SearchResultTrie filePropertyIndex = getOrCreateFilePropertyIndex(filePropertyKey);
 
             filePropertyIndex.lock.writeLock().lock();
             try {
@@ -165,15 +183,13 @@ public class FriendLibraries {
 
             getSuggestionsIndex().lock.writeLock().lock();
             try {
-                // indexes the whole string so suggestions return the
-                // whole
-                // name back
+                // indexes the whole string so suggestions return the whole name back
                 getSuggestionsIndex().addWordToIndex(newFile, phrase);
             } finally {
                 getSuggestionsIndex().lock.writeLock().unlock();
             }
 
-            RemoteFileItemStringTrie suggestionsFilePropertyIndex = getOrCreateSuggestionPropertyIndex(filePropertyKey);
+            SearchResultTrie suggestionsFilePropertyIndex = getOrCreateSuggestionPropertyIndex(filePropertyKey);
             suggestionsFilePropertyIndex.lock.writeLock().lock();
             try {
                 suggestionsFilePropertyIndex.addWordToIndex(newFile, phrase);
@@ -202,8 +218,7 @@ public class FriendLibraries {
                                             EventList<PresenceLibrary> source) {
                                         String presenceId = item.getPresence().getPresenceId();
                                         Library library = new Library(presenceId);
-                                        LOG.debugf("adding library for presence {0} to index",
-                                                presenceId);
+                                        LOG.debugf("adding library for presence {0} to index", presenceId);
                                         libraries.put(item.getPresence().getPresenceId(), library);
                                         LibraryListener listener = new LibraryListener(library);
                                         listeners.put(item.getPresence().getPresenceId(), listener);
@@ -252,7 +267,7 @@ public class FriendLibraries {
             FilePropertyKey filePropertyKey) {
         Set<String> matches = new HashSet<String>();
         for (Library library : libraries.values()) {
-            RemoteFileItemStringTrie propertyStringTree = library
+            SearchResultTrie propertyStringTree = library
                     .getSuggestionPropertyIndex(filePropertyKey);
 
             if (propertyStringTree != null) {
@@ -268,12 +283,12 @@ public class FriendLibraries {
         return matches;
     }
 
-    private void insertMatchingKeysInto(Map<String, Collection<RemoteFileItem>> prefixedBy,
+    private void insertMatchingKeysInto(Map<String, Collection<SearchResult>> prefixedBy,
             SearchCategory category, Collection<String> results) {
         if (category == SearchCategory.ALL) {
             results.addAll(prefixedBy.keySet());
         } else {
-            for (Map.Entry<String, Collection<RemoteFileItem>> item : prefixedBy.entrySet()) {
+            for (Map.Entry<String, Collection<SearchResult>> item : prefixedBy.entrySet()) {
                 if (containsCategory(category, item.getValue())) {
                     results.add(item.getKey());
                 }
@@ -282,8 +297,8 @@ public class FriendLibraries {
     }
 
     private boolean containsCategory(SearchCategory category,
-            Collection<RemoteFileItem> remoteFileItems) {
-        for (RemoteFileItem item : remoteFileItems) {
+            Collection<SearchResult> searchResults) {
+        for (SearchResult item : searchResults) {
             if (category == SearchCategory.forCategory(item.getCategory())) {
                 return true;
             }
@@ -291,10 +306,10 @@ public class FriendLibraries {
         return false;
     }
 
-    /** Returns all RemoteFileItems that match the query. */
-    public Collection<RemoteFileItem> getMatchingItems(SearchDetails searchDetails) {
+    /** Returns all results that match the query. */
+    public Collection<SearchResult> getMatchingItems(SearchDetails searchDetails) {
 
-        Set<RemoteFileItem> matches = standardSearch(searchDetails);
+        Set<SearchResult> matches = standardSearch(searchDetails);
         matches = advancedSearch(searchDetails, matches);
 
         if (matches != null) {
@@ -310,8 +325,8 @@ public class FriendLibraries {
      * returned. If the search is not valid, i.e. there is advanced search data.
      * then a null set will be returned.
      */
-    private Set<RemoteFileItem> advancedSearch(SearchDetails searchDetails,
-            Set<RemoteFileItem> matches) {
+    private Set<SearchResult> advancedSearch(SearchDetails searchDetails,
+            Set<SearchResult> matches) {
         SearchCategory category = searchDetails.getSearchCategory();
         Map<FilePropertyKey, String> advancedDetails = searchDetails.getAdvancedDetails();
 
@@ -320,10 +335,10 @@ public class FriendLibraries {
                 String phrase = advancedDetails.get(filePropertyKey);
                 StringTokenizer st = new StringTokenizer(phrase);
                 while (st.hasMoreElements()) {
-                    Set<RemoteFileItem> keywordMatches = new HashSet<RemoteFileItem>();
+                    Set<SearchResult> keywordMatches = new HashSet<SearchResult>();
                     String keyword = st.nextToken();
                     for (Library library : libraries.values()) {
-                        RemoteFileItemStringTrie propertyStringTrie = library
+                        SearchResultTrie propertyStringTrie = library
                                 .getFilePropertyIndex(filePropertyKey);
                         if (propertyStringTrie != null) {
                             propertyStringTrie.lock.readLock().lock();
@@ -361,13 +376,13 @@ public class FriendLibraries {
      * returned. If the search is not valid, i.e. there is no query string. then
      * a null set will be returned.
      */
-    private Set<RemoteFileItem> standardSearch(SearchDetails searchDetails) {
+    private Set<SearchResult> standardSearch(SearchDetails searchDetails) {
         String query = searchDetails.getSearchQuery();
         SearchCategory category = searchDetails.getSearchCategory();
-        Set<RemoteFileItem> matches = null;
+        Set<SearchResult> matches = null;
         StringTokenizer st = new StringTokenizer(query);
         while (st.hasMoreElements()) {
-            Set<RemoteFileItem> keywordMatches = new HashSet<RemoteFileItem>();
+            Set<SearchResult> keywordMatches = new HashSet<SearchResult>();
             String keyword = st.nextToken();
             for (Library library : libraries.values()) {
                 library.fileNameIndex.lock.readLock().lock();
@@ -379,7 +394,7 @@ public class FriendLibraries {
                 }
 
                 for (FilePropertyKey filePropertyKey : FilePropertyKey.getIndexableKeys()) {
-                    RemoteFileItemStringTrie propertyStringTrie = library
+                    SearchResultTrie propertyStringTrie = library
                             .getFilePropertyIndex(filePropertyKey);
                     if (propertyStringTrie != null) {
                         propertyStringTrie.lock.readLock().lock();
@@ -411,10 +426,10 @@ public class FriendLibraries {
         return matches;
     }
 
-    private void insertMatchingItemsInto(Collection<Collection<RemoteFileItem>> prefixedBy,
-            SearchCategory category, Set<RemoteFileItem> storage, Set<RemoteFileItem> allowedItems) {
-        for (Collection<RemoteFileItem> remoteFileItems : prefixedBy) {
-            for (RemoteFileItem item : remoteFileItems) {
+    private void insertMatchingItemsInto(Collection<Collection<SearchResult>> prefixedBy,
+            SearchCategory category, Set<SearchResult> storage, Set<SearchResult> allowedItems) {
+        for (Collection<SearchResult> searchResults : prefixedBy) {
+            for (SearchResult item : searchResults) {
                 Category testCategory = item.getCategory();
                 boolean allowCategory = category == SearchCategory.ALL
                         || category == SearchCategory.forCategory(testCategory);
@@ -426,11 +441,10 @@ public class FriendLibraries {
         }
     }
 
-    private static class RemoteFileItemStringTrie extends
-            PatriciaTrie<String, Collection<RemoteFileItem>> {
+    private static class SearchResultTrie extends PatriciaTrie<String, Collection<SearchResult>> {
         private final ReadWriteLock lock;
 
-        public RemoteFileItemStringTrie() {
+        public SearchResultTrie() {
             super(new CharSequenceKeyAnalyzer());
             lock = new ReentrantReadWriteLock();
         }
@@ -449,77 +463,76 @@ public class FriendLibraries {
         }
 
         @Override
-        public Collection<RemoteFileItem> get(Object k) {
+        public Collection<SearchResult> get(Object k) {
             return super.get(canonicalize((String) k));
         }
 
         @Override
-        public SortedMap<String, Collection<RemoteFileItem>> getPrefixedBy(String key, int offset,
-                int length) {
+        public SortedMap<String, Collection<SearchResult>> getPrefixedBy(String key, int offset, int length) {
             return super.getPrefixedBy(canonicalize(key), offset, length);
         }
 
         @Override
-        public SortedMap<String, Collection<RemoteFileItem>> getPrefixedBy(String key, int length) {
+        public SortedMap<String, Collection<SearchResult>> getPrefixedBy(String key, int length) {
             return super.getPrefixedBy(canonicalize(key), length);
         }
 
         @Override
-        public SortedMap<String, Collection<RemoteFileItem>> getPrefixedBy(String key) {
+        public SortedMap<String, Collection<SearchResult>> getPrefixedBy(String key) {
             return super.getPrefixedBy(canonicalize(key));
         }
 
         @Override
-        public SortedMap<String, Collection<RemoteFileItem>> getPrefixedByBits(String key,
+        public SortedMap<String, Collection<SearchResult>> getPrefixedByBits(String key,
                 int bitLength) {
             return super.getPrefixedByBits(canonicalize(key), bitLength);
         }
 
         @Override
-        public SortedMap<String, Collection<RemoteFileItem>> headMap(String toKey) {
+        public SortedMap<String, Collection<SearchResult>> headMap(String toKey) {
             return super.headMap(canonicalize(toKey));
         }
 
         @Override
-        public Collection<RemoteFileItem> put(String key, Collection<RemoteFileItem> value) {
+        public Collection<SearchResult> put(String key, Collection<SearchResult> value) {
             return super.put(canonicalize(key), value);
         }
 
         @Override
-        public Collection<RemoteFileItem> remove(Object k) {
+        public Collection<SearchResult> remove(Object k) {
             return super.remove(canonicalize((String) k));
         }
 
         @Override
-        public Entry<String, Collection<RemoteFileItem>> select(String key,
-                Cursor<? super String, ? super Collection<RemoteFileItem>> cursor) {
+        public Entry<String, Collection<SearchResult>> select(String key,
+                Cursor<? super String, ? super Collection<SearchResult>> cursor) {
             return super.select(canonicalize(key), cursor);
         }
 
         @Override
-        public Collection<RemoteFileItem> select(String key) {
+        public Collection<SearchResult> select(String key) {
             return super.select(canonicalize(key));
         }
 
         @Override
-        public SortedMap<String, Collection<RemoteFileItem>> subMap(String fromKey, String toKey) {
+        public SortedMap<String, Collection<SearchResult>> subMap(String fromKey, String toKey) {
             return super.subMap(canonicalize(fromKey), canonicalize(toKey));
         }
 
         @Override
-        public SortedMap<String, Collection<RemoteFileItem>> tailMap(String fromKey) {
+        public SortedMap<String, Collection<SearchResult>> tailMap(String fromKey) {
             return super.tailMap(canonicalize(fromKey));
         }
 
         /**
          * Adds the given word to the index as a whole.
          */
-        public void addWordToIndex(RemoteFileItem newFile, String word) {
+        public void addWordToIndex(SearchResult newFile, String word) {
             LOG.debugf("\t {0}", word);
-            Collection<RemoteFileItem> filesForWord;
+            Collection<SearchResult> filesForWord;
             filesForWord = get(word);
             if (filesForWord == null) {
-                filesForWord = new ArrayList<RemoteFileItem>();
+                filesForWord = new ArrayList<SearchResult>(1);
                 put(word, filesForWord);
             }
             filesForWord.add(newFile);
@@ -529,7 +542,7 @@ public class FriendLibraries {
          * Takes the given phrase and tokenizes it by spaces. Each individual
          * token gets added to the index.
          */
-        public void addPhraseToIndex(RemoteFileItem newFile, String phrase) {
+        public void addPhraseToIndex(SearchResult newFile, String phrase) {
             StringTokenizer st = new StringTokenizer(phrase);
             while (st.hasMoreElements()) {
                 String word = st.nextToken();
@@ -542,30 +555,47 @@ public class FriendLibraries {
      * Listens to events on a specific presence and updates the library index
      * based on these events.
      */
-    private static class LibraryListener implements ListEventListener<RemoteFileItem> {
+    private static class LibraryListener implements ListEventListener<SearchResult> {
         private final Library library;
 
         LibraryListener(Library library) {
             this.library = library;
         }
 
-        public void listChanged(ListEvent<RemoteFileItem> listChanges) {
-            while (listChanges.next()) {
-                if (listChanges.getType() == ListEvent.INSERT) {
-                    RemoteFileItem newFile = listChanges.getSourceList()
-                            .get(listChanges.getIndex());
-                    index(newFile);
+        public void listChanged(ListEvent<SearchResult> listChanges) {
+            // optimization:  if we know the ultimate list is size 0, clear & exit
+            if(listChanges.getSourceList().size() == 0) {
+                library.clear();
+            } else {
+                while (listChanges.next()) {
+                    switch(listChanges.getType()) {
+                    case ListEvent.INSERT:
+                        SearchResult newFile = listChanges.getSourceList().get(listChanges.getIndex());
+                        index(newFile);                    
+                        break;
+                    case ListEvent.DELETE:
+                    case ListEvent.UPDATE:
+                        // TODO: if glazedlists supported retrieving the removed items,
+                        //       we could just update the one element -- instead,
+                        //       we need to rebuild the whole thing.
+                        rebuild(listChanges.getSourceList());
+                        return;
+                    }
                 }
-                // TODO if we move to having presence updates be piecemeal
-                // instead of replacing the whole list
-                // we will need to support updates and deletes as well.
+            }
+        }
+        
+        private void rebuild(List<SearchResult> files) {
+            library.clear();
+            for(SearchResult item : files) {
+                index(item);
             }
         }
 
         /**
          * Indexes the files properties and name.
          */
-        private void index(RemoteFileItem newFile) {
+        private void index(SearchResult newFile) {
             library.indexFileName(newFile);
 
             for (FilePropertyKey filePropertyKey : FilePropertyKey.getIndexableKeys()) {

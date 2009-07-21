@@ -1,23 +1,13 @@
 package org.limewire.ui.swing.friends.chat;
 
-import static org.limewire.ui.swing.util.I18n.tr;
-
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import java.util.Map;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JLabel;
 import javax.swing.ToolTipManager;
 
@@ -25,106 +15,82 @@ import net.miginfocom.swing.MigLayout;
 
 import org.bushe.swing.event.annotation.EventSubscriber;
 import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.border.DropShadowBorder;
-import org.jdesktop.swingx.painter.RectanglePainter;
+import org.limewire.friend.api.FriendConnectionEvent;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.listener.EventListener;
+import org.limewire.listener.ListenerSupport;
+import org.limewire.listener.SwingEDTEvent;
+import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.IconButton;
+import org.limewire.ui.swing.components.PopupCloseButton;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.xmpp.api.client.Presence.Mode;
-import org.limewire.xmpp.api.client.XMPPConnectionEvent;
-import org.limewire.listener.ListenerSupport;
-import org.limewire.listener.EventListener;
-import org.limewire.listener.SwingEDTEvent;
+import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.util.Objects;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * The top border of the chat panel, for minimizing the chat window
  * & other controls.
  */
-@Singleton
 public class ChatTopPanel extends JXPanel {
-    @Resource(key="ChatTopPanel.backgroundGradientTop") private Color gradientTop; 
-    @Resource(key="ChatTopPanel.backgroundGradientBottom") private Color gradientBottom; 
-    @Resource(key="ChatTopPanel.borderBottom") private Color borderBottom;
-    @Resource(key="ChatTopPanel.buddyTextFont") private Font textFont;
-    @Resource(key="ChatTopPanel.hideTextFont") private Font hideFont;
-    @Resource(key="ChatTopPanel.textColor") private Color textColor;
+    @Resource private Font textFont;
+    @Resource private Color textColor;
+    @Resource private Color background;
+
     private JLabel friendAvailabiltyIcon;
     private JLabel friendNameLabel;
     private JLabel friendStatusLabel;
     
-    private Action minimizeAction;
     private final Map<String, PropertyChangeListener> friendStatusAndModeListeners;
     
     @Inject
-    public ChatTopPanel() {        
+    public ChatTopPanel(final ChatFramePanel chatFramePanel) {
+        
         GuiUtils.assignResources(this);
         
-        RectanglePainter painter = new RectanglePainter();
-        painter.setFillPaint(new GradientPaint(50.0f, 0.0f, gradientTop, 50.0f, 9.5f, gradientBottom));
-        painter.setBorderPaint(null);
-        painter.setInsets(new Insets(0, 0, 0, 0));
-        painter.setBorderWidth(0.0f);
+        setBackground(background);
         
-        setBackgroundPainter(painter);
+        setLayout(new MigLayout("insets 0, gap 0, fill"));
         
-        setBorder(new DropShadowBorder(borderBottom, 1, 1.0f, 0, false, false, true, false));
-        
-        setLayout(new MigLayout("insets 3 2 0 5, fill", "[]2[][]:push[]5", "[19px, top]"));
-        Dimension size = new Dimension(400, 19);
-        setMinimumSize(size);
-        setMaximumSize(size);
-        setPreferredSize(size);
+        ResizeUtils.forceHeight(this, 21);
         
         friendAvailabiltyIcon = new JLabel();
-        add(friendAvailabiltyIcon, "wmax 12, hmax 12");
+        add(friendAvailabiltyIcon, "gapleft 4, gapright 2, dock west");
         friendNameLabel = new JLabel();
         friendNameLabel.setForeground(textColor);
         friendNameLabel.setFont(textFont);
-        add(friendNameLabel, "wmin 0, shrinkprio 50");
+        add(friendNameLabel, "gapright 2, dock west");
         
         friendStatusLabel = new JLabel();
         friendStatusLabel.setForeground(textColor);
         friendStatusLabel.setFont(textFont);
-        add(friendStatusLabel, "wmin 0, shrinkprio 0");
-        
-        JXHyperlink minimizeChat = new JXHyperlink(new AbstractAction("<html><u>" + tr("Hide") + "</u></html>") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                minimizeAction.actionPerformed(e);
-            }
-        });  
-        minimizeChat.setFont(hideFont);
-        minimizeChat.setForeground(textColor);
-        add(minimizeChat, "alignx right");
-        
-        setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (minimizeAction!= null) {
-                    minimizeAction.actionPerformed(null);
-                }
-            }
-        });
+        add(friendStatusLabel, "dock west");
+       
         friendStatusAndModeListeners = new HashMap<String, PropertyChangeListener>();
         ToolTipManager.sharedInstance().registerComponent(this);
+        
+        IconButton closeButton = new PopupCloseButton();
+        closeButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chatFramePanel.setVisibility(false);
+            }
+        });
+        add(closeButton, "gapright 3, dock east");
         
         EventAnnotationProcessor.subscribe(this);
     }
 
     @Inject
-    void register(ListenerSupport<XMPPConnectionEvent> connectionSupport) {
-        connectionSupport.addListener(new EventListener<XMPPConnectionEvent>() {
+    void register(ListenerSupport<FriendConnectionEvent> connectionSupport) {
+        connectionSupport.addListener(new EventListener<FriendConnectionEvent>() {
             @Override
             @SwingEDTEvent
-            public void handleEvent(XMPPConnectionEvent event) {
-                if (event.getType() == XMPPConnectionEvent.Type.DISCONNECTED) {
+            public void handleEvent(FriendConnectionEvent event) {
+                if (event.getType() == FriendConnectionEvent.Type.DISCONNECTED) {
                     // when signed off, erase info about who LW was chatting with
                     clearFriendInfo();
                 }
@@ -132,11 +98,7 @@ public class ChatTopPanel extends JXPanel {
         });
     }
     
-    void setMinimizeAction(Action minimizeAction) {
-        this.minimizeAction = minimizeAction;
-    }
-    
-    private String getAvailabilityHTML(Mode mode) {
+    private String getAvailabilityHTML(FriendPresence.Mode mode) {
         return "<html><img src=\"" + ChatFriendsUtil.getIconURL(mode) + "\" /></html>";
     }
     
@@ -177,8 +139,6 @@ public class ChatTopPanel extends JXPanel {
         PropertyChangeListener statusAndModeListener = friendStatusAndModeListeners.remove(finishedFriend.getID());
         finishedFriend.removePropertyChangeListener(statusAndModeListener);
     }
-
-
 
     private void update(ChatFriend chatFriend) {
         friendAvailabiltyIcon.setText(getAvailabilityHTML(chatFriend.getMode()));

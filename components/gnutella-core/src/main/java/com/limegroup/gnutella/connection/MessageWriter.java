@@ -11,12 +11,12 @@ import com.limegroup.gnutella.messages.Message;
 
 /** 
  * Writes messages using non-blocking I/O.
- *
+ * <p>
  * Messages are queued via send(Message).  When a write can happen, this is notified
  * via handleWrite(), which will pull any non-expired messages from the queue, writing
  * them.  ConnectionStats are kept updated for all should-be-sent messages as well
  * as dropped messages (from expiry or buffer overflow), and the SentMessageHandler
- * is notified of all succesfully sent messages.
+ * is notified of all successfully sent messages.
  */
 public class MessageWriter implements ChannelWriter, OutputRunner {
     
@@ -27,7 +27,7 @@ public class MessageWriter implements ChannelWriter, OutputRunner {
     private final MessageQueue queue;
     
     /**
-     * The OutputStream that messages are written to.  For efficieny, the stream
+     * The OutputStream that messages are written to.  For efficiency, the stream
      * internally uses a ByteBuffer and we get the buffer directly to write to
      * our sink channel.  This prevents recreation of many byte[]s.
      */
@@ -40,7 +40,7 @@ public class MessageWriter implements ChannelWriter, OutputRunner {
     private final ConnectionStats stats;
     
     /**
-     * A callback for handlers who wish to process messages we succesfully sent.
+     * A callback for handlers who wish to process messages we successfully sent.
      */
     private final SentMessageHandler sendHandler;
     
@@ -95,7 +95,7 @@ public class MessageWriter implements ChannelWriter, OutputRunner {
     
     /**
      * Adds a new message to the queue.
-     *
+     * <p>
      * Any messages that were dropped because this was added are calculated
      * into the ConnectionStats.  The sink channel is notified that we're
      * interested in writing.
@@ -179,14 +179,14 @@ public class MessageWriter implements ChannelWriter, OutputRunner {
     
     /**
      * Ignored -- we'll shut down from reading.
-     *
+     * <p>
      * THIS MUST NOT CLOSE THE CONNECTION.  (Connection.close calls this.)
      */
     public synchronized void shutdown() {
         shutdown = true;
     }
     
-    /** Unused, Unsupported */
+    /** Unused, unsupported. */
     public void handleIOException(IOException x) {
         throw new RuntimeException("Unsupported", x);
     }

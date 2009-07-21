@@ -15,11 +15,11 @@ import org.limewire.listener.EventListener;
 
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.library.FileListChangedEvent;
+import com.limegroup.gnutella.library.FileViewChangeEvent;
 import com.limegroup.gnutella.util.ClassCNetworks;
 
 @Singleton
-public class AltLocManager implements EventListener<FileListChangedEvent> {
+public class AltLocManager implements EventListener<FileViewChangeEvent> {
 
     private static final Log LOG = LogFactory.getLog(AltLocManager.class);
     
@@ -30,7 +30,7 @@ public class AltLocManager implements EventListener<FileListChangedEvent> {
     private final Map<URN, URNData> urnMap = Collections.synchronizedMap(new HashMap<URN, URNData>());
     
     /**
-     * adds a given altloc to the manager
+     * Adds a given altloc to the manager.
      * @return whether the manager already knew about this altloc
      */
     public boolean add(AlternateLocation al, Object source) {
@@ -93,7 +93,7 @@ public class AltLocManager implements EventListener<FileListChangedEvent> {
     }
     
     /**
-     * removes the given altloc (implementations may demote)
+     * Removes the given altloc (implementations may demote).
      */
     public boolean remove(AlternateLocation al, Object source) {
         URN sha1 = al.getSHA1Urn();
@@ -234,17 +234,17 @@ public class AltLocManager implements EventListener<FileListChangedEvent> {
     }
     
     /**
-     * Listens for events from FileManager
+     * Listens for events from FileManager.
      */
-    public void handleEvent(FileListChangedEvent evt) {
+    public void handleEvent(FileViewChangeEvent evt) {
         switch(evt.getType()) {
-        case CLEAR:
+        case FILES_CLEARED:
             purge();
             break;
-        case REMOVED:
+        case FILE_REMOVED:
             URN urn = evt.getFileDesc().getSHA1Urn();
             // Purge if there's no more FDs for this URN.
-            if(evt.getList().getFileDescsMatching(urn).isEmpty()) {
+            if(urn != null && evt.getFileView().getFileDescsMatching(urn).isEmpty()) {
                 purge(urn);
             }
             break;

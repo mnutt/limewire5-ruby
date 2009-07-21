@@ -13,8 +13,8 @@ import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.endpoint.RemoteHost;
-import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.friend.api.FriendPresence;
 import org.limewire.ui.swing.friends.MockFriend;
 import org.limewire.ui.swing.friends.MockFriendPresence;
 import org.limewire.util.FileUtils;
@@ -46,11 +46,6 @@ public class TestSearchResult implements SearchResult {
     @Override
     public String getFileExtension() {
         return FileUtils.getFileExtension(getFileName());
-    }
-
-    @Override
-    public Map<FilePropertyKey, Object> getProperties() {
-        return properties;
     }
 
     @Override
@@ -119,6 +114,11 @@ public class TestSearchResult implements SearchResult {
     @Override
     public String getFileName() {
         return fileName;
+    }
+    
+    @Override
+    public String getFileNameWithoutExtension() {
+        return FileUtils.getFilenameNoExtension(getFileName());
     }
     
     @Override

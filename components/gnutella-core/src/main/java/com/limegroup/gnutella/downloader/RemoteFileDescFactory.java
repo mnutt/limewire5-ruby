@@ -27,7 +27,7 @@ public interface RemoteFileDescFactory {
     /**
      * Constructs a new RemoteFileDescImpl exactly like the other one,
      * but with a different remote host.
-     *
+     * <p>
      * It is okay to use the same internal structures
      * for URNs because the Set is immutable.
      */
@@ -57,11 +57,6 @@ public interface RemoteFileDescFactory {
      * @param replyToMulticast true if its from a reply to a multicast query
      * @param vendor the vendor of the remote host
      * @param createTime the network-wide creation time of this file
-     * @param host the host's ip
-     * @param port the host's port
-     * @param firewalled true if the host is firewalled
-     * @param proxies the push proxies for this host
-     * @param tlsCapable true if the remote host supports TLS
      *
      * @throws <tt>IllegalArgumentException</tt> if any of the arguments are
      *  not valid
@@ -74,7 +69,6 @@ public interface RemoteFileDescFactory {
     
     /** 
      * Constructs a new RemoteFileDescImpl with metadata.
-     * @param index the index of the file that the client sent
      * @param filename the name of the file
      * @param clientGUID the unique identifier of the client
      * @param speed the speed of the connection
@@ -86,10 +80,6 @@ public interface RemoteFileDescFactory {
      * @param xmlDoc the <tt>LimeXMLDocument</tt> for the response
      * @param urns the <tt>Set</tt> of <tt>URN</tt>s for the file
      * @param replyToMulticast true if its from a reply to a multicast query
-     * @param host the host's ip
-     * @param port the host's port
-     * @param tlsCapable true if the host supports a TLS connection
-     * @param xmlDocs the array of XML documents pertaining to this file
      *
      * @throws <tt>IllegalArgumentException</tt> if any of the arguments are
      *  not valid

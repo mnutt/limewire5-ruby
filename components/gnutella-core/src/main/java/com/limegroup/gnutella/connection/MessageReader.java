@@ -15,10 +15,10 @@ import com.limegroup.gnutella.messages.MessageFactory;
  * Reads messages from a channel.  This class is notified when more of a message
  * can potentially be read by its handleRead() method being called.  To change
  * the channel this reads from, use setReaderChannel(ReadableByteChannel).
- *
+ * <p>
  * It is possible to construct this class without an initial source channel.
  * However, before handleRead is called, the channel must be set.
- *
+ *<p>
  * The first time the channel returns -1 this will throw an IOException, as it
  * never expects the channel to run out of data.  Upon each read notification,
  * as much data as possible will be read from the source channel.
@@ -32,20 +32,20 @@ public class MessageReader implements ChannelReadObserver {
     /** where in the header the payload is */
     private static final int PAYLOAD_LENGTH_OFFSET = 19;
     
-    /** the constant buffer to use for emtpy payloads. */
+    /** The constant buffer to use for empty payloads. */
     private static final ByteBuffer EMPTY_PAYLOAD = ByteBuffer.allocate(0);
     
-    /** the sole buffer for parsing msg headers */
+    /** The sole buffer for parsing message headers. */
     private final ByteBuffer header;
     /** the buffer used for parsing the payload -- recreated for each message */
     private ByteBuffer payload;
     
-    /** the sole receiver of messages */
+    /** The sole receiver of messages. */
     private final MessageReceiver receiver;
     /** the source channel */
     private InterestReadableByteChannel channel;
     
-    /** whether or not this reader has been shut down yet. */
+    /** Whether or not this reader has been shut down yet. */
     private boolean shutdown = false;
     private final MessageFactory messageFactory;
     
@@ -166,7 +166,7 @@ public class MessageReader implements ChannelReadObserver {
         receiver.messagingClosed();
     }
     
-    /** Unused */
+    /** Unused. */
     public void handleIOException(IOException iox) {
         throw new RuntimeException("unsupported operation", iox);
     }

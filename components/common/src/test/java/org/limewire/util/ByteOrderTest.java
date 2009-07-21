@@ -9,7 +9,7 @@ import junit.framework.Test;
 
 
 /**
- * Unit tests for ByteOrder
+ * Unit tests for <code>ByteOrder</code>.
  */
 public class ByteOrderTest extends BaseTestCase {
     

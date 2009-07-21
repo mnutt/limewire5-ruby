@@ -21,9 +21,6 @@ public class NavigatorUtils {
      * action's SELECTED_KEY is set to true or
      * {@link ActionListener#actionPerformed(ActionEvent)} is called, the item
      * is selected.
-     * 
-     * @param item
-     * @return
      */
     public static Action getNavAction(final NavItem item) {
         return new AbstractAction() {

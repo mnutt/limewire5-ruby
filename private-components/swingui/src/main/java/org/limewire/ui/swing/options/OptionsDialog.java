@@ -38,14 +38,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
- * Main Dialog for the Options
+ * Main Dialog for the Options.
  */
 public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     
     @Resource
     private Color backgroundColor;
-    @Resource
-    private Icon securityIcon;
     @Resource
     private Icon advancedIcon;
     @Resource
@@ -59,26 +57,25 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     @Resource
     private Icon searchIcon;
     
+    public static final String LIBRARY = I18n.tr("My Files");
+    public static final String SEARCH = I18n.tr("Search");
+    public static final String DOWNLOADS = I18n.tr("Downloads");
+    public static final String SECURITY = I18n.tr("Security");
+    public static final String REMOTE = I18n.tr("Remote");
+    public static final String MISC = I18n.tr("Misc");
+    public static final String ADVANCED = I18n.tr("Advanced");
     
-    private static final String LIBRARY = I18n.tr("My Library");
-    private static final String SEARCH = I18n.tr("Search");
-    private static final String DOWNLOADS = I18n.tr("Downloads");
-    private static final String SECURITY = I18n.tr("Security");
-    private static final String MISC = I18n.tr("Misc");
-    private static final String REMOTE = I18n.tr("Remote");
-    private static final String ADVANCED = I18n.tr("Advanced");
+    private final Provider<LibraryOptionPanel> libraryOptionPanel;
+    private final Provider<SearchOptionPanel> searchOptionPanel;
+    private final Provider<DownloadOptionPanel> downloadOptionPanel;
+    private final Provider<MiscOptionPanel> miscOptionPanel;
+    private final Provider<RemoteOptionPanel> remoteOptionPanel;
+    private final Provider<AdvancedOptionPanel> advancedOptionPanel;
+    private final UnsafeTypeOptionPanelStateManager unsafeTypeOptionPanelStateManager;
     
-    private Provider<LibraryOptionPanel> libraryOptionPanel;
-    private Provider<SearchOptionPanel> searchOptionPanel;
-    private Provider<DownloadOptionPanel> downloadOptionPanel;
-    private Provider<SecurityOptionPanel> securityOptionPanel;
-    private Provider<MiscOptionPanel> miscOptionPanel;
-    private Provider<RemoteOptionPanel> remoteOptionPanel;
-    private Provider<AdvancedOptionPanel> advancedOptionPanel;
-    
-    private Map<String, OptionTabItem> cards = new HashMap<String,OptionTabItem>();
-    private Map<String, OptionPanel> panels = new HashMap<String, OptionPanel>();
-    private List<String> list = new ArrayList<String>();
+    private final Map<String, OptionTabItem> cards = new HashMap<String,OptionTabItem>();
+    private final Map<String, OptionPanel> panels = new HashMap<String, OptionPanel>();
+    private final List<String> list = new ArrayList<String>();
     private OptionTabItem selectedItem;
     
     private JPanel cardPanel;
@@ -93,9 +90,10 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     
     @Inject
     public OptionsDialog(Provider<LibraryOptionPanel> libraryOptionPanel, Provider<SearchOptionPanel> searchOptionPanel,
-            Provider<DownloadOptionPanel> downloadOptionPanel, Provider<SecurityOptionPanel> securityOptionPanel,
-            Provider<MiscOptionPanel> miscOptionPanel, Provider<RemoteOptionPanel> remoteOptionPanel, Provider<AdvancedOptionPanel> advancedOptionPanel,
-            AppFrame appFrame, BarPainterFactory barPainterFactory) {
+
+            Provider<DownloadOptionPanel> downloadOptionPanel, Provider<RemoteOptionPanel> remoteOptionPanel,
+            Provider<MiscOptionPanel> miscOptionPanel, Provider<AdvancedOptionPanel> advancedOptionPanel,
+            AppFrame appFrame, BarPainterFactory barPainterFactory, UnsafeTypeOptionPanelStateManager unsafeTypeOptionPanelStateManager) {
         super(appFrame.getMainFrame(), I18n.tr("Options"), true);
 
         GuiUtils.assignResources(this); 
@@ -103,11 +101,11 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         this.libraryOptionPanel = libraryOptionPanel;
         this.searchOptionPanel = searchOptionPanel;
         this.downloadOptionPanel = downloadOptionPanel;
-        this.securityOptionPanel = securityOptionPanel;
         this.miscOptionPanel = miscOptionPanel;
         this.remoteOptionPanel = remoteOptionPanel;
         this.advancedOptionPanel = advancedOptionPanel;
-
+        this.unsafeTypeOptionPanelStateManager = unsafeTypeOptionPanelStateManager;
+        
         if (!OSUtils.isMacOSX()) {
             setSize(700, 656);
             setPreferredSize(getSize());
@@ -122,6 +120,9 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         createComponents(barPainterFactory);
         
         pack();
+        
+        getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0), "closeAction");
+        getRootPane().getActionMap().put("closeAction", new CancelOptionAction(this));
     }
     
     public void applyOptions() {
@@ -143,7 +144,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     }
     
     private void createComponents(BarPainterFactory barPainterFactory) {
-        setLayout(new MigLayout("gap 0, insets 0 0 0 0, fill", "fill", "[][fill][40!, fill]"));
+        setLayout(new MigLayout("gap 0, insets 0 0 0 0, fill", "fill", "[60!][fill][40!, fill]"));
         
         cardLayout = new CardLayout();
         cardPanel = new JPanel();
@@ -154,14 +155,16 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
                 
         footerPanel = new JPanel();
         
-        add(headerPanel, "wrap");
-        add(cardPanel, "wrap");
-        add(footerPanel);
-        
         createFooter();
         createHeader();
         
         select(LIBRARY);
+        
+        add(headerPanel, "aligny top, wrap");
+        add(cardPanel, "grow, wrap");
+        add(footerPanel);
+        
+
     }
     
     private void createHeader() {
@@ -173,7 +176,6 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         createButton(LIBRARY, libraryIcon, libraryOptionPanel, down, up);
         createButton(SEARCH, searchIcon, searchOptionPanel, down, up);
         createButton(DOWNLOADS, downloadsIcon, downloadOptionPanel, down, up);
-        createButton(SECURITY, securityIcon, securityOptionPanel, down, up);
         createButton(MISC, miscIcon, miscOptionPanel, down, up);
         createButton(REMOTE, remoteIcon, remoteOptionPanel, down, up);
         createButton(ADVANCED, advancedIcon, advancedOptionPanel, down, up);
@@ -270,7 +272,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     }
     
     /**
-     * Lazily loads and inits a subPanel in the OptionDialog
+     * Lazily loads and inits a subPanel in the OptionDialog.
      */
     private void createPanel(String id, OptionPanel panel) {
         panel.setBackground(backgroundColor);
@@ -338,6 +340,8 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
      * Recalls init options on all created panels.
      */
     public void initOptions() {
+        unsafeTypeOptionPanelStateManager.initOptions();
+        
         for(OptionPanel optionPanel : panels.values()) {
             optionPanel.initOptions();
         }

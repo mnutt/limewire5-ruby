@@ -5,21 +5,20 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.limewire.ui.swing.properties.PropertiesFactory;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.table.TablePopupHandler;
 
 public class SearchPopupHandler implements TablePopupHandler {
 
     private final ResultsTable<VisualSearchResult> resultsTable;
+    private final SearchResultMenuFactory menuFactory;
     private final DownloadHandler downloadHandler;
-    private final PropertiesFactory<VisualSearchResult> properties;
 
-    public SearchPopupHandler(ResultsTable<VisualSearchResult> resultsTable,
-            DownloadHandler downloadHandler, PropertiesFactory<VisualSearchResult> properties) {
-        this.resultsTable = resultsTable;
+    public SearchPopupHandler(DownloadHandler downloadHandler, ResultsTable<VisualSearchResult> resultsTable,
+            SearchResultMenuFactory menuFactory) {
         this.downloadHandler = downloadHandler;
-        this.properties = properties;
+        this.resultsTable = resultsTable;
+        this.menuFactory = menuFactory;
     }
 
     @Override
@@ -50,9 +49,7 @@ public class SearchPopupHandler implements TablePopupHandler {
             }
         }
 
-        SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, selectedItems,
-                properties, SearchResultMenu.ViewType.Table);
-        searchResultMenu.show(component, x, y);
+        menuFactory.create(downloadHandler, selectedItems, SearchResultMenu.ViewType.Table).show(component, x, y);
     }
 
     private List<Integer> asList(int[] array) {

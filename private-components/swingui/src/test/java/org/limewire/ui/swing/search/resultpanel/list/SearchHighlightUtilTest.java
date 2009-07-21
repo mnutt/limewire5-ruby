@@ -1,9 +1,13 @@
 package org.limewire.ui.swing.search.resultpanel.list;
 
-import static org.limewire.ui.swing.search.resultpanel.list.SearchHighlightUtil.highlight;
 import junit.framework.TestCase;
 
 public class SearchHighlightUtilTest extends TestCase {
+    
+    private String highlight(String search, String current) {
+        SearchHighlightUtil util = new SearchHighlightUtil(search);
+        return util.highlight(current);
+    }
     
     public void testNoMatches() {
         assertEquals("heynow", highlight("foo bar", "heynow"));
@@ -11,10 +15,6 @@ public class SearchHighlightUtilTest extends TestCase {
     
     public void testNullInputString() {
         assertEquals("", highlight("foo", null));
-    }
-    
-    public void testNullSearchString() {
-        assertEquals("howdy", highlight(null, "howdy"));
     }
     
     public void testMatchOneWordSearch() {

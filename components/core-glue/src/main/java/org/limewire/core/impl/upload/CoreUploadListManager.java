@@ -13,7 +13,12 @@ import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadListManager;
 import org.limewire.core.api.upload.UploadState;
+import org.limewire.core.impl.friend.BittorrentPresence;
+import org.limewire.core.impl.friend.GnutellaPresence;
 import org.limewire.core.settings.SharingSettings;
+import org.limewire.friend.api.FriendManager;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.io.ConnectableImpl;
 import org.limewire.lifecycle.ServiceScheduler;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
 
@@ -26,6 +31,7 @@ import ca.odell.glazedlists.impl.ThreadSafeList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.limegroup.bittorrent.BTUploader;
 import com.limegroup.gnutella.UploadServices;
 import com.limegroup.gnutella.Uploader;
 
@@ -33,6 +39,7 @@ import com.limegroup.gnutella.Uploader;
 public class CoreUploadListManager implements UploadListener, UploadListManager {
 
     private final UploadServices uploadServices;
+    private final FriendManager friendManager;
     private final PropertyChangeSupport changeSupport = new SwingSafePropertyChangeSupport(this);
 
     private final EventList<UploadItem> uploadItems;
@@ -43,9 +50,9 @@ public class CoreUploadListManager implements UploadListener, UploadListManager 
     private static final int PERIOD = 1000;
 
     @Inject
-    public CoreUploadListManager(UploadServices uploadServices) {
-
+    public CoreUploadListManager(UploadServices uploadServices, FriendManager friendManager) {
         this.uploadServices = uploadServices;
+        this.friendManager = friendManager;
         
         threadSafeUploadItems = GlazedListsFactory.threadSafeList(new BasicEventList<UploadItem>());
         
@@ -65,7 +72,6 @@ public class CoreUploadListManager implements UploadListener, UploadListManager 
     // TODO: Come up with a reasonable strategy for ServiceRegistry custom stage keys (Strings vs Hashes?)
     @Inject
     public void register(ServiceScheduler scheduler, @Named("backgroundExecutor") ScheduledExecutorService executor) {
-
           Runnable command = new Runnable() {
               @Override
               public void run() {
@@ -125,7 +131,7 @@ public class CoreUploadListManager implements UploadListener, UploadListManager 
     @Override
     public void uploadAdded(Uploader uploader) {
         if (!uploader.getUploadType().isInternal()) {
-            UploadItem item = new CoreUploadItem(uploader);
+            UploadItem item = new CoreUploadItem(uploader, getFriendPresence(uploader));
             threadSafeUploadItems.add(item);
             item.addPropertyChangeListener(new UploadPropertyListener(item));
         }
@@ -134,7 +140,7 @@ public class CoreUploadListManager implements UploadListener, UploadListManager 
  // This is called when uploads complete - should be renamed?
     @Override
     public void uploadRemoved(Uploader uploader) {
-        CoreUploadItem item = new CoreUploadItem(uploader);
+        CoreUploadItem item = new CoreUploadItem(uploader, getFriendPresence(uploader));
         //alert item that it really is finished so that getState() will be correct
         item.finish();
          
@@ -169,6 +175,24 @@ public class CoreUploadListManager implements UploadListener, UploadListManager 
         } finally {
             uploadItems.getReadWriteLock().writeLock().unlock();
         }
+    }
+    
+    private FriendPresence getFriendPresence(Uploader uploader) {
+        
+        if(uploader instanceof BTUploader) {
+            return new BittorrentPresence(uploader);
+        }
+        
+        String id = uploader.getPresenceId();
+        FriendPresence currentPresence = null;
+        if (id != null) {
+             currentPresence = friendManager.getMostRelevantFriendPresence(id);
+        }
+        if (currentPresence == null) {
+            // copy construct connectable to give it full equals semantics
+            currentPresence = new GnutellaPresence.GnutellaPresenceWithString(new ConnectableImpl(uploader), uploader.getHost());
+        }
+        return currentPresence;
     }
     
     private class UploadPropertyListener implements PropertyChangeListener {

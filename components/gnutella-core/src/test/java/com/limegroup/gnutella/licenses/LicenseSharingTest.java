@@ -14,6 +14,7 @@ import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.BlockingConnectionUtils;
@@ -22,8 +23,8 @@ import com.limegroup.gnutella.ForMeReplyHandler;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -37,12 +38,14 @@ import com.limegroup.gnutella.xml.LimeXMLDocumentHelper;
 
 public final class LicenseSharingTest extends ClientSideTestCase {
 
-    private FileManager fileManager;
-    private LimeXMLDocumentFactory limeXMLDocumentFactory;
-    private Injector injector;
-    private QueryRequestFactory queryRequestFactory;
     private NetworkManagerStub networkManagerStub;
-    private LimeXMLDocumentHelper limeXMLDocumentHelper;
+    
+    @Inject private Library library;
+    @Inject private LimeXMLDocumentFactory limeXMLDocumentFactory;
+    @Inject private Injector injector;
+    @Inject private QueryRequestFactory queryRequestFactory;
+    @Inject private LimeXMLDocumentHelper limeXMLDocumentHelper;
+    @Inject private LicenseFactory licenseFactory;
     
 	public LicenseSharingTest(String name) {
 		super(name);
@@ -71,36 +74,32 @@ public final class LicenseSharingTest extends ClientSideTestCase {
 	        }
 	    });
         super.setUp(injector);
-	    fileManager = injector.getInstance(FileManager.class);
-	    limeXMLDocumentFactory = injector.getInstance(LimeXMLDocumentFactory.class);
-	    queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-	    limeXMLDocumentHelper = injector.getInstance(LimeXMLDocumentHelper.class);
 
-	    FileManagerTestUtils.waitForLoad(fileManager, 4000);
+	    FileManagerTestUtils.waitForLoad(library, 4000);
         // get the resource file for com/limegroup/gnutella
         File cc1 = TestUtils.getResourceFile("com/limegroup/gnutella/licenses/ccverifytest0.mp3");
         File cc2 = TestUtils.getResourceFile("com/limegroup/gnutella/licenses/ccverifytest1.mp3");
         File cc3 = TestUtils.getResourceFile("com/limegroup/gnutella/licenses/cc1.mp3");
         File cc4 = TestUtils.getResourceFile("com/limegroup/gnutella/licenses/ccverifytest0.ogg");
         File wma5 = TestUtils.getResourceFile("com/limegroup/gnutella/licenses/weed-PUSA-LoveEverybody.wma");
-        assertNotNull(fileManager.getGnutellaFileList().add(cc1).get(5, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(cc2).get(5, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(cc3).get(5, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(cc4).get(5, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(wma5).get(5, TimeUnit.SECONDS));
-        fileManager.getGnutellaFileList().remove(berkeleyFD);
-        fileManager.getGnutellaFileList().remove(susheelFD);
+        assertNotNull(gnutellaFileCollection.add(cc1).get(5, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(cc2).get(5, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(cc3).get(5, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(cc4).get(5, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(wma5).get(5, TimeUnit.SECONDS));
+        gnutellaFileCollection.remove(berkeleyFD);
+        gnutellaFileCollection.remove(susheelFD);
 	}
 	
 	public void testFileDescKnowsLicense() throws Exception {
-	    List<FileDesc> fds = CollectionUtils.listOf(fileManager.getGnutellaFileList());
+	    List<FileDesc> fds = CollectionUtils.listOf(gnutellaFileView);
 	    assertEquals(5, fds.size());
 	    for(FileDesc fd : fds )
 	        assertTrue(fd.toString(), fd.isLicensed());
     }
     
     public void testQRPExchange() throws Exception {
-        assertEquals(5, fileManager.getGnutellaFileList().size());
+        assertEquals(5, gnutellaFileView.size());
 
         for (int i = 0; i < testUP.length; i++) {
             assertTrue("should be open", testUP[i].isOpen());
@@ -170,8 +169,8 @@ public final class LicenseSharingTest extends ClientSideTestCase {
             assertNotNull(r.getDocument());
             LimeXMLDocument doc = r.getDocument();
             assertTrue(r.toString(), doc.isLicenseAvailable());
-            assertNotNull(r.toString(), doc.getLicense());
-            assertInstanceof(CCLicense.class, doc.getLicense());
+            assertNotNull(r.toString(), doc.getLicenseString());
+            assertInstanceof(CCLicense.class, licenseFactory.create(doc.getLicenseString()));
         }
     }
     
@@ -198,8 +197,8 @@ public final class LicenseSharingTest extends ClientSideTestCase {
             LimeXMLDocument doc = r.getDocument();
             assertNotNull(doc);
             assertTrue(r.toString(), doc.isLicenseAvailable());
-            assertNotNull(r.toString(), doc.getLicense());
-            assertInstanceof(WeedLicense.class, doc.getLicense());
+            assertNotNull(r.toString(), doc.getLicenseString());
+            assertInstanceof(WeedLicense.class, licenseFactory.create(doc.getLicenseString()));
         }
     }
 	
@@ -231,8 +230,8 @@ public final class LicenseSharingTest extends ClientSideTestCase {
 			LimeXMLDocument doc = r.getDocument();
             assertNotNull(doc);
             assertTrue(r.toString(), doc.isLicenseAvailable());
-            assertNotNull(r.toString(), doc.getLicense());
-            assertInstanceof(WeedLicense.class, doc.getLicense());
+            assertNotNull(r.toString(), doc.getLicenseString());
+            assertInstanceof(WeedLicense.class, licenseFactory.create(doc.getLicenseString()));
         }
 	}
     
@@ -264,7 +263,7 @@ public final class LicenseSharingTest extends ClientSideTestCase {
 			LimeXMLDocument doc = r.getDocument();
             assertNotNull(doc);
             assertTrue(r.toString(), doc.isLicenseAvailable());
-            assertNotNull(r.toString(), doc.getLicense());
+            assertNotNull(r.toString(), licenseFactory.create(doc.getLicenseString()));
         }
 	}
     

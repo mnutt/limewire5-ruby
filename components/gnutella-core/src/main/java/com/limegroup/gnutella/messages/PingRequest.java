@@ -26,7 +26,7 @@ public interface PingRequest extends Message {
      * Accessor for whether or not this ping meets the criteria for being a
      * "heartbeat" ping, namely having ttl=0 and hops=1.
      * 
-     * @return <tt>true</tt> if this ping apears to be a "heartbeat" ping,
+     * @return <tt>true</tt> if this ping appears to be a "heartbeat" ping,
      *  otherwise <tt>false</tt>
      */
     public boolean isHeartbeat();
@@ -38,7 +38,7 @@ public interface PingRequest extends Message {
     public void addIPRequest();
 
     /**
-     * get locale of this PingRequest 
+     * get locale of this PingRequest. 
      */
     public String getLocale();
 

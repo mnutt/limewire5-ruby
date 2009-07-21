@@ -71,13 +71,13 @@ public interface PingReply extends Message {
     int getPort();
 
     /**
-     * Returns the ip field in standard dotted decimal format, e.g.,
+     * Returns the IP field in standard dotted decimal format, e.g.,
      * "127.0.0.1".  The most significant byte is written first.
      */
     String getAddress();
 
     /**
-     * Returns the ip address bytes (MSB first)
+     * Returns the ip address bytes (MSB first).
      */
     byte[] getIPBytes();
 
@@ -171,7 +171,7 @@ public interface PingReply extends Message {
     int getMyPort();
 
     /**
-     * access the client_locale
+     * Access the client_locale.
      */
     String getClientLocale();
 

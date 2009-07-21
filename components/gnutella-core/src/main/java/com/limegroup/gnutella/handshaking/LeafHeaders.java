@@ -3,7 +3,7 @@ package com.limegroup.gnutella.handshaking;
 import org.limewire.io.IpPort;
 
 /**
- * Properties for connection handshake, if the node is a client
+ * Properties for connection handshake, if the node is a client.
  */
 public class LeafHeaders extends DefaultHeaders {
 

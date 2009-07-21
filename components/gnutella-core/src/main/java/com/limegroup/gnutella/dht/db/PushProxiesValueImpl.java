@@ -30,43 +30,43 @@ public class PushProxiesValueImpl extends AbstractPushProxiesValue {
     private static final long serialVersionUID = -2912251955825278890L;
 
     /**
-     * The GUID of the Gnutella Node
+     * The GUID of the Gnutella Node.
      */
     private final byte[] guid;
     
     /**
-     * Gnutella features bit-field
+     * Gnutella features bit-field.
      */
     private final byte features;
     
     /**
-     * Gnutella Firewall-2-Firewall Transfer Protocol version
+     * Gnutella Firewall-2-Firewall Transfer Protocol version.
      */
     private final int fwtVersion;
     
     /**
      * The port number which may differ from the Contact addresse's
-     * port number
+     * port number.
      */
     private final int port;
     
     /**
-     * A Set of PushProxy IpPorts
+     * A Set of PushProxy IpPorts.
      */
     private final Set<? extends IpPort> proxies;
     
     /**
-     * The raw bytes of the value
+     * The raw bytes of the value.
      */
     private final byte[] data;
     
     /**
-     * tls info for the push proxies
+     * TLS info for the push proxies.
      */
     private final BitNumbers tlsInfo;
     
     /**
-     * Constructor for testing purposes
+     * Constructor for testing purposes.
      */
     public PushProxiesValueImpl(Version version, byte[] guid, 
             byte features, int fwtVersion, 

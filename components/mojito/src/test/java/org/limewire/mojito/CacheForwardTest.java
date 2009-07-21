@@ -138,7 +138,9 @@ public class CacheForwardTest extends MojitoTestCase {
         }
     }
     
-    public void testCacheForward() throws Exception {
+    public void disabledtestCacheForward() throws Exception {
+        // This test is testing a disabled feature and keeps failing. 
+        // We disable this test for now. See LWC-2778 for detail
         
         final long waitForNodes = 1000; // ms
         final long BUCKET_REFRESH = 1 * 1000;

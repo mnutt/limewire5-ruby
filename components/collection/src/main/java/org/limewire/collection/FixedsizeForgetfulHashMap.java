@@ -88,7 +88,7 @@ public class FixedsizeForgetfulHashMap<K, V> extends LinkedHashMap<K, V> {
     }
 
     /**
-     * Tests if the map is full
+     * Tests if the map is full.
      * 
      * @return true, if the map is full (ie if adding any other entry will
      * lead to removal of some other entry to maintain the fixed-size property
@@ -99,7 +99,7 @@ public class FixedsizeForgetfulHashMap<K, V> extends LinkedHashMap<K, V> {
     }
     
     /**
-     * Removes the least recently used entry from the map
+     * Removes the least recently used entry from the map.
      * @return A Map.Entry object
      * @modifies this.
      */

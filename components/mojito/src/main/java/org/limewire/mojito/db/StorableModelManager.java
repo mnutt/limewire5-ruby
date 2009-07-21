@@ -107,7 +107,7 @@ public class StorableModelManager {
     
     /**
      * Notifies a StorableModel about the result of a STORE
-     * operation
+     * operation.
      */
     void handleStoreResult(Storable value, StoreResult result) {
         DHTValueType type = value.getValue().getValueType();
@@ -119,7 +119,7 @@ public class StorableModelManager {
     
     /**
      * Notifies all <code>StorableModels</code> that the local
-     * Contact's contact information changed
+     * Contact's contact information changed.
      */
     public void handleContactChange(Context context) {
         synchronized (models) {

@@ -12,8 +12,6 @@ import com.google.inject.Singleton;
 
 /**
  * Allows you to create a new WhoIsRequest instance.
- * 
- *
  */
 @Singleton
 public class WhoIsRequestFactoryImpl implements WhoIsRequestFactory {

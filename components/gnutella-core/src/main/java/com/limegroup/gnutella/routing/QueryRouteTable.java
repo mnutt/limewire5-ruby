@@ -25,7 +25,7 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
  * minimum TTL for a response.  More formally, a QueryRouteTable is a (possibly
  * infinite!) list of keyword TTL pairs, [ &#60;keyword_1, ttl_1&#62;, ...,
  * &#60;keywordN, ttl_N&#62; ]  <p>
- *
+ * 
  * 10/08/2002 - A day after Susheel's birthday, he decided to change this class
  * for the heck of it.  Kidding.  Functionality has been changed so that keyword
  * depth is 'constant' - meaning that if a keyword is added, then any contains
@@ -34,7 +34,7 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
  * their leaves ONLY, so the depth is always 1.  If you looking for a keyword
  * and it is in the table, a leaf MAY have it, so return true.  This only
  * needed a one line change.
- *
+ * <p>
  * 12/05/2003 - Two months after Susheel's birthday, this class was changed to
  * once again accept variable infinity values.  Over time, optimizations had
  * removed the ability for a QueryRouteTable to have an infinity that wasn't
@@ -45,7 +45,7 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
  * keywordAbsent values going to 1 and -1, cutting the size of our patch
  * messages further in half (a quarter of the original size).  This would
  * probably require upgrading the X-Query-Routing to another version.
- *
+ *<p>
  * <b>This class is NOT synchronized.</b>
  */
 public class QueryRouteTable {
@@ -74,7 +74,7 @@ public class QueryRouteTable {
     
     /**
      * What should come across the wire if a keyword is absent.
-     * The nature of thsi value is dependent on the infinity of the
+     * The nature of this value is dependent on the infinity of the
      * ResetTableMessage.
      */
     private byte keywordAbsent;
@@ -211,22 +211,20 @@ public class QueryRouteTable {
         //   that HashFunction.hash() takes cares of the capitalization.
         String query = qr.getQuery();
         LimeXMLDocument richQuery = qr.getRichQuery();
-		if(query.length() == 0 && 
-		   richQuery == null && 
-		   !qr.hasQueryUrns()) {
-			return false;
-		}
-		if(qr.hasQueryUrns()) {
-			Set<URN> urns = qr.getQueryUrns();
-            for(URN qurn : urns) {
-				int hash = HashFunction.hash(qurn.toString(), bits);
-				if(contains(hash)) {
-					// we note a match if any one of the hashes matches
-					return true;
-				}
-			}
-			return false;
-		}
+        if (query.length() == 0 && richQuery == null && !qr.hasQueryUrns()) {
+            return false;
+        }
+        if (qr.hasQueryUrns()) {
+            Set<URN> urns = qr.getQueryUrns();
+            for (URN qurn : urns) {
+                int hash = HashFunction.hash(qurn.toString(), bits);
+                if (contains(hash)) {
+                    // we note a match if any one of the hashes matches
+                    return true;
+                }
+            }
+            return false;
+        }
         for (int i=0 ; ; ) {
             //Find next keyword...
             //    _ _ W O R D _ _ _ A B
@@ -253,7 +251,7 @@ public class QueryRouteTable {
         if (!contains(hash))//don't know the URI? can't answer query
             return false;
             
-        //3. Finally check that "enough" of the metainformation keywords are in
+        //3. Finally check that "enough" of the meta information keywords are in
         //   the table: 2/3 or 3, whichever is more.
         int wordCount=0;
         int matchCount=0;
@@ -305,7 +303,9 @@ public class QueryRouteTable {
     }
 
     /**
+     * <xmp>
      * For all keywords k in filename, adds <k> to this.
+     * </xmp>
      */
     public void add(String filePath) {
         addBTInternal(filePath);
@@ -335,9 +335,10 @@ public class QueryRouteTable {
 
 
     /**
+     * <xmp>
      * For all <keyword_i> in qrt, adds <keyword_i> to this.
-     * (This is useful for unioning lots of route tables for propoagation.)
-     *
+     * (This is useful for unioning lots of route tables for propagation.)
+     *</xmp>
      *    @modifies this
      */
     public void addAll(QueryRouteTable qrt) {
@@ -617,7 +618,7 @@ public class QueryRouteTable {
 
     ///////////////// Helper Functions for Codec ////////////////////////
 
-    /** Returns the uncompressed version of the given defalted bytes, using
+    /** Returns the uncompressed version of the given defaulted bytes, using
      *  any dictionaries in uncompressor.  Throws IOException if the data is
      *  corrupt.
      *      @requires inflater initialized 
@@ -653,7 +654,7 @@ public class QueryRouteTable {
     }
     
     /** Returns an array R of length array.length/2, where R[i] consists of the
-     *  low nibble of array[2i] concatentated with the low nibble of array[2i+1].
+     *  low nibble of array[2i] concatenated with the low nibble of array[2i+1].
      *  Note that unhalve(halve(array))=array if all elements of array fit can 
      *  fit in four signed bits.
      *      @requires array.length is a multiple of two */

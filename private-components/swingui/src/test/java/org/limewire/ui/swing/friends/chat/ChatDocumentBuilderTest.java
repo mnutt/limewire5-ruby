@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 
 import org.limewire.ui.swing.friends.chat.Message.Type;
-import org.limewire.xmpp.api.client.ChatState;
 import org.limewire.xmpp.api.client.MockFileMetadata;
-import org.limewire.xmpp.api.client.Presence.Mode;
+import org.limewire.friend.api.ChatState;
+import org.limewire.friend.api.FriendPresence.Mode;
 
 public class ChatDocumentBuilderTest extends TestCase {
     public void testBuildChatTextWithLinks() {
@@ -37,7 +37,7 @@ public class ChatDocumentBuilderTest extends TestCase {
     
     public void testBuildChatTextForRealMessage() {
         compareOutput("<div class=\"them\">you:</div>hey there<br/>", ChatState.active, 
-                new Type[] {Type.Received}, 
+                new Type[] {Type.RECEIVED}, 
                 new String[] {"hey there"});
     }
 
@@ -46,7 +46,7 @@ public class ChatDocumentBuilderTest extends TestCase {
         conversation.append("<div class=\"them\">you:</div>heynow<br/>")
                     .append("<div class=\"typing\">you is typing...</div><br/>");
         compareOutput(conversation.toString(), ChatState.composing, 
-                new Type[] {Type.Received},  
+                new Type[] {Type.RECEIVED},  
                 new String[] {"heynow"});
     }
 
@@ -55,7 +55,7 @@ public class ChatDocumentBuilderTest extends TestCase {
         conversation.append("<div class=\"them\">you:</div>heynow<br/>")
         .append("<div class=\"typing\">you has entered text</div><br/>");
         compareOutput(conversation.toString(), ChatState.paused, 
-                new Type[] {Type.Received},  
+                new Type[] {Type.RECEIVED},  
                 new String[] {"heynow"});
     }
 
@@ -64,7 +64,7 @@ public class ChatDocumentBuilderTest extends TestCase {
         conversation.append("<div class=\"them\">you:</div>heynow<br/>")
         .append("<div class=\"typing\">you has signed off</div><br/>");
         compareOutput(conversation.toString(), null, true, 
-                new Type[] {Type.Received},  
+                new Type[] {Type.RECEIVED},  
                 new String[] {"heynow"});
     }
 
@@ -73,7 +73,7 @@ public class ChatDocumentBuilderTest extends TestCase {
         conversation.append("<div class=\"them\">you:</div>heynow<br/>")
                     .append("foobar<br/>");
         compareOutput(conversation.toString(), ChatState.active,
-                new Type[] {Type.Received, Type.Received},  
+                new Type[] {Type.RECEIVED, Type.RECEIVED},  
                 new String[] {"heynow", "foobar"});
     }
     
@@ -84,7 +84,7 @@ public class ChatDocumentBuilderTest extends TestCase {
                     .append("<div class=\"them\">you:</div>fooey<br/>");
         
         compareOutput(conversation.toString(), ChatState.active, 
-                new Type[] {Type.Received, Type.Sent, Type.Received}, 
+                new Type[] {Type.RECEIVED, Type.SENT, Type.RECEIVED}, 
                 new String[] {"heynow", "yo", "fooey"});
     }
     
@@ -95,7 +95,7 @@ public class ChatDocumentBuilderTest extends TestCase {
                     .append("<div class=\"them\">you:</div>yeah I can't beleive it is an actual site.<br/>");
         
         compareOutput(conversation.toString(), ChatState.active, 
-                new Type[] {Type.Received, Type.Sent, Type.Received}, 
+                new Type[] {Type.RECEIVED, Type.SENT, Type.RECEIVED}, 
                 new String[] {"http://gooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle.com/", "wow cool link", "yeah I can't beleive it is an actual site."});
     }
 
@@ -106,8 +106,8 @@ public class ChatDocumentBuilderTest extends TestCase {
         
         MockChatFriend friend = new MockChatFriend(null, null, Mode.available);
         ArrayList<Message> messages = new ArrayList<Message>();
-        messages.add(new MockMessage(friend, "heynow", 0, "me", Type.Sent));      
-        messages.add(new MockMessage(friend, "yo", 600001, "me", Type.Sent));
+        messages.add(new MockMessage(friend, "heynow", 0, "me", Type.SENT));      
+        messages.add(new MockMessage(friend, "yo", 600001, "me", Type.SENT));
         compareOutput(conversation.toString(), null, false, messages);
     }
     
@@ -122,7 +122,7 @@ public class ChatDocumentBuilderTest extends TestCase {
                     .append("Download it now, or get it from them <a href=\"#library\">later</a>.<br/>");
 
         ArrayList<Message> messages = new ArrayList<Message>();
-        messages.add(new MessageFileOfferImpl("you", "myName", Type.Received, new MockFileMetadata("heynow-fileid", "Foo doc.doc"), null));
+        messages.add(new MessageFileOfferImpl("you", "myName", Type.RECEIVED, new MockFileMetadata("heynow-fileid", "Foo doc.doc"), null));
 
         compareOutput(conversation.toString(), ChatState.active, false, messages);
     }
@@ -138,12 +138,12 @@ public class ChatDocumentBuilderTest extends TestCase {
                     .append("<input type=\"submit\" value=\"Foo doc.doc:disabled\"/></form><br/><br/>");
 
         ArrayList<Message> messages = new ArrayList<Message>();
-        messages.add(new MessageFileOfferImpl("you", "myName", Type.Sent, new MockFileMetadata("heynow-fileid", "Foo doc.doc"), null));
+        messages.add(new MessageFileOfferImpl("you", "myName", Type.SENT, new MockFileMetadata("heynow-fileid", "Foo doc.doc"), null));
         compareOutput(conversation.toString(), ChatState.active, false, messages);
     }
 
     private void compareOutput(String input, String expected) {
-        compareOutput(expected, ChatState.active, new Type[] {Type.Sent}, input);
+        compareOutput(expected, ChatState.active, new Type[] {Type.SENT}, input);
     }
 
     private void compareOutput(String expected, ChatState state, Type[] type, String... input) {
@@ -170,7 +170,7 @@ public class ChatDocumentBuilderTest extends TestCase {
         ArrayList<Message> list = new ArrayList<Message>();
         for(int i = 0; i < messages.length; i++) {
             Type type = types[i];
-            list.add(new MessageTextImpl(type == Type.Sent ? "me" : "you", null, type, messages[i]));
+            list.add(new MessageTextImpl(type == Type.SENT ? "me" : "you", null, type, messages[i]));
         }
         return list;
     }

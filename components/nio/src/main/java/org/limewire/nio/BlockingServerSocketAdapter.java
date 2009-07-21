@@ -45,14 +45,14 @@ public class BlockingServerSocketAdapter extends ServerSocket {
         this.observer = observer;
     }
     
-    /** Constructs a new BlockingServerSocketAdapter bound to the given port */
+    /** Constructs a new BlockingServerSocketAdapter bound to the given port. */
     public BlockingServerSocketAdapter(int port) throws IOException {
         this(port, null);
     }
 
     /** 
      * Constructs a new BlockingServerSocketAdapter bound to the given port 
-     * All accepted connections will be routed to the given AcceptObserver
+     * All accepted connections will be routed to the given AcceptObserver.
      */
     public BlockingServerSocketAdapter(int port, AcceptObserver observer) throws IOException {
         this(observer);

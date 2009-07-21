@@ -22,88 +22,88 @@ public class FileArraySetting extends AbstractSetting<File[]> {
     
     private File[] value;
 
-	/**
-	 * Creates a new <tt>FileArraySetting</tt> instance with the specified
-	 * key and default value.
-	 *
-	 * @param key the constant key to use for the setting
-	 * @param defaultValue the default value to use for the setting
-	 */
-	FileArraySetting(Properties defaultProps, Properties props, String key, 
+    /**
+     * Creates a new <tt>FileArraySetting</tt> instance with the specified
+     * key and default value.
+     *
+     * @param key the constant key to use for the setting
+     * @param defaultValue the default value to use for the setting
+     */
+    FileArraySetting(Properties defaultProps, Properties props, String key, 
                                                          File[] defaultValue) {
         super(defaultProps, props, key, decode(defaultValue));
         setPrivate(true);
-	}
+    }
     
-	/**
-	 * Returns the value of this setting.
-	 * 
-	 * @return the value of this setting
-	 */
-	public File[] get() {
+    /**
+     * Returns the value of this setting.
+     * 
+     * @return the value of this setting
+     */
+    public File[] get() {
         return value;
-	}
+    }
 
-	/**
-	 * Mutator for this setting.
-	 *
-	 * @param value the value to store
-	 */
-	public synchronized void set(File[] value) {
-	    setValueInternal(decode(value));
-	}
+    /**
+     * Mutator for this setting.
+     *
+     * @param value the value to store
+     */
+    public synchronized void set(File[] value) {
+        setValueInternal(decode(value));
+    }
 
-	/**
-	 * Mutator for this setting.
-	 *
-	 * @param file file to the array.
-	 */
-	public synchronized void add(File file) {
-	    if (file == null)
-	        return;
-	    
+    /**
+     * Mutator for this setting.
+     *
+     * @param file file to the array
+     */
+    public synchronized void add(File file) {
+        if (file == null)
+            return;
+        
         File[] newValue = new File[value.length+1];
-		System.arraycopy(value, 0, newValue, 0, value.length);
-		newValue[value.length] = file;
-		set(newValue);
-	}
+        System.arraycopy(value, 0, newValue, 0, value.length);
+        newValue[value.length] = file;
+        set(newValue);
+    }
     
-	/**
-	 * Mutator for this setting.
-	 *
-	 * @param file Remove file from the array, if it exists.
-	 * @return false when the array does not contain the file or when the
-	 * file is <code>null</code> 
-	 */
-	public synchronized boolean remove(File file) {
-	    if (file == null)
-	        return false;
-	    
-		int index = indexOf(file);
-		if (index == -1) {
-			return false;
-		}
-	    
+    /**
+     * Mutator for this setting.
+     *
+     * @param file remove file from the array, if it exists.
+     * @return false when the array does not contain the file or when the
+     * file is <code>null</code> 
+     */
+    public synchronized boolean remove(File file) {
+        if (file == null)
+            return false;
+        
+        int index = indexOf(file);
+        if (index == -1) {
+            return false;
+        }
+        
         File[] newValue = new File[value.length-1];
         
         //  copy first half, up to first occurrence's index
         System.arraycopy(value, 0, newValue, 0, index);
         //  copy second half, for the length of the rest of the array
-		System.arraycopy(value, index+1, newValue, index, value.length - index - 1);
-		
-		set(newValue);
-		return true;
-	}
+        System.arraycopy(value, index+1, newValue, index, value.length - index - 1);
+        
+        set(newValue);
+        return true;
+    }
     
-	/** Returns true if the given file is contained in this array. */
-	public synchronized boolean contains(File file) {
-	    return indexOf(file) >= 0;
-	}
-	
-	/** Returns the index of the given file in this array, -1 if file is not found.	 */
-	public synchronized int indexOf(File file) {
-	    if (file == null)
-	        return -1;
+    /** Returns true if the given file is contained in this array. */
+    public synchronized boolean contains(File file) {
+        return indexOf(file) >= 0;
+    }
+    
+    /** Returns the index of the given file in this array, -1 if file is not found. */
+    public synchronized int indexOf(File file) {
+        if (file == null)
+            return -1;
 
         for (int i = 0; i < value.length; i++) {
             try {
@@ -114,24 +114,24 @@ public class FileArraySetting extends AbstractSetting<File[]> {
             }
         }
 
-	    return -1;
-	}
-	
-	/** Returns the length of the array.	 */
-	public synchronized int length() {
-	    return value.length;
-	}
-	
-    /** Load value from property string value
+        return -1;
+    }
+
+    /** Returns the length of the array.	 */
+    public synchronized int length() {
+        return value.length;
+    }
+
+    /** Load value from property string value.
      * @param sValue property string value
      *
      */
     @Override
     protected synchronized void loadValue(String sValue) {
-		value = encode(sValue);
+        value = encode(sValue);
     }
     
-    /** Splits the string into an Array     */
+    /** Splits the string into an Array.     */
     private static File[] encode(String src) {
         
         if (src == null || src.length()==0) {
@@ -147,7 +147,7 @@ public class FileArraySetting extends AbstractSetting<File[]> {
         return dirs;
     }
     
-    /** Separates each field of the array by a semicolon     */
+    /** Separates each field of the array by a semicolon.     */
     private static String decode(File[] src) {
         
         if (src == null || src.length==0) {
@@ -165,10 +165,10 @@ public class FileArraySetting extends AbstractSetting<File[]> {
         return buffer.toString();
     }
 
-	/** Removes non-existent members from this.	 */
-	public synchronized void clean() {
-		List<File> list = new ArrayList<File>(value.length);
-		File file;
+    /** Removes non-existent members from this. */
+    public synchronized void clean() {
+        List<File> list = new ArrayList<File>(value.length);
+        File file;
         for (File aValue : value) {
             file = aValue;
             if (file == null)
@@ -177,6 +177,6 @@ public class FileArraySetting extends AbstractSetting<File[]> {
                 continue;
             list.add(file);
         }
-		set(list.toArray(new File[list.size()]));
-	}
+        set(list.toArray(new File[list.size()]));
+    }
 }

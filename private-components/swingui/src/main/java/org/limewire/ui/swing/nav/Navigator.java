@@ -2,6 +2,7 @@ package org.limewire.ui.swing.nav;
 
 import javax.swing.JComponent;
 
+
 /**
  * The main hub for navigation.
  */
@@ -10,18 +11,18 @@ public interface Navigator {
     /**
      * Creates a new navigable item in the given category. When the item is
      * selected, the given panel should be rendered.
-     * 
+     * <p>
      * To remove the NavItem, call {@link NavItem#remove()} on the NavItem
      * returned by this, or retrieve the NavItem later by calling
      * {@link #getNavItem(NavCategory, String)}.
      * 
-     * @param category The category this belongs in.
-     * @param id The id that identifies this panel.
-     * @param panel The panel to display when selected.
+     * @param category the category this belongs in
+     * @param id the id that identifies this panel
+     * @param panel the panel to display when selected
      * 
-     * @return A {@link NavItem} that can be used to select or remove the item.
+     * @return A {@link NavItem} that can be used to select or remove the item
      */
-    public NavItem createNavItem(NavCategory category, String id, JComponent panel);
+    public NavItem createNavItem(NavCategory category, String id, NavMediator navMediator);
 
     /**
      * Returns true if a {@link NavItem} exists in the given category with the given id.

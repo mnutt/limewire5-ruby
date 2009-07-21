@@ -19,7 +19,7 @@ import org.limewire.ui.swing.components.NumericTextField;
 import org.limewire.ui.swing.util.I18n;
 
 /**
- * Firewall Option Panel
+ * Firewall Option Panel.
  */
 public class FirewallOptionPanel extends OptionPanel {
 
@@ -34,6 +34,7 @@ public class FirewallOptionPanel extends OptionPanel {
         this.networkManager = networkManager;
         
         setLayout(new MigLayout("insets 10 10 10 10, fillx, wrap", "", ""));
+        setOpaque(false);
         
         add(getListeningPortPanel(), "pushx, growx");
         add(getRouterConfigPanel(), "pushx, growx");
@@ -140,6 +141,10 @@ public class FirewallOptionPanel extends OptionPanel {
             plugAndPlayRadioButton = new JRadioButton(I18n.tr("Use Universal Plug n' Play (Recommended)"));
             portForwardRadioButton = new JRadioButton(I18n.tr("Manual Port Forward:"));
             doNothingRadioButton = new JRadioButton(I18n.tr("Do Nothing"));
+            
+            plugAndPlayRadioButton.setOpaque(false);
+            portForwardRadioButton.setOpaque(false);
+            doNothingRadioButton.setOpaque(false);
             
             buttonGroup = new ButtonGroup();
             buttonGroup.add(plugAndPlayRadioButton);

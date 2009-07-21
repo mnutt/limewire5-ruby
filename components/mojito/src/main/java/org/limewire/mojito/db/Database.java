@@ -60,7 +60,7 @@ public interface Database extends Serializable {
     //public boolean add(DHTValueEntity entity);
     
     /**
-     * Removes the given <code>DHTValue</code> from the Database
+     * Removes the given <code>DHTValue</code> from the Database.
      * 
      * @param primaryKey key of key-value to remove
      * @param secondaryKey value of key-value to remove
@@ -71,7 +71,7 @@ public interface Database extends Serializable {
     
     /**
      * Returns whether or not the given <code>DHTValue</code> is stored in our
-     * Database
+     * Database.
      */
     public boolean contains(KUID primaryKey, KUID secondaryKey);
     

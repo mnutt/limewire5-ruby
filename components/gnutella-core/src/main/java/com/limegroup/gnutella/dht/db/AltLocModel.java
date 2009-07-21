@@ -24,8 +24,8 @@ import com.google.inject.Singleton;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.dht.util.KUIDUtils;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
-import com.limegroup.gnutella.library.SharedFileList;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
 import com.limegroup.gnutella.tigertree.HashTree;
 import com.limegroup.gnutella.tigertree.HashTreeCache;
 
@@ -47,12 +47,13 @@ public class AltLocModel implements StorableModel {
 
     private final Provider<HashTreeCache> tigerTreeCache;
 
-    private final Provider<FileManager> fileManager;
+    private final FileView gnutellaFileView;
     
     @Inject
-    public AltLocModel(AltLocValueFactory altLocValueFactory, Provider<FileManager> fileManager, Provider<HashTreeCache> tigerTreeCache) {
+    public AltLocModel(AltLocValueFactory altLocValueFactory,
+            @GnutellaFiles FileView gnutellaFileView, Provider<HashTreeCache> tigerTreeCache) {
         this.altLocValueFactory = altLocValueFactory;
-        this.fileManager = fileManager;
+        this.gnutellaFileView = gnutellaFileView;
         this.tigerTreeCache = tigerTreeCache;
     }
     
@@ -67,12 +68,11 @@ public class AltLocModel implements StorableModel {
         List<Storable> toRemove = new ArrayList<Storable>();
         List<Storable> toPublish = new ArrayList<Storable>();
         
-        SharedFileList sharedFiles = fileManager.get().getGnutellaFileList();
         synchronized (values) {
-            sharedFiles.getReadLock().lock();
+            gnutellaFileView.getReadLock().lock();
             try {
                 // Step One: Add every new FileDesc to the Map
-                for(FileDesc fd : sharedFiles) {
+                for(FileDesc fd : gnutellaFileView) {
                     URN urn = fd.getSHA1Urn();
                     KUID primaryKey = KUIDUtils.toKUID(urn);
                     if (!values.containsKey(primaryKey)) {
@@ -88,7 +88,7 @@ public class AltLocModel implements StorableModel {
                     }
                 }
             } finally {
-                sharedFiles.getReadLock().unlock();
+                gnutellaFileView.getReadLock().unlock();
             }
             
             // Step Two: Remove every Storable that is no longer
@@ -101,7 +101,7 @@ public class AltLocModel implements StorableModel {
                 URN urn = KUIDUtils.toURN(primaryKey);
                 
                 // For each URN check if the FileDesc still exists
-                FileDesc fd = sharedFiles.getFileDesc(urn);
+                FileDesc fd = gnutellaFileView.getFileDesc(urn);
                 
                 // If it doesn't then remove it from the values map and
                 // replace the entity value with the empty value

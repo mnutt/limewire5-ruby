@@ -35,7 +35,7 @@ public class NameValue <V> implements Map.Entry<String, V> {
         this(name, null);
     }
     
-    /** Creates new NameValue */
+    /** Creates new NameValue. */
     public NameValue(String name, V value) {
         this._name = name;
         this._value = value;
@@ -67,8 +67,6 @@ public class NameValue <V> implements Map.Entry<String, V> {
      * Gives a {@link #compareTo(org.limewire.util.NameValue.ComparableByName)} 
      * implementation for a {@link NameValue}. This class compares according to
      * the name.  
-     * <pre>
-     * </pre> 
      */
     public static class ComparableByName<V> extends NameValue<V> implements Comparable<ComparableByName> {
         public ComparableByName(String name) {

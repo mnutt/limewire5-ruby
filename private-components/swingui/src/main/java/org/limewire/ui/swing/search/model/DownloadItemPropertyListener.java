@@ -32,25 +32,9 @@ class DownloadItemPropertyListener implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         if ("state".equals(evt.getPropertyName())) {
             DownloadState state = (DownloadState) evt.getNewValue();
-            switch (state) {
-            case CANCELLED:
-                setDownloadState(BasicDownloadState.NOT_STARTED);
-                break;
-            case DONE:
-                setDownloadState(BasicDownloadState.DOWNLOADED);
-                break;
-            case ERROR:
-            case TRYING_AGAIN:
-            case CONNECTING:
-            case LOCAL_QUEUED:
-            case PAUSED:
-            case REMOTE_QUEUED:
-            case STALLED:
-            case FINISHING:
-            case RESUMING:
-            case DOWNLOADING:
-                setDownloadState(BasicDownloadState.DOWNLOADING);
-                break;
+            BasicDownloadState bstate = BasicDownloadState.fromState(state);
+            if(bstate != null) {
+                setDownloadState(bstate);
             }
         }
     }

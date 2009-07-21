@@ -215,7 +215,7 @@ public class DeflaterWriter implements ChannelWriter, InterestWritableByteChanne
             listener.shutdown();
     }
     
-    /** Unused, Unsupported */
+    /** Unused, Unsupported. */
     public void handleIOException(IOException x) {
         throw new RuntimeException("Unsupported", x);
     }

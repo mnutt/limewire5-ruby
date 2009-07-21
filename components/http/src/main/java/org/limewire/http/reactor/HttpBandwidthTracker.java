@@ -1,7 +1,7 @@
 package org.limewire.http.reactor;
 
 /**
- * A simple implementation of the BandwidthTracker interface
+ * A simple implementation of the BandwidthTracker interface.
  */
 // TODO duplicates SimpleBandwidthTracker
 public class HttpBandwidthTracker {
@@ -30,7 +30,7 @@ public class HttpBandwidthTracker {
     /**
      * Adds the given amount to the tracked bandwidth usage since the last time 
      * measureBandwidth was called.
-     * @param added non negative value to count twoards bandwidth
+     * @param added non negative value to count towards bandwidth
      * @throws IllegalArgumentException if value supplied is < 0
      */
     public synchronized void count(int added) {

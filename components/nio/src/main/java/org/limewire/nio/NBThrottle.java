@@ -113,7 +113,7 @@ public class NBThrottle implements Throttle {
     
     /**
      * A list of ThrottleListeners that are interested in bandwidthAvailable events.
-     *
+     * <p>
      * As ThrottleListeners interest themselves interest themselves for writing, 
      * the requests are queued up here.  When bandwidth is available the request is
      * moved over to 'interested' after informing the ThrottleListener that bandwidth
@@ -124,7 +124,7 @@ public class NBThrottle implements Throttle {
     
     /**
      * Attachments that are interested -> ThrottleListener that owns the attachment.
-     *
+     * <p>
      * As new items become interested, they are added to the bottom of the set.
      * When something is written, so long as it writes > 0, it is removed from the
      * list (and put back at the bottom).
@@ -133,7 +133,7 @@ public class NBThrottle implements Throttle {
     
     /**
      * Attachments that are ready-op'd.
-     *
+     * <p>
      * This is temporary per each selectableKeys call, but is cached to avoid regenerating
      * each time.
      */
@@ -168,12 +168,12 @@ public class NBThrottle implements Throttle {
     /**
      * Constructs a new Throttle that is either for writing or reading, allowing
      * the given bytesPerSecond.
-     *
+     * <p>
      * Use 'true' for writing, 'false' for reading.
-     *
+     * <p>
      * If addToDispatcher is false, NIODispatcher is not notified about the Throttle,
      * so it will not be automatically ticked or told of selectable keys.
-     *
+     * <p>
      * The throttle will allow bandwidth spreading every millisPerTick, after
      * enforcing it's between 50 & 100.
      */
@@ -235,16 +235,16 @@ public class NBThrottle implements Throttle {
                     //LOG.trace("Removing closed but interested party: " + next.getKey());
                     i.remove();
                 } else if(key != null) {
-                	i.remove();
+                    i.remove();
                     //LOG.debug("Processing: " + key.attachment());
-                	listener.requestBandwidth();
-                	try {
-                		NIODispatcher.instance().process(now, key, key.attachment(), _processOp);
-                	} finally {
-                		listener.releaseBandwidth();
-                	}
-                	if (_available < MINIMUM_TO_GIVE)
-                		break;
+                    listener.requestBandwidth();
+                    try {
+                        NIODispatcher.instance().process(now, key, key.attachment(), _processOp);
+                    } finally {
+                        listener.releaseBandwidth();
+                    }
+                    if (_available < MINIMUM_TO_GIVE)
+                        break;
                 }
             }
             _active = false;
@@ -263,7 +263,7 @@ public class NBThrottle implements Throttle {
             _requests.add(writer);
         }
         if (wakeup || _available >= MINIMUM_TO_GIVE)
-        	NIODispatcher.instance().wakeup();
+            NIODispatcher.instance().wakeup();
     }
     
     /**
@@ -287,15 +287,6 @@ public class NBThrottle implements Throttle {
         //LOG.trace("RETR: " + amount + ", REMAINING: " + _available + ", ALL: " + wroteAll + ", FROM: " + attachment);
     }
     
-	/**
-	 * Set the number of bytes to write per second.
-	 * 
-	 * @param bytesPerSecond
-	 */
-	public void limit(int bytesPerSecond) {
-		_bytesPerTick = bytesPerSecond * MILLIS_PER_TICK / 1000;
-	}
-    
     /**
      * Notification from <code>NIODispatcher</code> that some time has passed.
      * <p>
@@ -314,11 +305,11 @@ public class NBThrottle implements Throttle {
     }
     
     public long nextTickTime() {
-    	synchronized(_requests) {
-    		if (_requests.isEmpty() && _interested.isEmpty())
-    			return Long.MAX_VALUE;
-    	}
-    	return _nextTickTime;
+        synchronized(_requests) {
+            if (_requests.isEmpty() && _interested.isEmpty())
+                return Long.MAX_VALUE;
+        }
+        return _nextTickTime;
     }
     
     /**
@@ -332,7 +323,7 @@ public class NBThrottle implements Throttle {
                     if(attachment == null)
                         throw new IllegalStateException("must have an attachment - listener: " + req);
                     
-                    //LOG.debug("Moving: " + attachment + " from rquests to interested");
+                    //LOG.debug("Moving: " + attachment + " from requests to interested");
                     if(req.bandwidthAvailable())
                     	_interested.put(attachment, req);
                     // else it'll be cleared when we loop later on.

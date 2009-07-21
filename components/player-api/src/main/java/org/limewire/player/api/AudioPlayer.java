@@ -13,31 +13,31 @@ import java.net.URL;
 public interface AudioPlayer {
 
     /**
-     * Loads a song wrapped in a AudioSource object
+     * Loads a song wrapped in a AudioSource object.
      */
     public void loadSong(AudioSource source);
     
     /**
-     * Loads a song from a File 
+     * Loads a song from a File.
      */
     public void loadSong(File source);
     
     /**
-     * Loads a song from an InputStream
+     * Loads a song from an InputStream.
      */
     public void loadSong(InputStream source);
     
     /**
-     * Loads a song from a URL
+     * Loads a song from a URL.
      */
     public void loadSong(URL source);
-	
-	/**
-     * Begins playing the loaded song
+
+    /**
+     * Begins playing the loaded song.
      */
     public void playSong();
-	
-	/**
+
+    /**
      * Pauses the current song.
      */
     public void pause();
@@ -55,9 +55,9 @@ public interface AudioPlayer {
     
     /**
      * If playing a file, searches to a specified location in the song If
-     * playing a stream, has no effect
+     * playing a stream, has no effect.
      *
-     * @param value - non-negative frame to skip to
+     * @param value non-negative frame to skip to
      */
     public long seekLocation(long value);
     
@@ -71,17 +71,17 @@ public interface AudioPlayer {
     public PlayerState getStatus();
     
     /**
-     * Sets Volume(Gain) value Linear scale 0.0 <--> 1.0
+     * Sets Volume(Gain) value Linear scale 0.0 <--> 1.0.
      */
     public void setVolume(double value);
     
     /**
-     * Adds a listener to the list of player listeners
+     * Adds a listener to the list of player listeners.
      */
     public void addAudioPlayerListener(AudioPlayerListener listener);
     
     /**
-     * Removes a listener from the list of player listeners
+     * Removes a listener from the list of player listeners.
      */
     public void removeAudioPlayerListener(AudioPlayerListener listener);
     

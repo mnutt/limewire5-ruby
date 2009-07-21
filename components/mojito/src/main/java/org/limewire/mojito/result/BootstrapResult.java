@@ -24,24 +24,24 @@ import org.limewire.mojito.routing.Contact;
 
 /**
  * BootstrapResults are fired during bootstrapping and after
- * bootstrapping has finished
+ * bootstrapping has finished.
  */
 public class BootstrapResult implements Result {
     
     /**
-     * Various types of Bootstrap Events
+     * Various types of Bootstrap Events.
      */
     public static enum ResultType {
         
         /**
          * Fired when the bootstrap process finished
-         * successfully
+         * successfully.
          */
         BOOTSTRAP_SUCCEEDED,
         
         /**
          * Fired when the bootstrap process finished
-         * unsuccessfully
+         * unsuccessfully.
          */
         BOOTSTRAP_FAILED;
     }
@@ -59,21 +59,21 @@ public class BootstrapResult implements Result {
     }
     
     /**
-     * Returns the initial bootstrap Node
+     * Returns the initial bootstrap Node.
      */
     public Contact getContact() {
         return node;
     }
     
     /**
-     * Returns the ResultType
+     * Returns the ResultType.
      */
     public ResultType getResultType() {
         return resultType;
     }
     
     /**
-     * Returns the total bootstrapping time
+     * Returns the total bootstrapping time.
      */
     public long getTime() {
         return time;

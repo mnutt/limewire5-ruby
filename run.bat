@@ -33,4 +33,4 @@ FOR /D %%c IN (private-components\*) DO (
 )
 
 
-java -Djava.net.preferIPV6Addresses=false -ea -da:ca.odell.glazedlists... -Djava.net.preferIPv4stack=true org.limewire.ui.swing.Main
+java -Djava.net.preferIPV6Addresses=false -ea -da:ca.odell.glazedlists... -Djava.net.preferIPv4stack=true -Djna.library.path=lib\native\windows org.limewire.ui.swing.Main

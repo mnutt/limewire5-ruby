@@ -86,7 +86,7 @@ public abstract class AbstractPromotionBinderRequestor implements PromotionBinde
     /**
      * Called when an {@link Exception} occurs.
      * 
-     * @param e the {@link Exception} that occured.
+     * @param e the {@link Exception} that occurred.
      */
     protected abstract void error(Exception e);
 
@@ -109,7 +109,7 @@ public abstract class AbstractPromotionBinderRequestor implements PromotionBinde
      * Called once the {@link PostMethod} <code>request</code> is constructed.
      * The purpose of the callback is so we can pass a {@link PromotionBindder}
      * created from the {@link PromotionBinderFactory} from the passed in bytes
-     * we recieve from the request.
+     * we receive from the request.
      * 
      * @param request <code>POST</code> to send to a server
      * @throws HttpException thrown when a protocol error occurs

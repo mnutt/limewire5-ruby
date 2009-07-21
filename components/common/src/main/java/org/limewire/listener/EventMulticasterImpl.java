@@ -23,6 +23,10 @@ public class EventMulticasterImpl<E> implements EventMulticaster<E> {
         this.listeners = new EventListenerList<E>(log);
     }
     
+    public EventMulticasterImpl(EventListenerListContext context) {
+        this.listeners = new EventListenerList<E>(context);
+    }
+    
     public EventListenerListContext getListenerContext() {
         return listeners.getContext();
     }

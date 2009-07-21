@@ -1,10 +1,10 @@
 package org.limewire.ui.swing.images;
 
 import java.awt.Color;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -15,92 +15,89 @@ import javax.swing.SwingUtilities;
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXList;
 import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.core.api.library.LocalFileList;
-import org.limewire.ui.swing.library.SelectAllable;
+import org.limewire.ui.swing.components.Disposable;
+import org.limewire.ui.swing.library.table.LibraryPopupMenu;
 import org.limewire.ui.swing.table.TablePopupHandler;
-import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
-import org.limewire.ui.swing.components.Disposable;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ListSelection;
-import ca.odell.glazedlists.swing.EventSelectionModel;
+import ca.odell.glazedlists.swing.DefaultEventListModel;
+import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- *	Draws a list of images. Images are displayed in a horizontal left
+ *  Draws a list of images. Images are displayed in a horizontal left
  *  to right space before wrapping to a new line. Spaces between the
  *  images are injected with the inset values list below.
  */
-public class ImageList extends JXList implements Disposable, SelectAllable<LocalFileItem> {
+public class ImageList extends JXList implements Disposable {
 
     @Resource
     private Color backgroundListcolor;
-    @Resource
-    private int imageBoxWidth;
-    @Resource
-    private int imageBoxHeight;
-    @Resource
-    private int insetTop;
-    @Resource
-    private int insetBottom;
-    @Resource
-    private int insetLeft;
-    @Resource
-    private int insetRight;
     
-    private ImageCellRenderer renderer;
-    private EventList<LocalFileItem> listSelection;
+    private final ImageCellRenderer imageCellRenderer;
     
-    public ImageList(EventList<LocalFileItem> eventList, LocalFileList fileList) {
-        super(new ImageListModel(eventList, fileList));
-
+    private DefaultEventListModel cachedEventListModel;
+    private DefaultEventSelectionModel<LocalFileItem> cachedEventSelectionModel;
+    
+    @Inject
+    public ImageList(final ImageCellRenderer imageCellRenderer, Provider<LibraryPopupMenu> libraryPopupMenu) {
+        this.imageCellRenderer = imageCellRenderer;
+        
         GuiUtils.assignResources(this); 
         
         setBackground(backgroundListcolor);
-        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         setLayoutOrientation(JList.HORIZONTAL_WRAP);
         //this must be set to negative 1 to get horizontal line wrap
         setVisibleRowCount(-1);
 
+        setCellRenderer(imageCellRenderer);
+        //TODO: fix this, component dimensions not beign created yet without setting this
+        imageCellRenderer.setBorder(BorderFactory.createEmptyBorder(15,7,0,7));
         // add in inset size when calculated fixed cell dimensions
         // inset spacing is the white space you will see between images
-        setFixedCellHeight(imageBoxHeight + insetTop + insetBottom);
-        setFixedCellWidth(imageBoxWidth + insetRight + insetLeft);
+        Insets insets = imageCellRenderer.getBorder().getBorderInsets(imageCellRenderer);
+        setFixedCellHeight(imageCellRenderer.getHeight() + insets.top + insets.bottom);
+        setFixedCellWidth(imageCellRenderer.getWidth() + insets.left + insets.right);
         
         //enable double click launching of image files.
         addMouseListener(new ImageDoubleClickMouseListener());
-        EventSelectionModel<LocalFileItem> selectionModel = GlazedListsSwingFactory.eventSelectionModel(eventList);
-        this.listSelection = selectionModel.getSelected();
-        setSelectionModel(selectionModel);
-        selectionModel.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
+        setPopupHandler(new ImagePopupHandler(this, libraryPopupMenu));
     }
     
-    /** Returns a copy of all selected items. */
-    @Override
-    public List<LocalFileItem> getSelectedItems() {
-        return new ArrayList<LocalFileItem>(listSelection);
-    }
-    
-    @Override
-    public List<LocalFileItem> getAllItems() {
-        return new ArrayList<LocalFileItem>( ((ImageListModel)getModel()).getFileList().getSwingModel());
-    }
+    public void setModel(EventList<LocalFileItem> eventList) {
+        DefaultEventListModel newEventListModel = new DefaultEventListModel<LocalFileItem>(eventList);
+        DefaultEventSelectionModel<LocalFileItem> newEventSelectionModel = new DefaultEventSelectionModel<LocalFileItem>(eventList);
 
-    @Override
-    public void selectAll() {
-        getSelectionModel().setSelectionInterval(0, getModel().getSize()-1);
+        setSelectionModel(newEventSelectionModel);
+        setModel(newEventListModel);
+        newEventSelectionModel.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
+        
+        if(cachedEventListModel != null) {
+            cachedEventSelectionModel.dispose();
+            cachedEventListModel.dispose();
+        }
+        
+        cachedEventListModel = newEventListModel;
+        cachedEventSelectionModel = newEventSelectionModel;
+    }
+    
+    /** Returns all currently selected LocalFileItems. */
+    public List<LocalFileItem> getSelectedItems() {
+        return cachedEventSelectionModel.getSelected();
     }
 
     @Override
     public void dispose() {
-        ((ImageListModel)getModel()).dispose();
-        ((EventSelectionModel)getSelectionModel()).dispose();
-    }
-
-    @SuppressWarnings("unchecked")
-    public EventList<LocalFileItem> getListSelection() {
-        return ((EventSelectionModel<LocalFileItem>)getSelectionModel()).getSelected();
+        if(cachedEventListModel != null) {
+            cachedEventSelectionModel.dispose();
+            cachedEventListModel.dispose();
+        }
     }
     
     /**
@@ -128,21 +125,10 @@ public class ImageList extends JXList implements Disposable, SelectAllable<Local
     }
     
     /**
-     * Sets the renderer on this List. The renderer is wrapped in an empty
-     * border to create white space between the cells.
-     */
-    public void setImageCellRenderer(ImageCellRenderer renderer) {
-        this.renderer = renderer;
-        renderer.setInsets(BorderFactory.createEmptyBorder(insetTop,insetLeft,insetBottom,insetRight));
-        
-        super.setCellRenderer(renderer);
-    }
-    
-    /**
-     * Returns the CellRenderer for this list
+     * Returns the CellRenderer for this list.
      */
     public ImageCellRenderer getImageCellRenderer() {
-        return renderer;
+        return imageCellRenderer;
     }
     
     /**
@@ -155,9 +141,11 @@ public class ImageList extends JXList implements Disposable, SelectAllable<Local
             if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
                 ImageList imageList = (ImageList)e.getComponent();
                 int index = imageList.locationToIndex(e.getPoint());
-                LocalFileItem val = (LocalFileItem) imageList.getElementAt(index);
-                File file = val.getFile();
-                NativeLaunchUtils.safeLaunchFile(file);
+                if(index >= 0) {
+                    LocalFileItem val = (LocalFileItem) imageList.getElementAt(index);
+                    File file = val.getFile();
+                    NativeLaunchUtils.safeLaunchFile(file);
+                }
             }
         }
     }

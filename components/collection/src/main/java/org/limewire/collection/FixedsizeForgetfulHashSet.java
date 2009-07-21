@@ -72,7 +72,7 @@ public class FixedsizeForgetfulHashSet<E> extends AbstractSet<E> implements Set<
     }
     
     /**
-     * Tests if the set is full
+     * Tests if the set is full.
      * 
      * @return true, if the set is full (ie if adding any other entry will
      * lead to removal of some other entry to maintain the fixed-size property
@@ -110,8 +110,6 @@ public class FixedsizeForgetfulHashSet<E> extends AbstractSet<E> implements Set<
     }
 
     /**
-     * Returns the number of elements in this set (its cardinality).
-     *
      * @return the number of elements in this set (its cardinality).
      */
     @Override
@@ -120,8 +118,6 @@ public class FixedsizeForgetfulHashSet<E> extends AbstractSet<E> implements Set<
     }
 
     /**
-     * Returns <tt>true</tt> if this set contains no elements.
-     *
      * @return <tt>true</tt> if this set contains no elements.
      */
     @Override

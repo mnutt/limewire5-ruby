@@ -31,7 +31,7 @@ public class LicenseVerifier {
 
     /**
      * Starts verification of the license.
-     * 
+     * <p>
      * The listener is notified when verification is finished.
      */
     public void verify(final License license, final VerificationListener listener) {

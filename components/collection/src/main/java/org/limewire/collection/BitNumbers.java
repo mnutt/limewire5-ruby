@@ -43,9 +43,11 @@ public class BitNumbers {
      * Constructs a BitNumbers based on the given hex string.
      * This accepts a nibble for the last element,
      * thus: 
+     * <pre>
      *    FF   corresponds to elements 0 through 8 being on
      *    FFF  corresponds to elements 0 through 12 being on (implies below)
      *    FFF0 corresponds to elements 0 through 12 being on also
+     * </pre>
      */
     public BitNumbers(String hexString) throws IllegalArgumentException {
         this.data = new byte[(int)Math.ceil(hexString.length() / 2d)];
@@ -133,7 +135,7 @@ public class BitNumbers {
         return Arrays.hashCode(toByteArray());
     }
     
-    /** A hexadecimal representation of the byte[] */
+    /** A hexadecimal representation of the byte[]. */
     public String toHexString() {
         if(isEmpty()) {
             return "";

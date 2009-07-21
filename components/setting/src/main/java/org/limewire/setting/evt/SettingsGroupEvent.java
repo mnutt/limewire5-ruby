@@ -3,50 +3,50 @@ package org.limewire.setting.evt;
 import org.limewire.setting.SettingsGroup;
 
 /**
- * SettingsEvent are fired when a {@link SettingsGroup} instance changed 
+ * SettingsEvent are fired when a {@link SettingsGroup} instance changed. 
  */
 public class SettingsGroupEvent {
     
     /**
-     * Various SettingsEvent that may occur
+     * Various SettingsEvent that may occur.
      */
     public static enum EventType {
         /**
-         * The Settings were saved
+         * The Settings were saved.
          */
         SAVE,
         
         /**
-         * The Settings were reloaded
+         * The Settings were reloaded.
          */
         RELOAD,
         
         /**
-         * The Settings were reverted back to default
+         * The Settings were reverted back to default.
          */
         REVERT_TO_DEFAULT,
         
         /**
-         * The 'should save' state of the Settings changed
+         * The 'should save' state of the Settings changed.
          */
         SHOULD_SAVE
     }
     
     /**
-     * The type of the event
+     * The type of the event.
      */
     private final EventType type;
     
     /**
-     * The {@link SettingsGroup} instance that created this event
+     * The {@link SettingsGroup} instance that created this event.
      */
     private final SettingsGroup group;
     
     /**
-     * Constructs a SettingsEvent
+     * Constructs a SettingsEvent.
      * 
-     * @param type The type of the event
-     * @param group The {@link SettingsGroup} instance that triggered this event
+     * @param type the type of the event
+     * @param group the {@link SettingsGroup} instance that triggered this event
      */
     public SettingsGroupEvent(EventType type, SettingsGroup group) {
         if (type == null) {
@@ -62,14 +62,14 @@ public class SettingsGroupEvent {
     }
     
     /**
-     * Returns the type of the event
+     * Returns the type of the event.
      */
     public EventType getEventType() {
         return type;
     }
     
     /**
-     * Returns the {@link SettingsGroup} instance that fired this event
+     * Returns the {@link SettingsGroup} instance that fired this event.
      */
     public SettingsGroup getSettingsGroup() {
         return group;

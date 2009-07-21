@@ -26,29 +26,29 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The DHTExecutorService provides execution services for Mojito
+ * The DHTExecutorService provides execution services for Mojito.
  */
 public interface DHTExecutorService {
     
     /**
-     * Starts the DHTExecutorService
+     * Starts the DHTExecutorService.
      */
     public void start();
     
     /**
-     * Stops the DHTExecutorService
+     * Stops the DHTExecutorService.
      */
     public void stop();
     
     /**
      * Sets the ThreadFactory that will be used to create
      * all Thread. Passing null will reset it to the default
-     * ThreadFactory
+     * ThreadFactory.
      */
     public void setThreadFactory(ThreadFactory threadFactory);
     
     /**
-     * Returns the ThreadFactory that's used to create Threads
+     * Returns the ThreadFactory that's used to create Threads.
      */
     public ThreadFactory getThreadFactory();
     

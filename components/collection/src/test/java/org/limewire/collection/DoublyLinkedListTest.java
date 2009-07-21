@@ -9,7 +9,7 @@ import org.limewire.util.BaseTestCase;
 
 
 /**
- * Unit tests for DoublyLinkedList
+ * Unit tests for <code>DoublyLinkedList</code>.
  */
 @SuppressWarnings("unchecked")
 public class DoublyLinkedListTest extends BaseTestCase {

@@ -28,7 +28,6 @@ public class HttpClientManagerTest extends LimeTestCase {
     private TestBootstrapServer[] tlsServers;
     private String[] httpUrls;
     private String[] tlsUrls;
-    private String[] httpsUrls;
     
     private static final int HTTP_PORT=6700;
     private static final int TLS_PORT=7700;
@@ -55,14 +54,12 @@ public class HttpClientManagerTest extends LimeTestCase {
         tlsServers = new TestBootstrapServer[11];
         httpUrls = new String[11];
         tlsUrls = new String[11];
-        httpsUrls = new String[11];
         
         for(int i = 0; i < 11; i++) {
             httpServers[i] = new TestBootstrapServer(HTTP_PORT+i);
             tlsServers[i] = new TestBootstrapServer(TLS_PORT+i, true);
             httpUrls[i] = "http://127.0.0.1:" + (HTTP_PORT + i);
             tlsUrls[i] = "tls://127.0.0.1:" + (TLS_PORT + i);
-            httpsUrls[i] = "https://127.0.0.1:" + (TLS_PORT + i);
         }
     }
     
@@ -91,10 +88,6 @@ public class HttpClientManagerTest extends LimeTestCase {
     
     public void testExecuteMethodRedirectingTLS() throws Exception {
         doExecuteMethodRedirectingTest(tlsUrls, tlsServers);
-    }
-    
-    public void testExecuteMethodRedirectingHTTPS() throws Exception {
-        doExecuteMethodRedirectingTest(httpsUrls, tlsServers);
     }
     
     private void doExecuteMethodRedirectingTest(String[] urls, TestBootstrapServer[] servers) throws Exception {
@@ -229,7 +222,6 @@ public class HttpClientManagerTest extends LimeTestCase {
         
         doUppercaseTest(httpUrls[0], httpServers[0]);
         doUppercaseTest(tlsUrls[0], tlsServers[0]);
-        doUppercaseTest(httpsUrls[1], tlsServers[1]); // use a different server
         
         // Make sure we know what a malformed URL will give us.
         try {
@@ -257,7 +249,6 @@ public class HttpClientManagerTest extends LimeTestCase {
     public void testReuseConnection() throws Exception {
         doReuseConnectionTest(httpUrls[0], httpServers[0]);
         doReuseConnectionTest(tlsUrls[0], tlsServers[0]);
-        doReuseConnectionTest(httpsUrls[1], tlsServers[1]); // use a different server
     }
     
     private void doReuseConnectionTest(String url, TestBootstrapServer server) throws Exception {
@@ -299,10 +290,6 @@ public class HttpClientManagerTest extends LimeTestCase {
     
     public void testConnectionClosesTLS() throws Exception {
         doConnectionClosesTest(tlsUrls[0], tlsServers[0]);
-    }
-    
-    public void testConnectionClosesHTTPS() throws Exception {
-        doConnectionClosesTest(httpsUrls[0], tlsServers[0]);
     }
     
     private void doConnectionClosesTest(String url, TestBootstrapServer server) throws Exception {

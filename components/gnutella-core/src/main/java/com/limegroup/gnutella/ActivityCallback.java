@@ -3,13 +3,13 @@ package com.limegroup.gnutella;
 import java.io.File;
 import java.util.Set;
 
+import org.limewire.bittorrent.Torrent;
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.i18n.I18nMarker;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 
-import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -97,10 +97,10 @@ public interface ActivityCallback extends DownloadCallback
     public String translate(String s);
     
     /**
-     * Handles the supplied SaveLocation exception by prompting the user for a new savelocation 
-     * or whether to overwrite the file. 
+     * Handles the supplied DownloadException, for example by prompting the
+     * user for a new save location or whether to overwrite the file. 
      */
-    void handleSaveLocationException(DownloadAction downLoadAction, SaveLocationException sle, boolean supportsNewSaveDir);
+    void handleDownloadException(DownloadAction downLoadAction, DownloadException e, boolean supportsNewSaveDir);
     
     /**
      * Validates with the user that the torrent upload should be cancelled. 
@@ -109,8 +109,7 @@ public interface ActivityCallback extends DownloadCallback
      *    without cancelling the download.
      * 2) If the torrent is seeding, but the seed ratio is low, the user may 
      *    wish to seed to at least 100% to be a good samaritan. 
-     * @param torrent 
      */
-    void promptTorrentUploadCancel(ManagedTorrent torrent);
+    boolean promptTorrentUploadCancel(Torrent torrent);
 
 }

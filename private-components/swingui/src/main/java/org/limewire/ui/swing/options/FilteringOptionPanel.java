@@ -30,13 +30,14 @@ import org.jdesktop.swingx.JXTable;
 import org.limewire.core.api.spam.SpamManager;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.io.IP;
+import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
 
 /**
- * Filtering Option View
+ * Filtering Option View.
  */
 public class FilteringOptionPanel extends OptionPanel {
     
@@ -51,6 +52,7 @@ public class FilteringOptionPanel extends OptionPanel {
         this.spamManager = spamManager;
         
         setLayout(new MigLayout("insets 10 10 10 10, fillx, wrap", "", ""));
+        setOpaque(false);
         
         add(getBlockHostsPanel(), "pushx, growx");
         add(getAllowHostsPanel(), "pushx, growx");
@@ -95,6 +97,7 @@ public class FilteringOptionPanel extends OptionPanel {
         private JButton addButton;
         private FilteringTable filterTable;
         private JCheckBox backListCheckBox;
+        private String description = I18n.tr("Use LimeWire's blacklist to protect you from harmful people");
         
         public BlockHostsPanel() {
             super(I18n.tr("Block Hosts"));
@@ -104,7 +107,8 @@ public class FilteringOptionPanel extends OptionPanel {
             addressTextField = new JTextField(26);
             addButton = new JButton(I18n.tr("Add Address"));
             filterTable = new FilteringTable();
-            backListCheckBox = new JCheckBox(I18n.tr("Use LimeWire's blacklist to protect you from harmful people"));
+            backListCheckBox = new JCheckBox();
+            backListCheckBox.setOpaque(false);
             addButton.addActionListener(new AddAction(addressTextField, filterTable));
             
             add(new JLabel(I18n.tr("Block contact with specific people by adding their IP address")), "span, growx, wrap");
@@ -112,6 +116,7 @@ public class FilteringOptionPanel extends OptionPanel {
             add(addButton, "wrap");
             add(new JScrollPane(filterTable), "growx, span 2, wrap");
             add(backListCheckBox, "span, split");
+            add(new MultiLineLabel(description, ReallyAdvancedOptionPanel.MULTI_LINE_LABEL_WIDTH), "wrap");
         }
         
         @Override
@@ -147,6 +152,8 @@ public class FilteringOptionPanel extends OptionPanel {
         private JButton addButton;
         private FilteringTable filterTable;
         
+        private final String description = I18n.tr("Override the block list and allow specific people by adding their IP address");
+        
         public AllowHostsPanel() {
             super(I18n.tr("Allow Hosts"));
             
@@ -157,7 +164,7 @@ public class FilteringOptionPanel extends OptionPanel {
             filterTable = new FilteringTable();
             addButton.addActionListener(new AddAction(addressTextField, filterTable));
             
-            add(new JLabel(I18n.tr("Override the block list and allow specific people by adding their IP address")), "span, growx, wrap");
+            add(new MultiLineLabel(description, ReallyAdvancedOptionPanel.MULTI_LINE_LABEL_WIDTH), "span, growx, wrap");
             add(addressTextField, "gapright 10");
             add(addButton, "wrap");
             add(new JScrollPane(filterTable), "growx, span 2");

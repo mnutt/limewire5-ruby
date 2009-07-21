@@ -16,6 +16,7 @@ import junit.framework.Test;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.lifecycle.ServiceScheduler;
 import org.limewire.util.AssignParameterAction;
@@ -61,7 +62,7 @@ public final class UrnCacheTest extends LimeTestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-	    urnCache = new UrnCache();
+	    urnCache = new UrnCache(ExecutorsHelper.newProcessingQueue("test"), null);
 	}
     
     /**

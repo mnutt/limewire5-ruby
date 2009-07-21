@@ -17,7 +17,7 @@ import org.limewire.ui.swing.util.I18n;
 import com.google.inject.Inject;
 
 /**
- * Performance Option View
+ * Performance Option View.
  */
 public class PerformanceOptionPanel extends OptionPanel {
 
@@ -38,6 +38,7 @@ public class PerformanceOptionPanel extends OptionPanel {
         this.connectionManager = connectionManager;
         
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
+        setOpaque(false);
         
         add(getPerformancePanel(), "pushx, growx");
     }
@@ -46,12 +47,18 @@ public class PerformanceOptionPanel extends OptionPanel {
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createTitledBorder(""));
         p.setLayout(new MigLayout());
+        p.setOpaque(false);
         
         disableUltraPeerCheckBox = new JCheckBox(I18n.tr("Disable Ultrapeer capabilities"));
         disableMojitoCheckBox = new JCheckBox(I18n.tr("Disable connecting to the Mojito DHT"));
         disableTLS = new JCheckBox(I18n.tr("Disable TLS capabilities"));
         disableOutOfBandSearchCheckBox = new JCheckBox(I18n.tr("Disable Out-of-band searching"));
 
+        disableUltraPeerCheckBox.setOpaque(false);
+        disableMojitoCheckBox.setOpaque(false);
+        disableTLS.setOpaque(false);
+        disableOutOfBandSearchCheckBox.setOpaque(false);
+        
         p.add(new MultiLineLabel(firstMultiLineLabel, ReallyAdvancedOptionPanel.MULTI_LINE_LABEL_WIDTH), "wrap");
         
         p.add(disableUltraPeerCheckBox, "gapleft 25, split, wrap");

@@ -28,7 +28,7 @@ public class SimppDataVerifier {
     private byte[] verifiedData;
 
     /**
-     * Constructor. payload contains bytes with the following format:
+     * Constructor. Payload contains bytes with the following format:
      * [Base32 Encoded signature bytes]|[versionnumber|<props in xml format>]
      */
     public SimppDataVerifier(byte[] payload) {

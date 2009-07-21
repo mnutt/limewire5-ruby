@@ -14,7 +14,7 @@ import org.limewire.ui.swing.util.PainterUtils;
  * Paints a rounded border like box with one pixel inner 
  *  shadowing/beveling.  Used a the base painter of almost
  *  all components.
- * 
+ * <p> 
  *  
  * NOTE: This painter does NOT use resources for
  *        the colours defined by the accents.  This
@@ -120,12 +120,12 @@ public class BorderPainter<X> extends AbstractPainter<X> {
      *  remove rounding as desired on the sides. Sides that
      *  fall painted offscreen will be capped with the normal
      *  border.
-     *  
+     * <p> 
      * NOTE: at the moment only horizonal insets are supported
      *        and capping will only work properly if the inset
      *        is larger than the arc size (ie. can not correctly cap
      *        partially flattened edges)
-     *        
+     * <pre>       
      *  Example: setInsets(0,-10,0,-10)  
      *           - left side will be moved 10 pixels off the 
      *              canvas and thus be cut off, left side will 
@@ -135,6 +135,7 @@ public class BorderPainter<X> extends AbstractPainter<X> {
      *              
      *           setInsets(-10,0,10,0)
      *           - will have no effect at this time
+     * </pre>
      */
     public void setInsets(Insets insets) {
         this.insets = insets;
@@ -218,20 +219,20 @@ public class BorderPainter<X> extends AbstractPainter<X> {
         
         /**
          * Standard shadow -- a gray bottom outline -- to be used
-         *  on dark coloured panels
+         *  on dark coloured panels.
          */
         SHADOW, 
         
         /**
          * Similar to the standard shadow but with a green tinge
-         *  that is used on green backgrounds
+         *  that is used on green backgrounds.
          */
         GREEN_SHADOW, 
         
         /**
          * A kind of bubble that makes a button look like it is popping
          *  out of a panel.  This bubble effect only looks good on
-         *  lightly coloured panels
+         *  lightly coloured panels.
          */
         BUBBLE,
         

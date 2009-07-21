@@ -8,16 +8,21 @@ import javax.swing.SwingConstants;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.library.table.DefaultLibraryRenderer;
 import org.limewire.ui.swing.util.I18n;
+
+import com.google.inject.Inject;
 
 /**
  * Renders the name for the given fileItem. If the file is incomplete
  * (incomplete) is appending to the name. If the file is an audio file, the
  * title property is used instead of the name property if it exists.
  */
+@LazySingleton
 public class NameRenderer extends DefaultLibraryRenderer {
 
+    @Inject
     public NameRenderer() {
         setHorizontalAlignment(SwingConstants.LEFT);
     }

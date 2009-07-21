@@ -12,24 +12,24 @@ import javax.swing.Timer;
 import javax.swing.event.HyperlinkListener;
 
 /**
- * Extend <tt>JScrollPane</tt> so that a scrolled html file is shown
+ * Extend <tt>JScrollPane</tt> so that a scrolled HTML file is shown.
  */
 public final class ScrollingTextPane extends JScrollPane {
 
     /**
-     * <tt>JEditorPane</tt> to show the text
+     * <tt>JEditorPane</tt> to show the text.
      */
     private final JEditorPane EDITOR_PANE;
 
     /**
-     * Timer to control scrolling
+     * Timer to control scrolling.
      */
     protected Timer _timer;
 
     /**
      * Constructs the elements of the about window.
      * 
-     * @param html The text of the HTML to load into the scrolling pane.
+     * @param html the text of the HTML to load into the scrolling pane.
      */
     public ScrollingTextPane(String html) {
         if (html == null)
@@ -73,7 +73,7 @@ public final class ScrollingTextPane extends JScrollPane {
     }
 
     /**
-     * Scroll the content of the JEditorPane
+     * Scroll the content of the JEditorPane.
      */
     protected void scroll() {
         // calculate visible rectangle

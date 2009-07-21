@@ -63,19 +63,23 @@ public class IPList {
         return ips.size();
     }
     
-    public void add(String ipStr) {
+    /**
+     * Parses a string and adds it to the IPList if it represents a valid IP.
+     * @return true if the string is valid, otherwise false.
+     */
+    public boolean add(String ipStr) {
         IP ip;
         try {
             ip = new IP(ipStr);
         } catch (IllegalArgumentException e) {
-            return;
+            return false;
         }
         add(ip);
+        return true;
     }
     
     /** 
      * Adds a certain IP to the IPList.
-     * @param ipStr a String containing the IP, see IP.java for formatting
      */
     public synchronized void add(IP ip) {
         // SPECIAL-CASE:
@@ -112,7 +116,6 @@ public class IPList {
     }
 
     /**
-     * @param String equal to an IP
      * @returns true if ip_address is contained somewhere in the list of IPs
      */
     public synchronized boolean contains(IP lookup) {
@@ -135,7 +138,7 @@ public class IPList {
     /**
      * Calculates the first set bit in the distance between an IPv4 address and
      * the ranges represented by this list.
-     * 
+     * <p>
      * This is equivalent to floor(log2(distance)) + 1.
      *  
      * @param ip an IPv4 address, represented as an IP object with a /32 netmask.
@@ -179,10 +182,11 @@ public class IPList {
      *  A trie cursor that determines if the IP list contained in the
      *  trie is valid or not. 
      *  A list is considered invalid if :
+     *  <pre>
      *  1) It contains a private IP
      *  2) It contains an invalid IP
      *  3) It spans a range of hosts larger than the MAX_LIST_SPACE constant
-     *
+     * </pre>
      */
     private static class ValidFilter implements Trie.Cursor<IP, IP> {
         

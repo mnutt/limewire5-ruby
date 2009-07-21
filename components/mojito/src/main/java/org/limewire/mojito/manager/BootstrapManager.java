@@ -52,7 +52,7 @@ public class BootstrapManager extends AbstractManager<BootstrapResult> {
     }
     
     /**
-     * Returns true if this Node has bootstrapped successfully
+     * Returns true if this Node has bootstrapped successfully.
      */
     public synchronized boolean isBootstrapped() {
         return bootstrapped;
@@ -67,7 +67,7 @@ public class BootstrapManager extends AbstractManager<BootstrapResult> {
     }
     
     /**
-     * Returns true if this Node is currently bootstrapping
+     * Returns true if this Node is currently bootstrapping.
      */
     public synchronized boolean isBootstrapping() {
         return future != null;
@@ -84,7 +84,7 @@ public class BootstrapManager extends AbstractManager<BootstrapResult> {
     }
     
     /**
-     * Tries to bootstrap the local Node from the given Contact
+     * Tries to bootstrap the local Node from the given Contact.
      */
     public DHTFuture<BootstrapResult> bootstrap(Contact node) {
         if (node == null) {
@@ -111,7 +111,7 @@ public class BootstrapManager extends AbstractManager<BootstrapResult> {
     }
     
     /**
-     * Tries to bootstrap the local Node from any of the given SocketAddresses
+     * Tries to bootstrap the local Node from any of the given SocketAddresses.
      */
     public DHTFuture<BootstrapResult> bootstrap(Set<? extends SocketAddress> dst) {
         if (dst == null) {

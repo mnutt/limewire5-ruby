@@ -9,8 +9,6 @@ public interface QueryHandlerFactory {
      * Factory constructor for generating a new <tt>QueryHandler</tt> 
      * for the given <tt>QueryRequest</tt>.
      *
-     * @param guid the <tt>QueryRequest</tt> instance containing data
-     *  for this set of queries
      * @param handler the <tt>ReplyHandler</tt> for routing the replies
      * @param counter the <tt>ResultCounter</tt> that keeps track of how
      *  many results have been returned for this query
@@ -37,8 +35,6 @@ public interface QueryHandlerFactory {
      * Factory constructor for generating a new <tt>QueryHandler</tt> 
      * for the given <tt>QueryRequest</tt>.
      *
-     * @param guid the <tt>QueryRequest</tt> instance containing data
-     *  for this set of queries
      * @param handler the <tt>ReplyHandler</tt> for routing the replies
      * @param counter the <tt>ResultCounter</tt> that keeps track of how
      *  many results have been returned for this query
@@ -51,8 +47,6 @@ public interface QueryHandlerFactory {
      * Factory constructor for generating a new <tt>QueryHandler</tt> 
      * for the given <tt>QueryRequest</tt>.
      *
-     * @param guid the <tt>QueryRequest</tt> instance containing data
-     *  for this set of queries
      * @param handler the <tt>ReplyHandler</tt> for routing the replies
      * @param counter the <tt>ResultCounter</tt> that keeps track of how
      *  many results have been returned for this query

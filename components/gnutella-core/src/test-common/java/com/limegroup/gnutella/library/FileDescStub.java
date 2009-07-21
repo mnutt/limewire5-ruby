@@ -104,12 +104,6 @@ public class FileDescStub implements FileDesc {
     }
 
     @Override
-    public void decrementShareListCount() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public int getAttemptedUploads() {
         // TODO Auto-generated method stub
         return 0;
@@ -168,13 +162,6 @@ public class FileDescStub implements FileDesc {
     public URN getSHA1Urn() {
         return UrnSet.getSha1(urns);
     }
-
-    @Override
-    public int getShareListCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
     @Override
     public URN getTTROOTUrn() {
         // TODO Auto-generated method stub
@@ -217,12 +204,6 @@ public class FileDescStub implements FileDesc {
     }
 
     @Override
-    public void incrementShareListCount() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public boolean isLicensed() {
         // TODO Auto-generated method stub
         return false;
@@ -230,12 +211,6 @@ public class FileDescStub implements FileDesc {
 
     @Override
     public boolean isRareFile() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean isSharedWithGnutella() {
         // TODO Auto-generated method stub
         return false;
     }
@@ -264,19 +239,7 @@ public class FileDescStub implements FileDesc {
     }
 
     @Override
-    public void setSharedWithGnutella(boolean b) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void setStoreFile(boolean b) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void setTTRoot(URN ttroot) {
+    public void addUrn(URN ttroot) {
     }
 
     @Override

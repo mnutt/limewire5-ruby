@@ -4,7 +4,6 @@ import java.net.UnknownHostException;
 
 import junit.framework.Test;
 
-import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
@@ -18,10 +17,10 @@ import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 
 public class RatingTableTest extends LimeTestCase {
 
-    private final String addr1 = "1.1.1.1", addr2 = "2.2.2.2";
-    private final int port1 = 1111, port2 = 2222;
-    private final String name1 = "abc.def", name2 = "ghi.jkl";
-    private final int size1 = 12345, size2 = 67890;
+    private final String addr = "1.1.1.1";
+    private final int port = 1111;
+    private final String name = "abc.def";
+    private final int size = 12345;
 
     private SpamManager manager;
     private RemoteFileDescFactory rfdFactory;
@@ -37,56 +36,59 @@ public class RatingTableTest extends LimeTestCase {
     @Override
     protected void setUp() throws Exception {
         SearchSettings.ENABLE_SPAM_FILTER.setValue(true);
-        // Whitelist the first address so it gets a default rating
-        String[] whitelist = new String[] {addr1, addr2};
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(whitelist);
         Injector inject = LimeTestUtils.createInjector();
         manager = inject.getInstance(SpamManager.class);
         rfdFactory = inject.getInstance(RemoteFileDescFactory.class);
     }
-
+    
     /**
-     * Tests that tokens with default ratings are not written to disk
+     * Tests that tokens with default ratings are not stored in the table
      */
-    public void testSavingAndLoadingDiscardsDefaultRatings() throws Exception {
+    public void testDefaultRatingsAreNotStored() throws Exception {
         RatingTable table = manager.getRatingTable();
-        RemoteFileDesc rfd1 = createRFD(addr1, port1, name1, size1);
-        assertFalse(rfd1.isSpam());
-        assertEquals(0f, rfd1.getSpamRating());
-        // There should be six tokens: address, name, ext, size, approx size,
-        // client GUID
-        assertEquals(6, table.size());
-        RemoteFileDesc rfd2 = createRFD(addr2, port2, name2, size2);
-        manager.handleUserMarkedSpam(new RemoteFileDesc[]{rfd2});
-        assertTrue(rfd2.isSpam());
-        assertGreaterThan(rfd1.getSpamRating(), rfd2.getSpamRating());
-        // There should now be twelve tokens, six for each RFD
-        assertEquals(12, table.size());
-        // Save and load the ratings
-        table.stop();
-        table.start();
-        // Tokens with default ratings should have been discarded
-        assertEquals(6, table.size());
+        RemoteFileDesc rfd = createRFD(addr, port, name, size);
+        assertFalse(rfd.isSpam());
+        assertEquals(0f, rfd.getSpamRating());
+        assertEquals(0, table.size());
     }
     
     /**
-     * Tests that the least-recently-used order of the rating table is
+     * Tests that tokens with non-default ratings are stored in the table
+     */
+    public void testNonDefaultRatingsAreStored() throws Exception {
+        RatingTable table = manager.getRatingTable();
+        RemoteFileDesc rfd = createRFD(addr, port, name, size);
+        manager.handleUserMarkedSpam(new RemoteFileDesc[]{rfd});
+        assertTrue(rfd.isSpam());
+        assertGreaterThan(0f, rfd.getSpamRating());
+        // There should be six tokens: address, name, ext, size, approx size,
+        // client GUID
+        assertEquals(6, table.size());        
+    }
+
+    /**
+     * Tests that the size and least-recently-used order of the rating table are
      * preserved when the ratings are saved and loaded
      */
-    public void testSavingAndLoadingPreservesOrder() throws Exception {
+    public void testSavingAndLoadingPreservesSizeAndOrder() throws Exception {
         RatingTable table = manager.getRatingTable();
         // Create some tokens with non-default ratings
         for(int i = 0; i < 10; i++) {
             String address = "1.2.3." + i;
-            String name = "foo" + i + ".bar";
+            String name = "foo" + i + "." + i; // Unique name and extension
             RemoteFileDesc rfd = createRFD(address, i + 1024, name, i * 1000);
             manager.handleUserMarkedSpam(new RemoteFileDesc[]{rfd});
         }
+        // There should be six tokens for each RFD: address, name, ext, size,
+        // approx size, client GUID
+        assertEquals(60, table.size());
         // Get the least-recently-used token
         Token t = table.getLeastRecentlyUsed();
         // Save and load the ratings
         table.stop();
         table.start();
+        // Check that the size hasn't changed
+        assertEquals(60, table.size());
         // Check that the least-recently-used token hasn't changed
         assertEquals(t, table.getLeastRecentlyUsed());
     }

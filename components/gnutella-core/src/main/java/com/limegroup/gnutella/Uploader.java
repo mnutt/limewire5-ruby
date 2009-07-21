@@ -94,6 +94,12 @@ public interface Uploader extends BandwidthTracker, Connectable {
 	 */
 	public String getHost();
 	
+	/**
+	 * Returns the PresenceID for this Uploader. If this is
+	 * not an Uploader for a Friend, this will return null.
+	 */
+	public String getPresenceId();
+	
     /**
      * Returns the current state of this uploader.
      */

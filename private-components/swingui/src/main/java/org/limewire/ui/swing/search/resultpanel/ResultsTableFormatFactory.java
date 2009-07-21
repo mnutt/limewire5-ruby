@@ -12,19 +12,20 @@ import org.limewire.ui.swing.search.resultpanel.classic.VideoTableFormat;
 import org.limewire.ui.swing.util.IconManager;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * Implements a factory for creating a TableFormat to display search results.
  */
 public class ResultsTableFormatFactory {
 
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     
     /**
      * Constructs a ResultsTableFormatFactory with the specified icon manager.
      */
     @Inject
-    public ResultsTableFormatFactory(IconManager iconManager) {
+    public ResultsTableFormatFactory(Provider<IconManager> iconManager) {
         this.iconManager = iconManager;
     }
 

@@ -16,7 +16,7 @@ import com.google.inject.TypeLiteral;
  * A Guice-module for binding all net related activity.
  * This class can be constructed with or without a ProxySettings.
  * If it is without, then a default no-proxy settings is used.
- * 
+ * <p>
  * Note: You MUST either provide settings classes or also bind
  * a module that binds the settings correctly.
  */

@@ -10,7 +10,12 @@ package org.limewire.ui.swing.friends.chat;
  *
  */
 public interface Message {
-    enum Type { Sent, Received };
+    /**
+     * SENT                == message sent with destination of friend
+     * RECEIVED            == message received from friend
+     * SERVER              == server chat status related message
+     */
+    enum Type { SENT, RECEIVED, SERVER };
 
     /**
      * @return the sender display name

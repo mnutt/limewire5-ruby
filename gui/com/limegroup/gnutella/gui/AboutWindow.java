@@ -319,7 +319,7 @@ final class AboutWindow {
                 "</ul>");
         
         //  conclusion
-        sb.append(I18n.tr("Finally, LimeWire would like to extend its sincere thanks to these developers, users, and all others who have contributed their ideas to the project. Without LimeWire users, the P2P network would not exist."));
+        sb.append(I18n.tr("Finally, LimeWire would like to extend its sincere thanks to these developers, users, and all others who have contributed their ideas to the project. Without LimeWire users, the P2P Network would not exist."));
         
         // bt notice
         sb.append("<small>");

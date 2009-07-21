@@ -23,7 +23,7 @@ class FriendAvailabilityComparator implements Comparator<ChatFriend> {
         boolean b_chatting = b.isChatting() || b.hasReceivedUnviewedMessages();
         
         if(a_chatting && b_chatting) {
-            return new Long(a.getChatStartTime()).compareTo(new Long(b.getChatStartTime()));
+            return a.getChatStartTime() < b.getChatStartTime() ? -1 : a.getChatStartTime() == b.getChatStartTime() ? 0 : 1;
         } else if(a_chatting) {
             return -1;
         } else if (b_chatting) {

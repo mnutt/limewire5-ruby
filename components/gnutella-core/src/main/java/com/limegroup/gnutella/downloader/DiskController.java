@@ -23,7 +23,7 @@ import com.google.inject.name.Named;
 @Singleton
 public class DiskController {
     
-    private final Log LOG = LogFactory.getLog(DiskController.class);
+    private static final Log LOG = LogFactory.getLog(DiskController.class);
 
     /** The thread that does the actual verification & writing */
     private final ThreadPoolExecutor QUEUE = ExecutorsHelper.newSingleThreadExecutor(

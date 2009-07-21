@@ -5,8 +5,10 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.LayoutManager;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -24,9 +26,9 @@ public class HeaderBar extends JXPanel {
     
     /**
      * The default height of components added to the
-     *  content pane.  Accessed with setDefaultComponentHeight(int)  
-     *  
-     * NOTE: When unset or -1 no default will be set
+     *  content pane.  Accessed with setDefaultComponentHeight(int).  
+     * <p>
+     * NOTE: When unset or -1 no default will be set.
      */
     private int defaultCompHeight = -1;
 
@@ -35,18 +37,15 @@ public class HeaderBar extends JXPanel {
     }
     
     public HeaderBar(String title) {
-        this(title, true);
-    }
-    
-    public HeaderBar(String title, boolean hasShadow) {
         JXLabel headerLabel = new JXLabel(title);
         
-        if (hasShadow) {
-            headerLabel.setForegroundPainter(new TextShadowPainter());
-        }
+        headerLabel.setForegroundPainter(new TextShadowPainter());
         
         this.titleComponent = headerLabel;
         this.componentContainer = new JPanel();
+        
+        if(title.length() == 0)
+            titleComponent.setVisible(false);
         
         init();
     }
@@ -66,9 +65,9 @@ public class HeaderBar extends JXPanel {
         
         this.componentContainer.setOpaque(false);
         
-        super.setLayout(new MigLayout("insets 0, fill, aligny center","[][]",""));
-        super.add(titleComponent, "growy, dock west, gapbefore 5, gapafter 10");
-        super.add(componentContainer, "grow, right");
+        super.setLayout(new MigLayout("insets 0, gap 0!, fill, aligny center","[][]",""));
+        super.add(titleComponent, "hidemode 3, growy, dock west, gapbefore 5, gapafter 10");
+        super.add(componentContainer, "grow, push, right");
     }
     
     @Override
@@ -121,14 +120,14 @@ public class HeaderBar extends JXPanel {
     /**
      * If the titleComponent is compound and not 
      *  a JLabel this method can be used to link
-     *  the headers set text to a specific label
+     *  the headers set text to a specific label.
      */
     public void linkTextComponent(JLabel label) {
         titleTextComponent = label;
     }
     
     /**
-     * Sets the headers text, usually the title 
+     * Sets the headers text, usually the title.
      */
     public void setText(String text) {
         if (titleTextComponent != null) {
@@ -161,7 +160,8 @@ public class HeaderBar extends JXPanel {
     }
     
     private void forceHeight(Component comp) {
-        if (defaultCompHeight != -1) {
+        if (defaultCompHeight != -1 
+                && (comp instanceof JButton || comp instanceof JTextComponent) ) {
             ResizeUtils.forceHeight(comp, defaultCompHeight);
         }
     }

@@ -47,7 +47,7 @@ public class ClassfulNetworkCounter implements Serializable {
     }
     
     /**
-     * Returns the Bucket of this ClassfulNetworkCounter
+     * Returns the Bucket of this ClassfulNetworkCounter.
      */
     public Bucket getBucket() {
         return bucket;
@@ -55,7 +55,7 @@ public class ClassfulNetworkCounter implements Serializable {
     
     /**
      * Returns the current number of Contacts that
-     * are from the same Class C Network
+     * are from the same Class C Network.
      */
     public synchronized int get(Contact node) {
         if (bucket.isLocalNode(node)) {
@@ -81,7 +81,7 @@ public class ClassfulNetworkCounter implements Serializable {
     /**
      * Increments and returns the current number of Contacts 
      * that are from the same Class C Network as the given
-     * Contact
+     * Contact.
      */
     public synchronized int incrementAndGet(Contact node) {
         if (bucket.isLocalNode(node)) {
@@ -113,7 +113,7 @@ public class ClassfulNetworkCounter implements Serializable {
     /**
      * Decrements and returns the current number of Contacts 
      * that are from the same Class C Network as the given
-     * Contact
+     * Contact.
      */
     public synchronized int decrementAndGet(Contact node) {
         if (bucket.isLocalNode(node)) {
@@ -141,14 +141,14 @@ public class ClassfulNetworkCounter implements Serializable {
     }
     
     /**
-     * Returns the number of Elements
+     * Returns the number of Elements.
      */
     public synchronized int size() {
         return nodesPerNetwork.size();
     }
     
     /**
-     * Clears the ClassfulNetworkCounter
+     * Clears the ClassfulNetworkCounter.
      */
     public synchronized void clear() {
         nodesPerNetwork.clear();

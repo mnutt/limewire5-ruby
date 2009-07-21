@@ -37,8 +37,8 @@ import com.limegroup.gnutella.http.ProblemReadingHeaderException;
 import com.limegroup.gnutella.http.UserAgentHeaderInterceptor;
 import com.limegroup.gnutella.library.CreationTimeCache;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.LibraryUtils;
 import com.limegroup.gnutella.tigertree.HashTree;
 import com.limegroup.gnutella.tigertree.HashTreeCache;
@@ -46,7 +46,7 @@ import com.limegroup.gnutella.tigertree.HashTreeWriteHandler;
 import com.limegroup.gnutella.tigertree.HashTreeWriteHandlerFactory;
 import com.limegroup.gnutella.uploader.FileRequestParser.FileRequest;
 import com.limegroup.gnutella.uploader.HTTPUploadSessionManager.QueueStatus;
-import com.limegroup.gnutella.uploader.authentication.HttpRequestFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.HttpRequestFileViewProvider;
 
 /**
  * Handles upload requests for files and THEX trees.
@@ -70,7 +70,7 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
 
     private final HTTPUploadSessionManager sessionManager;
 
-    private final FileManager fileManager;
+    private final Library library;
 
     private final HTTPHeaderUtils httpHeaderUtils;
 
@@ -92,9 +92,9 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
 
     private final HashTreeWriteHandlerFactory tigerWriteHandlerFactory;
 
-    private final HttpRequestFileListProvider fileListProvider;
+    private final HttpRequestFileViewProvider fileListProvider;
 
-    FileRequestHandler(HTTPUploadSessionManager sessionManager, FileManager fileManager,
+    FileRequestHandler(HTTPUploadSessionManager sessionManager, Library library,
             HTTPHeaderUtils httpHeaderUtils, HttpRequestHandlerFactory httpRequestHandlerFactory,
             Provider<CreationTimeCache> creationTimeCache,
             FileResponseEntityFactory fileResponseEntityFactory, AltLocManager altLocManager,
@@ -102,9 +102,9 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
             Provider<DownloadManager> downloadManager, Provider<HashTreeCache> tigerTreeCache,
             PushEndpointFactory pushEndpointFactory,
             HashTreeWriteHandlerFactory tigerWriteHandlerFactory, 
-            HttpRequestFileListProvider fileListProvider) {
+            HttpRequestFileViewProvider fileListProvider) {
         this.sessionManager = sessionManager;
-        this.fileManager = fileManager;
+        this.library = library;
         this.httpHeaderUtils = httpHeaderUtils;
         this.httpRequestHandlerFactory = httpRequestHandlerFactory;
         this.creationTimeCache = creationTimeCache;
@@ -156,7 +156,7 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
     }
 
     /**
-     * Looks up file in {@link FileManager} and processes request headers.
+     * Looks up file and processes request headers.
      */
     private HTTPUploader findFileAndProcessHeaders(HttpRequest request, HttpResponse response,
             HttpContext context, FileRequest fileRequest) throws IOException, HttpException {
@@ -164,7 +164,7 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
         // create uploader
         UploadType type = (LibraryUtils.isForcedShare(fileDesc)) ? UploadType.FORCED_SHARE
                 : UploadType.SHARED_FILE;
-        HTTPUploader uploader = sessionManager.getOrCreateUploader(request, context, type, fileDesc.getFileName());
+        HTTPUploader uploader = sessionManager.getOrCreateUploader(request, context, type, fileDesc.getFileName(), fileRequest.getFriendID());
         uploader.setFileDesc(fileDesc);
 
         // process headers
@@ -465,7 +465,7 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("File has changed on disk, resharing: " + file);
                 }
-                fileManager.getManagedFileList().fileChanged(file, fd.getLimeXMLDocuments());
+                library.fileChanged(file, fd.getLimeXMLDocuments());
                 return false;
             }
         }

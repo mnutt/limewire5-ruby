@@ -48,8 +48,8 @@ public final class FatalBugManager {
      */
     public static void handleFatalBug(Throwable bug) {
         if( bug instanceof ThreadDeath ) // must rethrow.
-	        throw (ThreadDeath)bug;
-	        
+            throw (ThreadDeath)bug;
+        
         bug.printStackTrace();
         
         final LocalClientInfo info;

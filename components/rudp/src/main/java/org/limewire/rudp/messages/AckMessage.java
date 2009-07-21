@@ -8,13 +8,13 @@ public interface AckMessage extends RUDPMessage {
     /**
      *  The windowStart is equivalent to the lowest un-received sequenceNumber
      *  coming from the receiving end of the connection.  It is saying, I have 
-     *  received everything up to one minus this. (Note: it rolls)
+     *  received everything up to one minus this. (Note: it rolls).
      */
     public long getWindowStart();
 
     /**
      *  Extend the windowStart of incoming messages with the full 8 bytes
-     *  of state
+     *  of state.
      */
     public void extendWindowStart(long wStart);
 

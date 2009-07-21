@@ -25,7 +25,6 @@ import org.mozilla.interfaces.nsIWebProgress;
 import org.mozilla.xpcom.Mozilla;
 import org.mozilla.xpcom.XPCOMException;
 
-import com.limegroup.bittorrent.SimpleBandwidthTracker;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.downloader.CoreDownloader;

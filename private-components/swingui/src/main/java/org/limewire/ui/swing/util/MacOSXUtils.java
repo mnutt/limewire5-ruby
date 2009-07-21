@@ -8,7 +8,7 @@ import org.limewire.util.OSUtils;
  * A collection of utility methods for OSX.
  * These methods should only be called if run from OSX,
  * otherwise ClassNotFoundErrors may occur.
- *
+ * <p>
  * To determine if the Cocoa Foundation classes are present,
  * use the method CommonUtils.isCocoaFoundationAvailable().
  */

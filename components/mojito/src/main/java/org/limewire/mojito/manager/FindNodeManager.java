@@ -33,7 +33,7 @@ import org.limewire.mojito.result.FindNodeResult;
 
 
 /**
- * FindNodeManager manages lookups for Nodes
+ * FindNodeManager manages lookups for Nodes.
  */
 public class FindNodeManager extends AbstractManager<FindNodeResult> {
 
@@ -49,7 +49,7 @@ public class FindNodeManager extends AbstractManager<FindNodeResult> {
     }
     
     /**
-     * Starts a lookup for the given KUID
+     * Starts a lookup for the given KUID.
      */
     public DHTFuture<FindNodeResult> lookup(KUID lookupId) {
         return lookup(lookupId, -1);
@@ -57,7 +57,7 @@ public class FindNodeManager extends AbstractManager<FindNodeResult> {
     
     /**
      * Starts a lookup for the given KUID and expects 'count' 
-     * number of results
+     * number of results.
      */
     private DHTFuture<FindNodeResult> lookup(KUID lookupId, int count) {
         FindNodeFuture future = null;
@@ -77,7 +77,7 @@ public class FindNodeManager extends AbstractManager<FindNodeResult> {
     }
     
     /**
-     * Creates and returns a FindNodeResponseHandler
+     * Creates and returns a FindNodeResponseHandler.
      */
     protected FindNodeResponseHandler createFindNodeResponseHandler(
             Context context, KUID lookupId, int count) {
@@ -85,7 +85,7 @@ public class FindNodeManager extends AbstractManager<FindNodeResult> {
     }
     
     /**
-     * The DHTFuture for FIND_NODE
+     * The DHTFuture for FIND_NODE.
      */
     private class FindNodeFuture extends DHTFutureTask<FindNodeResult> {
 

@@ -297,4 +297,19 @@ public class LimeTestUtils {
         }
         
     }
+
+    /**
+     * Creates a module for the objects that will inject all @Inject members in
+     * the object.
+     */
+    public static Module createModule(final Object... objects) {
+        return new AbstractModule() {
+            @Override
+            protected void configure() {
+                for(Object object : objects) {
+                    requestInjection(object);
+                }
+            }
+        };
+    }
 }

@@ -1,50 +1,51 @@
 package com.limegroup.gnutella.library;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.limewire.listener.EventListener;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
-public class FileManagerStub implements FileManager {
+public class FileManagerStub implements FileManager, FileCollectionManager, FileViewManager {
 
-    private ManagedFileListStub managedStub;
-    private IncompleteFileListStub incompleteStub;
-    private GnutellaFileListStub gnutellaStub;    
+    private LibraryStub managedStub;
+    private IncompleteFileCollectionStub incompleteStub;
+    private GnutellaFileCollectionStub gnutellaStub; 
     
     @Inject
     public FileManagerStub() {    
-        gnutellaStub = new GnutellaFileListStub();
-        incompleteStub = new IncompleteFileListStub();
-        managedStub = new ManagedFileListStub();
+        gnutellaStub = new GnutellaFileCollectionStub();
+        incompleteStub = new IncompleteFileCollectionStub();
+        managedStub = new LibraryStub();
     }
     
-    @Override
-    public GnutellaFileListStub getGnutellaFileList() {
+    GnutellaFileCollectionStub getGnutellaCollection() {
         return gnutellaStub;
     }
     
-    @Override
-    public IncompleteFileListStub getIncompleteFileList() {
+    IncompleteFileCollectionStub getIncompleteFileCollection() {
         return incompleteStub;
     }
     
-    @Override
-    public ManagedFileListStub getManagedFileList() {
+    LibraryStub getLibrary() {
         return managedStub;
     }   
 
-    
     @Override
-    public FriendFileList getFriendFileList(String name) {
+    public SharedFileCollection createNewCollection(String name) {
         throw new UnsupportedOperationException("not supported");
     }
     
     @Override
-    public FriendFileList getOrCreateFriendFileList(String name) {
+    public SharedFileCollection getCollectionById(int collectionId) {
         throw new UnsupportedOperationException("not supported");
     }
     
     @Override
-    public void removeFriendFileList(String name) {
+    public void removeCollectionById(int collectionId) {
         throw new UnsupportedOperationException("not supported");
     }
     
@@ -54,8 +55,33 @@ public class FileManagerStub implements FileManager {
     @Override
     public void stop() {}
 
-    public void unloadFilesForFriend(String name) { }
+    @Override
+    public FileView getFileViewForId(String id) {
+        throw new UnsupportedOperationException();
+    }
 
+    FileView getGnutellaFileView() {
+        return gnutellaStub;
+    }
 
+    FileView getIncompleteFileView() {
+        return incompleteStub;
+    }
+
+    @Override
+    public List<SharedFileCollection> getSharedFileCollections() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void addListener(EventListener<FileViewChangeEvent> listener) {
+    }
+    
+    @Override
+    public boolean removeListener(EventListener<FileViewChangeEvent> listener) {
+        return false;
+    }
+    
+    
 }
 

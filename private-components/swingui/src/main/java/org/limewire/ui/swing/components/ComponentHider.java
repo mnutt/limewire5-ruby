@@ -52,7 +52,7 @@ public final class ComponentHider extends MouseAdapter {
     }
     
     /**
-     * Callback to allow additional behavior to happen after the component has been hidden
+     * Callback to allow additional behavior to happen after the component has been hidden.
      */
     public static interface AdditionalBehavior {
         void componentHidden();

@@ -20,7 +20,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.auth.UrnValidator;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.LibraryUtils;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -28,8 +28,8 @@ import com.limegroup.gnutella.messages.QueryRequestFactory;
 import com.limegroup.gnutella.statistics.TcpBandwidthStatistics;
 import com.limegroup.gnutella.uploader.HttpRequestHandlerFactory;
 import com.limegroup.gnutella.uploader.UploadSlotManager;
-import com.limegroup.gnutella.uploader.authentication.GnutellaBrowseFileListProvider;
-import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.GnutellaBrowseFileViewProvider;
+import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileViewProvider;
 
 /**
  * Tests how the availability of upload slots affects responses, as well
@@ -88,14 +88,14 @@ public class ClientSideSlotResponseTest extends ClientSideTestCase {
         someFileMatches.add(USER_TORRENT);
         someFileMatches.add(APP_TXT);        
         
-        assertNotNull(fileManager.getGnutellaFileList().add(textFile).get(1, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(torrentFile).get(1, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(userTorrentFile).get(1, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(appTextFile).get(1, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(appTorrentFile).get(1, TimeUnit.SECONDS));
-        fileManager.getGnutellaFileList().remove(berkeleyFD);
-        fileManager.getGnutellaFileList().remove(susheelFD);
-        assertEquals(5, fileManager.getGnutellaFileList().size());
+        assertNotNull(gnutellaFileCollection.add(textFile).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(torrentFile).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(userTorrentFile).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(appTextFile).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(appTorrentFile).get(1, TimeUnit.SECONDS));
+        gnutellaFileCollection.remove(berkeleyFD);
+        gnutellaFileCollection.remove(susheelFD);
+        assertEquals(gnutellaFileView.toString(), 5, gnutellaFileView.size());
         
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
         uploadManagerStub = (UploadManagerStub) injector.getInstance(UploadManager.class);
@@ -126,14 +126,15 @@ public class ClientSideSlotResponseTest extends ClientSideTestCase {
         UploadManagerStub(UploadSlotManager slotManager,
                 HttpRequestHandlerFactory httpRequestHandlerFactory,
                 Provider<HTTPAcceptor> httpAcceptor,
-                Provider<FileManager> fileManager, Provider<ActivityCallback> activityCallback,
+                Provider<ActivityCallback> activityCallback,
                 TcpBandwidthStatistics tcpBandwidthStatistics,
-                Provider<GnutellaUploadFileListProvider> gnutellaUploadFileListProvider,
-                Provider<GnutellaBrowseFileListProvider> gnutellaBrowseFileListProvider,
-                UrnValidator urnValidator) {
+                Provider<GnutellaUploadFileViewProvider> gnutellaUploadFileListProvider,
+                Provider<GnutellaBrowseFileViewProvider> gnutellaBrowseFileListProvider,
+                UrnValidator urnValidator,
+                Library library) {
             super(slotManager, httpRequestHandlerFactory, httpAcceptor,
-                    fileManager, activityCallback, tcpBandwidthStatistics, gnutellaUploadFileListProvider,
-                    gnutellaBrowseFileListProvider, urnValidator);
+                    activityCallback, tcpBandwidthStatistics, gnutellaUploadFileListProvider,
+                    gnutellaBrowseFileListProvider, urnValidator, library);
         }
 		@Override
 		public synchronized boolean isServiceable() {
@@ -194,8 +195,10 @@ public class ClientSideSlotResponseTest extends ClientSideTestCase {
     }
     
     /**
-     * tests that if only metafiles can be serviced and
-     * all results are for metafiled, nothing gets filetered
+     * Tests that no response is sent for meta-files if we're only able to service them.
+     * 
+     * <strike>USED TO TEST THIS: tests that if only metafiles can be serviced and
+     * all results are for metafiled, nothing gets filetered</strike>
      */
     public void testNoneFiltered() throws Exception {
     	uploadManagerStub.mayBeServiceable = true;
@@ -205,15 +208,17 @@ public class ClientSideSlotResponseTest extends ClientSideTestCase {
     	testUP[0].send(query);
     	testUP[0].flush();
     	Thread.sleep(1000);
-    	QueryReply reply = BlockingConnectionUtils.getFirstQueryReply(testUP[0]);
-    	List<Response> responses = reply.getResultsAsList();
-    	assertEquals(1, responses.size());
-    	assertEquals(OTHER_TORRENT, responses.get(0).getName());
+    	assertNull(BlockingConnectionUtils.getFirstQueryReply(testUP[0]));
+//    	List<Response> responses = reply.getResultsAsList();
+//    	assertEquals(1, responses.size());
+//    	assertEquals(OTHER_TORRENT, responses.get(0).getName());
     }
     
     /**
-     * Tests that if only metafiles can be serviced 
-     * only results about application-shared metafiles are returned. 
+     * Tests that no responses are sent for meta-files.
+     * 
+     * <strike>USED TO TEST THIS: Tests that if only metafiles can be serviced 
+     * only results about application-shared metafiles are returned.</strike>
      */
     public void testMetaFilesSent() throws Exception {
     	uploadManagerStub.isServiceable = false;
@@ -223,10 +228,10 @@ public class ClientSideSlotResponseTest extends ClientSideTestCase {
     	testUP[0].send(query);
     	testUP[0].flush();
     	Thread.sleep(1000);
-    	QueryReply reply = BlockingConnectionUtils.getFirstQueryReply(testUP[0]);
-    	List<Response> responses = reply.getResultsAsList();
-    	assertEquals(1, responses.size());
-    	assertEquals(TORRENT_FILE, responses.get(0).getName());
+    	assertNull(BlockingConnectionUtils.getFirstQueryReply(testUP[0]));
+//    	List<Response> responses = reply.getResultsAsList();
+//    	assertEquals(1, responses.size());
+//    	assertEquals(TORRENT_FILE, responses.get(0).getName());
     }
 }
 

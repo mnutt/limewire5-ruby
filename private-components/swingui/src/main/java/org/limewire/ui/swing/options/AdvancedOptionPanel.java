@@ -1,6 +1,5 @@
 package org.limewire.ui.swing.options;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,7 @@ public class AdvancedOptionPanel extends OptionPanel {
     
     private OptionPanel[] list = new OptionPanel[4];
     private List<Provider<? extends OptionPanel>> providerList = new ArrayList<Provider<? extends OptionPanel>>(4);
+    private final JTabbedPane tabbedPane;
     
     @Inject
     public AdvancedOptionPanel(Provider<FilesOptionPanel> filesOptionPanel, Provider<ConnectionsOptionPanel> connectionsOptionPanel,
@@ -36,15 +36,19 @@ public class AdvancedOptionPanel extends OptionPanel {
         list[0] = filesOptionPanel.get();
         list[0].initOptions();
         
-        setLayout(new MigLayout("insets 12 12 8 12, fillx", "", ""));
+        setLayout(new MigLayout("insets 12 12 8 12, fill"));
         
-        final JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setBackground(Color.WHITE);
+        tabbedPane = new JTabbedPane();
         tabbedPane.addTab(I18n.tr("Files"), list[0]);
         tabbedPane.addTab(I18n.tr("Transfers"), new JPanel());
         tabbedPane.addTab(I18n.tr("System"), new JPanel());
         tabbedPane.addTab(I18n.tr("Super Really Advanced"), new JPanel());
         
+        add(tabbedPane, "grow");
+    }
+    
+    @Inject
+    void register() {
         tabbedPane.addChangeListener(new ChangeListener(){
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -56,8 +60,6 @@ public class AdvancedOptionPanel extends OptionPanel {
                 }
             }
         });
-
-        add(tabbedPane, "grow");
     }
 
     @Override

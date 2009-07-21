@@ -19,11 +19,11 @@ public final class UploadSettings extends LimeProps {
     public static final IntSetting MAX_PUSHES_PER_HOST =
         FACTORY.createIntSetting("MAX_PUSHES_PER_HOST", 5);
 
-	/**
-	 * The maximum percentage of estimated upload bandwidth to use for uploads.
-	 */
-	public static final IntSetting UPLOAD_SPEED =
-		FACTORY.createIntSetting("UPLOAD_SPEED", 100);
+    /**
+     * The maximum percentage of estimated upload bandwidth to use for uploads.
+     */
+    public static final IntSetting UPLOAD_SPEED =
+        FACTORY.createIntSetting("UPLOAD_SPEED", 100);
 
     /**
      * Setting for the size of the upload queue.
@@ -31,35 +31,35 @@ public final class UploadSettings extends LimeProps {
     public static final IntSetting UPLOAD_QUEUE_SIZE =
         FACTORY.createIntSetting("UPLOAD_QUEUE_SIZE", 10);
         
-	/**
+    /**
      * Setting for the number of uploads per person.
      */
     public static final IntSetting UPLOADS_PER_PERSON =
         FACTORY.createIntSetting("UPLOADS_PER_PERSON_2", 3);
         
     /**
-	 * The maximum number of upstream bytes per second ever passed by
-	 * this node.
-	 */
+     * The maximum number of upstream bytes per second ever passed by
+     * this node.
+     */
     public static final IntSetting MAX_UPLOAD_BYTES_PER_SEC =
         FACTORY.createExpirableIntSetting("MAX_UPLOAD_BYTES_PER_SEC", 0);
      
     /**
-	 * The maximum number of simultaneous uploads to allow.
-	 */
+     * The maximum number of simultaneous uploads to allow.
+     */
     public static final IntSetting HARD_MAX_UPLOADS =
         FACTORY.createIntSetting("HARD_MAX_UPLOADS", 20);
     
     /**
-	 * The "soft" maximum number of simultaneous uploads to allow,
+     * The "soft" maximum number of simultaneous uploads to allow,
      * i.e., the minimum number of people to allow before determining
      * whether to allow more uploads.
-	 */
+     */
     public static final IntSetting SOFT_MAX_UPLOADS =
         FACTORY.createIntSetting("SOFT_MAXIMUM_UPLOADS_2", 5);   
 
     /**
-     * settings whether to expire the different types of meshes
+     * Settings whether to expire the different types of meshes.
      */
     public static final BooleanSetting EXPIRE_LEGACY =
         FACTORY.createRemoteBooleanSetting("EXPIRE_LEGACY",true,"AlternateLocation.expireLegacy");
@@ -69,8 +69,8 @@ public final class UploadSettings extends LimeProps {
         FACTORY.createRemoteBooleanSetting("EXPIRE_RESPONSES",true,"AlternateLocation.expireResponse");
     
     /**
-     * settings for the number of times each altloc should be given out
-     * (larger == more times)
+     * Settings for the number of times each altloc should be given out
+     * (larger == more times).
      */
     public static final FloatSetting LEGACY_BIAS =
         FACTORY.createRemoteFloatSetting("LEGACY_BIAS",1f,"AlternateLocation.legacyBias",0.0f,100.0f);
@@ -81,8 +81,8 @@ public final class UploadSettings extends LimeProps {
     
 
     /**
-     * settings for the speed at which the number of times an altloc can be given out regrows 
-     * (smaller == faster)
+     * Settings for the speed at which the number of times an altloc can be given out regrows 
+     * (smaller == faster).
      */
     public static final FloatSetting LEGACY_EXPIRATION_DAMPER =
         FACTORY.createRemoteFloatSetting("LEGACY_DAMPER",

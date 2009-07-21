@@ -26,7 +26,7 @@ public class EventListenerListTest extends BaseTestCase {
     
     /**
      * A simple test to add a listener (for which the key did not exist before),
-     * and to remove it after
+     * and to remove it after.
      */
     public void testAddRemoveListener() {
         EventListenerList<Object> list = new EventListenerList<Object>();

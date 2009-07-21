@@ -35,6 +35,7 @@ public class DarkButtonBackgroundPainter extends ButtonBackgroundPainter {
     @Resource private Color clickBevelRightGradientTop = PainterUtils.TRASPARENT;
     @Resource private Color clickBevelRightGradientBottom = PainterUtils.TRASPARENT;
     @Resource private Color clickBevelBottom = PainterUtils.TRASPARENT;
+    @Resource private Color clickBevelTop = PainterUtils.TRASPARENT;
     
     @Resource private Color disabledGradientTop = PainterUtils.TRASPARENT;
     @Resource private Color disabledGradientBottom = PainterUtils.TRASPARENT;
@@ -68,7 +69,7 @@ public class DarkButtonBackgroundPainter extends ButtonBackgroundPainter {
                 hoveredRightGradient, this.highlightBevelBottom, this.arcWidth, this.arcHeight, accentType);
         
         this.clickedPainter = createPainter(this.clickGradientTop, this.clickGradientBottom,
-                this.border,  PainterUtils.TRASPARENT, PainterUtils.TRASPARENT, PainterUtils.TRASPARENT, 
+                this.border,  PainterUtils.TRASPARENT, clickBevelTop, PainterUtils.TRASPARENT, 
                 clickedRightGradient, this.clickBevelBottom, this.arcWidth, this.arcHeight, accentType);
         
         this.disabledPainter = createPainter(this.disabledGradientTop, this.disabledGradientBottom,

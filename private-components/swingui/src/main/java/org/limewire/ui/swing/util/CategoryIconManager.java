@@ -5,12 +5,13 @@ import javax.swing.Icon;
 import org.jdesktop.application.Resource;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.PropertiableFile;
+import org.limewire.inject.LazySingleton;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-@Singleton
+@LazySingleton
 public class CategoryIconManager {
     
     private Icon audioIcon;
@@ -39,12 +40,12 @@ public class CategoryIconManager {
     @Resource
     private Icon smallOtherIcon;
     
-    public static CategoryIconManager createTestingCategoryIconManager() {
-        return new CategoryIconManager();
-    }
+    private final Provider<IconManager> iconManager;
     
     @Inject
-    CategoryIconManager() {
+    CategoryIconManager(Provider<IconManager> iconManager) {
+        this.iconManager = iconManager;
+        
         GuiUtils.assignResources(this);
         
         audioIcon = smallAudioIcon;
@@ -65,9 +66,7 @@ public class CategoryIconManager {
     }
     
     /**
-     * Returns the limewire-specific icons for the given category
-     * @param category
-     * @return
+     * Returns the LimeWire-specific icons for the given category.
      */
     public Icon getIcon(Category category) {
         switch (category) {
@@ -101,15 +100,12 @@ public class CategoryIconManager {
     /**
      * Returns the local MIME type for files of category DOCUMENT and OTHER (if it can). For all other
      * types it returns the LimeWire icon for the file category.
-     * @param file
-     * @param iconManager
-     * @return
      */
-    public Icon getIcon(PropertiableFile file, IconManager iconManager) {
+    public Icon getIcon(PropertiableFile file) {
         switch(file.getCategory()) {
         case DOCUMENT:
         case OTHER:
-            return iconManager.getIconForPropertiableFile(file);
+            return iconManager.get().getIconForPropertiableFile(file);
         default:
             return getIcon(file.getCategory());
         }

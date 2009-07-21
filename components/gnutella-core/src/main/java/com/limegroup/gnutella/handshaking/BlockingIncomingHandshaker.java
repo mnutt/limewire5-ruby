@@ -16,11 +16,6 @@ public class BlockingIncomingHandshaker implements Handshaker {
     /**
      * Constructs a new BlockingIncomingHandshaker using the given responder
      * to calculate our response, and the Socket/InputStream/OutputStream for i/o.
-     *  
-     * @param responder
-     * @param socket
-     * @param in
-     * @param out
      */
     public BlockingIncomingHandshaker(HandshakeResponder responder, Socket socket, InputStream in, OutputStream out) {
         this.responder = responder;

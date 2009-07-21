@@ -6,21 +6,19 @@ import java.util.Map;
 /**
  * This consumes a String template for describing how to save a file and returns a valid file path.  
  * Some examples would be:
- * <ul>
- * <li></li>
- * <li><artist>/<album></li>
- * </ul>
+ * <xmp>
+ * <artist>/<album>
+ * </xmp>
  */
 public class StoreSubDirectoryTemplateProcessor extends StoreTemplateProcessor {
           
     /**
      * Returns an output directory specified by <code>template</code> using
      * <code>outDir</code> as the base directory.  Some sample templates are
-     * <ul>
-     * <li></li>
-     * <li><artist></li>
-     * <li><artist>/<album></li>
-     * </ul>
+     * <xmp>
+     * <artist>
+     * <artist>/<album>
+     * </xmp>
      * Valid values for the keys of <code>substitutions</code> are
      * <ul>
      * <li>{@link #ARTIST_LABEL}</li>

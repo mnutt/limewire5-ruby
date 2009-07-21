@@ -4,20 +4,20 @@ import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
-import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.library.FileList;
 import org.limewire.core.api.library.FriendLibrary;
 import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.PresenceLibrary;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
+import org.limewire.core.api.library.SearchResultList;
+import org.limewire.core.api.search.SearchResult;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionPoint;
@@ -31,7 +31,6 @@ import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.TransformedList;
-import ca.odell.glazedlists.UniqueList;
 import ca.odell.glazedlists.ObservableElementList.Connector;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventAssembler;
@@ -59,8 +58,6 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     private final EventList<FriendLibrary> readOnlyFriendLibraries;
     private volatile EventList<FriendLibrary> swingFriendLibraries;
     private final ReadWriteLock lock;
-    
-    private static final RemoteFileComparator COMPARATOR = new RemoteFileComparator();
 
     @SuppressWarnings("unused")
     @InspectableContainer
@@ -95,7 +92,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     }
     
     @Override
-    public FileList<RemoteFileItem> getAllFriendsFileList() {
+    public SearchResultList getAllFriendsFileList() {
         return allFriendsList;
     }
     
@@ -114,13 +111,30 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     }
     
     @Override
-    public PresenceLibrary addPresenceLibrary(FriendPresence presence) {
+    public boolean addPresenceLibrary(FriendPresence presence) {
+        assert !presence.getFriend().isAnonymous();
+        
         lock.writeLock().lock();
         try {
             FriendLibraryImpl friendLibrary = getOrCreateFriendLibrary(presence.getFriend());
-            return friendLibrary.getOrCreatePresenceLibrary(presence);
+            return friendLibrary.addPresenceLibrary(presence);
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+    
+    @Override
+    public PresenceLibrary getPresenceLibrary(FriendPresence presence) {
+        lock.readLock().lock();
+        try {
+            FriendLibraryImpl friendLibrary = getFriendLibrary(presence.getFriend());
+            if(friendLibrary != null) {
+                return friendLibrary.getPresenceLibrary(presence);
+            } else {
+                return null;
+            }
+        } finally {
+            lock.readLock().unlock();
         }
     }
     
@@ -186,7 +200,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     }
     
     @Override
-    public FriendLibrary getFriendLibrary(Friend friend) {
+    public FriendLibraryImpl getFriendLibrary(Friend friend) {
         return findFriendLibrary(friend);
     }
     
@@ -201,41 +215,35 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         friendLibrary.dispose();
     }
     
-    private static class AllFriendsLibraryImpl implements FileList<RemoteFileItem> {
-        private final CompositeList<RemoteFileItem> compositeList;
-        private final ReadOnlyList<RemoteFileItem> readOnlyList;
-        private final UniqueList<RemoteFileItem> threadSafeUniqueList;
-        private volatile TransformedList<RemoteFileItem, RemoteFileItem> swingList;
+    private static class AllFriendsLibraryImpl implements SearchResultList {
+        private final CompositeList<SearchResult> compositeList;
+        private final ReadOnlyList<SearchResult> readOnlyList;
+        private final EventList<SearchResult> threadSafeList;
+        private volatile TransformedList<SearchResult, SearchResult> swingList;
         
         public AllFriendsLibraryImpl(ReadWriteLock lock) {
-            compositeList = new CompositeList<RemoteFileItem>(ListEventAssembler.createListEventPublisher(), lock);
+            compositeList = new CompositeList<SearchResult>(ListEventAssembler.createListEventPublisher(), lock);
             readOnlyList = GlazedListsFactory.readOnlyList(compositeList);
-            threadSafeUniqueList = GlazedListsFactory.uniqueList(GlazedListsFactory.threadSafeList(readOnlyList),
-                    new Comparator<RemoteFileItem>() {
-                @Override
-                public int compare(RemoteFileItem o1, RemoteFileItem o2) {
-                    return o1.getUrn().compareTo(o2.getUrn());
-                }
-            });
+            threadSafeList = GlazedListsFactory.threadSafeList(readOnlyList);
         }
         
         @Override
-        public EventList<RemoteFileItem> getModel() {
-            return threadSafeUniqueList;
+        public EventList<SearchResult> getModel() {
+            return threadSafeList;
         }
 
         @Override
-        public EventList<RemoteFileItem> getSwingModel() {
+        public EventList<SearchResult> getSwingModel() {
             assert EventQueue.isDispatchThread();
             if(swingList == null) {
-                swingList =  GlazedListsFactory.swingThreadProxyEventList(threadSafeUniqueList);
+                swingList =  GlazedListsFactory.swingThreadProxyEventList(threadSafeList);
             }
             return swingList;
         }
 
         @Override
         public int size() {
-            return threadSafeUniqueList.size();
+            return threadSafeList.size();
         }
         
         ListEventPublisher getPublisher() {
@@ -248,7 +256,27 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
 
         void addMemberList(FriendLibrary friendLibrary) {
             compositeList.addMemberList(friendLibrary.getModel());
-        }        
+        }
+
+        @Override
+        public void addNewResult(SearchResult file) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void removeResult(SearchResult file) {
+            throw new UnsupportedOperationException();   
+        }
+
+        @Override
+        public void setNewResults(Collection<SearchResult> files) {
+            throw new UnsupportedOperationException();   
+        }
+        
+        @Override
+        public void clear() {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class FriendLibraryImpl implements FriendLibrary {
@@ -257,10 +285,10 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         private final ObservableElementList<PresenceLibrary> allPresenceLibraries;
         private final ReadOnlyList<PresenceLibrary> readOnlyPresenceLibraries;
         
-        private final CompositeList<RemoteFileItem> compositeList;
-        private final ReadOnlyList<RemoteFileItem> readOnlyList;
-        private final UniqueList<RemoteFileItem> threadSafeUniqueList;
-        private volatile TransformedList<RemoteFileItem, RemoteFileItem> swingList;
+        private final CompositeList<SearchResult> compositeList;
+        private final ReadOnlyList<SearchResult> readOnlyList;
+        private final EventList<SearchResult> threadSafeList;
+        private volatile TransformedList<SearchResult, SearchResult> swingList;
         
         private final ReadWriteLock lock;
         
@@ -270,10 +298,9 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         public FriendLibraryImpl(AllFriendsLibraryImpl allFriendsList, Friend friend, ReadWriteLock lock) {
             this.friend = friend;
             this.lock = lock;
-            compositeList = new CompositeList<RemoteFileItem>(allFriendsList.getPublisher(), lock);
+            compositeList = new CompositeList<SearchResult>(allFriendsList.getPublisher(), lock);
             readOnlyList = GlazedListsFactory.readOnlyList(compositeList);
-            threadSafeUniqueList = GlazedListsFactory.uniqueList(GlazedListsFactory.threadSafeList(readOnlyList),
-                    COMPARATOR);
+            threadSafeList = GlazedListsFactory.threadSafeList(readOnlyList);
             
             changeSupport = new PropertyChangeSupport(this);
             
@@ -328,7 +355,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             return friend;
         }
         
-        private PresenceLibraryImpl findPresenceLibrary(FriendPresence presence) {
+        private PresenceLibraryImpl getPresenceLibrary(FriendPresence presence) {
             for(PresenceLibrary library : allPresenceLibraries) {
                 if(library.getPresence().getPresenceId().equals(presence.getPresenceId())) {
                     return (PresenceLibraryImpl)library;
@@ -337,20 +364,22 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             return null;
         }
 
-        private PresenceLibraryImpl getOrCreatePresenceLibrary(FriendPresence presence) {
-            PresenceLibraryImpl library = findPresenceLibrary(presence);
+        private boolean addPresenceLibrary(FriendPresence presence) {
+            PresenceLibraryImpl library = getPresenceLibrary(presence);
             if(library == null) {
                 LOG.debugf("adding presence library for {0}", presence);
                 library = new PresenceLibraryImpl(presence, createMemberList());
                 allPresenceLibraries.add(library);
                 addMemberList(library);
                 library.commit();
-            }            
-            return library;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         private void removePresenceLibrary(FriendPresence presence) {
-            PresenceLibraryImpl presenceLibrary = findPresenceLibrary(presence);
+            PresenceLibraryImpl presenceLibrary = getPresenceLibrary(presence);
             if(presenceLibrary != null) {
                 LOG.debugf("removing presence library for {0}", presence);
                 allPresenceLibraries.remove(presenceLibrary);
@@ -363,7 +392,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             compositeList.removeMemberList(presenceLibrary.getModel());
         }
 
-        private EventList<RemoteFileItem> createMemberList() {
+        private EventList<SearchResult> createMemberList() {
             return compositeList.createMemberList();
         }
 
@@ -372,30 +401,41 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         }
 
         @Override
-        public EventList<RemoteFileItem> getModel() {
-            return threadSafeUniqueList;
+        public EventList<SearchResult> getModel() {
+            return threadSafeList;
         }
 
         @Override
-        public EventList<RemoteFileItem> getSwingModel() {
+        public EventList<SearchResult> getSwingModel() {
             assert EventQueue.isDispatchThread();
             if(swingList == null) {
-                swingList =  GlazedListsFactory.swingThreadProxyEventList(threadSafeUniqueList);
+                swingList =  GlazedListsFactory.swingThreadProxyEventList(threadSafeList);
             }
             return swingList;
         }
 
         @Override
         public int size() {
-            return threadSafeUniqueList.size();
+            return threadSafeList.size();
         }
 
-
-        public void addFile(RemoteFileItem file) {
+        @Override
+        public void addNewResult(SearchResult file) {
             throw new UnsupportedOperationException();
         }
-
-        public void removeFile(RemoteFileItem file) {
+        
+        @Override
+        public void removeResult(SearchResult file) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public void setNewResults(Collection<SearchResult> file) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public void clear() {
             throw new UnsupportedOperationException();
         }
 
@@ -408,7 +448,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             }
             compositeList.dispose();
             readOnlyList.dispose();
-            threadSafeUniqueList.dispose();
+            threadSafeList.dispose();
             readOnlyPresenceLibraries.dispose();
             allPresenceLibraries.dispose();
         }
@@ -425,21 +465,17 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         public String toString() {
             return StringUtils.toString(this);
         }
-        
-        //TODO: add new accessors appropriate for creating FileItems based on
-        //      lookups. May also need to subclass CoreFileItem appropriate for
-        //      friend library info.
     }
 
     private static class PresenceLibraryImpl implements PresenceLibrary {
-        protected final TransformedList<RemoteFileItem, RemoteFileItem> eventList;
-        protected volatile TransformedList<RemoteFileItem, RemoteFileItem> swingEventList;
+        protected final EventList<SearchResult> eventList;
+        protected volatile EventList<SearchResult> swingEventList;
         private final FriendPresence presence;
         private volatile LibraryState state = LibraryState.LOADING;
         
         private final PropertyChangeSupport changeSupport;
 
-        PresenceLibraryImpl(FriendPresence presence, EventList<RemoteFileItem> list) {
+        PresenceLibraryImpl(FriendPresence presence, EventList<SearchResult> list) {
             this.presence = presence;
             eventList = GlazedListsFactory.threadSafeList(list);
             changeSupport = new PropertyChangeSupport(this);
@@ -455,12 +491,12 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         }
 
         @Override
-        public EventList<RemoteFileItem> getModel() {
+        public EventList<SearchResult> getModel() {
             return eventList;
         }
 
         @Override
-        public EventList<RemoteFileItem> getSwingModel() {
+        public EventList<SearchResult> getSwingModel() {
             assert EventQueue.isDispatchThread();
             if(swingEventList == null) {
                 swingEventList =  GlazedListsFactory.swingThreadProxyEventList(eventList);
@@ -476,12 +512,30 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
             eventList.dispose();
         }
 
-        public void addFile(RemoteFileItem file) {
+        @Override
+        public void addNewResult(SearchResult file) {
             eventList.add(file);
         }
 
-        public void removeFile(RemoteFileItem file) {
+        @Override
+        public void removeResult(SearchResult file) {
             eventList.remove(file);
+        }
+        
+        @Override
+        public void setNewResults(Collection<SearchResult> files) {
+            eventList.getReadWriteLock().writeLock().lock();
+            try {
+                eventList.clear();
+                eventList.addAll(files);
+            } finally {
+                eventList.getReadWriteLock().writeLock().unlock();
+            }
+        }
+        
+        @Override
+        public void clear() {
+            eventList.clear();
         }
 
         @Override
@@ -491,9 +545,6 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
 
         void commit() {
             // Add things here after we guarantee we want to use this list.
-        }
-
-        public void clear() {
         }
         
         @Override
@@ -514,13 +565,6 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
         
         public void removePropertyChangeListener(PropertyChangeListener listener) {
             changeSupport.removePropertyChangeListener(listener);
-        }
-    }
-    
-    private static class RemoteFileComparator implements Comparator<RemoteFileItem> {
-        @Override
-            public int compare(RemoteFileItem o1, RemoteFileItem o2) {
-            return o1.getUrn().compareTo(o2.getUrn());
         }
     }
 }

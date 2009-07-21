@@ -5,7 +5,7 @@ import org.limewire.logging.LogFactory;
 
 public abstract class AbstractSimilarResultsDetector implements SimilarResultsDetector {
 
-    protected final Log LOG = LogFactory.getLog(getClass());
+    private static final Log LOG = LogFactory.getLog(AbstractSimilarResultsDetector.class);
 
     /**
      * Finds the parent correlating the two searchResults and then moves these
@@ -39,8 +39,9 @@ public abstract class AbstractSimilarResultsDetector implements SimilarResultsDe
      * Update visibilities of newly changed parents.
      */
     private void updateVisibility(VisualSearchResult parent, final boolean childrenVisible) {
-        LOG.debugf("Setting child visibility for {0} to {1}", parent.getCoreSearchResults().get(0)
-                .getUrn(), childrenVisible);
+        if(LOG.isDebugEnabled()) {
+            LOG.debugf("Setting child visibility for {0} to {1}", parent.getCoreSearchResults().get(0).getUrn(), childrenVisible);
+        }
         parent.setVisible(true);
         parent.setChildrenVisible(childrenVisible);
     }
@@ -68,7 +69,9 @@ public abstract class AbstractSimilarResultsDetector implements SimilarResultsDe
         for (VisualSearchResult item : child.getSimilarResults()) {
             updateParent(item, parent);
             child.removeSimilarSearchResult(item);
-            parent.addSimilarSearchResult(item);
+            if(parent != item) {
+                parent.addSimilarSearchResult(item);
+            }
         }
     }
 
@@ -84,10 +87,10 @@ public abstract class AbstractSimilarResultsDetector implements SimilarResultsDe
         VisualSearchResult parent2 = o2;
         VisualSearchResult parent3 = o1.getSimilarityParent();
         VisualSearchResult parent4 = o2.getSimilarityParent();
-        double parent1Count = parent1 == null ? 0 : parent1.getRelevance();
-        double parent2Count = parent2 == null ? 0 : parent2.getRelevance();
-        double parent3Count = parent3 == null ? 0 : parent3.getRelevance();
-        double parent4Count = parent4 == null ? 0 : parent4.getRelevance();
+        int parent1Count = parent1 == null ? 0 : parent1.getRelevance();
+        int parent2Count = parent2 == null ? 0 : parent2.getRelevance();
+        int parent3Count = parent3 == null ? 0 : parent3.getRelevance();
+        int parent4Count = parent4 == null ? 0 : parent4.getRelevance();
 
         if (parent4Count > parent3Count && parent4Count > parent2Count
                 && parent4Count > parent1Count) {

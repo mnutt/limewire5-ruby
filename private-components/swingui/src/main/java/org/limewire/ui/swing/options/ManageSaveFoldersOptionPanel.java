@@ -26,8 +26,9 @@ import org.limewire.ui.swing.util.IconManager;
 import org.limewire.util.MediaType;
 import org.limewire.util.Objects;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * Defines the window panel for the Download Folders dialog, which manages the
@@ -72,9 +73,9 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
      * Constructs a ManageSaveFoldersOptionPanel with the specified managers
      * and actions.
      */
-    @AssistedInject
+    @Inject
     public ManageSaveFoldersOptionPanel(CategoryIconManager categoryIconManager,
-            @Assisted Action okAction, @Assisted CancelDialogAction cancelAction, IconManager iconManager) {
+            @Assisted Action okAction, @Assisted CancelDialogAction cancelAction, Provider<IconManager> iconManager) {
 
         GuiUtils.assignResources(this);
 
@@ -165,6 +166,44 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
         textField.setText(SharingSettings.getSaveDirectory().getAbsolutePath());
     }
 
+    void revertToDefault() {
+        revertToDefault(audioTextField);
+        revertToDefault(videoTextField);
+        revertToDefault(imageTextField);
+        revertToDefault(documentTextField);
+        revertToDefault(programTextField);
+        revertToDefault(otherTextField);
+    }
+    
+    boolean isConfigCustom() {
+        File defaultLocation = SharingSettings.getSaveDirectory();
+        if (!SharingSettings.getFileSettingForMediaType(MediaType.getAudioMediaType()).get()
+                .equals(defaultLocation)) {
+            return true;
+        }
+        if (!SharingSettings.getFileSettingForMediaType(MediaType.getVideoMediaType()).get()
+                .equals(defaultLocation)) {
+            return true;
+        }
+        if (!SharingSettings.getFileSettingForMediaType(MediaType.getImageMediaType()).get()
+                .equals(defaultLocation)) {
+            return true;
+        }
+        if (!SharingSettings.getFileSettingForMediaType(MediaType.getDocumentMediaType()).get()
+                .equals(defaultLocation)) {
+            return true;
+        }
+        if (!SharingSettings.getFileSettingForMediaType(MediaType.getProgramMediaType()).get()
+                .equals(defaultLocation)) {
+            return true;
+        }
+        if (!SharingSettings.getFileSettingForMediaType(MediaType.getOtherMediaType()).get()
+                .equals(defaultLocation)) {
+            return true;
+        }
+        return false;
+    }
+    
     private void applyOption(MediaType mediaType, LabelTextField textField) {
         if (hasChanged(mediaType, textField)) {
             FileSetting saveDirSetting = SharingSettings.getFileSettingForMediaType(mediaType);
@@ -232,12 +271,7 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
         
         @Override
         public void actionPerformed(ActionEvent e) {
-            revertToDefault(audioTextField);
-            revertToDefault(videoTextField);
-            revertToDefault(imageTextField);
-            revertToDefault(documentTextField);
-            revertToDefault(programTextField);
-            revertToDefault(otherTextField);
+            revertToDefault();
         }
     }
 }

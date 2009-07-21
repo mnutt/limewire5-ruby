@@ -13,7 +13,7 @@ public class ContentResponseData implements Serializable {
     private long created;
     private boolean ok;
     
-    /** Constructs a new ContentResponseData with data from the given ContentResponse */
+    /** Constructs a new ContentResponseData with data from the given ContentResponse. */
     public ContentResponseData(ContentResponse msg) {
         this(System.currentTimeMillis(), msg.getOK());
     }

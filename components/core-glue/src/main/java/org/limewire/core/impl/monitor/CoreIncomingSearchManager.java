@@ -41,7 +41,7 @@ public class CoreIncomingSearchManager
     /**
      * Returns a read-only list of incoming search phrases.  An application 
      * should NOT assume that the returned list is Swing-compatible; Swing is 
-     * suppported by wrapping the resulting list via a call to <code>
+     * supported by wrapping the resulting list via a call to <code>
      * GlazedListsFactory.swingThreadProxyEventList()</code>.
      */
     @Override

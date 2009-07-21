@@ -9,10 +9,10 @@ package org.limewire.nio;
  */
 public interface ThrottleListener {
         
-    /** Gets the attachment for the <code>Throttle</code> to recognize */
+    /** Gets the attachment for the <code>Throttle</code> to recognize. */
     Object getAttachment();
     
-    /** Notifies the listener that bandwidth is available and interest should be registered */
+    /** Notifies the listener that bandwidth is available and interest should be registered. */
     boolean bandwidthAvailable();
     
     /** Notifies the listener that bandwidth should be requested. */

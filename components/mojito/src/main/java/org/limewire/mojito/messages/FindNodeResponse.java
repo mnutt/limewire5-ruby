@@ -30,7 +30,7 @@ public interface FindNodeResponse extends LookupResponse {
     
     /**
      * Returns the k-closest (or less) Node's to the
-     * KUID we were looking for
+     * KUID we were looking for.
      */
     public Collection<? extends Contact> getNodes();
 }

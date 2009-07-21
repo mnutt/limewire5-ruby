@@ -30,14 +30,8 @@ public class MagnetLinkFactoryImpl implements MagnetLinkFactory {
     public String createMagnetLink(FileItem fileItem) {
         if (fileItem instanceof CoreLocalFileItem){
             return createMagnetLink((CoreLocalFileItem)fileItem);
-        } else if (fileItem instanceof CoreRemoteFileItem){
-            return createMagnetLink((CoreRemoteFileItem)fileItem);
-        }
+        } 
         throw new IllegalArgumentException("FileItem must be instance of CoreLocalFileItem or CoreRemoteFileItem: " + fileItem);
-    }
-    
-    private String createMagnetLink(CoreRemoteFileItem fileItem) {
-        return fileItem.getSearchResult().getMagnetURL();
     }
     
     private String createMagnetLink(CoreLocalFileItem fileItem) {

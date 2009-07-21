@@ -34,7 +34,7 @@ public class BasicFileIconController extends NonBlockFileIconController {
             return null;
     }
     
-    /** Returns the icon assocated with the extension. */
+    /** Returns the icon associated with the extension. */
     public Icon getIconForExtension(String ext) {
         MediaType mt = null;
         if (ext != null)

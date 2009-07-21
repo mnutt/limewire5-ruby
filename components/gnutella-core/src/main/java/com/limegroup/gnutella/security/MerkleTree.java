@@ -2,7 +2,7 @@
  * (PD) 2003 The Bitzi Corporation Please see http://bitzi.com/publicdomain for
  * more info.
  * 
- * $Id: MerkleTree.java,v 1.2 2008/04/28 18:44:59 sberlin Exp $
+ * $Id: MerkleTree.java,v 1.3 2009/06/08 19:57:54 dsullivan Exp $
  */
 package com.limegroup.gnutella.security;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 /**
  * Implementation of Merkle Tree hash algorithm, (using the approach as revised
  * in December 2002, to add unique prefixes to leaf and node operations)
- * 
+ * <p>
  * This class calculates the root of a MerkleTree, and keeps at most log(n) nodes
  * (one for each tree level) in memory while doing so.
  */
@@ -21,26 +21,26 @@ public class MerkleTree extends MessageDigest {
     private static final int BLOCKSIZE = 1024;
     public static final int HASHSIZE = 24;
 
-    /** a Marker for the Stack */
+    /** A Marker for the Stack. */
     private static final byte[] MARKER = new byte[0];
 
-    /** 1024 byte buffer */
+    /** 1024 byte buffer. */
     private final byte[] buffer;
 
-    /** Buffer offset */
+    /** Buffer offset. */
     private int bufferOffset;
 
     /** Number of bytes hashed until now. */
     private long byteCount;
 
-    /** Internal Tiger MD instance */
+    /** Internal Tiger MD instance. */
     private final MessageDigest internalDigest;
 
     /** The List of Nodes */
     private final ArrayList<byte[]> nodes;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public MerkleTree(MessageDigest internalDigest) {
         super("merkletree");
@@ -121,7 +121,7 @@ public class MerkleTree extends MessageDigest {
     }
 
     /**
-     * collapse whatever the tree is now to a root.
+     * Collapse whatever the tree is now to a root.
      */
     private byte[] collapse() {
         byte[] last = null;
@@ -155,7 +155,7 @@ public class MerkleTree extends MessageDigest {
     }
 
     /**
-     * Method overrides MessageDigest.clone()
+     * Method overrides MessageDigest.clone().
      * 
      * @see java.security.MessageDigest#clone()
      */

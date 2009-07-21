@@ -18,8 +18,6 @@ public abstract class NBServerSocketFactory extends ServerSocketFactory {
      * the given <code>AcceptObserver</code> when new connections arrive. You 
      * must call 'bind' on the socket to begin accepting new connections.
      * 
-     * @param observer
-     * @return
      * @throws IOException
      */
     public abstract ServerSocket createServerSocket(AcceptObserver observer) throws IOException;
@@ -28,9 +26,6 @@ public abstract class NBServerSocketFactory extends ServerSocketFactory {
      * Constructs a new <code>ServerSocket</code> bound at the given port.
      * The given observer will be notified when new incoming connections are accepted.
      * 
-     * @param port
-     * @param observer
-     * @return
      * @throws IOException
      */
     public abstract ServerSocket createServerSocket(int port, AcceptObserver observer) throws IOException;
@@ -40,10 +35,6 @@ public abstract class NBServerSocketFactory extends ServerSocketFactory {
      * the given backlog. The given <code>AcceptObserver</code> will be notified 
      * when new incoming connections are accepted.
      * 
-     * @param port
-     * @param backlog
-     * @param observer
-     * @return
      * @throws IOException
      */
     public abstract ServerSocket createServerSocket(int port, int backlog, AcceptObserver observer) throws IOException;
@@ -54,11 +45,6 @@ public abstract class NBServerSocketFactory extends ServerSocketFactory {
      * The given <code>AcceptObserver</code> will be notified when new incoming 
      * connections are accepted.
      * 
-     * @param port
-     * @param backlog
-     * @param bindAddr
-     * @param observer
-     * @return
      * @throws IOException
      */
     public abstract ServerSocket createServerSocket(int port, int backlog, InetAddress bindAddr, AcceptObserver observer) throws IOException;

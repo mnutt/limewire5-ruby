@@ -291,16 +291,15 @@ public class CollectionTest extends LimeTestCase {
 
         // test keyword generation
         List<String> keywords = getKeywords(audioSchemaURI);
-        assertEquals("Wrong keyword count!", 7, keywords.size());
-        assertTrue("Correct keywords not in map!", 
-                          (keywords.contains("othertfield") && 
-                           keywords.contains("otherafield")  &&
-                           keywords.contains("Other")  &&
-                           keywords.contains("tfield")  &&
-                           keywords.contains("afield")  &&
-                           keywords.contains("Vocal") &&
-                           keywords.contains("Movie") )
-                          );
+        assertEquals("Wrong keyword count!", 6, keywords.size()); // comment is missing!
+        assertTrue(keywords.contains("othertfield"));
+        assertTrue(keywords.contains("otherafield"));
+        assertTrue(keywords.contains("Other"));
+        assertTrue(keywords.contains("tfield"));
+        assertTrue(keywords.contains("afield"));
+        assertTrue(keywords.contains("Vocal"));
+        assertFalse(keywords.contains("Movie")); // was the comment!
+        
         keywords = getKeywords(videoSchemaURI);
         assertEquals("Wrong keyword count!", 4, keywords.size());
         assertTrue("Correct keywords not in map!", 

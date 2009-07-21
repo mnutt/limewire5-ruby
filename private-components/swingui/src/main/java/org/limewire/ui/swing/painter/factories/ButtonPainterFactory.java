@@ -6,6 +6,7 @@ import org.jdesktop.application.Resource;
 import org.limewire.ui.swing.painter.ButtonBackgroundPainter;
 import org.limewire.ui.swing.painter.ButtonForegroundPainter;
 import org.limewire.ui.swing.painter.DarkButtonBackgroundPainter;
+import org.limewire.ui.swing.painter.FlatButtonBackgroundPainter;
 import org.limewire.ui.swing.painter.GreenButtonBackgroundPainter;
 import org.limewire.ui.swing.painter.LightButtonBackgroundPainter;
 import org.limewire.ui.swing.painter.PopupButtonBackgroundPainter;
@@ -132,5 +133,13 @@ public class ButtonPainterFactory {
     public ButtonBackgroundPainter createDarkFullButtonBackgroundPainter(DrawMode mode, 
             AccentType accent) {
         return new DarkButtonBackgroundPainter(mode, accent);
+    }
+    
+    /**
+     * Creates a background painter for buttons that only need a rounded border and no
+     *  mouseover or click effects.
+     */
+    public FlatButtonBackgroundPainter createFlatButtonBackgroundPainter() {
+        return new FlatButtonBackgroundPainter();
     }
 }

@@ -48,7 +48,11 @@ class LocalFileDetailsFactoryImpl implements LocalFileDetailsFactory {
             }
 
             public long getCreationTime() {
-                return creationTimeCache.getCreationTimeAsLong(fd.getSHA1Urn());
+                if(fd.getSHA1Urn() != null) {
+                    return creationTimeCache.getCreationTimeAsLong(fd.getSHA1Urn());
+                } else {
+                    return -1;
+                }
             }
         };
     }

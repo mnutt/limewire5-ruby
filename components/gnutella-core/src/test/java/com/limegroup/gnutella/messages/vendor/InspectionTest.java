@@ -17,11 +17,11 @@ import java.util.zip.Inflater;
 
 import junit.framework.Test;
 
+import org.limewire.bittorrent.bencoding.Token;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.MessageSettings;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.inspection.Inspectable;
-import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.io.GGEP;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
@@ -34,10 +34,8 @@ import org.limewire.util.StringUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.google.inject.name.Names;
-import com.limegroup.bittorrent.bencoding.Token;
 import com.limegroup.gnutella.BlockingConnectionUtils;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.MessageRouter;
@@ -50,7 +48,6 @@ import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.RoutableGGEPMessage.GGEPSigner;
 
-@Singleton
 public class InspectionTest extends ServerSideTestCase {
     
     /**
@@ -58,9 +55,6 @@ public class InspectionTest extends ServerSideTestCase {
      */
     private DatagramSocket UDP_ACCESS;
     
-    @InspectablePrimitive("") @SuppressWarnings("unused") private String inspectedValue;
-    @SuppressWarnings("unused") private String otherValue;
-
     private MessageFactory messageFactory;
 
     private MessagesSupportedVendorMessage messagesSupportedVendorMessage;
@@ -74,6 +68,8 @@ public class InspectionTest extends ServerSideTestCase {
     private NetworkManager networkManager;
     
     private KeyPair keyPair;
+    
+    private Injector injector = null;
 
     
     public InspectionTest(String name) {
@@ -114,12 +110,12 @@ public class InspectionTest extends ServerSideTestCase {
         keyPair = keyGen.generateKeyPair();
         final SecureMessageVerifier smv = new SecureMessageVerifierImpl(keyPair.getPublic(), "testSMV");
         
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
             @Override
             protected void configure() {
                 bind(SecureMessageVerifier.class).annotatedWith(Names.named("inspection")).toInstance(smv);
-                // Binding must be applied otherwise InspectionUtil won't find it.
-                bind(InspectionTest.class).toInstance(InspectionTest.this);
+                bind(InspectionTestContainer.class);
+                bind(InspectionTestContainerLazy.class);
             }
         });
         super.setUp(injector);
@@ -161,30 +157,71 @@ public class InspectionTest extends ServerSideTestCase {
     }
     
     public void testInspection() throws Exception {
-        inspectedValue = "a";
-        otherValue = "b";
+        InspectionTestContainer container = injector.getInstance(InspectionTestContainer.class);
+        container.setInspectedValue("a");
+        container.setOtherValue("b");
+        
         InspectionRequest request = new InspectionRequestImpl(new Signer(),
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue",
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,otherValue",
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,invalidValue");
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue",
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,otherValue",
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,invalidValue");
         request = recreate(request);
         assertEquals(1, request.getRoutableVersion());
         assertEquals(false, request.requestsTimeStamp());
         assertNull(request.getReturnAddress());
-        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue",
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue",
                 request.getRequestedFields()[0]);
-        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTest,otherValue",
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainer,otherValue",
                 request.getRequestedFields()[1]);
-        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTest,invalidValue",
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainer,invalidValue",
                 request.getRequestedFields()[2]);
         Map response = tryMessage(request);
         assertEquals(1, response.size());
         assertEquals("a", StringUtils.getASCIIString((byte[])response.get("0")));
         
         request = new InspectionRequestImpl(new GUID(), new Signer(), true, false, -1, 2, null, null, 
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue",
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,otherValue",
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,invalidValue");
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue",
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,otherValue",
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,invalidValue");
+        request = recreate(request);
+        assertEquals(2, request.getRoutableVersion());
+        assertEquals(true, request.requestsTimeStamp());
+        assertNull(request.getReturnAddress());
+        response = tryMessage(request);
+        assertEquals(2, response.size());
+        Thread.sleep(20);
+        long timestamp = Long.valueOf(response.get("-1").toString());
+        assertLessThan(System.currentTimeMillis(), timestamp);
+        assertGreaterThan(System.currentTimeMillis() - 100, timestamp);
+    }
+    
+    public void testInspectionLazy() throws Exception {
+        InspectionTestContainerLazy container = injector.getInstance(InspectionTestContainerLazy.class);
+        container.setInspectedValue("c");
+        container.setOtherValue("d");
+        
+        InspectionRequest request = new InspectionRequestImpl(new Signer(),
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue",
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,otherValue",
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,invalidValue");
+        request = recreate(request);
+        assertEquals(1, request.getRoutableVersion());
+        assertEquals(false, request.requestsTimeStamp());
+        assertNull(request.getReturnAddress());
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue",
+                request.getRequestedFields()[0]);
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,otherValue",
+                request.getRequestedFields()[1]);
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,invalidValue",
+                request.getRequestedFields()[2]);
+        Map response = tryMessage(request);
+        assertEquals(1, response.size());
+        assertEquals("c", StringUtils.getASCIIString((byte[])response.get("0")));
+        
+        request = new InspectionRequestImpl(new GUID(), new Signer(), true, false, -1, 2, null, null, 
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue",
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,otherValue",
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,invalidValue");
         request = recreate(request);
         assertEquals(2, request.getRoutableVersion());
         assertEquals(true, request.requestsTimeStamp());
@@ -199,9 +236,22 @@ public class InspectionTest extends ServerSideTestCase {
 
     public void testEmpty() throws Exception {
         InspectionRequest request = new InspectionRequestImpl(new Signer(),
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,invalidValue");
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,invalidValue");
         request = recreate(request);
-        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTest,invalidValue", request.getRequestedFields()[0]);
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainer,invalidValue", request.getRequestedFields()[0]);
+        assertEquals(1, request.getRequestedFields().length);
+        try {
+            tryMessage(request);
+            fail("should not receive anything");
+        } catch (IOException expected){
+        }
+    }
+    
+    public void testEmptyLazy() throws Exception {
+        InspectionRequest request = new InspectionRequestImpl(new Signer(),
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,invalidValue");
+        request = recreate(request);
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,invalidValue", request.getRequestedFields()[0]);
         assertEquals(1, request.getRequestedFields().length);
         try {
             tryMessage(request);
@@ -219,7 +269,24 @@ public class InspectionTest extends ServerSideTestCase {
                         ret.put(GGEPKeys.GGEP_HEADER_SIGNATURE, StringUtils.toAsciiBytes(" adsf adsf asdf "));
                         return ret;
                     }
-                }, "com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue");
+                }, "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue");
+        request = recreate(request);
+        try {
+            tryMessage(request);
+            fail("should not receive anything");
+        }catch(IOException expected){}
+    }
+    
+    public void testInvalidSigLazy() throws Exception {
+        InspectionRequestImpl request = new InspectionRequestImpl(
+                new RoutableGGEPMessage.GGEPSigner() {
+                    public GGEP getSecureGGEP(GGEP original) {
+                        GGEP ret = new GGEP(true);
+                        ret.put(GGEPKeys.GGEP_HEADER_SECURE_BLOCK);
+                        ret.put(GGEPKeys.GGEP_HEADER_SIGNATURE, StringUtils.toAsciiBytes(" adsf adsf asdf "));
+                        return ret;
+                    }
+                }, "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue");
         request = recreate(request);
         try {
             tryMessage(request);
@@ -235,24 +302,24 @@ public class InspectionTest extends ServerSideTestCase {
         
         // create a request with a return address and one without
         InspectionRequest notRouted = new InspectionRequestImpl(new Signer(), 
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue");
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue");
         notRouted = recreate(notRouted);
 
         InspectionRequest routed = new InspectionRequestImpl(new GUID(), new Signer(), true,
                 false, -1, 2, new IpPortImpl("127.0.0.1", 20000), null,
-                "com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue");
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue");
         routed = recreate(routed);
         
         assertEquals(1, notRouted.getRoutableVersion());
         assertNull(notRouted.getReturnAddress());
-        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue",
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue",
                 notRouted.getRequestedFields()[0]);
         
         assertEquals(2,routed.getRoutableVersion());
         IpPort retAddr = routed.getReturnAddress();
         assertEquals(0, 
                 IpPort.COMPARATOR.compare(new IpPortImpl("127.0.0.1",20000),retAddr));
-        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue",
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue",
                 routed.getRequestedFields()[0]);
         
         
@@ -282,7 +349,7 @@ public class InspectionTest extends ServerSideTestCase {
         // the forwarded message should be identical
         assertEquals(routed.getGUID(), received.getGUID());
         assertEquals(20000,received.getReturnAddress().getPort());
-        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTest,inspectedValue",
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainer,inspectedValue",
                 received.getRequestedFields()[0]);
         assertEquals(2, received.getRoutableVersion());
         
@@ -294,6 +361,74 @@ public class InspectionTest extends ServerSideTestCase {
         socket2.receive(pack);
         assertEquals(2, received.getRoutableVersion());
     }
+    
+    public void testRoutingLazy() throws Exception {
+        // one of the leafs supports inspections
+        LEAF[0].send(messagesSupportedVendorMessage);
+        LEAF[0].flush();
+        
+        // create a request with a return address and one without
+        InspectionRequest notRouted = new InspectionRequestImpl(new Signer(), 
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue");
+        notRouted = recreate(notRouted);
+
+        InspectionRequest routed = new InspectionRequestImpl(new GUID(), new Signer(), true,
+                false, -1, 2, new IpPortImpl("127.0.0.1", 20000), null,
+                "com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue");
+        routed = recreate(routed);
+        
+        assertEquals(1, notRouted.getRoutableVersion());
+        assertNull(notRouted.getReturnAddress());
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue",
+                notRouted.getRequestedFields()[0]);
+        
+        assertEquals(2,routed.getRoutableVersion());
+        IpPort retAddr = routed.getReturnAddress();
+        assertEquals(0, 
+                IpPort.COMPARATOR.compare(new IpPortImpl("127.0.0.1",20000),retAddr));
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue",
+                routed.getRequestedFields()[0]);
+        
+        
+        // the one without should not be forwarded
+        BlockingConnectionUtils.drainAll(LEAF);
+        tryMessage(notRouted);
+        assertNull(BlockingConnectionUtils.getFirstMessageOfType(LEAF[0], InspectionRequestImpl.class));
+        assertNull(BlockingConnectionUtils.getFirstMessageOfType(LEAF[1], InspectionRequestImpl.class));
+        
+        // the one with return address should get answered 
+        DatagramSocket socket2 = new DatagramSocket(20000);
+        socket2.setSoTimeout(100);
+        BlockingConnectionUtils.drainAll(LEAF);
+        try {
+            tryMessage(routed);
+            fail("response should have been sent elsewhere");
+        } catch (IOException expected){}
+        DatagramPacket pack = new DatagramPacket(new byte[1000],1000);
+        socket2.receive(pack);
+        assertEquals(2, MessageSettings.INSPECTION_VERSION.getValue());
+        
+        // and forwarded to the leaf that supports it.
+        InspectionRequestImpl received = BlockingConnectionUtils.getFirstMessageOfType(LEAF[0], InspectionRequestImpl.class);
+        assertNull(BlockingConnectionUtils.getFirstMessageOfType(LEAF[1], InspectionRequestImpl.class));
+        assertNotNull(received);
+        
+        // the forwarded message should be identical
+        assertEquals(routed.getGUID(), received.getGUID());
+        assertEquals(20000,received.getReturnAddress().getPort());
+        assertEquals("com.limegroup.gnutella.messages.vendor.InspectionTestContainerLazy,inspectedValue",
+                received.getRequestedFields()[0]);
+        assertEquals(2, received.getRoutableVersion());
+        
+        // and handling it should also respond to the return address
+        MessageSettings.INSPECTION_VERSION.setValue(1);
+        MessageRouter router = messageRouter;
+        router.handleMessage(received, connectionManager.getInitializedClientConnections().get(0));
+        pack = new DatagramPacket(new byte[1000],1000);
+        socket2.receive(pack);
+        assertEquals(2, received.getRoutableVersion());
+    }
+
     
     private Map tryMessage(Message m) throws Exception {
         assertTrue(udpService.isListening());

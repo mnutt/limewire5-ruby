@@ -31,7 +31,7 @@ public final class FileChooser {
     
     /**
      * Returns the last directory that was used in a FileChooser.
-     * 
+     * <p>
      * If no last directory can be found, the users home directory is returned.
      * If that cannot be found the current directory is returned.
      */
@@ -49,7 +49,7 @@ public final class FileChooser {
      * Returns the default directory for the file chooser.
      * Defaults to the users home directory if it exists,
      * otherwise the current directory is used.
-     * 
+     * <p>
      * Logic is currently duplicated from ApplicationSettings getDefaultLastFileChooserDir.
      */
     private static File getDefaultLastFileChooserDir() {
@@ -149,6 +149,36 @@ public final class FileChooser {
             
         if (dirs != null && dirs.size() == 1) {
             return dirs.get(0);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Same as <tt>getInputFile</tt> that takes no arguments, except this
+     * allows the caller to specify the parent component of the chooser.
+     * 
+     * @param parent the <tt>Component</tt> that should be the dialog's parent
+     * @param titleKey the key for the locale-specific string to use for the
+     *        file dialog title
+     * @param directory the directory to open the dialog to
+     * @param filter the <tt>FileFilter</tt> instance for customizing the
+     *        files that are displayed -- if this is null, no filter is used
+     * 
+     * @return the selected <tt>File</tt> instance, or <tt>null</tt> if a
+     *         file was not selected correctly
+     */
+    public static File getInputFile(Component parent, String titleKey, String approveKey,
+                                    File directory, FileFilter filter) {
+        List<File> files = getInput(parent, titleKey, approveKey, directory,
+                JFileChooser.FILES_ONLY, JFileChooser.APPROVE_OPTION, false,
+                filter);
+        
+        assert (files == null || files.size() <= 1) 
+        : "selected more than one directory: " + files;
+
+        if (files != null && files.size() == 1) {
+            return files.get(0);
         } else {
             return null;
         }
@@ -411,7 +441,9 @@ public final class FileChooser {
 
             dialog.setVisible(true);
             String dir = dialog.getDirectory();
-            setLastInputDirectory(new File(dir));
+            if(dir != null) {
+                setLastInputDirectory(new File(dir));
+            }
             String file = dialog.getFile();
             if ((dir != null) && (file != null)) {
                 File f = new File(dir, file);

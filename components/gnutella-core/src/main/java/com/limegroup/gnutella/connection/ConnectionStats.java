@@ -17,7 +17,7 @@ import com.limegroup.gnutella.messages.QueryRequest;
  */
 public class ConnectionStats {
 
-    /** The number of messages sent.  This includeds messages that are dropped. */
+    /** The number of messages sent.  This includes messages that are dropped. */
     private volatile int _numMessagesSent;
     
     /** The number of messages received. This includes messages that are spam. */
@@ -68,12 +68,12 @@ public class ConnectionStats {
     public long getRepliesReceived() { return repliesReceived; }
     public long getQueriesReceived() { return queriesReceived; }
 
-    /** Adds a number of dropped sent messages */
+    /** Adds a number of dropped sent messages. */
     public void addSentDropped(int dropped) {
         _numSentMessagesDropped += dropped;
     }
     
-    /** Adds a sent message */
+    /** Adds a sent message. */
     public void addSent(Message m) {
         _numMessagesSent++;
         if (m instanceof QueryRequest)

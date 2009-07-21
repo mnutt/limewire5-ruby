@@ -37,11 +37,11 @@ import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileList;
-import com.limegroup.gnutella.library.FileListChangedEvent;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.FileViewChangeEvent;
+import com.limegroup.gnutella.library.GnutellaFiles;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
-import com.limegroup.gnutella.library.ManagedListStatusEvent;
+import com.limegroup.gnutella.library.LibraryStatusEvent;
 import com.limegroup.gnutella.util.LimeWireUtils;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 import com.limegroup.gnutella.xml.LimeXMLNames;
@@ -68,7 +68,8 @@ public class DaapManager {
     
     private static final Log LOG = LogFactory.getLog(DaapManager.class);
     private final ScheduledExecutorService backgroundExecutor;
-    private final Provider<FileManager> fileManager;
+    private final com.limegroup.gnutella.library.Library coreLibrary;
+    private final FileView gnutellaFileView;
     private final Provider<IPFilter> ipFilter;
     private final Provider<NetworkInstanceUtils> networkInstanceUtils;
     private final Provider<ActivityCallback> activityCallback;
@@ -98,15 +99,17 @@ public class DaapManager {
     
     @Inject
     public DaapManager( @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
-                        Provider<FileManager> fileManager,
                         Provider<IPFilter> ipFilter,
                         Provider<NetworkInstanceUtils> networkInstanceUtils,
-                        Provider<ActivityCallback> activityCallback) {
+                        Provider<ActivityCallback> activityCallback,
+                        @GnutellaFiles FileView gnutellaFileView, 
+                        com.limegroup.gnutella.library.Library coreLibrary) {
         this.backgroundExecutor = backgroundExecutor;
-        this.fileManager = fileManager;
+        this.coreLibrary = coreLibrary;
         this.ipFilter = ipFilter;
         this.networkInstanceUtils = networkInstanceUtils;
         this.activityCallback = activityCallback;
+        this.gnutellaFileView = gnutellaFileView;
     }
     
     @Inject
@@ -129,15 +132,15 @@ public class DaapManager {
             }
 
             public void initialize() {
-                fileManager.get().getManagedFileList().addManagedListStatusListener(new EventListener<ManagedListStatusEvent>() {
+                coreLibrary.addManagedListStatusListener(new EventListener<LibraryStatusEvent>() {
                     @Override
-                    public void handleEvent(ManagedListStatusEvent event) {
+                    public void handleEvent(LibraryStatusEvent event) {
                         handleManagedListStatusEvent(event);
                     }
                 });
-                fileManager.get().getGnutellaFileList().addFileListListener(new EventListener<FileListChangedEvent>() {
+                gnutellaFileView.addListener(new EventListener<FileViewChangeEvent>() {
                     @Override
-                    public void handleEvent(FileListChangedEvent event) {
+                    public void handleEvent(FileViewChangeEvent event) {
                         handleFileListEvent(event);
                     }
                 });
@@ -150,7 +153,7 @@ public class DaapManager {
     }
     
     /**
-     * Starts the DAAP Server
+     * Starts the DAAP Server.
      */
     public synchronized void start() throws IOException {
         
@@ -235,7 +238,7 @@ public class DaapManager {
     }
 
     /**
-     * Stops the DAAP Server and releases all resources
+     * Stops the DAAP Server and releases all resources.
      */
     public synchronized void stop() {
 
@@ -263,11 +266,11 @@ public class DaapManager {
      * to:
      * <p>
      * 
-     * <code>
+     * <pre>
      * stop();
      * start();
      * init();
-     * </code>
+     * </pre>
      */
     public synchronized void restart() throws IOException {
         if (isServerRunning())
@@ -286,7 +289,7 @@ public class DaapManager {
     }
 
     /**
-     * Updates the mDNS servive info
+     * Updates the mDNS service info.
      */
     public synchronized void updateService() throws IOException {
 
@@ -318,7 +321,7 @@ public class DaapManager {
     }
 
     /**
-     * Disconnects all clients
+     * Disconnects all clients.
      */
     public synchronized void disconnectAll() {
         if (isServerRunning()) {
@@ -327,7 +330,7 @@ public class DaapManager {
     }
 
     /**
-     * Returns <tt>true</tt> if server is running
+     * Returns <tt>true</tt> if server is running.
      */
     public synchronized boolean isServerRunning() {
         if (server != null) {
@@ -359,7 +362,7 @@ public class DaapManager {
     /**
      * Handles a change event.
      */
-    private synchronized void handleChangeEvent(FileListChangedEvent evt) {
+    private synchronized void handleChangeEvent(FileViewChangeEvent evt) {
         Song song = urnToSong.remove(evt.getOldValue().getSHA1Urn());
         if (song != null) {
             urnToSong.put(evt.getFileDesc().getSHA1Urn(), song);
@@ -383,11 +386,29 @@ public class DaapManager {
             
         }
     }
+    
+    /** Handles a change in metadata event. */
+    private synchronized void handleMetaChangeEvent(FileViewChangeEvent evt) {
+        URN urn = evt.getFileDesc().getSHA1Urn();
+        Song song = urnToSong.get(urn);
+        if (song != null) {
+            String name = evt.getFileDesc().getFileName().toLowerCase(Locale.US);                
+            if (isSupportedAudioFormat(name)) {
+                updateSongAudioMeta(autoCommitTxn, song, evt.getFileDesc());
+            } else if (isSupportedVideoFormat(name)) {
+                updateSongVideoMeta(autoCommitTxn, song, evt.getFileDesc());
+            } else {
+                database.removeSong(autoCommitTxn, song);
+            }
+        } else {
+            handleAddEvent(evt);
+        }
+    }
 
     /**
      * Handles an add event.
      */
-    private synchronized void handleAddEvent(FileListChangedEvent evt) {
+    private synchronized void handleAddEvent(FileViewChangeEvent evt) {
         // Transactions synchronize on the Library. So if there's
         // an ongoing commit we may get a ConcurrentModificationException
         // because Database has to iterate through all Playlists and
@@ -433,7 +454,7 @@ public class DaapManager {
     /**
      * Handles a remove event.
      */
-    private synchronized void handleRemoveEvent(FileListChangedEvent evt) {
+    private synchronized void handleRemoveEvent(FileViewChangeEvent evt) {
         Song song = urnToSong.remove(evt.getFileDesc().getSHA1Urn());
 
         if (song != null) {
@@ -470,10 +491,9 @@ public class DaapManager {
         int size = masterPlaylist.getSongCount();        
         Transaction txn = library.beginTransaction();    
    
-        FileList sharedFileList = fileManager.get().getGnutellaFileList();
-        sharedFileList.getReadLock().lock();
+        gnutellaFileView.getReadLock().lock();
         try {
-            for(FileDesc fd : sharedFileList) {
+            for(FileDesc fd : gnutellaFileView) {
                 String name = fd.getFileName().toLowerCase(Locale.US);
                 boolean audio = isSupportedAudioFormat(name);
                 
@@ -489,7 +509,7 @@ public class DaapManager {
                     
                 // Check if URN is already in the tmpMap.
                 // If so do nothing as we don't want add 
-                // the same file multible times...
+                // the same file multiple times...
                 if(tmpUrnToSong.containsKey(urn)) {
                     continue;
                 }
@@ -524,7 +544,7 @@ public class DaapManager {
                 }
             }
         } finally {
-            sharedFileList.getReadLock().unlock();
+            gnutellaFileView.getReadLock().unlock();
         }
         
         // See 1)
@@ -544,7 +564,7 @@ public class DaapManager {
     
     /**
      * Create a Song and sets its meta data with
-     * the data which is retrieved from the FileDesc
+     * the data which is retrieved from the FileDesc.
      */
     private Song createSong(FileDesc desc, boolean audio) {
         
@@ -704,7 +724,7 @@ public class DaapManager {
     }
     
     /**
-     * Sets the audio meta data
+     * Sets the audio meta data.
      */
     private boolean updateSongAudioMeta(Transaction txn, Song song, FileDesc desc) {
         
@@ -847,7 +867,7 @@ public class DaapManager {
     }
     
     /**
-     * Handles the audio stream
+     * Handles the audio stream.
      */
     private final class LimeStreamSource implements DaapStreamSource {
         
@@ -862,7 +882,7 @@ public class DaapManager {
     }
     
     /**
-     * Implements the DaapAuthenticator
+     * Implements the DaapAuthenticator.
      */
     private final class LimeAuthenticator implements DaapAuthenticator {
         
@@ -904,7 +924,7 @@ public class DaapManager {
     }
     
     /**
-     * The DAAP Library should be only accessable from the LAN
+     * The DAAP Library should be only accessible from the LAN
      * as we can not guarantee for the required bandwidth and it
      * could be used to bypass Gnutella etc. Note: iTunes can't
      * connect to DAAP Libraries outside of the LAN but certain
@@ -926,7 +946,7 @@ public class DaapManager {
     }
 
     /**
-     * A LimeWire specific implementation of DaapConfig
+     * A LimeWire specific implementation of DaapConfig.
      */
     private final class LimeConfig extends DaapConfig {
 
@@ -968,7 +988,7 @@ public class DaapManager {
     }
 
     /**
-     * Helps us to publicize and update the DAAP Service via mDNS
+     * Helps us to publicize and update the DAAP Service via mDNS.
      */
     private final class BonjourService {
 
@@ -1010,7 +1030,7 @@ public class DaapManager {
             // iTunes 4.2 is still widespread...
             props.put(VERSION, Integer.toString(DaapUtil.DAAP_VERSION_3));
 
-            // This is the inital share name
+            // This is the initial share name
             props.put(MACHINE_NAME, name);
 
             // shows the small lock if Service is protected
@@ -1069,9 +1089,9 @@ public class DaapManager {
     }
 
     /**
-     * Listens for events from FileManager
+     * Listens for events from FileManager.
      */
-    private void handleManagedListStatusEvent(final ManagedListStatusEvent evt) {
+    private void handleManagedListStatusEvent(final LibraryStatusEvent evt) {
         
         // if Daap isn't enabled ignore events
         if(!DaapSettings.DAAP_ENABLED.getValue())
@@ -1088,7 +1108,7 @@ public class DaapManager {
         });
     }
     
-    private void handleFileListEvent(final FileListChangedEvent evt) {
+    private void handleFileListEvent(final FileViewChangeEvent evt) {
         // if Daap isn't enabled ignore events
         if (!DaapSettings.DAAP_ENABLED.getValue())
             return;
@@ -1100,17 +1120,20 @@ public class DaapManager {
                     return;
 
                 switch (evt.getType()) {
-                case CHANGED:
+                case FILE_CHANGED:
                     handleChangeEvent(evt);
                     break;
-                case ADDED:
+                case FILE_ADDED:
                     handleAddEvent(evt);
                     break;
-                case REMOVED:
+                case FILE_REMOVED:
                     handleRemoveEvent(evt);
                     break;
-                case CLEAR:
+                case FILES_CLEARED:
                     handleClearEvent();
+                    break;
+                case FILE_META_CHANGED:
+                    handleMetaChangeEvent(evt);
                     break;
                 }
             }

@@ -35,7 +35,7 @@ public class ExecutorsHelper {
     /**
      * Creates a new "ProcessingQueue" using 
      * {@link #daemonThreadFactory(String)} as thread factory.
-     * 
+     * <p>
      * See {@link #newProcessingQueue(ThreadFactory)}.
      * 
      * @param name the name of the processing thread that is created 
@@ -47,11 +47,11 @@ public class ExecutorsHelper {
     
     /**
      * Creates a new "ProcessingQueue".
-     * 
+     * <p>
      * A <code>ProcessingQueue</code> is an <code>ExecutorService</code> that 
      * will process all Runnables/Callables sequentially, creating one thread 
      * for processing when it needs it.
-     * 
+     * <p>
      * See {@link #newSingleThreadExecutor(ThreadFactory)}.
      * 
      * @param factory the factory used for creating a new processing thread 
@@ -64,10 +64,10 @@ public class ExecutorsHelper {
      * A ProcessingQueue Executor is an <code>ExecutorService</code> that 
      * processes all Runnables/Callables sequentially, creating one thread 
      * for processing when it needs it.
-     * 
+     * <p>
      * This kind of Executor is ideal for long-lived tasks
      * that require processing rarely.
-     * 
+     * <p>
      * If there are no tasks the thread will be terminated after a timeout of
      * 5 seconds and a new one will be created when necessary.
      * 
@@ -135,7 +135,7 @@ public class ExecutorsHelper {
      * other methods that might otherwise be accessible using
      * casts. This provides a way to safely "freeze" configuration and
      * disallow tuning of a given concrete implementation.
-     * @param executor the underlying implementation
+     * 
      * @return an <tt>ListeningExecutorService</tt> instance
      * @throws NullPointerException if executor null
      */

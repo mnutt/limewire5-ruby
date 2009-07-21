@@ -2,13 +2,14 @@ package org.limewire.xmpp.client.impl.messages.filetransfer;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Map;
 
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
+import org.limewire.friend.api.FileMetaData;
+import org.limewire.friend.impl.util.PresenceUtils;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.xmpp.api.client.FileMetaData;
-import org.limewire.xmpp.client.impl.messages.FileMetaDataImpl;
 import org.limewire.xmpp.client.impl.messages.InvalidIQException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -39,7 +40,7 @@ public class FileTransferIQ extends IQ {
                         throw new InvalidIQException("unknown transfer type: " + transferTypeValue);
                     }
                 } else if(parser.getName().equals("file")) {
-                    parsedMetaData = new FileMetaDataImpl(parser);
+                    parsedMetaData = new XMPPFileMetaData(parser);
                 }
             } else if(eventType == XmlPullParser.END_TAG) {
                 if(parser.getName().equals("file-transfer")) {
@@ -72,10 +73,21 @@ public class FileTransferIQ extends IQ {
     public String getChildElementXML() {
         String fileTransfer = "<file-transfer xmlns='jabber:iq:lw-file-transfer' type='" + transferType.toString() + "'>";
         if(fileMetaData != null) {
-            fileTransfer += fileMetaData.toXML();
+            fileTransfer += toXML(fileMetaData.getSerializableMap());
         }
         fileTransfer += "</file-transfer>";
         return fileTransfer;
+    }
+    
+    private String toXML(Map<String, String> data) {
+        StringBuilder fileMetadata = new StringBuilder("<file>");
+        for(Map.Entry<String, String> entry : data.entrySet()) {
+            fileMetadata.append("<").append(entry.getKey()).append(">");
+            fileMetadata.append(PresenceUtils.escapeForXML(entry.getValue()));
+            fileMetadata.append("</").append(entry.getKey()).append(">");
+        }
+        fileMetadata.append("</file>");
+        return fileMetadata.toString();
     }
     
     public static IQProvider getIQProvider() {

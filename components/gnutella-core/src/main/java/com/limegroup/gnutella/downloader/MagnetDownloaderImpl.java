@@ -1,5 +1,6 @@
 package com.limegroup.gnutella.downloader;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -9,7 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpException;
 import org.limewire.concurrent.ListeningExecutorService;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.io.InvalidDataException;
 import org.limewire.net.SocketsManager;
@@ -33,7 +34,9 @@ import com.limegroup.gnutella.downloader.serial.MagnetDownloadMemento;
 import com.limegroup.gnutella.downloader.serial.MagnetDownloadMementoImpl;
 import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.guess.OnDemandUnicaster;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileCollection;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.UrnCache;
 import com.limegroup.gnutella.malware.DangerousFileChecker;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -84,13 +87,13 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
      * @param saveDir can be null, then the default save directory is used
      * @param fileName the final file name, can be <code>null</code>
      *
-     * @throws SaveLocationException if there was an error setting the downloads
+     * @throws DownloadException if there was an error setting the downloads
      * final file location 
      */
 	@Inject
 	MagnetDownloaderImpl(SaveLocationManager saveLocationManager,
 	        DownloadManager downloadManager,
-	        FileManager fileManager,
+	        @GnutellaFiles FileCollection gnutellaFileCollection,
 	        IncompleteFileManager incompleteFileManager,
 	        DownloadCallback downloadCallback,
 	        NetworkManager networkManager,
@@ -115,8 +118,8 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
 	        SocketsManager socketsManager, 
 	        @Named("downloadStateProcessingQueue") ListeningExecutorService downloadStateProcessingQueue,
 	        DangerousFileChecker dangerousFileChecker,
-            SpamManager spamManager) {
-	    super(saveLocationManager, downloadManager, fileManager,
+            SpamManager spamManager, Library library) {
+	    super(saveLocationManager, downloadManager, gnutellaFileCollection,
 	            incompleteFileManager, downloadCallback, networkManager,
 	            alternateLocationFactory, requeryManagerFactory,
 	            queryRequestFactory, onDemandUnicaster, downloadWorkerFactory,
@@ -125,7 +128,7 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
 	            backgroundExecutor, messageRouter, tigerTreeCache,
 	            applicationServices, remoteFileDescFactory, pushListProvider,
 	            socketsManager, downloadStateProcessingQueue,
-	            dangerousFileChecker, spamManager);
+	            dangerousFileChecker, spamManager, library);
     }
     
     @Override
@@ -311,5 +314,12 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
     @Override
     protected DownloadMemento createMemento() {
         return new MagnetDownloadMementoImpl();
+    }
+    
+    @Override
+    public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
+            throws DownloadException {
+        //overriding to track down cause of https://www.limewire.org/jira/browse/LWC-3697 remove when fixed
+        super.setSaveFile(saveDirectory, fileName, overwrite);
     }
 }

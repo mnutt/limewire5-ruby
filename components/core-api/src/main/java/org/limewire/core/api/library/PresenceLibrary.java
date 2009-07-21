@@ -2,14 +2,14 @@ package org.limewire.core.api.library;
 
 import java.beans.PropertyChangeListener;
 
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.FriendPresence;
 
 /**
  * A library specific to a presence of a friend. Multiple
  * {@link PresenceLibrary PresenceLibraries} are coalesced into a single
  * {@link FriendLibrary}.
  */
-public interface PresenceLibrary extends RemoteFileList {
+public interface PresenceLibrary extends SearchResultList {
     /** The {@link FriendPresence} associated with this library. */
     FriendPresence getPresence();
 

@@ -68,18 +68,23 @@ public class IconButton extends JXButton {
         }
     }
     
+    /** Sets all properties to make the button look like an icon button. */
+    public static void setIconButtonProperties(JXButton button) {
+        button.setMargin(new Insets(0, 0, 0, 0));
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setRolloverEnabled(false);
+        button.setHideActionText(true);
+        button.setBorder(BorderFactory.createEmptyBorder());
+        button.setOpaque(false);
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
+        button.setVerticalTextPosition(SwingConstants.BOTTOM);
+        button.setIconTextGap(2);
+    }
+    
     private void init() {
-        setMargin(new Insets(0, 0, 0, 0));
-        setBorderPainted(false);
-        setContentAreaFilled(false);
-        setFocusPainted(false);
-        setRolloverEnabled(false);
-        setHideActionText(true);
-        setBorder(BorderFactory.createEmptyBorder());
-        setOpaque(false);
-        setHorizontalTextPosition(SwingConstants.CENTER);
-        setVerticalTextPosition(SwingConstants.BOTTOM);
-        setIconTextGap(2);
+        setIconButtonProperties(this);
         actionHandListener = new ActionHandListener();
         addMouseListener(actionHandListener);
     }

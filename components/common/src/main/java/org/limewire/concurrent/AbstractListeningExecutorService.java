@@ -4,7 +4,7 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.Callable;
 
 /** An extension to {@link AbstractExecutorService} that uses {@link ListeningFuture}. */
-public abstract class AbstractListeningExecutorService extends AbstractExecutorService {
+public abstract class AbstractListeningExecutorService extends AbstractErrorCatchingExecutorService implements ListeningExecutorService {
     
     @Override
     protected <T> RunnableListeningFuture<T> newTaskFor(Callable<T> callable) {

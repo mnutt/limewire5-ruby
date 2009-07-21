@@ -1,7 +1,6 @@
 package org.limewire.ui.swing.search.model;
 
 import java.util.List;
-import java.util.Map;
 
 import org.limewire.core.api.FilePropertyKey;
 
@@ -20,15 +19,9 @@ public class VisualSearchResultTextFilterator implements TextFilterator<VisualSe
         list.add(vsr.getFileExtension());
         
         // Add non-null values for all indexable keys.
-        Map<FilePropertyKey, Object> props = vsr.getProperties();
-        for (FilePropertyKey key : props.keySet()) {
-            
-            if (!FilePropertyKey.getIndexableKeys().contains(key)) {  
-                continue;
-            }
-         
+        for(FilePropertyKey key : FilePropertyKey.getIndexableKeys()) {
             String value = vsr.getPropertyString(key);
-            if (value != null) {
+            if(value != null) {
                 list.add(value);
             }
         }

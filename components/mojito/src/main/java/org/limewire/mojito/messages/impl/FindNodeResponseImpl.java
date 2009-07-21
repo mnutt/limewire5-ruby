@@ -35,7 +35,7 @@ import org.limewire.security.SecurityToken;
 
 
 /**
- * An implementation of FindNodeResponse
+ * An implementation of FindNodeResponse.
  */
 public class FindNodeResponseImpl extends AbstractLookupResponse
         implements FindNodeResponse, SecurityTokenProvider {

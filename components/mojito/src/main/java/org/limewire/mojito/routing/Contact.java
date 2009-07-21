@@ -34,7 +34,7 @@ import org.limewire.mojito.KUID;
 public interface Contact extends Serializable {
     
     /**
-     * Various states a Contact may have
+     * Various states a Contact may have.
      */
     public static enum State {
         // A Contact is alive either if we got a 
@@ -66,39 +66,39 @@ public interface Contact extends Serializable {
      * A constant for the the time stamp field to indicate 
      * that a Contact is a priority Contact which means it
      * may replace any live Contact (except for the local
-     * Contact) in a Bucket
+     * Contact) in a Bucket.
      */
     public static final long PRIORITY_CONTACT = Long.MAX_VALUE-1L;
     
     /**
-     * The default flag
+     * The default flag.
      */
     public static final int DEFAULT_FLAG = 0x00;
     
     /**
      * The flag that indicates whether or not this 
-     * Contact is firewalled
+     * Contact is firewalled.
      */
     public static final int FIREWALLED_FLAG = 0x01;
     
     /**
      * The flag that indicates whether or not this 
-     * Contact will shutdown
+     * Contact will shutdown.
      */
     public static final int SHUTDOWN_FLAG = 0x02;
     
     /**
-     * Returns the Vendor of this Contact
+     * Returns the Vendor of this Contact.
      */
     public Vendor getVendor();
     
     /**
-     * Returns the Version of this Contact
+     * Returns the Version of this Contact.
      */
     public Version getVersion();
     
     /**
-     * Returns the Node ID of this Contact
+     * Returns the Node ID of this Contact.
      */
     public KUID getNodeID();
     
@@ -114,7 +114,7 @@ public interface Contact extends Serializable {
      * as read from the IP packet. Depending on the
      * network configuration of the remote Host it's
      * maybe not a valid address to respond to. 
-     * 
+     * <p>
      * Note: The source address can be null if the
      * Contact object hasn't been fully initialized
      * yet. The reason for this are different 
@@ -127,22 +127,22 @@ public interface Contact extends Serializable {
     public SocketAddress getSourceAddress();
     
     /**
-     * Returns the instance ID of this Contact
+     * Returns the instance ID of this Contact.
      */
     public int getInstanceID();
     
     /**
-     * Returns the flags of this Contact
+     * Returns the flags of this Contact.
      */
     public int getFlags();
     
     /**
-     * Sets the time of the last successful Contact
+     * Sets the time of the last successful Contact.
      */
     public void setTimeStamp(long timeStamp);
     
     /**
-     * Returns the time of the last successful exchange with this node
+     * Returns the time of the last successful exchange with this node.
      */
     public long getTimeStamp();
     
@@ -152,66 +152,66 @@ public interface Contact extends Serializable {
     public void setRoundTripTime(long rtt);
     
     /**
-     * Returns the Round Trip Time (RTT)
+     * Returns the Round Trip Time (RTT).
      */
     public long getRoundTripTime();
     
     /**
-     * Returns an adaptive timeout based on the RTT and number of failures
+     * Returns an adaptive timeout based on the RTT and number of failures.
      */
     public long getAdaptativeTimeout();
     
     /**
      * Returns the time of the last successful or unsuccessful contact
-     * attempt
+     * attempt.
      */
     public long getLastFailedTime();
     
     /**
-     * Returns whether or not this Contact has been recently alive 
+     * Returns whether or not this Contact has been recently alive.
      */
     public boolean hasBeenRecentlyAlive();
     
     /**
-     * Returns whether or not this Contact is firewalled
+     * Returns whether or not this Contact is firewalled.
      */
     public boolean isFirewalled();
     
     /**
-     * Returns whether or not this Contact is ALIVE
+     * Returns whether or not this Contact is ALIVE.
      */
     public boolean isAlive();
     
     /**
-     * Returns whether or not this Contact is in DEAD or SHUTDOWN state
+     * Returns whether or not this Contact is in DEAD or SHUTDOWN state.
      */
     public boolean isDead();
     
     /**
      * Returns whether or not this Contact has failed since
-     * the last successful contact
+     * the last successful contact.
      */
     public boolean hasFailed();
     
     /**
      * Returns the number of failures have occurred since
-     * the last successful contact
+     * the last successful contact.
      */
     public int getFailures();
     
     /**
      * Increments the failure counter, sets the last dead or alive time
-     * and so on
+     * and so on.
      */
     public void handleFailure();
     
     /**
-     * Returns whether or not this Contact is in UNKNOWN state
+     * Returns whether or not this Contact is in UNKNOWN state.
      */
     public boolean isUnknown();
     
     /**
-     * Sets the Contact state to UNKNOWN
+     * Sets the Contact state to UNKNOWN.
      */
     public void unknown();
     
@@ -221,13 +221,13 @@ public interface Contact extends Serializable {
     public boolean isShutdown();
     
     /**
-     * Sets whether or not this Contact will shutdown
+     * Sets whether or not this Contact will shutdown.
      */
     public void shutdown(boolean shutdown);
     
     /**
      * Updates this Contact with information from an existing Contact.
-     * 
+     * <p>
      * The updated fields are:
      * <ul>
      * <li>Round trip time

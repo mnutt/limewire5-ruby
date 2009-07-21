@@ -24,6 +24,7 @@ import org.limewire.io.GUID;
 import org.limewire.io.IOUtils;
 import org.limewire.security.SHA1;
 import org.limewire.util.Base32;
+import org.limewire.util.StringUtils;
 import org.limewire.util.SystemUtils;
 
 import com.limegroup.gnutella.http.HTTPConstants;
@@ -42,7 +43,7 @@ import com.limegroup.gnutella.security.Tiger;
  *
  * @see java.io.Serializable
  */
-public final class URN implements HTTPHeaderValue, Serializable {
+public final class URN implements HTTPHeaderValue, Serializable, org.limewire.core.api.URN {
     
     /** The range of all types for URNs. */
     public static enum Type {        
@@ -581,7 +582,7 @@ public final class URN implements HTTPHeaderValue, Serializable {
 		
         return (_urnString.equals(urn._urnString) &&
                     _urnType.equals(urn._urnType));
-        }
+    }
 
 	/**
 	 * Overrides the hashCode method of Object to meet the contract of 
@@ -611,6 +612,11 @@ public final class URN implements HTTPHeaderValue, Serializable {
 	@Override
     public String toString() {
 		return _urnString;
+	}
+	
+	@Override
+	public int compareTo(org.limewire.core.api.URN o) {
+	    return toString().compareTo(o.toString());
 	}
 
 	/**
@@ -934,5 +940,18 @@ public final class URN implements HTTPHeaderValue, Serializable {
 
         if (!URN.isValidUrn(_urnString))
             throw new InvalidObjectException("invalid urn: "+_urnString);		
+	}
+	
+	/**
+	 * Returns a URN derived from the given hexString. If the hexString
+	 * does not match a valid URN an IOException can be thrown.
+	 * 
+	 * In the case that the given hexString is null, null is returned.
+	 */
+	public static URN createSha1UrnFromHex(String hexString) throws IOException {
+	    if(hexString == null) {
+	        return null;
+	    }
+	    return createSHA1UrnFromBytes(StringUtils.fromHexString(hexString));
 	}
 }

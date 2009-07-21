@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * A FixedSizeHashMap grows up to a fixed predefined size and 
+ * Grows up to a fixed predefined size and 
  * starts removing the eldest entry for each insertion. See 
  * also access-order and insertion-order mode of LinkedHashMap!
  */
@@ -62,14 +62,14 @@ public class FixedSizeHashMap<K, V> extends LinkedHashMap<K, V> implements Seria
     }
 
     /**
-     * Returns the max size of this Map
+     * Returns the max size of this Map.
      */
     public int getMaxSize() {
         return maxSize;
     }
     
     /**
-     * Returns whether or not this Map is full
+     * Returns whether or not this Map is full.
      */
     public boolean isFull() {
         return size() >= maxSize;

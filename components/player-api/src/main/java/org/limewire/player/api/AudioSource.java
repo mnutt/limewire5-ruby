@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 /**
- *  A wrapper for the source of an audio file that is currently playing
+ *  A wrapper for the source of an audio file that is currently playing.
  */
 public interface AudioSource {
     

@@ -333,6 +333,43 @@ public class HTTPDownloaderTest extends org.limewire.gnutella.tests.LimeTestCase
         assertTrue(allLocs.isEmpty());
     }
     
+    public void testRetryAfter() throws Exception {
+        setupInjector();
+        String headers = "HTTP/1.1 200 OK\r\nRetry-After: 120\r\n";
+        HTTPDownloader dl = newHTTPDownloaderWithHeader(headers);
+        readHeaders(dl);
+        dl.stop();
+        assertWaitTime(120, dl.getContext());
+    }
+
+    public void testMinRetryTime() throws Exception {
+        setupInjector();
+        String headers = "HTTP/1.1 200 OK\r\nRetry-After: 50\r\n";
+        HTTPDownloader dl = newHTTPDownloaderWithHeader(headers);
+        readHeaders(dl);
+        dl.stop();
+        assertWaitTime(60, dl.getContext());
+    }
+
+    public void testMaxRetryTime() throws Exception {
+        setupInjector();
+        String headers = "HTTP/1.1 200 OK\r\nRetry-After: 3610\r\n";
+        HTTPDownloader dl = newHTTPDownloaderWithHeader(headers);
+        readHeaders(dl);
+        dl.stop();
+        assertWaitTime(3600, dl.getContext());
+    }
+
+    private void assertWaitTime(int seconds, RemoteFileDescContext context)
+    throws Exception {
+        // RemoteFileDescContext.getWaitTime() adds a second, but we'll also
+        // accept one second less because some time may have elapsed since
+        // parsing the header
+        int wait = context.getWaitTime(System.currentTimeMillis());
+        assertGreaterThan(seconds - 1, wait);
+        assertLessThan(seconds + 2, wait);
+    }
+    
     private static Collection<? extends Address> toAddresses(Collection<? extends RemoteFileDesc> rfds) {
         List<Address> list = new ArrayList<Address>();
         for (RemoteFileDesc rfd : rfds) {

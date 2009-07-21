@@ -1,15 +1,20 @@
 package org.limewire.ui.swing.components.decorators;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.Paint;
 
 import javax.swing.BorderFactory;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.Painter;
+import org.limewire.ui.swing.painter.ButtonForegroundPainter;
+import org.limewire.ui.swing.painter.StatusBarPopupButtonPainter;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.painter.ButtonBackgroundPainter.DrawMode;
+import org.limewire.ui.swing.painter.StatusBarPopupButtonPainter.PopupVisibilityChecker;
 import org.limewire.ui.swing.painter.factories.ButtonPainterFactory;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -18,11 +23,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- * Class that preps and skins JXButtons with the default
- *  lw style. 
- *  
+ * Class that prepares and skins JXButtons with the default
+ *  LimeWire style. 
+ *  <p>
  *  Mini buttons do not have a background drawn unless mouse
- *   overed or clicked, full buttons do.
+ *  over or clicked, full buttons do.
  *  
  */
 @Singleton
@@ -42,6 +47,9 @@ public class ButtonDecorator {
     @Resource private Font  darkFullTextFont;
     @Resource private Color darkFullTextForeground;
     
+    @Resource private Font flatTextFont;
+    @Resource private Color flatTextForeground;
+    
     @Inject
     ButtonDecorator(ButtonPainterFactory painterFactory) {
         GuiUtils.assignResources(this);
@@ -50,6 +58,7 @@ public class ButtonDecorator {
         
         // TODO: Underline can not be set using resources?
         linkTextFont = FontUtils.deriveUnderline(linkTextFont, true);
+        flatTextFont = FontUtils.deriveUnderline(flatTextFont, true);
     }
     
     public void decorateMiniButton(JXButton button) {
@@ -154,7 +163,33 @@ public class ButtonDecorator {
         
         button.setForeground(lightFullTextForeground);
         button.setFont(lightFullTextFont);
-    }    
+    }   
+    
+    /**
+     * Decorates a button using the flat button style with no rollover and click effects and a minimal
+     *  visual style.
+     */
+    public void decorateFlatButton(JXButton button) {
+        button.setBackgroundPainter(painterFactory.createFlatButtonBackgroundPainter());
+
+        decorateGeneral(button);
+        
+        button.setForeground(flatTextForeground);
+        button.setFont(flatTextFont);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+    
+    public void decorateStatusPopupButton(JXButton button, 
+            PopupVisibilityChecker visibilityChecker, 
+            Paint background, Paint border, 
+            org.limewire.ui.swing.painter.StatusBarPopupButtonPainter.DrawMode mode) {
+        button.setBackgroundPainter(new StatusBarPopupButtonPainter(visibilityChecker, background, border, mode));
+        button.setForegroundPainter(new ButtonForegroundPainter());
+        
+        decorateGeneral(button);
+        
+        button.setBorder(BorderFactory.createEmptyBorder(0,8,0,8));
+    }
         
     private static void decorateGeneral(JXButton button) {
         button.setOpaque(false);

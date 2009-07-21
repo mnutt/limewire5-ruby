@@ -25,7 +25,7 @@ import org.limewire.setting.IntSetting;
 import org.limewire.setting.LongSetting;
 
 /**
- * Miscellaneous RouteTable related settings
+ * Miscellaneous RouteTable related settings.
  */
 public final class RouteTableSettings extends MojitoProps {
 
@@ -74,14 +74,14 @@ public final class RouteTableSettings extends MojitoProps {
     
     /**
      * The symbol size, i.e. the number of bits improved at each step.
-     * Also known as parameter B
+     * Also known as parameter B.
      */
     public static final IntSetting DEPTH_LIMIT
         = FACTORY.createRemoteIntSetting("DEPTH_LIMIT", 
                 4, "Mojito.DepthLimit", 1, 16);
     
     /**
-     * The period of the Bucket freshness
+     * The period of the Bucket freshness.
      */
     public static final LongSetting BUCKET_REFRESH_PERIOD
         = FACTORY.createRemoteLongSetting("BUCKET_REFRESH_PERIOD", 30L*60L*1000L, 
@@ -89,7 +89,7 @@ public final class RouteTableSettings extends MojitoProps {
     
     /**
      * A minimum time (in sec) to pass before pinging the least recently
-     * seen node of a bucket again
+     * seen node of a bucket again.
      */
     public static final LongSetting BUCKET_PING_LIMIT
         = FACTORY.createRemoteLongSetting("BUCKET_PING_LIMIT", 30L*1000L,
@@ -115,7 +115,7 @@ public final class RouteTableSettings extends MojitoProps {
     
     /**
      * True if contacts created from incoming requests should be considered UNKNOWN
-     * instead of LIVE
+     * instead of LIVE.
      */
     public static final BooleanSetting INCOMING_REQUESTS_UNKNOWN =
         FACTORY.createRemoteBooleanSetting("INCOMING_REQUESTS_UNKNOWN", true,

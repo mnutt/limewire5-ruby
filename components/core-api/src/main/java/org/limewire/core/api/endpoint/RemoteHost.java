@@ -1,6 +1,6 @@
 package org.limewire.core.api.endpoint;
 
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.FriendPresence;
 
 /**
  * An interface that defines the key capabilities of a remote host.

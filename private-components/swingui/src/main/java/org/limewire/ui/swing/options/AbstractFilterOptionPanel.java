@@ -24,7 +24,7 @@ import org.limewire.ui.swing.util.I18n;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 /**
  * Creates a reusable OptionPanel that contains a table. The table is
@@ -41,7 +41,7 @@ public abstract class AbstractFilterOptionPanel extends OptionPanel {
     
     protected class FilterTable extends MouseableTable {
         
-        public FilterTable(EventTableModel<String> model) {
+        public FilterTable(DefaultEventTableModel<String> model) {
             super(model);
             setShowGrid(false, false);
             setColumnSelectionAllowed(false);

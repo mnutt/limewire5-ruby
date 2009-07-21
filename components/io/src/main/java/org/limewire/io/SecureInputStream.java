@@ -106,14 +106,14 @@ public class SecureInputStream extends FilterInputStream {
     }
     
     /**
-     * Returns the block (buffer) size of the stream
+     * Returns the block (buffer) size of the stream.
      */
     public int getBlockSize() {
         return buffer.length;
     }
     
     /**
-     * Returns the MessageDigest
+     * Returns the MessageDigest.
      */
     public MessageDigest getMessageDigest() {
         return md;

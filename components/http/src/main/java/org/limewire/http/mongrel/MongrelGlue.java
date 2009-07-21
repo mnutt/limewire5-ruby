@@ -1,8 +1,5 @@
 package org.limewire.http.mongrel;
 
-import org.limewire.lifecycle.Service;
-import org.limewire.lifecycle.ServiceStage;
-
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 

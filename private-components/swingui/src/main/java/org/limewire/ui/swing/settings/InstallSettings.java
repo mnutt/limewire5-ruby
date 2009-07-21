@@ -4,6 +4,8 @@ import org.limewire.core.settings.LimeWireSettings;
 import org.limewire.setting.BooleanSetting;
 import org.limewire.setting.IntSetting;
 import org.limewire.setting.SettingsFactory;
+import org.limewire.setting.StringSetSetting;
+import org.limewire.setting.StringSetting;
 
 /**
  * Handles installation preferences.
@@ -22,20 +24,6 @@ public final class InstallSettings extends LimeWireSettings {
     private InstallSettings() {
         super("installation.props", "LimeWire installs file");
     }
-    
-    /**
-     * Whether or not the 'Choose your Save directory' question has
-     * been asked.
-     */
-    public static final BooleanSetting SAVE_DIRECTORY =
-        FACTORY.createBooleanSetting("SAVE_DIRECTORY", false);
-    
-    /**
-     * Whether or not the 'Choose your speed' question has been asked.
-     */
-    public static final BooleanSetting SPEED =
-        FACTORY.createBooleanSetting("SPEED", false);
-    
     /**
      * Whether or not the 'Scan for files' question has been asked.
      */
@@ -64,15 +52,36 @@ public final class InstallSettings extends LimeWireSettings {
     public static final BooleanSetting FILTER_OPTION =
         FACTORY.createBooleanSetting("FILTER_OPTION", false);
     
-    /** Whether the association option has been asked */
+    /** Whether Auto-Sharing question has been asked. */
+    public static final BooleanSetting AUTO_SHARING_OPTION =
+        FACTORY.createBooleanSetting("AUTO_SHARING_OPTION", false);
+    
+    /** Whether the anonymous data collection option has been asked. */
+    public static final BooleanSetting ANONYMOUS_DATA_COLLECTION =
+        FACTORY.createBooleanSetting("ANONYMOUS_DATA_COLLECTION", false);
+    
+    /** Whether the association option has been asked. */
     public static final IntSetting ASSOCIATION_OPTION =
     	FACTORY.createIntSetting("ASSOCIATION_OPTION", 0);
 
-    /** Whether the association option has been asked */
+    /** Whether the association option has been asked. */
     public static final BooleanSetting EXTENSION_OPTION =
         FACTORY.createBooleanSetting("EXTENSION_OPTION", false);
     
-    /** Whether the setup wizard has been completed on 5.0 */
+    /** Whether the setup wizard has been completed on 5. */
     public static final BooleanSetting UPGRADED_TO_5 =
         FACTORY.createBooleanSetting("UPGRADED_TO_5", false);
+    
+    /**
+     * Stores the value of the last known version of limewire that has been run. Will be null on a clean install until the program is run and a value is set for it.
+     * This setting starts with versions > 5.2.2 
+     */
+    public static final StringSetting LAST_VERSION_RUN = FACTORY.createStringSetting("LAST_VERSION_RUN", "");
+    
+    /**
+     * Stores an array of all the known versions of limewire that have been run.
+     * This setting starts with versions > 5.2.2
+     */
+    public static final StringSetSetting PREVIOUS_RAN_VERSIONS = FACTORY.createStringSetSetting("PREVIOUS_RAN_VERSIONS", "");
+    
 }

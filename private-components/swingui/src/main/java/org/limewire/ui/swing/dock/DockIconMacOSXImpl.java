@@ -5,11 +5,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.RoundRectangle2D;
 
-import org.jdesktop.swingx.geom.Star2D;
 import org.limewire.lifecycle.Asynchronous;
 import org.limewire.lifecycle.Service;
 
@@ -29,10 +30,20 @@ class DockIconMacOSXImpl implements DockIcon {
      */
     private static final int MIN_WnH = 42;
     
+    /** 
+     * Gradient FROM Color.
+     */
+    private final Color FROM = new Color(0xE0, 0x00, 0x00);
+    
+    /**
+     * Gradient TO Color.
+     */
+    private final Color TO = new Color(0xC0, 0x00, 0x00);
+    
     /**
      * The Font that is used to draw the numbers.
      */
-    private final Font FONT = new Font("Helvetica Neue", Font.BOLD, 26);
+    private final Font FONT = new Font("Lucida Grande", Font.BOLD, 24);
     
     /**
      * The number of complete Downloads.
@@ -111,16 +122,19 @@ class DockIconMacOSXImpl implements DockIcon {
             width = Math.max(valueWidth + 16, width);
         }
         
-        int outerRadius = width / 2;
-        int innerRadius = outerRadius - 4;
-        Star2D star = new Star2D(x+Dock.ICON_WIDTH-width-5, y, innerRadius, outerRadius, 25); 
+        RoundRectangle2D.Float ellipse = new RoundRectangle2D.Float(
+                    x+Dock.ICON_WIDTH-width-5, y+Dock.ICON_HEIGHT-55, 
+                    width, MIN_WnH, MIN_WnH, MIN_WnH);
         
         g2.setStroke(new BasicStroke(1.5f));
-        g2.setPaint(Color.RED);
-        g2.fill(star);
+        g2.setPaint(new GradientPaint(0, 0, FROM, ellipse.width, ellipse.height, TO));
+        g2.fill(ellipse);
+        
+        g2.setPaint(Color.black);
+        g2.draw(ellipse);
         
         g2.setPaint(Color.white);
-        g2.drawString(value, (int)(star.getX() + (star.getOuterRadius() * 2 - valueWidth) / 2.1), (int)(star.getY() + (fm.getHeight() * 0.93f)));
+        g2.drawString(value, ellipse.x + (ellipse.width - valueWidth)/2, ellipse.y + fm.getHeight());
     }
     
 }

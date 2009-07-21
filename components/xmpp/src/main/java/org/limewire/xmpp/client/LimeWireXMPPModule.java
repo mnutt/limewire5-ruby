@@ -5,35 +5,36 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.limewire.concurrent.ExecutorsHelper;
+import org.limewire.friend.api.FileOfferEvent;
+import org.limewire.friend.api.FriendRequestEvent;
+import org.limewire.friend.api.RosterEvent;
 import org.limewire.friend.impl.LimeWireFriendXmppModule;
-import org.limewire.listener.AsynchronousMulticaster;
+import org.limewire.listener.AsynchronousMulticasterImpl;
 import org.limewire.listener.BroadcastPolicy;
 import org.limewire.listener.CachingEventMulticasterImpl;
-import org.limewire.listener.EventBean;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.EventMulticasterImpl;
 import org.limewire.listener.ListenerSupport;
-import org.limewire.logging.LogFactory;
+import org.limewire.listener.AsynchronousEventBroadcaster;
 import org.limewire.xmpp.activity.XmppActivityEvent;
-import org.limewire.xmpp.api.client.ConnectBackRequestSender;
-import org.limewire.xmpp.api.client.FileOfferEvent;
-import org.limewire.xmpp.api.client.FriendRequestEvent;
 import org.limewire.xmpp.api.client.JabberSettings;
-import org.limewire.xmpp.api.client.LibraryChangedEvent;
-import org.limewire.xmpp.api.client.RosterEvent;
-import org.limewire.xmpp.api.client.XMPPConnectionEvent;
-import org.limewire.xmpp.api.client.XMPPService;
 import org.limewire.xmpp.client.impl.ConnectionConfigurationFactory;
 import org.limewire.xmpp.client.impl.DNSConnectionConfigurationFactory;
 import org.limewire.xmpp.client.impl.FallbackConnectionConfigurationFactory;
-import org.limewire.xmpp.client.impl.XMPPAddressRegistry;
-import org.limewire.xmpp.client.impl.XMPPAddressResolver;
-import org.limewire.xmpp.client.impl.XMPPAddressSerializer;
-import org.limewire.xmpp.client.impl.XMPPAuthenticator;
+import org.limewire.xmpp.client.impl.XMPPConnectionFactoryImpl;
 import org.limewire.xmpp.client.impl.XMPPConnectionImplFactory;
-import org.limewire.xmpp.client.impl.XMPPConnectionImpl;
-import org.limewire.xmpp.client.impl.XMPPServiceImpl;
+import org.limewire.xmpp.client.impl.XMPPFriendConnectionImpl;
+import org.limewire.xmpp.client.impl.messages.address.AddressIQListener;
+import org.limewire.xmpp.client.impl.messages.address.AddressIQListenerFactory;
+import org.limewire.xmpp.client.impl.messages.authtoken.AuthTokenIQListener;
+import org.limewire.xmpp.client.impl.messages.authtoken.AuthTokenIQListenerFactory;
+import org.limewire.xmpp.client.impl.messages.connectrequest.ConnectBackRequestIQListener;
+import org.limewire.xmpp.client.impl.messages.connectrequest.ConnectBackRequestIQListenerFactory;
+import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQListener;
+import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQListenerFactory;
+import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQListener;
+import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQListenerFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
@@ -53,13 +54,12 @@ public class LimeWireXMPPModule extends AbstractModule {
         if(jabberSettingsClass != null) {
             bind(JabberSettings.class).to(jabberSettingsClass);
         }
-        bind(XMPPService.class).to(XMPPServiceImpl.class);
-        bind(ConnectBackRequestSender.class).to(XMPPServiceImpl.class);
+        bind(XMPPConnectionFactoryImpl.class);
 
         Executor executor = ExecutorsHelper.newProcessingQueue("XMPPEventThread");
         
-        EventMulticaster<RosterEvent> rosterMulticaster = new AsynchronousMulticaster<RosterEvent>(executor); 
-        bind(new TypeLiteral<EventBroadcaster<RosterEvent>>(){}).toInstance(rosterMulticaster);
+        AsynchronousMulticasterImpl<RosterEvent> rosterMulticaster = new AsynchronousMulticasterImpl<RosterEvent>(executor); 
+        bind(new TypeLiteral<AsynchronousEventBroadcaster<RosterEvent>>(){}).toInstance(rosterMulticaster);
         bind(new TypeLiteral<ListenerSupport<RosterEvent>>(){}).toInstance(rosterMulticaster);
 
         EventMulticaster<FileOfferEvent> fileOfferMulticaster = new EventMulticasterImpl<FileOfferEvent>(); 
@@ -70,19 +70,6 @@ public class LimeWireXMPPModule extends AbstractModule {
         bind(new TypeLiteral<EventBroadcaster<FriendRequestEvent>>(){}).toInstance(friendRequestMulticaster);
         bind(new TypeLiteral<ListenerSupport<FriendRequestEvent>>(){}).toInstance(friendRequestMulticaster);
 
-        EventMulticaster<LibraryChangedEvent> libraryChangedMulticaster = new EventMulticasterImpl<LibraryChangedEvent>();
-        bind(new TypeLiteral<EventBroadcaster<LibraryChangedEvent>>(){}).toInstance(libraryChangedMulticaster);
-        bind(new TypeLiteral<ListenerSupport<LibraryChangedEvent>>(){}).toInstance(libraryChangedMulticaster);        
-        
-        AsynchronousMulticaster<XMPPConnectionEvent> asyncConnectionMulticaster =
-            new AsynchronousMulticaster<XMPPConnectionEvent>(executor, LogFactory.getLog(XMPPConnectionEvent.class));
-        CachingEventMulticasterImpl<XMPPConnectionEvent> connectionMulticaster =
-            new CachingEventMulticasterImpl<XMPPConnectionEvent>(BroadcastPolicy.IF_NOT_EQUALS, asyncConnectionMulticaster, asyncConnectionMulticaster.getListenerContext());
-        bind(new TypeLiteral<EventBean<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
-        bind(new TypeLiteral<EventMulticaster<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
-        bind(new TypeLiteral<EventBroadcaster<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
-        bind(new TypeLiteral<ListenerSupport<XMPPConnectionEvent>>(){}).toInstance(connectionMulticaster);
-        
         EventMulticaster<XmppActivityEvent> activityMulticaster = new CachingEventMulticasterImpl<XmppActivityEvent>(BroadcastPolicy.IF_NOT_EQUALS); 
         bind(new TypeLiteral<EventBroadcaster<XmppActivityEvent>>(){}).toInstance(activityMulticaster);
         bind(new TypeLiteral<ListenerSupport<XmppActivityEvent>>(){}).toInstance(activityMulticaster);
@@ -92,15 +79,13 @@ public class LimeWireXMPPModule extends AbstractModule {
         connectionConfigurationFactories.add(new FallbackConnectionConfigurationFactory());
         bind(new TypeLiteral<List<ConnectionConfigurationFactory>>(){}).toInstance(connectionConfigurationFactories);
         
-        bind(XMPPConnectionImplFactory.class).toProvider(FactoryProvider.newFactory(XMPPConnectionImplFactory.class, XMPPConnectionImpl.class));
-                
-        // bind egearly, so it registers itself with SocketsManager
-        bind(XMPPAddressResolver.class).asEagerSingleton();
-        // dito
-        bind(XMPPAddressSerializer.class).asEagerSingleton();
+        bind(XMPPConnectionImplFactory.class).toProvider(FactoryProvider.newFactory(XMPPConnectionImplFactory.class, XMPPFriendConnectionImpl.class));
         
-        bind(XMPPAuthenticator.class).asEagerSingleton();
+        bind(AddressIQListenerFactory.class).toProvider(FactoryProvider.newFactory(AddressIQListenerFactory.class, AddressIQListener.class));
+        bind(AuthTokenIQListenerFactory.class).toProvider(FactoryProvider.newFactory(AuthTokenIQListenerFactory.class, AuthTokenIQListener.class));
+        bind(ConnectBackRequestIQListenerFactory.class).toProvider(FactoryProvider.newFactory(ConnectBackRequestIQListenerFactory.class, ConnectBackRequestIQListener.class));
+        bind(LibraryChangedIQListenerFactory.class).toProvider(FactoryProvider.newFactory(LibraryChangedIQListenerFactory.class, LibraryChangedIQListener.class));
+        bind(FileTransferIQListenerFactory.class).toProvider(FactoryProvider.newFactory(FileTransferIQListenerFactory.class, FileTransferIQListener.class));
         
-        bind(XMPPAddressRegistry.class);
     }
 }

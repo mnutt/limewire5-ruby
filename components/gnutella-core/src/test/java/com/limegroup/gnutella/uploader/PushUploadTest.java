@@ -73,9 +73,11 @@ import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.handshaking.HandshakeResponder;
 import com.limegroup.gnutella.handshaking.HandshakeResponse;
 import com.limegroup.gnutella.handshaking.HeadersFactory;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PingRequestFactory;
@@ -109,19 +111,20 @@ public class PushUploadTest extends LimeTestCase {
     /** The file contents. */
     private final String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
-    private FileManager fm;
+    @Inject private Library library;
 
     private BufferedReader in;
 
     private BufferedWriter out;
 
-    private LifecycleManager lifeCycleManager;
+    @Inject private LifecycleManager lifeCycleManager;
 
     private MyNetworkManager networkManager;
 
     private MyConnectionManager connectionManager;
 
-    private Injector injector;
+    @Inject private Injector injector;
+    @Inject @GnutellaFiles FileCollection gnutellaFileCollection;
 
     public PushUploadTest(String name) {
         super(name);
@@ -162,16 +165,14 @@ public class PushUploadTest extends LimeTestCase {
                 bind(NetworkManager.class).to(MyNetworkManager.class);
                 bind(ConnectionManager.class).to(MyConnectionManager.class);
             }
-        });
+        }, LimeTestUtils.createModule(this));
 
         // start services
-        fm = injector.getInstance(FileManager.class);
-        FileManagerTestUtils.waitForLoad(fm, 1000);
+        FileManagerTestUtils.waitForLoad(library, 1000);
         File testDir = TestUtils.getResourceFile(testDirName);
-        FileDesc fd = fm.getGnutellaFileList().add(new File(testDir, fileName)).get();
+        FileDesc fd = gnutellaFileCollection.add(new File(testDir, fileName)).get();
         url = LimeTestUtils.getRelativeRequest(fd.getSHA1Urn());
         
-        lifeCycleManager = injector.getInstance(LifecycleManager.class);
         lifeCycleManager.start();
         
         networkManager = (MyNetworkManager) injector.getInstance(NetworkManager.class);

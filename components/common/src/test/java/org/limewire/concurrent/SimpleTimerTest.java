@@ -12,7 +12,7 @@ import org.limewire.util.BaseTestCase;
 
 
 /**
- * Unit tests for SimpleTimer
+ * Unit tests for <code>SimpleTimer</code>.
  */
 public class SimpleTimerTest extends BaseTestCase {
         

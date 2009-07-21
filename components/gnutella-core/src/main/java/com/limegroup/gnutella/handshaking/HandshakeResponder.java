@@ -70,8 +70,8 @@ public interface HandshakeResponder {
          boolean outgoing);
 
     /**
-     * optional method.
-     * note: should this throw an UnsupportedOperationException
+     * Optional method.<p>
+     * Note: should this throw an UnsupportedOperationException
      */
     public void setLocalePreferencing(boolean b);
 }

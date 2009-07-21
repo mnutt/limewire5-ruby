@@ -13,8 +13,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.connection.ConnectionItem;
 import org.limewire.core.api.connection.ConnectionLifecycleEventType;
 import org.limewire.core.api.connection.ConnectionStrength;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.library.RemoteLibraryManager;
+import org.limewire.friend.api.FriendPresence;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.net.SocketsManager.ConnectType;
@@ -59,7 +58,7 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
      */
     public void testRegisterConnectionListener() {
         final GnutellaConnectionManagerImpl gnutellaConnectionManager = new GnutellaConnectionManagerImpl(
-                connectionManager, null, null);
+                connectionManager, null);
         
         context.checking(new Expectations() {{
             exactly(1).of(connectionManager).addEventListener(gnutellaConnectionManager);
@@ -77,7 +76,7 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
     public void testRegisterService() {
         
         final GnutellaConnectionManagerImpl gnutellaConnectionManager = new GnutellaConnectionManagerImpl(
-                connectionManager, null, null);
+                connectionManager, null);
 
         final ServiceRegistry registry = context.mock(ServiceRegistry.class);
         final ScheduledExecutorService backgroundExecutor = context.mock(ScheduledExecutorService.class);
@@ -182,10 +181,9 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
      */
     public void testIsConnected() {
         final ConnectionServices connectionServices = context.mock(ConnectionServices.class);
-        final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
         
         GnutellaConnectionManagerImpl gnutellaConnectionManager = new GnutellaConnectionManagerImpl(
-                connectionManager, connectionServices, remoteLibraryManager);
+                connectionManager, connectionServices);
 
         context.checking(new Expectations() {{
                 one(connectionServices).isConnected();
@@ -208,10 +206,9 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
      */
     public void testIsUltraPeer() {
         final ConnectionServices connectionServices = context.mock(ConnectionServices.class);
-        final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
                 
         GnutellaConnectionManagerImpl gnutellaConnectionManager = new GnutellaConnectionManagerImpl(
-                connectionManager, connectionServices, remoteLibraryManager);
+                connectionManager, connectionServices);
         context.checking(new Expectations() {{
                 one(connectionManager).isSupernode();
                 will(returnValue(true));
@@ -233,7 +230,6 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
      */
     public void testConnectionDelegates() {
         final ConnectionServices connectionServices = context.mock(ConnectionServices.class);
-        final RemoteLibraryManager libraryManager = context.mock(RemoteLibraryManager.class);
 
         final int portnum = 111111;
         final String hostname = "hostekepucally";
@@ -242,7 +238,7 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
         final ConnectionItem connectionItemToBrowse = context.mock(ConnectionItem.class);
         
         GnutellaConnectionManagerImpl gConnectionManager = new GnutellaConnectionManagerImpl(
-                connectionManager, connectionServices, libraryManager);
+                connectionManager, connectionServices);
         
         context.checking(new Expectations() {{
             allowing(connectionItemToRemove);
@@ -258,7 +254,6 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
             FriendPresence presence = context.mock(FriendPresence.class);
             allowing(connectionItemToBrowse).getFriendPresence();
             will(returnValue(presence));
-            exactly(1).of(libraryManager).addPresenceLibrary(presence);
         }});
         
         gConnectionManager.connect();
@@ -267,7 +262,6 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
         
         gConnectionManager.removeConnection(connectionItemToNotRemove);
         gConnectionManager.removeConnection(connectionItemToRemove);
-        gConnectionManager.browseHost(connectionItemToBrowse);
         
         gConnectionManager.tryConnection(hostname, portnum, true);
         gConnectionManager.tryConnection(hostname, portnum, false);
@@ -279,12 +273,12 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
     /**
      * Tests the ConnectionLifecycleEvent code under various conditions.  Ensure
      *  ConnectionItems are created, added, updated, and removed according according to
-     *  the differnt event types.
+     *  the different event types.
      */
     public void testHandleConnectionLifecycleEvent() {
         
         GnutellaConnectionManagerImpl gnutellaConnectionManager
-            = new GnutellaConnectionManagerImpl(connectionManager, null, null);
+            = new GnutellaConnectionManagerImpl(connectionManager, null);
         
         EventList<ConnectionItem> list = gnutellaConnectionManager.getConnectionList();
         
@@ -445,7 +439,7 @@ public class GnutellaConnectionManagerImplTest extends BaseTestCase {
             final ConnectionLifecycleEventType lastStrengthRelatedEvent) throws Exception {
         
         GnutellaConnectionManagerImpl gnutellaConnectionManager
-            = new GnutellaConnectionManagerImpl(connectionManager, null, null);
+            = new GnutellaConnectionManagerImpl(connectionManager, null);
         
         gnutellaConnectionManager.lastIdleTime = lastIdleTime;
         gnutellaConnectionManager.lastStrengthRelatedEvent = lastStrengthRelatedEvent;

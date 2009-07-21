@@ -12,14 +12,12 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.Category;
-import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.endpoint.RemoteHost;
-import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.friend.feature.features.AddressFeature;
-import org.limewire.core.impl.URNImpl;
 import org.limewire.core.impl.search.RemoteFileDescAdapter.AltLocRemoteHost;
 import org.limewire.core.impl.search.RemoteFileDescAdapter.RfdRemoteHost;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.feature.AddressFeature;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
@@ -82,7 +80,7 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
         assertEquals(fileName1, remoteFileDescAdapter1.getFileName());
         assertEquals(fileSize, remoteFileDescAdapter1.getSize());
         assertEquals(remoteFileDesc1, remoteFileDescAdapter1.getRfd());
-        assertEquals(new URNImpl(urn1), remoteFileDescAdapter1.getUrn());
+        assertEquals(urn1, remoteFileDescAdapter1.getUrn());
         assertFalse(remoteFileDescAdapter1.isLicensed());
         assertFalse(remoteFileDescAdapter1.isSpam());
 
@@ -163,8 +161,11 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
                     will(returnValue(addr));
                     allowing(addr).getAddress();
                     will(returnValue(new byte[]{24,101,1,(byte) (i % 255)}));
+                    allowing(addr).getHostAddress();
+                    will(returnValue("24.101.1." + (i % 255)));
                     allowing(loc);
                     locs.add(loc);
+                    allowing(addr);
                 }
 
                 
@@ -286,7 +287,7 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
         //  ensure the address' are correctly set.  Use a Connectable for the altloc.        
         locs.add(connectable);
         RemoteFileDescAdapter anonRfdAdapter = new RemoteFileDescAdapter(rfd, locs);
-        List<RemoteHost> hosts1 = anonRfdAdapter.getSources();
+        Iterable<RemoteHost> hosts1 = anonRfdAdapter.getSources();
         locs.remove(connectable);
         boolean rfdRemoteHostFound = false;
         boolean altLocFound = false;
@@ -307,7 +308,7 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
         //  ensure the address' are correctly set.  Use a regular IpPort instead of Connectable.
         locs.add(ipPort);
         RemoteFileDescAdapter friendRfdAdapter = new RemoteFileDescAdapter(rfd, locs, friendPresence);
-        List<RemoteHost> hosts2 = friendRfdAdapter.getSources();
+        Iterable<RemoteHost> hosts2 = friendRfdAdapter.getSources();
         locs.remove(ipPort);
         rfdRemoteHostFound = false;
         altLocFound = false;
@@ -325,7 +326,24 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
         assertTrue(rfdRemoteHostFound);
         assertTrue(altLocFound);
         
-
+        // Test duplicate getSources() call, ensure they are the same
+        Iterable<RemoteHost> hosts2repeat = friendRfdAdapter.getSources();
+        rfdRemoteHostFound = false;
+        altLocFound = false;
+        for ( RemoteHost host : hosts2repeat ) {
+            if (host instanceof RfdRemoteHost) {
+                assertSame(address, host.getFriendPresence().getFeature(AddressFeature.ID).getFeature());
+                rfdRemoteHostFound = true;
+            } 
+            else if (host instanceof AltLocRemoteHost) {
+                Connectable addressCollected = (Connectable) host.getFriendPresence().getFeature(AddressFeature.ID).getFeature();
+                assertSame("hello", addressCollected.getAddress());
+                altLocFound = true;
+            }
+        }
+        assertTrue(rfdRemoteHostFound);
+        assertTrue(altLocFound);
+        
         context.assertIsSatisfied();
         
     }
@@ -426,37 +444,6 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
     }
     
     /**
-     * Tests {@link RemoteFileDescAdapter#getProperties()} and 
-     *  {@link RemoteFileDescAdapter#getProperty(FilePropertyKey)}.
-     */
-    public void testProperties() {
-        Mockery context = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
-        final RemoteFileDesc rfd = context.mock(RemoteFileDesc.class);
-        final Set<IpPort> locs = new HashSet<IpPort>();
-
-        context.checking(new Expectations() {{
-            allowing(rfd).getClientGUID();
-            will(returnValue(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }));
-            
-            allowing(rfd).getFileName();
-            will(returnValue("test.png"));
-            allowing(rfd).getSize();
-            will(returnValue(Long.MAX_VALUE-2));          
-            
-            allowing(rfd);
-        }});
-        
-        RemoteFileDescAdapter rfdAdapter = new RemoteFileDescAdapter(rfd, locs);
-        assertNotNull(rfdAdapter.getProperties());
-        assertEquals("test", rfdAdapter.getProperty(FilePropertyKey.NAME));
-        assertEquals(Long.MAX_VALUE-2, rfdAdapter.getProperty(FilePropertyKey.FILE_SIZE));
-        
-        context.assertIsSatisfied();
-    }
-    
-    /**
      * Tests a few of the methods that delegate to the rfd and ensure they pass on the correct
      *  values.
      */
@@ -507,8 +494,6 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
             allowing(rfd).getClientGUID();
             will(returnValue(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }));
             
-            one(rfd).getSHA1Urn();
-            will(returnValue(null));
             allowing(rfd).getSHA1Urn();
             will(returnValue(urn));
             
@@ -517,8 +502,7 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
         
         RemoteFileDescAdapter rfdAdapter = new RemoteFileDescAdapter(rfd, locs);
         
-        assertNull(rfdAdapter.getUrn());
-        assertEquals(new URNImpl(urn), rfdAdapter.getUrn());
+        assertEquals(urn, rfdAdapter.getUrn());
         
         context.assertIsSatisfied();
     }
@@ -548,6 +532,23 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
         context.assertIsSatisfied();
     }
     
+    public void testToString() {
+        Mockery context = new Mockery();
+        
+        final RemoteFileDesc rfd = context.mock(RemoteFileDesc.class);
+        final Set<IpPort> locs = new HashSet<IpPort>();
+        context.checking(new Expectations() {{
+            allowing(rfd).getClientGUID();
+            will(returnValue(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }));
+            
+            allowing(rfd);
+        }});
+        
+        RemoteFileDescAdapter rfdAdapter1 = new RemoteFileDescAdapter(rfd, locs);
+        
+        assertNotNull(rfdAdapter1.toString());
+    }
+    
     /**
      * Tests the functionality of {@link RfdRemoteHost}.
      */
@@ -555,42 +556,25 @@ public class RemoteFileDescAdapterTest extends BaseTestCase {
         final Mockery context = new Mockery();
         
         final RemoteFileDesc rfd = context.mock(RemoteFileDesc.class);
-        final Set<IpPort> locs = new HashSet<IpPort>();
         final FriendPresence friendPresence = context.mock(FriendPresence.class);
+        final Friend friend = context.mock(Friend.class);
         
-        context.checking(new Expectations() {{
-            allowing(rfd).getClientGUID();
-            will(returnValue(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }));
-            
-            Friend friend = context.mock(Friend.class);
-            allowing(friendPresence).getFriend();
+        context.checking(new Expectations() {{           
+            exactly(3).of(friendPresence).getFriend();
             will(returnValue(friend));
-            
-            one(rfd).isBrowseHostEnabled();
+            exactly(3).of(friend).isAnonymous();
             will(returnValue(true));
-            one(rfd).isBrowseHostEnabled();
-            will(returnValue(false));
-            one(friend).isAnonymous();
-            will(returnValue(false));
-            one(friend).isAnonymous();
-            will(returnValue(true));
-            one(friend).isAnonymous();
-            will(returnValue(false));
-            one(friend).isAnonymous();
+            exactly(1).of(rfd).isBrowseHostEnabled();
             will(returnValue(true));
             
             allowing(rfd);
         }});
         
-        RemoteFileDescAdapter rfdAdapter = new RemoteFileDescAdapter(rfd, locs, friendPresence);
-        RemoteHost remoteHost = rfdAdapter.new RfdRemoteHost();
+        RemoteHost remoteHost = new RfdRemoteHost(friendPresence, rfd);
                 
         assertSame(friendPresence, remoteHost.getFriendPresence());
         assertTrue(remoteHost.isBrowseHostEnabled());
-        assertFalse(remoteHost.isBrowseHostEnabled());
-        assertTrue(remoteHost.isChatEnabled());
         assertFalse(remoteHost.isChatEnabled());
-        assertTrue(remoteHost.isSharingEnabled());
         assertFalse(remoteHost.isSharingEnabled());
         
         context.assertIsSatisfied();

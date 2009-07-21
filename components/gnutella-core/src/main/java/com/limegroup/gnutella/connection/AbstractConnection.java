@@ -327,8 +327,8 @@ public abstract class AbstractConnection implements Connection {
     }
 
     /**
-     * Sets the port where the conected node listens at, not the one got from
-     * socket
+     * Sets the port where the connected node listens at, not the one got from
+     * socket.
      */
     public void setListeningPort(int port) {
         if (!NetworkUtils.isValidPort(port))

@@ -52,7 +52,7 @@ import org.limewire.security.SecurityToken;
 
 /**
  * The StoreResponseHandler class handles/manages storing of
- * DHTValues on remote Nodes
+ * DHTValues on remote Nodes.
  */
 public class StoreResponseHandler extends AbstractResponseHandler<StoreResult> {
     
@@ -61,22 +61,22 @@ public class StoreResponseHandler extends AbstractResponseHandler<StoreResult> {
     private final Collection<? extends DHTValueEntity> entities;
     
     /**
-     * A list of all StoreProcesses
+     * A list of all StoreProcesses.
      */
     private final List<StoreProcess> processes = new ArrayList<StoreProcess>();
     
     /** 
-     * An Iterator of StoreProcesses (see processList) 
+     * An Iterator of StoreProcesses (see processList). 
      */
     private Iterator<StoreProcess> toProcess = null;
     
     /** 
-     * Map of currently active StoreProcesses (see parallelism) 
+     * Map of currently active StoreProcesses (see parallelism). 
      */
     private Map<KUID, StoreProcess> activeProcesses = new HashMap<KUID, StoreProcess>();
     
     /** 
-     * The number of parallel stores 
+     * The number of parallel stores. 
      */
     private final int parallelism = StoreSettings.PARALLEL_STORES.getValue();
     
@@ -158,7 +158,7 @@ public class StoreResponseHandler extends AbstractResponseHandler<StoreResult> {
 
     /**
      * Tries to maintain parallel store requests and fires
-     * an event if storing is done
+     * an event if storing is done.
      */
     private void sendNextAndExitIfDone() {
         while(activeProcesses.size() < parallelism && toProcess.hasNext()) {
@@ -185,7 +185,7 @@ public class StoreResponseHandler extends AbstractResponseHandler<StoreResult> {
     }
     
     /**
-     * Called if all values were stored
+     * Called if all values were stored.
      */
     private void done() {
         
@@ -243,7 +243,7 @@ public class StoreResponseHandler extends AbstractResponseHandler<StoreResult> {
     
     /**
      * A StoreProcess process manages storing of n values at
-     * a single Node
+     * a single Node.
      */
     private abstract class StoreProcess {
         
@@ -270,84 +270,84 @@ public class StoreResponseHandler extends AbstractResponseHandler<StoreResult> {
         }
         
         /**
-         * The Contact where we're storing the values
+         * The Contact where we're storing the values.
          */
         public Contact getContact() {
             return node;
         }
 
         /**
-         * The SecurityToken we got from the Contact
+         * The SecurityToken we got from the Contact.
          */
         public SecurityToken getSecurityToken() {
             return securityToken;
         }
         
         /**
-         * List of values we're storing at the Node
+         * List of values we're storing at the Node.
          */
         public Collection<? extends DHTValueEntity> getEntities() {
             return entities;
         }
         
         /**
-         * Returns true if there are more elements to sore
+         * Returns true if there are more elements to sore.
          */
         public boolean hasNext() {
             return iterator.hasNext();
         }
         
         /**
-         * Returns the next element to store
+         * Returns the next element to store.
          */
         public DHTValueEntity next() {
             return iterator.next();
         }
         
         /**
-         * Adds the StoreStatusCode to an internal list of StoreStatusCodes
+         * Adds the StoreStatusCode to an internal list of StoreStatusCodes.
          */
         public void addStoreStatusCode(StoreStatusCode code) {
             codes.add(code);
         }
         
         /**
-         * Returns all StoreStatusCodes
+         * Returns all StoreStatusCodes.
          */
         public Collection<StoreStatusCode> getStoreStatusCodes() {
             return codes;
         }
         
         /**
-         * Sets an IOException that may occurred
+         * Sets an IOException that may occurred.
          */
         public void setIOException(IOException exception) {
             this.exception = exception;
         }
         
         /**
-         * Returns an IOException that may occurred
+         * Returns an IOException that may occurred.
          */
         public IOException getIOException() {
             return exception;
         }
         
         /**
-         * Sets a timeout that may occurred
+         * Sets a timeout that may occurred.
          */
         public void setTimeout(long timeout) {
             this.timeout = timeout;
         }
         
         /**
-         * Returns a timeout that may occurred (
+         * Returns a timeout that may occurred.
          */
         public long getTimeout() {
             return timeout;
         }
         
         /**
-         * Finishes the lookup process
+         * Finishes the lookup process.
          */
         public void finish() {
             while(hasNext()) {
@@ -357,28 +357,28 @@ public class StoreResponseHandler extends AbstractResponseHandler<StoreResult> {
         }
         
         /**
-         * Starts the StoreProcess. Returns true if storing is done
+         * Starts the StoreProcess. Returns true if storing is done.
          */
         public abstract boolean store() throws IOException;
         
         /**
-         * Handles a store response. Returns true if storing is done
+         * Handles a store response. Returns true if storing is done.
          */
         public abstract boolean response(ResponseMessage msg) throws IOException;
 
         /**
-         * Handles a store error. Returns true if storing is done
+         * Handles a store error. Returns true if storing is done.
          */
         public abstract boolean error(RequestMessage msg, IOException err);
         
         /**
-         * Handles a store timeout. Returns true if storing is done
+         * Handles a store timeout. Returns true if storing is done.
          */
         public abstract boolean timeout(RequestMessage msg, long timeout) throws IOException;
     }
     
     /**
-     * Stores values at the local Node
+     * Stores values at the local Node.
      */
     private class LocalStoreProcess extends StoreProcess {
         
@@ -419,7 +419,7 @@ public class StoreResponseHandler extends AbstractResponseHandler<StoreResult> {
     }
     
     /**
-     * Stores values at a remote Node
+     * Stores values at a remote Node.
      */
     private class RemoteStoreProcess extends StoreProcess {
         

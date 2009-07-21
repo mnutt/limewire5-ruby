@@ -208,13 +208,6 @@ public interface MessageRouter extends Service {
             RoutedConnection connection);
 
     /**
-     * Sends the query request to the designated connection,
-     * setting up the proper reply routing.
-     */
-    public void sendQueryRequest(QueryRequest request,
-            RoutedConnection connection);
-
-    /**
      * Broadcasts the ping request to all initialized connections,
      * setting up the proper reply routing.
      */

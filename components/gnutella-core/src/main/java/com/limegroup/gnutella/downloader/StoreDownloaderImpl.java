@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.limewire.concurrent.ListeningExecutorService;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.net.SocketsManager;
@@ -29,7 +30,9 @@ import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.guess.OnDemandUnicaster;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileCollection;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.UrnCache;
 import com.limegroup.gnutella.malware.DangerousFileChecker;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -58,7 +61,7 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
     @Inject
     public StoreDownloaderImpl(SaveLocationManager saveLocationManager,
             DownloadManager downloadManager,
-            FileManager fileManager,
+            @GnutellaFiles FileCollection gnutellaFileCollection,
             IncompleteFileManager incompleteFileManager,
             DownloadCallback downloadCallback,
             NetworkManager networkManager,
@@ -84,8 +87,8 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
             MetaDataFactory metaDataFactory, 
             @Named("downloadStateProcessingQueue") ListeningExecutorService downloadStateProcessingQueue,
             DangerousFileChecker dangerousFileChecker,
-            SpamManager spamManager) {
-        super(saveLocationManager, downloadManager, fileManager,
+            SpamManager spamManager, Library library) {
+        super(saveLocationManager, downloadManager, gnutellaFileCollection,
                 incompleteFileManager, downloadCallback, networkManager,
                 alternateLocationFactory, requeryManagerFactory,
                 queryRequestFactory, onDemandUnicaster, downloadWorkerFactory,
@@ -94,7 +97,7 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
                 backgroundExecutor, messageRouter, tigerTreeCache,
                 applicationServices, remoteFileDescFactory, pushListProvider,
                 socketsManager, downloadStateProcessingQueue,
-                dangerousFileChecker, spamManager);
+                dangerousFileChecker, spamManager, library);
         this.metaDataFactory = metaDataFactory;
     }
 
@@ -136,22 +139,6 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
         if (getContentLength() != -1) {
             super.initializeIncompleteFile();
         }
-    }
-
-    /**
-     * Can never browse the LWS, return immediately
-     */
-    @Override
-    public RemoteFileDesc getBrowseEnabledHost() {
-        return null;
-    }
-
-    /**
-     * Can never browse the LWS, return immediately
-     */
-    @Override
-    public boolean hasBrowseEnabledHost() {
-        return false;
     }
 
     /**
@@ -350,7 +337,7 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
     @Override
     protected void shareSavedFile(File saveFile) {
         // Always load the resulting file in the FileManager
-        fileManager.getManagedFileList().add(saveFile);
+        library.add(saveFile);
     }
 
     @Override
@@ -361,5 +348,12 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
     @Override
     protected boolean shouldPublishIFD() {
         return false;
+    }
+    
+    @Override
+    public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
+            throws DownloadException {
+        //overriding to track down cause of https://www.limewire.org/jira/browse/LWC-3697 remove when fixed
+        super.setSaveFile(saveDirectory, fileName, overwrite);
     }
 }

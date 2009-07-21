@@ -4,6 +4,9 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.event.SwingPropertyChangeSupport;
@@ -13,7 +16,8 @@ import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
+import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.io.Address;
 
 
@@ -47,7 +51,7 @@ public class MockDownloadItem implements DownloadItem {
 	}
 	
 	@Override
-	public boolean isSearchAgainEnabled() {
+	public boolean isTryAgainEnabled() {
 	    return false;
 	}
 	
@@ -235,7 +239,7 @@ public class MockDownloadItem implements DownloadItem {
     }
     
     @Override
-    public void setSaveFile(File saveFile, boolean overwrite) throws SaveLocationException {
+    public void setSaveFile(File saveFile, boolean overwrite) throws DownloadException {
         // Do nothing
     }
 
@@ -247,7 +251,38 @@ public class MockDownloadItem implements DownloadItem {
 
     @Override
     public String getPropertyString(FilePropertyKey filePropertyKey) {
+        return title;
+    }
+
+    @Override
+    public Collection<RemoteHost> getRemoteHosts() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Date getStartDate() {
+        return new Date();
+    }
+
+    @Override
+    public boolean isStoreDownload() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public File getSaveFile() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public boolean isRelocatable() {
+        return true;
+    }
+
+    @Override
+    public Collection<File> getCompleteFiles() {
+        return Collections.singletonList(getDownloadingFile());
     }
 }

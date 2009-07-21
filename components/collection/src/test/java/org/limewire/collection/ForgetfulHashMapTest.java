@@ -8,7 +8,7 @@ import junit.framework.Test;
 import org.limewire.util.BaseTestCase;
 
 /**
- * Unit tests for ForgetfulHashMap
+ * Unit tests for <code>ForgetfulHashMap</code>.
  */
 @SuppressWarnings("unchecked")
 public class ForgetfulHashMapTest extends BaseTestCase {

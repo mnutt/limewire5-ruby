@@ -23,12 +23,12 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import org.limewire.core.api.Application;
+import org.limewire.ui.swing.action.UrlAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.ScrollingTextPane;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.util.OSUtils;
 import org.limewire.util.VersionUtils;
 
@@ -79,12 +79,7 @@ class AboutWindow {
         
         //  set up limewire.com label
         HyperlinkButton url = new HyperlinkButton("http://www.limewire.com");
-        url.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                NativeLaunchUtils.openURL("http://www.limewire.com");
-            }
-        });
+        url.addActionListener(new UrlAction("http://www.limewire.com"));
         url.setHorizontalAlignment(SwingConstants.CENTER);
 
         //  set up scroll check box
@@ -173,9 +168,9 @@ class AboutWindow {
                 "programmers and researchers from all over the world.  " +
                 "LimeWire is also, of course, the result of the countless hours of work by LimeWire\'s developers:"));
         sb.append("<ul>\n" + 
-                "  <li>Mario Aquino</li>" + 
                 "  <li>Felix Berger</li>" +
                 "  <li>Sam Berlin</li>" + 
+                "  <li>Wynne Chan</li>" +
                 "  <li>David Chen</li>" +
                 "  <li>Mike Everett</li>" +              
                 "  <li>Tim Julien</li>" +
@@ -195,7 +190,6 @@ class AboutWindow {
         sb.append("<ul>\n" +  
                 "  <li>Ari Amanatidis</li>" +
                 "  <li>Bobby Fonacier</li>" +                
-                "  <li>Catherine Herdlick</li>" +
                 "  <li>Akshay Kumar</li>" +
                 "  <li>Greg Maggioncalda</li>" +
                 "  <li>Dan Sullivan</li>" +
@@ -205,8 +199,6 @@ class AboutWindow {
         //  business developers
         sb.append(I18n.tr("Behind the scenes business strategy and day-to-day affairs are handled by LimeWire\'s business developers:"));
         sb.append("<ul>\n" +  
-                "  <li>Kevin Bradshaw</li>" +                
-                "  <li>Brian Dick</li>" +
                 "  <li>Nathan Lovejoy</li>" +
                 "  <li>George Searle</li>" +
                 "</ul>");        
@@ -214,6 +206,7 @@ class AboutWindow {
         //  previous developers
         sb.append(I18n.tr("In addition, the following individuals have worked on the LimeWire team in the past but have since moved on to other projects:"));
         sb.append("<ul>\n" +  
+        		"  <li>Mario Aquino</li>" + 
                 "  <li>Aubrey Arago</li>\n" +
                 "  <li>Zlatin Balevsky</li>\n" +
                 "  <li>Zenzele Bell</li>\n" +                  
@@ -318,7 +311,7 @@ class AboutWindow {
         // bt notice
         sb.append("<small>");
         sb.append("<br><br>");
-        sb.append(I18n.tr("BitTorrent, the BitTorrent Logo, and Torrent are trademarks of BitTorrent, Inc. Gmail is a trademark of Google Inc. Jabber and LiveJournal are the registered trademarks of the XMPP Standards Foundation and LiveJournal, Inc., d/b/a LiveJournal.com, respectively. Neither Google Inc., the XMPP Standards Foundation or LiveJournal.com are sponsors or partners of Lime&nbsp;Wire&nbsp;LLC nor do they endorse Lime&nbsp;Wire&nbsp;LLC or the LimeWire software. Use of these trademarks is merely to refer to the technology or service of the respective owner and not to confuse Lime&nbsp;Wire as the source of the respective Gmail, Jabber and/or LiveJournal service or technology."));
+        sb.append(I18n.tr("BitTorrent, the BitTorrent Logo, and Torrent are trademarks of BitTorrent, Inc. Gmail is a trademark of Google&nbsp;Inc., Facebook is a trademark of Facebook, Inc., Jabber and LiveJournal are the registered trademarks of the XMPP Standards Foundation and LiveJournal, Inc., d/b/a LiveJournal.com, respectively. Neither Google&nbsp;Inc., Facebook&nbsp;Inc., the XMPP Standards Foundation nor LiveJournal.com are sponsors or partners of Lime&nbsp;Wire&nbsp;LLC nor do they endorse Lime&nbsp;Wire&nbsp;LLC or the LimeWire software. Use of these trademarks is merely to refer to the technology or service of the respective owner and not to confuse Lime&nbsp;Wire as the source of the respective Gmail, Facebook, Jabber, and/or LiveJournal service or technology"));
         sb.append("</small>");
         
         sb.append("</body></html>");

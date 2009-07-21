@@ -6,18 +6,15 @@ import org.limewire.core.api.search.Search;
 import org.limewire.core.api.spam.SpamManager;
 import org.limewire.ui.swing.search.SearchInfo;
 import org.limewire.ui.swing.settings.SwingUiSettings;
+import org.limewire.ui.swing.util.DownloadExceptionHandler;
 import org.limewire.ui.swing.util.PropertiableHeadings;
-import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
-
-import ca.odell.glazedlists.EventList;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
 /**
  * Implements a factory for creating the search results data model.
  */
-@Singleton
 public class SearchResultsModelFactory {
     
     private final SpamManager spamManager;
@@ -28,9 +25,9 @@ public class SearchResultsModelFactory {
 
     private final DownloadListManager downloadListManager;
 
-    private final PropertiableHeadings propertiableHeadings;
+    private final Provider<PropertiableHeadings> propertiableHeadings;
 
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
+    private final Provider<DownloadExceptionHandler> downloadExceptionHandler;
 
     /**
      * Constructs a SearchResultsModelFactory with the specified factories,
@@ -39,14 +36,15 @@ public class SearchResultsModelFactory {
     @Inject
     public SearchResultsModelFactory(SimilarResultsDetectorFactory similarResultsDetectorFactory,
             SpamManager spamManager, LibraryManager libraryManager,
-            DownloadListManager downloadListManager, PropertiableHeadings propertiableHeadings,
-            SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            DownloadListManager downloadListManager,
+            Provider<PropertiableHeadings> propertiableHeadings,
+            Provider<DownloadExceptionHandler> downloadExceptionHandler) {
         this.similarResultsDetectorFactory = similarResultsDetectorFactory;
         this.spamManager = spamManager;
         this.libraryManager = libraryManager;
         this.downloadListManager = downloadListManager;
         this.propertiableHeadings = propertiableHeadings;
-        this.saveLocationExceptionHandler = saveLocationExceptionHandler;
+        this.downloadExceptionHandler = downloadExceptionHandler;
     }
 
     /**
@@ -54,17 +52,12 @@ public class SearchResultsModelFactory {
      */
     public SearchResultsModel createSearchResultsModel(SearchInfo searchInfo, Search search) {
         // Create search result model.
-        SearchResultsModel searchResultsModel = new BasicSearchResultsModel(
+        BasicSearchResultsModel searchResultsModel = new BasicSearchResultsModel(
                 searchInfo, search, propertiableHeadings, downloadListManager, 
-                saveLocationExceptionHandler);
-
-        // Get list of visual search results.
-        EventList<VisualSearchResult> visualSearchResults = searchResultsModel
-                .getGroupedSearchResults();
+                downloadExceptionHandler);
 
         // Create detector to find similar results.
-        SimilarResultsDetector similarResultsDetector = similarResultsDetectorFactory
-                .newSimilarResultsDetector();
+        SimilarResultsDetector similarResultsDetector = similarResultsDetectorFactory.newSimilarResultsDetector();
 
         // Add list listener for results already downloaded or being downloaded. 
         // AlreadyDownloaded listener needs to be added to the list before the
@@ -72,19 +65,17 @@ public class SearchResultsModelFactory {
         // the AlreadyDownloaded listener.
         AlreadyDownloadedListEventListener alreadyDownloadedListEventListener = 
                 new AlreadyDownloadedListEventListener(libraryManager, downloadListManager);
-        visualSearchResults.addListEventListener(alreadyDownloadedListEventListener);
+        searchResultsModel.addResultListener(alreadyDownloadedListEventListener);
 
         // Add list listener to group similar results.
         if (SwingUiSettings.GROUP_SIMILAR_RESULTS_ENABLED.getValue()) {
-            GroupingListEventListener groupingListEventListener = 
-                new GroupingListEventListener(similarResultsDetector);
-            visualSearchResults.addListEventListener(groupingListEventListener);
+            GroupingListEventListener groupingListEventListener = new GroupingListEventListener(similarResultsDetector);
+            searchResultsModel.addResultListener(groupingListEventListener);
         }
 
         // Add list listener to handle spam results.
-        SpamListEventListener spamListEventListener = new SpamListEventListener(
-                spamManager, similarResultsDetector);
-        visualSearchResults.addListEventListener(spamListEventListener);
+        SpamListEventListener spamListEventListener = new SpamListEventListener(spamManager, similarResultsDetector);
+        searchResultsModel.addResultListener(spamListEventListener);
 
         return searchResultsModel;
     }

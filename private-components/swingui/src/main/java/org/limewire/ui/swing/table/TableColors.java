@@ -13,7 +13,7 @@ import org.limewire.ui.swing.util.GuiUtils;
 
 public class TableColors {
     /**
-     * these consider the first element even (zero based)
+     * These consider the first element even (zero based).
      */
     @Resource
     public Color evenColor;

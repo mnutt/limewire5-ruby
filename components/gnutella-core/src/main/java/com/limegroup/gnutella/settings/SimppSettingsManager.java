@@ -16,7 +16,7 @@ import org.limewire.setting.RemoteSettingManager;
 
 /**
  * A RemoteSettingManager that uses SIMPP to remotely control the settings.
- * 
+ * <p>
  * Before this can be used, you MUST call setRemoteSettingController,
  * otherwise activating any simpp settings will fail.
  * (Note: this is typically done by calling SettingsFactory.setRemoteSettingManager
@@ -27,7 +27,8 @@ public class SimppSettingsManager implements RemoteSettingManager {
     private static final Log LOG = LogFactory.getLog(SimppSettingsManager.class);
     
     /** 
-     * The properties we crete from the string we get via simpp message
+     * The properties we create from the string we get via simpp message
+     * <p>
      * LOCKING: _remoteController 
      */
     private final Properties _simppProps = new Properties();
@@ -35,7 +36,8 @@ public class SimppSettingsManager implements RemoteSettingManager {
     /**
      * A mapping of simppKeys to simppValues which have not been initialized
      * yet. Newly created settings must check with this map to see if they
-     * should load defualt value or the simpp value
+     * should load default value or the simpp value.
+     * <p>
      * LOCKING: _remoteController
      */
     private final Map<String, String> _remainderSimppSettings = new HashMap<String, String>();
@@ -73,7 +75,7 @@ public class SimppSettingsManager implements RemoteSettingManager {
 
     /**
      * Call this method if you want to activate the settings to the ones in
-     * this.simppProps
+     * this.simppProps.
      */
     @SuppressWarnings({ "unchecked" })
     public void activateSimppSettings() {

@@ -14,7 +14,7 @@ import com.limegroup.gnutella.messages.BadPacketException;
 
 /** In Vendor Message parlance, the "message type" of this VMP is "LIME/7".
  *  Used to ask a host that you are connected to to try and connect back to a
- *  3rd pary.
+ *  3rd party.
  */
 public final class TCPConnectBackRedirect extends AbstractVendorMessage {
 
@@ -63,7 +63,7 @@ public final class TCPConnectBackRedirect extends AbstractVendorMessage {
 
     /**
      * Constructs a new TCPConnectBackRedirect to send out.
-     * @param port The port you want people to connect back to.  If you give a
+     * @param port the port you want people to connect back to.  If you give a
      *  bad port I don't check so check yourself!
      */
     public TCPConnectBackRedirect(InetAddress addr, int port) {

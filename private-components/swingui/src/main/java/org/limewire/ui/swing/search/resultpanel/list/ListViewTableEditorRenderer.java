@@ -16,8 +16,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractCellEditor;
@@ -32,11 +34,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
@@ -46,33 +47,40 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+import org.limewire.ui.swing.components.HTMLLabel;
 import org.limewire.ui.swing.components.IconButton;
-import org.limewire.ui.swing.downloads.MainDownloadPanel;
-import org.limewire.ui.swing.library.nav.LibraryNavigator;
+import org.limewire.ui.swing.components.RemoteHostWidget;
+import org.limewire.ui.swing.components.RemoteHostWidgetFactory;
+import org.limewire.ui.swing.components.RemoteHostWidget.RemoteWidgetType;
+import org.limewire.ui.swing.event.SelectAndScrollDownloadEvent;
+import org.limewire.ui.swing.library.LibraryMediator;
 import org.limewire.ui.swing.listener.MousePopupListener;
-import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.ui.swing.properties.FileInfoDialogFactory;
+import org.limewire.ui.swing.properties.FileInfoDialog.FileInfoType;
 import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.DownloadHandler;
+import org.limewire.ui.swing.search.resultpanel.ResultsTable;
 import org.limewire.ui.swing.search.resultpanel.SearchHeading;
 import org.limewire.ui.swing.search.resultpanel.SearchHeadingDocumentBuilder;
-import org.limewire.ui.swing.search.resultpanel.SearchResultFromWidget;
-import org.limewire.ui.swing.search.resultpanel.SearchResultFromWidgetFactory;
 import org.limewire.ui.swing.search.resultpanel.SearchResultMenu;
+import org.limewire.ui.swing.search.resultpanel.SearchResultMenuFactory;
 import org.limewire.ui.swing.search.resultpanel.SearchResultTruncator;
 import org.limewire.ui.swing.search.resultpanel.SearchResultTruncator.FontWidthResolver;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule.PropertyMatch;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule.RowDisplayConfig;
 import org.limewire.ui.swing.search.resultpanel.list.ListViewRowHeightRule.RowDisplayResult;
+import org.limewire.ui.swing.table.TransparentCellTableRenderer;
 import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.IconManager;
 
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * This class is responsible for rendering an individual SearchResult
@@ -80,21 +88,22 @@ import com.google.inject.assistedinject.AssistedInject;
  */
 public class ListViewTableEditorRenderer extends AbstractCellEditor implements TableCellEditor, TableCellRenderer {
 
+    private static final Log LOG = LogFactory.getLog(ListViewTableEditorRenderer.class);
+    
     private static final int LEFT_COLUMN_WIDTH = 450;
 
     private final CategoryIconManager categoryIconManager;
     
     private static final String HTML = "<html>";
     private static final String CLOSING_HTML_TAG = "</html>";
-    private final Log LOG = LogFactory.getLog(getClass());
-
-    private final String searchText;
+    
     @Resource private Icon similarResultsIcon;
     @Resource private Color subHeadingLabelColor;
     @Resource private Color metadataLabelColor;
     @Resource private Color downloadSourceCountColor;
     @Resource private Color similarResultsBackgroundColor;
     @Resource private Color surplusRowLimitColor;
+    @Resource private String headingColor;
     @Resource private Font headingFont;
     @Resource private Font subHeadingFont;
     @Resource private Font metadataFont;
@@ -122,20 +131,20 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     
     @Resource private Icon dividerIcon;
     
-    private final SearchHeadingDocumentBuilder headingBuilder;
+    private final Provider<SearchHeadingDocumentBuilder> headingBuilder;
     private final ListViewRowHeightRule rowHeightRule;
     private final ListViewDisplayedRowsLimit displayLimit;
-    private final SearchResultTruncator truncator;
+    private final Provider<SearchResultTruncator> truncator;
     private final HeadingFontWidthResolver headingFontWidthResolver = new HeadingFontWidthResolver();
-    private final IconManager iconManager;
-    private SearchResultFromWidget fromWidget;
+    private final FileInfoDialogFactory fileInfoFactory;
+    private RemoteHostWidget fromWidget;
     private JButton itemIconButton;
     private IconButton similarButton = new IconButton();
     private IconButton propertiesButton = new IconButton();
     private JEditorPane heading = new JEditorPane();
-    private JLabel subheadingLabel = new JLabel();
-    private JLabel metadataLabel = new JLabel();
-    private JLabel downloadSourceCount = new JLabel();
+    private JLabel subheadingLabel = new NoDancingHtmlLabel();
+    private JLabel metadataLabel = new NoDancingHtmlLabel();
+    private JLabel downloadSourceCount = new TransparentCellTableRenderer();
     private JXPanel editorComponent;
 
     private VisualSearchResult vsr;
@@ -153,48 +162,48 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
      * cached width used for text truncation
      */
     private int textPanelWidth;
+
+    private final SearchResultMenuFactory searchResultMenuFactory;
     
-    @AssistedInject
+    @Inject
     ListViewTableEditorRenderer(
             CategoryIconManager categoryIconManager,
-            SearchResultFromWidgetFactory fromWidgetFactory,
-        @Assisted String searchText, 
-        @Assisted Navigator navigator, 
+            RemoteHostWidgetFactory fromWidgetFactory,
+        Navigator navigator, 
         final @Assisted DownloadHandler downloadHandler,
-        SearchHeadingDocumentBuilder headingBuilder,
-        ListViewRowHeightRule rowHeightRule,
-        PropertiesFactory<VisualSearchResult> propertiesFactory,
+        Provider<SearchHeadingDocumentBuilder> headingBuilder,
+        @Assisted ListViewRowHeightRule rowHeightRule,
         final @Assisted ListViewDisplayedRowsLimit displayLimit,
-        LibraryNavigator libraryNavigator,
-        SearchResultTruncator truncator, IconManager iconManager) {
+        LibraryMediator libraryMediator,
+        Provider<SearchResultTruncator> truncator, FileInfoDialogFactory fileInfoFactory,
+        SearchResultMenuFactory searchResultMenuFactory) {
 
         this.categoryIconManager = categoryIconManager;
-        
-        this.searchText = searchText;
         this.headingBuilder = headingBuilder;
         this.rowHeightRule = rowHeightRule;
         this.displayLimit = displayLimit;
         this.truncator = truncator;
-        this.iconManager = iconManager;
         this.downloadHandler = downloadHandler;
+        this.fileInfoFactory = fileInfoFactory;
+        this.searchResultMenuFactory = searchResultMenuFactory;
         
         GuiUtils.assignResources(this);
 
         
-        fromWidget = fromWidgetFactory.create(false);
+        fromWidget = fromWidgetFactory.create(RemoteWidgetType.SEARCH_LIST);
        
-        makePanel(navigator, libraryNavigator, propertiesFactory);       
+        makePanel(navigator, libraryMediator);       
 
-        setupButtons(propertiesFactory);
+        setupButtons();
         
         layoutEditorComponent();
     }
     
 
-    private void makePanel(Navigator navigator, LibraryNavigator libraryNavigator, PropertiesFactory<VisualSearchResult> propertiesFactory) {
+    private void makePanel(Navigator navigator, LibraryMediator libraryMediator) {
         initializeComponents();
         makeIndentation();
-        setupListeners(navigator, libraryNavigator, propertiesFactory);
+        setupListeners(navigator, libraryMediator);
 
         lastRowPanel = new JPanel(new MigLayout("insets 10 30 0 0", "[]", "[]"));
         lastRowPanel.setOpaque(false);
@@ -206,7 +215,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     }
 
 
-    private void setupButtons(final PropertiesFactory<VisualSearchResult> propertiesFactory){
+    private void setupButtons(){
         similarButton.setFocusable(false);
         similarButton.setIcon(similarHiddenIcon);
         similarButton.setPressedIcon(similarHiddenPressedIcon);
@@ -255,7 +264,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         propertiesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                propertiesFactory.newProperties().showProperties(vsr);
+                fileInfoFactory.createFileInfoDialog(vsr, FileInfoType.REMOTE_FILE);
             }
         });
         
@@ -264,14 +273,14 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     private void layoutEditorComponent(){
         searchResultTextPanel.setLayout(new MigLayout("nogrid, ins 0 0 0 0, gap 0! 0!, novisualpadding"));
         searchResultTextPanel.setOpaque(false);
-        searchResultTextPanel.add(heading, "top left, shrinkprio 200, growx, wmax pref, hidemode 3, wrap");
-        searchResultTextPanel.add(subheadingLabel, "top left, shrinkprio 200, growx, hidemode 3, wrap");
-        searchResultTextPanel.add(metadataLabel, "top left, shrinkprio 200, hidemode 3");
+        searchResultTextPanel.add(heading, "left, shrinkprio 200, growx, wmax pref, hidemode 3, wrap");
+        searchResultTextPanel.add(subheadingLabel, "left, shrinkprio 200, growx, hidemode 3, wrap");
+        searchResultTextPanel.add(metadataLabel, "left, shrinkprio 200, hidemode 3");
 
         editorComponent.setLayout(new MigLayout("ins 0 0 0 0, gap 0! 0!, novisualpadding"));
         editorComponent.add(similarResultIndentation, "growy, hidemode 3, shrinkprio 0");
-        editorComponent.add(itemIconButton, "top left, gaptop 6, gapleft 4, shrinkprio 0");
-        editorComponent.add(searchResultTextPanel, "top left, gapleft 4, growy, growx, shrinkprio 200, growprio 200, push");
+        editorComponent.add(itemIconButton, "left, aligny 50%, gapleft 4, shrinkprio 0");
+        editorComponent.add(searchResultTextPanel, "left, , aligny 50%, gapleft 4, growx, shrinkprio 200, growprio 200, push");
         editorComponent.add(downloadSourceCount, "gapbottom 3, gapright 2, shrinkprio 0");
         editorComponent.add(new JLabel(dividerIcon), "shrinkprio 0");
         //TODO: better number for wmin
@@ -295,9 +304,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     public Component getTableCellEditorComponent(
         final JTable table, Object value, boolean isSelected, int row, final int col) {
         vsr = (VisualSearchResult) value;
-        this.table = table;
-        LOG.debugf("getTableCellEditorComponent: row = {0} column = {1}", row, col);
-        
+        this.table = table;        
         editorComponent.setBackground(table.getBackground());
         
         if (value == null) {
@@ -307,7 +314,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         LOG.debugf("row: {0} shouldIndent: {1}", row, vsr.getSimilarityParent() != null);
         
         if (row == displayLimit.getLastDisplayedRow()) {
-            lastRowMessage.setText(tr("Not showing {0} results", 
+            lastRowMessage.setText(tr("Not showing {0} results.  Narrow results to see more.", 
                     (displayLimit.getTotalResultsReturned() - displayLimit.getLastDisplayedRow())));
           return lastRowPanel;
         } 
@@ -331,7 +338,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         itemIconButton.setIcon(getIcon(vsr));
         itemIconButton.setCursor(getIconCursor(vsr));
 
-        RowDisplayResult result = rowHeightRule.getDisplayResult(vsr, searchText);
+        RowDisplayResult result = rowHeightRule.getDisplayResult(vsr);
 
         setLabelVisibility(result.getConfig());
 
@@ -351,7 +358,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         case LIBRARY:
             return libraryIcon;
         }
-        return categoryIconManager.getIcon(vsr, iconManager);
+        return categoryIconManager.getIcon(vsr);
     }
 
     private Cursor getIconCursor(VisualSearchResult vsr) {
@@ -390,7 +397,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             @Override
             public String getText() {
                 String headingText = result.getHeading();
-                String truncatedHeading = truncator.truncateHeading(headingText, fudgeFactorPixelWidth, headingFontWidthResolver);
+                String truncatedHeading = truncator.get().truncateHeading(headingText, fudgeFactorPixelWidth, headingFontWidthResolver);
                 handleHeadingTooltip(headingText, truncatedHeading);
                 return truncatedHeading;
             }
@@ -408,14 +415,14 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             public String getText(String adjoiningFragment) {
                 int adjoiningTextPixelWidth = headingFontWidthResolver.getPixelWidth(adjoiningFragment);
                 String headingText = result.getHeading();
-                String truncatedHeading = truncator.truncateHeading(headingText, 
+                String truncatedHeading = truncator.get().truncateHeading(headingText, 
                         fudgeFactorPixelWidth - adjoiningTextPixelWidth, headingFontWidthResolver);
                 handleHeadingTooltip(headingText, truncatedHeading);
                 return truncatedHeading;
             }
         };
 
-        this.heading.setText(headingBuilder.getHeadingDocument(searchHeading, downloadState, result.isSpam()));
+        this.heading.setText(headingBuilder.get().getHeadingDocument(searchHeading, downloadState, result.isSpam()));
         this.downloadSourceCount.setText(Integer.toString(vsr.getSources().size()));
     }
 
@@ -441,14 +448,11 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             html = HTML + pm.getKey() + ":" + html + CLOSING_HTML_TAG;
             metadataLabel.setText(html);
         }
-    }
-
-    
+    }    
 
     private boolean isDownloadEligible(VisualSearchResult vsr) {
         return !vsr.isSpam() && vsr.getDownloadState() == BasicDownloadState.NOT_STARTED;
     }
-
     
     private void initializeComponents() {
         searchResultTextPanel = new JXPanel(){
@@ -462,13 +466,22 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         
         editorComponent = new JXPanel();
         
-        itemIconButton = new IconButton();
+        itemIconButton = new IconButton(); 
         
         heading.setContentType("text/html");
         heading.setEditable(false);
-        heading.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+        heading.setCaretPosition(0);
+        heading.setSelectionColor(HTMLLabel.TRANSPARENT_COLOR);       
         heading.setOpaque(false);
         heading.setFocusable(false);
+        StyleSheet mainStyle = ((HTMLDocument)heading.getDocument()).getStyleSheet();
+        String rules = "body { font-family: " + headingFont.getFamily() + "; }" +
+                ".title { color: " + headingColor + "; font-size: " + headingFont.getSize() + "; }" +
+                "a { color: " + headingColor + "; }";
+        StyleSheet newStyle = new StyleSheet();
+        newStyle.addRule(rules);
+        mainStyle.addStyleSheet(newStyle); 
+        heading.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
 
         subheadingLabel.setForeground(subHeadingLabelColor);
         subheadingLabel.setFont(subHeadingFont);
@@ -486,7 +499,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         similarResultIndentation.setBackground(similarResultsBackgroundColor);
     }
 
-    private void setupListeners(final Navigator navigator, final LibraryNavigator libraryNavigator, final PropertiesFactory<VisualSearchResult> propertiesFactory) {
+    private void setupListeners(final Navigator navigator, final LibraryMediator libraryMediator) {
         heading.addHyperlinkListener(new HyperlinkListener() {
 
             @Override
@@ -496,11 +509,9 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
                         downloadHandler.download(vsr);
                         table.editingStopped(new ChangeEvent(table));
                     } else if (e.getDescription().equals("#downloading")) {
-                        navigator.getNavItem(
-                            NavCategory.DOWNLOAD,
-                            MainDownloadPanel.NAME).select(vsr);
+                        new SelectAndScrollDownloadEvent(vsr.getUrn()).publish();
                     } else if (e.getDescription().equals("#library")) {
-                        libraryNavigator.selectInLibrary(vsr.getUrn(), vsr.getCategory());
+                        libraryMediator.selectInLibrary(vsr.getUrn());
                     }
                 }
             }
@@ -512,32 +523,47 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         MousePopupListener popupListener = new MousePopupListener() {
             @Override
             public void handlePopupMouseEvent(MouseEvent e) {
-                final VisualSearchResult result = vsr; 
-                SearchResultMenu searchResultMenu = new SearchResultMenu(downloadHandler, Collections.singletonList(vsr), propertiesFactory, SearchResultMenu.ViewType.List);
-                searchResultMenu.addPopupMenuListener(new PopupMenuListener() {
-                    @Override
-                    public void popupMenuCanceled(PopupMenuEvent e) {
-                        result.setShowingContextOptions(false);
+                // Update selection if mouse is not in selected row.
+                if (table.isEditing()) {
+                    int editRow = table.getEditingRow();
+                    if (!table.isRowSelected(editRow)) {
+                        updateSelection(e);
                     }
-
-                    @Override
-                    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                        result.setShowingContextOptions(false);
-                        table.editingStopped(new ChangeEvent(this));
+                }
+                
+                // Create list of selected results.
+                List<VisualSearchResult> selectedResults = new ArrayList<VisualSearchResult>();
+                DefaultEventTableModel model = ((ResultsTable) table).getEventTableModel();
+                int[] selectedRows = table.getSelectedRows();
+                for (int row : selectedRows) {
+                    Object element = model.getElementAt(row);
+                    if (element instanceof VisualSearchResult) {
+                        selectedResults.add((VisualSearchResult) element);
                     }
-
-                    @Override
-                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                        result.setShowingContextOptions(true);
-                    }
-                });
+                }
+                
+                // If nothing selected, use current result.
+                if (selectedResults.size() == 0) {
+                    selectedResults.add(vsr);
+                }
+                
+                // Display context menu.
+                SearchResultMenu searchResultMenu = searchResultMenuFactory.create(downloadHandler, selectedResults, SearchResultMenu.ViewType.List);
                 searchResultMenu.show(e.getComponent(), e.getX()+3, e.getY()+3);
             }
         };
     
         addMouseListener(popupListener, listenerComponents);   
         
-        MouseListener downloaderAdaptor = new MouseAdapter() {
+        // Add listener to update table selection and start downloads.
+        MouseListener selectionDownloadAdapter = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    updateSelection(e);
+                }
+            }
+            
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (vsr != null && e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {  
@@ -545,9 +571,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
                 }
             }
         };
-        addMouseListener(downloaderAdaptor, listenerComponents);   
-        
-    //    editorComponent.addMouseListener(downloaderAdaptor);
+        addMouseListener(selectionDownloadAdapter, listenerComponents);   
     }
     
     private void addMouseListener(MouseListener listener, Component... components) {    
@@ -566,20 +590,64 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         return vsr;
     }    
     
+    /**
+     * Updates the table row selection based on the specified mouse event.
+     */
+    private void updateSelection(MouseEvent e) {
+        if (table.isEditing()) {
+            // Get cell being edited by this editor.
+            int editRow = table.getEditingRow();
+            int editCol = table.getEditingColumn();
+            
+            // Update the selection.  We also prepare the editor to apply
+            // the selection colors to the current editor component.
+            if (editRow > -1) {
+                table.changeSelection(editRow, editCol, e.isControlDown(), e.isShiftDown());
+                table.prepareEditor(ListViewTableEditorRenderer.this, editRow, editCol);
+            }
+        }
+        
+        // Request focus so Enter key can be handled.
+        e.getComponent().requestFocusInWindow();
+    }
+    
     private class HeadingFontWidthResolver implements FontWidthResolver {
         private static final String EMPTY_STRING = "";
         //finds <b>foo</b> or <a href="#foo"> or {1} patterns
         //**NOTE** This does not account for all HTML sanitizing, just for HTML
         //**NOTE** that would have been added by search result display code
         private final Pattern findHTMLTagsOrReplacementTokens = Pattern.compile("([<][/]?[\\w =\"#]*[>])|([{][\\d]*[}])");
+        private final Matcher matcher = findHTMLTagsOrReplacementTokens.matcher("");
         
         @Override
         public int getPixelWidth(String text) {
             HTMLEditorKit editorKit = (HTMLEditorKit) heading.getEditorKit();
             StyleSheet css = editorKit.getStyleSheet();
             FontMetrics fontMetrics = css.getFontMetrics(headingFont);
-            text = findHTMLTagsOrReplacementTokens.matcher(text).replaceAll(EMPTY_STRING);
+            matcher.reset(text);
+            text = matcher.replaceAll(EMPTY_STRING);
             return fontMetrics.stringWidth(text);
+        }
+    }
+    
+    /**
+     * A label that does not appear to dance up and down when displaying HTML in a table.
+     * 
+     * The text inside JLabels wraps when displaying HTML that doesn't fit on one line. Only the first line is displayed but
+     * when the label is used in a table renderer or editor, it has weird mouse over behavior where the lines dance up and down.  
+     * NoDancingHtmlLabel prevents this behavior.
+     */
+    private static class NoDancingHtmlLabel extends TransparentCellTableRenderer {
+        public NoDancingHtmlLabel(){
+            //prevents strange movement on mouseover
+            setVerticalAlignment(JLabel.TOP);
+        }
+        
+        @Override
+        public void setText(String text){
+            super.setText(text);
+            //prevent our little friend from dancing up and down on mouse over
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
         }
     }
  

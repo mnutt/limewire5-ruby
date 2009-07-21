@@ -18,18 +18,19 @@ import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.ConnectableImpl;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.http.HTTPHeaderName;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileDescStub;
-import com.limegroup.gnutella.library.FileManager;
-import com.limegroup.gnutella.library.FileManagerStub;
-import com.limegroup.gnutella.library.GnutellaFileListStub;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.LibraryStubModule;
 import com.limegroup.gnutella.stubs.ConnectionManagerStub;
-import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileViewProvider;
 
 public class FileRequestHandlerTest extends LimeTestCase {
 
@@ -39,11 +40,10 @@ public class FileRequestHandlerTest extends LimeTestCase {
 
     private MockHTTPUploadSessionManager sessionManager;
 
-    private FileManagerStub fileManager;
-
     private FileRequestHandler fileRequestHandler;
 
-    private Injector injector;
+    @Inject private Injector injector;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
 
     public FileRequestHandlerTest(String name) {
         super(name);
@@ -56,28 +56,25 @@ public class FileRequestHandlerTest extends LimeTestCase {
     @Override
     protected void setUp() throws Exception {
         sessionManager = new MockHTTPUploadSessionManager();
-        injector = LimeTestUtils.createInjector(new AbstractModule() {
+        LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(ConnectionManager.class).to(ConnectionManagerStub.class);
                 bind(HTTPUploadSessionManager.class).toInstance(sessionManager);
-                bind(FileManager.class).to(FileManagerStub.class);
                 bind(NetworkManager.class).to(NetworkManagerStub.class);
             }
-        });
+        }, new LibraryStubModule(), LimeTestUtils.createModule(this));
 
         ConnectionManagerStub connectionManager = (ConnectionManagerStub) injector
                 .getInstance(ConnectionManager.class);
         connectionManager.setPushProxies(Collections.singleton(new ConnectableImpl("127.0.0.1",
                 9999, false)));
 
-        fileManager = (FileManagerStub) injector.getInstance(FileManager.class);
-        GnutellaFileListStub sharedList = fileManager.getGnutellaFileList();
         urn1 = URN.createSHA1Urn("urn:sha1:PLSTHIPQGSSZTS5FJUPAKUZWUGYQYPFG");
         FileDesc fd1 = new FileDescStub("abc1.txt", urn1, 0);
-        sharedList.add(fd1);
+        gnutellaFileCollection.add(fd1);
         
-        GnutellaUploadFileListProvider uploadProvider = injector.getInstance(GnutellaUploadFileListProvider.class);
+        GnutellaUploadFileViewProvider uploadProvider = injector.getInstance(GnutellaUploadFileViewProvider.class);
         fileRequestHandler = injector.getInstance(FileRequestHandlerFactory.class).createFileRequestHandler(uploadProvider, false);
     }
 

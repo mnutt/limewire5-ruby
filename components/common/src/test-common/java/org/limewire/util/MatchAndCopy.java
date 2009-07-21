@@ -15,7 +15,7 @@ public class MatchAndCopy<X> extends BaseMatcher<X> {
     private final List<X> matches = new LinkedList<X>();
     private Class<?> theClass;
     
-    public MatchAndCopy(Class<?> theClass) {
+    public MatchAndCopy(Class<? extends X> theClass) {
         this.theClass = theClass;
     }
     

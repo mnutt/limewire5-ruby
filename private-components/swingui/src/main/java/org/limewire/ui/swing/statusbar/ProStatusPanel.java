@@ -98,7 +98,7 @@ public class ProStatusPanel extends HyperlinkButton implements SettingListener, 
     
     /**
      * Add a new visibility condition, will probably result
-     *  in the panel being hidden
+     *  in the panel being hidden.
      */
     public void addCondition(InvisibilityCondition condition) {
         conditions.add(condition);
@@ -129,7 +129,7 @@ public class ProStatusPanel extends HyperlinkButton implements SettingListener, 
             SwingUiSettings.PRO_ADS.addSettingListener(this);
         }
         
-        // if not english or loading from props failed, load default
+        // if not English or loading from props failed, load default
         synchronized(labels) {
             if (labels.isEmpty()) {
                 updateLabels(DEFAULT_BANNER);
@@ -185,8 +185,6 @@ public class ProStatusPanel extends HyperlinkButton implements SettingListener, 
     }
     
     /**
-     * Returns the next <tt>LabelURLPair</tt> in the list.
-     *
      * @return the next <tt>LabelURLPair</tt> in the list
      */
     private LabelURLPair getNextLabelURLPair() {
@@ -209,7 +207,7 @@ public class ProStatusPanel extends HyperlinkButton implements SettingListener, 
      * page.
      */
     private void handleLinkClick() {
-        NativeLaunchUtils.openURL(application.getUniqueUrl(currentLabel.getURL()));
+        NativeLaunchUtils.openURL(application.addClientInfoToUrl(currentLabel.getURL()));
     }
     
     @Override
@@ -218,7 +216,7 @@ public class ProStatusPanel extends HyperlinkButton implements SettingListener, 
     }
         
     /**
-     * Private class for handling a change in the link/labal pair.
+     * Private class for handling a change in the link/label pair.
      */
     private class LabelTimerListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
@@ -274,7 +272,6 @@ public class ProStatusPanel extends HyperlinkButton implements SettingListener, 
         }
 
         /**
-         * Returns the url to link to.
          *
          * @return the url to link to
          */

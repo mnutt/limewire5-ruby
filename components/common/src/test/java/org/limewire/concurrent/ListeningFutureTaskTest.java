@@ -13,11 +13,16 @@ import junit.framework.Test;
 
 import org.limewire.listener.EventListener;
 import org.limewire.listener.SwingEDTEvent;
+import org.limewire.service.ErrorCallback;
+import org.limewire.service.ErrorCallbackStub;
+import org.limewire.service.ErrorService;
 import org.limewire.util.BaseTestCase;
 
 public class ListeningFutureTaskTest  extends BaseTestCase {
     
     protected ListeningExecutorService q;
+    protected ErrorCallback oldService;
+    protected ErrorCallbackStub serviceStub;
     
 
     public ListeningFutureTaskTest(String name) {
@@ -31,6 +36,22 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
     @Override
     protected void setUp() throws Exception {
         q = ExecutorsHelper.newProcessingQueue("PQ");
+        
+        oldService = ErrorService.getErrorCallback();
+        serviceStub = new ErrorCallbackStub();
+        ErrorService.setErrorCallback(serviceStub);
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        ErrorService.setErrorCallback(oldService);
+        if(serviceStub.getExceptionCount() != 0) {
+            if(serviceStub.getExceptionCount() == 1) {
+                fail("Test Had Exceptions", serviceStub.getException(0));
+            } else {
+                fail("Test had multiple exceptions, first one was: " + serviceStub.getException(0));
+            }
+        }
     }
     
     public void testListensBeforeCompletes() throws Exception {
@@ -76,6 +97,10 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         assertEquals("Boo!", ee.getCause().getMessage());
         
         assertEquals(runner.thread, listener.thread);
+        
+        assertEquals(1, serviceStub.getExceptionCount());
+        assertEquals(ee.getCause(), serviceStub.getException(0));
+        serviceStub.clear();
     }
     
     public void testListensBeforeCompletesCancelsWithoutRun() throws Exception {
@@ -122,6 +147,10 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         assertTrue(runner.interrupted);
         
         assertEquals(Thread.currentThread(), listener.thread); // from cancel thread.
+        
+        assertEquals(1, serviceStub.getExceptionCount());
+        assertEquals(RuntimeInterruptedException.class, serviceStub.getException(0).getClass());
+        serviceStub.clear();
     }
     
     public void testListensBeforeCompletesCancelsDuringRunWithoutAllowedCausesCancelToo() throws Exception {
@@ -180,6 +209,10 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         assertEquals("Boo!", ee.getCause().getMessage());
         
         assertEquals(Thread.currentThread(), listener.thread);
+        
+        assertEquals(1, serviceStub.getExceptionCount());
+        assertEquals(ee.getCause(), serviceStub.getException(0));
+        serviceStub.clear();
     }
     
     public void testListenAfterCompletesCancelsWithoutRun() throws Exception {
@@ -222,6 +255,10 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         assertTrue(runner.interrupted);
         
         assertEquals(Thread.currentThread(), listener.thread);
+        
+        assertEquals(1, serviceStub.getExceptionCount());
+        assertEquals(RuntimeInterruptedException.class, serviceStub.getException(0).getClass());
+        serviceStub.clear();
     }
     
     public void testListensAfterCompletesCancelsDuringRunWithoutAllowedCausesCancelToo() throws Exception {
@@ -296,6 +333,10 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         assertEquals("Boo!", ee.getCause().getMessage());
         
         assertEquals(dispatchThread(), listener.thread);
+        
+        assertEquals(1, serviceStub.getExceptionCount());
+        assertEquals(ee.getCause(), serviceStub.getException(0));
+        serviceStub.clear();
     }
     
     public void testAnnotatedListensBeforeCompletesCancelsWithoutRun() throws Exception {
@@ -346,6 +387,10 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         assertTrue(runner.interrupted);
         
         assertEquals(dispatchThread(), listener.thread); // from cancel thread.
+        
+        assertEquals(1, serviceStub.getExceptionCount());
+        assertEquals(RuntimeInterruptedException.class, serviceStub.getException(0).getClass());
+        serviceStub.clear();
     }
     
     public void testAnnotatedListensBeforeCompletesCancelsDuringRunWithoutAllowedCausesCancelToo() throws Exception {
@@ -412,6 +457,10 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         assertEquals("Boo!", ee.getCause().getMessage());
         
         assertEquals(dispatchThread(), listener.thread);
+        
+        assertEquals(1, serviceStub.getExceptionCount());
+        assertEquals(ee.getCause(), serviceStub.getException(0));
+        serviceStub.clear();
     }
     
     public void testAnnotatedListenAfterCompletesCancelsWithoutRun() throws Exception {
@@ -460,6 +509,10 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         assertTrue(runner.interrupted);
         
         assertEquals(dispatchThread(), listener.thread);
+        
+        assertEquals(1, serviceStub.getExceptionCount());
+        assertEquals(RuntimeInterruptedException.class, serviceStub.getException(0).getClass());
+        serviceStub.clear();
     }
     
     public void testAnnotatedListensAfterCompletesCancelsDuringRunWithoutAllowedCausesCancelToo() throws Exception {
@@ -531,6 +584,12 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
         }
     }
     
+    protected static class RuntimeInterruptedException extends RuntimeException {
+        public RuntimeInterruptedException(Throwable cause) {
+            super(cause);
+        }        
+    }
+    
     protected static class RunWaiter implements Runnable {
         protected CountDownLatch enter = new CountDownLatch(1);
         protected CountDownLatch latch = new CountDownLatch(1);
@@ -544,7 +603,7 @@ public class ListeningFutureTaskTest  extends BaseTestCase {
                 latch.await();
             } catch(InterruptedException ie) {
                 interrupted = true;
-                throw new RuntimeException(ie);
+                throw new RuntimeInterruptedException(ie);
             }
         }
     }

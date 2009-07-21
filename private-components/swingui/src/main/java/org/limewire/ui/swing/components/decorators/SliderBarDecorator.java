@@ -1,12 +1,12 @@
 package org.limewire.ui.swing.components.decorators;
 
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.components.LimeSliderBar;
 import org.limewire.ui.swing.painter.factories.SliderPainterFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@LazySingleton
 public class SliderBarDecorator {
 
     private final SliderPainterFactory painterFactory;

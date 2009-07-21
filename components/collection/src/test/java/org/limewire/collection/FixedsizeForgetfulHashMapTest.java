@@ -9,7 +9,7 @@ import junit.framework.Test;
 import org.limewire.util.BaseTestCase;
 
 /**
- * Unit tests for FixedsizeForgetfulHashMap
+ * Unit tests for <code>FixedsizeForgetfulHashMap</code>.
  */
 @SuppressWarnings("unchecked")
 public class FixedsizeForgetfulHashMapTest extends BaseTestCase {

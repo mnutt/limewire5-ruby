@@ -1,11 +1,13 @@
 package org.limewire.ui.swing.components;
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 /**
@@ -23,6 +25,12 @@ public class TabActionMap {
     
     /** A property in the main action that can indicate 'newness'. */
     public static final String NEW_HINT = "new.indicator";
+    
+    /**A placeholder indicating that a separator should be put in the menu */
+    public static final Action SEPARATOR = new AbstractAction(){
+        @Override
+        public void actionPerformed(ActionEvent e) {}        
+    }; 
     
     private final Action main;
     private final Action remove;

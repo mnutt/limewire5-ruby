@@ -8,7 +8,6 @@ public class LimeWireGnutellaStatisticsModule extends AbstractModule {
     protected void configure() {
         bind(OutOfBandStatistics.class).to(OutOfBandStatisticsImpl.class);
         bind(TcpBandwidthStatistics.class).to(TcpBandwidthStatisticsImpl.class);       
-        bind(UptimeStatTimer.class);;
+        bind(UptimeStatTimer.class);
     }
-
 }

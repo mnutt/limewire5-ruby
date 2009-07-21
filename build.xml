@@ -2,9 +2,14 @@
 <project name="limewire" default="compile" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <property name="limewire.home" location="${basedir}"/>
-    <property name="includes" value="components/*/build.xml, private-components/*/build.xml"/>	
-	<property name="cloverdb-excludes" value="private-components/mock-core/clover/*"/>
-	<property name="cloverdb-includes" value="components/*/clover/clover.db, private-components/*/clover/clover.db"/>
+    <property name="includes" value="*/*/build.xml"/>
+    
+	<property name="cloverdb-excludes" value="private-components/mock-core/clover/**"/>
+	<property name="cloverdb-includes" value="*/*/clover/clover.db"/>
+	
+    <property name="aggregate.jar-jarname" value="LimeWire.jar"/>
+    <property name="aggregate.jar-includes" value="*/*/dist/main/*.jar"/>
+    <property name="aggregate.jar-excludes" value="private-components/mock-core/**"/>
 	
     <import file="components/common/generic-multi-build.xml"/>
     

@@ -27,12 +27,12 @@ import java.security.MessageDigest;
  * algorithm, based on the sample C code published by Eli Biham on
  * http://www.cs.technion.ac.il/~biham/Reports/Tiger/
  * in its HTML reference Appendix.
- *
+ * <p>
  * It computes a 192-bit digest that is considered stronger, but faster to
  * compute than 160-bit SHA-1. Its input is a set of 64-bytes blocks.
  * The last block of a digested message must include a required padding byte
  * which must be 0x01, the remaining padding bytes must be set to 0x00.
- *
+ * <p>
  * May be in the future, this class will be part of the standard JCE (Java
  * Cryptography Environment) included in Java 1.5, code named... Tiger!
  * For now Java 1.4, code named Merlin, does not have this digest
@@ -87,10 +87,10 @@ public final class Tiger extends MessageDigest implements Cloneable {
 
     /**
      * Returns the digest length in bytes.
-     *
+     * <p>
      * Can be used to allocate your own output buffer when
      * computing multiple digests.
-     *
+     * <p>
      * Overrides the protected abstract method of
      * java.security.MessageDigestSpi.
      * @return the digest length in bytes.
@@ -102,7 +102,7 @@ public final class Tiger extends MessageDigest implements Cloneable {
 
     /**
      * Reset then initialize the digest context.
-     *
+     * <p>
      * Overrides the protected abstract method of
      * <code>java.security.MessageDigestSpi</code>.
      */
@@ -132,10 +132,10 @@ public final class Tiger extends MessageDigest implements Cloneable {
     /**
      * Updates the digest using the specified byte.
      * Requires internal buffering, and may be slow.
-     *
+     * <p>
      * Overrides the protected abstract method of
      * java.security.MessageDigestSpi.
-     * @param input  the byte to use for the update.
+     * @param input the byte to use for the update.
      */
     @Override
     public void engineUpdate(byte input) {
@@ -152,15 +152,15 @@ public final class Tiger extends MessageDigest implements Cloneable {
     /**
      * Updates the digest using the specified array of bytes,
      * starting at the specified offset.
-     *
+     * <p>
      * Input length can be any size. May require internal buffering,
      * if input blocks are not multiple of 64 bytes.
-     *
+     * <p>
      * Overrides the protected abstract method of
      * java.security.MessageDigestSpi.
-     * @param input  the array of bytes to use for the update.
-     * @param offset  the offset to start from in the array of bytes.
-     * @param length  the number of bytes to use, starting at offset.
+     * @param input the array of bytes to use for the update.
+     * @param offset the offset to start from in the array of bytes.
+     * @param len the number of bytes to use, starting at offset.
      */
     @Override
     public void engineUpdate(byte[] input, int offset, int len) {
@@ -210,7 +210,7 @@ public final class Tiger extends MessageDigest implements Cloneable {
      * value as a byte[24] array. Once engineDigest has been called,
      * the engine will be automatically reset as specified in the
      * JavaSecurity MessageDigest specification.
-     *
+     * <p>
      * For faster operations with multiple digests, allocate your own
      * array and use engineDigest(byte[], int offset, int len).
      *     * Overrides the protected abstract method of
@@ -232,7 +232,7 @@ public final class Tiger extends MessageDigest implements Cloneable {
      * Completes the hash computation by performing final operations
      * such as padding. Once engineDigest has been called, the engine
      * will be automatically reset (see engineReset).
-     *
+     * <p>
      * Overrides the protected abstract method of
      * java.security.MessageDigestSpi.
      * @param hashvalue  the output buffer in which to store the digest.
@@ -353,12 +353,12 @@ public final class Tiger extends MessageDigest implements Cloneable {
      * Updates the digest using the specified array of bytes,
      * starting at the specified offset, but an implied length
      * of exactly 64 bytes.
-     *
+     * <p>
      * Requires no internal buffering, but assumes a fixed input size,
      * in which the required padding bytes may have been added.
-     *
-     * @param input  the array of bytes to use for the update.
-     * @param offset  the offset to start from in the array of bytes.
+     * <p>
+     * @param input the array of bytes to use for the update.
+     * @param offset the offset to start from in the array of bytes.
      */
     private void computeBlock(final byte[] input, int offset) {
         /* Local temporary work variables for intermediate digests. */

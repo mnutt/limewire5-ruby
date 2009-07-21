@@ -25,7 +25,7 @@ import com.limegroup.gnutella.messages.vendor.ContentRequest;
 import com.limegroup.gnutella.messages.vendor.ContentResponse;
 
 /**
- * Keeps track of content requests & responses.
+ * Keeps track of content requests and responses.
  */
 @Singleton
 public class ContentManager implements Service {
@@ -70,7 +70,7 @@ public class ContentManager implements Service {
     /** The content authority. */
     private volatile ContentAuthority authority = null;
     
-    /** Wehther or not we're shutting down. */
+    /** Whether or not we're shutting down. */
     private volatile boolean shutdown = false;
 
     private final IpPortContentAuthorityFactory ipPortContentAuthorityFactory;
@@ -128,10 +128,6 @@ public class ContentManager implements Service {
     
     /**
      * Determines if the given URN is valid.
-     * 
-     * @param urn
-     * @param observer
-     * @param timeout
      */
     public void request(URN urn, ContentResponseObserver observer, long timeout) {
         ContentResponseData response = CACHE.getResponse(urn);
@@ -175,10 +171,6 @@ public class ContentManager implements Service {
     
     /**
      * Schedules a request for the given URN, timing out in the given timeout.
-     * 
-     * @param urn
-     * @param observer
-     * @param timeout
      */
     protected void scheduleRequest(URN urn, ContentResponseObserver observer, long timeout) {
         long now = System.currentTimeMillis();
@@ -248,8 +240,6 @@ public class ContentManager implements Service {
     /**
      * Adds a given responder into the list of responders that need to be told
      * when a response comes in.
-     * 
-     * @param responder
      */
     protected void addResponder(Responder responder) {
         synchronized(OBSERVERS) {

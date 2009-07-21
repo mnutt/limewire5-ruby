@@ -41,7 +41,7 @@ public class MessageTextImpl extends AbstractMessageImpl implements MessageText 
 
     @Override
     public String format() {
-        return insertBreaksAddAnchorsTags(message.replace("<", "&lt;").replace(">", "&gt;"));
+        return insertBreaksAddAnchorsTags(this.message.replace("<", "&lt;").replace(">", "&gt;"));
     }
 
     /**

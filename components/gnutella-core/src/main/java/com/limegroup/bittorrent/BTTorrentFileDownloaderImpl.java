@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.http.HttpResponse;
@@ -17,7 +18,10 @@ import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.bittorrent.BTData;
+import org.limewire.bittorrent.BTDataImpl;
+import org.limewire.bittorrent.bencoding.Token;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.io.Address;
@@ -32,10 +36,8 @@ import org.limewire.util.FileUtils;
 import org.limewire.util.Objects;
 
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
-import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
@@ -49,7 +51,7 @@ import com.limegroup.gnutella.util.LimeWireUtils;
 
 public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implements
         BTTorrentFileDownloader, EventListener<DownloadStateEvent> {
-    
+
     private static Log LOG = LogFactory.getLog(BTTorrentFileDownloaderImpl.class);
 
     private static final int TIMEOUT = 5000;
@@ -58,17 +60,14 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
 
     private final HttpExecutor httpExecutor;
 
-    private final TorrentManager torrentManager;
-
-    private final BTMetaInfoFactory btMetaInfoFactory;
-
     private final EventListenerList<DownloadStateEvent> eventListenerList;
 
     private DownloadState downloadStatus = DownloadState.QUEUED;
 
-    private BTMetaInfo btMetaInfo = null;
+    private File torrentFile = null;
 
     private final File incompleteTorrentFile;
+
     /**
      * Something to shutdown if the user cancels the fetching
      */
@@ -78,20 +77,20 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
 
     @Inject
     public BTTorrentFileDownloaderImpl(DownloadManager downloadManager,
-            @Assisted SaveLocationManager saveLocationManager, HttpExecutor httpExecutor,
-            TorrentManager torrentManager, BTMetaInfoFactory btMetaInfoFactory,
+            SaveLocationManager saveLocationManager, HttpExecutor httpExecutor,
             ActivityCallback activityCallback) {
         super(saveLocationManager);
         this.downloadManager = Objects.nonNull(downloadManager, "downloadManager");
         this.httpExecutor = Objects.nonNull(httpExecutor, "httpExecutor");
-        this.torrentManager = Objects.nonNull(torrentManager, "torrentManager");
-        this.btMetaInfoFactory = Objects.nonNull(btMetaInfoFactory, "btMetaInfoFactory");
+
         this.eventListenerList = new EventListenerList<DownloadStateEvent>();
-        this.incompleteTorrentFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.get(), UUID.randomUUID().toString() + ".torrent");
+        this.incompleteTorrentFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.get(), UUID
+                .randomUUID().toString()
+                + ".torrent");
         addListener(this);
     }
 
-    public void fetch() {
+    private void fetch() {
         final HttpGet get = new HttpGet(torrentURI);
         get.addHeader("User-Agent", LimeWireUtils.getHttpServer());
         get.addHeader(HTTPHeaderName.CONNECTION.httpStringValue(), "close");
@@ -103,12 +102,12 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         aborter = httpExecutor.execute(get, params, this);
     }
 
+    @Override
     public boolean requestComplete(HttpUriRequest method, HttpResponse response) {
         aborter = null;
         if (downloadStatus == DownloadState.ABORTED) {
             return false;
         }
-        BTMetaInfo m = null;
         InputStream torrentDownloadStream = null;
         FileOutputStream torrentOutputStream = null;
         FileInputStream torrentInputStream = null;
@@ -118,44 +117,49 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
                 throw new IOException("bad status code, downloading .torrent file "
                         + response.getStatusLine().getStatusCode());
             }
-            
+
             if (response.getEntity() != null) {
                 torrentDownloadStream = response.getEntity().getContent();
                 torrentOutputStream = new FileOutputStream(incompleteTorrentFile);
                 FileUtils.write(torrentDownloadStream, torrentOutputStream);
                 torrentInputStream = new FileInputStream(incompleteTorrentFile);
                 torrentOutputStream.close();
-                m = btMetaInfoFactory.createBTMetaInfoFromBytes(torrentInputStream.getChannel());
-                
-                if (m == null) {
-                    downloadStatus = DownloadState.INVALID;
-                    return false;
-                }
+                Map<?, ?> torrentFileMap = (Map<?, ?>) Token.parse(torrentInputStream.getChannel());
+                BTData btData = new BTDataImpl(torrentFileMap);
 
-                torrentManager.shareTorrentFile(m, incompleteTorrentFile);
                 downloadStatus = DownloadState.COMPLETE;
-                this.btMetaInfo = m;
-            }
-            else {
+
+                // The torrent file is copied into the incomplete file
+                // directory.
+                torrentFile = new File(SharingSettings.INCOMPLETE_DIRECTORY.get(), btData.getName()
+                        + ".torrent");
+                if (torrentFile.exists()) {
+                    // pass through, when trying to start the BTDownloader a
+                    // savelocation exception will occur
+                } else {
+                    FileUtils.forceRename(incompleteTorrentFile, torrentFile);
+                }
+            } else {
                 throw new IOException("invalid response");
             }
         } catch (IOException iox) {
             downloadStatus = DownloadState.INVALID;
-            if(LOG.isErrorEnabled()) {
+            if (LOG.isErrorEnabled()) {
                 LOG.error("Error downloading torrent: " + torrentURI, iox);
             }
         } finally {
             IOUtils.close(torrentInputStream);
             IOUtils.close(torrentDownloadStream);
             IOUtils.close(torrentOutputStream);
-            FileUtils.forceDelete(incompleteTorrentFile);
             httpExecutor.releaseResources(response);
+            deleteIncompleteFiles();
         }
-        
-        eventListenerList.broadcast(new DownloadStateEvent(this, DownloadState.COMPLETE));
+
+        eventListenerList.broadcast(new DownloadStateEvent(this, downloadStatus));
         return false;
     }
 
+    @Override
     public boolean requestFailed(HttpUriRequest method, HttpResponse response, IOException exc) {
         downloadStatus = DownloadState.INVALID;
         downloadManager.remove(this, true);
@@ -163,95 +167,107 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
         return false;
     }
 
+    @Override
     public void discardCorruptDownload(boolean delete) {
     }
 
+    @Override
     public long getAmountLost() {
         return 0;
     }
 
+    @Override
     public int getAmountPending() {
         return 0;
     }
 
+    @Override
     public long getAmountRead() {
         return 0;
     }
 
+    @Override
     public long getAmountVerified() {
         return 0;
     }
 
-    public RemoteFileDesc getBrowseEnabledHost() {
-        return null;
+    @Override
+    public List<RemoteFileDesc> getRemoteFileDescs() {
+        return Collections.emptyList();
     }
 
+    @Override
     public int getBusyHostCount() {
         return 0;
     }
 
-    public Endpoint getChatEnabledHost() {
-        return null;
-    }
-
+    @Override
     public int getChunkSize() {
         return 1;
     }
 
+    @Override
     public long getContentLength() {
         return 0;
     }
 
+    @Override
     public File getDownloadFragment() {
         return null;
     }
 
+    @Override
     public File getFile() {
         return getSaveFile();
     }
 
+    @Override
     public int getNumHosts() {
         return 0;
     }
-    
+
     @Override
     public List<Address> getSourcesAsAddresses() {
         return Collections.emptyList();
     }
 
+    @Override
     public int getNumberOfAlternateLocations() {
         return 0;
     }
 
+    @Override
     public int getNumberOfInvalidAlternateLocations() {
         return 0;
     }
 
+    @Override
     public int getPossibleHostCount() {
         return 0;
     }
 
+    @Override
     public int getQueuePosition() {
         return 0;
     }
 
+    @Override
     public int getQueuedHostCount() {
         return 0;
     }
 
+    @Override
     public int getRemainingStateTime() {
         return 0;
     }
 
+    @Override
     public URN getSha1Urn() {
         return null;
     }
 
     @Override
     public File getSaveFile() {
-        // TODO revamp to make better file names
-
-        // try to get a meaningful name out of the URI
         String uri = torrentURI.toString();
         String name = null;
         if (uri.endsWith(".torrent")) {
@@ -269,109 +285,124 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
 
     @Override
     public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
-            throws SaveLocationException {
+            throws DownloadException {
     }
 
+    @Override
     public DownloadState getState() {
         return downloadStatus;
     }
 
+    @Override
     public String getVendor() {
         return null;
     }
 
-    public boolean hasBrowseEnabledHost() {
-        return false;
-    }
-
-    public boolean hasChatEnabledHost() {
-        return false;
-    }
-
+    @Override
     public boolean isCompleted() {
         return downloadStatus == DownloadState.COMPLETE;
     }
 
+    @Override
     public boolean isInactive() {
         return false;
     }
 
+    @Override
     public boolean isLaunchable() {
         return false;
     }
 
+    @Override
     public boolean isPausable() {
         return false;
     }
 
+    @Override
     public boolean isPaused() {
         return false;
     }
 
+    @Override
     public boolean isRelocatable() {
         return false;
     }
 
+    @Override
     public boolean isResumable() {
         return false;
     }
 
+    @Override
     public void pause() {
 
     }
 
+    @Override
     public boolean resume() {
         return false;
     }
 
+    @Override
     public void stop() {
         finish();
         downloadManager.remove(this, true);
     }
 
+    @Override
     public float getAverageBandwidth() {
         return 0;
     }
 
+    @Override
     public float getMeasuredBandwidth() throws InsufficientDataException {
         return 0;
     }
 
+    @Override
     public void measureBandwidth() {
     }
 
+    @Override
     public int getTriedHostCount() {
         return -1;
     }
 
+    @Override
     public String getCustomIconDescriptor() {
         return null;
     }
 
+    @Override
     public void finish() {
         downloadStatus = DownloadState.ABORTED;
         if (aborter != null) {
             aborter.shutdown();
             aborter = null;
-        }    
+        }
     }
 
+    @Override
     public GUID getQueryGUID() {
         return null;
     }
 
+    @Override
     public void handleInactivity() {
 
     }
 
+    @Override
     public void initialize() {
 
     }
 
+    @Override
     public boolean isAlive() {
         return false;
     }
 
+    @Override
     public boolean isQueuable() {
         return false;
     }
@@ -381,26 +412,33 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
 
     }
 
+    @Override
     public boolean shouldBeRemoved() {
-        return isCompleted() || downloadStatus == DownloadState.ABORTED || downloadStatus == DownloadState.INVALID;
+        return isCompleted() || downloadStatus == DownloadState.ABORTED
+                || downloadStatus == DownloadState.INVALID;
     }
 
+    @Override
     public boolean shouldBeRestarted() {
         return downloadStatus == DownloadState.QUEUED;
     }
 
+    @Override
     public void startDownload() {
         fetch();
     }
 
+    @Override
     public DownloaderType getDownloadType() {
         return DownloaderType.TORRENTFETCHER;
     }
 
+    @Override
     public void addListener(EventListener<DownloadStateEvent> listener) {
         eventListenerList.addListener(listener);
     }
 
+    @Override
     public boolean removeListener(EventListener<DownloadStateEvent> listener) {
         return eventListenerList.removeListener(listener);
     }
@@ -418,11 +456,6 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
     @Override
     public void initDownloadInformation(URI torrentURI, boolean overwrite) {
         this.torrentURI = torrentURI;
-    }
-
-    @Override
-    public BTMetaInfo getBtMetaInfo() {
-        return btMetaInfo;
     }
 
     @Override
@@ -455,5 +488,10 @@ public class BTTorrentFileDownloaderImpl extends AbstractCoreDownloader implemen
     @Override
     public void deleteIncompleteFiles() {
         FileUtils.forceDelete(incompleteTorrentFile);
+    }
+
+    @Override
+    public File getTorrentFile() {
+        return torrentFile;
     }
 }

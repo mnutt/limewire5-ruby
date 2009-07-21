@@ -5,21 +5,22 @@ import java.awt.Dimension;
 import java.awt.Font;
 
 import org.jdesktop.application.Resource;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.components.HeaderBar;
 import org.limewire.ui.swing.painter.factories.BarPainterFactory;
 import org.limewire.ui.swing.util.GuiUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
 /**
  * A singleton decorator class that sets both the l&f
  *  and sizing properties for header bars. 
  */
-@Singleton
+@LazySingleton
 public class HeaderBarDecorator {
 
-    private final BarPainterFactory painterFactory;
+    private final Provider<BarPainterFactory> painterFactory;
     
     @Resource private int height;
     @Resource private Font headingFont;
@@ -40,7 +41,7 @@ public class HeaderBarDecorator {
     @Resource private int defaultComponentHeight;
     
     @Inject
-    HeaderBarDecorator(BarPainterFactory painterFactory) {
+    HeaderBarDecorator(Provider<BarPainterFactory> painterFactory) {
         GuiUtils.assignResources(this);
         
         this.painterFactory = painterFactory;
@@ -49,14 +50,14 @@ public class HeaderBarDecorator {
     public void decorateBasic(HeaderBar bar) {
         decorateCommon(bar);
         
-        bar.setBackgroundPainter(painterFactory.createHeaderBarPainter());
+        bar.setBackgroundPainter(painterFactory.get().createHeaderBarPainter());
         bar.setForeground(basicForeground);
     }
     
     public void decorateSpecial(HeaderBar bar) {
         decorateCommon(bar);
         
-        bar.setBackgroundPainter(painterFactory.createSpecialHeaderBarPainter());
+        bar.setBackgroundPainter(painterFactory.get().createSpecialHeaderBarPainter());
         bar.setForeground(specialForeground);
     }
     

@@ -563,14 +563,14 @@ public class BitSet implements Cloneable, java.io.Serializable {
      * Returns the index of the first bit that is set to <code>true</code>
      * that occurs on or after the specified starting index. If no such
      * bit exists then -1 is returned.
-     *
+     *<p>
      * To iterate over the <code>true</code> bits in a <code>BitSet</code>,
      * use the following loop:
-     *
+     *<pre>
      * for(int i=bs.nextSetBit(0); i>=0; i=bs.nextSetBit(i+1)) {
      *     // operate on index i here
      * }
-     * 
+     * </pre>
      * @param   fromIndex the index to start checking from (inclusive).
      * @return  the index of the next set bit.
      * @throws  IndexOutOfBoundsException if the specified index is negative.
@@ -709,7 +709,7 @@ public class BitSet implements Cloneable, java.io.Serializable {
     }
 
     /**
-     * bitLen(val) is the number of bits in val.
+     * The number of bits in <code>w</code>.
      */
     private static int bitLen(int w) {
         // Binary search - decision tree (5 tests, rarely 6)
@@ -799,7 +799,7 @@ public class BitSet implements Cloneable, java.io.Serializable {
     }
 
     /**
-     * Returns the number of bits set in val.
+     * Returns the number of bits set in <code>val</code>.
      * For a derivation of this algorithm, see
      * "Algorithms and data structures with applications to 
      *  graphics and geometry", by Jurg Nievergelt and Klaus Hinrichs,

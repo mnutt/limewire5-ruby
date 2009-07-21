@@ -1,17 +1,11 @@
 package org.limewire.ui.swing.wizard;
 
-import java.awt.event.ActionEvent;
-
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ContentSettings;
-import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.components.HyperlinkButton;
-import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.settings.StartupSettings;
 import org.limewire.ui.swing.settings.SwingUiSettings;
@@ -19,127 +13,118 @@ import org.limewire.ui.swing.shell.LimeAssociationOption;
 import org.limewire.ui.swing.shell.LimeAssociations;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.MacOSXUtils;
-import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.WindowsUtils;
 import org.limewire.util.OSUtils;
 
 public class SetupPage1 extends WizardPage {
 
-    private String titleLine = I18n.tr("Please take a minute to configure these options before moving on.");
-    
-    private String filterTitle = I18n.tr("Content Filters");
-    
-    private String filterCheckText = I18n.tr("Don't let me download or upload files copyright owners request not be shared.");
-    private JCheckBox filterCheck;
-
-    private String associationsAndStartupTitle = I18n.tr("File Associations and Startup");
-    private String associationsText = I18n.tr("Associate .magnet and .torrent files with LimeWire");    
-    private String startupText = I18n.tr("Launch LimeWire at Startup");
-    
-    private JCheckBox associationCheck;
-    private JCheckBox startupCheck;    
+    private final JCheckBox associationFileTypeCheckBox;
+    private final JCheckBox launchAtStartupCheckBox;    
+    private final JCheckBox shareUsageDataCheckBox;
+    private final JCheckBox contentFilterCheckBox;
     
     public SetupPage1(SetupComponentDecorator decorator){
-
+        super(decorator);
+        
         setOpaque(false);
-        setLayout(new MigLayout("insets 0, gap 0, nogrid"));
-        
-        HyperlinkButton learnMoreButton = new HyperlinkButton(new AbstractAction(I18n.tr("Learn more")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                NativeLaunchUtils.openURL("http://filtered.limewire.com/learnmore/contentFiltering");
-            }
-        });
-        decorator.decorateNormalText(learnMoreButton);
-        decorator.decorateLink(learnMoreButton);
-        
-        filterCheck = new JCheckBox();
-        decorator.decorateLargeCheckBox(filterCheck);
-        
-        associationCheck = new JCheckBox();
-        associationCheck.setSelected(true);
-        decorator.decorateLargeCheckBox(associationCheck);
+        setLayout(new MigLayout("insets 0 14 0 0, gap 0"));       
+   
+        associationFileTypeCheckBox = createAndDecorateCheckBox(true);
+        launchAtStartupCheckBox = createAndDecorateCheckBox(true);
+        shareUsageDataCheckBox = createAndDecorateCheckBox(true);
+        contentFilterCheckBox = createAndDecorateCheckBox(false);  
 
-        startupCheck = new JCheckBox();  
-        decorator.decorateLargeCheckBox(startupCheck);
-        decorator.decorateNormalText(startupCheck);
+        //File Associations
+        addFileAssociations();        
+        //Improving LimeWire Opt-out
+        addImproving();
+        //Content Filters
+        addContentFilters();
         
-        JLabel label;
-        
-        label = new JLabel(filterTitle);
-        decorator.decorateHeadingText(label);
-        
-        add(label, "gaptop 15, gapleft 14, wrap");
-        
-        add(filterCheck, "gaptop 10, gapleft 40");
-        label = new MultiLineLabel(filterCheckText, 500);
-        label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(filterCheck));
-        decorator.decorateNormalText(label);       
-        JPanel textAndLinkCell = new JPanel(new MigLayout("flowy, gap 2, insets 0, fill"));
-        textAndLinkCell.add(label);
-        textAndLinkCell.add(learnMoreButton);
-        add(textAndLinkCell, "gaptop 28, gapleft 5, wrap");
-        
+        initSettings();
+    }
+    
+    /**
+     * Adds header for file association and any appropriate checkboxes and text
+     */
+    private void addFileAssociations() {
         if (LimeAssociations.isMagnetAssociationSupported() 
-               || LimeAssociations.isTorrentAssociationSupported()
-               || shouldShowStartOnStartupWindow()) {
-            label = new JLabel(associationsAndStartupTitle);
-            decorator.decorateHeadingText(label);
-            add(label, "gaptop 30, gapleft 14, wrap");
+                || LimeAssociations.isTorrentAssociationSupported()
+                || shouldShowStartOnStartupWindow()) {
+             add(createAndDecorateHeader(I18n.tr("File Associations and Startup")), "gaptop 20, span, wrap");
+
+             if (LimeAssociations.isMagnetAssociationSupported() 
+                     || LimeAssociations.isTorrentAssociationSupported()) {
+                 add(associationFileTypeCheckBox, "gaptop 5, gapleft 26");
+                 add(createAndDecorateMultiLine(I18n.tr("Associate .magnet and .torrent files with LimeWire"), associationFileTypeCheckBox), "gaptop 5, gapleft 5, wrap");
+             }
+             
+             if (shouldShowStartOnStartupWindow()) {
+                 add(launchAtStartupCheckBox, "gaptop 5, gapleft 26");
+                 add(createAndDecorateMultiLine(I18n.tr("Launch LimeWire at system startup"), launchAtStartupCheckBox), "gaptop 5, gapleft 5, wrap");
+             }
         }
-        
-        if (LimeAssociations.isMagnetAssociationSupported() 
-                || LimeAssociations.isTorrentAssociationSupported()) {
-            add(associationCheck, "gaptop 10, gapleft 40");
-            label = new MultiLineLabel(associationsText, 500);
-            label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(associationCheck));
-            decorator.decorateNormalText(label);       
-            add(label, "gaptop 9, gapleft 5, wrap");
-        }
-        
-        if (shouldShowStartOnStartupWindow()) {
-            startupCheck.setSelected(true);
-            add(startupCheck, "gaptop 10, gapleft 40");
-            label = new MultiLineLabel(startupText, 500);
-            label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(startupCheck));
-            decorator.decorateNormalText(label);       
-            add(label, "gaptop 9, gapleft 5, wrap");
-        }
-        
+    }
+    
+    /**
+     * Adds header for Anonymous Data collection, checkbox, and associated text
+     */
+    private void addImproving() {
+        //TODO: re-enable this code once the setting does something
+        /*
+        add(createAndDecorateHeader(I18n.tr("Improve LimeWire")), "gaptop 20, span, wrap");
+        add(shareUsageDataCheckBox, "gaptop 5, gapleft 26");
+        add(createAndDecorateMultiLine(I18n.tr("Help improve LimeWire by sending us anonymous usage data"), shareUsageDataCheckBox), "gapleft 5, gaptop 5");
+        add(createAndDecorateHyperlink("http://www.limewire.com/client_redirect/?page=anonymousDataCollection"), "gapleft 10, wrap");
+        */
+    }
+    
+    /**
+     * Adds header for Copyrighted content filtering, checkbox, and associated text
+     */
+    private void addContentFilters() {
+        add(createAndDecorateHeader(I18n.tr("Content Filters")), "gaptop 20, span, wrap");
+        add(contentFilterCheckBox, "gaptop 5, gapleft 26");
+        add(createAndDecorateMultiLine(I18n.tr("Don't let me download or upload files copyright owners request not be shared"), contentFilterCheckBox), "gapleft 5, gaptop 5");
+        add(createAndDecorateHyperlink("http://www.limewire.com/client_redirect/?page=contentFiltering"), "gapleft 10, wrap");
+    }
+    
+    private void initSettings() {
+        associationFileTypeCheckBox.setSelected(SwingUiSettings.HANDLE_MAGNETS.getValue());
+        launchAtStartupCheckBox.setSelected(StartupSettings.RUN_ON_STARTUP.getValue());
+        shareUsageDataCheckBox.setSelected(ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue());
+        contentFilterCheckBox.setSelected(ContentSettings.USER_WANTS_MANAGEMENTS.getValue());  
     }
 
     @Override
     public String getLine1() {
-        return titleLine;
+        return I18n.tr("Please take a minute to configure these options before moving on.");
     }
     
     @Override
     public String getLine2() {
-        return null;
-    }
-    
-    @Override
-    public String getFooter() {
         return "";
     }
     
     @Override
+    public String getFooter() {
+        return OSUtils.isMacOSX() ? I18n.tr("All settings can be changed later from LimeWire > Preferences") :
+            I18n.tr("All settings can be changed later in Tools > Options");
+    }
+    
+    @Override
     public void applySettings() {
-        // filter settings
-        ContentSettings.CONTENT_MANAGEMENT_ACTIVE.setValue(filterCheck.isSelected());
-        ContentSettings.USER_WANTS_MANAGEMENTS.setValue(filterCheck.isSelected());
-        InstallSettings.FILTER_OPTION.setValue(true);
-
-        SwingUiSettings.HANDLE_MAGNETS.setValue(associationCheck.isSelected());
+        // File Associations
+        SwingUiSettings.HANDLE_MAGNETS.setValue(associationFileTypeCheckBox.isSelected());
         LimeAssociationOption magnetAssociationOption = LimeAssociations.getMagnetAssociation();
         if (magnetAssociationOption != null) {
-            magnetAssociationOption.setEnabled(associationCheck.isSelected());
+            magnetAssociationOption.setEnabled(associationFileTypeCheckBox.isSelected());
         }
 
-        SwingUiSettings.HANDLE_TORRENTS.setValue(associationCheck.isSelected());
+        SwingUiSettings.HANDLE_TORRENTS.setValue(associationFileTypeCheckBox.isSelected());
         LimeAssociationOption torrentAssociationOption = LimeAssociations.getTorrentAssociation();
         if (torrentAssociationOption != null) {
-            torrentAssociationOption.setEnabled(associationCheck.isSelected());
+            torrentAssociationOption.setEnabled(associationFileTypeCheckBox.isSelected());
         }
 
         InstallSettings.ASSOCIATION_OPTION.setValue(2);
@@ -147,14 +132,25 @@ public class SetupPage1 extends WizardPage {
         // launch at startup
         if (shouldShowStartOnStartupWindow()) {
             if (OSUtils.isMacOSX())
-                MacOSXUtils.setLoginStatus(startupCheck.isSelected());
+                MacOSXUtils.setLoginStatus(launchAtStartupCheckBox.isSelected());
             else if (WindowsUtils.isLoginStatusAvailable())
-                WindowsUtils.setLoginStatus(startupCheck.isSelected());
+                WindowsUtils.setLoginStatus(launchAtStartupCheckBox.isSelected());
 
-            StartupSettings.RUN_ON_STARTUP.setValue(startupCheck.isSelected());
+            StartupSettings.RUN_ON_STARTUP.setValue(launchAtStartupCheckBox.isSelected());
         } else
             StartupSettings.RUN_ON_STARTUP.setValue(false);
         InstallSettings.START_STARTUP.setValue(true);
+        
+        //TODO: re-enable this code once the setting does something
+        /*
+        //Anonymous Usage statics
+        ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.setValue(shareUsageDataCheckBox.isSelected());
+        InstallSettings.ANONYMOUS_DATA_COLLECTION.setValue(true);
+        */
+        
+        //Content Filters
+        ContentSettings.USER_WANTS_MANAGEMENTS.setValue(contentFilterCheckBox.isSelected());
+        InstallSettings.FILTER_OPTION.setValue(true);
     }
     
     /**

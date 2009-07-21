@@ -29,6 +29,7 @@ import org.limewire.util.ByteUtils;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.DownloadManager;
@@ -48,11 +49,13 @@ import com.limegroup.gnutella.downloader.PingRanker;
 import com.limegroup.gnutella.downloader.RemoteFileDescContext;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.helpers.UrnHelper;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDescStub;
-import com.limegroup.gnutella.library.FileManager;
-import com.limegroup.gnutella.library.FileManagerStub;
-import com.limegroup.gnutella.library.GnutellaFileListStub;
+import com.limegroup.gnutella.library.GnutellaFileCollectionStub;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.IncompleteFileCollection;
 import com.limegroup.gnutella.library.IncompleteFileDescStub;
+import com.limegroup.gnutella.library.LibraryStubModule;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.stubs.ConnectionManagerStub;
@@ -85,14 +88,16 @@ public class HeadTest extends LimeTestCase {
     
     private RemoteFileDescContext blankRFD;
 	
-    private HeadPongFactory headPongFactory;
+    @Inject private HeadPongFactory headPongFactory;
 	
-    private Injector injector;
+    @Inject private Injector injector;
     
     private Mockery mockery;
-    private DownloadManager downloadManager;
+    @Inject private DownloadManager downloadManager;
     
-    private RemoteFileDescFactory remoteFileDescFactory;
+    @Inject private RemoteFileDescFactory remoteFileDescFactory;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
+    @Inject private IncompleteFileCollection incompleteFileCollection;
     
 	public HeadTest(String name) {
 		super(name);
@@ -117,13 +122,9 @@ public class HeadTest extends LimeTestCase {
                 bind(ConnectionManager.class).to(ConnectionManagerStub.class);
                 bind(NetworkManager.class).to(NetworkManagerStub.class);
                 bind(UploadManager.class).to(UploadManagerStub.class);
-                bind(FileManager.class).to(FileManagerStub.class);
                 bind(DownloadManager.class).toInstance(downloadManager);
             }
-	    });
-	    
-	    headPongFactory = injector.getInstance(HeadPongFactory.class);
-	    remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
+	    }, new LibraryStubModule(), LimeTestUtils.createModule(this));
 	    
 	    NetworkManagerStub networkManager = (NetworkManagerStub)injector.getInstance(NetworkManager.class);
 	    networkManager.setAcceptedIncomingConnection(true);
@@ -170,7 +171,7 @@ public class HeadTest extends LimeTestCase {
         _rangesOnlyLarge = new IntervalSet();
         _rangesOnlyLarge.add(Range.createRange(0xFFFFFF00l, 0xFFFFFFFFFFl));
 		
-        _notHave =      GnutellaFileListStub.DEFAULT_URN;
+        _notHave =      GnutellaFileCollectionStub.DEFAULT_URN;
 		_haveFull =     URN.createSHA1Urn("urn:sha1:PLSTHIPQGSSZTS5FJUPAKUZWUGYQYPFE");
 		_havePartial =  URN.createSHA1Urn("urn:sha1:PLSTHIPQGSSZTS5FJUPAKUZWUGYQYPFD");
         _tlsURN =       URN.createSHA1Urn("urn:sha1:PLSTHIPQGSSZTS5FJUPAKUZWUGYQYTLS");
@@ -187,15 +188,14 @@ public class HeadTest extends LimeTestCase {
         _partialLarge.setRangesByte(_rangesLarge.toBytes());
 
         FileDescStub complete = new FileDescStub("complete", _haveFull, 2);        
-        FileManagerStub fileManager = (FileManagerStub)injector.getInstance(FileManager.class);
-        fileManager.getGnutellaFileList().add(complete);
-        fileManager.getGnutellaFileList().add(new FileDescStub("test", _tlsURN, 100));
-        fileManager.getIncompleteFileList().add(_partial);
-        fileManager.getIncompleteFileList().add(_partialLarge);
+        gnutellaFileCollection.add(complete);
+        gnutellaFileCollection.add(new FileDescStub("test", _tlsURN, 100));
+        incompleteFileCollection.add(_partial);
+        incompleteFileCollection.add(_partialLarge);
         
-        assertEquals(_partial,fileManager.getIncompleteFileList().getFileDesc(_havePartial));
-        assertEquals(_partialLarge,fileManager.getIncompleteFileList().getFileDesc(_largeURN));
-        assertEquals(complete,fileManager.getGnutellaFileList().getFileDesc(_haveFull));
+        assertEquals(_partial,incompleteFileCollection.getFileDesc(_havePartial));
+        assertEquals(_partialLarge,incompleteFileCollection.getFileDesc(_largeURN));
+        assertEquals(complete,gnutellaFileCollection.getFileDesc(_haveFull));
         
         
         blankRFD = new RemoteFileDescContext(remoteFileDescFactory.createRemoteFileDesc(new ConnectableImpl("1.1.1.1", 1, false), 1, "file", 1, new byte[16], 1, -1,

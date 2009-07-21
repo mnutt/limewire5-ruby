@@ -38,8 +38,6 @@ public class SpamManagerTest extends LimeTestCase {
     private static final String addr2 = "2.2.2.2";
     private static final String addr3 = "3.3.3.3";
     private static final String addr4 = "4.4.4.4";
-    private static final String blacklistAddress = "5.5.5.5";
-    private static final String blacklistRange = "5.*.*.*";
     
     /** ports */
     private static final int port1 = 1, port2 = 2, port3 = 3, port4 = 4;
@@ -82,10 +80,6 @@ public class SpamManagerTest extends LimeTestCase {
     protected void setUp() throws Exception {
         SearchSettings.ENABLE_SPAM_FILTER.setValue(true);
         SearchSettings.FILTER_SPAM_RESULTS.setValue(0.5f);
-        String[] whitelist = new String[] {addr1, addr2, addr3, addr4}; 
-        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(whitelist);
-        String[] blacklist = new String[] {blacklistRange};
-        FilterSettings.HOSTILE_IPS.set(blacklist);
         
         urn1 = URN.createSHA1Urn("urn:sha1:PLSTHIPQGSSZTS5FJUPAKUZWUGYQYPFB");
         urn2 = URN.createSHA1Urn("urn:sha1:ZLSTHIPQGSSZTS5FJUPAKUZWUGZQYPFB");
@@ -397,20 +391,34 @@ public class SpamManagerTest extends LimeTestCase {
     }
     
     /**
-     * Tests that the IP address blacklist affects the spam rating
+     * Tests that the IP blacklist no longer affects the spam rating - results
+     * from blacklisted IPs should be dropped before reaching this stage
      */
-    public void testAddressBlacklistAffects() throws Exception {
-        // A result arrives from a whitelisted address - not spam
-        RemoteFileDesc white = createRFD(addr1, port1, badger, null, urn1, size1);
+    public void testAddressBlacklistDoesNotAffect() throws Exception {
+        FilterSettings.HOSTILE_IPS.set(new String[] {addr1});
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(new String[] {addr2});
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(new String[] {addr3});
+
+        // A reply from a hostile address should receive a zero rating
+        RemoteFileDesc hostile = createRFD(addr1, port1, badger, null, urn1, size1);
+        assertFalse(hostile.isSpam());
+        assertEquals(0f, hostile.getSpamRating());
+
+        // A reply from a blacklisted address should receive a zero rating
+        RemoteFileDesc black = createRFD(addr2, port2, badger, null, urn2, size2);
+        assertFalse(black.isSpam());
+        assertEquals(0f, black.getSpamRating());
+
+        // A reply from a whitelisted address should receive a zero rating
+        RemoteFileDesc white = createRFD(addr3, port3, badger, null, urn3, size3);
         assertFalse(white.isSpam());
         assertEquals(0f, white.getSpamRating());
-        
-        // An identical result arrives from a blacklisted address - spam
-        RemoteFileDesc black = createRFD(blacklistAddress, port1, badger, null, urn1, size1);
-        assertTrue(black.isSpam());
-        assertEquals(1f, black.getSpamRating());
+
+        FilterSettings.HOSTILE_IPS.revertToDefault();
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.revertToDefault();
+        FilterSettings.WHITE_LISTED_IP_ADDRESSES.revertToDefault();
     }
-    
+
     /** 
      * Tests that the URN blacklist affects the spam rating
      */

@@ -1,265 +1,253 @@
 package org.limewire.ui.swing.downloads;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.JScrollPane;
 
-import net.miginfocom.swing.MigLayout;
-
-import org.jdesktop.swingx.JXButton;
-import org.jdesktop.swingx.JXLabel;
-import org.limewire.collection.glazedlists.GlazedListsFactory;
+import org.bushe.swing.event.annotation.EventSubscriber;
+import org.jdesktop.application.Application;
+import org.jdesktop.application.Resource;
 import org.limewire.core.api.download.DownloadItem;
-import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.settings.SharingSettings;
+import org.limewire.core.api.download.DownloadListManager;
+import org.limewire.core.settings.DownloadSettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
-import org.limewire.ui.swing.action.BackAction;
-import org.limewire.ui.swing.components.HeaderBar;
-import org.limewire.ui.swing.components.IconButton;
-import org.limewire.ui.swing.components.LimeComboBox;
-import org.limewire.ui.swing.components.decorators.ButtonDecorator;
-import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
-import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
-import org.limewire.ui.swing.dock.DockIcon;
-import org.limewire.ui.swing.dock.DockIconFactory;
-import org.limewire.ui.swing.downloads.table.DownloadStateMatcher;
-import org.limewire.ui.swing.painter.TextShadowPainter;
+import org.limewire.ui.swing.downloads.table.DownloadTable;
+import org.limewire.ui.swing.downloads.table.DownloadTableFactory;
+import org.limewire.ui.swing.event.DownloadVisibilityEvent;
+import org.limewire.ui.swing.event.EventAnnotationProcessor;
+import org.limewire.ui.swing.event.SelectAndScrollDownloadEvent;
+import org.limewire.ui.swing.settings.SwingUiSettings;
+import org.limewire.ui.swing.tray.Notification;
+import org.limewire.ui.swing.tray.TrayNotifier;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.ui.swing.util.SwingUtils;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
-import ca.odell.glazedlists.matchers.Matcher;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 @Singleton
-public class MainDownloadPanel extends JPanel {
-	
-    private final ButtonDecorator buttonDecorator;
-    private final ComboBoxDecorator comboBoxDecorator;
+public class MainDownloadPanel extends JPanel {  	
     
-    public static final String NAME = "MainDownloadPanel";
-	private final CardLayout cardLayout;
-	private final JPanel cardPanel;
-	private static final String NO_CATEGORY = "noCategory";
-	private static final String CATEGORY = "category";
-	
-	private final DownloadMediator downloadMediator;
-	
-	private final HeaderBar settingsPanel;
+    public static final String NAME = "MainDownloadPanel";    
     
-	private LimeComboBox moreButton;
-    private JXButton clearFinishedNowButton;
-    private final DockIcon dock;
+    private TrayNotifier notifier;
+
+    private DownloadMediator downloadMediator;
     
-    private JCheckBoxMenuItem categoriseCheckBox;
-    private JCheckBoxMenuItem clearFinishedCheckBox;
-	
-    private final AbstractDownloadsAction pauseAction = new AbstractDownloadsAction(I18n.tr("Pause All")) {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            downloadMediator.pauseAll();
-        }
-    };
-
-    private final AbstractDownloadsAction resumeAction = new AbstractDownloadsAction(I18n.tr("Resume All")) {
-        public void actionPerformed(ActionEvent e) {
-            downloadMediator.resumeAll();
-        }
-    };
-
-    private final AbstractDownloadsAction clearFinishedNowAction = new AbstractDownloadsAction(I18n.tr("Clear Finished")) {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            downloadMediator.clearFinished();
-            dock.draw(0);
-        }
-    };
-   
-    private final AbstractDownloadsAction clearFinishedAction = new AbstractDownloadsAction(I18n.tr("Clear When Finished")) {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            SharingSettings.CLEAR_DOWNLOAD.setValue(clearFinishedCheckBox.isSelected());
-        }
-    };
+    private boolean isInitialized = false;
+    private final Provider<DownloadTableFactory> downloadTableFactory;
+    private final DownloadListManager downloadListManager;
+    private final ArrayList<DownloadVisibilityListener> downloadVisibilityListeners = new ArrayList<DownloadVisibilityListener>();
     
-    private final Action categorizeAction = new AbstractAction(I18n.tr("Categorize Downloads")) {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            setCategorized(categoriseCheckBox.isSelected());
-        }
-
-    };
+    @Resource private int preferredHeight;
     
-    private abstract class AbstractDownloadsAction extends AbstractAction {
+    private DownloadTable table;
+    
+    
+    /**
+     * Create the panel.
+     */
+    @Inject
+    public MainDownloadPanel(Provider<DownloadTableFactory> downloadTableFactory, 
+            DownloadMediator downloadMediator,
+            TrayNotifier notifier, 
+            DownloadListManager downloadListManager) {
+        this.downloadMediator = downloadMediator;
+        this.downloadTableFactory = downloadTableFactory;
+        this.downloadListManager = downloadListManager;
+        this.notifier = notifier;
 
-        private AbstractDownloadsAction(String name) {
-            super(name);
-        }
-        
-        /**
-         * Enables this action if the supplied downloadSize is greater than zero,
-         * and updates the dock icon with the number of downloads.
-         * @param downloadSize
-         */
-        public void setEnablementFromDownloadSize(int downloadSize) {
-            setEnabled(downloadSize > 0);
-            dock.draw(downloadSize);
+        GuiUtils.assignResources(this);
+        int savedHeight = SwingUiSettings.DOWNLOAD_TRAY_SIZE.getValue();
+        int height = savedHeight == 0 ? preferredHeight : savedHeight;
+        setPreferredSize(new Dimension(getPreferredSize().width, height));
+    }
+
+    @EventSubscriber
+	public void handleSelectAndScroll(SelectAndScrollDownloadEvent event) {
+        table.selectAndScrollTo(event.getSelectedURN());
+        if(getVisibleRect().height < table.getRowHeight()){
+            alertDownloadVisibilityListeners(true);
         }
     }
+
     
-	/**
-	 * Create the panel
-	 */
-	@Inject
-	public MainDownloadPanel(AllDownloadPanelFactory allDownloadPanelFactory, 
-	        CategoryDownloadPanelFactory categoryDownloadPanelFactory,
-	        DownloadMediator downloadMediator,
-	        HeaderBarDecorator headerBarDecorator, ComboBoxDecorator comboBoxFactory,
-	        ButtonDecorator buttonDecorator, DockIconFactory dockIconFactory,
-	        BackAction backAction) {
-	    
-	    
-		this.downloadMediator = downloadMediator;
-		this.buttonDecorator = buttonDecorator;
-		this.comboBoxDecorator = comboBoxFactory;
-		
-		dock = dockIconFactory.createDockIcon();
-		
-		setLayout(new BorderLayout());
-		
-        resumeAction.setEnabled(false);
-        pauseAction.setEnabled(false);
-        clearFinishedNowAction.setEnabled(false);
-
-		cardPanel = new JPanel();
-		cardLayout = new CardLayout();
-		cardPanel.setLayout(cardLayout);
-		add(cardPanel, BorderLayout.CENTER);
-		
-        
-        final AllDownloadPanel noCategoryPanel = allDownloadPanelFactory.create(downloadMediator.getDownloadList());
-		noCategoryPanel.setName(NO_CATEGORY);
-		cardPanel.add(noCategoryPanel, noCategoryPanel.getName());
-		
-		final CategoryDownloadPanel categoryPanel = categoryDownloadPanelFactory.create(downloadMediator.getDownloadList());
-		categoryPanel.setName(CATEGORY);
-		cardPanel.add(categoryPanel, categoryPanel.getName());
-		
-		JPanel headerTitlePanel = new JPanel(new MigLayout("insets 0, gap 0, fill, aligny center"));
-        headerTitlePanel.setOpaque(false);        
-        JXLabel titleTextLabel = new JXLabel(I18n.tr("Downloads"));
-        titleTextLabel.setForegroundPainter(new TextShadowPainter());
-        IconButton backButton = new IconButton(backAction);
-        backButton.removeActionHandListener();
-        backButton.setRolloverEnabled(true);        
-        headerTitlePanel.add(backButton, "gapafter 6, gapbottom 1");
-        headerTitlePanel.add(titleTextLabel, "gapbottom 2");        
-        
-        settingsPanel = new HeaderBar(headerTitlePanel);
-        settingsPanel.linkTextComponent(titleTextLabel);
-        headerBarDecorator.decorateBasic(settingsPanel);
-        
-        this.initHeader();
-		add(settingsPanel, BorderLayout.NORTH);
-		
-		cardLayout.show(cardPanel, NO_CATEGORY);
-		
-		EventList<DownloadItem> pausableList = GlazedListsFactory.filterList(downloadMediator.getDownloadList(), 
-		        new PausableMatcher());
-		EventList<DownloadItem> resumableList = GlazedListsFactory.filterList(downloadMediator.getDownloadList(), 
-                new ResumableMatcher());
-		EventList<DownloadItem> doneList = GlazedListsFactory.filterList(downloadMediator.getDownloadList(), 
-                        new DownloadStateMatcher(DownloadState.DONE));
-		
-		pausableList.addListEventListener(new ListEventListener<DownloadItem>() {
-            @Override
-            public void listChanged(ListEvent<DownloadItem> listChanges) {
-                pauseAction.setEnablementFromDownloadSize(listChanges.getSourceList().size());
-            }
-        });
-
-        resumableList.addListEventListener(new ListEventListener<DownloadItem>() {
-            @Override
-            public void listChanged(ListEvent<DownloadItem> listChanges) {
-                resumeAction.setEnablementFromDownloadSize(listChanges.getSourceList().size());
-            }
-        });
-        
-        doneList.addListEventListener(new ListEventListener<DownloadItem>() {
-            @Override
-            public void listChanged(ListEvent<DownloadItem> listChanges) {
-                clearFinishedNowAction.setEnablementFromDownloadSize(listChanges.getSourceList().size());
-            }
-        });
-    }
-	
-	public void setCategorized(boolean categorized){
-		cardLayout.show(cardPanel, categorized? CATEGORY : NO_CATEGORY);
-	}
-	
-	private void initHeader() {
-	    clearFinishedNowButton = new JXButton(clearFinishedNowAction);
-	    buttonDecorator.decorateDarkFullButton(clearFinishedNowButton);
-	    
-	    moreButton = new LimeComboBox();
-	    comboBoxDecorator.decorateDarkFullComboBox(moreButton);
-	    moreButton.setText(I18n.tr("more"));
-
-	    categoriseCheckBox = new JCheckBoxMenuItem(categorizeAction);
-	    clearFinishedCheckBox = new JCheckBoxMenuItem(clearFinishedAction);
-
-	    clearFinishedCheckBox.setSelected(SharingSettings.CLEAR_DOWNLOAD.getValue());
-	    SharingSettings.CLEAR_DOWNLOAD.addSettingListener(new SettingListener() {
-            @Override
+    @Inject
+    public void register() {              
+        downloadMediator.getDownloadList().addListEventListener(new VisibilityListListener());
+        DownloadSettings.ALWAYS_SHOW_DOWNLOADS_TRAY.addSettingListener(new SettingListener() {
+           @Override
             public void settingChanged(SettingEvent evt) {
-                SwingUtilities.invokeLater(new Runnable(){
+               SwingUtils.invokeLater(new Runnable() {
+                   @Override
                     public void run() {
-                        clearFinishedCheckBox.setSelected(SharingSettings.CLEAR_DOWNLOAD.getValue());                        
+                       updateVisibility(downloadMediator.getDownloadList());
+                    }
+               });
+            } 
+        });
+        
+        //we have to eagerly initialize the table when the ALWAYS_SHOW_DOWNLOAD_TRAY setting
+        //is set to true on startup, otherwise the table space will be empty and the lines will
+        //be put in the first time a download comes in, which looks a little weird
+        if(DownloadSettings.ALWAYS_SHOW_DOWNLOADS_TRAY.getValue()) {
+            initialize();
+        }
+    }
+    
+    public void addDownloadVisibilityListener(DownloadVisibilityListener listener){
+        downloadVisibilityListeners.add(listener);
+    }
+    
+    public void removeDownloadVisibilityListener(DownloadVisibilityListener listener){
+        downloadVisibilityListeners.remove(listener);
+    }
+
+    //Lazily initialized - initialize() is called when the first downloadItem is added to the list.  
+    private void initialize() {
+        isInitialized = true;
+        setLayout(new BorderLayout());
+
+        table = downloadTableFactory.get().create(downloadMediator.getDownloadList());
+        table.setTableHeader(null);
+        JScrollPane pane = new JScrollPane(table);
+        pane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        add(pane, BorderLayout.CENTER);
+
+        // handle individual completed downloads
+        initializeDownloadListeners(downloadListManager);
+        
+        EventAnnotationProcessor.subscribe(this);
+    }
+    
+    public List<DownloadItem> getSelectedDownloadItems(){
+        return table.getSelectedItems();
+    }
+    
+    public int getDefaultPreferredHeight(){
+        return preferredHeight;
+    }
+
+    
+    private void initializeDownloadListeners(final DownloadListManager downloadListManager) {
+        // handle individual completed downloads
+        downloadListManager.addPropertyChangeListener(new DownloadPropertyListener());
+
+        downloadListManager.getSwingThreadSafeDownloads().addListEventListener(
+                new ListEventListener<DownloadItem>() {
+                    @Override
+                    public void listChanged(ListEvent<DownloadItem> listChanges) {
+                        // only show the notification messages if the download panel is not invisible
+                        if (!shouldShowNotification()) {
+                            return;
+                        }
+
+                        while (listChanges.next()) {
+                            if (listChanges.getType() == ListEvent.INSERT) {
+                                int index = listChanges.getIndex();
+                                final DownloadItem downloadItem = listChanges.getSourceList().get(index);
+                                notifier.showMessage(createInsertNotification(downloadItem));
+                            }
+                        }
+                        
                     }
                 });
+    }
+    
+    private Notification createInsertNotification(final DownloadItem downloadItem){
+        return new Notification(I18n.tr("Download Started"),
+                downloadItem.getFileName(), new AbstractAction(I18n.tr("Show")) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        setSize(getPreferredSize().width, preferredHeight);
+                        table.selectAndScrollTo(downloadItem.getUrn());
+                    }
+                });
+    }
+    
+    private boolean shouldShowNotification(){
+        return !isShowing() || getVisibleRect().height < table.getRowHeight();
+    }
+    
+
+
+    private class DownloadPropertyListener implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent event) {
+            if (event.getPropertyName().equals(DownloadListManager.DOWNLOAD_COMPLETED)) {
+                final DownloadItem downloadItem = (DownloadItem) event.getNewValue();
+                notifier.showMessage(new Notification(I18n.tr("Download Complete"), downloadItem.getFileName(), 
+                        new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ActionMap map = Application.getInstance().getContext().getActionManager()
+                                .getActionMap();
+                        map.get("restoreView").actionPerformed(e);
+
+                        if (downloadItem.isLaunchable()) {
+                            DownloadItemUtils.launch(downloadItem);
+                        }
+                    }
+                }));
             }
-	    });
-	    
-	    JPopupMenu menu = new JPopupMenu();
-	    menu.add(moreButton.createMenuItem(pauseAction));
-	    menu.add(moreButton.createMenuItem(resumeAction));
-	    menu.addSeparator();
-	    menu.add(moreButton.decorateMenuComponent(categoriseCheckBox));
-	    menu.add(moreButton.decorateMenuComponent(clearFinishedCheckBox));
-	    
-	    moreButton.overrideMenu(menu);
-	    
-	    this.settingsPanel.setLayout(new MigLayout("insets 0, fillx, filly","push[][]"));
-	    this.settingsPanel.add(clearFinishedNowButton, "gapafter 5");
-	    this.settingsPanel.add(moreButton, "gapafter 5");
-	}
-	
-	
-	
-	private static class PausableMatcher implements Matcher<DownloadItem> {
-        @Override
-        public boolean matches(DownloadItem item) {
-            return item.getState().isPausable();
         }
     }
 
-    private static class ResumableMatcher implements Matcher<DownloadItem> {
+    /**
+     * Initializes the download panel contents the first time the list changes (when the first DownloadItem is added).  
+     * Adjusts visibility of the panel depending on whether or not the list is empty.
+     */
+    private class VisibilityListListener implements ListEventListener<DownloadItem> {
+      
         @Override
-        public boolean matches(DownloadItem item) {
-            return item.getState().isResumable();
+        public void listChanged(ListEvent<DownloadItem> listChanges) {
+            EventList sourceList = listChanges.getSourceList(); 
+            updateVisibility(sourceList);
         }
     }
+    
+    private void updateVisibility(EventList sourceList) {
+        if(!isInitialized){
+            initialize();
+        }
+        
+        int downloadCount = sourceList.size();
+        
+        if(DownloadSettings.ALWAYS_SHOW_DOWNLOADS_TRAY.getValue() && !isVisible()){
+            alertDownloadVisibilityListeners(true);
+        } else if(DownloadSettings.ALWAYS_SHOW_DOWNLOADS_TRAY.getValue()){
+            //Do nothing - it is already set.
+            return;
+        } else if (downloadCount == 0 && isVisible()) {
+            alertDownloadVisibilityListeners(false);
+        } else if (downloadCount > 0 && !isVisible()) {
+            alertDownloadVisibilityListeners(true);
+        }
+    }
+    
+    /**
+     * Ignores DownloadSettings.ALWAYS_SHOW_DOWNLOADS_TRAY
+     */
+    private void alertDownloadVisibilityListeners(boolean isVisible) {
+        for (DownloadVisibilityListener listener : downloadVisibilityListeners) {
+            listener.updateVisibility(new DownloadVisibilityEvent(isVisible));
+        }
 
+    }
 }

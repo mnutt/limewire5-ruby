@@ -37,12 +37,12 @@ public class I18NConvert {
     }
 
 
-    /** accessor */
+    /** Accessor. */
     public static I18NConvert instance() {
         return _instance;
     }
 
-    /** delegate to AbstractI18NConverter instance */
+    /** Delegate to AbstractI18NConverter instance. */
     public String getNorm(String s) {
         return _convertDelegator.getNorm(s);
     }

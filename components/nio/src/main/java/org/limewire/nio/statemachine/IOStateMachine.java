@@ -146,10 +146,8 @@ public class IOStateMachine implements ChannelReadObserver, ChannelWriter, Inter
      * we'll notify the observer of them.  If the state indicated it needs to be
      * processed again, we do not move to the next state.  Otherwise, if the state
      * indicated that it's done, we move to the next state.
-     * 
+     * <p>
      * This will return true if we're writing and we have more to write.
-     * @param reading
-     * @return
      */
     private boolean processCurrentState(IOState state, boolean reading) {
         if(!shutdown) {
@@ -200,8 +198,6 @@ public class IOStateMachine implements ChannelReadObserver, ChannelWriter, Inter
      * If there are no states left, we notify the observer that we're finished.
      * Otherwise, we'll move to the next state and change interest on our channels
      * depending on what we're currently doing and what's needed next.
-     * 
-     * @param reading
      */
     private void nextState(boolean reading, boolean writing) {
         if(states.isEmpty()) {

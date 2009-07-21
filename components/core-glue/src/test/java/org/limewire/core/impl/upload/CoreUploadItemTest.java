@@ -4,16 +4,18 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.FilePropertyKey;
+import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.upload.UploadErrorState;
 import org.limewire.core.api.upload.UploadItem.BrowseType;
 import org.limewire.core.api.upload.UploadItem.UploadItemType;
-import org.limewire.core.impl.URNImpl;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.feature.LimewireFeature;
 import org.limewire.util.BaseTestCase;
 
 import com.limegroup.bittorrent.BTUploader;
@@ -23,7 +25,6 @@ import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.Uploader.UploadStatus;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.uploader.HTTPUploader;
 import com.limegroup.gnutella.uploader.UploadType;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 import com.limegroup.gnutella.xml.LimeXMLNames;
@@ -38,6 +39,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         Mockery context = new Mockery();
         
         final Uploader uploader = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         context.checking(new Expectations() {
             {
@@ -45,7 +47,7 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue("thing.bmp"));
             }});
         
-        CoreUploadItem upload = new CoreUploadItem(uploader);
+        CoreUploadItem upload = new CoreUploadItem(uploader, presence);
         
         assertEquals(upload.getCategory(), CategoryConverter.categoryForExtension("bmp"));
         context.assertIsSatisfied();
@@ -56,6 +58,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         
         final Uploader uploader = context.mock(Uploader.class);
         final PropertyChangeListener changeListener = context.mock(PropertyChangeListener.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
  
         context.checking(new Expectations() {
             {
@@ -69,7 +72,7 @@ public class CoreUploadItemTest extends BaseTestCase {
                 allowing(uploader);
             }});
         
-        CoreUploadItem upload = new CoreUploadItem(uploader);
+        CoreUploadItem upload = new CoreUploadItem(uploader, presence);
         
         upload.addPropertyChangeListener(changeListener);
                 
@@ -79,13 +82,14 @@ public class CoreUploadItemTest extends BaseTestCase {
     }
     
     /**
-     * equals() is overridden to check if uploaders are equal
+     * equals() is overridden to check if uploaders are equal.
      */
     public void testEquals() {
         Mockery context = new Mockery();
         
         final Uploader uploader1 = context.mock(Uploader.class);
         final Uploader uploader2 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         context.checking(new Expectations() {
             { 
@@ -93,10 +97,10 @@ public class CoreUploadItemTest extends BaseTestCase {
                 allowing(uploader2);
             }});
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
-        CoreUploadItem upload3 = new CoreUploadItem(null);
-        CoreUploadItem upload4 = new CoreUploadItem(null);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(null, presence);
+        CoreUploadItem upload4 = new CoreUploadItem(null, presence);
         
         assertEquals(upload1, upload1);
         assertNotEquals(upload1, upload2);
@@ -120,6 +124,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         
         final Uploader uploader = context.mock(Uploader.class);
         final PropertyChangeListener changeListener = context.mock(PropertyChangeListener.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
  
         context.checking(new Expectations() {
             {
@@ -133,7 +138,7 @@ public class CoreUploadItemTest extends BaseTestCase {
                 allowing(uploader);
             }});
         
-        CoreUploadItem upload = new CoreUploadItem(uploader);
+        CoreUploadItem upload = new CoreUploadItem(uploader, presence);
         
         upload.addPropertyChangeListener(changeListener);
         upload.removePropertyChangeListener(changeListener);
@@ -143,146 +148,63 @@ public class CoreUploadItemTest extends BaseTestCase {
         context.assertIsSatisfied();
     }
 
-    private void testGetHostWithAnyBrowseAndFileName(final UploadStatus type) {
+    public void testGetRemoteHostGnutella() {
         Mockery context = new Mockery();
         
         final Uploader uploader = context.mock(Uploader.class);
- 
-        final String fileName = "hello.file";
+        final FriendPresence presence = context.mock(FriendPresence.class);
+        final Friend friend = context.mock(Friend.class);
         
         context.checking(new Expectations() {
-            {
-                allowing(uploader).getState();
-                will(returnValue(type));
-                allowing(uploader).getFileName();
-                will(returnValue(fileName));
-                
-                allowing(uploader).getUploadType();
-                will(returnValue(UploadType.BROWSE_HOST));
-                
-                allowing(uploader).getLastTransferState();
-                will(returnValue(UploadStatus.BROWSE_HOST));
-            }});
+        { 
+            exactly(3).of(presence).getFriend();
+            will(returnValue(friend));
+            exactly(3).of(friend).isAnonymous();
+            will(returnValue(true));
+            exactly(1).of(uploader).isBrowseHostEnabled();
+            will(returnValue(true));
+        }});
         
-        CoreUploadItem upload = new CoreUploadItem(uploader);
+        CoreUploadItem upload = new CoreUploadItem(uploader, presence);
+        RemoteHost remoteHost = upload.getRemoteHost();
         
-        assertEquals(fileName, upload.getHost());
-   
+        assertNotNull(remoteHost);
+        
+        assertEquals(presence, remoteHost.getFriendPresence());
+        assertFalse(remoteHost.isChatEnabled());
+        assertTrue(remoteHost.isBrowseHostEnabled());
+        assertFalse(remoteHost.isSharingEnabled());
+        
         context.assertIsSatisfied();
     }
     
-    public void testGetHostWithBrowseAndFileName() {
-        testGetHostWithAnyBrowseAndFileName(UploadStatus.BROWSE_HOST);
-    }
-    
-    public void testGetHostWithDoneBrowseAndFileName() {
-        testGetHostWithAnyBrowseAndFileName(UploadStatus.COMPLETE);
-    }
-    
-    public void testGetHostWithoutFileName() {
-        
-        Mockery context = new Mockery() {
-            {   setImposteriser(ClassImposteriser.INSTANCE);
-            }};
-        
-        final Uploader uploader = context.mock(HTTPUploader.class);
-        final InetAddress addr = context.mock(InetAddress.class);
- 
-        
-        final String fileName = "";
-        final String host = "ay.yi";
-        final int port = 999;
-        
-        context.checking(new Expectations() {
-            {
-                atLeast(1).of(uploader).getState();
-                will(returnValue(UploadStatus.BROWSE_HOST));
-                atLeast(1).of(uploader).getFileName();
-                will(returnValue(fileName));
-                
-                allowing(uploader).getUploadType();
-                will(returnValue(UploadType.BROWSE_HOST));
-                
-                atLeast(1).of(uploader).getAddress();
-                will(returnValue(host));
-                atLeast(1).of(uploader).getPort();
-                will(returnValue(port));
-                atLeast(1).of(uploader).getInetAddress();
-                will(returnValue(addr));
-                
-                atLeast(1).of(addr).getAddress();
-                will(returnValue(new byte[] {1,2,3,4}));
-                
-                allowing(uploader).getLastTransferState();
-                will(returnValue(UploadStatus.BROWSE_HOST));
-            }});
-        
-        CoreUploadItem upload = new CoreUploadItem(uploader);
-        
-        assertNotNull(upload.getHost());
-        assertNotEquals("", upload.getHost());
-        
-        // Is consistent?
-        assertEquals(upload.getHost(), upload.getHost());
-        
-        context.assertIsSatisfied();
-    }
- 
-    public void testGetHostBTWithoutFileName() {
-        
-        Mockery context = new Mockery() {
-            {   setImposteriser(ClassImposteriser.INSTANCE);
-            }};
-        
-        final Uploader uploader = context.mock(BTUploader.class);
-         
-        final String fileName = "";
-        final String host = "qvueotilevne.ers";
-        
-        context.checking(new Expectations() {
-            {
-                atLeast(1).of(uploader).getState();
-                will(returnValue(UploadStatus.BROWSE_HOST));
-                atLeast(1).of(uploader).getFileName();
-                will(returnValue(fileName));
-                
-                allowing(uploader).getUploadType();
-                will(returnValue(UploadType.BROWSE_HOST));
-                
-                atLeast(1).of(uploader).getHost();
-                will(returnValue(host));
-                
-                allowing(uploader);
-            }});
-        
-        CoreUploadItem upload = new CoreUploadItem(uploader);
-        
-        assertEquals(host, upload.getHost());
-        
-        context.assertIsSatisfied();
-    }
-     
-    public void testGetHostNormal() {
+    public void testGetRemoteHostFriend() {
         Mockery context = new Mockery();
         
         final Uploader uploader = context.mock(Uploader.class);
- 
-        final String host = "www";
+        final FriendPresence presence = context.mock(FriendPresence.class);
+        final Friend friend = context.mock(Friend.class);
         
         context.checking(new Expectations() {
-            {
-                atLeast(1).of(uploader).getState();
-                will(returnValue(UploadStatus.UPLOADING));
-                exactly(1).of(uploader).getHost();
-                will(returnValue(host));
-                
-                allowing(uploader);
-            }});
+        { 
+            exactly(3).of(presence).getFriend();
+            will(returnValue(friend));
+            exactly(3).of(friend).isAnonymous();
+            will(returnValue(false));
+            exactly(3).of(presence).hasFeatures(LimewireFeature.ID);
+            will(returnValue(true));
+        }});
         
-        CoreUploadItem upload = new CoreUploadItem(uploader);
+        CoreUploadItem upload = new CoreUploadItem(uploader, presence);
+        RemoteHost remoteHost = upload.getRemoteHost();
         
-        assertEquals(host, upload.getHost());
-   
+        assertNotNull(remoteHost);
+        
+        assertEquals(presence, remoteHost.getFriendPresence());
+        assertTrue(remoteHost.isChatEnabled());
+        assertTrue(remoteHost.isBrowseHostEnabled());
+        assertTrue(remoteHost.isSharingEnabled());
+        
         context.assertIsSatisfied();
     }
     
@@ -292,6 +214,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         Mockery context = new Mockery();
         
         final Uploader uploader = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         context.checking(new Expectations() {
             {
@@ -309,7 +232,7 @@ public class CoreUploadItemTest extends BaseTestCase {
                 allowing(uploader);
             }});
         
-        CoreUploadItem upload = new CoreUploadItem(uploader);
+        CoreUploadItem upload = new CoreUploadItem(uploader, presence);
         
         assertEquals(type, upload.getBrowseType());
    
@@ -345,14 +268,15 @@ public class CoreUploadItemTest extends BaseTestCase {
         
         final Uploader uploaderNormal = context.mock(Uploader.class);
         final Uploader uploaderBittorrent = context.mock(BTUploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         context.checking(new Expectations() {
             { 
             }});
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploaderNormal);
-        CoreUploadItem upload2 = new CoreUploadItem(uploaderBittorrent);
-        CoreUploadItem upload3 = new CoreUploadItem(null);
+        CoreUploadItem upload1 = new CoreUploadItem(uploaderNormal, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploaderBittorrent, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(null, presence);
         
         assertEquals(UploadItemType.GNUTELLA, upload1.getUploadItemType());
         assertEquals(UploadItemType.BITTORRENT, upload2.getUploadItemType());
@@ -367,6 +291,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         final Uploader uploader1 = context.mock(Uploader.class);
         final Uploader uploader2 = context.mock(Uploader.class);
         final Uploader uploader3 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         final int queuePos1 = 0;
         final int queuePos2 = Integer.MAX_VALUE;
@@ -381,9 +306,9 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue(queuePos3));
             }});
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
-        CoreUploadItem upload3 = new CoreUploadItem(uploader3);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(uploader3, presence);
         
         assertEquals(queuePos1, upload1.getQueuePosition());
         assertEquals(queuePos2, upload2.getQueuePosition());
@@ -398,6 +323,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         final Uploader uploader1 = context.mock(Uploader.class);
         final Uploader uploader2 = context.mock(Uploader.class);
         final Uploader uploader3 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         final int numConnections1 = 0;
         final int numConnections2 = Integer.MAX_VALUE;
@@ -412,9 +338,9 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue(numConnections3));
             }});
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
-        CoreUploadItem upload3 = new CoreUploadItem(uploader3);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(uploader3, presence);
         
         assertEquals(numConnections1, upload1.getNumUploadConnections());
         assertEquals(numConnections2, upload2.getNumUploadConnections());
@@ -429,6 +355,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         final Uploader uploader1 = context.mock(Uploader.class);
         final Uploader uploader2 = context.mock(Uploader.class);
         final Uploader uploader3 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         final File file1 = new File("abc.t");
         final File file2 = new File("/a/b/c.t");
@@ -443,9 +370,9 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue(file3));
             }});
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
-        CoreUploadItem upload3 = new CoreUploadItem(uploader3);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(uploader3, presence);
         
         assertEquals(file1, upload1.getFile());
         assertEquals(file2, upload2.getFile());
@@ -457,10 +384,11 @@ public class CoreUploadItemTest extends BaseTestCase {
     public void testGetUploadSpeed() throws InsufficientDataException {
        Mockery context = new Mockery();
         
-       final Uploader uploaderException = context.mock(Uploader.class);
+        final Uploader uploaderException = context.mock(Uploader.class);
         final Uploader uploader1 = context.mock(Uploader.class);
         final Uploader uploader2 = context.mock(Uploader.class);
         final Uploader uploader3 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         final float speed1 = 0;
         final float speed2 = Float.MAX_VALUE;
@@ -484,10 +412,10 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue(speed3));
             }});
         
-        CoreUploadItem uploadException = new CoreUploadItem(uploaderException);
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
-        CoreUploadItem upload3 = new CoreUploadItem(uploader3);
+        CoreUploadItem uploadException = new CoreUploadItem(uploaderException, presence);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(uploader3, presence);
         
         assertEquals(0f, uploadException.getUploadSpeed());
         assertEquals(speed1, upload1.getUploadSpeed());
@@ -505,6 +433,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         final Uploader uploader2 = context.mock(Uploader.class);
         final Uploader uploader3 = context.mock(Uploader.class);
         final Uploader uploader4 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
          
         final float speed1 = 0;
         final float speed2 = Float.MAX_VALUE;
@@ -560,11 +489,11 @@ public class CoreUploadItemTest extends BaseTestCase {
                 will(returnValue(progress4));
              }});
          
-        CoreUploadItem uploadException = new CoreUploadItem(uploaderException);
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
-        CoreUploadItem upload3 = new CoreUploadItem(uploader3);
-        CoreUploadItem upload4 = new CoreUploadItem(uploader4);
+        CoreUploadItem uploadException = new CoreUploadItem(uploaderException, presence);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(uploader3, presence);
+        CoreUploadItem upload4 = new CoreUploadItem(uploader4, presence);
          
         assertEquals(CoreUploadItem.UNKNOWN_TIME, uploadException.getRemainingUploadTime());
         assertEquals(CoreUploadItem.UNKNOWN_TIME, upload1.getRemainingUploadTime());
@@ -581,13 +510,14 @@ public class CoreUploadItemTest extends BaseTestCase {
         final Uploader uploader1 = context.mock(Uploader.class);
         final Uploader uploader2 = context.mock(Uploader.class);
         final Uploader uploader3 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
-        CoreUploadItem upload3 = new CoreUploadItem(uploader3);
-        CoreUploadItem upload4 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload5 = new CoreUploadItem(null);
-        CoreUploadItem upload6 = new CoreUploadItem(null);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(uploader3, presence);
+        CoreUploadItem upload4 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload5 = new CoreUploadItem(null, presence);
+        CoreUploadItem upload6 = new CoreUploadItem(null, presence);
         
         assertEquals(upload1.hashCode(), upload1.hashCode());
         assertNotEquals(upload2.hashCode(), upload1.hashCode());
@@ -619,11 +549,12 @@ public class CoreUploadItemTest extends BaseTestCase {
         
         final Uploader uploader1 = context.mock(Uploader.class);
         final Uploader uploader2 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         final URN urn = URN.createUrnFromString("urn:sha1:NETZHKEJKTCM74ZQQALJWSLWQHQJ7N6Q");
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
         
         context.checking(new Expectations() {
             { 
@@ -635,7 +566,7 @@ public class CoreUploadItemTest extends BaseTestCase {
                 
             }});
 
-        assertEquals(new URNImpl(urn), upload1.getUrn());
+        assertEquals(urn, upload1.getUrn());
         assertEquals(null, upload2.getUrn());
         
         context.assertIsSatisfied();
@@ -648,11 +579,12 @@ public class CoreUploadItemTest extends BaseTestCase {
         final Uploader uploader2 = context.mock(Uploader.class);
         final Uploader uploader3 = context.mock(Uploader.class);
         final Uploader uploader4 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader2);
-        CoreUploadItem upload3 = new CoreUploadItem(uploader3);
-        CoreUploadItem upload4 = new CoreUploadItem(uploader4);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader2, presence);
+        CoreUploadItem upload3 = new CoreUploadItem(uploader3, presence);
+        CoreUploadItem upload4 = new CoreUploadItem(uploader4, presence);
         
         context.checking(new Expectations() {
             { 
@@ -686,6 +618,7 @@ public class CoreUploadItemTest extends BaseTestCase {
         
         final Uploader uploader1 = context.mock(Uploader.class);
         final Uploader uploader2 = context.mock(Uploader.class);
+        final FriendPresence presence = context.mock(FriendPresence.class);
         
         final FileDesc fd1 = context.mock(FileDesc.class);
         final LimeXMLDocument doc1 = context.mock(LimeXMLDocument.class);
@@ -693,8 +626,8 @@ public class CoreUploadItemTest extends BaseTestCase {
         final String obj1 = "erica";
         final String defReturn1 = "eliefynafgrd";
         
-        CoreUploadItem upload1 = new CoreUploadItem(uploader1);
-        CoreUploadItem upload2 = new CoreUploadItem(uploader1);
+        CoreUploadItem upload1 = new CoreUploadItem(uploader1, presence);
+        CoreUploadItem upload2 = new CoreUploadItem(uploader1, presence);
 
         context.checking(new Expectations() {
             {   allowing(uploader1).getFileDesc();

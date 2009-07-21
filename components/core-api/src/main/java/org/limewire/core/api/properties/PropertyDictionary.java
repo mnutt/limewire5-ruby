@@ -3,7 +3,7 @@ package org.limewire.core.api.properties;
 import java.util.List;
 
 /**
- * Lookup for schema-backed property enumerations
+ * Lookup for schema-backed property enumerations.
  */
 public interface PropertyDictionary {
     

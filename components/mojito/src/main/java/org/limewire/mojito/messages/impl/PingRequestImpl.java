@@ -32,7 +32,7 @@ import org.limewire.mojito.routing.Version;
 
 
 /**
- * An implementation of PingRequest
+ * An implementation of PingRequest.
  */
 public class PingRequestImpl extends AbstractRequestMessage
         implements PingRequest {

@@ -40,12 +40,11 @@ import com.limegroup.gnutella.connection.MessageWriter;
 import com.limegroup.gnutella.connection.SentMessageHandler;
 import com.limegroup.gnutella.http.HTTPHeaderName;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileList;
-import com.limegroup.gnutella.library.SharedFileList;
+import com.limegroup.gnutella.library.FileView;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.OutgoingQueryReplyFactory;
 import com.limegroup.gnutella.messages.QueryReply;
-import com.limegroup.gnutella.uploader.authentication.HttpRequestFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.HttpRequestFileViewProvider;
 
 /**
  * Responds to Gnutella browse requests by returning a list of all shared files.
@@ -65,13 +64,13 @@ public class BrowseRequestHandler extends SimpleNHttpRequestHandler {
      */
     private boolean requestorCanDoFWT = true;
 
-    private final HttpRequestFileListProvider browseRequestFileListProvider;
+    private final HttpRequestFileViewProvider browseRequestFileListProvider;
     private final BrowseTracker tracker;
 
     BrowseRequestHandler(HTTPUploadSessionManager sessionManager,
             Provider<ResponseFactory> responseFactory,
             OutgoingQueryReplyFactory outgoingQueryReplyFactory,
-            HttpRequestFileListProvider browseRequestFileListProvider,
+            HttpRequestFileViewProvider browseRequestFileListProvider,
             BrowseTracker tracker) {
         this.sessionManager = sessionManager;
         this.responseFactory = responseFactory;
@@ -106,12 +105,12 @@ public class BrowseRequestHandler extends SimpleNHttpRequestHandler {
                 friendID = getFriend(request);
                 tracker.browsed(friendID);
                 uploader = sessionManager.getOrCreateUploader(request,
-                        context, UploadType.BROWSE_HOST, friendID);
+                        context, UploadType.BROWSE_HOST, friendID, friendID);
             }
             uploader.setState(UploadStatus.BROWSE_HOST);
-            Iterable<SharedFileList> lists = browseRequestFileListProvider.getFileLists(friendID, context);
+            Iterable<FileView> lists = browseRequestFileListProvider.getFileViews(friendID, context);
             List<Iterable<FileDesc>> iterables = new ArrayList<Iterable<FileDesc>>();
-            for (FileList list : lists) {
+            for (FileView list : lists) {
                 iterables.add(list.pausableIterable());
             }
             Iterable<FileDesc> files = new MultiIterable<FileDesc>(iterables.toArray(new Iterable[0]));

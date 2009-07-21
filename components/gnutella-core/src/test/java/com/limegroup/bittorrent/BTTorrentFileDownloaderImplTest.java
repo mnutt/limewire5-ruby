@@ -13,8 +13,9 @@ import junit.framework.Assert;
 import junit.framework.Test;
 
 import org.apache.http.params.BasicHttpParams;
+import org.limewire.bittorrent.Torrent;
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.http.httpclient.LimeHttpClient;
@@ -23,7 +24,6 @@ import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.listener.EventListener;
-import org.limewire.net.ConnectionDispatcher;
 import org.limewire.util.FileUtils;
 import org.limewire.util.TestUtils;
 
@@ -32,11 +32,11 @@ import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.DownloadManagerEvent;
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.NoOpSaveLocationManager;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.Uploader;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 import com.limegroup.gnutella.downloader.CoreDownloader;
@@ -114,9 +114,9 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
         btTorrentFileDownloader.startDownload();
         finishDownload(btTorrentFileDownloader);
         
-        BTMetaInfo btMetaInfo = btTorrentFileDownloader.getBtMetaInfo();
+        File torrentFile = btTorrentFileDownloader.getTorrentFile();
         
-        Assert.assertNotNull(btMetaInfo);
+        Assert.assertNotNull(torrentFile);
 
     }
 
@@ -160,25 +160,25 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             @Override
             public Downloader download(RemoteFileDesc[] files, List<? extends RemoteFileDesc> alts,
                     GUID queryGUID, boolean overwrite, File saveDir, String fileName)
-                    throws SaveLocationException {
+                    throws DownloadException {
                 return null;
             }
 
             @Override
             public Downloader download(MagnetOptions magnet, boolean overwrite, File saveDir,
-                    String fileName) throws IllegalArgumentException, SaveLocationException {
+                    String fileName) throws IllegalArgumentException, DownloadException {
                 return null;
             }
 
             @Override
             public Downloader download(File incompleteFile) throws CantResumeException,
-                    SaveLocationException {
+                    DownloadException {
                 return null;
             }
 
             @Override
             public Downloader download(DownloadInformation info, long now)
-                    throws SaveLocationException {
+                    throws DownloadException {
                 return null;
             }
 
@@ -190,25 +190,19 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             @Override
             public Downloader downloadFromStore(RemoteFileDesc rfd, boolean overwrite,
                     File saveDir, String fileName) throws IllegalArgumentException,
-                    SaveLocationException {
+                    DownloadException {
                 return null;
             }
 
             @Override
             public Downloader downloadTorrent(URI torrentURI, boolean overwrite)
-                    throws SaveLocationException {
+                    throws DownloadException {
                 return null;
             }
 
             @Override
-            public Downloader downloadTorrent(File torrentFile, boolean overwrite)
-                    throws SaveLocationException {
-                return null;
-            }
-
-            @Override
-            public Downloader downloadTorrent(BTMetaInfo info, boolean overwrite)
-                    throws SaveLocationException {
+            public Downloader downloadTorrent(File torrentFile, File saveDirectory, boolean overwrite)
+                    throws DownloadException {
                 return null;
             }
 
@@ -361,89 +355,7 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             public LimeHttpClient get() {
                 return new SimpleLimeHttpClient();
             } 
-        }, new BasicHttpParams()), new TorrentManager() {
-
-            @Override
-            public boolean allowNewTorrent() {
-                return false;
-            }
-
-            @Override
-            public int getMaxTorrentConnections() {
-                return 0;
-            }
-
-            @Override
-            public int getNumActiveTorrents() {
-                return 0;
-            }
-
-            @Override
-            public ManagedTorrent getTorrentForHash(byte[] infoHash) {
-                return null;
-            }
-
-            @Override
-            public ManagedTorrent getTorrentForURN(URN urn) {
-                return null;
-            }
-
-            @Override
-            public boolean hasNonSeeding() {
-                return false;
-            }
-
-            @Override
-            public void initialize(ConnectionDispatcher dispatcher) {
-                
-            }
-
-            @Override
-            public boolean killTorrentForFile(File f) {
-                return false;
-            }
-
-            @Override
-            public void shareTorrentFile(BTMetaInfo m, File torrentFile) {
-                
-            }
-
-            @Override
-            public boolean releaseLock(File file) {
-                return false;
-            }
-
-            @Override
-            public void acceptConnection(String word, Socket s) {
-                
-            }
-
-            @Override
-            public boolean isBlocking() {
-                return false;
-            }
-
-            @Override
-            public void handleTorrentEvent(TorrentEvent evt) {
-                
-            }
-
-            @Override
-            public void addEventListener(TorrentEventListener listener) {
-                
-            }
-
-            @Override
-            public void dispatchEvent(TorrentEvent event) {
-                
-            }
-
-            @Override
-            public void removeEventListener(TorrentEventListener listener) {
-                
-            }
-            
-        },new BTMetaInfoFactoryImpl(), new ActivityCallback() {
+        }, new BasicHttpParams()), new ActivityCallback() {
 
             @Override
             public void addUpload(Uploader u) {
@@ -452,12 +364,6 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
 
             @Override
             public void handleMagnets(MagnetOptions[] magnets) {
-            }
-
-            @Override
-            public void handleQueryResult(RemoteFileDesc rfd, QueryReply queryReply,
-                    Set<? extends IpPort> locs) {
-                
             }
 
             @Override
@@ -524,13 +430,19 @@ public class BTTorrentFileDownloaderImplTest extends LimeTestCase {
             }
 
             @Override
-            public void handleSaveLocationException(DownloadAction downLoadAction,
-                    SaveLocationException sle, boolean supportsNewSaveDir) {
+            public void handleDownloadException(DownloadAction downLoadAction,
+                    DownloadException e, boolean supportsNewSaveDir) {
                 
             }
 
             @Override
-            public void promptTorrentUploadCancel(ManagedTorrent torrent) {
+            public boolean promptTorrentUploadCancel(Torrent torrent) {
+                return true;
+            }
+
+            @Override
+            public void handleQueryResult(RemoteFileDesc rfd, QueryReply queryReply,
+                    Set<? extends IpPort> locs) {
                 
             }
 

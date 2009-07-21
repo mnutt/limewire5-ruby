@@ -3,17 +3,16 @@ package com.limegroup.gnutella.xml;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.metadata.MetaDataFactory;
 import com.limegroup.gnutella.metadata.MetaDataReader;
 
 @Singleton
-public class LimeXMLReplyCollectionFactoryImpl implements
-        LimeXMLReplyCollectionFactory {
+class LimeXMLReplyCollectionFactoryImpl implements LimeXMLReplyCollectionFactory {
 
     private final Provider<LimeXMLProperties> limeXMLProperties;
 
-    private final Provider<FileManager> fileManager;
+    private final Provider<Library> library;
 
     private final LimeXMLDocumentFactory limeXMLDocumentFactory;
 
@@ -23,18 +22,18 @@ public class LimeXMLReplyCollectionFactoryImpl implements
     
     @Inject
     public LimeXMLReplyCollectionFactoryImpl(
-            Provider<LimeXMLProperties> limeXMLProperties, Provider<FileManager> fileManager,
+            Provider<LimeXMLProperties> limeXMLProperties, Provider<Library> library,
             LimeXMLDocumentFactory limeXMLDocumentFactory, MetaDataReader metaDataReader,
             MetaDataFactory metaDataFactory) {
         this.limeXMLProperties = limeXMLProperties;
-        this.fileManager = fileManager;
+        this.library = library;
         this.limeXMLDocumentFactory = limeXMLDocumentFactory;
         this.metaDataReader = metaDataReader;
         this.metaDataFactory = metaDataFactory;
     }
 
     public LimeXMLReplyCollection createLimeXMLReplyCollection(String URI) {
-        return new LimeXMLReplyCollection(URI, limeXMLProperties.get().getXMLDocsDir(), fileManager, limeXMLDocumentFactory, metaDataReader, metaDataFactory);
+        return new LimeXMLReplyCollection(URI, limeXMLProperties.get().getXMLDocsDir(), library, limeXMLDocumentFactory, metaDataReader, metaDataFactory);
     }
 
 }

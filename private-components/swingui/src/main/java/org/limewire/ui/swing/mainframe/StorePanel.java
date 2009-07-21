@@ -4,6 +4,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
 
@@ -20,14 +21,21 @@ import org.mozilla.browser.MozillaInitialization;
 import org.mozilla.browser.MozillaPanel.VisibilityMode;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 public class StorePanel extends JPanel {
-    public static final String NAME = "LimeWire Store";
-
     private final Browser browser;
+
     private final Application application;
+
+    /**
+     * Used to ignore the first component hidden event coming through to the
+     * ComponentListener. The load and hidden events are coming out of order because
+     * of the usage of card layout, and loading StorePanel lazily. When adding a component
+     * to CardLayout, card layout calls setVisible false on it. The main issue is that we have
+     * started loading components lazily as they are selected. So we can't force that componsnts
+     * are added to the card layout before we use them.
+     */
+    private final AtomicBoolean firstHiddenIgnored = new AtomicBoolean(false);
 
     @Inject
     public StorePanel(Application application, final Navigator navigator) {
@@ -46,26 +54,24 @@ public class StorePanel extends JPanel {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentHidden(ComponentEvent e) {
-                if(MozillaInitialization.isInitialized()) {
+                if (firstHiddenIgnored.getAndSet(true) && MozillaInitialization.isInitialized()) {
                     browser.load("about:blank");
                 }
             }
-        });
-        
+        });     
         BrowserUtils.addTargetedUrlAction("_lwStore", new UriAction() {
             @Override
             public boolean uriClicked(final TargetedUri targetedUrl) {
                 SwingUtils.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        navigator.getNavItem(NavCategory.LIMEWIRE, NAME).select();
+                        navigator.getNavItem(NavCategory.LIMEWIRE, StoreMediator.NAME).select();
                         load(targetedUrl.getUri());
                     }
                 });
-                
                 return true;
             }
-        });        
+        }); 
     }
     
     public void loadDefaultUrl() {
@@ -73,11 +79,12 @@ public class StorePanel extends JPanel {
     }
 
     public void load(String url) {
-        url = application.getUniqueUrl(url);
-        if(!MozillaInitialization.isInitialized()) {
+        url = application.addClientInfoToUrl(url);
+        if (!MozillaInitialization.isInitialized()) {
             NativeLaunchUtils.openURL(url);
         } else {
-            // Reset the page to blank before continuing -- blocking is OK because this is fast.
+            // Reset the page to blank before continuing -- blocking is OK
+            // because this is fast.
             MozillaAutomation.blockingLoad(browser, "about:blank");
             browser.load(url + "&isClient=true");
         }

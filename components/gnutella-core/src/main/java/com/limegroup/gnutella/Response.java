@@ -1,16 +1,17 @@
 package com.limegroup.gnutella;
 
-import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
-import com.limegroup.gnutella.messages.QueryReply;
-import com.limegroup.gnutella.xml.LimeXMLDocument;
-import org.limewire.collection.IntervalSet;
-import org.limewire.io.Address;
-import org.limewire.io.IpPort;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.util.Set;
+
+import org.limewire.collection.IntervalSet;
+import org.limewire.io.Address;
+import org.limewire.io.IpPort;
+
+import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
+import com.limegroup.gnutella.messages.QueryReply;
+import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 
 /**

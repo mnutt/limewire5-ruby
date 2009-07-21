@@ -28,7 +28,6 @@ public class ExceptionUtils {
      * {@link Thread#getDefaultUncaughtExceptionHandler()}, or if that is null,
      * returns the exception.
      * 
-     * @param t
      */
     public static Throwable reportOrReturn(Throwable t) {
         UncaughtExceptionHandler handler = Thread.currentThread().getUncaughtExceptionHandler();
@@ -50,7 +49,6 @@ public class ExceptionUtils {
      * {@link Thread#getDefaultUncaughtExceptionHandler()}, or if that is null,
      * rethrows the exception.
      * 
-     * @param t
      */
     public static void reportOrRethrow(Throwable t) {
         UncaughtExceptionHandler handler = Thread.currentThread().getUncaughtExceptionHandler();

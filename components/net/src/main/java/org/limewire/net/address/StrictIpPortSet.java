@@ -10,7 +10,7 @@ import org.limewire.io.IpPort;
 
 
 /**
- * A stricter genericized version of IpPortSet that lets you
+ * A stricter generic version of IpPortSet that lets you
  * have IpPortSets restricted to IpPort subclasses. 
  */
 public class StrictIpPortSet<T extends IpPort> extends TreeSet<T> {

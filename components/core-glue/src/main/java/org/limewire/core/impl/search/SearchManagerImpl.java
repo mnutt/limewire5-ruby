@@ -1,6 +1,7 @@
 package org.limewire.core.impl.search;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -76,6 +77,12 @@ class SearchManagerImpl implements SearchManager {
         @Override
         public void searchStarted(Search search) {
             // Do nothing
+        }
+
+        @Override
+        public void handleSearchResults(Search search,
+                Collection<? extends SearchResult> searchResults) {
+            this.searchResults.addAll(searchResults);
         }
     }
     

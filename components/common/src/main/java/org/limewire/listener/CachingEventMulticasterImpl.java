@@ -6,9 +6,9 @@ import org.limewire.logging.Log;
 
 /**
  * A Multicaster that caches the last event it handles or broadcasts.
- *
+ *<p>
  * The cached event is used for two purposes:
- *
+ * <pre>
  * 1. New listeners who are added will have their handleEvent(E event)
  * method called with the cached event
  *
@@ -16,8 +16,7 @@ import org.limewire.logging.Log;
  * on the CacheingEventMulticaster, the event is only broadcast
  * if it is not equal to the cached event.  Event classes should override equals()
  * for this to provide any meaningful implementation
- *
- * @param <E>
+ * </pre>
  */
 public class CachingEventMulticasterImpl<E> implements CachingEventMulticaster<E> {
     
@@ -45,18 +44,14 @@ public class CachingEventMulticasterImpl<E> implements CachingEventMulticaster<E
     }
     
     /**
-     * @param broadcastPolicy The {@link BroadcastPolicy} to use when broadcasting events.
-     * @param multicaster The {@link EventMulticaster} this delegates to when broadcasting events.
-     * @param listenerContext The {@link EventListenerListContext} to use when broadcasting events directly.
+     * @param broadcastPolicy the {@link BroadcastPolicy} to use when broadcasting events.
+     * @param multicaster the {@link EventMulticaster} this delegates to when broadcasting events.
+     * @param listenerContext the {@link EventListenerListContext} to use when broadcasting events directly.
      */
-    public CachingEventMulticasterImpl(BroadcastPolicy broadcastPolicy, EventMulticaster<E> multicaster, EventListenerListContext listenerContext) {
+    public CachingEventMulticasterImpl(BroadcastPolicy broadcastPolicy, EventMulticaster<E> multicaster) {
         this.broadcastPolicy = broadcastPolicy;
         this.multicaster = multicaster;
-        this.listenerContext = listenerContext;
-    }
-    
-    private CachingEventMulticasterImpl(BroadcastPolicy broadcastPolicy, EventMulticasterImpl<E> multicasterImpl) {
-        this(broadcastPolicy, multicasterImpl, multicasterImpl.getListenerContext());
+        this.listenerContext = multicaster.getListenerContext();
     }    
 
     /**
@@ -65,7 +60,8 @@ public class CachingEventMulticasterImpl<E> implements CachingEventMulticaster<E
      */
     @Override
     public void addListener(EventListener<E> eEventListener) {
-        if(cachedEvent != null) {
+        E copy = cachedEvent;
+        if(copy != null) {
             // An alternate way to do this would be to add some kind of notifyListener(EventListener, Event)
             // method/interface, similar to EventListenerList#notifyListener, that would internally
             // use the context.  This would remove the need to pass a context to this class,
@@ -73,7 +69,7 @@ public class CachingEventMulticasterImpl<E> implements CachingEventMulticaster<E
             // Overall it's probably the better option to do it via notifyListener, because that would
             // also allow the multicaster to control how the event is broadcast, but harder to fit
             // into the existing multicaster impls.
-            EventListenerList.dispatch(eEventListener, cachedEvent, listenerContext);
+            EventListenerList.dispatch(eEventListener, copy, listenerContext);
         }
         multicaster.addListener(eEventListener);
     }
@@ -108,5 +104,10 @@ public class CachingEventMulticasterImpl<E> implements CachingEventMulticaster<E
     @Override
     public E getLastEvent() {
         return cachedEvent;
+    }
+
+    @Override
+    public EventListenerListContext getListenerContext() {
+        return listenerContext;
     }
 }

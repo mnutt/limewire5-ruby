@@ -6,17 +6,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
 
-import org.limewire.service.ErrorCallback;
-import org.limewire.service.ErrorCallbackStub;
-import org.limewire.service.ErrorService;
-
 import junit.framework.Test;
 
 public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
     
     private ScheduledListeningExecutorService sq;
-    private ErrorCallback oldService;
-    private ErrorCallbackStub serviceStub;
 
     public ListeningFutureSimpleTimerTest(String name) {
         super(name);
@@ -28,18 +22,10 @@ public class ListeningFutureSimpleTimerTest extends ListeningFutureTaskTest {
 
     @Override
     protected void setUp() throws Exception {
+        super.setUp();
+        
         sq = new SimpleTimer(true);
         q = sq;
-        
-        oldService = ErrorService.getErrorCallback();
-        serviceStub = new ErrorCallbackStub();
-        ErrorService.setErrorCallback(serviceStub);
-    }
-    
-    @Override
-    protected void tearDown() throws Exception {
-        ErrorService.setErrorCallback(oldService);
-        assertEquals(0, serviceStub.getExceptionCount());
     }
     
     public void testIsSimpleTimer() {

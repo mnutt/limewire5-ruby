@@ -38,8 +38,8 @@ public abstract class AbstractBufferChannelWriter implements ChannelWriter {
      * Adds <code>data</code> to the buffer and signals interest in writing to
      * the channel.
      * 
-     * @throws IOException If the channel is already shutdown
-     * @throws BufferOverflowException If there is insufficient space in the buffer 
+     * @throws IOException if the channel is already shutdown
+     * @throws BufferOverflowException if there is insufficient space in the buffer 
      */
     public synchronized void put(byte[] data) throws IOException {
         if (shutdown) {

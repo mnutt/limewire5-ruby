@@ -13,7 +13,6 @@ import java.util.StringTokenizer;
 
 import javax.swing.TransferHandler.TransferSupport;
 
-import org.limewire.ui.swing.dnd.LocalFileTransferable;
 import org.limewire.util.OSUtils;
 import org.limewire.util.URIUtils;
 
@@ -32,14 +31,11 @@ public class DNDUtils {
             fileDataFlavors.add(URIFlavor);
         }
         fileDataFlavors.add(DataFlavor.javaFileListFlavor);
-        fileDataFlavors.add(LocalFileTransferable.LOCAL_FILE_DATA_FLAVOR);
     }
 
     /**
-     * Returns array of uris extracted from transferable.
+     * Returns array of URIs extracted from transferable.
      * 
-     * @param transferable
-     * @return
      * @throws UnsupportedFlavorException
      * @throws IOException
      */
@@ -65,7 +61,7 @@ public class DNDUtils {
 
     /**
      * Checks for {@link DataFlavor#javaFileListFlavor} and
-     * {@link DNDUtils#URIFlavor} for unix systems.
+     * {@link DNDUtils#URIFlavor} for Unix systems.
      */
     public static boolean containsFileFlavors(TransferSupport transferSupport) {
         for(DataFlavor dataFlavor : getFileFlavors()) {
@@ -86,16 +82,13 @@ public class DNDUtils {
     /**
      * Extracts the array of files from a transferable
      * 
-     * @param transferable
      * @return an empty array if the transferable does not contain any data that
      *         can be interpreted as a list of files
      */
     @SuppressWarnings("unchecked")
     public static File[] getFiles(Transferable transferable) throws UnsupportedFlavorException,
             IOException {
-        if (transferable.isDataFlavorSupported(LocalFileTransferable.LOCAL_FILE_DATA_FLAVOR)) {
-            return (File[]) transferable.getTransferData(LocalFileTransferable.LOCAL_FILE_DATA_FLAVOR);
-        } else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+        if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             return ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor))
                     .toArray(new File[0]);
         } else if (transferable.isDataFlavorSupported(URIFlavor)) {
@@ -105,9 +98,9 @@ public class DNDUtils {
     }
 
     /**
-     * Returns array of files for uris that denote local paths.
+     * Returns array of files for URIs that denote local paths.
      * 
-     * @return empty array if no uri denotes a local file
+     * @return empty array if no URI denotes a local file
      */
     public static File[] getFiles(URI[] uris) {
         ArrayList<File> files = new ArrayList<File>(uris.length);

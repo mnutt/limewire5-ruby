@@ -121,16 +121,16 @@ public abstract class RUDPMessageImpl implements RUDPMessage {
     /* (non-Javadoc)
      * @see org.limewire.rudp.RUDPMessage#getSequenceNumber()
      */
-	public long getSequenceNumber() {
-		return _sequenceNumber;
-	}
+    public long getSequenceNumber() {
+        return _sequenceNumber;
+    }
 
     /* (non-Javadoc)
      * @see org.limewire.rudp.RUDPMessage#extendSequenceNumber(long)
      */
-	public void extendSequenceNumber(long seqNo) {
-		_sequenceNumber = seqNo;
-	}
+    public void extendSequenceNumber(long seqNo) {
+        _sequenceNumber = seqNo;
+    }
 
     /* (non-Javadoc)
      * @see org.limewire.rudp.RUDPMessage#getDataLength()

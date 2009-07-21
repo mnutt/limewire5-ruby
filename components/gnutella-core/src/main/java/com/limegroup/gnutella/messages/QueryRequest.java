@@ -11,7 +11,7 @@ public interface QueryRequest extends Message {
 
     /**
      * The string used by Clip2 reflectors to index hosts.
-     * 
+     * <p>
      * Deprecated: queries are not sent out with this and LimeWire will
      * respond with an empty result set.
      */
@@ -19,7 +19,7 @@ public interface QueryRequest extends Message {
 
     /**
      * The string used by LimeWire to browse hosts.
-     *
+     * <p>
      * Deprecated: queries are not sent out with this and LimeWire will
      * respond with an empty result set.
      */
@@ -83,7 +83,7 @@ public interface QueryRequest extends Message {
     public static final String WHAT_IS_NEW_QUERY_STRING = "WhatIsNewXOXO";
 
     /**
-     * Accessor fot the payload of the query hit.
+     * Accessor for the payload of the query hit.
      *
      * @return the query hit payload
      */
@@ -99,8 +99,6 @@ public interface QueryRequest extends Message {
     public String getQuery();
 
     /**
-     * Returns the rich query LimeXMLDocument.
-     *
      * @return the rich query LimeXMLDocument
      */
     public LimeXMLDocument getRichQuery();
@@ -150,7 +148,7 @@ public interface QueryRequest extends Message {
     /**
      * Returns true if the query source can accept out-of-band replies for
      * any supported protocol version.
-     * 
+     * <p>
      * Use getReplyAddress() and getReplyPort() if this is true to know where to
      * it. Always send XML if you are sending an out-of-band reply.
      */
@@ -229,7 +227,7 @@ public interface QueryRequest extends Message {
     public boolean isLimeRequery();
 
     /**
-     * @return true if this is likely a query for LimeWire.
+     * @return true if this is likely a query for LimeWire
      */
     public boolean isQueryForLW();
 

@@ -5,12 +5,12 @@ import java.awt.GradientPaint;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.painter.GenericBarPainter;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.PainterUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Creates the various background painters to be used to paint the gradients and borders
@@ -20,7 +20,7 @@ import com.google.inject.Singleton;
  *  two for the two horizontal border lines on the top edge, and two for 
  *  another two horizontal border lines on the bottom edge.
  */
-@Singleton
+@LazySingleton
 public class BarPainterFactory {
 
     @Resource private Color headerBarGradientTop = PainterUtils.TRASPARENT;
@@ -64,6 +64,13 @@ public class BarPainterFactory {
     @Resource private Color friendBarBorderTop2 = PainterUtils.TRASPARENT;
     @Resource private Color friendBarBorderBottom1 = PainterUtils.TRASPARENT;
     @Resource private Color friendBarBorderBottom2 = PainterUtils.TRASPARENT;
+    
+    @Resource private Color popUpBarGradientTop = PainterUtils.TRASPARENT;
+    @Resource private Color popUpBarGradientBottom = PainterUtils.TRASPARENT;
+    @Resource private Color popUpBarBorderTop1 = PainterUtils.TRASPARENT;
+    @Resource private Color popUpBarBorderTop2 = PainterUtils.TRASPARENT;
+    @Resource private Color popUpBarBorderBottom1 = PainterUtils.TRASPARENT;
+    @Resource private Color popUpBarBorderBottom2 = PainterUtils.TRASPARENT;
     
     @Inject
     BarPainterFactory() {
@@ -110,5 +117,12 @@ public class BarPainterFactory {
             new GradientPaint(0,0,downloadSummaryBarGradientTop,0,1,downloadSummaryBarGradientBottom), 
             downloadSummaryBarBorderTop1, downloadSummaryBarBorderTop2, 
             downloadSummaryBarBorderBottom1, downloadSummaryBarBorderBottom2);
+    }
+    
+    public GenericBarPainter<JXPanel> createPopUpBarPainter() {
+        return new GenericBarPainter<JXPanel>(
+            new GradientPaint(0,0,popUpBarGradientTop,0,1,popUpBarGradientBottom), 
+            popUpBarBorderTop1, popUpBarBorderTop2, 
+            popUpBarBorderBottom1, popUpBarBorderBottom2);
     }
 }

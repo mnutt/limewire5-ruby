@@ -14,9 +14,9 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Contains utility methods
+ * Contains utility methods.
  * @author  asingla
  */
 public class LimeXMLUtils {
@@ -103,7 +103,7 @@ public class LimeXMLUtils {
 
     /**
      * Writes <CODE>string</CODE> into writer, escaping &, ', ", <, and >
-     * with the XML excape strings.
+     * with the XML escape strings.
      */
     public static void writeEscapedString(Writer writer, String string)
         throws IOException {
@@ -127,7 +127,7 @@ public class LimeXMLUtils {
     /**
      * Reads all the bytes from the passed input stream till end of stream
      * reached.
-     * @param in The input stream to read from
+     * @param in the input stream to read from
      * @return array of bytes read
      * @exception IOException If any I/O exception occurs while reading data
      */
@@ -151,9 +151,9 @@ public class LimeXMLUtils {
     
     /**
      * Compares the queryDoc with the replyDoc and finds out if the
-     * replyDoc is a match for the queryDoc
-     * @param queryDoc The query Document
+     * replyDoc is a match for the queryDoc.
      * @param replyDoc potential reply Document
+     * @param queryDoc the query Document
      * @return true if the replyDoc is a match for the queryDoc, false
      * otherwise
      */
@@ -164,7 +164,7 @@ public class LimeXMLUtils {
             throw new NullPointerException("querying with null doc.");
 
         //First find the names of all the fields in the query
-        Set<Map.Entry<String, String>> queryNameValues = queryDoc.getNameValueSet();
+        Collection<Map.Entry<String, String>> queryNameValues = queryDoc.getNameValueSet();
         int size = queryNameValues.size();
         int matchCount = 0; // number of matches
         int nullCount = 0; // number of fields in query not in replyDoc.
@@ -177,11 +177,11 @@ public class LimeXMLUtils {
                 continue; // "" matches everything!!
             String replyDocValue = replyDoc.getValue(currFieldName);
             
-			if (currFieldName.endsWith("license_type__") && queryValue.length() > 0) {
-				if (replyDocValue == null || !replyDocValue.startsWith(queryValue))
-					return false;
-			}
-			
+            if (currFieldName.endsWith("license_type__") && queryValue.length() > 0) {
+                if (replyDocValue == null || !replyDocValue.startsWith(queryValue))
+                    return false;
+                }
+
             if (replyDocValue == null || replyDocValue.equals(""))
                 nullCount++;
             else {
@@ -211,7 +211,7 @@ public class LimeXMLUtils {
         }
         // The metric of a correct match is that whatever fields are specified
         // in the query must have prefix match* with the fields in the reply
-        // unless the reply has a null for that feild, in which case we are OK 
+        // unless the reply has a null for that field, in which case we are OK 
         // with letting it slide.  also, %MATCHING_RATE of the fields must
         // either be a prefix match or null.
         // We make an exception for queries of size 1 field. In this case, there
@@ -220,10 +220,10 @@ public class LimeXMLUtils {
         double sizeD = size;
         double matchCountD = matchCount;
         double nullCountD = nullCount;
-		
-		if (size > 1) {
-			if (matchedBitrate) {
-				// discount a bitrate match.  matching bitrate's shouldn't
+
+        if (size > 1) {
+            if (matchedBitrate) {
+                // discount a bitrate match.  matching bitrate's shouldn't
                 // influence the logic because where size is 2, a matching
                 // bitrate will result in a lot of irrelevant results.
                 sizeD--;
@@ -253,7 +253,7 @@ public class LimeXMLUtils {
      * Scans over the given String and returns a new String that contains
      * no invalid whitespace XML characters if any exist.  If none exist
      * the original string is returned.
-     * 
+     * <p>
      * This DOES NOT CONVERT entities such as & or <, it will only remove
      * invalid characters such as \u0002, \u0004, etc...
      */
@@ -486,7 +486,7 @@ public class LimeXMLUtils {
             return baos.toByteArray();
         } catch (IOException e) {
             //This should REALLY never happen because no devices are involved.
-            //But could we propogate it up.
+            //But could we propagate it up.
             assert false : "Couldn't write to byte stream";
             return null;
         } finally {
@@ -635,7 +635,7 @@ public class LimeXMLUtils {
     /**
      * Hashes the file using bits and pieces of the file.
      * 
-     * @return The SHA hash bytes of the input bytes.
+     * @return the SHA hash bytes of the input bytes.
      * @throws IOException if hashing failed for any reason.
      */
     public static byte[] hashFile(File toHash) throws IOException {

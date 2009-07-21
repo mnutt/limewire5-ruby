@@ -46,7 +46,7 @@ public class ConstantHTTPHeaderValue {
     public static final HTTPHeaderValue FWT_PUSH_LOCS_FEATURE =
     	new SimpleHTTPHeaderValue(HTTPConstants.FW_TRANSFER + "/" + HTTPConstants.FWT_TRANSFER_VERSION);
     
-    /** The current User Agent */
+    /** The current User Agent. */
     public static final HTTPHeaderValue USER_AGENT =
         new HTTPHeaderValue() {
             public String httpStringValue() {

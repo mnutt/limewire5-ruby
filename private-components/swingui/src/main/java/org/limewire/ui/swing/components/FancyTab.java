@@ -95,7 +95,7 @@ public class FancyTab extends JXPanel {
         });
             
         setOpaque(false);
-        setToolTipText(getTitle());
+        setToolTipText(getTooltip());
         
         HighlightListener highlightListener = new HighlightListener();
         if (props.isRemovable()) {
@@ -108,13 +108,12 @@ public class FancyTab extends JXPanel {
         updateButtons(false);
         changeState(isSelected() ? TabState.SELECTED : TabState.BACKGROUND);
         
-        setLayout(new MigLayout("insets 0 0 10 0, fill, gap 0"));        
-        add(mainButton,     "gapafter 4, gapbefore 6, aligny bottom, width min(pref,50):pref:max, cell 1 0");
-        add(additionalText, "gapafter 4, aligny bottom, cell 2 0, hidemode 3");
-        add(busyLabel,      "gapbefore 4, gapafter 6, gapbottom 1, aligny bottom, alignx right, cell 3 0, hidemode 3");
-        add(removeButton,   "gapbefore 4, gapafter 6, gapbottom 1, aligny bottom, alignx right, cell 3 0, hidemode 3");
+        setLayout(new MigLayout("insets 0 0 0 0, fill, gap 0"));        
+        add(mainButton,     "gapafter 4, gapbefore 6, growy, aligny 50%, width min(pref,50):pref:max, cell 1 0");
+        add(additionalText, "gapafter 4, aligny 50%, cell 2 0, hidemode 3");
+        add(busyLabel,      "gapbefore 4, gapafter 6, gapbottom 1, aligny 50%, alignx right, cell 3 0, hidemode 3");
+        add(removeButton,   "gapbefore 4, gapafter 6, gapbottom 1, aligny 50%, alignx right, cell 3 0, hidemode 3");
     }
-    
     
     @Override
     public String toString() {
@@ -229,7 +228,7 @@ public class FancyTab extends JXPanel {
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
         button.setMargin(new Insets(0, 0, 0, 0));
-        button.setToolTipText(getTitle());
+        button.setToolTipText(getTooltip());
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setRolloverEnabled(true);
@@ -381,10 +380,18 @@ public class FancyTab extends JXPanel {
         return (String)tabActions.getMainAction().getValue(Action.NAME);
     }
     
+    private String getTooltip() {
+        return (String)tabActions.getMainAction().getValue(Action.LONG_DESCRIPTION);
+    }
+    
     private void showPopup(MouseEvent e) {
         JPopupMenu menu = new JPopupMenu();
         for (Action action : getTabActionMap().getRightClickActions()) {
-            menu.add(action);
+            if(action == TabActionMap.SEPARATOR){
+                menu.addSeparator();
+            } else {
+                menu.add(action);
+            }
         }
         
         if (getComponentCount() != 0 && props.isRemovable()) {

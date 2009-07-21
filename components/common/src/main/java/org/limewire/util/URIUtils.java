@@ -10,7 +10,7 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 
 /**
- * Utilities for URIs
+ * Utilities for <code>URIs</code>.
  */
 public class URIUtils {
     private static final Log LOG = LogFactory.getLog(URIUtils.class);
@@ -19,16 +19,15 @@ public class URIUtils {
     /**
      * Creates a <code>URI</code> from the input string.
      * The preferred way to invoke this method is with an URL-encoded string.
-     * 
+     * <p>
      * However, if the string has not been encoded, this method will encode it.
      * It is ambiguous whether a string has been encoded or not, which is why
      * it is preferred to pass in the string pre-encoded.
-     * 
+     * <p>
      * This method is useful when manipulating a URI and you don't know if it is 
      * encoded or not.
-     * 
+     * <p>
      * @param uriString the uri to be created
-     * @return
      * @throws URISyntaxException
      */
     public static URI toURI(final String uriString) throws URISyntaxException {
@@ -43,7 +42,7 @@ public class URIUtils {
                 uri = new URI(encodedURIString);
             } catch (URISyntaxException e1) {
                 // encoding the uriString didn't help.
-                // this probably means there is something structuraly
+                // this probably means there is something structurally
                 // wrong with it.
                 
                 // NOTE: throwing the original exception.
@@ -85,7 +84,7 @@ public class URIUtils {
     /**
      * Returns the port for the given URI. If no port can be found, it checks the scheme.
      * If the scheme is http port 80 is returned, if https 443.
-     * 
+     * <p>
      * -1 is returned if no port can be found.
      */
     public static int getPort(URI uri) {

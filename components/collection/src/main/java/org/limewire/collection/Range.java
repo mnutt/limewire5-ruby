@@ -9,7 +9,7 @@ public abstract class Range implements Serializable {
 
     private static final long serialVersionUID = -2562093104400487223L;
 
-    /** Maximum value a Range can hold */
+    /** Maximum value a Range can hold. */
     public static final long MAX_VALUE = 0xFFFFFFFFFFL;
 
     /**
@@ -26,7 +26,7 @@ public abstract class Range implements Serializable {
     public abstract byte[] toBytes();
 
     /**
-     * places a byte[] representation of this range in the specified array at
+     * Places a byte[] representation of this range in the specified array at
      * the specified offset.
      */
     public abstract void toBytes(byte[] dest, int offset);
@@ -81,7 +81,6 @@ public abstract class Range implements Serializable {
 
     /**
      * Returns the length of this range.
-     * @return
      */
     public long getLength() {
         return getHigh() - getLow() + 1;

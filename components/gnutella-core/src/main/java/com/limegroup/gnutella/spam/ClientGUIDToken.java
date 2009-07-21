@@ -1,7 +1,7 @@
 package com.limegroup.gnutella.spam;
 
 /**
- * A token representing the client GUID of a responding client
+ * A token representing the client GUID of a responding client.
  */
 public class ClientGUIDToken extends KeywordToken {
 

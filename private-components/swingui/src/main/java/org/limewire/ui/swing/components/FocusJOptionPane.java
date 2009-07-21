@@ -1,6 +1,7 @@
 package org.limewire.ui.swing.components;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dialog;
@@ -18,6 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import org.limewire.i18n.I18nMarker;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -71,6 +73,12 @@ public class FocusJOptionPane {
             dispose = true;
         }
         
+        Color oldOptionColor = UIManager.getColor("OptionPane.background");
+        Color oldPanelColor = UIManager.getColor("Panel.background");
+        if(GuiUtils.getMainFrame() != null) {
+            UIManager.put("OptionPane.background", GuiUtils.getMainFrame().getBackground());
+            UIManager.put("Panel.background", GuiUtils.getMainFrame().getBackground());
+        }
         try {
             JOptionPane.showMessageDialog(parentComponent, message, title, messageType);
         } finally {
@@ -78,6 +86,8 @@ public class FocusJOptionPane {
             
             if (dispose)
                 ((JFrame)parentComponent).dispose();
+            UIManager.put("OptionPane.background", oldOptionColor);
+            UIManager.put("Panel.background", oldPanelColor);
         }
     }
 
@@ -92,15 +102,7 @@ public class FocusJOptionPane {
             parentComponent = createFocusComponent();
             dispose = true;
         }
-        
-        try {
-            return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType);
-        } finally {
-            if(dispose)
-                ((JFrame)parentComponent).dispose();
-        }
-        
-        
+        return showConfirmationDialog(parentComponent, message, title, optionType, JOptionPane.QUESTION_MESSAGE, dispose);
     }
     
     /**
@@ -114,15 +116,7 @@ public class FocusJOptionPane {
             parentComponent = createFocusComponent();
             dispose = true;
         }
-        
-        try {
-            return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType, messageType);
-        } finally {
-            if(dispose)
-                ((JFrame)parentComponent).dispose();
-        }
-        
-        
+        return showConfirmationDialog(parentComponent, message, title, optionType, messageType, dispose); 
     }
 
     /**
@@ -137,13 +131,26 @@ public class FocusJOptionPane {
             parentComponent = createFocusComponent();
             dispose = true;
         }
+        return showConfirmationDialog(parentComponent, message, title, optionType, messageType, dispose);
+    }
+    
+    /**
+     * Ensures that the colors for the dialog are set properlly prior to being shown.
+     */
+    private static int showConfirmationDialog(Component parentComponent, Object message, String title,
+            int optionType, int messageType, boolean dispose) {
+        Color oldOptionColor = UIManager.getColor("OptionPane.background");
+        Color oldPanelColor = UIManager.getColor("Panel.background");
+        UIManager.put("OptionPane.background", GuiUtils.getMainFrame().getBackground());
+        UIManager.put("Panel.background", GuiUtils.getMainFrame().getBackground());
         
         try {
-            return JOptionPane.showOptionDialog(parentComponent, message, title, optionType,
-                    messageType, icon, options, initialValue);
+            return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType, messageType);
         } finally {
             if(dispose)
                 ((JFrame)parentComponent).dispose();
+            UIManager.put("OptionPane.background", oldOptionColor);
+            UIManager.put("Panel.background", oldPanelColor);
         }
     }
     
@@ -159,7 +166,9 @@ public class FocusJOptionPane {
         Container frameContentPane = dialog.getContentPane();
         frameContentPane.setLayout(new BorderLayout());
         frameContentPane.add(contentPane, BorderLayout.CENTER);
-        
+        contentPane.setOpaque(false);
+        frameContentPane.setBackground(GuiUtils.getMainFrame().getBackground());
+
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(parent);
         dialog.pack();
@@ -171,6 +180,10 @@ public class FocusJOptionPane {
         final String[] options = {I18n.tr("Yes"), I18nMarker.marktr("No")};
         
         int option;
+        Color oldOptionColor = UIManager.getColor("OptionPane.background");
+        Color oldPanelColor = UIManager.getColor("Panel.background");
+        UIManager.put("OptionPane.background", GuiUtils.getMainFrame().getBackground());
+        UIManager.put("Panel.background", GuiUtils.getMainFrame().getBackground());
         try {
             option = FocusJOptionPane.showOptionDialog(getWindowForComponent(parent), 
                          getLabel(message), 
@@ -180,6 +193,9 @@ public class FocusJOptionPane {
                          options, defaultOption);
         } catch(InternalError ie) {
             option = JOptionPane.NO_OPTION;
+        } finally {
+            UIManager.put("OptionPane.background", oldOptionColor);
+            UIManager.put("Panel.background", oldPanelColor);
         }
         
         return option;

@@ -64,7 +64,7 @@ public final class UDPConnectBackRedirect extends AbstractVendorMessage {
 
     /**
      * Constructs a new UDPConnectBackRedirect to be sent out.
-     * @param port The port you want people to connect back to.  If you give a
+     * @param port the port you want people to connect back to.  If you give a
      *  bad port I don't check so check yourself!
      */
     public UDPConnectBackRedirect(GUID guid, InetAddress addr, int port) {

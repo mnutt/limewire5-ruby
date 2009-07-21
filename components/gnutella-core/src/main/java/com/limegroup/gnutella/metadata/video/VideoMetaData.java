@@ -12,7 +12,7 @@ import com.limegroup.gnutella.xml.LimeXMLNames;
 /**
  *  A composite of video data for marshalling it to and from disk. When loading
  *  meta-data from video files to LimeXMLDocuments and when writing LimeXMLDocument
- *  updates to disk
+ *  updates to disk.
  */
 public class VideoMetaData implements MetaData {
 
@@ -47,14 +47,14 @@ public class VideoMetaData implements MetaData {
     public void setLicenseType(String licensetype) { this.licensetype = licensetype; }
     
     /**
-     * The XML schema this data represents
+     * The XML schema this data represents.
      */
     public String getSchemaURI() {
         return LimeXMLNames.VIDEO_SCHEMA;
     }
 
     /**
-     * Populates the fields with the values from the LimeXMLDocument
+     * Populates the fields with the values from the LimeXMLDocument.
      */
     public void populate(LimeXMLDocument doc) {
         title   = doc.getValue(LimeXMLNames.VIDEO_TITLE);

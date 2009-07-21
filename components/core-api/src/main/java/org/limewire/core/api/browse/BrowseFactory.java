@@ -1,6 +1,6 @@
 package org.limewire.core.api.browse;
 
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.FriendPresence;
 
 /**
  * Factory for creating a {@link Browse} object from a {@link FriendPresence}.

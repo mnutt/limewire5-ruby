@@ -12,24 +12,21 @@ public class SimpleFuture<T> implements ListeningFuture<T> {
     
     private final T t;
     private final ExecutionException exception;
-    private final EventListenerListContext context;
+    private final EventListenerListContext context = new EventListenerListContext();
     
     public SimpleFuture(T t) {
         this.t = t;
         this.exception = null;
-        this.context = new EventListenerListContext();
     }
     
     public SimpleFuture(Throwable throwable) {
         this.t = null;
         this.exception = new ExecutionException(throwable);
-        this.context = new EventListenerListContext();
     }
     
     public SimpleFuture(ExecutionException ee) {
         this.t = null;
         this.exception = ee;
-        this.context = new EventListenerListContext();
     }
 
     @Override

@@ -1,36 +1,45 @@
 package org.limewire.ui.swing.statusbar;
 
-import javax.swing.BorderFactory;
+import java.awt.Color;
+import java.awt.Font;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-import org.jdesktop.swingx.JXLabel;
-import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.core.api.library.ShareListManager;
+import org.jdesktop.application.Resource;
+import org.jdesktop.swingx.JXButton;
+import org.limewire.core.api.library.SharedFileListManager;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
-
-import ca.odell.glazedlists.event.ListEvent;
-import ca.odell.glazedlists.event.ListEventListener;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
-class SharedFileCountPanel extends JXLabel {
+class SharedFileCountPanel extends JXButton {
+        
+    @Resource private Font font;
+    @Resource private Color foreground;
+    
+    @Inject
+    SharedFileCountPanel(SharedFileListManager shareListManager) {
+        super(I18n.tr("Sharing {0} files", shareListManager.getSharedFileCount()));
+     
+        GuiUtils.assignResources(this);
+        
+        setFont(font);
+        setForeground(foreground);
+    }
         
     @Inject
-    SharedFileCountPanel(ShareListManager shareListManager) {
-        super(I18n.tr("Sharing {0} files", 0));
-        
-        this.setName("SharedFileCountPanel");
-        
-        this.setBorder(BorderFactory.createEmptyBorder(0,8,0,0));
-        
-        shareListManager.getCombinedShareList().getSwingModel().addListEventListener(new ListEventListener<LocalFileItem>() {
+    void register(SharedFileListManager shareListManager) {
+        shareListManager.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
-            public void listChanged(ListEvent<LocalFileItem> listChanges) {
-                setText(I18n.trn("Sharing {0} file", "Sharing {0} files", listChanges.getSourceList().size()));
+            public void propertyChange(PropertyChangeEvent evt) {
+                if(evt.getPropertyName().equals(SharedFileListManager.SHARED_FILE_COUNT)) {
+                    setText(I18n.trn("Sharing {0} file", "Sharing {0} files", (Integer)evt.getNewValue()));
+                }
             }
         });
-        
     }
 
 }

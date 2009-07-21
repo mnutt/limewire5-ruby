@@ -2,10 +2,10 @@ package org.limewire.i18n;
 
 /**
  * Class to mark messages for translation.
- * 
- * The external xgettext tool picks up occurrences of {@link #marktr(String)}
- * and extracts the string literal arguments into a template file for 
- * translation.
+ * <p>
+ * The external <code>xgettext</code> tool picks up occurrences of 
+ * {@link #marktr(String)} and extracts the string literal arguments 
+ * into a template file for translation.
  */
 public class I18nMarker {
 

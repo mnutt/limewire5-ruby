@@ -71,12 +71,12 @@ public class DHTNodeFetcher {
     private ScheduledFuture<?>  fetcherTask = null;
     
     /**
-     * A lock for the TimerTask
+     * A lock for the TimerTask.
      */
     private final Object fetcherTaskLock = new Object();
     
     /**
-     * Whether or not the fetcher is currently pinging a single host
+     * Whether or not the fetcher is currently pinging a single host.
      */
     private final AtomicBoolean pingingSingleHost = new AtomicBoolean(false);
     
@@ -215,7 +215,7 @@ public class DHTNodeFetcher {
     }
     
     /**
-     * Starts the DHTNodeFetcher
+     * Starts the DHTNodeFetcher.
      */
     public void start() {
         synchronized (fetcherTaskLock) {
@@ -237,7 +237,7 @@ public class DHTNodeFetcher {
     }
     
     /**
-     * Stops the DHTNodeFetcher
+     * Stops the DHTNodeFetcher.
      */
     public void stop() {
         synchronized (fetcherTaskLock) {
@@ -249,7 +249,7 @@ public class DHTNodeFetcher {
     }
     
     /**
-     * Returns true if the DHTNodeFetcher is running
+     * Returns true if the DHTNodeFetcher is running.
      */
     public boolean isRunning() {
         synchronized (fetcherTaskLock) {
@@ -332,7 +332,7 @@ public class DHTNodeFetcher {
     }
 
     /**
-     * In the case of a single ping, we have to handle the deregistration
+     * In the case of a single ping, we have to handle the de-registration.
      */
     private class SinglePingRequestListener extends UDPPingerRequestListener{
         

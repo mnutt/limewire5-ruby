@@ -98,7 +98,7 @@ public final class LWSServerUtil {
      * not an error.
      * 
      * @param line {@link String} containing an error to unwrap
-     * @return error code fonud in {@link ErrorCodes} or <tt>null</tt> if it's
+     * @return error code found in {@link ErrorCodes} or <tt>null</tt> if it's
      *         not an error
      */
     public static String unwrapError(final String line) {
@@ -122,8 +122,6 @@ public final class LWSServerUtil {
     /**
      * Will remove the method application to <tt>res</tt>.
      * 
-     * @param res
-     * @return
      */
     public static String removeCallback(final String res) {
         if (res == null) return null;
@@ -224,7 +222,7 @@ public final class LWSServerUtil {
      * <tt>args</tt>. Arguments with no equals sign will have
      * <code>null</code> values, arguments with nothing after the equal sign
      * will have an empty value, non-empty arguments will be as expected. Here
-     * are a couple exampels:
+     * are a couple examples:
      * <ul>
      * <li>one=1 &rarr; <code>{one=1}</code></li>
      * <li>one= &rarr; <code>{one=}</code></li>

@@ -88,7 +88,7 @@ public class HTTPUploadSession extends BandwidthTrackerImpl implements UploadSlo
 
     /**
      * Throws an exception since <code>HTTPUploader</code>s are not
-     * interruptable.
+     * Interruptible.
      */
     public void releaseSlot() {
         throw new UnsupportedOperationException();        

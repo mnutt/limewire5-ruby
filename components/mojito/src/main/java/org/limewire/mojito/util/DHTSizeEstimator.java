@@ -39,7 +39,7 @@ import org.limewire.mojito.settings.KademliaSettings;
 
 /**
  * An utility class to compute the approximate DHT size.
- * 
+ * <p>
  * http://azureus.cvs.sourceforge.net/azureus/azureus2/com/aelitis/azureus/core/dht/control/impl/DHTControlImpl.java
  */
 public class DHTSizeEstimator {
@@ -50,24 +50,24 @@ public class DHTSizeEstimator {
     
     private static final int MIN_NODE_COUNT = 3;
     
-    /** History of local estimations */
+    /** History of local estimations. */
     private List<BigInteger> localSizeHistory = new LinkedList<BigInteger>();
 
-    /** History of remote estimations (sizes we received with pongs) */
+    /** History of remote estimations (sizes we received with pongs). */
     private List<BigInteger> remoteSizeHistory = new LinkedList<BigInteger>();
 
-    /** Current estimated size */
+    /** Current estimated size. */
     private BigInteger estimatedSize = BigInteger.ZERO;
 
     /** The time when we made the last estimation */
     private long localEstimateTime = 0L;
 
-    /** The time when we updated the estimated DHT size */
+    /** The time when we updated the estimated DHT size. */
     private long updateEstimatedSizeTime = 0L;
 
     /**
      * Clears the history and sets everything to
-     * its initial state
+     * its initial state.
      */
     public synchronized void clear() {
         estimatedSize = BigInteger.ZERO;
@@ -79,7 +79,7 @@ public class DHTSizeEstimator {
     }
 
     /**
-     * Returns the approximate DHT size
+     * Returns the approximate DHT size.
      */
     public synchronized BigInteger getEstimatedSize(RouteTable routeTable) {
         if (routeTable != null && 
@@ -141,7 +141,7 @@ public class DHTSizeEstimator {
     /**
      * Updates the estimated DHT size with the given List of Contacts.
      * If <tt>nodes</tt> is null it will use the local RouteTable to
-     * estimate the DHT size
+     * estimate the DHT size.
      */
     public synchronized void updateSize(Collection<? extends Contact> nodes) {
         if ((System.currentTimeMillis() - updateEstimatedSizeTime) 
@@ -156,7 +156,7 @@ public class DHTSizeEstimator {
     
     /**
      * Computes and returns the approximate DHT size based 
-     * on the given List of Contacts
+     * on the given List of Contacts.
      */
     public synchronized BigInteger computeSize(Collection<? extends Contact> nodes) {
         

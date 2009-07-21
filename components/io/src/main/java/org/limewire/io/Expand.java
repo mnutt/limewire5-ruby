@@ -115,15 +115,15 @@ public final class Expand {
     /**
      * Expands the source file to destination.  If overwrite is true, all files
      * will be overwritten (regardless of modification time).  If 'names'
-     * is non-null, any file in 'names' will be expanded regardless of modiciation time.
+     * is non-null, any file in 'names' will be expanded regardless of modification time.
      */
     public static void expandFile(File source, File dest, boolean overwrite, String[] names) 
       throws IOException {
             
         InputStream in = null;
         try {
-			FileUtils.setWriteable(source);
-			in = new BufferedInputStream(new FileInputStream(source));
+            FileUtils.setWriteable(source);
+            in = new BufferedInputStream(new FileInputStream(source));
             expandFile(in, dest, overwrite, names);
         } finally {
             IOUtils.close(in);
@@ -134,7 +134,7 @@ public final class Expand {
      * Expands the input stream to destination.  If overwrite is true, all files
      * will be overwritten (regardless of modification time).  If 'names'
      * is non-null, any file in 'names' will be expanded regardless of modification time.
-     * 
+     * <p>
      * Does NOT close the InputStream.
      */
     public static void expandFile(InputStream is, File dest, boolean overwrite, String[] names) 

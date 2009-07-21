@@ -24,15 +24,15 @@ import org.limewire.setting.IntSetting;
 import org.limewire.setting.LongSetting;
 
 /**
- * Miscellaneous Network settings
+ * Miscellaneous Network settings.
  */
 public final class NetworkSettings extends MojitoProps {
     
     private NetworkSettings() {}
     
     /**
-     * The amout of time we're waiting for a response
-     * before giving up
+     * The amount of time we're waiting for a response
+     * before giving up.
      */
     public static final LongSetting DEFAULT_TIMEOUT
         = FACTORY.createRemoteLongSetting("DEFAULT_TIMEOUT", 
@@ -54,45 +54,45 @@ public final class NetworkSettings extends MojitoProps {
     
     /**
      * The maximum number of errors (timeouts) that may occur 
-     * before we're giving up to re-send requests
+     * before we're giving up to re-send requests.
      */
     public static final IntSetting MAX_ERRORS
         = FACTORY.createRemoteIntSetting("MAX_ERRORS", 
                 2, "Mojito.MaxErrors", 1, 10);
     
     /**
-     * The maximum size of a serialized message
+     * The maximum size of a serialized message.
      */
     public static final IntSetting MAX_MESSAGE_SIZE
         = FACTORY.createIntSetting("MAX_MESSAGE_SIZE", 1492);
     
     /**
-     * The cleanup rate for Receipts
+     * The cleanup rate for Receipts.
      */
     public static final LongSetting CLEANUP_RECEIPTS_DELAY
         = FACTORY.createLongSetting("CLEANUP_RECEIPTS_DELAY", 50L);
     
     /**
-     * The buffer size for incoming messages
+     * The buffer size for incoming messages.
      */
     public static final IntSetting RECEIVE_BUFFER_SIZE
         = FACTORY.createIntSetting("RECEIVE_BUFFER_SIZE", 64*1024);
     
     /**
-     * The buffer size for outgoing messages
+     * The buffer size for outgoing messages.
      */
     public static final IntSetting SEND_BUFFER_SIZE
         = FACTORY.createIntSetting("SEND_BUFFER_SIZE", 64*1024);
     
     /**
-     * Whether or not we're accepting forced addresses
+     * Whether or not we're accepting forced addresses.
      */
     public static final BooleanSetting ACCEPT_FORCED_ADDRESS
         = FACTORY.createBooleanSetting("ACCEPT_FORCED_ADDRESS", false);
     
     /**
      * Whether or not a new ByteBuffer should be allocated for
-     * every message we're receiving
+     * every message we're receiving.
      */
     public static final BooleanSetting ALLOCATE_NEW_BUFFER
         = FACTORY.createBooleanSetting("ALLOCATE_NEW_BUFFER", false);
@@ -100,7 +100,7 @@ public final class NetworkSettings extends MojitoProps {
     /**
      * Setting for whether or not private IP Addresses are
      * considered private.
-     * 
+     * <p>
      * NOTE: If you're planning to run the DHT on a Local Area 
      * Network (LAN) you want to set LOCAL_IS_PRIVATE to false!
      */
@@ -109,8 +109,8 @@ public final class NetworkSettings extends MojitoProps {
     
     /**
      * Setting for whether or not IPs from the same Class C
-     * Network should be filtered
-     * 
+     * Network should be filtered.
+     * <p>
      * NOTE: If you're planning to run the DHT on a Local Area 
      * Network (LAN) you want to set FILTER_CLASS_C to false!
      */
@@ -121,7 +121,7 @@ public final class NetworkSettings extends MojitoProps {
     /**
      * Setting for whether or not RESPONSE messages should be dropped if 
      * the SENDER (remote Node) is firewalled.
-     * 
+     * <p>
      * Warning: Changing this Setting may cause weird effects!
      */
     public static final BooleanSetting DROP_RESPONE_IF_FIREWALLED
@@ -130,7 +130,7 @@ public final class NetworkSettings extends MojitoProps {
     /**
      * Setting for whether or not REQUEST messages should be dropped is
      * the RECEIVER (local Node) is firewalled.
-     * 
+     * <p>
      * Warning: Changing this Setting may cause weird effects!
      */
     public static final BooleanSetting DROP_REQUEST_IF_FIREWALLED
@@ -138,7 +138,7 @@ public final class NetworkSettings extends MojitoProps {
     
     /**
      * Setting for whether or not IPv4-compatible addresses should be 
-     * dropped that have a public address
+     * dropped that have a public address.
      */
     public static final BooleanSetting DROP_PUBLIC_IPV4_COMPATIBLE_ADDRESSES
         = FACTORY.createRemoteBooleanSetting("DROP_PUBLIC_IPV4_COMPATIBLE_ADDRESSES", 
@@ -146,7 +146,7 @@ public final class NetworkSettings extends MojitoProps {
     
     /**
      * Setting for whether or not IPv4-compatible addresses should be 
-     * dropped that have a private address
+     * dropped that have a private address.
      */
     public static final BooleanSetting DROP_PRIVATE_IPV4_COMPATIBLE_ADDRESSES
         = FACTORY.createRemoteBooleanSetting("DROP_PRIVATE_IPV4_COMPATIBLE_ADDRESSES", 

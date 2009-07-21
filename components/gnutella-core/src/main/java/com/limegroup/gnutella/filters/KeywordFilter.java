@@ -84,7 +84,7 @@ public class KeywordFilter implements SpamFilter {
 
     /**
      * Returns list of banned keywords.
-     * 
+     * <p>
      * Package private for testing.
      */
     List<String> getBannedKeywords() {

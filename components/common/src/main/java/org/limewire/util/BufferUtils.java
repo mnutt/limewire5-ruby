@@ -20,7 +20,7 @@ public class BufferUtils {
     /**
      * Cleans some data from the buffer.
      * Returns how much more needs to be deleted.
-     * 
+     * <p>
      * The data in buffer is expected to be in 'reading' position.
      * That is, position should be at the end of the data, limit should be capacity.
      */
@@ -48,10 +48,7 @@ public class BufferUtils {
      * This returns the last amount of data that could be read from the channel.
      * It does NOT return the total amount of data transferred.
      * 
-     * @param bufferSrc
-     * @param channelSrc
-     * @param dst
-     * @return The last amount of data that could be read from the channel.
+     * @return the last amount of data that could be read from the channel.
      * @throws IOException
      */
     public static int readAll(ByteBuffer bufferSrc, ReadableByteChannel channelSrc, ByteBuffer dst) throws IOException {
@@ -66,8 +63,6 @@ public class BufferUtils {
      * The data in 'src' will be flipped prior to transferring & then compacted.
      * Returns however much data was transferred.
      * 
-     * @param src
-     * @param dst
      * @return The amount of data transferred
      */
     public static int transfer(ByteBuffer src, ByteBuffer dst) {
@@ -79,8 +74,6 @@ public class BufferUtils {
      * Returns how much data was transferred.
      * The data in 'src' will NOT be flipped prior to transferring if needsFlip is false.
      * 
-     * @param src
-     * @param dst
      * @param needsFlip whether or not to flip src
      * @return The amount of data transferred
      */
@@ -119,8 +112,6 @@ public class BufferUtils {
      * is data in src and that it is non-null.  This also assumes that
      * 'src' is already flipped & 'dst' is ready for writing.
      * 
-     * @param src
-     * @param dst
      * @return The amount of data transferred
      */
     private static int doTransfer(ByteBuffer src, ByteBuffer dst) {

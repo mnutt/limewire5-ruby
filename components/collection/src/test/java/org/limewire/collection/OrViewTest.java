@@ -16,7 +16,7 @@ public class OrViewTest extends BaseTestCase {
     }
 
     /**
-     * 
+     * Test data.
      * <pre>
      * Output: bf1: 1100 
      *         bf2: 1010 

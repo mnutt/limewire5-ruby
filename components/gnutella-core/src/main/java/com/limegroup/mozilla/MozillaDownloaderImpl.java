@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.io.Address;
 import org.limewire.io.GUID;
@@ -95,8 +96,8 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     }
 
     @Override
-    public RemoteFileDesc getBrowseEnabledHost() {
-        return null;
+    public List<RemoteFileDesc> getRemoteFileDescs() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -206,11 +207,6 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     }
 
     @Override
-    public boolean hasBrowseEnabledHost() {
-        return false;
-    }
-
-    @Override
     public boolean isCompleted() {
         return download.isCompleted();
     }
@@ -237,7 +233,7 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
 
     @Override
     public boolean isRelocatable() {
-        return !isCompleted();
+        return false;
     }
 
     @Override
@@ -378,5 +374,11 @@ public class MozillaDownloaderImpl extends AbstractCoreDownloader implements
     public void deleteIncompleteFiles() {
         FileUtils.delete(getIncompleteFile(), false);
     }
-
+    
+    @Override
+    public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
+            throws DownloadException {
+        //overriding to track down cause of https://www.limewire.org/jira/browse/LWC-3697 remove when fixed
+        super.setSaveFile(saveDirectory, fileName, overwrite);
+    }
 }

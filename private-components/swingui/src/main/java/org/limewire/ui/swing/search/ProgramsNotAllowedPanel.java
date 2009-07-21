@@ -15,7 +15,7 @@ public class ProgramsNotAllowedPanel extends JPanel {
     
         super(new MigLayout("fill"));
         
-        MessageComponent messageComponent = new MessageComponent(12, 22, 14, 4);
+        MessageComponent messageComponent = new MessageComponent(12, 22, 10, 14);
         
         JLabel title = new JLabel(I18n.tr("Downloading programs can result in viruses"));
         
@@ -24,12 +24,12 @@ public class ProgramsNotAllowedPanel extends JPanel {
         if (OSUtils.isMacOSX()) {
             message = new JLabel("<html>" + I18n.tr("We recommend you don't download programs" +
                     " using LimeWire. However, you can enable downloading programs via Preferences > " +
-                    "Security > Unsafe Categories.")+"</html>");
+                    "Search > Search Filtering.")+"</html>");
         }
         else {
             message = new JLabel("<html>" + I18n.tr("We recommend you don't download programs" +
         		" using LimeWire. However, you can enable downloading programs via Tools > Options > " +
-        		"Security > Unsafe Categories.")+"</html>");
+        		"Search > Search Filtering.")+"</html>");
         }
         
         messageComponent.decorateHeaderLabel(title);

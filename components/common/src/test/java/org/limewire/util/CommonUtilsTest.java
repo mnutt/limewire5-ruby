@@ -153,7 +153,7 @@ public class CommonUtilsTest extends BaseTestCase {
 
     /**
      * Tests that IO exception is thrown if parent dir's byte representation
-     * already execeeds max path length, but its char representation does not.
+     * already exceeds max path length, but its char representation does not.
      */
     public void testConvertFileNameDiscardsTooLongParentPaths() throws Exception {
         char c = '\u30d5';

@@ -3,8 +3,8 @@ package org.limewire.xmpp.client.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.limewire.xmpp.api.client.FileMetaData;
-import org.limewire.xmpp.api.client.FileOfferEvent;
+import org.limewire.friend.api.FileMetaData;
+import org.limewire.friend.api.FileOfferEvent;
 import org.limewire.listener.RegisteringEventListener;
 import org.limewire.listener.ListenerSupport;
 

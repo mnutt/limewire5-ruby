@@ -22,7 +22,7 @@ import com.limegroup.gnutella.metadata.audio.reader.WeedInfo;
 /**
  * A parser for reading ASF files.
  * Everything we understand is stored.
- *
+ * <p>
  * This is initially based  off the work of Reed Esau, in his excellent ptarmigan package,
  * from http://ptarmigan.sourceforge.net/ .  This was also based off of the work
  * in the XNap project, from
@@ -110,9 +110,11 @@ public class ASFParser {
      * This first checks that the marker (16 bytes) is correct, reads the data offset & object count,
      * and then iterates through the objects, reading them.
      * Each object is stored in the format:
+     * <xmp>
      *   ObjectID (16 bytes)
      *   Object Size (4 bytes)
      *   Object (Object Size bytes)
+     * </xmp>
      */
     private void parse(InputStream is) throws IOException {
         CountingInputStream counter = new CountingInputStream(is);
@@ -321,9 +323,12 @@ public class ASFParser {
     
     /**
      * Parses known information out of the Content Description object.
+     * <p>
      * The data is stored as:
      *   10 bytes of sizes (2 bytes for each size).
-     *   The data corresponding to each size.  The data is stored in order of:
+     *   The data corresponding to each size.  
+     *   <p>
+     *   The data is stored in order of:
      *   Title, Author, Copyright, Description, Rating.
      */
     private void parseContentDescription(DataInputStream ds) throws IOException {
@@ -356,13 +361,15 @@ public class ASFParser {
      * The extended tag has an arbitrary number of fields.  
      * The number of fields is stored first, as:
      *      Field Count (2 bytes)
-     *
+     *<p>
      * Each field is stored as:
+     * <pre>
      *      Field Size (2 bytes)
      *      Field      (Field Size bytes)
      *      Data Type  (2 bytes)
      *      Data Size  (2 bytes)
      *      Data       (Data Size bytes)
+     * </pre>
      */
     private void parseExtendedContentDescription(DataInputStream ds) throws IOException {
         LOG.debug("Parsing extended content description");
@@ -584,7 +591,7 @@ public class ASFParser {
         /** the title of the file */
         private static final String WM_TITLE = "WM/Title";
         
-        /** the author of the fiel */
+        /** the author of the file */
         private static final String WM_AUTHOR = "WM/Author";
         
         /** the title of the album the file is on */

@@ -8,14 +8,16 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.browse.Browse;
 import org.limewire.core.api.browse.BrowseFactory;
 import org.limewire.core.api.browse.BrowseListener;
-import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.library.FriendLibrary;
 import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.PresenceLibrary;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.impl.search.RemoteFileDescAdapter;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.LibraryChanged;
+import org.limewire.friend.api.LibraryChangedEvent;
+import org.limewire.friend.api.feature.AddressFeature;
 import org.limewire.io.Address;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
@@ -24,9 +26,6 @@ import org.limewire.net.SocketsManager;
 import org.limewire.net.address.AddressResolutionObserver;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.MatchAndCopy;
-import org.limewire.xmpp.api.client.LibraryChanged;
-import org.limewire.xmpp.api.client.LibraryChangedEvent;
-import org.limewire.xmpp.api.client.Presence;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
@@ -67,10 +66,10 @@ public class PresenceLibraryBrowserTest extends BaseTestCase {
             will(returnValue(friendLibraryList));
             
             exactly(1).of(listenerSupport).addListener(presenceLibraryBrowser);
-            exactly(1).of(remoteLibraryManager).removePresenceLibrary(presence);
-            exactly(1).of(remoteLibraryManager).addPresenceLibrary(presence);
             exactly(1).of(socketsManager).addListener(with(any(EventListener.class)));
             exactly(1).of(friendLibraryList).addListEventListener(with(any(ListEventListener.class)));
+            exactly(1).of(remoteLibraryManager).getPresenceLibrary(presence);
+            exactly(1).of(remoteLibraryManager).addPresenceLibrary(presence);
         }});
         
         presenceLibraryBrowser.register(listenerSupport);
@@ -299,6 +298,7 @@ public class PresenceLibraryBrowserTest extends BaseTestCase {
             exactly(1).of(friendLibraryEventList).addListEventListener(with(listenerCollector));
             exactly(1).of(presenceLibraryEventList).addListEventListener(with(listenerCollector));
             exactly(1).of(browse).start(with(browseListenerCollector));
+            exactly(1).of(presenceLibrary).size();
             exactly(1).of(presenceLibrary).setState(LibraryState.LOADED);
         }});
         
@@ -361,7 +361,7 @@ public class PresenceLibraryBrowserTest extends BaseTestCase {
             
             allowing(presenceLibrary).setState(with(any(LibraryState.class)));
                         
-            Presence presence = context.mock(Presence.class);
+            FriendPresence presence = context.mock(FriendPresence.class);
             allowing(presenceLibrary).getPresence();
             will(returnValue(presence));
             AddressFeature addressFeature = context.mock(AddressFeature.class);
@@ -389,6 +389,7 @@ public class PresenceLibraryBrowserTest extends BaseTestCase {
             // Assertions
             exactly(1).of(socketsManager).resolve(with(same(address)), with(observerCollector));
             exactly(1).of(browse).start(with(browseListenerCollector));
+            exactly(1).of(presenceLibrary).size();
             
         }});
         

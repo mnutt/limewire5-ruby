@@ -13,7 +13,7 @@ public interface LocalSocketAddressProvider {
     
     /**
      * Determines whether this provider considers local address
-     * (that is, 127.0.0.1, 192.168.*.*, etc...) private addresses
+     * (that is, 127.0.0.1, 192.168.*.*, etc...) private addresses.
      */ 
     public boolean isLocalAddressPrivate();
     

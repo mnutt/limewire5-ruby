@@ -7,24 +7,17 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Rectangle;
-import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -32,30 +25,35 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.OverlayLayout;
 import javax.swing.SwingUtilities;
-import javax.swing.text.JTextComponent;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.concurrent.FutureEvent;
 import org.limewire.concurrent.ListeningFuture;
-import org.limewire.core.api.friend.FriendEvent;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.friend.feature.Feature;
-import org.limewire.core.api.friend.feature.FeatureEvent;
-import org.limewire.core.api.friend.feature.features.FileOfferFeature;
-import org.limewire.core.api.friend.feature.features.FileOfferer;
-import org.limewire.core.api.friend.feature.features.LimewireFeature;
 import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.core.api.library.LocalFileList;
-import org.limewire.core.api.library.ShareListManager;
+import org.limewire.core.api.library.SharedFileListManager;
+import org.limewire.friend.api.ChatState;
+import org.limewire.friend.api.FileMetaData;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendEvent;
+import org.limewire.friend.api.FriendException;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.MessageWriter;
+import org.limewire.friend.api.feature.Feature;
+import org.limewire.friend.api.feature.FeatureEvent;
+import org.limewire.friend.api.feature.FeatureTransport;
+import org.limewire.friend.api.feature.FileOfferFeature;
+import org.limewire.friend.api.feature.LimewireFeature;
+import org.limewire.friend.impl.feature.NoSave;
+import org.limewire.friend.impl.feature.NoSaveFeature;
+import org.limewire.friend.impl.feature.NoSaveStatus;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
@@ -69,30 +67,25 @@ import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.event.RuntimeTopicEventSubscriber;
 import org.limewire.ui.swing.friends.chat.Message.Type;
-import org.limewire.ui.swing.library.nav.LibraryNavigator;
 import org.limewire.ui.swing.painter.GenericBarPainter;
-import org.limewire.ui.swing.util.DNDUtils;
+import org.limewire.ui.swing.search.FriendPresenceActions;
 import org.limewire.ui.swing.util.GuiUtils;
+import org.limewire.ui.swing.util.I18n;
 import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.util.FileUtils;
-import org.limewire.xmpp.api.client.ChatState;
-import org.limewire.xmpp.api.client.FileMetaData;
-import org.limewire.xmpp.api.client.MessageWriter;
-import org.limewire.xmpp.api.client.XMPPException;
-import org.limewire.xmpp.api.client.User;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.name.Named;
 
 import net.miginfocom.swing.MigLayout;
 
 /**
- *
+ * Class representing the chat window.
  */
 public class ConversationPane extends JPanel implements Displayable, Conversation {
     private static final int PADDING = 5;
@@ -107,16 +100,18 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
     private final JEditorPane editor;
     private final String conversationName;
     private final String friendId;
-    private final String loggedInID;
     private final MessageWriter writer;
     private final ChatFriend chatFriend;
-    private final ShareListManager shareListManager;
-    private final IconManager iconManager;
-    private final LibraryNavigator libraryNavigator;
+//    private final ShareListManager shareListManager;
+    private final Provider<IconManager> iconManager;
+    private final FriendPresenceActions remoteHostActions;
+//    private final LibraryNavigator libraryNavigator;
     private HyperlinkButton downloadlink;
-    private HyperlinkButton sharelink;
+    private HyperlinkButton nosaveLink;
+    private JXPanel toolbar;
     private ResizingInputPanel inputPanel;
     private ChatState currentChatState;
+    private NoSave noSaveState;
 
     private ListenerSupport<FriendEvent> friendSupport;
     private ListenerSupport<FeatureEvent> featureSupport;
@@ -127,23 +122,25 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
     @Resource(key="ChatConversation.toolbarBottomColor") private Color toolbarBottomColor;
     @Resource(key="ChatConversation.toolbarBorderColor") private Color toolbarBorderColor;
     @Resource(key="ChatConversation.linkFont") private Font linkFont;
+    @Resource private Icon endChat;
 
     private final JScrollPane conversationScroll;
     private final JPanel chatWrapper;
-    
-    @AssistedInject
-    public ConversationPane(@Assisted MessageWriter writer, final @Assisted ChatFriend chatFriend, @Assisted String loggedInID,
-                            ShareListManager libraryManager, IconManager iconManager, LibraryNavigator libraryNavigator,
-                            IconLibrary iconLibrary, ChatHyperlinkListenerFactory chatHyperlinkListenerFactory,
+
+    @Inject
+    public ConversationPane(@Assisted MessageWriter writer, final @Assisted ChatFriend chatFriend,
+                            SharedFileListManager libraryManager, Provider<IconManager> iconManager,
+                            ChatHyperlinkListenerFactory chatHyperlinkListenerFactory, FriendPresenceActions remoteHostActions,
                             @Named("backgroundExecutor")ScheduledExecutorService schedExecService) {
         this.writer = writer;
         this.chatFriend = chatFriend;
         this.conversationName = chatFriend.getName();
         this.friendId = chatFriend.getID();
-        this.loggedInID = loggedInID;
-        this.shareListManager = libraryManager;
+//        this.shareListManager = libraryManager;
         this.iconManager = iconManager;
-        this.libraryNavigator = libraryNavigator;
+//        this.libraryNavigator = libraryNavigator;
+        this.noSaveState = null;
+        this.remoteHostActions = remoteHostActions;
         
         GuiUtils.assignResources(this);
 
@@ -167,7 +164,7 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
                 new CloseChatEvent(chatFriend).publish();
             }
         });
-        closeConversation.setIcon(iconLibrary.getEndChat());
+        closeConversation.setIcon(endChat);
         
         chatWrapper = new JPanel();
         chatWrapper.setLayout(new OverlayLayout(chatWrapper));
@@ -218,8 +215,8 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
 
         PopupUtil.addPopupMenus(editor, new CopyAction(editor), new CopyAllAction());
 
-        FriendShareDropTarget friendShare = new FriendShareDropTarget(editor, libraryManager.getOrCreateFriendShareList(chatFriend.getUser()));
-        editor.setDropTarget(friendShare.getDropTarget());
+//        FriendShareDropTarget friendShare = new FriendShareDropTarget(editor, libraryManager.getOrCreateFriendShareList(chatFriend.getFriend()));
+//        editor.setDropTarget(friendShare.getDropTarget());
 
         add(footerPanel(writer, chatFriend, schedExecService), BorderLayout.SOUTH);
 
@@ -261,23 +258,39 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
 
     @RuntimeTopicEventSubscriber(methodName="getMessageReceivedTopicName")
     public void handleConversationMessage(String topic, MessageReceivedEvent event) {
+
+        // TODO: Refactor this,ChatDocumentBuilder, etc into cleaner/clearer, way to display msgs
         Message message = event.getMessage();
         LOG.debugf("Message: from {0} text: {1} topic: {2}", message.getSenderName(), message.toString(), topic);
         messages.add(message);
         Type type = message.getType();
 
-        if (type != Type.Sent) {
+        if (type != Type.SENT) {
             currentChatState = ChatState.active;
         }
 
         if (message instanceof MessageFileOffer) {
             MessageFileOffer msgWithFileOffer = (MessageFileOffer)message;
-            String fileOfferID = msgWithFileOffer.getFileOffer().getId();
-            idToMessageWithFileOffer.put(fileOfferID, msgWithFileOffer);
+            addFileOfferMessage(msgWithFileOffer);
+        } else if (message instanceof NoSaveStatusMessage) {
+            updateNoSaveLink(((NoSaveStatusMessage)message).getStatus());
         }
 
         displayMessages();
     }
+
+
+    private void addFileOfferMessage(MessageFileOffer msgWithFileOffer) {
+        String fileOfferID = msgWithFileOffer.getFileOffer().getId();
+        idToMessageWithFileOffer.put(fileOfferID, msgWithFileOffer);
+    }
+
+    private void updateNoSaveLink(NoSave noSave) {
+        noSaveState = noSave;
+        nosaveLink.setText("<html><u>" + (noSaveState == NoSave.ENABLED ? tr("On the Record") :
+                tr("Off the Record")) + "</u></html>");
+    }
+
 
     @RuntimeTopicEventSubscriber(methodName="getChatStateTopicName")
     public void handleChatStateUpdate(String topic, ChatStateEvent event) {
@@ -293,11 +306,15 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
         case ADDED:
             currentChatState = ChatState.active;
             displayMessages(false);
-            inputPanel.getInputComponent().setEnabled(true);
+            if ((nosaveLink != null) && hasFeature(NoSaveFeature.ID)) {
+                nosaveLink.setVisible(true);
+            }
             break;
         case REMOVED:
             displayMessages(true);
-            inputPanel.getInputComponent().setEnabled(false);
+            if (nosaveLink != null) {
+                nosaveLink.setVisible(false);
+            }
             break;
         }
     }
@@ -310,7 +327,17 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
             if (featureEventType == FeatureEvent.Type.ADDED) {
                 downloadlink.setEnabled(true);
             } else if (featureEventType == FeatureEvent.Type.REMOVED) {
-                downloadlink.setEnabled(false);
+                downloadlink.setEnabled(chatFriend.isSignedInToLimewire());
+            }
+        } else if (feature.getID().equals(NoSaveFeature.ID)) {
+            if (featureEventType == FeatureEvent.Type.ADDED) {
+                ensureNoSaveLinkExists();
+                NoSave status = ((NoSaveStatus)feature.getFeature()).getStatus();
+                if (status != noSaveState) {
+                    NoSaveStatusMessage msg = new NoSaveStatusMessage(friendId,
+                            Message.Type.SERVER, status);
+                    new MessageReceivedEvent(msg).publish();
+                }
             }
         }
     }
@@ -318,7 +345,7 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
     public void setChatStateGone() {
         try {
             writer.setChatState(ChatState.gone);
-        } catch (XMPPException e) {
+        } catch (FriendException e) {
             LOG.error("Could not set chat state while closing the conversation", e);
         }
     }
@@ -339,7 +366,7 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
     }
 
     public void displayMessages() {
-        displayMessages(false);
+        displayMessages(!chatFriend.isSignedIn());
     }
 
     public ChatFriend getChatFriend() {
@@ -408,7 +435,7 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
 
                 String extension = FileUtils.getFileExtension(buttonText);
                 if (!extension.isEmpty()) {
-                    Icon icon = iconManager.getIconForExtension(extension);
+                    Icon icon = iconManager.get().getIconForExtension(extension);
                     button.setIcon(icon);
                 }
 
@@ -423,32 +450,70 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
         
         downloadlink = new HyperlinkButton(new DownloadFromFriendLibraryAction());
         downloadlink.setFont(linkFont);
+        downloadlink.setEnabled(chatFriend.isSignedInToLimewire());
 
-        sharelink = new HyperlinkButton(new ShareAction());
-        sharelink.setFont(linkFont);
-        
-        
-        JXPanel toolbar = new JXPanel(new MigLayout("insets 0 0 0 5, gap 10, alignx right, aligny 50%"));
+        toolbar = new JXPanel(new MigLayout("insets 0 0 0 5, gap 10, alignx right, aligny 50%"));
         ResizeUtils.forceHeight(toolbar, 22);
         
         toolbar.setBackgroundPainter(new GenericBarPainter<JXPanel>(
                 new GradientPaint(0, 0, toolbarTopColor, 0, 1, toolbarBottomColor),
                 toolbarBorderColor, PainterUtils.TRASPARENT,
                 toolbarBorderColor, PainterUtils.TRASPARENT));
-        
+
+        if (hasFeature(NoSaveFeature.ID)) {
+            ensureNoSaveLinkExists();
+        }
+
         toolbar.add(downloadlink);
-        toolbar.add(sharelink);
 
         inputPanel = new ResizingInputPanel(writer, schedExecService);
         inputPanel.setBorder(BorderFactory.createEmptyBorder());
         panel.add(toolbar, BorderLayout.NORTH);
         panel.add(inputPanel, BorderLayout.CENTER);
 
-        JTextComponent inputComponent = inputPanel.getInputComponent();
-        FriendShareDropTarget friendShare = new FriendShareDropTarget(inputComponent, shareListManager.getOrCreateFriendShareList(chatFriend.getUser()));
-        inputComponent.setDropTarget(friendShare.getDropTarget());
+//        JTextComponent inputComponent = inputPanel.getInputComponent();
+//        FriendShareDropTarget friendShare = new FriendShareDropTarget(inputComponent, shareListManager.getOrCreateFriendShareList(chatFriend.getFriend()));
+//        inputComponent.setDropTarget(friendShare.getDropTarget());
 
         return panel;
+    }
+
+    
+    private boolean hasFeature(URI feature) {
+        return getFeature(feature) != null;
+    }
+
+    /**
+     * Returns the feature identified by the method parameter. The
+     * feature can be in any of the presences of the friend.
+     * <p>
+     * This was done to get around implementing adding/removing features on
+     * objects (such as xmpp connections and friends) other than FriendPresences
+     *
+     * @param feature desired feature's URI
+     * @return {@link Feature}
+     */
+    private Feature getFeature(URI feature) {
+        for (FriendPresence presence : chatFriend.getFriend().getPresences().values()) {
+            if (presence.hasFeatures(feature)) {
+                return presence.getFeature(feature);
+            }
+        }
+        return null;
+    }
+
+    private void ensureNoSaveLinkExists() {
+        if (nosaveLink == null) {
+            NoSaveToggleAction action = new NoSaveToggleAction();
+            nosaveLink = new HyperlinkButton(action);
+            nosaveLink.setFont(linkFont);
+
+            // initialize nosave state
+            NoSaveFeature nosaveFeature = (NoSaveFeature)getFeature(NoSaveFeature.ID);
+            updateNoSaveLink(nosaveFeature.getFeature().getStatus());
+
+            toolbar.add(nosaveLink, 0);
+        }
     }
 
     @Override
@@ -465,18 +530,26 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            libraryNavigator.selectFriendLibrary(chatFriend.getUser());
+            remoteHostActions.viewFriendLibrary(chatFriend.getFriend());
         }
     }
 
-    private class ShareAction extends AbstractAction {
-        public ShareAction() {
-            super("<html><u>" + tr("What I'm Sharing") + "</u></html>");
-        }
-        
+    /**
+     * Sets the nosave state to be the opposite of what it currently is.
+     * Sends a nosave IQ msg to the server.
+     * 
+     */
+    private class NoSaveToggleAction extends AbstractAction {
+
         @Override
         public void actionPerformed(ActionEvent e) {
-            libraryNavigator.selectFriendShareList(chatFriend.getUser());
+            NoSaveStatus status = ((NoSaveFeature)getFeature(NoSaveFeature.ID)).getFeature();
+
+            try {
+                status.toggleStatus();
+            } catch (FriendException e1) {
+                LOG.warn("Error occurred while toggling nosave status", e1);
+            }
         }
     }
 
@@ -503,26 +576,33 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
                if(event.getResult() != null) {
                    FileMetaData metadata = event.getResult().toMetadata();
                    boolean sentFileOffer = false;
+                   Friend friend = chatFriend.getFriend();
+                   
+                   // do not send file offer if user not signed in.
+                   if (!friend.isSignedIn()) {
+                       String errorMsg = tr("File offer not sent because friend signed off.");
+                       Message msg = new MessageFileOfferImpl(I18n.tr("me"), friendId, 
+                           Message.Type.SENT, metadata, null);
+                       new MessageReceivedEvent(new ErrorMessage(errorMsg, msg)).publish();
+                       return;
+                   }
 
                    // if active presence exists, send file offer to it,
                    // otherwise broadcast to every presence with FileOfferFeature.ID feature
-                   User chatUser = chatFriend.getUser();
-                   FriendPresence activePresence = chatUser.getActivePresence();
+                   FriendPresence activePresence = friend.getActivePresence();
                    if ((activePresence != null) && activePresence.hasFeatures(FileOfferFeature.ID)) {
                         sentFileOffer = performFileOffer(metadata, activePresence);
                    } else {
-                       for (FriendPresence presence : chatUser.getFriendPresences().values()) {
+                       for (FriendPresence presence : friend.getPresences().values()) {
                             sentFileOffer |= performFileOffer(metadata, presence);
                        }
                    }
 
-                   MessageFileOffer fileOfferMessage =
-                           new MessageFileOfferImpl(loggedInID, friendId, Message.Type.Sent, metadata, null);
-
                    if (sentFileOffer) {
-                        new MessageReceivedEvent(fileOfferMessage).publish();
+                        new MessageReceivedEvent(new MessageFileOfferImpl(I18n.tr("me"), 
+                                friendId, Message.Type.SENT, metadata, null)).publish();
                    } else {
-                       // TODO: Devise how to handle file offer sending failures, using tooltip perhaps?
+                       // TODO: handle file offer sending failures (consider using ErrorMessage)
                    }
                }
             }
@@ -533,10 +613,10 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
                 if (fileOfferFeature != null) {
                     try {
                         writer.setChatState(ChatState.active);
-                        FileOfferer fileOfferer = ((FileOfferFeature) fileOfferFeature).getFeature();
-                        fileOfferer.offerFile(metadata);
+                        FeatureTransport<FileMetaData> fileOfferer = presence.getTransport(FileOfferFeature.class);
+                        fileOfferer.sendFeature(presence, metadata);
                         fileOfferSent = true;
-                    } catch (XMPPException e) {
+                    } catch (FriendException e) {
                         LOG.debug("File offer failed", e);
                     }
                 }
@@ -545,83 +625,83 @@ public class ConversationPane extends JPanel implements Displayable, Conversatio
         });
     }
     
-    private class FriendShareDropTarget implements DropTargetListener {
-        private final DropTarget dropTarget;
-        private LocalFileList fileList;
-        
-        public FriendShareDropTarget(JComponent component, LocalFileList fileList) {
-            dropTarget = new DropTarget(component, DnDConstants.ACTION_COPY, this, true, null);
-            this.fileList = fileList;
-        }
-        
-        public void setModel(LocalFileList fileList) {
-            this.fileList = fileList;
-        }
-        
-        public DropTarget getDropTarget() {
-            return dropTarget;
-        }
-
-        @Override
-        public void dragEnter(DropTargetDragEvent dtde) {
-            checkLimewireConnected(dtde);
-        }
-        
-        @Override
-        public void dragExit(DropTargetEvent dte) {
-        }
-        
-        @Override
-        public void dragOver(DropTargetDragEvent dtde) {
-            checkLimewireConnected(dtde);
-        }
-
-        private void checkLimewireConnected(DropTargetDragEvent dtde) {
-            if (!chatFriend.isSignedInToLimewire()) {
-                dtde.rejectDrag();
-            }
-        }
-        
-        @Override
-        public void drop(DropTargetDropEvent dtde) {
-            if ((dtde.getDropAction() & DnDConstants.ACTION_COPY_OR_MOVE) != 0) {
-                // Accept the drop and get the transfer data
-                dtde.acceptDrop(dtde.getDropAction());
-                Transferable transferable = dtde.getTransferable();
-
-                try {
-                    final LocalFileList currentModel = fileList;
-                    final File[] droppedFiles = DNDUtils.getFiles(transferable); 
-              
-                    for(File file : droppedFiles) {
-                        if(file != null) {
-                            if(file.isDirectory()) {
-                                acceptedFolder(currentModel.addFolder(file));
-                            } else {
-                                acceptedFile(currentModel.addFile(file));
-                            }
-                        }
-                    }
-                    
-                    dtde.dropComplete(true);
-                } catch (Exception e) {
-                    dtde.dropComplete(false);
-                }
-              } else {
-                    dtde.rejectDrop();
-              }
-        }
-        
-        @Override
-        public void dropActionChanged(DropTargetDragEvent dtde) {
-        }
-        
-        protected void acceptedFile(ListeningFuture<LocalFileItem> future) {
-            offerFile(future);
-        }
-        
-        protected void acceptedFolder(ListeningFuture<List<ListeningFuture<LocalFileItem>>> future) {
-            offerFolder(future);
-        }
-    }
+//    private class FriendShareDropTarget implements DropTargetListener {
+//        private final DropTarget dropTarget;
+//        private LocalFileList fileList;
+//        
+//        public FriendShareDropTarget(JComponent component, LocalFileList fileList) {
+//            dropTarget = new DropTarget(component, DnDConstants.ACTION_COPY, this, true, null);
+//            this.fileList = fileList;
+//        }
+//        
+//        public void setModel(LocalFileList fileList) {
+//            this.fileList = fileList;
+//        }
+//        
+//        public DropTarget getDropTarget() {
+//            return dropTarget;
+//        }
+//
+//        @Override
+//        public void dragEnter(DropTargetDragEvent dtde) {
+//            checkLimewireConnected(dtde);
+//        }
+//        
+//        @Override
+//        public void dragExit(DropTargetEvent dte) {
+//        }
+//        
+//        @Override
+//        public void dragOver(DropTargetDragEvent dtde) {
+//            checkLimewireConnected(dtde);
+//        }
+//
+//        private void checkLimewireConnected(DropTargetDragEvent dtde) {
+//            if (!chatFriend.isSignedInToLimewire()) {
+//                dtde.rejectDrag();
+//            }
+//        }
+//        
+//        @Override
+//        public void drop(DropTargetDropEvent dtde) {
+//            if ((dtde.getDropAction() & DnDConstants.ACTION_COPY_OR_MOVE) != 0) {
+//                // Accept the drop and get the transfer data
+//                dtde.acceptDrop(dtde.getDropAction());
+//                Transferable transferable = dtde.getTransferable();
+//
+//                try {
+//                    final LocalFileList currentModel = fileList;
+//                    final File[] droppedFiles = DNDUtils.getFiles(transferable); 
+//              
+//                    for(File file : droppedFiles) {
+//                        if(file != null) {
+//                            if(file.isDirectory()) {
+//                                acceptedFolder(currentModel.addFolder(file));
+//                            } else {
+//                                acceptedFile(currentModel.addFile(file));
+//                            }
+//                        }
+//                    }
+//                    
+//                    dtde.dropComplete(true);
+//                } catch (Exception e) {
+//                    dtde.dropComplete(false);
+//                }
+//              } else {
+//                    dtde.rejectDrop();
+//              }
+//        }
+//        
+//        @Override
+//        public void dropActionChanged(DropTargetDragEvent dtde) {
+//        }
+//        
+//        protected void acceptedFile(ListeningFuture<LocalFileItem> future) {
+//            offerFile(future);
+//        }
+//        
+//        protected void acceptedFolder(ListeningFuture<List<ListeningFuture<LocalFileItem>>> future) {
+//            offerFolder(future);
+//        }
+//    }
 }

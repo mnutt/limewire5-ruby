@@ -12,8 +12,8 @@ import org.limewire.lws.server.LWSDispatcher;
  * class contains an instance of {@link HttpRequestHandler} which can attach to
  * an acceptor. <br/><br/> One can add {@link LWSManagerCommandResponseHandler}s
  * to an instance by calling the following method:
- * {@link #registerHandler(String, com.limegroup.gnutella.store.storeserver.LWSManager.LWSManagerCommandResponseHandler)}</li>
- * only <u>one</u> handler may be registered per command. It's expected that
+ * {@link #registerHandler(String, com.limegroup.gnutella.store.storeserver.LWSManager.LWSManagerCommandResponseHandler)}
+ * only <b>one</b> handler may be registered per command. It's expected that
  * at one handler will be registered for every command. <br>
  * 
  * <br/>

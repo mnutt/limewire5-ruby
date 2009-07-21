@@ -5,7 +5,7 @@ import ca.odell.glazedlists.EventList;
 /** A list of FileItems. */
 public interface FileList <T extends FileItem> {
     
-    /** An {@link EventList} that describes this list */
+    /** An {@link EventList} that describes this list. */
     EventList<T> getModel();
     
     /**

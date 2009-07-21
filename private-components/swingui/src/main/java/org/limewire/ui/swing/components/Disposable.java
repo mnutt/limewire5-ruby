@@ -1,7 +1,9 @@
 package org.limewire.ui.swing.components;
 
+/** An item that can be disposed. */
 public interface Disposable {
     
-    public void dispose();
+    /** Disposes this item and any resources it has. */
+    void dispose();
 
 }

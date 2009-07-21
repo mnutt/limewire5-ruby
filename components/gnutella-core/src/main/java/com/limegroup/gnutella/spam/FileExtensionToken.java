@@ -1,7 +1,7 @@
 package com.limegroup.gnutella.spam;
 
 /**
- * A token representing a file extension
+ * A token representing a file extension.
  */
 public class FileExtensionToken extends KeywordToken {
 

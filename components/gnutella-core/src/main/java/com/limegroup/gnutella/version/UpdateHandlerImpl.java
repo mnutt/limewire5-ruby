@@ -1,6 +1,5 @@
 package com.limegroup.gnutella.version;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -25,7 +24,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.updates.UpdateStyle;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.UpdateSettings;
@@ -70,27 +69,29 @@ import com.limegroup.gnutella.http.HTTPHeaderName;
 import com.limegroup.gnutella.http.HttpClientListener;
 import com.limegroup.gnutella.http.HttpExecutor;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
+import com.limegroup.gnutella.library.Library;
+import com.limegroup.gnutella.library.LibraryStatusEvent;
 import com.limegroup.gnutella.library.LibraryUtils;
-import com.limegroup.gnutella.library.ManagedListStatusEvent;
 import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 /**
  * Manager for version updates.
- *
+ * <p>
  * Handles queueing new data for parsing and keeping track of which current
  * version is stored in memory & on disk.
  */
 @Singleton
-public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedListStatusEvent>, Service {
+public class UpdateHandlerImpl implements UpdateHandler, EventListener<LibraryStatusEvent>, Service {
     
     private static final Log LOG = LogFactory.getLog(UpdateHandlerImpl.class);
     
     private static final long THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
     
-    /** If we haven't had new updates in this long, schedule http failover */
+    /** If we haven't had new updates in this long, schedule HTTP failover */
     private static final long ONE_MONTH = 10L * THREE_DAYS;
     
     /**
@@ -98,9 +99,11 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
      */
     private static final String FILENAME = "version.xml";
     
-    private static final int IGNORE_ID = Integer.MAX_VALUE;
+    // Package access for testing
+    protected static final int IGNORE_ID = Integer.MAX_VALUE;
     
-    private static enum UpdateType {
+    // Package access for testing
+    protected static enum UpdateType {
         FROM_NETWORK, FROM_DISK, FROM_HTTP;
     }
     
@@ -131,8 +134,8 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     
     /**
      * The bytes to send on the wire.
-     *
-     * TODO: Don't store in memory.
+     */
+     /* TODO: Don't store in memory.
      */
     private volatile byte[] _lastBytes;
     
@@ -159,7 +162,8 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     private final CapabilitiesVMFactory capabilitiesVMFactory;
     private final Provider<ConnectionManager> connectionManager;
     private final Provider<DownloadManager> downloadManager;
-    private final Provider<FileManager> fileManager;
+    private final Library library;
+    private final FileView gnutellaFileView;
     private final ApplicationServices applicationServices;
     private final UpdateCollectionFactory updateCollectionFactory;
     private final UpdateMessageVerifier updateMessageVerifier;
@@ -192,12 +196,13 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
             CapabilitiesVMFactory capabilitiesVMFactory,
             Provider<ConnectionManager> connectionManager,
             Provider<DownloadManager> downloadManager,
-            Provider<FileManager> fileManager,
             ApplicationServices applicationServices,
             UpdateCollectionFactory updateCollectionFactory,
             Clock clock,
             UpdateMessageVerifier updateMessageVerifier, 
-            RemoteFileDescFactory remoteFileDescFactory) {
+            RemoteFileDescFactory remoteFileDescFactory,
+            @GnutellaFiles FileView gnutellaFileView,
+            Library library) {
         this.backgroundExecutor = backgroundExecutor;
         this.connectionServices = connectionServices;
         this.httpExecutor = httpExecutor;
@@ -206,27 +211,24 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
         this.capabilitiesVMFactory = capabilitiesVMFactory;
         this.connectionManager = connectionManager;
         this.downloadManager = downloadManager;
-        this.fileManager = fileManager;
+        this.library = library;
         this.applicationServices = applicationServices;
         this.updateCollectionFactory = updateCollectionFactory;
         this.clock = clock;
         this.updateMessageVerifier = updateMessageVerifier;
         this.remoteFileDescFactory = remoteFileDescFactory;
+        this.gnutellaFileView = gnutellaFileView;
         
         this.listeners = new EventListenerList<UpdateEvent>();
     }
     
     @Inject
-    void register(ListenerSupport<ManagedListStatusEvent> listener) {
+    void register(ListenerSupport<LibraryStatusEvent> listener) {
         listener.addListener(this);
     }
         
     String getTimeoutUrl() {
         return timeoutUpdateLocation;
-    }
-    
-    void setTimeoutUrl(String url) {
-        this.timeoutUpdateLocation = url;
     }
     
     List<String> getMaxUrls() {
@@ -235,26 +237,6 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     
     void setMaxUrls(List<String> urls) {
         this.maxedUpdateList = urls;
-    }
-    
-    int getMinHttpRequestUpdateDelayForMaxFailover() {
-        return minMaxHttpRequestDelay;
-    }
-    
-    int getMaxHttpRequestUpdateDelayForMaxFailover() {
-        return maxMaxHttpRequestDelay;
-    }
-    
-    void setMinHttpRequestUpdateDelayForMaxFailover(int min) {
-        minMaxHttpRequestDelay = min;
-    }
-    
-    void setMaxHttpRequestUpdateDelayForMaxFailover(int max) {
-        maxMaxHttpRequestDelay = max;
-    }
-    
-    int getSilentPeriodForMaxHttpRequest() {
-        return silentPeriodForMaxHttpRequest;
     }
     
     void setSilentPeriodForMaxHttpRequest(int silentPeriodForMaxHttpRequest) {
@@ -311,7 +293,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     
     /**
      * Notification that a new message has arrived.
-     *
+     * <p>
      * (The actual processing is passed of to be run in a different thread.
      *  All notifications are processed in the same thread, sequentially.)
      */
@@ -342,11 +324,11 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
     
     /**
-     * Handles processing a newly arrived message.
-     *
+     * Handles processing a newly arrived message. Package access for testing.
+     * <p>
      * (Processes the data immediately.)
      */
-    private void handleDataInternal(byte[] data, UpdateType updateType, ReplyHandler handler) {
+    protected void handleDataInternal(byte[] data, UpdateType updateType, ReplyHandler handler) {
         if (data == null) {
             if (updateType == UpdateType.FROM_NETWORK && handler != null)
                 networkUpdateSanityChecker.get()
@@ -506,7 +488,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
 
     /**
-     * begins an http failover.
+     * Begins an HTTP failover.
      */
     private void checkForStaleUpdateAndMaybeDoHttpFailover() {
         LOG.debug("checking for timeout http failover");
@@ -556,7 +538,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
 
     /**
-     * Launches an http update to the failover url.
+     * Launches an HTTP update to the failover url.
      */
     private void launchHTTPUpdate(String url) throws URISyntaxException {
         if (!httpRequestControl.isRequestPending())
@@ -574,7 +556,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
     
     /**
-     * replaces tokens in the update command with info about the specific system
+     * Replaces tokens in the update command with info about the specific system,
      * i.e. <PATH> -> C:\Documents And Settings.... 
      */
     private static void prepareUpdateCommand(UpdateData info) {
@@ -626,7 +608,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
             if (isHopeless(next))
                 continue; 
             
-            if(downloadManager.get().isSavedDownloadsLoaded() && fileManager.get().getManagedFileList().isLoadFinished()) {
+            if(downloadManager.get().isSavedDownloadsLoaded() && library.isLoadFinished()) {
                 
                 //TODO: remove the cast
                 ManagedDownloader md = (ManagedDownloader)downloadManager.get().getDownloaderForURN(next.getUpdateURN());
@@ -647,8 +629,8 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
                     LOG.debug("Starting a new InNetwork Download");
                     try {
                         md = (ManagedDownloader)downloadManager.get().download(next, clock.now());
-                    } catch(SaveLocationException sle) {
-                        LOG.error("Unable to construct download", sle);
+                    } catch(DownloadException e) {
+                        LOG.error("Unable to construct download", e);
                     }
                 }
                 
@@ -663,13 +645,13 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
     
     /**
-     * kills all in-network downloaders whose URNs are not listed in the list of updates.
+     * Kills all in-network downloaders whose URNs are not listed in the list of updates.
      * Deletes any files in the folder that are not listed in the update message.
      */
     private void killObsoleteUpdates(List<? extends DownloadInformation> toDownload) {
-    	if (!downloadManager.get().isSavedDownloadsLoaded() || !fileManager.get().getManagedFileList().isLoadFinished())
-    		return;
-    	
+        if (!downloadManager.get().isSavedDownloadsLoaded() || !library.isLoadFinished())
+            return;
+
         if (_killingObsoleteNecessary) {
             _killingObsoleteNecessary = false;
             downloadManager.get().killDownloadersNotListed(toDownload);
@@ -678,10 +660,10 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
             for(DownloadInformation data : toDownload)
                 urns.add(data.getUpdateURN());
             
-            List<FileDesc> shared = fileManager.get().getGnutellaFileList().getFilesInDirectory(LibraryUtils.PREFERENCE_SHARE);
+            List<FileDesc> shared = gnutellaFileView.getFilesInDirectory(LibraryUtils.PREFERENCE_SHARE);
             for (FileDesc fd : shared) {
                 if (fd.getSHA1Urn() != null && !urns.contains(fd.getSHA1Urn())) {
-                    fileManager.get().getManagedFileList().remove(fd.getFile());
+                    library.remove(fd.getFile());
                     fd.getFile().delete();
                 }
             }
@@ -764,8 +746,8 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     
     /**
      * Notifies this that an update with the given URN has finished downloading.
-     * 
-     * If this was our update, we notify the gui.  Its ok if the user restarts
+     * <p>
+     * If this was our update, we notify the GUI.  It's OK if the user restarts
      * as the rest of the updates will be downloaded the next session.
      */
     public void inNetworkDownloadFinished(final URN urn, final boolean good) {
@@ -839,7 +821,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
      * there was nothing to download
      */
     private boolean isMyUpdateDownloaded(UpdateInformation myInfo) {
-        if (!fileManager.get().getManagedFileList().isLoadFinished())
+        if (!library.isLoadFinished())
             return false;
         
         URN myUrn = myInfo.getUpdateURN();
@@ -850,7 +832,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
     
     private boolean hasCompleteFile(URN urn) {
-        List<FileDesc> fds = fileManager.get().getManagedFileList().getFileDescsMatching(urn);
+        List<FileDesc> fds = library.getFileDescsMatching(urn);
         for(FileDesc fd : fds) {
             if(!(fd instanceof IncompleteFileDesc)) {
                 return true;
@@ -868,7 +850,7 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
     
     /**
-     * a functor that repeatedly tries to download updates at a variable
+     * A functor that repeatedly tries to download updates at a variable
      * interval. 
      */
     private class Poller implements Runnable {
@@ -1017,10 +999,11 @@ public class UpdateHandlerImpl implements UpdateHandler, EventListener<ManagedLi
     }
 
     /**
-     * Listens for events from FileManager
+     * Listens for events from FileManager.
      */
-    public void handleEvent(ManagedListStatusEvent evt) {
-        if(evt.getType() == ManagedListStatusEvent.Type.LOAD_COMPLETE) {
+    @Override
+    public void handleEvent(LibraryStatusEvent evt) {
+        if(evt.getType() == LibraryStatusEvent.Type.LOAD_COMPLETE) {
             tryToDownloadUpdates();
         }
     }

@@ -23,27 +23,27 @@ import org.limewire.mojito.db.DHTValueType;
 import org.limewire.mojito.routing.Contact;
 
 /**
- * An EntityKey specifies the exact location of a DHTValueEntity
+ * An EntityKey specifies the exact location of a DHTValueEntity.
  */
 public class EntityKey {
     
     /**
-     * The Contact that has the Entity
+     * The Contact that has the Entity.
      */
     private final Contact node;
     
     /**
-     * The primary key of the entity
+     * The primary key of the entity.
      */
     private final KUID primaryKey;
     
     /**
-     * The secondary key of the entity
+     * The secondary key of the entity.
      */
     private final KUID secondaryKey;
     
     /**
-     * The type of the entity
+     * The type of the entity.
      */
     private final DHTValueType valueType;
     
@@ -51,7 +51,7 @@ public class EntityKey {
     
     /**
      * Creates and returns an EntityKey that will do a full lookup
-     * for the value
+     * for the value.
      */
     public static EntityKey createEntityKey(KUID primaryKey, DHTValueType valueType) {
         
@@ -111,35 +111,35 @@ public class EntityKey {
     }
     
     /**
-     * Returns true if this is a lookup key
+     * Returns true if this is a lookup key.
      */
     public boolean isLookupKey() {
         return secondaryKey == null;
     }
     
     /**
-     * Returns the node that has the DHTValueEntity
+     * Returns the node that has the DHTValueEntity.
      */
     public Contact getContact() {
         return node;
     }
     
     /**
-     * Returns the primary key of the DHTValueEntity
+     * Returns the primary key of the DHTValueEntity.
      */
     public KUID getPrimaryKey() {
         return primaryKey;
     }
     
     /**
-     * Returns the secondary key of the DHTValueEntity
+     * Returns the secondary key of the DHTValueEntity.
      */
     public KUID getSecondaryKey() {
         return secondaryKey;
     }
     
     /**
-     * Returns the type of the DHTValueEntity
+     * Returns the type of the DHTValueEntity.
      */
     public DHTValueType getDHTValueType() {
         return valueType;

@@ -23,10 +23,10 @@ import org.limewire.net.ConnectionDispatcher;
 import org.limewire.nio.NIOTestUtils;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.Singleton;
-import com.google.inject.name.Names;
+import com.google.inject.name.Named;
 import com.limegroup.gnutella.Acceptor;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.HTTPAcceptor;
@@ -34,10 +34,10 @@ import com.limegroup.gnutella.HTTPUploadManager;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.Uploader.UploadStatus;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDescStub;
-import com.limegroup.gnutella.library.FileManager;
-import com.limegroup.gnutella.library.FileManagerStub;
-import com.limegroup.gnutella.library.GnutellaFileListStub;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.LibraryStubModule;
 
 public class HTTPUploaderTest extends LimeTestCase {
 
@@ -45,19 +45,20 @@ public class HTTPUploaderTest extends LimeTestCase {
 
     private static MyActivityCallback cb;
 
-    private HTTPAcceptor httpAcceptor;
+    @Inject private HTTPAcceptor httpAcceptor;
 
     private HttpClient client;
 
     private URN urn1;
 
-    private FileManagerStub fm;
-
-    private HTTPUploadManager uploadManager;
+    @Inject private HTTPUploadManager uploadManager;
 
     private FileDescStub fd1;
 
-    private Acceptor acceptor;
+    @Inject private Acceptor acceptor;
+    
+    @Inject @GnutellaFiles FileCollection gnutellaFileCollection;
+    @Inject @Named("global") ConnectionDispatcher connectionDispatcher;
     
     private String host;
 
@@ -81,22 +82,15 @@ public class HTTPUploaderTest extends LimeTestCase {
         Injector injector = LimeTestUtils.createInjector(MyActivityCallback.class, new AbstractModule() {
             @Override
             protected void configure() {
-                bind(FileManager.class).to(FileManagerStub.class);
                 bind(LocalSocketAddressProvider.class).toInstance(localSocketAddressProvider);
             } 
-        });        
+        }, new LibraryStubModule(), LimeTestUtils.createModule(this));        
 
-        fm = (FileManagerStub) injector.getInstance(FileManager.class);
-        GnutellaFileListStub sharedList = fm.getGnutellaFileList();
         urn1 = URN.createSHA1Urn("urn:sha1:PLSTHIPQGSSZTS5FJUPAKUZWUGYQYPFG");
         fd1 = new FileDescStub("abc1.txt", urn1, 0);
-        sharedList.add(fd1);
+        gnutellaFileCollection.add(fd1);
 
         cb = (MyActivityCallback) injector.getInstance(ActivityCallback.class);
-
-        acceptor = injector.getInstance(Acceptor.class);
-        httpAcceptor = injector.getInstance(HTTPAcceptor.class);
-        uploadManager = injector.getInstance(HTTPUploadManager.class);
 
         acceptor.setListeningPort(PORT);
         acceptor.start();
@@ -104,7 +98,6 @@ public class HTTPUploaderTest extends LimeTestCase {
         httpAcceptor.start();
         uploadManager.start();
 
-        ConnectionDispatcher connectionDispatcher = injector.getInstance(Key.get(ConnectionDispatcher.class, Names.named("global")));
         connectionDispatcher.addConnectionAcceptor(httpAcceptor, false, httpAcceptor.getHttpMethods());
 
         client = new DefaultHttpClient();

@@ -15,8 +15,8 @@ public class MockAddressSerializer implements AddressSerializer{
     }
 
     @Override
-    public Class<? extends Address> getAddressClass() {
-        return MockAddress.class;
+    public boolean canSerialize(Address address) {
+        return address instanceof MockAddress;
     }
 
     @Override

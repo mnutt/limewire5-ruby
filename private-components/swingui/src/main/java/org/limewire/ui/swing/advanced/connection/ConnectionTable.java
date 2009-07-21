@@ -31,7 +31,7 @@ import org.limewire.ui.swing.table.MouseableTable;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.TransformedList;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 /**
  * The table that displays the connections details.  ConnectionTable installs
@@ -217,7 +217,7 @@ public class ConnectionTable extends MouseableTable {
         this.tableFormat = tableFormat;
 
         // Set table model using event list and table format.
-        setModel(new EventTableModel<ConnectionItem>(connectionList, tableFormat));
+        setModel(new DefaultEventTableModel<ConnectionItem>(connectionList, tableFormat));
 
         // Create header popup menu.
         headerPopup = createHeaderPopup();
@@ -232,8 +232,8 @@ public class ConnectionTable extends MouseableTable {
     public void clearEventList() {
         // Get table model and dispose resources.
         TableModel tableModel = getModel();
-        if (tableModel instanceof EventTableModel) {
-            ((EventTableModel) tableModel).dispose();
+        if (tableModel instanceof DefaultEventTableModel) {
+            ((DefaultEventTableModel) tableModel).dispose();
         }
 
         // Set default model to remove old reference.

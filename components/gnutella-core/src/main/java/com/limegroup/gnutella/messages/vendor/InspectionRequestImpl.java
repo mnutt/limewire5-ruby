@@ -14,7 +14,7 @@ import com.limegroup.gnutella.messages.Message;
 
 /**
  * Message requesting inspection for specified values.
- * 
+ * <p>
  * Note this is very LimeWire-specific, so other vendors will
  * almost certainly have no use for supporting this message.
  */
@@ -57,9 +57,9 @@ public class InspectionRequestImpl extends RoutableGGEPMessage implements Inspec
         this(new GUID(),signer, false, false, DEFAULT_INTERVAL, 1, null, null, requested);
     }
     /**
-     * @param timestamp true if the response should contain a timestamp.
-     * @param requested requested fields for inspection.  
      * See <tt>InspectionUtils</tt> for description of the format.
+     * @param timestamp true if the response should contain a timestamp
+     * @param requested requested fields for inspection
      */
     public InspectionRequestImpl(GUID g, GGEPSigner signer, boolean timestamp, 
             boolean encoding, int sendInterval, long version, IpPort returnAddr, IpPort destAddress, String... requested) {

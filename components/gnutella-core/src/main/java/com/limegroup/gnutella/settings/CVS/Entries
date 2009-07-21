@@ -1,6 +1,8 @@
 /.cvsignore/1.1/Tue Nov 12 16:52:16 2002//
-/SettingsBackedJabberSettings.java/1.1/Wed Dec  3 22:45:33 2008//
-/SimppSettingsManager.java/1.11/Wed Apr 30 19:19:47 2008//
 /SettingsBackedProxySettings.java/1.4/Mon Apr  6 16:05:32 2009//
 /SettingsBackedSocketBindingSettings.java/1.4/Mon Apr  6 16:05:32 2009//
+/LimeWireSettingsModule.java/1.2/Wed Jun 10 18:20:01 2009//
+/SettingsBackedJabberSettings.java/1.2/Mon Jul 20 19:52:06 2009//
+/SettingsSaverService.java/1.1/Wed Jun 10 18:20:01 2009//
+/SimppSettingsManager.java/1.12/Mon Jul 20 19:52:06 2009//
 D

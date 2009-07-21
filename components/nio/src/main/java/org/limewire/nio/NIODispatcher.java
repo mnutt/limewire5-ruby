@@ -186,11 +186,11 @@ public class NIODispatcher implements Runnable {
     public boolean isRunning() {
         return dispatchThread != null;
     }
-	
-	/** Determine if this is the dispatch thread. */
-	public boolean isDispatchThread() {
-	    return Thread.currentThread() == dispatchThread;
-	}
+
+    /** Determine if this is the dispatch thread. */
+    public boolean isDispatchThread() {
+        return Thread.currentThread() == dispatchThread;
+    }
     
     /** Gets the common <code>ByteBufferCache</code>. */
     public ByteBufferCache getBufferCache() {
@@ -201,10 +201,10 @@ public class NIODispatcher implements Runnable {
     public int getNumPendingTimeouts() {
         return TIMEOUTER.getNumPendingTimeouts();
     }
-	
-	/** Adds a <code>Throttle</code> into the throttle requesting loop. */
-	// TODO: have some way to remove Throttles, or make these use WeakReferences
-	public void addThrottle(final NBThrottle t) {
+
+    /** Adds a <code>Throttle</code> into the throttle requesting loop. */
+    // TODO: have some way to remove Throttles, or make these use WeakReferences
+    public void addThrottle(final NBThrottle t) {
         if(Thread.currentThread() == dispatchThread)
             THROTTLE.add(t);
         else {
@@ -220,13 +220,13 @@ public class NIODispatcher implements Runnable {
     public void register(SelectableChannel channel, IOErrorObserver attachment) {
         register(channel, attachment, 0, 0);
     }
-	    
-    /** Register interest in accepting */
+    
+    /** Register interest in accepting. */
     public void registerAccept(SelectableChannel channel, AcceptChannelObserver attachment) {
         register(channel, attachment, SelectionKey.OP_ACCEPT, 0);
     }
     
-    /** Register interest in connecting */
+    /** Register interest in connecting. */
     public void registerConnect(SelectableChannel channel, ConnectObserver attachment, int timeout) {
         register(channel, attachment, SelectionKey.OP_CONNECT, timeout);
     }
@@ -248,12 +248,12 @@ public class NIODispatcher implements Runnable {
     
     /** Register interest. */
     private void register(SelectableChannel channel, IOErrorObserver handler, int op, int timeout) {
-		if(Thread.currentThread() == dispatchThread) {
-		    registerImpl(getSelectorFor(channel), channel, op, handler, timeout);
-		} else {
-	        synchronized(Q_LOCK) {
-				LATER.add(new RegisterOp(channel, handler, op, timeout));
-			}
+        if(Thread.currentThread() == dispatchThread) {
+            registerImpl(getSelectorFor(channel), channel, op, handler, timeout);
+        } else {
+            synchronized(Q_LOCK) {
+                LATER.add(new RegisterOp(channel, handler, op, timeout));
+            }
             wakeup();
         }
     }
@@ -286,31 +286,31 @@ public class NIODispatcher implements Runnable {
     private void interest(SelectableChannel channel, int op, boolean on) {
         try {
             Selector sel = getSelectorFor(channel);
-			SelectionKey sk = channel.keyFor(sel);
-			if(sk != null && sk.isValid()) {
-			    // We must synchronize on something unique to each key,
-			    // (but not the key itself, 'cause that'll interfere with Selector.select)
+            SelectionKey sk = channel.keyFor(sel);
+            if(sk != null && sk.isValid()) {
+                // We must synchronize on something unique to each key,
+                // (but not the key itself, 'cause that'll interfere with Selector.select)
                 // so that multiple threads calling interest(..) will be atomic with
                 // respect to each other.  Otherwise, one thread can preempt another's
                 // interest setting, and one of the interested ops may be lost.
                 int oldOps;
-			    synchronized(sk.attachment()) {
+                synchronized(sk.attachment()) {
                     if((op & SelectionKey.OP_READ) == SelectionKey.OP_READ) {
                         ((Attachment)sk.attachment()).changeReadStatus(on);
                     }
                     
                     oldOps = sk.interestOps();
                     
-    				if(on)
-    					sk.interestOps(oldOps | op);
-    				else
-    					sk.interestOps(oldOps & ~op);
+                    if(on)
+                        sk.interestOps(oldOps | op);
+                    else
+                        sk.interestOps(oldOps & ~op);
                 }
                 
                 // if we're turning it on and it wasn't on before...
                 if(on && (oldOps & op) != op)
                     wakeup();
-			}
+            }
         } catch(CancelledKeyException ignored) {
             // Because closing can happen in any thread, the key may be cancelled
             // between the time we check isValid & the time that interestOps are
@@ -585,7 +585,7 @@ public class NIODispatcher implements Runnable {
      * and the current thread is not the dispatch thread.
      */
     void wakeup() {
-        if(!wokeup && Thread.currentThread() != dispatchThread) {
+        if(!wokeup && Thread.currentThread() != dispatchThread && primarySelector != null) {
             wokeup = true;
             primarySelector.wakeup();
         }
@@ -700,34 +700,34 @@ public class NIODispatcher implements Runnable {
      * @return the timeout of the next select call. 0 if it should be immediate
      */
     private long nextSelectTimeout() {
-    	// first see when the next throttle should tick
-    	long next = Long.MAX_VALUE;
-    	for (Throttle t: THROTTLE)
-    		next = Math.min(next, t.nextTickTime());
-    	long now = System.currentTimeMillis(); 
-    	next -= now;
-    	if (next <= 0)
-    		return 0;
-    	
-    	// then check when the next timeout is due
-    	long timeout = TIMEOUTER.getNextExpireTime();
-    	if (timeout > -1)
-    		next = Math.min(next, timeout - now);
-    	if (next <= 0)
-    		return 0;
-    	
-    	// then see when the next scheduled task is due
-    	// Note: DelayedQueue.peek() returns the element even if not expired.
-    	Delayed nextScheduled = DELAYED.peek(); 
-    	if (nextScheduled != null) 
-    		next = Math.min(next, nextScheduled.getDelay(TimeUnit.MILLISECONDS));
-    	return Math.max(0, next);
+        // first see when the next throttle should tick
+        long next = Long.MAX_VALUE;
+        for (Throttle t : THROTTLE)
+            next = Math.min(next, t.nextTickTime());
+        long now = System.currentTimeMillis();
+        next -= now;
+        if (next <= 0)
+            return 0;
+
+        // then check when the next timeout is due
+        long timeout = TIMEOUTER.getNextExpireTime();
+        if (timeout > -1)
+            next = Math.min(next, timeout - now);
+        if (next <= 0)
+            return 0;
+
+        // then see when the next scheduled task is due
+        // Note: DelayedQueue.peek() returns the element even if not expired.
+        Delayed nextScheduled = DELAYED.peek();
+        if (nextScheduled != null)
+            next = Math.min(next, nextScheduled.getDelay(TimeUnit.MILLISECONDS));
+        return Math.max(0, next);
     }
     
     /**
      * Returns true if this channel is going to have handleRead called on its
      * attachment in this iteration of the NIODispatcher's processing.
-     * 
+     * <p>
      * This must be called from the NIODispatch thread to have any meaningful impact.
      */
     boolean isReadReadyThisIteration(SelectableChannel channel) {

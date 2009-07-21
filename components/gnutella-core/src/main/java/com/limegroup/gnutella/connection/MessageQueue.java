@@ -8,10 +8,10 @@ import com.limegroup.gnutella.messages.Message;
 public interface MessageQueue {
     
     
-    /** Adds a new message */
+    /** Adds a new message. */
     public void add(Message m);
     
-    /** Removes the next message */
+    /** Removes the next message. */
     public Message removeNext();
     
     /** Resets the amount of messages dropped, returning the current value. */
@@ -26,7 +26,7 @@ public interface MessageQueue {
     /** Determines if this is empty. */
     public boolean isEmpty();
     
-    /** An inspectable object for dropped messages */
+    /** An inspectable object for dropped messages. */
     public Object getDroppedStats();
     
 }

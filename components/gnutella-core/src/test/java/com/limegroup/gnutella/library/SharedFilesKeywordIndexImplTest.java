@@ -22,10 +22,9 @@ public class SharedFilesKeywordIndexImplTest extends BaseTestCase {
     private SourcedEventMulticaster multicaster;
     private SharedFilesKeywordIndexImpl keywordIndex;
     private Mockery context;
-    private FileManager fileManager;
-    private FileList sharedFileList;
-    private FileList incompleteFileList;
-    private ManagedFileList managedFileList;
+    private FileView sharedFileList;
+    private FileView incompleteFileList;
+    private Library library;
 
     public SharedFilesKeywordIndexImplTest(String name) {
         super(name);
@@ -36,11 +35,10 @@ public class SharedFilesKeywordIndexImplTest extends BaseTestCase {
         context = new Mockery();
         multicaster = context.mock(SourcedEventMulticaster.class);
         registry = context.mock(ServiceRegistry.class);
-        fileManager = context.mock(FileManager.class);
-        managedFileList = context.mock(ManagedFileList.class);
-        sharedFileList = context.mock(GnutellaFileList.class);
-        incompleteFileList = context.mock(IncompleteFileList.class);
-        keywordIndex = new SharedFilesKeywordIndexImpl(fileManager, null, null, null, null, null);
+        library = context.mock(Library.class);
+        sharedFileList = context.mock(FileView.class);
+        incompleteFileList = context.mock(FileView.class);
+        keywordIndex = new SharedFilesKeywordIndexImpl(library, null, null, null, null, null, sharedFileList, incompleteFileList);
     }
     
     @SuppressWarnings("unchecked")
@@ -50,45 +48,32 @@ public class SharedFilesKeywordIndexImplTest extends BaseTestCase {
         final FileDesc newFile = new FileDescStub("goodbye world", urn, 2);
         
         final GetterMatcher<Service> serviceGetter = GetterMatcher.create();
-        final GetterMatcher<EventListener<FileListChangedEvent>> listenerGetter = GetterMatcher.create();
+        final GetterMatcher<EventListener<FileViewChangeEvent>> listenerGetter = GetterMatcher.create();
         
         context.checking(new Expectations() {
             {
                 exactly(1).of(registry).register(with(serviceGetter));                
-                exactly(1).of(sharedFileList).addFileListListener(with(listenerGetter));
-                exactly(1).of(managedFileList).addManagedListStatusListener(with(any(EventListener.class)));
-                exactly(1).of(incompleteFileList).addFileListListener(with(any(EventListener.class)));
+                exactly(1).of(sharedFileList).addListener(with(listenerGetter));
+                exactly(1).of(library).addManagedListStatusListener(with(any(EventListener.class)));
+                exactly(1).of(incompleteFileList).addListener(with(any(EventListener.class)));
                 exactly(1).of(multicaster).addListener(with(any(EventListener.class)));
                 
-                atLeast(1).of(fileManager).getManagedFileList();
-                will(returnValue(managedFileList));
-                
-                atLeast(1).of(fileManager).getIncompleteFileList();
-                will(returnValue(incompleteFileList));
                 atLeast(1).of(incompleteFileList).contains(originalFile);
                 will(returnValue(false));
-                atLeast(1).of(fileManager).getGnutellaFileList();
-                will(returnValue(sharedFileList));
                 atLeast(1).of(sharedFileList).contains(originalFile);
                 will(returnValue(true));
                 
-                atLeast(1).of(fileManager).getIncompleteFileList();
-                will(returnValue(incompleteFileList));
                 atLeast(1).of(incompleteFileList).contains(originalFile);
                 will(returnValue(false));
-                atLeast(1).of(fileManager).getIncompleteFileList();
-                will(returnValue(incompleteFileList));
                 atLeast(1).of(incompleteFileList).contains(newFile);
                 will(returnValue(false));
-                atLeast(1).of(fileManager).getGnutellaFileList();
-                will(returnValue(sharedFileList));
                 atLeast(1).of(sharedFileList).contains(newFile);
                 will(returnValue(true));
             }
         });
         keywordIndex.register(registry, multicaster);
         serviceGetter.get().initialize();
-        listenerGetter.get().handleEvent(new FileListChangedEvent(sharedFileList, FileListChangedEvent.Type.ADDED, originalFile));
+        listenerGetter.get().handleEvent(new FileViewChangeEvent(sharedFileList, FileViewChangeEvent.Type.FILE_ADDED, originalFile));
         
         IntSet result = keywordIndex.search("world hello", null, false);
         assertNotNull(result);
@@ -98,7 +83,7 @@ public class SharedFilesKeywordIndexImplTest extends BaseTestCase {
         result = keywordIndex.search("goodbye world", null, false);
         assertNull(result);
 
-        listenerGetter.get().handleEvent(new FileListChangedEvent(sharedFileList, FileListChangedEvent.Type.CHANGED, originalFile, newFile));
+        listenerGetter.get().handleEvent(new FileViewChangeEvent(sharedFileList, FileViewChangeEvent.Type.FILE_CHANGED, originalFile, newFile));
         
         result = keywordIndex.search("world goodbye", null, false);
         assertNotNull(result);

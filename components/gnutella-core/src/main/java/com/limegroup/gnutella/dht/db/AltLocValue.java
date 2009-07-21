@@ -30,27 +30,27 @@ public interface AltLocValue extends DHTValue, Serializable {
     public int size();
 
     /**
-     * The GUID of the AltLoc
+     * The GUID of the AltLoc.
      */
     public byte[] getGUID();
 
     /**
-     * The (Gnutella) Port of the AltLoc
+     * The (Gnutella) Port of the AltLoc.
      */
     public int getPort();
 
     /**
-     * The length of the file
+     * The length of the file.
      */
     public long getFileSize();
 
     /**
-     * The TigerTree root hash
+     * The TigerTree root hash.
      */
     public byte[] getRootHash();
 
     /**
-     * Returns true if the AltLoc is firewalled
+     * Returns true if the AltLoc is firewalled.
      */
     public boolean isFirewalled();
 

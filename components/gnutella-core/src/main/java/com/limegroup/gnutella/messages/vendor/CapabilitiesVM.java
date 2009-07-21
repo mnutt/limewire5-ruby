@@ -25,7 +25,7 @@ public interface CapabilitiesVM extends VendorMessage.ControlMessage {
     /** Bytes for supporting incoming TLS. */
     static final byte[] TLS_SUPPORT_BYTES = { 'T', 'L', 'S', '!' };
     
-    /** Bytes for supporting FWT */
+    /** Bytes for supporting FWT. */
     static final byte[] FWT_SUPPORT_BYTES = { 'F', '2', 'F', 'T' };
     
     /** Bytes for supporting incoming TCP connections. */
@@ -72,17 +72,17 @@ public interface CapabilitiesVM extends VendorMessage.ControlMessage {
     public int supportsUpdate();
     
     /**
-     * Returns the current DHT version if this node is an ACTIVE DHT node
+     * Returns the current DHT version if this node is an ACTIVE DHT node.
      */
     public int isActiveDHTNode();
     
     /**
-     * Returns the current DHT version if this node is an PASSIVE DHT node
+     * Returns the current DHT version if this node is an PASSIVE DHT node.
      */
     public int isPassiveDHTNode();
 
     /**
-     * Returns the current DHT version if this node is an PASSIVE_LEAF DHT node
+     * Returns the current DHT version if this node is an PASSIVE_LEAF DHT node.
      */
     public int isPassiveLeafNode();
     

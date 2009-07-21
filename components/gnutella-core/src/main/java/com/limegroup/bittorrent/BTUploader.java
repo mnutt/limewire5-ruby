@@ -1,205 +1,235 @@
 package com.limegroup.bittorrent;
 
-
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.limegroup.bittorrent.Torrent.TorrentState;
+import org.limewire.bittorrent.Torrent;
+import org.limewire.bittorrent.TorrentEvent;
+import org.limewire.bittorrent.TorrentState;
+import org.limewire.bittorrent.TorrentStatus;
+import org.limewire.concurrent.ManagedThread;
+import org.limewire.listener.EventListener;
+
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.uploader.UploadType;
-import com.limegroup.gnutella.util.EventDispatcher;
 
 /**
- * A facade for the GUI to treat a single BitTorrent download as a single upload.
+ * Wraps the Torrent class in the Uplaoder interface to enable the gui to treat
+ * the torrent uploader as a normal uploader.
  */
-public class BTUploader implements Uploader, TorrentEventListener {
-	
-	private final ManagedTorrent _torrent;
-	
-	private final BTMetaInfo _info;
-	
-	private long startTime, stopTime;
-	
-	private final EventDispatcher<TorrentEvent, TorrentEventListener> dispatcher;
+public class BTUploader implements Uploader,  EventListener<TorrentEvent> {
 
     private final ActivityCallback activityCallback;
 
-	BTUploader(ManagedTorrent torrent, BTMetaInfo info,
-			EventDispatcher<TorrentEvent, TorrentEventListener> dispatcher, ActivityCallback activityCallback) {
-		_torrent = torrent;
-		_info = info;
-		this.dispatcher = dispatcher;
+    private final Torrent torrent;
+
+    private final AtomicBoolean cancelled = new AtomicBoolean(false);
+
+    private volatile URN urn = null;
+
+    public BTUploader(Torrent torrent, ActivityCallback activityCallback) {
+        this.torrent = torrent;
         this.activityCallback = activityCallback;
-		dispatcher.addEventListener(this);
-	}
+    }
+    
+    public void registerTorrentListener() {
+        torrent.addListener(this);
+    }
 
-	public void stop() {
-		TorrentEvent stopping = new TorrentEvent(this,
-				TorrentEvent.Type.STOP_REQUESTED,
-				_torrent);
-		dispatcher.dispatchEvent(stopping);
-	}
+    @Override
+    public void handleEvent(TorrentEvent event) {
+        if (event == TorrentEvent.STOPPED) {
+            finish();
+            torrent.removeListener(this);
+        }
+    };
+    
+    @Override
+    public void stop() {
+        // TODO refactor to prompt from the gui
+        if (activityCallback.promptTorrentUploadCancel(torrent)) {
+            new ManagedThread(new Runnable() {
+                @Override
+                public void run() {
+                    torrent.stop();
+                }
+            }, "BTUploader Stop Torrent").start();
+            finish();
+        }
+    }
+    
+    private void finish() {
+        cancelled.set(true);
+        activityCallback.removeUpload(this);
+    }
 
-	public String getFileName() {
-		return _info.getName();
-	}
+    @Override
+    public String getFileName() {
+        return torrent.getName();
+    }
 
-	public long getFileSize() {
-		return _info.getFileSystem().getTotalSize();
-	}
+    @Override
+    public long getFileSize() {
+        return torrent.getTotalSize();
+    }
 
-	public FileDesc getFileDesc() {
-		return null;
-	}
+    @Override
+    public FileDesc getFileDesc() {
+        return null;
+    }
 
-	public int getIndex() {
-		// negative will make sure it never conflicts with regular uploads
-		return 0 - Math.abs(_info.getURN().hashCode());
-	}
- 
-	public long amountUploaded() {
-		return _torrent.getTotalUploaded();
-	}
+    @Override
+    public int getIndex() {
+        // negative will make sure it never conflicts with regular uploads
+        return 0 - Math.abs(hashCode());
+    }
 
-	public long getTotalAmountUploaded() {
-		return _torrent.getTotalUploaded();
-	}
+    @Override
+    public long amountUploaded() {
+        return torrent.getTotalUploaded();
+    }
 
-	public String getHost() {
-		return BITTORRENT_UPLOAD;
-	}
+    @Override
+    public long getTotalAmountUploaded() {
+        return torrent.getTotalUploaded();
+    }
 
-	public UploadStatus getState() {
+    @Override
+    public String getHost() {
+        return BITTORRENT_UPLOAD;
+    }
 
-	    if(_torrent.getState() == TorrentState.STOPPED) {
+    @Override
+    public UploadStatus getState() {
+        if (cancelled.get()) {
             return UploadStatus.CANCELLED;
-	    }
-	    
-	    if (!_torrent.isActive()) {
-			if (_torrent.isComplete() && _torrent.getRatio() > 1) {
-				return UploadStatus.COMPLETE;
-			} 
-			return UploadStatus.INTERRUPTED;
-		}
-		
-		if (_torrent.isUploading())
-			return UploadStatus.UPLOADING;
-		
-		if (_torrent.isSuspended())
-			return UploadStatus.SUSPENDED;
-		
-		// neither uploading, nor suspended..
-		return UploadStatus.WAITING_REQUESTS;
-	}
+        }
 
-	public UploadStatus getLastTransferState() {
-		return UploadStatus.UPLOADING;
-	}
+        TorrentStatus status = torrent.getStatus();
 
-	public boolean isBrowseHostEnabled() {
-		return false;
-	}
+        if (status == null) {
+            return UploadStatus.CONNECTING;
+        }
+        
+        if(status.isError()) {
+            //TODO add retry
+            //TODO custom error state
+           return UploadStatus.UNAVAILABLE_RANGE;
+        }
 
-	public int getGnutellaPort() {
-		return 0;
-	}
+        if (status.isPaused()) {
+            return UploadStatus.UPLOADING;
+        } else {
+            TorrentState state = status.getState();
 
-	public String getUserAgent() {
-		return BITTORRENT_UPLOAD;
-	}
+            switch (state) {
+            case DOWNLOADING:
+            case FINISHED:
+            case SEEDING:
+                return UploadStatus.UPLOADING;
+            case QUEUED_FOR_CHECKING:
+            case CHECKING_FILES:
+            case DOWNLOADING_METADATA:
+            case ALLOCATING:
+                return UploadStatus.CONNECTING;
+            default:
+                throw new UnsupportedOperationException("Unknown state: " + state);
+            }
+        }
+    }
 
-	public int getQueuePosition() {
-		return 0;
-	}
+    @Override
+    public UploadStatus getLastTransferState() {
+        return UploadStatus.UPLOADING;
+    }
 
-	public boolean isInactive() {
-		switch(_torrent.getState()) {
-		case PAUSED:
-		case STOPPED:
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean isBrowseHostEnabled() {
+        return false;
+    }
 
-	public void measureBandwidth() {
-		_torrent.measureBandwidth();
-	}
+    @Override
+    public int getGnutellaPort() {
+        return 0;
+    }
 
-	public float getMeasuredBandwidth() throws InsufficientDataException {
-		if (!_torrent.isActive())
-			return 0.f;
-		return _torrent.getMeasuredBandwidth(false);
-	}
+    @Override
+    public String getUserAgent() {
+        return BITTORRENT_UPLOAD;
+    }
 
-	public void handleTorrentEvent(TorrentEvent evt) {
-		if (evt.getTorrent() != _torrent)
-			return;
-		
-		switch(evt.getType()) {
-		case STARTED : torrentStarted(); break;
-		case STOP_APPROVED: _torrent.stop(); break;
-		case STOPPED : 
-			torrentStopped();
-			dispatcher.removeEventListener(this);
-			break;
-            
-        // the below don't need any special handling...
-        case COMPLETE:
-        case STARTING:
-        case STOP_REQUESTED:
-        //handled in TorrentDHTManager
-        case FIRST_CHUNK_VERIFIED:
-		}
-	}
-	
-	public float getAverageBandwidth() {
-		long now = stopTime > 0 ? stopTime : System.currentTimeMillis();
-		long runTime = (now - startTime);
-		return runTime > 0 ? getTotalAmountUploaded() / runTime : 0;
-	}
-	
-	private void torrentStarted() {
-		startTime = System.currentTimeMillis();
-		stopTime = 0;
-		activityCallback.addUpload(this);
-	}
-	
-	private void torrentStopped() {
-		activityCallback.removeUpload(this);
-		stopTime = System.currentTimeMillis();
-	}
-	
-	public String getCustomIconDescriptor() {
-		if (_info.getFileSystem().getFiles().size() == 1)
-			return null;
-		return BITTORRENT_UPLOAD;
-	}
+    @Override
+    public int getQueuePosition() {
+        return 0;
+    }
 
+    @Override
+    public boolean isInactive() {
+
+        if (torrent.getStatus().isPaused() || torrent.getStatus().isFinished()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void measureBandwidth() {
+        // uneeded using libtorrent rate
+    }
+
+    @Override
+    public float getMeasuredBandwidth() throws InsufficientDataException {
+        return (torrent.getUploadRate() / 1024);
+    }
+
+    @Override
+    public float getAverageBandwidth() {
+        // Unused
+        return (torrent.getUploadRate() / 1024);
+    }
+
+    @Override
+    public String getCustomIconDescriptor() {
+        if (torrent.isSingleFileTorrent()) {
+            return null;
+        }
+        return BITTORRENT_UPLOAD;
+    }
+
+    @Override
     public UploadType getUploadType() {
         return UploadType.SHARED_FILE;
     }
 
+    @Override
     public boolean isTLSCapable() {
-        return false; // TODO: SSLUtils.isTLSEnabled(mySocket)
+        return false;
     }
 
+    @Override
     public String getAddress() {
         return "torrent upload";
     }
 
+    @Override
     public InetAddress getInetAddress() {
         return null;
     }
 
+    @Override
     public int getPort() {
         return -1;
     }
-    
+
+    @Override
     public InetSocketAddress getInetSocketAddress() {
         return null;
     }
@@ -211,20 +241,36 @@ public class BTUploader implements Uploader, TorrentEventListener {
 
     @Override
     public File getFile() {
-        if(_torrent.isComplete()) {
-            return _torrent.getMetaInfo().getFileSystem().getCompleteFile();
+        if (torrent.isFinished()) {
+            return torrent.getCompleteFile();
         } else {
-            return _torrent.getMetaInfo().getFileSystem().getIncompleteFile();
+            return torrent.getIncompleteFile();
         }
     }
-    
+
     @Override
     public URN getUrn() {
-        return _torrent.getMetaInfo().getURN();
+        if (urn == null) {
+            synchronized (this) {
+                if (urn == null) {
+                    try {
+                        urn = URN.createSha1UrnFromHex(torrent.getSha1());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return urn;
     }
 
     @Override
     public int getNumUploadConnections() {
-        return _torrent.getNumUploadPeers();
+        return torrent.getNumConnections();
+    }
+
+    @Override
+    public String getPresenceId() {
+        return null;
     }
 }

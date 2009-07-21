@@ -18,7 +18,6 @@ public class SettingsBasedContentAuthority implements ContentAuthority {
     /** The list of authorities this uses. */
     private ContentAuthority[] authorities;
     
-    /** RNG. */
     private Random RNG = newRandom();
 
     private final IpPortContentAuthorityFactory ipPortContentAuthorityFactory;

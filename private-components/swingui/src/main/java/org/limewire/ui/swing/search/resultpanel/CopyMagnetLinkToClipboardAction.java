@@ -10,10 +10,10 @@ import javax.swing.AbstractAction;
 
 import org.limewire.ui.swing.search.model.VisualSearchResult;
 
-final class CopyMagnetLinkToClipboardAction extends AbstractAction {
+public class CopyMagnetLinkToClipboardAction extends AbstractAction {
     private final VisualSearchResult vsr;
 
-    CopyMagnetLinkToClipboardAction(VisualSearchResult vsr) {
+    public CopyMagnetLinkToClipboardAction(VisualSearchResult vsr) {
         super(tr("Copy Link"));
         this.vsr = vsr;
     }

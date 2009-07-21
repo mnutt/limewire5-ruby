@@ -1,10 +1,10 @@
 package com.limegroup.gnutella.xml;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.limewire.i18n.I18nMarker;
 import org.limewire.lifecycle.Service;
@@ -17,9 +17,9 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileDescChangeEvent;
-import com.limegroup.gnutella.library.FileListChangedEvent;
-import com.limegroup.gnutella.library.ManagedFileList;
-import com.limegroup.gnutella.library.ManagedListStatusEvent;
+import com.limegroup.gnutella.library.FileViewChangeEvent;
+import com.limegroup.gnutella.library.Library;
+import com.limegroup.gnutella.library.LibraryStatusEvent;
 
 
 /** 
@@ -28,21 +28,19 @@ import com.limegroup.gnutella.library.ManagedListStatusEvent;
  * @author Sumeet Thadani
  */
 @Singleton
-public class SchemaReplyCollectionMapper {
+public class SchemaReplyCollectionMapper implements XmlController {
     
     private final Map<String, LimeXMLReplyCollection> mapper;
     
     protected final LimeXMLReplyCollectionFactory limeXMLReplyCollectionFactory;
     protected final Provider<LimeXMLSchemaRepository> limeXMLSchemaRepository;
     
-
-    @Inject @SuppressWarnings("unused")
-    private SchemaReplyCollectionMapper(LimeXMLReplyCollectionFactory limeXMLReplyCollectionFactory,
+    @Inject SchemaReplyCollectionMapper(LimeXMLReplyCollectionFactory limeXMLReplyCollectionFactory,
             Provider<LimeXMLSchemaRepository> limeXMLSchemaRepository) {
         this.limeXMLReplyCollectionFactory = limeXMLReplyCollectionFactory;
         this.limeXMLSchemaRepository = limeXMLSchemaRepository;
         
-        mapper = new HashMap<String, LimeXMLReplyCollection>();
+        mapper = new ConcurrentHashMap<String, LimeXMLReplyCollection>();
     }
 
 
@@ -53,7 +51,7 @@ public class SchemaReplyCollectionMapper {
      * this method will replace the old reply collection with the new one. 
      * The old collection will be lost!
      */
-    public synchronized void add(String schemaURI, LimeXMLReplyCollection replyCollection) {
+    public void add(String schemaURI, LimeXMLReplyCollection replyCollection) {
         mapper.put(schemaURI, replyCollection);
     }
     
@@ -64,19 +62,18 @@ public class SchemaReplyCollectionMapper {
      * @ return the <tt>LimeXMLReplyCollection</tt> for the given schema URI,
      * or <tt>null</tt> if we the requested mapping does not exist
      */
-    public synchronized LimeXMLReplyCollection getReplyCollection(String schemaURI) {
+    public LimeXMLReplyCollection getReplyCollection(String schemaURI) {
         return mapper.get(schemaURI);
     }
     
     /**
      * Returns a collection of all available LimeXMLReplyCollections.
-     * YOU MUST SYNCHRONIZE ITERATION OVER THE COLLECTION IF IT CAN BE MODIFIED.
      */
-    public synchronized Collection<LimeXMLReplyCollection> getCollections() {
+    public Collection<LimeXMLReplyCollection> getCollections() {
         return mapper.values();
     }
     
-    @Inject void register(ServiceRegistry registry, final ManagedFileList managedList,
+    @Inject void register(ServiceRegistry registry, final Library managedList,
             final ListenerSupport<FileDescChangeEvent> fileDescSupport) {
         registry.register(new Service() {
             @Override
@@ -87,37 +84,26 @@ public class SchemaReplyCollectionMapper {
             public void initialize() {
                 loadSchemas();
                 
-                fileDescSupport.addListener(new EventListener<FileDescChangeEvent>() {
+                managedList.addListener(new EventListener<FileViewChangeEvent>() {
                     @Override
-                    public void handleEvent(FileDescChangeEvent event) {
+                    public void handleEvent(FileViewChangeEvent event) {
                         switch(event.getType()) {
-                        case LOAD:
-                            load(event);
-                            break;
-                        }                        
-                    }
-                });
-                
-                managedList.addFileListListener(new EventListener<FileListChangedEvent>() {
-                    @Override
-                    public void handleEvent(FileListChangedEvent event) {
-                        switch(event.getType()) {
-                        case REMOVED:
+                        case FILE_REMOVED:
                             removeFileDesc(event.getFileDesc());
                             break;
-                        case CHANGED:
+                        case FILE_CHANGED:
                             removeFileDesc(event.getOldValue());
                             break; 
-                        case CLEAR:
+                        case FILES_CLEARED:
                             loadSchemas();
                             break;
                         }
                     }
                 });
                 
-                managedList.addManagedListStatusListener(new EventListener<ManagedListStatusEvent>() {
+                managedList.addManagedListStatusListener(new EventListener<LibraryStatusEvent>() {
                     @Override
-                    public void handleEvent(ManagedListStatusEvent event) {
+                    public void handleEvent(LibraryStatusEvent event) {
                         switch (event.getType()) {
                         case LOAD_FINISHING:
                             finishLoading();
@@ -143,7 +129,7 @@ public class SchemaReplyCollectionMapper {
         });
     }
     
-    private synchronized void removeFileDesc(FileDesc fd) {
+    private void removeFileDesc(FileDesc fd) {
         // Get the schema URI of each document and remove from the collection
         // We must remember the schemas and then remove the doc, or we will
         // get a concurrent mod exception because removing the doc also
@@ -163,7 +149,7 @@ public class SchemaReplyCollectionMapper {
      * Notifies all the LimeXMLReplyCollections that the initial loading
      * has completed.
      */
-    private synchronized void finishLoading() {
+    private void finishLoading() {
         Collection<LimeXMLReplyCollection> replies = getCollections();
         for (LimeXMLReplyCollection col : replies)
             col.loadFinished();
@@ -172,29 +158,53 @@ public class SchemaReplyCollectionMapper {
     /**
      * Serializes the current LimeXMLReplyCollection to disk.
      */
-    private void save(ManagedListStatusEvent event) {
-        if (event.getList().isLoadFinished()) {
-            synchronized (this) {
-                Collection<LimeXMLReplyCollection> replies = getCollections();
-                for (LimeXMLReplyCollection col : replies)
-                    col.writeMapToDisk();                
+    private void save(LibraryStatusEvent event) {
+        if (event.getLibrary().isLoadFinished()) {
+            Collection<LimeXMLReplyCollection> replies = getCollections();
+            for (LimeXMLReplyCollection col : replies)
+                col.writeMapToDisk();
+        }
+    }
+    
+    @Override
+    public boolean canConstructXml(FileDesc fd) {
+        Collection<LimeXMLReplyCollection> replies = getCollections();
+        for (LimeXMLReplyCollection col : replies) {
+            if(col.canCreateDocument(fd.getFile())) {
+                return true;
             }
         }
+        return false;
+    }
+    
+    @Override
+    public boolean loadCachedXml(FileDesc fd, Collection<? extends LimeXMLDocument> prebuilt) {
+        Collection<LimeXMLReplyCollection> replies = getCollections();
+        boolean loaded = false;
+        for (LimeXMLReplyCollection col : replies) {
+            LimeXMLDocument doc = col.initialize(fd, prebuilt);
+            if(doc != null) {
+                loaded = true;
+            }
+        }
+        return loaded;
     }
     
     /**
      * Loads the map with the LimeXMLDocument for a given FileDesc. If no LimeXMLDocument
      * exists for the FileDesc, one is created for it.
      */
-    private synchronized void load(FileDescChangeEvent event) {
+    @Override
+    public boolean loadXml(FileDesc fd) {
         Collection<LimeXMLReplyCollection> replies = getCollections();
+        boolean loaded = false;
         for (LimeXMLReplyCollection col : replies) {
-            col.initialize(event.getSource(), event.getXmlDocs());
+            LimeXMLDocument doc = col.createIfNecessary(fd);
+            if(doc != null) {
+                loaded = true;
+            }
         }
-        
-        for (LimeXMLReplyCollection col : replies) {
-            col.createIfNecessary(event.getSource());
-        }
+        return loaded;
     }
     
     /**

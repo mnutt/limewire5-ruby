@@ -7,6 +7,7 @@
         <artifact name="mock-core" conf="master"/>
     </publications>
     <dependencies>
+      <dependency org="org.limewire" name="friend" rev="latest.integration" conf="compile,runtime"/>
         <dependency org="org.limewire" name="common" rev="latest.integration" conf="compile,runtime"/>
         <dependency org="org.limewire" name="collection" rev="latest.integration" conf="compile,runtime"/>
         <dependency org="org.limewire" name="io" rev="latest.integration" conf="compile,runtime"/>
@@ -14,6 +15,7 @@
         <dependency org="org.limewire" name="player-api" rev="latest.integration" conf="compile,runtime"/>
         <dependency org="org.limewire" name="xmpp-api" rev="latest.integration" conf="compile,runtime"/>
         <dependency org="org.limewire" name="core-api" rev="latest.integration" conf="compile,runtime"/>
+        <dependency org="org.limewire" name="bittorrent-api" rev="latest.integration" conf="compile,runtime"/>
         
         <dependency org="none" name="commons-logging" rev="${commons-logging.version}" conf="compile,runtime"/>
         <dependency org="none" name="guice" rev="${guice.version}" conf="compile,runtime"/>

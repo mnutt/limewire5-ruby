@@ -15,7 +15,7 @@ import org.limewire.util.ByteUtils;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.messages.BadPacketException;
 
-/** The message that lets other know what messages you support.  Everytime you
+/** The message that lets other know what messages you support.  Every time you
  *  add a subclass of VendorMessage you should modify this class (assuming your
  *  message is delivered over TCP).
  */
@@ -60,7 +60,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
     }
     
     /**
-     * Constructor for tests
+     * Constructor for tests.
      */
     MessagesSupportedVendorMessage(Set<SupportedMessageBlock> supportedMessageBlocks) {
         super(F_NULL_VENDOR_ID, F_MESSAGES_SUPPORTED, VERSION, derivePayload(supportedMessageBlocks));
@@ -118,8 +118,8 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
         hashSet.add(smp);
         // UDP Crawl support
         smp = new SupportedMessageBlock(F_LIME_VENDOR_ID,
-        								F_CRAWLER_PONG,
-										UDPCrawlerPong.VERSION);
+                                        F_CRAWLER_PONG,
+                                        UDPCrawlerPong.VERSION);
         hashSet.add(smp);
         //Simpp Request message
         smp = new SupportedMessageBlock(F_LIME_VENDOR_ID,
@@ -134,8 +134,8 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
         
         //Header update
         smp = new SupportedMessageBlock(F_LIME_VENDOR_ID,
-                						F_HEADER_UPDATE,
-                						HeaderUpdateVendorMessage.VERSION);
+                                        F_HEADER_UPDATE,
+                                        HeaderUpdateVendorMessage.VERSION);
         hashSet.add(smp);
         
         smp = new SupportedMessageBlock(F_LIME_VENDOR_ID, 
@@ -160,7 +160,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
 
     /**
      * @return -1 if the message isn't supported, else it returns the version 
-     * of the message supported.
+     * of the message supported
      */
     public int supportsMessage(byte[] vendorID, int selector) {
         for(SupportedMessageBlock currSMP : _messagesSupported) {
@@ -174,7 +174,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
     
     /**
      * @return -1 if the message isn't supported, else it returns the version 
-     * of the message supported.
+     * of the message supported
      */
     public int supportsTCPConnectBack() {
         return supportsMessage(F_BEAR_VENDOR_ID, F_TCP_CONNECT_BACK);
@@ -183,7 +183,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
 
     /**
      * @return -1 if the message isn't supported, else it returns the version 
-     * of the message supported.
+     * of the message supported
      */
     public int supportsUDPConnectBack() {
         return supportsMessage(F_GTKG_VENDOR_ID, F_UDP_CONNECT_BACK);
@@ -191,7 +191,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
 
     /**
      * @return -1 if the message isn't supported, else it returns the version 
-     * of the message supported.
+     * of the message supported
      */
     public int supportsTCPConnectBackRedirect() {
         return supportsMessage(F_LIME_VENDOR_ID, F_TCP_CONNECT_BACK);
@@ -200,7 +200,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
 
     /**
      * @return -1 if the message isn't supported, else it returns the version 
-     * of the message supported.
+     * of the message supported
      */
     public int supportsUDPConnectBackRedirect() {
         return supportsMessage(F_LIME_VENDOR_ID, F_UDP_CONNECT_BACK_REDIR);
@@ -208,7 +208,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
 
     /**
      * @return -1 if the message isn't supported, else it returns the version 
-     * of the message supported.
+     * of the message supported
      */
     public int supportsHopsFlow() {
         return supportsMessage(F_BEAR_VENDOR_ID, F_HOPS_FLOW);
@@ -216,7 +216,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
     
     /**
      * @return -1 if the message isn't supported, else it returns the version 
-     * of the message supported.
+     * of the message supported
      */
     public int supportsPushProxy() {
         return supportsMessage(F_LIME_VENDOR_ID, F_PUSH_PROXY_REQ);
@@ -225,7 +225,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
     
     /**
      * @return -1 if the message isn't supported, else it returns the version 
-     * of the message supported.
+     * of the message supported
      */
     public int supportsLeafGuidance() {
         return supportsMessage(F_BEAR_VENDOR_ID, F_LIME_ACK);
@@ -233,7 +233,9 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
     
     /**
      * @return -1 if the remote host does not support UDP crawling,
-     * else it returns the version. TODO: Legacy reasons -- remove?
+     * else it returns the version. 
+     */
+    /*TODO: Legacy reasons -- remove?
      */
     public int supportsUDPCrawling() {
     	return supportsMessage(F_LIME_VENDOR_ID, F_CRAWLER_PONG);
@@ -256,7 +258,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
     }
 
     /**
-     * @return -1 if the remote host does DHT Conacts exchange,
+     * @return -1 if the remote host does DHT Contacts exchange,
      * else return the version
      */
     public int supportsDHTContacts() {
@@ -332,7 +334,7 @@ public final class MessagesSupportedVendorMessage extends AbstractVendorMessage 
         }
 
         /** @return 0 or more if this matches the message you are looking for.
-         *  Otherwise returns -1;
+         *  Otherwise returns -1.
          */
         public int matches(byte[] vendorID, int selector) {
             if ((Arrays.equals(_vendorID, vendorID)) && 

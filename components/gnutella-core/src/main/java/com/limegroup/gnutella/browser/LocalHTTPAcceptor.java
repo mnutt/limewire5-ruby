@@ -21,8 +21,6 @@ import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.http.BasicHttpAcceptor;
 import org.limewire.http.auth.AuthenticationInterceptor;
 import org.limewire.core.api.library.LibraryManager;
-import org.limewire.core.api.URN;
-import org.limewire.core.impl.URNImpl;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -229,7 +227,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
             }
             System.out.println("sha1:" + sha1);
             
-            URN urn = new URNImpl(com.limegroup.gnutella.URN.createSHA1Urn(sha1));
+            com.limegroup.gnutella.URN urn = com.limegroup.gnutella.URN.createSHA1Urn(sha1);
             if(libraryManager.getLibraryManagedList().contains(urn)) {
               FileDesc fileDesc = libraryManager.getLibraryManagedList().getFileDescsByURN(urn).get(0);
               entity = new NFileEntity(fileDesc.getFile(), "application/binary");

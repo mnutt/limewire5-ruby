@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpException;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.settings.LWSSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.lifecycle.Service;
@@ -50,7 +50,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
     private final static int CALL_GET_DOWNLOAD_PROGRESS_PERIOD_MILLIS =  5 * 60 * 1000;
 
     
-    /** Maintain the last time we called {@link #getDownloadProgress()}, intialized to <code>-1</code>. */
+    /** Maintain the last time we called {@link #getDownloadProgress()}, initialized to <code>-1</code>. */
     private long lastTimeWeCalledGetDownloadProgress = -1;
     
     private final LWSManager lwsManager;
@@ -71,25 +71,25 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
      * we iterate over all the current downloaders, we know that if one
      * appears in the ever-active collection, but not the current we
      * need to inspect further.
-     * 
+     * <p>
      * More specifically, that downloader could have completed normally
      * or it could have been completed by being cancelled. If the
      * downloader completed: 
-     * 
+     * <pre>
      * - Normally: Remove it from the ever-active
      *   collection and pass back a progress of 1.0
      *    
      * - By being cancelled: Pass back the String 'X' denoting it 
      *   was cancelled.
-     * 
+     * </pre>
      * The reason we need to do this is because, when the Store is on
      * the download page and connected to the Client, it will poll the
      * Client for the progress of all active and waiting downloads. In
      * the case that a downloader is either (1) finished normally or (2)
      * cancelled, and the Client polls after this occurs, we don't know
-     * which occured. Basically this allows the Store to sync with the
+     * which occurred. Basically this allows the Store to sync with the
      * Client, so we know when a download actually completes.
-     * 
+     * <p>
      * Furthermore, if the download is at 99% and then completes, and
      * the Store polls after this occurs the progress bars on the Store
      * web site will remain at 99%, because we never passed back
@@ -102,7 +102,7 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
     /**
      * Maps DownloadState values to their names. These names are used on the
      * wire. The Store's JavaScript displays these in the Store UI and also
-     * depends on specific names. See recProgress in lws_downloads.js
+     * depends on specific names. See recProgress in lws_downloads.js.
      */
     private final EnumMap<DownloadState, String> downloadStateName =
         new EnumMap<DownloadState, String>(DownloadState.class) { {
@@ -254,10 +254,10 @@ public final class LWSIntegrationServicesImpl implements LWSIntegrationServices,
      *        from {@link #createRemoteFileDescriptor(String, String, long)}.
      * @param saveDir directory to which we save the downloaded file
      * @return a new Store {@link Downloader} for the given arguments.
-     * @throws SaveLocationException
+     * @throws DownloadException
      */
     public Downloader createDownloader(RemoteFileDesc rfd, File saveDir)
-            throws SaveLocationException {
+            throws DownloadException {
         //
         // We'll associate the identity hash code of the downloader
         // with this file so that the web page can keep track

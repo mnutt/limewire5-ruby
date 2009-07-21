@@ -54,7 +54,7 @@ public class ContactsScrubber {
     }*/
     
     /**
-     * Creates and returns a ContactsScrubber for the given arguments
+     * Creates and returns a ContactsScrubber for the given arguments.
      */
     public static ContactsScrubber scrub(Context context, Contact sender, 
             Collection<? extends Contact> nodes, float requiredRatio) {
@@ -127,8 +127,8 @@ public class ContactsScrubber {
             
             // Same as above but somewhat undefined. It's unclear whether or not
             // an address such as ::0000:192.168.0.1 is a site-local addresses
-            // or not. On one side it's an IPv6 addresss and therefore not a
-            // site-local address but if you read it as an IPv4 addresss then
+            // or not. On one side it's an IPv6 address and therefore not a
+            // site-local address but if you read it as an IPv4 address then
             // it is.
             if (NetworkSettings.DROP_PRIVATE_IPV4_COMPATIBLE_ADDRESSES.getValue()
                     && ContactUtils.isPrivateIPv4CompatibleAddress(node)) {
@@ -188,7 +188,7 @@ public class ContactsScrubber {
     }
     
     /**
-     * Returns all Contacts
+     * Returns all Contacts.
      */
     public Collection<? extends Contact> getContacts() {
         return nodes;
@@ -213,7 +213,7 @@ public class ContactsScrubber {
     
     /**
      * Returns true if the response contains any or rather the 
-     * response itself can be considered as valid
+     * response itself can be considered as valid.
      */
     public boolean isValidResponse() {
         return isValidResponse;

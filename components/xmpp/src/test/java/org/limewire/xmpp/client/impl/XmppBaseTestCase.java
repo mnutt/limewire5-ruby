@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.limewire.common.LimeWireCommonModule;
+import org.limewire.friend.api.LimeWireFriendModule;
+import org.limewire.friend.impl.LimeWireFriendImplModule;
 import org.limewire.http.auth.LimeWireHttpAuthModule;
 import org.limewire.inject.AbstractModule;
 import org.limewire.lifecycle.ServiceRegistry;
@@ -15,6 +17,7 @@ import org.limewire.util.BaseTestCase;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
@@ -27,11 +30,10 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
     protected static final String SERVICE = "gmail.com";
     protected static final int SLEEP = 5000; // Milliseconds
 
-    private ServiceRegistry registry;
-    protected XMPPServiceImpl service;
-    protected Injector injector;
+    private ServiceRegistry[] registries;
+    protected XMPPConnectionFactoryImpl[] factories; 
+    protected Injector[] injectors;
 
-    protected AddressEventTestBroadcaster addressEventBroadcaster;
 
     public XmppBaseTestCase(String name) {
         super(name);
@@ -41,33 +43,39 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        injector = createInjector(getModules());
-        registry = injector.getInstance(ServiceRegistry.class);
-        registry.initialize();
-        registry.start();
-        service = injector.getInstance(XMPPServiceImpl.class);
-        service.setMultipleConnectionsAllowed(true);
+        injectors = new Injector[] { createInjector(getModules()), createInjector(getModules()) }; 
+        registries = new ServiceRegistry[] { injectors[0].getInstance(ServiceRegistry.class), injectors[1].getInstance(ServiceRegistry.class) };
+        for (ServiceRegistry registry : registries) {
+            registry.initialize();
+            registry.start();
+        }
+        factories = new XMPPConnectionFactoryImpl[] { injectors[0].getInstance(XMPPConnectionFactoryImpl.class), injectors[1].getInstance(XMPPConnectionFactoryImpl.class) };
     }
 
     protected Injector createInjector(Module... modules) {
         return Guice.createInjector(Stage.PRODUCTION, modules);
     }
 
-    private Module[] getModules() {
+    protected Module[] getModules() {
         List<Module> modules = new ArrayList<Module>();
         modules.add(new LimeWireCommonModule());
         modules.add(new LimeWireHttpAuthModule());
+        modules.add(new LimeWireFriendModule());
+        modules.add(new LimeWireFriendImplModule());
         modules.addAll(getServiceModules());
         return modules.toArray(new Module[modules.size()]);
     }
 
+    protected AddressEventTestBroadcaster getAddressBroadcaster(Injector injector) {
+        return (AddressEventTestBroadcaster) injector.getInstance(Key.get(new TypeLiteral<ListenerSupport<AddressEvent>>(){}));
+    }
+    
     protected List<Module> getServiceModules() {
         Module xmppModule = new LimeWireXMPPTestModule();
-        addressEventBroadcaster = new AddressEventTestBroadcaster();
         Module m = new AbstractModule() {
             @Override
             protected void configure() {
-                bind(new TypeLiteral<ListenerSupport<AddressEvent>>(){}).toInstance(addressEventBroadcaster);
+                bind(new TypeLiteral<ListenerSupport<AddressEvent>>(){}).toInstance(new AddressEventTestBroadcaster());
                 bind(XMPPConnectionListenerMock.class);
             }
         };
@@ -77,8 +85,12 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        service.stop();
-        registry.stop();
+        for (XMPPConnectionFactoryImpl factory : factories) {
+            factory.stop();
+        }
+        for (ServiceRegistry registry : registries) {
+            registry.stop();
+        }
         Thread.sleep(SLEEP);
     }
 }

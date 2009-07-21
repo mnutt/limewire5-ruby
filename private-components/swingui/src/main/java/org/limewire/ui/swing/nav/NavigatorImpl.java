@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.swing.JComponent;
-
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.util.StringUtils;
@@ -35,9 +33,9 @@ class NavigatorImpl implements Navigator {
     }
  
     @Override
-    public NavItem createNavItem(NavCategory category, String id, JComponent panel) {
-        NavItemImpl item = new NavItemImpl(category, id, panel);
-        addNavItem(item, panel);
+    public NavItem createNavItem(NavCategory category, String id, NavMediator navMediator) {
+        NavItemImpl item = new NavItemImpl(category, id, navMediator);
+        addNavItem(item);
         return item;
     }
 
@@ -62,7 +60,7 @@ class NavigatorImpl implements Navigator {
     public void addNavigationListener(NavigationListener itemListener) {
         listeners.add(itemListener);
         for(NavItemImpl item : navItems) {
-            itemListener.itemAdded(item.category, item, item.panel);
+            itemListener.itemAdded(item.category, item);
         }
     }
 
@@ -98,11 +96,11 @@ class NavigatorImpl implements Navigator {
         }
     }
         
-    private void addNavItem(NavItemImpl item, JComponent panel) {
+    private void addNavItem(NavItemImpl item) {
         LOG.debugf("Adding item {0}", item);
         navItems.add(item);        
         for(NavigationListener listener : listeners) {
-            listener.itemAdded(item.category, item, panel);
+            listener.itemAdded(item.category, item);
         }
         
         categoryCount.put(item.category, categoryCount.get(item.category)+1);        
@@ -135,7 +133,7 @@ class NavigatorImpl implements Navigator {
             removeFromHistory(item);
             
             for(NavigationListener listener : listeners) {
-                listener.itemRemoved(item.category, item, item.panel);
+                listener.itemRemoved(item.category, item);
                 if(selectedItem == item) {
                     item.fireSelected(false);
                     selectedItem = null;
@@ -164,7 +162,7 @@ class NavigatorImpl implements Navigator {
             selectedItem = item;
             item.fireSelected(true);
             for(NavigationListener listener : listeners) {
-                listener.itemSelected(item.category, item, selectable, item.panel);
+                listener.itemSelected(item.category, item, selectable, item.navMediator);
             }
         }
     }
@@ -174,13 +172,13 @@ class NavigatorImpl implements Navigator {
         private final List<NavItemListener> listeners = new CopyOnWriteArrayList<NavItemListener>();
         private final NavCategory category;
         private final String id;
-        private final JComponent panel;
+        private final NavMediator navMediator;
         private boolean valid = true;
         
-        public NavItemImpl(NavCategory category, String id, JComponent panel) {
+        public NavItemImpl(NavCategory category, String id, NavMediator navMediator) {
             this.category = category;
             this.id = id;
-            this.panel = panel;
+            this.navMediator = navMediator;
         }
         
         @Override

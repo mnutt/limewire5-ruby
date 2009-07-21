@@ -105,13 +105,14 @@ public abstract class ButtonBackgroundPainter extends AbstractPainter<JXButton> 
     
     
     /**
-     * For creating buttons with different edge rounding properties
-     * 
+     * For creating buttons with different edge rounding properties.
+     * <pre>
      *   Examples :     
      * 
      *       ( LEFT_ROUNDED |   | UNROUNDED |   | RIGHT_ROUNDED ) 
      *       
      *                         ( FULLY_ROUNDED )
+     * </pre>
      */
     
     public enum DrawMode {

@@ -21,9 +21,9 @@ public interface ConnectionDispatcher {
      * If blocking is true, a new thread will be spawned when calling
      * acceptor.acceptConnection.
      * 
-     * @param acceptor The SocketAcceptor to call acceptConnection on
-     * @param localOnly True if localhost connections are required, false if none allowed
-     * @param words The list of words to associate with this SocketAcceptor
+     * @param acceptor the SocketAcceptor to call acceptConnection on
+     * @param localOnly true if localhost connections are required, false if none allowed
+     * @param words the list of words to associate with this SocketAcceptor
      */
     public abstract void addConnectionAcceptor(ConnectionAcceptor acceptor,
             boolean localOnly, String... words);
@@ -38,8 +38,8 @@ public interface ConnectionDispatcher {
      * Dispatches this incoming connection to the appropriate manager, depending
      * on the word that was read.
      * 
-     * @param word The word associated with this Socket
-     * @param client Socket to use for dispatch
+     * @param word the word associated with this Socket
+     * @param client socket to use for dispatch
      * @param newThread whether or not a new thread is necessary when dispatching
      *                  to a blocking protocol.
      */

@@ -34,7 +34,7 @@ public interface DHTValue extends Serializable {
     /**
      * An empty value is a value without an actual payload 
      * and storing an empty value in the DHT will remove an
-     * existing value from the DHT
+     * existing value from the DHT.
      */
     public static final DHTValue EMPTY_VALUE = new EmptyValue();
     
@@ -59,7 +59,7 @@ public interface DHTValue extends Serializable {
     public void write(OutputStream out) throws IOException;
 
     /**
-     * Returns the size of the value payload in byte
+     * Returns the size of the value payload in byte.
      */
     public int size();
 

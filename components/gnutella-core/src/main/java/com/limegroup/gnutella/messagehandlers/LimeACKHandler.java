@@ -68,7 +68,7 @@ public class LimeACKHandler implements MessageHandler, Service {
     }
     
     /**
-     * Keeps track of QueryReplies to be sent after recieving LimeAcks (sent
+     * Keeps track of QueryReplies to be sent after receiving LimeAcks (sent
      * if the sink wants them).  Cleared every CLEAR_TIME seconds.
      * TimedGUID->QueryResponseBundle.
      */
@@ -115,7 +115,7 @@ public class LimeACKHandler implements MessageHandler, Service {
 
     
     /** Stores (for a limited time) the resps for later out-of-band delivery -
-     *  interacts with handleLimeACKMessage
+     *  interacts with handleLimeACKMessage.
      *  @return true if the operation failed, false if not (i.e. too busy)
      */
     public boolean bufferResponsesForLaterDelivery(QueryRequest query,

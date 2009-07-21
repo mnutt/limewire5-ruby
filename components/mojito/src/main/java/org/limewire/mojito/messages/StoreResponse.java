@@ -28,12 +28,12 @@ import org.limewire.mojito.db.DHTValueEntity;
 
 
 /**
- * An interface for StoreResponse implementations
+ * An interface for StoreResponse implementations.
  */
 public interface StoreResponse extends ResponseMessage {
 
     /**
-     * The remote Node was able to store the DHTValue
+     * The remote Node was able to store the DHTValue.
      */
     public static final StatusCode OK = StatusCode.valueOf(0x01, "OK");
     
@@ -46,31 +46,31 @@ public interface StoreResponse extends ResponseMessage {
     public static final StatusCode ERROR = StatusCode.valueOf(0x02, "ERROR");
     
     /**
-     * Returns a Collection of StoreStatusCode(s)
+     * Returns a Collection of StoreStatusCode(s).
      */
     public Collection<StoreStatusCode> getStoreStatusCodes();
     
     /**
      * A StoreStatusCode represents the result of a STORE operation
      * and contains information about the value as well as whether 
-     * or not it was stored at the remote Node
+     * or not it was stored at the remote Node.
      */
     public static final class StoreStatusCode implements Serializable {
         
         private static final long serialVersionUID = -3753019724686307068L;
 
         /**
-         * The primary key of the DHTValue
+         * The primary key of the DHTValue.
          */
         private final KUID primaryKey;
         
         /**
-         * The secondary key of a DHTValue
+         * The secondary key of a DHTValue.
          */
         private final KUID secondaryKey;
         
         /**
-         * The StatusCode (result) of the STORE operation
+         * The StatusCode (result) of the STORE operation.
          */
         private final StatusCode statusCode;
         
@@ -86,7 +86,7 @@ public interface StoreResponse extends ResponseMessage {
         
         /**
          * Returns true if this StoreStatusCode is for the
-         * given DHTValueEntity
+         * given DHTValueEntity.
          */
         public boolean isFor(DHTValueEntity entity) {
             return primaryKey.equals(entity.getPrimaryKey())
@@ -94,21 +94,21 @@ public interface StoreResponse extends ResponseMessage {
         }
         
         /**
-         * Returns the primary key
+         * Returns the primary key.
          */
         public KUID getPrimaryKey() {
             return primaryKey;
         }
         
         /**
-         * Returns the secondary key
+         * Returns the secondary key.
          */
         public KUID getSecondaryKey() {
             return secondaryKey;
         }
         
         /**
-         * Returns the StatusCode
+         * Returns the StatusCode.
          */
         public StatusCode getStatusCode() {
             return statusCode;

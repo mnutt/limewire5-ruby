@@ -15,10 +15,12 @@ public class DownloadSerialSettingsStub implements DownloadSerializeSettings {
     }
 
     
+    @Override
     public File getBackupFile() {
         return backupFile;
     }
     
+    @Override
     public File getSaveFile() {
         return saveFile;
     }

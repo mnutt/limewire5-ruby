@@ -73,7 +73,7 @@ public class OOBSecurityToken extends AbstractSecurityToken {
                     data.write(NetworkUtils.getIPv6AddressBytes(address));
                 }
                 else {
-                    // unkown inet address, write its full address bytes
+                    // unknown inet address, write its full address bytes
                     data.write(address.getAddress());
                 }
                 data.write(numRequests);

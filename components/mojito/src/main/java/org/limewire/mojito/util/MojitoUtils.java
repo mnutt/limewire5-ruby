@@ -44,7 +44,7 @@ public class MojitoUtils {
     
     /**
      * A helper method to bootstrap a MojitoDHT instance.
-     * 
+     * <p>
      * It tries to ping the given SocketAddress (this blocks) and in
      * case of a success it will kick off a bootstrap process and returns
      * a DHTFuture for the process.
@@ -56,11 +56,11 @@ public class MojitoUtils {
     }
     
     /**
-     * Creates <code>factor</code> * {@link KademliaSettings#REPLICATION_PARAMETER} bootstrapped dhts
+     * Creates <code>factor</code> * {@link KademliaSettings#REPLICATION_PARAMETER} bootstrapped DHTs
      * and stores each under its node id in a map.
-     * 
+     * <p>
      * Instances are bound from port 3000 onwards.
-     * 
+     * <p>
      * Make sure to close them in a try-finally block.
      */
     public static List<MojitoDHT> createBootStrappedDHTs(int factor) throws Exception {
@@ -68,8 +68,8 @@ public class MojitoUtils {
     }
         
     /**
-     * Creates <code>factor</code> * {@link KademliaSettings#REPLICATION_PARAMETER} bootstrapped dhts.
-     * 
+     * Creates <code>factor</code> * {@link KademliaSettings#REPLICATION_PARAMETER} bootstrapped DHTs.
+     * <p>
      * Make sure to close them in a try-finally block.
      * 
      * @param port the port offset to start binding the instances on
@@ -98,11 +98,11 @@ public class MojitoUtils {
     }
     
     /**
-     * Creates <code>factor</code> * {@link KademliaSettings#REPLICATION_PARAMETER} bootstrapped dhts
+     * Creates <code>factor</code> * {@link KademliaSettings#REPLICATION_PARAMETER} bootstrapped DHTs
      * and stores each under its node id in a map.
-     * 
+     * <p>
      * Instances are bound from port 3000 onwards.
-     * 
+     * <p>
      * Make sure to close them in a try-finally block.
      */
     public static Map<KUID, MojitoDHT> createBootStrappedDHTsMap(int factor) throws Exception {
@@ -110,9 +110,9 @@ public class MojitoUtils {
     }
     
     /**
-     * Creates <code>factor</code> * {@link KademliaSettings#REPLICATION_PARAMETER} bootstrapped dhts
+     * Creates <code>factor</code> * {@link KademliaSettings#REPLICATION_PARAMETER} bootstrapped DHTs
      * and stores each under its node id in a map.
-     * 
+     * <p>
      * Make sure to close them in a try-finally block.
      * 
      * @param port the port offset to start binding the instances on

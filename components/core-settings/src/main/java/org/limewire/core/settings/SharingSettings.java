@@ -16,444 +16,451 @@ import org.limewire.util.OSUtils;
 import org.limewire.util.SystemUtils;
 import org.limewire.util.SystemUtils.SpecialLocations;
 
-
-
 /**
- * Settings for sharing
+ * Settings for sharing.
  */
 public class SharingSettings extends LimeProps {
-      
-    private SharingSettings() {}
 
-	/**
-	 * Stores the download directory file settings for each media type by its
-	 * description key {@link MediaType#getDescriptionKey()}. The settings
-	 * are loaded lazily during the first request.
-	 */
-	private static final Hashtable<String, FileSetting> downloadDirsByDescription =
-        new Hashtable<String, FileSetting>();
-	
-    
-    public static final File DEFAULT_SAVE_DIR =
-        new File(getLimeWireRootFolder(), "Saved");
-    
-    public static final File DEFAULT_SHARE_DIR = 
-        new File(getLimeWireRootFolder(), "Shared");
+    private SharingSettings() {
+    }
+
     /**
-     * Default directory for songs purchased from LWS
+     * Stores the download directory file settings for each media type by its
+     * description key {@link MediaType#getDescriptionKey()}. The settings are
+     * loaded lazily during the first request.
      */
-    public static final File DEFAULT_SAVE_LWS_DIR = 
-        new File(getLimeWireRootFolder(), "Store Purchased");
-    
-    public static final String DEFAULT_LWS_FILENAME_TEMPLATE = 
-        "<artist> - <album> - <track> - <title>";
-    
-    public static final String DEFAULT_LWS_FOLDER_TEMPLATE =
-        "<artist>\\<album>";
-    
+    private static final Hashtable<String, FileSetting> downloadDirsByDescription = new Hashtable<String, FileSetting>();
+
+    public static final File DEFAULT_SAVE_DIR = new File(getLimeWireRootFolder(), "Saved");
+
+    public static final File DEFAULT_SHARE_DIR = new File(getLimeWireRootFolder(), "Shared");
+
     /**
-     * Whether or not we're going to add an alternate for ourselves
-     * to our shared files.  Primarily set to false for testing.
+     * Default directory for songs purchased from LWS.
      */
-    public static final BooleanSetting ADD_ALTERNATE_FOR_SELF =
-        FACTORY.createBooleanSetting("ADD_ALTERNATE_FOR_SELF", true);
+    public static final File DEFAULT_SAVE_LWS_DIR = new File(getLimeWireRootFolder(),
+            "Store Purchased");
+
+    public static final String DEFAULT_LWS_FILENAME_TEMPLATE = "<artist> - <album> - <track> - <title>";
+
+    public static final String DEFAULT_LWS_FOLDER_TEMPLATE = "<artist>\\<album>";
+
+    /**
+     * Whether or not we're going to add an alternate for ourselves to our
+     * shared files. Primarily set to false for testing.
+     */
+    public static final BooleanSetting ADD_ALTERNATE_FOR_SELF = FACTORY.createBooleanSetting(
+            "ADD_ALTERNATE_FOR_SELF", true);
 
     /**
      * The directory for saving files.
      */
-    public static final FileSetting DIRECTORY_FOR_SAVING_FILES = 
-        FACTORY.createFileSetting("DIRECTORY_FOR_SAVING_FILES", 
-            DEFAULT_SAVE_DIR).setAlwaysSave(true);
-    
+    public static final FileSetting DIRECTORY_FOR_SAVING_FILES = FACTORY.createFileSetting(
+            "DIRECTORY_FOR_SAVING_FILES", DEFAULT_SAVE_DIR).setAlwaysSave(true);
+
     /**
-     * Directory for saving songs purchased from LimeWire Store (LWS)
+     * Directory for saving songs purchased from LimeWire Store (LWS).
      */
-    public static final FileSetting DIRECTORY_FOR_SAVING_LWS_FILES = 
-        FACTORY.createFileSetting("DIRETORY_FOR_SAVING_LWS_FILES",
-                DEFAULT_SAVE_LWS_DIR).setAlwaysSave(true);
-    
+    public static final FileSetting DIRECTORY_FOR_SAVING_LWS_FILES = FACTORY.createFileSetting(
+            "DIRETORY_FOR_SAVING_LWS_FILES", DEFAULT_SAVE_LWS_DIR).setAlwaysSave(true);
+
     /**
-     * Template for substructure when saving songs purchased from LimeWire Store (LWS)
-     * The template allows purchased songs to be saved in a unique fashion, 
-     * ie. LWS_dir/artist/album/songX.mp3
+     * Template for substructure when saving songs purchased from LimeWire Store
+     * (LWS). The template allows purchased songs to be saved in a unique
+     * fashion, ie. LWS_dir/artist/album/songX.mp3.
      */
-    public static final StringSetting TEMPLATE_SUBDIRECTORY_LWS_FILES = 
-        FACTORY.createStringSetting("TEMPLATE_FOR_SAVING_LWS_FILES",DEFAULT_LWS_FOLDER_TEMPLATE);
-    
+    public static final StringSetting TEMPLATE_SUBDIRECTORY_LWS_FILES = FACTORY
+            .createStringSetting("TEMPLATE_FOR_SAVING_LWS_FILES", DEFAULT_LWS_FOLDER_TEMPLATE);
+
     /**
-     * Template for file name structure when saving songs purchased from the LimeWire Store (LWS)
-     * The template allows purchased songs to be named in a unique fashion based on the 
-     * songs meta data
-     * ie. artist - track # - title.mp3
+     * Template for file name structure when saving songs purchased from the
+     * LimeWire Store (LWS). The template allows purchased songs to be named in a
+     * unique fashion based on the songs meta data ie. artist - track # -
+     * title.mp3.
      */
-    public static final StringSetting TEMPLATE_FOR_NAMING_LWS_FILES = 
-        FACTORY.createStringSetting("TEMPLATE_FOR_NAMING_LWS_FILES",DEFAULT_LWS_FILENAME_TEMPLATE);
-    
+    public static final StringSetting TEMPLATE_FOR_NAMING_LWS_FILES = FACTORY.createStringSetting(
+            "TEMPLATE_FOR_NAMING_LWS_FILES", DEFAULT_LWS_FILENAME_TEMPLATE);
+
     /**
      * The directory where incomplete files are stored (downloads in progress).
      */
-    public static final FileSetting INCOMPLETE_DIRECTORY =
-        FACTORY.createFileSetting("INCOMPLETE_DIRECTORY", 
-            (new File(DIRECTORY_FOR_SAVING_FILES.get().getParent(),
-                "Incomplete")));
-    
+    public static final FileSetting INCOMPLETE_DIRECTORY = FACTORY.createFileSetting(
+            "INCOMPLETE_DIRECTORY", (new File(DIRECTORY_FOR_SAVING_FILES.get().getParent(),
+                    "Incomplete")));
+
     /**
-	 * A file with a snapshot of current downloading files.
-	 */                
-    public static final FileSetting OLD_DOWNLOAD_SNAPSHOT_FILE =
-        FACTORY.createFileSetting("DOWNLOAD_SNAPSHOT_FILE", 
-            (new File(INCOMPLETE_DIRECTORY.get(), "downloads.dat")));
-            
+     * A file with a snapshot of current downloading files.
+     */
+    public static final FileSetting OLD_DOWNLOAD_SNAPSHOT_FILE = FACTORY.createFileSetting(
+            "DOWNLOAD_SNAPSHOT_FILE", (new File(INCOMPLETE_DIRECTORY.get(), "downloads.dat")));
+
     /**
-	 * A file with a snapshot of current downloading files.
-	 */                
-    public static final FileSetting OLD_DOWNLOAD_SNAPSHOT_BACKUP_FILE =
-        FACTORY.createFileSetting("DOWNLOAD_SNAPSHOT_BACKUP_FILE", 
-            (new File(INCOMPLETE_DIRECTORY.get(), "downloads.bak")));            
-    
-    /** The minimum age in days for which incomplete files will be deleted.
-     *  This values may be zero or negative; doing so will cause LimeWire to
-     *  delete ALL incomplete files on startup. */   
-    public static final IntSetting INCOMPLETE_PURGE_TIME =
-        FACTORY.createIntSetting("INCOMPLETE_PURGE_TIME", 7);
-    
+     * A file with a snapshot of current downloading files.
+     */
+    public static final FileSetting OLD_DOWNLOAD_SNAPSHOT_BACKUP_FILE = FACTORY.createFileSetting(
+            "DOWNLOAD_SNAPSHOT_BACKUP_FILE",
+            (new File(INCOMPLETE_DIRECTORY.get(), "downloads.bak")));
+
+    /**
+     * The minimum age in days for which incomplete files will be deleted. This
+     * values may be zero or negative; doing so will cause LimeWire to delete
+     * ALL incomplete files on startup.
+     */
+    public static final IntSetting INCOMPLETE_PURGE_TIME = FACTORY.createIntSetting(
+            "INCOMPLETE_PURGE_TIME", 7);
+
     /**
      * The time, in days, after which .torrent meta data files are deleted.
      */
-    public static final IntSetting TORRENT_METADATA_PURGE_TIME = 
-        FACTORY.createIntSetting("TORRENT_METADATA_PURGE_TIME", 7);
+    public static final IntSetting TORRENT_METADATA_PURGE_TIME = FACTORY.createIntSetting(
+            "TORRENT_METADATA_PURGE_TIME", 7);
+
+    /**
+     * Specifies whether or not completed downloads should automatically be
+     * cleared from the download window.
+     */
+    public static final BooleanSetting CLEAR_DOWNLOAD = FACTORY.createBooleanSetting(
+            "CLEAR_DOWNLOAD", false);
     
     /**
-     * Specifies whether or not completed downloads
-     * should automatically be cleared from the download window.
-     */    
-    public static final BooleanSetting CLEAR_DOWNLOAD =
-        FACTORY.createBooleanSetting("CLEAR_DOWNLOAD", false);
-        
+     * Specifies whether or not to warn the user when they are about to share a folder.
+     */
+    public static final BooleanSetting WARN_SHARING_FOLDER = FACTORY.createBooleanSetting(
+            "WARN_SHARING_FOLDER", true);
+    
+    /**
+     * Specifies whether or not to warn the user when they are sharing documents with the world.
+     */
+    public static final BooleanSetting WARN_SHARING_DOCUMENTS_WITH_WORLD = FACTORY.createBooleanSetting(
+            "WARN_SHARING_DOCUMENTS_WITH_WORLD", true);
     
     /**
      * Helper method left from SettingsManager.
-     *
-	 * Sets the directory for saving files.
-	 *
-     * <p><b>Modifies:</b> DIRECTORY_FOR_SAVING_FILES, INCOMPLETE_DIRECTORY, 
-     *                     DOWNLOAD_SNAPSHOT_FILE</p>
-     *
-	 * @param   saveDir  A <tt>File</tt> instance denoting the
-	 *                   abstract pathname of the directory for
-	 *                   saving files.
-	 *
-	 * @throws  <tt>IOException</tt>
-	 *          If the directory denoted by the directory pathname
-	 *          String parameter did not exist prior to this method
-	 *          call and could not be created, or if the canonical
-	 *          path could not be retrieved from the file system.
-	 *
-	 * @throws  <tt>NullPointerException</tt>
-	 *          If the "dir" parameter is null.
-	 */
+     * <p>
+     * Sets the directory for saving files.
+     * <p>
+     * <b>Modifies:</b> DIRECTORY_FOR_SAVING_FILES, INCOMPLETE_DIRECTORY,
+     * DOWNLOAD_SNAPSHOT_FILE
+     * 
+     * @param saveDir a <tt>File</tt> instance denoting the abstract pathname of
+     *        the directory for saving files.
+     * 
+     * @throws <tt>IOException</tt> if the directory denoted by the directory
+     *         pathname String parameter did not exist prior to this method call
+     *         and could not be created, or if the canonical path could not be
+     *         retrieved from the file system.
+     * 
+     * @throws <tt>NullPointerException</tt> If the "dir" parameter is null.
+     */
     public static final void setSaveDirectory(File saveDir) throws IOException {
-		if(saveDir == null) throw new NullPointerException();
-		if(!saveDir.isDirectory()) {
-			if(!saveDir.mkdirs()) throw new IOException("could not create save dir");
-		}
-        
-		String parentDir = saveDir.getParent();
-		File incDir = new File(parentDir, "Incomplete");
-		if(!incDir.isDirectory()) {
-			if(!incDir.mkdirs()) throw new IOException("could not create incomplete dir");
-		}
-        
+        if (saveDir == null)
+            throw new NullPointerException();
+        if (!saveDir.isDirectory()) {
+            if (!saveDir.mkdirs())
+                throw new IOException("could not create save dir");
+        }
+
+        String parentDir = saveDir.getParent();
+        File incDir = new File(parentDir, "Incomplete");
+        if (!incDir.isDirectory()) {
+            if (!incDir.mkdirs())
+                throw new IOException("could not create incomplete dir");
+        }
+
         FileUtils.setWriteable(saveDir);
         FileUtils.setWriteable(incDir);
 
-		if(!saveDir.canRead() || !FileUtils.canWrite(saveDir) ||
-		   !incDir.canRead()  || !FileUtils.canWrite(incDir)) {
-			throw new IOException("could not write to selected directory");
-		}
-		
-		// Canonicalize the files ... 
-		try {
-		    saveDir = FileUtils.getCanonicalFile(saveDir);
-		} catch(IOException ignored) {}
-		try {
-		    incDir = FileUtils.getCanonicalFile(incDir);
-		} catch(IOException ignored) {}
-		File snapFile = new File(incDir, "downloads.dat");
-		try {
-		    snapFile = FileUtils.getCanonicalFile(snapFile);
-		} catch(IOException ignored) {}
-		File snapBackup = new File(incDir, "downloads.bak");
-		try {
-		    snapBackup = FileUtils.getCanonicalFile(snapBackup);
-		} catch(IOException ignored) {}
-		
+        if (!saveDir.canRead() || !FileUtils.canWrite(saveDir) || !incDir.canRead()
+                || !FileUtils.canWrite(incDir)) {
+            throw new IOException("could not write to selected directory");
+        }
+
+        // Canonicalize the files ...
+        try {
+            saveDir = FileUtils.getCanonicalFile(saveDir);
+        } catch (IOException ignored) {
+        }
+        try {
+            incDir = FileUtils.getCanonicalFile(incDir);
+        } catch (IOException ignored) {
+        }
+        File snapFile = new File(incDir, "downloads.dat");
+        try {
+            snapFile = FileUtils.getCanonicalFile(snapFile);
+        } catch (IOException ignored) {
+        }
+        File snapBackup = new File(incDir, "downloads.bak");
+        try {
+            snapBackup = FileUtils.getCanonicalFile(snapBackup);
+        } catch (IOException ignored) {
+        }
+
         DIRECTORY_FOR_SAVING_FILES.set(saveDir);
         INCOMPLETE_DIRECTORY.set(incDir);
         OLD_DOWNLOAD_SNAPSHOT_FILE.set(snapFile);
         OLD_DOWNLOAD_SNAPSHOT_BACKUP_FILE.set(snapBackup);
     }
-    
+
     /**
-     * Retrieves the default save directory for a given file name.
-     * Getting the save directory for null will result in the
-     * default save directory.
+     * Retrieves the default save directory for a given file name. Getting the
+     * save directory for null will result in the default save directory.
      */
     public static final File getSaveDirectory(String fileName) {
-    	if (fileName == null) {
-    		return DIRECTORY_FOR_SAVING_FILES.get();
-    	}
-    	String extension = FileUtils.getFileExtension(fileName);
-    	if (extension.equals("")) {
-    		return DIRECTORY_FOR_SAVING_FILES.get();
-    	}
+        if (fileName == null) {
+            return DIRECTORY_FOR_SAVING_FILES.get();
+        }
+        String extension = FileUtils.getFileExtension(fileName);
+        if (extension.equals("")) {
+            return DIRECTORY_FOR_SAVING_FILES.get();
+        }
         MediaType type = MediaType.getMediaTypeForExtension(extension);
-    	if (type == null)
-    		return DIRECTORY_FOR_SAVING_FILES.get();	
-    	FileSetting fs = getFileSettingForMediaType(type);
-    	if (fs.isDefault()) {
-    		return DIRECTORY_FOR_SAVING_FILES.get();
-    	}
-    	return fs.get();
+        if (type == null)
+            return DIRECTORY_FOR_SAVING_FILES.get();
+        FileSetting fs = getFileSettingForMediaType(type);
+        if (fs.isDefault()) {
+            return DIRECTORY_FOR_SAVING_FILES.get();
+        }
+        return fs.get();
     }
 
-    public static final File getSaveDirectory() { 
-    	return DIRECTORY_FOR_SAVING_FILES.get();
+    public static final File getSaveDirectory() {
+        return DIRECTORY_FOR_SAVING_FILES.get();
     }
 
     /**
-     * Sets the directory to save the purchased songs from the LWS
-     *  
-     * @param   storeDir  A <tt>File</tt> instance denoting the
-     *                   abstract pathname of the directory for
-     *                   store files.
-     *
-     * @throws  <tt>IOException</tt>
-     *          If the directory denoted by the directory pathname
-     *          String parameter did not exist prior to this method
-     *          call and could not be created, or if the canonical
-     *          path could not be retrieved from the file system.
-     *
-     * @throws  <tt>NullPointerException</tt>
-     *          If the "dir" parameter is null.
+     * Sets the directory to save the purchased songs from the LWS.
+     * 
+     * @param storeDir a <tt>File</tt> instance denoting the abstract pathname
+     *        of the directory for store files.
+     * 
+     * @throws <tt>IOException</tt> If the directory denoted by the directory
+     *         pathname String parameter did not exist prior to this method call
+     *         and could not be created, or if the canonical path could not be
+     *         retrieved from the file system.
+     * 
+     * @throws <tt>NullPointerException</tt> If the "dir" parameter is null.
      */
-    public static final void setSaveLWSDirectory(File storeDir) throws IOException { 
+    public static final void setSaveLWSDirectory(File storeDir) throws IOException {
         if (storeDir == null)
             throw new NullPointerException();
         if (!storeDir.isDirectory()) {
             if (!storeDir.mkdirs())
                 throw new IOException("could not create store save dir at: " + storeDir);
         }
-        
+
         FileUtils.setWriteable(storeDir);
 
-        if(!storeDir.canRead() || !FileUtils.canWrite(storeDir)) {
+        if (!storeDir.canRead() || !FileUtils.canWrite(storeDir)) {
             throw new IOException("could not write to selected directory");
         }
-        
-        // Canonicalize the files ... 
+
+        // Canonicalize the files ...
         try {
             storeDir = FileUtils.getCanonicalFile(storeDir);
-        } catch(IOException ignored) {}
-        
+        } catch (IOException ignored) {
+        }
+
         DIRECTORY_FOR_SAVING_LWS_FILES.set(storeDir);
     }
-            
+
     /**
      * @return directory of where to save songs purchased from LimeWire Store
      */
     public static final File getSaveLWSDirectory() {
-        final File f = DIRECTORY_FOR_SAVING_LWS_FILES.get();        
-        if (!f.exists()) f.mkdirs();
+        final File f = DIRECTORY_FOR_SAVING_LWS_FILES.get();
+        if (!f.exists())
+            f.mkdirs();
         return f;
     }
-    
+
     /**
-     * Sets the template for creating sub directories of store files using metadata
+     * Sets the template for creating sub directories of store files using
+     * metadata.
+     * 
      * @param template the template that describes the sub directory structure
      * @throws NullPointerException if template is null
      */
-    public static final void setSubdirectoryLWSTemplate(String template) { 
-        if(template == null) 
+    public static final void setSubdirectoryLWSTemplate(String template) {
+        if (template == null)
             throw new NullPointerException();
         TEMPLATE_SUBDIRECTORY_LWS_FILES.set(template);
     }
 
     /**
-     * @return template of how to create subdirectories of store files
-     * If no subdirectory template is used, will return ""
+     * @return template of how to create subdirectories of store files If no
+     *         subdirectory template is used, will return ""
      */
     public static final String getSubDirectoryLWSTemplate() {
         return TEMPLATE_SUBDIRECTORY_LWS_FILES.get();
     }
-    
+
     /**
-     * Sets the template for naming files purchased from the LWS
-     * @param template the template that describes how id3 information should
-     *      be used to name a Store file
+     * Sets the template for naming files purchased from the LWS.
+     * 
+     * @param template the template that describes how id3 information should be
+     *        used to name a Store file
      * @throws NullPointerException if template is null
      */
     public static final void setFileNameLWSTemplate(String template) {
-        if( template == null)
+        if (template == null)
             throw new NullPointerException();
         TEMPLATE_FOR_NAMING_LWS_FILES.set(template);
     }
-    
+
     /**
-     * @return template of how to name LWS files
+     * @return template of how to name LWS files.
      */
     public static final String getFileNameLWSTemplate() {
         return TEMPLATE_FOR_NAMING_LWS_FILES.get();
     }
-    
+
     /*********************************************************************/
-    
+
     /**
      * Whether or not to auto-share files when using 'Download As'.
      */
-	public static final BooleanSetting SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES =
-		FACTORY.createBooleanSetting("SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES", true);
-    
+    public static final BooleanSetting SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES = FACTORY
+            .createBooleanSetting("SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES", true);
+
     /**
      * Sets the probability (expressed as a percentage) that an incoming
-     * freeloader will be accepted.   For example, if allowed==50, an incoming
-     * connection has a 50-50 chance being accepted.  If allowed==100, all
+     * freeloader will be accepted. For example, if allowed==50, an incoming
+     * connection has a 50-50 chance being accepted. If allowed==100, all
      * incoming connections are accepted.
-     */                                                        
-    public static final IntSetting FREELOADER_ALLOWED =
-        FACTORY.createIntSetting("FREELOADER_ALLOWED_2", 100);
-    
-    /**
-     * Minimum the number of files a host must share to not be considered
-     * a freeloader.  For example, if files==0, no host is considered a
-     * freeloader.
      */
-    public static final IntSetting FREELOADER_FILES =
-        FACTORY.createIntSetting("FREELOADER_FILES_2", 1);
-    
+    public static final IntSetting FREELOADER_ALLOWED = FACTORY.createIntSetting(
+            "FREELOADER_ALLOWED_2", 100);
+
     /**
-	 * The timeout value for persistent HTTP connections in milliseconds.
-	 */
-    public static final IntSetting PERSISTENT_HTTP_CONNECTION_TIMEOUT =
-        FACTORY.createIntSetting("PERSISTENT_HTTP_CONNECTION_TIMEOUT", 15000);
-    
-    /**
-     * Specifies whether or not completed uploads
-     * should automatically be cleared from the upload window.
+     * Minimum the number of files a host must share to not be considered a
+     * freeloader. For example, if files==0, no host is considered a freeloader.
      */
-    public static final BooleanSetting CLEAR_UPLOAD =
-        FACTORY.createBooleanSetting("CLEAR_UPLOAD", true);
-    
+    public static final IntSetting FREELOADER_FILES = FACTORY.createIntSetting(
+            "FREELOADER_FILES_2", 1);
+
     /**
-	 * Whether or not browsers should be allowed to perform uploads.
-	 */
-    public static final BooleanSetting ALLOW_BROWSER =
-        FACTORY.createBooleanSetting("ALLOW_BROWSER", false);
+     * The timeout value for persistent HTTP connections in milliseconds.
+     */
+    public static final IntSetting PERSISTENT_HTTP_CONNECTION_TIMEOUT = FACTORY.createIntSetting(
+            "PERSISTENT_HTTP_CONNECTION_TIMEOUT", 15000);
+
+    /**
+     * Specifies whether or not completed uploads should automatically be
+     * cleared from the upload window.
+     */
+    public static final BooleanSetting CLEAR_UPLOAD = FACTORY.createBooleanSetting("CLEAR_UPLOAD",
+            true);
+
+    /**
+     * Whether or not browsers should be allowed to perform uploads.
+     */
+    public static final BooleanSetting ALLOW_BROWSER = FACTORY.createBooleanSetting(
+            "ALLOW_BROWSER", false);
 
     /**
      * Whether to throttle hashing of shared files.
      */
-    public static final BooleanSetting FRIENDLY_HASHING =
-        FACTORY.createBooleanSetting("FRIENDLY_HASHING", true);	
-    
-    /** 
-     * Setting for the threshold of when to warn the user that a lot of 
-     *  files are being shared
-     */
-    public static final IntSetting FILES_FOR_WARNING =
-        FACTORY.createIntSetting("FILES_FOR_WARNING", 1000);
+    public static final BooleanSetting FRIENDLY_HASHING = FACTORY.createBooleanSetting(
+            "FRIENDLY_HASHING", true);
 
-    /** 
-     * Setting for the threshold of when to warn the user that a lot of 
-     *  files are being shared
+    /**
+     * Setting for the threshold of when to warn the user that a lot of files
+     * are being shared.
      */
-    public static final IntSetting DEPTH_FOR_WARNING =
-        FACTORY.createIntSetting("DEPTH_FOR_WARNING", 4);
-    
-	/**
-	 * Returns the download directory file setting for a mediatype. The
-	 * settings are created lazily when they are requested for the first time.
-	 * The default download directory is a file called "invalidfile" the file
-	 * setting should not be used when its {@link Setting#isDefault()} returns
-	 * true.  Use {@link #DIRECTORY_FOR_SAVING_FILES} instead then.
-	 * @param type the mediatype for which to look up the file setting
-	 * @return the filesetting for the media type
-	 */
-	public static final FileSetting getFileSettingForMediaType(MediaType type) {
-		FileSetting setting = downloadDirsByDescription.get(type.getSchema());
-		if (setting == null) {
-			setting = FACTORY.createProxyFileSetting
-			("DIRECTORY_FOR_SAVING_" + type.getSchema() + "_FILES",
-			 DIRECTORY_FOR_SAVING_FILES);
-			downloadDirsByDescription.put(type.getSchema(), setting);
-		}
-		return setting;
-	}
-	
-	/**
-	 * The Creative Commons explanation URL
-	 */
-	public static final StringSetting CREATIVE_COMMONS_INTRO_URL = 
-		FACTORY.createRemoteStringSetting
-		("CREATIVE_COMMONS_URL","http://creativecommons.org/about/licenses/how1","creativeCommonsURL");
-	
-	/**
-	 * The Creative Commons verification explanation URL
-	 */
-	public static final StringSetting CREATIVE_COMMONS_VERIFICATION_URL = 
-		FACTORY.createRemoteStringSetting
-		("CREATIVE_COMMONS_VERIFICATION_URL","http://creativecommons.org/technology/embedding#2","creativeCommonsVerificationURL");
-    
+    public static final IntSetting FILES_FOR_WARNING = FACTORY.createIntSetting(
+            "FILES_FOR_WARNING", 1000);
+
+    /**
+     * Setting for the threshold of when to warn the user that a lot of files
+     * are being shared.
+     */
+    public static final IntSetting DEPTH_FOR_WARNING = FACTORY.createIntSetting(
+            "DEPTH_FOR_WARNING", 4);
+
+    /**
+     * Returns the download directory file setting for a mediatype. The settings
+     * are created lazily when they are requested for the first time. The
+     * default download directory is a file called "invalidfile" the file
+     * setting should not be used when its {@link Setting#isDefault()} returns
+     * true. Use {@link #DIRECTORY_FOR_SAVING_FILES} instead then.
+     * 
+     * @param type the mediatype for which to look up the file setting
+     * @return the filesetting for the media type
+     */
+    public static final FileSetting getFileSettingForMediaType(MediaType type) {
+        FileSetting setting = downloadDirsByDescription.get(type.getSchema());
+        if (setting == null) {
+            setting = FACTORY.createProxyFileSetting("DIRECTORY_FOR_SAVING_" + type.getSchema()
+                    + "_FILES", DIRECTORY_FOR_SAVING_FILES);
+            downloadDirsByDescription.put(type.getSchema(), setting);
+        }
+        return setting;
+    }
+
+    /**
+     * The Creative Commons explanation URL.
+     */
+    public static final StringSetting CREATIVE_COMMONS_INTRO_URL = FACTORY
+            .createRemoteStringSetting("CREATIVE_COMMONS_URL",
+                    "http://creativecommons.org/about/licenses/how1", "creativeCommonsURL");
+
+    /**
+     * The Creative Commons verification explanation URL.
+     */
+    public static final StringSetting CREATIVE_COMMONS_VERIFICATION_URL = FACTORY
+            .createRemoteStringSetting("CREATIVE_COMMONS_VERIFICATION_URL",
+                    "http://creativecommons.org/technology/embedding#2",
+                    "creativeCommonsVerificationURL");
+
     /**
      * Setting for whether or not to allow partial files to be shared.
      */
-    public static final BooleanSetting ALLOW_PARTIAL_SHARING =
-        FACTORY.createBooleanSetting("ALLOW_PARTIAL_SHARING", true);
-    
+    public static final BooleanSetting ALLOW_PARTIAL_SHARING = FACTORY.createBooleanSetting(
+            "ALLOW_PARTIAL_SHARING", true);
+
     /**
      * Remote switch to turn off partial results.
      */
-    public static final BooleanSetting ALLOW_PARTIAL_RESPONSES = 
-        FACTORY.createRemoteBooleanSetting("ALLOW_PARTIAL_RESPONSES", true, "SharingSettings.allowPartialResponses");
-    
+    public static final BooleanSetting ALLOW_PARTIAL_RESPONSES = FACTORY
+            .createRemoteBooleanSetting("ALLOW_PARTIAL_RESPONSES", true,
+                    "SharingSettings.allowPartialResponses");
+
     /**
-     * Maximum size in bytes for the encoding of available ranges per Response object
+     * Maximum size in bytes for the encoding of available ranges per Response
+     * object.
      */
-    public static final IntSetting MAX_PARTIAL_ENCODING_SIZE =
-        FACTORY.createRemoteIntSetting("MAX_PARTIAL_ENCODING_SIZE", 20, 
-                "SharingSettings.maxPartialEncodingSize", 10, 40);
-    
+    public static final IntSetting MAX_PARTIAL_ENCODING_SIZE = FACTORY.createRemoteIntSetting(
+            "MAX_PARTIAL_ENCODING_SIZE", 20, "SharingSettings.maxPartialEncodingSize", 10, 40);
+
     /**
      * Whether to publish keywords from partial files in the qrp.
      */
-    public static final BooleanSetting PUBLISH_PARTIAL_QRP = 
-        FACTORY.createRemoteBooleanSetting("PUBLISH_PARTIAL_QRP", true, "SharingSettings.publishPartialQRP");
-    
-    /**
-     * Whether to load keywords from incomplete files in the trie
-     */
-    public static final BooleanSetting LOAD_PARTIAL_KEYWORDS = 
-        FACTORY.createRemoteBooleanSetting("LOAD_PARTIAL_KEYWORDS", true, "SharingSettings.loadPartialKeywords");
-    
-    public static final StringSetting LAST_WARNED_SAVE_DIRECTORY =
-        FACTORY.createStringSetting("LAST_WARNED_SAVED_DIRECTORY", "");
-    
+    public static final BooleanSetting PUBLISH_PARTIAL_QRP = FACTORY.createRemoteBooleanSetting(
+            "PUBLISH_PARTIAL_QRP", true, "SharingSettings.publishPartialQRP");
 
-    
     /**
-     * Returns the root folder from which all Saved/Shared/etc..
-     * folders should be placed.
+     * Whether to load keywords from incomplete files in the trie.
+     */
+    public static final BooleanSetting LOAD_PARTIAL_KEYWORDS = FACTORY.createRemoteBooleanSetting(
+            "LOAD_PARTIAL_KEYWORDS", true, "SharingSettings.loadPartialKeywords");
+
+    public static final StringSetting LAST_WARNED_SAVE_DIRECTORY = FACTORY.createStringSetting(
+            "LAST_WARNED_SAVED_DIRECTORY", "");
+
+    /**
+     * Returns the root folder from which all Saved/Shared/etc.. folders should
+     * be placed.
      */
     private static File getLimeWireRootFolder() {
         String root = null;
-        
-        if(OSUtils.isWindows()) {
+
+        if (OSUtils.isWindows()) {
             root = SystemUtils.getSpecialPath(SpecialLocations.DOCUMENTS);
         }
-        
-        if(root == null || "".equals(root))
+
+        if (root == null || "".equals(root))
             root = CommonUtils.getUserHomeDir().getPath();
-        
+
         return new File(root, "LimeWire");
     }
 }

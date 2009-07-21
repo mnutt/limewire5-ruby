@@ -1,19 +1,12 @@
 package org.limewire.ui.swing.search.model;
 
-import org.limewire.logging.Log;
-import org.limewire.logging.LogFactory;
-
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.event.ListEvent;
-import ca.odell.glazedlists.event.ListEventListener;
 
 /**
  * A listener to handle updates to the list of visual search results.  This
  * listener applies a SimilarResultsDetector to each VisualSearchResult to
  * allow similar results to be grouped.
  */
-class GroupingListEventListener implements ListEventListener<VisualSearchResult> {
-    private final Log LOG = LogFactory.getLog(getClass());
+class GroupingListEventListener implements VisualSearchResultStatusListener {
 
     private final SimilarResultsDetector similarResultsDetector;
 
@@ -26,12 +19,19 @@ class GroupingListEventListener implements ListEventListener<VisualSearchResult>
     }
 
     @Override
-    public void listChanged(ListEvent<VisualSearchResult> listChanges) {
-        EventList<VisualSearchResult> eventList = listChanges.getSourceList();
-        while (listChanges.next()) {
-                VisualSearchResult searchResult = eventList.get(listChanges.getIndex());
-                similarResultsDetector.detectSimilarResult(searchResult);
+    public void resultCreated(VisualSearchResult vsr) {
+        similarResultsDetector.detectSimilarResult(vsr);
+    }
+    
+    @Override
+    public void resultChanged(VisualSearchResult vsr, String propertyName, Object oldValue, Object newValue) {
+        if("new-sources".equals(propertyName)) {
+            similarResultsDetector.detectSimilarResult(vsr);
         }
-        LOG.debugf("finished detecting similar results");
+    }
+    
+    @Override
+    public void resultsCleared() {
+        similarResultsDetector.clear();
     }
 }

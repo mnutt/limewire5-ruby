@@ -24,7 +24,7 @@ import org.limewire.setting.IntSetting;
 import org.limewire.setting.LongSetting;
 
 /**
- * Settings for the bootstrapping process
+ * Settings for the bootstrapping process.
  */
 public class BootstrapSettings extends MojitoProps {
     
@@ -40,7 +40,7 @@ public class BootstrapSettings extends MojitoProps {
     
     /**
      * The maximum amount of time the bootstrapping process can take
-     * before it's interrupted
+     * before it's interrupted.
      */
     public static final LongSetting BOOTSTRAP_TIMEOUT
         = FACTORY.createRemoteLongSetting("BOOTSTRAP_TIMEOUT", 
@@ -48,7 +48,7 @@ public class BootstrapSettings extends MojitoProps {
     
     /**
      * The IS_BOOTSTRAPPED_RATIO is used to determinate if a Node's RouteTable
-     * is good enough to say it's bootstrapped
+     * is good enough to say it's bootstrapped.
      */
     public static final FloatSetting IS_BOOTSTRAPPED_RATIO
         = FACTORY.createRemoteFloatSetting("IS_BOOTSTRAPPED_RATIO", 
@@ -80,7 +80,7 @@ public class BootstrapSettings extends MojitoProps {
     //            10, "Mojito.MaxBucketsToRefresh", 0, Integer.MAX_VALUE);
     
     /**
-     * Returns the lock timeout for the BootstrapProcess
+     * Returns the lock timeout for the BootstrapProcess.
      */
     public static long getWaitOnLock(boolean hasInitialNode) {
         long waitOnLock = 0L;

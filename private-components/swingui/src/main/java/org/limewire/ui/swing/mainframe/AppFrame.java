@@ -4,10 +4,8 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
-import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -29,7 +27,9 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.limewire.core.api.Application;
 import org.limewire.core.impl.MockModule;
+import org.limewire.inject.LimeWireInjectModule;
 import org.limewire.inject.Modules;
+import org.limewire.inspection.Inspector;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.LimeWireSwingUiModule;
@@ -44,6 +44,7 @@ import org.limewire.ui.swing.event.OptionsDisplayEvent;
 import org.limewire.ui.swing.event.RestoreViewEvent;
 import org.limewire.ui.swing.menu.LimeMenuBar;
 import org.limewire.ui.swing.options.OptionsDialog;
+import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.shell.ShellAssociationManager;
 import org.limewire.ui.swing.tray.TrayExitListener;
@@ -77,7 +78,7 @@ public class AppFrame extends SingleFrameApplication {
 
     private static volatile boolean started;
 
-    /** Default background color for panels */
+    /** Default background color for panels. */
     @Resource private Color bgColor;
     @Resource private Color glassPaneColor;
     
@@ -139,9 +140,9 @@ public class AppFrame extends SingleFrameApplication {
         
         isStartup = args.length > 0 && STARTUP.equals(args[0]);
     }
-
+   
     @Override
-    protected void startup() {        
+    protected void startup() { 
         String title = getContext().getResourceMap().getString("Application.title");
         JFrame frame = new FirstVizIgnorer(title);
         frame.setName("mainFrame");
@@ -151,7 +152,7 @@ public class AppFrame extends SingleFrameApplication {
         assert ui == null;
         createUiInjector();
         assert ui != null;
-
+        
         if(isStartup || SwingUiSettings.MINIMIZE_TO_TRAY.getValue()) {
             trayNotifier.showTrayIcon();            
         } else {
@@ -210,6 +211,8 @@ public class AppFrame extends SingleFrameApplication {
             glassPane.setVisible(false);
             ui.showMainPanel();
         }
+        // Make absolutely positively certain that we've set this to true.
+        InstallSettings.UPGRADED_TO_5.setValue(true);
         
         validateSaveDirectory();
 
@@ -238,6 +241,9 @@ public class AppFrame extends SingleFrameApplication {
         if (!lastOptionsDialog.isVisible()) {
             lastOptionsDialog.initOptions();
             lastOptionsDialog.setLocationRelativeTo(GuiUtils.getMainFrame());
+            if(event.getSelectedPanel() != null){
+                lastOptionsDialog.select(event.getSelectedPanel());
+            }
             lastOptionsDialog.setVisible(true);
         }
     }
@@ -278,6 +284,7 @@ public class AppFrame extends SingleFrameApplication {
      */
     @Action
     public void shutdownAfterTransfers() { // DO NOT CHANGE THIS METHOD NAME!
+        trayNotifier.showTrayIcon();
         delayedShutdownHandler.shutdownAfterTransfers();
     }
     
@@ -288,17 +295,36 @@ public class AppFrame extends SingleFrameApplication {
                 bind(AppFrame.class).toInstance(AppFrame.this);
             }
         };
+        Injector childInjector;
         if (injector == null) {
             LimeMozillaInitializer.initialize();
-            injector = Guice.createInjector(Stage.PRODUCTION, new MockModule(), new LimeWireSwingUiModule(false), thiz);
-            return injector;
+            childInjector = Guice.createInjector(Stage.PRODUCTION,
+                    new MockModule(),
+                    new LimeWireInjectModule(),
+                    new LimeWireSwingUiModule(false),
+                    thiz);
         } else {
-            List<Module> modules = new ArrayList<Module>();
-            modules.add(thiz);
-            modules.add(new LimeWireSwingUiModule(injector.getInstance(Application.class).isProVersion()));
-            modules.add(Modules.providersFrom(injector)); // Add all the parent bindings
-            return Guice.createInjector(Stage.PRODUCTION, modules);
-        }
+            // TODO: We want to use child injectors, but weird things happen
+            //       with circular dependencies...
+            childInjector = Guice.createInjector(Stage.PRODUCTION,
+                    Modules.providersFrom(injector),
+                    new LimeWireInjectModule(),
+                    thiz,
+                    new LimeWireSwingUiModule(injector.getInstance(Application.class).isProVersion()),
+                    new AbstractModule() {
+                        @Override
+                        protected void configure() {                            
+                            // Make sure that the inspector is inspecting on the correct injector.
+                            requestInjection(new Object() {
+                               @SuppressWarnings("unused")
+                               @Inject void setInspectorInjector(Inspector inspector, Injector injector) {
+                                    inspector.setInjector(injector);
+                               }
+                            });   
+                        }
+                    });
+        }        
+        return childInjector;
     }
     
     /**

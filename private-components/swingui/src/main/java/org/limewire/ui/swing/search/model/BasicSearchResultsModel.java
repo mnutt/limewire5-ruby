@@ -1,40 +1,46 @@
 package org.limewire.ui.swing.search.model;
 
-import java.awt.EventQueue;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.swing.SwingUtilities;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
-import org.limewire.core.api.Category;
+import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadAction;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
-import org.limewire.core.api.download.SaveLocationException;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchListener;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.core.api.search.SearchDetails.SearchType;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+import org.limewire.ui.swing.components.DisposalListener;
+import org.limewire.ui.swing.filter.FilterDebugger;
 import org.limewire.ui.swing.search.SearchInfo;
+import org.limewire.ui.swing.util.DownloadExceptionHandler;
 import org.limewire.ui.swing.util.PropertiableHeadings;
-import org.limewire.ui.swing.util.SaveLocationExceptionHandler;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
-import ca.odell.glazedlists.FunctionList;
-import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.GroupingList;
-import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.FunctionList.AdvancedFunction;
+import ca.odell.glazedlists.TransactionList;
+import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
+import ca.odell.glazedlists.matchers.MatcherEditor.Event;
+import ca.odell.glazedlists.util.concurrent.Lock;
+import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
+
+import com.google.inject.Provider;
 
 /**
  * The default implementation of SearchResultsModel containing the results of
@@ -42,8 +48,11 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
  * lists, provides access to details about the search request, and handles 
  * requests to download a search result.
  */
-class BasicSearchResultsModel implements SearchResultsModel {
-    private final Log LOG = LogFactory.getLog(getClass());
+class BasicSearchResultsModel implements SearchResultsModel, VisualSearchResultStatusListener {
+    private static final Log LOG = LogFactory.getLog(BasicSearchResultsModel.class);
+    
+    /** Filter debugger associated with this model. */
+    private final FilterDebugger<VisualSearchResult> filterDebugger;
 
     /** Descriptor containing search details. */
     private final SearchInfo searchInfo;
@@ -54,27 +63,20 @@ class BasicSearchResultsModel implements SearchResultsModel {
     /** Core download manager. */
     private final DownloadListManager downloadListManager;
 
-    /** Save exception handler. */
-    private final SaveLocationExceptionHandler saveLocationExceptionHandler;
-
-    /** List of all search results. */
-    private final EventList<SearchResult> allSearchResults;
+    /** Download exception handler. */
+    private final Provider<DownloadExceptionHandler> downloadExceptionHandler;
 
     /** Total number of search results. */
-    private final AtomicInteger resultCount = new AtomicInteger();
+    private int resultCount;
 
     /** List of search results grouped by URN. */
-    private final FunctionList<List<SearchResult>, VisualSearchResult> groupedUrnResults;
-
-    /** Observable list of grouped search results. */
-    private final ObservableElementList<VisualSearchResult> observableList;
+    private final EventList<VisualSearchResult> groupedUrnResults;
+    
+    /** A TransactionList for upstream changes. */
+    private final TransactionList<VisualSearchResult> transactionList;
 
     /** Filtered list of grouped search results. */
     private final FilterList<VisualSearchResult> filteredResultList;
-
-    /** Cache of filtered lists by media category. */
-    private final Map<Category, FilterList<VisualSearchResult>> categoryListMap = 
-        new EnumMap<Category, FilterList<VisualSearchResult>>(Category.class);
 
     /** Listener to handle search request events. */
     private SearchListener searchListener;
@@ -91,38 +93,76 @@ class BasicSearchResultsModel implements SearchResultsModel {
     /** Current sort option. */
     private SortOption sortOption;
 
+    /** Current matcher editor for filtered search results. */
+    private MatcherEditor<VisualSearchResult> filterEditor;
+
+    /** Listener for filter editor. */
+    private MatcherEditor.Listener<VisualSearchResult> filterEditorListener;
+
+    /** Matcher editor for visible search results. */
+    private final VisibleMatcherEditor visibleEditor = new VisibleMatcherEditor();
+    
+    private List<DisposalListener> disposalListeners = new ArrayList<DisposalListener>();
+    
+    /** Headings to create search results with. */
+    private final Provider<PropertiableHeadings> propertiableHeadings;
+    
+    /** A list of listeners for changes. */
+    private final List<VisualSearchResultStatusListener> changeListeners;
+    
+    /** The object that queues up list changes & applies them in bulk. */
+    private final ListQueuer listQueuer = new ListQueuer();
+    
+    /** Comparator that searches through the list of results & finds them based on URN. */
+    private final UrnResultFinder resultFinder = new UrnResultFinder();
+    
+    //TODO Using this to fix a case where events are coming in for items no longer in the list after a clear.
+    //We should remove this after the release and fix the root cause, that DownloadListeners for visual search results 
+    //are not being removed from the downloaders after search tabs are removed or refreshed. 
+    private boolean cleared = false;
+
     /**
      * Constructs a BasicSearchResultsModel with the specified search details,
      * search request object, and services.
      */
     public BasicSearchResultsModel(SearchInfo searchInfo, Search search, 
-            PropertiableHeadings propertiableHeadings,
+            Provider<PropertiableHeadings> propertiableHeadings,
             DownloadListManager downloadListManager,
-            SaveLocationExceptionHandler saveLocationExceptionHandler) {
+            Provider<DownloadExceptionHandler> downloadExceptionHandler) {
         
         this.searchInfo = searchInfo;
         this.search = search;
         this.downloadListManager = downloadListManager;
-        this.saveLocationExceptionHandler = saveLocationExceptionHandler;
+        this.downloadExceptionHandler = downloadExceptionHandler;
+        this.propertiableHeadings = propertiableHeadings;
+        this.changeListeners = new ArrayList<VisualSearchResultStatusListener>(3);
         
-        // Create list of all search results.
-        allSearchResults = new BasicEventList<SearchResult>();
+        // Create filter debugger.
+        filterDebugger = new FilterDebugger<VisualSearchResult>();
         
-        // Create list of search results grouped by URN.
-        GroupingList<SearchResult> groupingListUrns = GlazedListsFactory.groupingList(
-                allSearchResults, new UrnComparator());
+        // Underlying list, with no locks -- always accessed on EDT.
+        groupedUrnResults = new BasicEventList<VisualSearchResult>(new ReadWriteLock() {
+            private Lock noopLock = new Lock() {
+                @Override public void lock() {}
+                @Override public boolean tryLock() { return true; }
+                @Override public void unlock() {}
+            };
+            
+            @Override
+            public Lock readLock() {
+                return noopLock;
+            }
+            
+            @Override
+            public Lock writeLock() {
+                return noopLock;
+            }
+        });
         
-        // Create list of visual search results where each element represents
-        // a single group.
-        groupedUrnResults = GlazedListsFactory.functionList(
-                groupingListUrns, new SearchResultGrouper(resultCount, propertiableHeadings));
-        
-        // Create observable list that fires an event when results are modified.
-        observableList = GlazedListsFactory.observableElementList(groupedUrnResults,
-                GlazedLists.beanConnector(VisualSearchResult.class));
+        transactionList = GlazedListsFactory.transactionList(groupedUrnResults);
         
         // Create filtered list. 
-        filteredResultList = GlazedListsFactory.filterList(observableList);
+        filteredResultList = GlazedListsFactory.filterList(transactionList);
         
         // Initialize display category and sorted list.
         setSelectedCategory(searchInfo.getSearchCategory());
@@ -160,6 +200,30 @@ class BasicSearchResultsModel implements SearchResultsModel {
             search.removeSearchListener(searchListener);
             searchListener = null;
         }
+        
+        groupedUrnResults.dispose();
+        
+        notifyDisposalListeners();
+    }
+    
+    @Override
+    public SearchCategory getFilterCategory() {
+        return searchInfo.getSearchCategory();
+    }
+    
+    @Override
+    public FilterDebugger<VisualSearchResult> getFilterDebugger() {
+        return filterDebugger;
+    }
+    
+    @Override
+    public EventList<VisualSearchResult> getUnfilteredList() {
+        return transactionList;
+    }
+    
+    @Override
+    public EventList<VisualSearchResult> getFilteredList() {
+        return filteredResultList;
     }
     
     @Override
@@ -173,40 +237,26 @@ class BasicSearchResultsModel implements SearchResultsModel {
     }
     
     @Override
+    public String getSearchTitle() {
+        return searchInfo.getTitle();
+    }
+    
+    @Override
     public int getResultCount() {
-        return resultCount.get();
+        return resultCount;
     }
-
+    
     @Override
-    public EventList<VisualSearchResult> getGroupedSearchResults() {
-        return groupedUrnResults;
-    }
-
-    @Override
-    public EventList<VisualSearchResult> getObservableSearchResults() {
-        return observableList;
+    public SearchType getSearchType() {
+        return searchInfo.getSearchType();
     }
 
     /**
-     * Returns a list of filtered results for the specified search category.
+     * Returns a list of filtered results.
      */
     @Override
-    public EventList<VisualSearchResult> getCategorySearchResults(SearchCategory searchCategory) {
-        if (searchCategory == SearchCategory.ALL) {
-            return filteredResultList;
-            
-        } else {
-            // Get filtered list from cache.
-            Category category = searchCategory.getCategory();
-            FilterList<VisualSearchResult> filteredList = categoryListMap.get(category);
-            // Create filtered list if necessary, and add to cache.
-            if (filteredList == null) {
-                filteredList = GlazedListsFactory.filterList(filteredResultList, 
-                        new CategoryMatcher(category));
-                categoryListMap.put(category, filteredList);
-            }
-            return filteredList;
-        }
+    public EventList<VisualSearchResult> getFilteredSearchResults() {
+        return filteredResultList;
     }
 
     /**
@@ -234,16 +284,19 @@ class BasicSearchResultsModel implements SearchResultsModel {
     public void setSelectedCategory(SearchCategory selectedCategory) {
         if (this.selectedCategory != selectedCategory) {
             this.selectedCategory = selectedCategory;
-            // Dispose of existing visible and sorted lists.
-            if (visibleResultList != null) {
-                visibleResultList.dispose();
-                sortedResultList.dispose();
-            }
-            // Update visible and sorted lists.
-            EventList<VisualSearchResult> filteredList = getCategorySearchResults(selectedCategory);
-            sortedResultList = GlazedListsFactory.sortedList(filteredList, null);
-            visibleResultList = GlazedListsFactory.filterList(sortedResultList, new VisibleMatcher());
-            sortedResultList.setComparator((sortOption != null) ? SortFactory.getSortComparator(sortOption) : null);
+            updateSortedList();
+        }
+    }
+    
+    /**
+     * Updates sorted list of visible results.  This method is called when the
+     * selected category is changed.
+     */
+    private void updateSortedList() {
+        // Create visible and sorted lists if necessary.
+        if (visibleResultList == null) {
+            sortedResultList = GlazedListsFactory.sortedList(filteredResultList, sortOption != null ? SortFactory.getSortComparator(sortOption) : null);
+            visibleResultList = GlazedListsFactory.filterList(sortedResultList, visibleEditor);
         }
     }
     
@@ -257,17 +310,72 @@ class BasicSearchResultsModel implements SearchResultsModel {
         sortedResultList.setComparator((sortOption != null) ? SortFactory.getSortComparator(sortOption) : null);
     }
     
-    /**
-     * Sets the MatcherEditor used to filter search results. 
-     */
     @Override
     public void setFilterEditor(MatcherEditor<VisualSearchResult> editor) {
-        filteredResultList.setMatcherEditor(editor);
+        // Remove listener from existing filter editor.
+        if ((filterEditor != null) && (filterEditorListener != null)) {
+            filterEditor.removeMatcherEditorListener(filterEditorListener);
+        }
+        
+        // Create listener to handle changes to the filter.
+        if (filterEditorListener == null) {
+            filterEditorListener = new MatcherEditor.Listener<VisualSearchResult>() {
+                @Override
+                public void changedMatcher(Event<VisualSearchResult> matcherEvent) {
+                    // Post Runnable on event queue to update filtered list for
+                    // visible items.  This allows us to display child results
+                    // whose parents become hidden due to filtering.
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            visibleEditor.update();
+                        }
+                    });
+                }
+            };
+        }
+        
+        // Set filter editor and add listener.
+        filterEditor = editor;
+        filterEditor.addMatcherEditorListener(filterEditorListener);
+        
+        // Apply filter editor.
+        filteredResultList.setMatcherEditor(filterEditor);
     }
+    
+    public void addResultListener(VisualSearchResultStatusListener vsrChangeListener) {
+        changeListeners.add(vsrChangeListener);
+    }
+    
+    @Override
+    public void resultCreated(VisualSearchResult vsr) {
+    }
+    
+    @Override
+    public void resultsCleared() {
+    }
+    
+    @Override
+    public void resultChanged(VisualSearchResult vsr, String propertyName, Object oldValue, Object newValue) {
+        // Scan through the list & find the item.
+        URN urn = vsr.getUrn();
+        int idx = Collections.binarySearch(groupedUrnResults, urn, resultFinder);
+        //TODO clean up, see comment about cleared variable, and why it should be removed.
+        assert cleared || idx >= 0;
 
-    /**
-     * Adds the specified search result to the results list.
-     */
+        if(idx >=0) {
+        
+            VisualSearchResult existing = groupedUrnResults.get(idx);
+            VisualSearchResult replaced = groupedUrnResults.set(idx, existing);
+            assert cleared || replaced == vsr;
+            if(replaced == vsr) {
+                for(VisualSearchResultStatusListener listener : changeListeners) {
+                    listener.resultChanged(vsr, propertyName, oldValue, newValue);
+                }
+            }
+        }
+    }
+    
     @Override
     public void addSearchResult(SearchResult result) {
         if(result.getUrn() == null) {
@@ -277,16 +385,46 @@ class BasicSearchResultsModel implements SearchResultsModel {
             return;
         }
         
-        LOG.debugf("Adding result urn: {0} EDT: {1}", result.getUrn(), EventQueue.isDispatchThread());
-        allSearchResults.add(result);
+//        LOG.debugf("Adding result urn: {0} EDT: {1}", result.getUrn(), SwingUtilities.isEventDispatchThread());
+        try {
+            listQueuer.add(result);
+        } catch (Throwable th) {
+            // Throw wrapper exception with detailed message.
+            throw new RuntimeException(createMessageDetail("Problem adding result", result), th);
+        }
     }
-
-    /**
-     * Removes the specified search result from the results list.
-     */
+    
     @Override
-    public void removeSearchResult(SearchResult result) {
-        allSearchResults.remove(result);
+    public void addSearchResults(Collection<? extends SearchResult> results) {
+        boolean ok = true;
+        // make certain there's nothing w/o a URN in here
+        for(SearchResult result : results) {
+            if(result.getUrn() == null) {
+                // crap, we need to really work on this list & remove bad items.
+                ok = false;
+                break;
+            }
+        }
+        
+        // filter out any items w/o a URN
+        if(!ok) {
+            ArrayList<SearchResult> cleanup = new ArrayList<SearchResult>(results);
+            for(int i = cleanup.size() - 1; i >= 0; i--) {
+                if(cleanup.get(i).getUrn() == null) {
+                    cleanup.remove(i);
+                }
+            }
+            results = cleanup;
+        }        
+        
+        listQueuer.addAll(results);
+    }
+    
+    /**
+     * Removes all results from the model
+     */
+    public void clear(){
+        listQueuer.clear();
     }
     
     /**
@@ -312,107 +450,230 @@ class BasicSearchResultsModel implements SearchResultsModel {
             
             // Add listener, and initialize download state.
             di.addPropertyChangeListener(new DownloadItemPropertyListener(vsr));
-            vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
-            
-        } catch (final SaveLocationException sle) {
-            if (sle.getErrorCode() == SaveLocationException.LocationCode.FILE_ALREADY_DOWNLOADING) {
+            BasicDownloadState state = BasicDownloadState.fromState(di.getState());
+            if(state != null) {
+                vsr.setDownloadState(state);
+            }
+        } catch (final DownloadException e) {
+            if (e.getErrorCode() == DownloadException.ErrorCode.FILE_ALREADY_DOWNLOADING) {
                 DownloadItem downloadItem = downloadListManager.getDownloadItem(vsr.getUrn());
                 if (downloadItem != null) {
                     downloadItem.addPropertyChangeListener(new DownloadItemPropertyListener(vsr));
-                    vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
+                    BasicDownloadState state = BasicDownloadState.fromState(downloadItem.getState());
+                    if(state != null) {
+                        vsr.setDownloadState(state);
+                    }
                     if (saveFile != null) {
                         try {
                             // Update save file in DownloadItem.
                             downloadItem.setSaveFile(saveFile, true);
-                        } catch (SaveLocationException ex) {
+                        } catch (DownloadException ex) {
                             LOG.infof(ex, "Unable to relocate downloading file {0}", ex.getMessage());
                         }
                     }
                 }
             } else {
-                saveLocationExceptionHandler.handleSaveLocationException(new DownloadAction() {
+                downloadExceptionHandler.get().handleDownloadException(new DownloadAction() {
                     @Override
                     public void download(File saveFile, boolean overwrite)
-                            throws SaveLocationException {
+                            throws DownloadException {
                         DownloadItem di = downloadListManager.addDownload(search, vsr.getCoreSearchResults(), saveFile, overwrite);
                         di.addPropertyChangeListener(new DownloadItemPropertyListener(vsr));
-                        vsr.setDownloadState(BasicDownloadState.DOWNLOADING);
+                        BasicDownloadState state = BasicDownloadState.fromState(di.getState());
+                        if(state != null) {
+                            vsr.setDownloadState(state);
+                        }
                     }
-                }, sle, true);
+
+                    @Override
+                    public void downloadCanceled(DownloadException ignored) {
+                        //nothing to do                        
+                    }
+
+                }, e, true);
             }
         }
     }
     
     /**
-     * A matcher used to filter search results by category.
+     * Returns a detailed message including the specified prefix and search 
+     * result.
      */
-    private static class CategoryMatcher implements Matcher<VisualSearchResult> {
-        private final Category category;
+    private String createMessageDetail(String prefix, SearchResult result) {
+        StringBuilder buf = new StringBuilder(prefix);
         
-        public CategoryMatcher(Category category) {
-            this.category = category;
-        }
-
-        @Override
-        public boolean matches(VisualSearchResult vsr) {
-            return (vsr.getCategory() == category);
-        }
-    }
-
-    /**
-     * A matcher used to filter visible search results. 
-     */
-    private static class VisibleMatcher implements Matcher<VisualSearchResult> {
-        @Override
-        public boolean matches(VisualSearchResult item) {
-            return item.isVisible();
-        }
+        buf.append(", searchCategory=").append(searchInfo.getSearchCategory());
+        buf.append(", resultCategory=").append(result.getCategory());
+        buf.append(", spam=").append(result.isSpam());
+        buf.append(", unfilteredSize=").append(getUnfilteredList().size());
+        buf.append(", filteredSize=").append(getFilteredList().size());
+        buf.append(", EDT=").append(SwingUtilities.isEventDispatchThread());
+        buf.append(", filters=").append(filterDebugger.getFilterString());
+        
+        return buf.toString();
     }
     
     /**
-     * A comparator used to group search results by URN.
+     * Returns true if the specified search result is allowed by the current
+     * filter editor.  This means the result is a member of the filtered list.
      */
-    private static class UrnComparator implements Comparator<SearchResult> {
-        @Override
-        public int compare(SearchResult o1, SearchResult o2) {
-            return o1.getUrn().compareTo(o2.getUrn());
+    private boolean isFilterMatch(VisualSearchResult vsr) {
+        if (filterEditor != null) {
+            return filterEditor.getMatcher().matches(vsr);
         }
+        return true;
     }
 
     /**
-     * A GlazedList function used to transform a group of search results into
-     * a single VisualSearchResult.
+     * A matcher editor used to filter visible search results. 
      */
-    private static class SearchResultGrouper implements
-            AdvancedFunction<List<SearchResult>, VisualSearchResult> {
-        private final AtomicInteger resultCount;
-        private final PropertiableHeadings propertiableHeadings;
-
-        public SearchResultGrouper(AtomicInteger resultCount, PropertiableHeadings propertiableHeadings) {
-            this.resultCount = resultCount;
-            this.propertiableHeadings = propertiableHeadings;
+    private class VisibleMatcherEditor extends AbstractMatcherEditor<VisualSearchResult> {
+        
+        public VisibleMatcherEditor() {
+            currentMatcher = new Matcher<VisualSearchResult>() {
+                @Override
+                public boolean matches(VisualSearchResult item) {
+                    // Determine whether item has parent, and parent is hidden
+                    // due to filtering.  If so, we treat the item as visible.
+                    VisualSearchResult parent = item.getSimilarityParent();
+                    boolean parentHidden = (parent != null) && !isFilterMatch(parent);
+                    return item.isVisible() || parentHidden;
+                }
+            };
         }
-
-        @Override
-        public void dispose(List<SearchResult> sourceValue, VisualSearchResult transformedValue) {
-            resultCount.addAndGet(-transformedValue.getSources().size());
+        
+        /**
+         * Updates the list by firing a matcher change event to registered
+         * listeners.
+         */
+        public void update() {
+            fireChangedMatcher(new MatcherEditor.Event<VisualSearchResult>(
+                    this, Event.CHANGED, currentMatcher));
         }
+    }
 
-        @Override
-        public VisualSearchResult evaluate(List<SearchResult> sourceValue) {
-            VisualSearchResult adapter = new SearchResultAdapter(sourceValue, propertiableHeadings);
-
-            resultCount.addAndGet(adapter.getSources().size());
-            return adapter;
+    private void addResultsInternal(Collection<? extends SearchResult> results) {
+        transactionList.beginEvent(true);
+        try {
+            for(SearchResult result : results) {
+                URN urn = result.getUrn();
+                if(urn != null) {
+                    int idx = Collections.binarySearch(groupedUrnResults, urn, resultFinder);
+                    if(idx >= 0) {
+                        SearchResultAdapter vsr = (SearchResultAdapter)groupedUrnResults.get(idx);
+                        vsr.addNewSource(result);
+                        groupedUrnResults.set(idx, vsr);
+                        for(VisualSearchResultStatusListener listener : changeListeners) {
+                            listener.resultChanged(vsr, "new-sources", null, null);
+                        }
+                    } else {
+                        idx = -(idx + 1);
+                        SearchResultAdapter vsr = new SearchResultAdapter(result, propertiableHeadings, this);
+                        groupedUrnResults.add(idx, vsr);
+                        for(VisualSearchResultStatusListener listener : changeListeners) {
+                            listener.resultCreated(vsr);
+                        }
+                    }
+                    resultCount += result.getSources().size();
+                }
+            }
+        } finally {
+            transactionList.commitEvent();
         }
+    }
 
+    @Override
+    public void addDisposalListener(DisposalListener listener) {
+        disposalListeners.add(listener);
+    }
+
+    @Override
+    public void removeDisposalListener(DisposalListener listener) {
+        disposalListeners.remove(listener);
+    }
+    
+    private void notifyDisposalListeners(){
+        for (DisposalListener listener : disposalListeners){
+            listener.objectDisposed(this);
+        }
+    }
+    
+    private class ListQueuer implements Runnable {
+        private final Object LOCK = new Object();
+        private final List<SearchResult> queue = new ArrayList<SearchResult>();
+        private final ArrayList<SearchResult> transferQ = new ArrayList<SearchResult>();
+        private boolean scheduled = false;
+        
+        void add(SearchResult result) {
+            synchronized(LOCK) {
+                queue.add(result);
+                schedule();
+            }
+        }
+        
+        void addAll(Collection<? extends SearchResult> results) {
+            synchronized(LOCK) {
+                queue.addAll(results);
+                schedule();
+            }
+        }
+        
+        void clear() {
+            synchronized(LOCK) {
+                queue.clear();
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        cleared = true;
+                        groupedUrnResults.clear();
+                        for(VisualSearchResultStatusListener listener : changeListeners) {
+                            listener.resultsCleared();
+                        }
+                    }
+                });
+            }
+        }
+        
+        private void schedule() {
+            if(!scheduled) {
+                scheduled = true;
+                // purposely SwingUtilities & not SwingUtils so
+                // that we force it to the back of the stack
+                SwingUtilities.invokeLater(this);
+            }
+        }
+        
         @Override
-        public VisualSearchResult reevaluate(List<SearchResult> sourceValue,
-                VisualSearchResult transformedValue) {
-            resultCount.addAndGet(-transformedValue.getSources().size());
-            ((SearchResultAdapter) transformedValue).update();
-            resultCount.addAndGet(transformedValue.getSources().size());
-            return transformedValue;
+        public void run() {
+            // move to transferQ inside lock
+            transferQ.clear();
+            synchronized(LOCK) {
+                transferQ.addAll(queue);
+                queue.clear();
+            }
+            
+            // move to searchResults outside lock,
+            // so we don't hold a lock while allSearchResults
+            // triggers events.
+            addResultsInternal(transferQ);
+            transferQ.clear();
+            
+            synchronized(LOCK) {
+                scheduled = false;
+                // If the queue wasn't empty, we need to reschedule
+                // ourselves, because something got added to the queue
+                // without scheduling itself, since we had scheduled=true
+                if(!queue.isEmpty()) {
+                    schedule();
+                }
+            }
+        }
+    }
+    
+    private static class UrnResultFinder implements Comparator<Object> {
+        @Override
+        public int compare(Object o1, Object o2) {
+            return ((VisualSearchResult)o1).getUrn().compareTo(((URN)o2));
         }
     }
 }

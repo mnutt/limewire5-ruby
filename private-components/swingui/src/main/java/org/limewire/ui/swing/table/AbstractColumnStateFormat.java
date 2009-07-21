@@ -40,6 +40,11 @@ public abstract class AbstractColumnStateFormat<T> implements VisibleTableFormat
         return columnInfo[column].getDefaultWidth();
     }
     
+    @Override
+    public int getMaxsWidth(int column) {
+        return columnInfo[column].getMaxWidth();
+    }
+    
     public ColumnStateInfo getColumnInfo(int column) {
         return columnInfo[column];
     }

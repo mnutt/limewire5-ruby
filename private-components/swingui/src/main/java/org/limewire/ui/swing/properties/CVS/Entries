@@ -1,9 +1,7 @@
-/AbstractPropertiableFileDialog.java/1.11/Mon Mar 23 14:55:30 2009//
-/Dialog.java/1.46/Mon Mar 23 14:55:30 2009//
-/DialogParam.java/1.5/Thu Jan 22 05:05:32 2009//
-/FilterList.java/1.1/Thu Jan 22 05:05:32 2009//
-/LimeWireUiPropertiesModule.java/1.1/Thu Jan 22 05:05:32 2009//
-/Properties.java/1.1/Thu Jan 22 05:05:32 2009//
-/PropertiesFactory.java/1.1/Thu Jan 22 05:05:32 2009//
-/FilterListImpl.java/1.2/Mon Apr  6 16:05:46 2009//
+/FileInfoDialog.java/1.2/Wed Jul  1 19:56:37 2009//
+/FileInfoDialogFactory.java/1.1/Tue May 19 21:43:11 2009//
+/FileInfoPanel.java/1.19/Mon Jul 13 19:56:04 2009//
+/FileInfoPanelFactory.java/1.1/Tue May 19 21:43:11 2009//
+/FileInfoUtils.java/1.2/Sat Jul  4 01:00:15 2009//
+/LimeWireUiPropertiesModule.java/1.2/Mon Jul 20 19:53:08 2009//
 D

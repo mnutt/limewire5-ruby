@@ -34,9 +34,7 @@ public class StripedJXTreeTable extends JXTreeTable {
     }
 
     /**
-     * Paints fake rows to fill the viewport
-     * 
-     * @param g
+     * Paints fake rows to fill the viewport.
      */
     protected void paintEmptyRows(Graphics g) {
         final int rowCount = getRowCount();
@@ -76,8 +74,8 @@ public class StripedJXTreeTable extends JXTreeTable {
      * highlighter or 2) there's only an alternate row highlighter. Anything
      * else and the behaviour is unknown
      * 
-     * @param row - row to paint
-     * @return - Color to paint with
+     * @param row row to paint
+     * @return Color to paint with
      */
     protected Color getColorForRow(int row) {
         return (row % 2 == 0) ? getHighlighterColor(0) : getHighlighterColor(1);

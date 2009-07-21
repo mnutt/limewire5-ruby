@@ -20,7 +20,7 @@
 package org.limewire.mojito.concurrent;
 
 /**
- * An interface for Cancellable Tasks
+ * An interface for Cancellable Tasks.
  */
 public interface Cancellable {
     

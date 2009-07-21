@@ -21,7 +21,7 @@ public class BlockingEventListener<E> implements EventListener<E> {
     /**
      * Returns last existing event or the next event that is called within the given
      * timeout period. 
-     * 
+     * <p>
      * As a side effect the stored event is also cleared.
      * 
      * @return null if an {@link InterruptedException} occurred or the event didn't

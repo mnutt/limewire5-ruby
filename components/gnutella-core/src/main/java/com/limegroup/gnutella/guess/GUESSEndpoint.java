@@ -1,25 +1,24 @@
 package com.limegroup.gnutella.guess;
 
-
 import java.net.InetAddress;
 
 import org.limewire.io.IpPortImpl;
 
 /** An IpPort intended for use with GUESS code that requires hashtables. */
 public final class GUESSEndpoint extends IpPortImpl {
-    
-	/**
-	 * Constructs a new <tt>GUESSEndpoint</tt> with the specified
-	 * IP and port.
-	 *
-	 * @param address the ip address of the host
-	 * @param port the port the host is listening on
-	 */
-	public GUESSEndpoint(InetAddress address, int port) {
+
+    /**
+     * Constructs a new <tt>GUESSEndpoint</tt> with the specified IP and port.
+     * 
+     * @param address the ip address of the host
+     * @param port the port the host is listening on
+     */
+    public GUESSEndpoint(InetAddress address, int port) {
         super(address, port);
-	}
-        
-    /** Returns true if two GUESSEndpoint objects are equal.
+    }
+
+    /**
+     * Returns true if two GUESSEndpoint objects are equal.
      */
     @Override
     public boolean equals(Object o) {
@@ -30,14 +29,15 @@ public final class GUESSEndpoint extends IpPortImpl {
         }
         return retBool;
     }
-            
-    /** Returns this' hashCode.
+
+    /**
+     * Returns this' hashCode.
      */
     @Override
     public int hashCode() {
         int result = 79;
-        result = 37*result + getAddress().hashCode();
-        result = 37*result + getPort();
+        result = 37 * result + getAddress().hashCode();
+        result = 37 * result + getPort();
         return result;
     }
 

@@ -27,7 +27,7 @@ public abstract class WriteHeadersIOState extends WriteState {
      * to get the initial outgoing data.  Once all data has been written, the abstract
      * processWrittenHeaders() method will be called, so that subclasses can act upon
      * what they've just written.
-     * 
+     * <p>
      * This will return true if it needs to be called again to continue writing.
      * If it returns false, all data has been written and you can proceed to the next state.
      */

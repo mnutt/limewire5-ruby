@@ -86,7 +86,7 @@ public class LocalContact implements Contact {
     }
     
     /**
-     * Sets the local Node's vendor code
+     * Sets the local Node's vendor code.
      */
     public void setVendor(Vendor vendor) {
         this.vendor = vendor;
@@ -97,7 +97,7 @@ public class LocalContact implements Contact {
     }
     
     /**
-     * Sets the local Node's version number
+     * Sets the local Node's version number.
      */
     public void setVersion(Version version) {
         this.version = version;
@@ -108,8 +108,8 @@ public class LocalContact implements Contact {
     }
     
     /**
-     * Sets the local Node's KUID
-     * 
+     * Sets the local Node's KUID.
+     * <p>
      * NOTE: This requires a rebuild of the RouteTable!
      */
     public void setNodeID(KUID nodeId) {
@@ -129,7 +129,7 @@ public class LocalContact implements Contact {
     }
     
     /**
-     * Sets the instanceId to the next value
+     * Sets the instanceId to the next value.
      */
     public void nextInstanceID() {
         instanceId = (instanceId + 1) % 0xFF;
@@ -140,7 +140,7 @@ public class LocalContact implements Contact {
     }
     
     /**
-     * Sets the local Node's Contact (external) Address
+     * Sets the local Node's Contact (external) Address.
      */
     public synchronized void setContactAddress(SocketAddress contactAddress) {
         this.contactAddress = contactAddress;
@@ -148,7 +148,7 @@ public class LocalContact implements Contact {
     }
     
     /**
-     * Sets the local Node's Contact (external) Port
+     * Sets the local Node's Contact (external) Port.
      */
     public synchronized void setExternalPort(int port) {
         InetSocketAddress addr = (InetSocketAddress)getContactAddress();
@@ -156,7 +156,7 @@ public class LocalContact implements Contact {
     }
     
     /**
-     * Returns the local Node's external Port
+     * Returns the local Node's external Port.
      */
     public int getExternalPort() {
         return ((InetSocketAddress)getContactAddress()).getPort();
@@ -175,7 +175,7 @@ public class LocalContact implements Contact {
     }
 
     /**
-     * Sets whether or not this Contact is firewalled
+     * Sets whether or not this Contact is firewalled.
      */
     public void setFirewalled(boolean firewalled) {
         if (isFirewalled() != firewalled) {
@@ -252,67 +252,67 @@ public class LocalContact implements Contact {
     }
     
     /**
-     * Hard coded to return 0
+     * Hard coded to return 0.
      */
     public int getFailures() {
         return 0;
     }
     
     /**
-     * Hard coded to return 0L
+     * Hard coded to return 0L.
      */
     public long getLastFailedTime() {
         return 0L;
     }
     
     /**
-     * Does nothing
+     * Does nothing.
      */
     public void setRoundTripTime(long rtt) {
     }
     
     /**
-     * Hard coded to return 0L
+     * Hard coded to return 0L.
      */
     public long getRoundTripTime() {
         return 0L;
     }
 
     /**
-     * Does nothing
+     * Does nothing.
      */
     public void setTimeStamp(long timeStamp) {
     }
     
     /** 
-     * Hard coded to return @see #LOCAL_CONTACT
+     * Hard coded to return @see #LOCAL_CONTACT.
      */
     public long getTimeStamp() {
         return LOCAL_CONTACT;
     }
     
     /**
-     * Hard coded to return 0L
+     * Hard coded to return 0L.
      */
     public long getAdaptativeTimeout() {
         return 0L;
     }
     
     /**
-     * Does nothing
+     * Does nothing.
      */
     public void handleFailure() {
     }
 
     /**
-     * Hard coded to return true
+     * Hard coded to return true.
      */
     public boolean hasBeenRecentlyAlive() {
         return true;
     }
 
     /**
-     * Hard coded to return false
+     * Hard coded to return false.
      */
     public boolean hasFailed() {
         return false;
@@ -330,7 +330,7 @@ public class LocalContact implements Contact {
     }
 
     /**
-     * Hard coded to return false
+     * Hard coded to return false.
      */
     public boolean isDead() {
         return false;
@@ -346,7 +346,7 @@ public class LocalContact implements Contact {
     }
 
     /**
-     * Does nothing
+     * Does nothing.
      */
     public void unknown() {
     }
@@ -365,7 +365,7 @@ public class LocalContact implements Contact {
      * Does nothing if 'existing' is the same instance 
      * as 'this'. Throws an UnsupportedOperationException
      * if 'existing' is a different instance.
-     * 
+     * <p>
      * The UnsupportedOperationException exception is mainly
      * thrown for debugging purposes and should never ever
      * happen. If it does then there's a bug in the RouteTable

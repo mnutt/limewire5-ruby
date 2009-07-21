@@ -27,7 +27,7 @@ import org.limewire.security.SecureMessage;
 public interface DHTSecureMessage extends SecureMessage {
     
     /**
-     * Returns true if this message is secure
+     * Returns true if this message is secure.
      */
     public boolean isSecure();
 }

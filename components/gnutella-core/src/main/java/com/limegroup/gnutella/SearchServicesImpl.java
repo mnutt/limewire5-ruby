@@ -2,9 +2,9 @@ package com.limegroup.gnutella;
 
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.api.browse.BrowseListener;
-import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.MessageSettings;
+import org.limewire.friend.api.FriendPresence;
 import org.limewire.inspection.InspectionHistogram;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.io.GUID;

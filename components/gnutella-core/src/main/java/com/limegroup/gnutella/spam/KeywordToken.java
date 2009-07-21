@@ -2,7 +2,7 @@ package com.limegroup.gnutella.spam;
 
 /**
  * A token representing a keyword from a file name (excluding the
- * extension) or a query string
+ * extension) or a query string.
  */
 public class KeywordToken extends Token {
     

@@ -5,7 +5,7 @@ import org.limewire.setting.LongSetting;
 import org.limewire.setting.StringSetSetting;
 
 /**
- * Settings for messages
+ * Settings for messages.
  */
 public class UpdateSettings extends LimeProps {  
     private UpdateSettings() {}

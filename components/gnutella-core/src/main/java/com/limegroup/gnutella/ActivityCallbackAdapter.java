@@ -3,13 +3,13 @@ package com.limegroup.gnutella;
 import java.io.File;
 import java.util.Set;
 
+import org.limewire.bittorrent.Torrent;
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 
 import com.google.inject.Singleton;
-import com.limegroup.bittorrent.ManagedTorrent;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -125,13 +125,13 @@ public class ActivityCallbackAdapter implements ActivityCallback {
     public String translate(String s) { return s;}
 
     @Override
-    public void handleSaveLocationException(DownloadAction downLoadAction,
-            SaveLocationException sle, boolean supportsNewSaveDir) {
+    public void handleDownloadException(DownloadAction downLoadAction,
+            DownloadException e, boolean supportsNewSaveDir) {
     }
 
     @Override
-    public void promptTorrentUploadCancel(ManagedTorrent torrent) {
-        
+    public boolean promptTorrentUploadCancel(Torrent torrent) {
+        return true;
     }
 
 }

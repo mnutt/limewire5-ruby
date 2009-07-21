@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
 </pre>
  */
 public final class IntBuffer implements Cloneable, Iterable<Integer> {
-    /**
+    /**<pre>
      * The abstraction function is
      *   [ buf[head], buf[head+1], ..., buf[tail-1] ] if head<=tail
      * or
@@ -51,6 +51,7 @@ public final class IntBuffer implements Cloneable, Iterable<Integer> {
      * INVARIANT: buf.length=size
      *            0<=head, tail<size
      *            size>=2
+     *</pre>
      */
     private final int size;
     private int buf[];
@@ -396,7 +397,7 @@ public final class IntBuffer implements Cloneable, Iterable<Integer> {
         }
     }
 
-    /** Returns a shallow copy of this, of type <tt>IntBuffer</tt> */
+    /** Returns a shallow copy of this, of type <tt>IntBuffer</tt>. */
     @Override
     public Object clone() {
         return new IntBuffer(this);        

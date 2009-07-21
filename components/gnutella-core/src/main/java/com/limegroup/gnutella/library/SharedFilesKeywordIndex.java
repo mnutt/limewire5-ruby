@@ -11,7 +11,7 @@ public interface SharedFilesKeywordIndex {
     /**
      * Returns an array of all responses matching the given request.  If there
      * are no matches, the array will be empty (zero size).
-     *
+     * <p>
      * Incomplete Files are returned in responses to queries that desire it.
      *
      * @return an empty array if not matching shared files were found

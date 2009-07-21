@@ -292,7 +292,7 @@ public class BucketQueue<E> implements Cloneable, Iterable<E> {
         }
     }
 
-    /** Returns a shallow copy of this, of type BucketQueue */
+    /** Returns a shallow copy of this, of type BucketQueue. */
     @Override
     public BucketQueue<E> clone() throws CloneNotSupportedException {
         return new BucketQueue<E>(this);        

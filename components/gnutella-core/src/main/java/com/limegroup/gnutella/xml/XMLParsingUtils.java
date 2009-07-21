@@ -26,7 +26,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Provides just enough functionality for our simple schemas,
- * based on SAX
+ * based on SAX.
  * @author  tjones
  */
 public class XMLParsingUtils {
@@ -37,7 +37,7 @@ public class XMLParsingUtils {
     static final private String XML_START = "<?xml";
     
     /**
-     * a ThreadLocal to contain the instance of the Lime parser
+     * A ThreadLocal to contain the instance of the Lime parser.
      */
     private static ThreadLocal<LimeParser> _parserContainer = new ThreadLocal<LimeParser>() {
         @Override
@@ -47,7 +47,7 @@ public class XMLParsingUtils {
     };
     
     /**
-     * Parses our simplified XML
+     * Parses our simplified XML.
      */
     public static ParseResult parse(String xml, int responseCount) 
       throws IOException, SAXException {
@@ -61,7 +61,7 @@ public class XMLParsingUtils {
     }
     
     /**
-     * Parses our simplified XML
+     * Parses our simplified XML.
      */
     public static ParseResult parse(InputSource inputSource, int responseCount) 
       throws IOException, SAXException {
@@ -72,8 +72,7 @@ public class XMLParsingUtils {
     }
 
     /**
-     * Splits an aggregated XML string into individual XML strings
-     * @param aggregatedXmlDocuments
+     * Splits an aggregated XML string into individual XML strings.
      * @return List of Strings
      */    
     public static List<String> split(String aggregatedXmlDocuments) {
@@ -96,7 +95,7 @@ public class XMLParsingUtils {
     
     /**
      * A list of maps, also containing the Schema URI, the type and
-     * the canonical key prefix
+     * the canonical key prefix.
      */
     public static class ParseResult extends ArrayList<Map<String, String>> {
         
@@ -110,7 +109,7 @@ public class XMLParsingUtils {
     }
     
     /**
-     * this class does the actual parsing of the document.  It is a reusable
+     * This class does the actual parsing of the document.  It is a reusable
      * DocumentHandler.
      */
     private static class LimeParser extends DefaultHandler {
@@ -137,7 +136,7 @@ public class XMLParsingUtils {
         }
         
         /**
-         * parses the given document input.  Any state from previous parsing is
+         * Parses the given document input.  Any state from previous parsing is
          * discarded.
          */
         public void parse(ParseResult dest, InputSource input) 
@@ -182,10 +181,11 @@ public class XMLParsingUtils {
                 for(int i = 0; i < attributesLength; i++) {
                     //everything goes to lowercase
                     qName = attributes.getQName(i).toLowerCase(Locale.US); 
-                                        
-                    attributeMap.put(_result.canonicalKeyPrefix + 
-                                     qName + "__",
-                                     attributes.getValue(i).trim());
+                    if(!qName.equals("comments")) { // ignore comments!
+                        attributeMap.put((_result.canonicalKeyPrefix + 
+                                qName + "__").intern(),
+                                attributes.getValue(i).trim().intern());
+                    }                                        
                 }
                 _result.add(attributeMap);
             } else {

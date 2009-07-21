@@ -11,7 +11,7 @@ import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.limegroup.gnutella.library.ManagedFileList;
+import com.limegroup.gnutella.library.Library;
 
 @Singleton
 class LibraryManagerImpl implements LibraryManager {
@@ -20,7 +20,7 @@ class LibraryManagerImpl implements LibraryManager {
     private final LibraryData libraryData;
     
     @Inject
-    public LibraryManagerImpl(ManagedFileList managedList, CoreLocalFileItemFactory coreLocalFileItemFactory) {
+    public LibraryManagerImpl(Library managedList, CoreLocalFileItemFactory coreLocalFileItemFactory) {
         this.libraryList = new LibraryFileListImpl(managedList, coreLocalFileItemFactory);
         this.libraryData = new LibraryDataImpl(managedList);
     }

@@ -78,7 +78,7 @@ public interface VendorMessage extends Message {
 
     public int getVersion();
     
-    /** Marker interface for vendor messages which are also Control messages */
+    /** Marker interface for vendor messages which are also Control messages. */
     public static interface ControlMessage extends VendorMessage {}
 
 }

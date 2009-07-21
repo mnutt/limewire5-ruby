@@ -45,11 +45,12 @@ public abstract class ReadHeadersIOState extends ReadState {
     /**
      * Reads as much data as it can from the buffer, farming the processing of the
      * connect line (same as response line) and headers out to the methods:
+     * <pre>
      *   processConnectLine(String line)
      *   processHeaders()
-     *   
+     * </pre>
      * This will return true if it needs to be called again for more processing,
-     * otherwise it will return false indiciating it's time to move on to the next
+     * otherwise it will return false indicating it's time to move on to the next
      * state.
      */
     @Override

@@ -26,7 +26,7 @@ import org.limewire.mojito.messages.PingRequest;
 
 
 /**
- * Miscellaneous untilities for Messages
+ * Miscellaneous utilities for Messages.
  */
 public class MessageUtils {
     
@@ -35,10 +35,10 @@ public class MessageUtils {
     }
     
     /**
-     * Returns true if the given DHTMessage is a Node ID collision test ping
+     * Returns true if the given DHTMessage is a Node ID collision test ping.
      * 
-     * @param nodeId The local Node ID
-     * @param message The Message
+     * @param nodeId the local Node ID
+     * @param message the Message
      */
     public static boolean isCollisionPingRequest(KUID nodeId, DHTMessage message) {
         if (!(message instanceof PingRequest)) {

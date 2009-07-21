@@ -36,7 +36,7 @@ public class CoreGlueTestUtils {
     /**
      * Creates the Guice injector with the limewire default modules and the 
      * test module that can override bindings in the former modules.
-     * 
+     * <p>
      * Also starts the {@link LifecycleManager}.
      * 
      * @param module the test modules that can override bindings

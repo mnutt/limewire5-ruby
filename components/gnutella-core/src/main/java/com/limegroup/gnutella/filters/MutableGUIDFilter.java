@@ -27,7 +27,7 @@ public final class MutableGUIDFilter implements SpamFilter {
     }
     /**
      * The Set of GUIDs to compare.
-     *
+     * <p>
      * LOCKING: Never modify -- instead synchronize & replace.
      */
     private Set<byte[]> _guids = new TreeSet<byte[]>(new GUID.GUIDByteComparator());

@@ -310,11 +310,6 @@ public class HttpPushRequestHandlerTest extends BaseTestCase {
             
         }
 
-        public void sendQueryRequest(QueryRequest request, RoutedConnection connection) {
-            // TODO Auto-generated method stub
-            
-        }
-
         public void setMessageHandler(Class<? extends Message> clazz, MessageHandler handler) {
             // TODO Auto-generated method stub
             

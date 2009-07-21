@@ -50,7 +50,7 @@ public class TextFieldDecorator {
     }
     
     /**
-     * Applies the lw look and feel to a prompt text field, however allows the accent
+     * Applies the LimeWire look and feel to a prompt text field, however allows the accent
      *  to be overridden for allowing it to blend in and be used on non default panels.
      */
     public void decoratePromptField(PromptTextField field, AccentType accent) {
@@ -59,7 +59,7 @@ public class TextFieldDecorator {
     }
    
     /**
-     * Applies the lw look and feel to a password prompt text field, however allows the accent
+     * Applies the LimeWire look and feel to a password prompt text field, however allows the accent
      *  and border to be overridden for allowing it to blend in and be used on non default panels.
      */
     public void decoratePromptField(PromptPasswordField field, AccentType accent, Paint border) {
@@ -68,7 +68,7 @@ public class TextFieldDecorator {
     }
     
     /**
-     * Applies the lw look and feel to a password prompt text field, however allows the accent
+     * Applies the LimeWire look and feel to a password prompt text field, however allows the accent
      *  to be overridden for allowing it to blend in and be used on non default panels.
      */
     public void decoratePromptField(PromptPasswordField field, AccentType accent) {

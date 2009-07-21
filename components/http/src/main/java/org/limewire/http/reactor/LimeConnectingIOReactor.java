@@ -17,6 +17,7 @@ import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.ExecutionContext;
 import org.limewire.net.SocketsManager;
 import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.nio.AbstractNBSocket;
@@ -37,9 +38,6 @@ public class LimeConnectingIOReactor implements ConnectingIOReactor {
     private final SocketsManager socketsManager;
     
     private final HttpBandwidthTracker up, down;
-
-    // copied from DefaultClientIOEventDispatch
-    private static final String NHTTP_CONN = "NHTTP_CONN";
     
     public LimeConnectingIOReactor(final HttpParams params, final Executor ioExecutor,
             SocketsManager socketsManager, HttpBandwidthTracker up, HttpBandwidthTracker down) {
@@ -137,7 +135,7 @@ public class LimeConnectingIOReactor implements ConnectingIOReactor {
         
         // need to enable access to the channel for throttling support
         // TODO: necessary?
-        NHttpConnection conn = (NHttpConnection) session.getAttribute(NHTTP_CONN);
+        NHttpConnection conn = (NHttpConnection) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         assert conn != null;
         conn.getContext().setAttribute(IO_SESSION_KEY, session);
         

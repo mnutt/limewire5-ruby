@@ -1,5 +1,7 @@
 package org.limewire.ui.swing.components;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,12 +12,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.limewire.ui.swing.util.I18n;
-
 import net.miginfocom.swing.MigLayout;
 
+import org.limewire.ui.swing.util.I18n;
+
 /**
- * A panel that manages a list of check boxes based on a set of keys
+ * A panel that manages a list of check boxes based on a set of keys.
  */
 public class HorizonalCheckBoxListPanel<K> extends JPanel {
     
@@ -31,11 +33,11 @@ public class HorizonalCheckBoxListPanel<K> extends JPanel {
     }
     
     /**
-     * Creates the panel and selects the set of boxes
+     * Creates the panel and selects the set of boxes.
      */
     public HorizonalCheckBoxListPanel(Collection<K> options, Collection<K> selected, boolean translate) {
         
-        setLayout(new MigLayout("gapx 5"));
+        setLayout(new MigLayout("insets 0, gapx 5"));
         setOpaque(false);
         
         optionsMap = new HashMap<K,JCheckBox>();
@@ -52,14 +54,14 @@ public class HorizonalCheckBoxListPanel<K> extends JPanel {
     }
     
     /**
-     * Gets a check box corresponding to a certain key
+     * Gets a check box corresponding to a certain key.
      */
     public JCheckBox getCheckBox(K key) {
         return optionsMap.get(key);
     }
     
     /**
-     * Return keys of all the selected check boxes
+     * Return keys of all the selected check boxes.
      */
     public Collection<K> getSelected() {
         Set<K> selected = new HashSet<K>();
@@ -74,12 +76,54 @@ public class HorizonalCheckBoxListPanel<K> extends JPanel {
     }
     
     /**
-     * Select the check boxes with the following keys, leave the rest
+     * Select the check boxes with the following keys, leave the rest.
      */
     public void setSelected(Collection<K> selectedKeys) {
-        for ( K key : selectedKeys ) {
-            optionsMap.get(key).setSelected(true);
+        for ( K key : optionsMap.keySet() ) {
+            if(selectedKeys.contains(key)) {
+                optionsMap.get(key).setSelected(true);
+            } else {
+                optionsMap.get(key).setSelected(false);
+            }
         }
     }
     
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        
+        if (optionsMap == null) {
+            return;
+        }
+                
+        for(JCheckBox checkBox : optionsMap.values()) {
+            checkBox.setEnabled(enabled);
+        }
+    }
+    
+    @Override
+    public void setFont(Font font) {
+        super.setFont(font);        
+        
+        if (optionsMap == null) {
+            return;
+        }
+                
+        for(JCheckBox checkBox : optionsMap.values()) {
+            checkBox.setFont(font);
+        }
+    }
+    
+    @Override
+    public void setForeground(Color fg) {
+        super.setForeground(fg);
+        
+        if (optionsMap == null) {
+            return;
+        }
+        
+        for(JCheckBox checkBox : optionsMap.values()) {
+            checkBox.setForeground(fg);
+        }
+    }
 }

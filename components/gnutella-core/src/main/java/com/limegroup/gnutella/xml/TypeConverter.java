@@ -35,7 +35,7 @@ public class TypeConverter{
     }
     
     /**
-     * For types not in the hashmap we return string
+     * For types not in the hashmap we return string.
      */
     public static Class<?> getType(String str){
         Class<?> val = map.get(str);

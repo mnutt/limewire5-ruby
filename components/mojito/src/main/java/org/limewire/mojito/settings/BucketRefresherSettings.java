@@ -23,7 +23,7 @@ import org.limewire.setting.BooleanSetting;
 import org.limewire.setting.LongSetting;
 
 /**
- * Settings for the BucketRefresher
+ * Settings for the BucketRefresher.
  */
 public class BucketRefresherSettings extends MojitoProps {
 
@@ -38,7 +38,7 @@ public class BucketRefresherSettings extends MojitoProps {
         = FACTORY.createBooleanSetting("UNIFORM_BUCKET_REFRESH_DISTRIBUTION", false);
     
     /**
-     * The delay of the BucketRefresher
+     * The delay of the BucketRefresher.
      */
     public static final LongSetting BUCKET_REFRESHER_DELAY
         = FACTORY.createRemoteLongSetting("BUCKET_REFRESHER_DELAY", 1L*60L*1000L, 

@@ -10,6 +10,8 @@ public class LimeWireUiFriendsModule extends AbstractModule {
     
     @Override
     protected void configure() {
+        bind(FriendRequestNotificationController.class);
+        
         install(new LimeWireUiFriendsLoginModule());
         install(new LimeWireUiFriendsChatModule());
     }

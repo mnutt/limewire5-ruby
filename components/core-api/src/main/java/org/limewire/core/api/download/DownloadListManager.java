@@ -10,7 +10,7 @@ import org.limewire.core.api.magnet.MagnetLink;
 import ca.odell.glazedlists.EventList;
 
 /**
- * Defines the manager API for the list of downloads. 
+ * Defines the manager API for the list of downloads.
  */
 public interface DownloadListManager extends ResultDownloader {
     /** Property name for downloads completed event. */
@@ -22,60 +22,64 @@ public interface DownloadListManager extends ResultDownloader {
     /**
      * Returns all items currently being downloaded.
      */
-	public EventList<DownloadItem> getDownloads();
-	
-	/** Returns a Swing-thread safe version of the downloads event list. */
-	public EventList<DownloadItem> getSwingThreadSafeDownloads();
-	
-	/**
-	 * Downloads the torrent file at the given uri.
-	 */
-    public DownloadItem addTorrentDownload(URI uri, boolean overwrite) throws SaveLocationException;
+    public EventList<DownloadItem> getDownloads();
+
+    /** Returns a Swing-thread safe version of the downloads event list. */
+    public EventList<DownloadItem> getSwingThreadSafeDownloads();
 
     /**
-     * Opens the given file and starts a downloader based on the information inside of the given file.
+     * Downloads the torrent file at the given uri.
      */
-    public DownloadItem addTorrentDownload(File file, boolean overwrite) throws SaveLocationException;
+    public DownloadItem addTorrentDownload(URI uri, boolean overwrite) throws DownloadException;
 
-	/**
-	 * Return true if the downloader contains the given urn, false otherwise
-	 */
+    /**
+     * Opens the given file and starts a downloader based on the information
+     * inside of the given file.
+     */
+    public DownloadItem addTorrentDownload(File file, File saveDirectory, boolean overwrite)
+            throws DownloadException;
+
+    /**
+     * Return true if the downloader contains the given urn, false otherwise.
+     */
     public boolean contains(URN urn);
 
     /**
      * Downloads the given magnet link.
      */
-    public DownloadItem addDownload(MagnetLink magnet, File saveFile, boolean overwrite) throws SaveLocationException;
-    
+    public DownloadItem addDownload(MagnetLink magnet, File saveFile, boolean overwrite)
+            throws DownloadException;
+
     /**
-     * Adds the specified listener to the list that is notified when a 
-     * property value changes. 
+     * Adds the specified listener to the list that is notified when a property
+     * value changes.
      */
     public void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
-     * Removes the specified listener from the list that is notified when a 
-     * property value changes. 
+     * Removes the specified listener from the list that is notified when a
+     * property value changes.
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
-    
+
     /**
      * Checks for downloads in progress, and fires a property change event if
      * all downloads are completed.
      */
     public void updateDownloadsCompleted();
-    
+
     /**
-     * Clears all completed downloads
+     * Clears all completed downloads.
      */
     public void clearFinished();
 
     /**
-     * Returns a download item for the given URN if any, null is returned otherwise. 
+     * Returns a download item for the given URN if any, null is returned
+     * otherwise.
      */
     DownloadItem getDownloadItem(URN urn);
 
-    /**Removes download item from the list*/
+    /** Removes download item from the list. */
     public void remove(DownloadItem item);
-    
+
 }

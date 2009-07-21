@@ -21,92 +21,93 @@ import org.limewire.util.CommonUtils;
 import org.limewire.util.OSUtils;
 import org.limewire.util.VersionUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.internal.Nullable;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 /**
- * This class encapsulates all of the data for an individual client machine
- * for an individual bug report.<p>
- *
- * This class collects all of the data for the local machine and provides
- * access to that data in url-encoded form.
+ * This class encapsulates all of the data for an individual client machine for
+ * an individual bug report.
+ * <p>
+ * 
+ * This class collects all of the data for the local machine and provides access
+ * to that data in url-encoded form.
  */
-//2345678|012345678|012345678|012345678|012345678|012345678|012345678|012345678|
-public final class LocalClientInfoImpl extends LocalAbstractInfo 
-    implements LocalClientInfo {
-	
-	/**
-	 * Creates information about this bug from the bug, thread, and detail.
-	 */
-    @AssistedInject
-	public LocalClientInfoImpl(@Assisted Throwable bug, 
-	                           @Assisted String threadName, 
-	                           @Assisted String detail, 
-	                           @Assisted boolean fatal, 
-	                           SessionInfo sessionInfo) {
-	    //Store the basic information ...	    
-	    _limewireVersion = LimeWireUtils.getLimeWireVersion();
-	    _javaVersion = VersionUtils.getJavaVersion();
+// 2345678|012345678|012345678|012345678|012345678|012345678|012345678|012345678|
+public final class LocalClientInfoImpl extends LocalAbstractInfo implements LocalClientInfo {
+
+    /**
+     * Creates information about this bug from the bug, thread, and detail.
+     */
+    @Inject
+    public LocalClientInfoImpl(@Assisted Throwable bug,
+            @Nullable @Assisted("threadName") String threadName,
+            @Nullable @Assisted("detail") String detail, @Assisted boolean fatal,
+            SessionInfo sessionInfo) {
+        // Store the basic information ...
+        _limewireVersion = LimeWireUtils.getLimeWireVersion();
+        _javaVersion = VersionUtils.getJavaVersion();
         _javaVendor = System.getProperty("java.vendor", "?");
-	    _os = OSUtils.getOS();
-	    _osVersion = System.getProperty("os.version", "?");
-	    _architecture = System.getProperty("os.arch", "?");
-	    _freeMemory = "" + Runtime.getRuntime().freeMemory();
-	    _totalMemory = "" + Runtime.getRuntime().totalMemory();
-	    _peakThreads = "" + ManagementFactory.getThreadMXBean().getPeakThreadCount();
+        _os = OSUtils.getOS();
+        _osVersion = System.getProperty("os.version", "?");
+        _architecture = System.getProperty("os.arch", "?");
+        _freeMemory = "" + Runtime.getRuntime().freeMemory();
+        _totalMemory = "" + Runtime.getRuntime().totalMemory();
+        _peakThreads = "" + ManagementFactory.getThreadMXBean().getPeakThreadCount();
         _loadAverage = "" + ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage();
-        _pendingObjects = "" + ManagementFactory.getMemoryMXBean().getObjectPendingFinalizationCount();
+        _pendingObjects = ""
+                + ManagementFactory.getMemoryMXBean().getObjectPendingFinalizationCount();
         _heapUsage = "" + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
         _nonHeapUsage = "" + ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
         _settingsFreeSpace = "" + CommonUtils.getUserSettingsDir().getUsableSpace();
         _incompleteFreeSpace = "" + SharingSettings.INCOMPLETE_DIRECTORY.get().getUsableSpace();
         _downloadFreeSpace = "" + SharingSettings.getSaveDirectory().getUsableSpace();
-	    
-	    //Store information about the bug and the current thread.
-	    StringWriter sw = new StringWriter();
-	    PrintWriter pw = new PrintWriter(sw);
-	    bug.printStackTrace(pw);
-	    pw.flush();
-	    _bug = sw.toString();
-	    _currentThread = threadName;
-	    
-	    _bugName = bug.getClass().getName();
-	    
-	    _fatalError = "" + fatal;
-	    
-	    //Store the properties.
-	    sw = new StringWriter();
-	    pw = new PrintWriter(sw);
-		Properties props = new Properties();
-		// Load the properties from SettingsFactory, excluding
-		// FileSettings and FileArraySettings.
-		SettingsFactory sf = LimeProps.instance().getFactory();
-		synchronized(sf) {
-            for(Setting set : sf) {
-		        if(!set.isPrivate() && !set.isDefault())
-		            props.put(set.getKey(), set.getValueAsString());
+
+        // Store information about the bug and the current thread.
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        bug.printStackTrace(pw);
+        pw.flush();
+        _bug = sw.toString();
+        _currentThread = threadName;
+
+        _bugName = bug.getClass().getName();
+
+        _fatalError = "" + fatal;
+
+        // Store the properties.
+        sw = new StringWriter();
+        pw = new PrintWriter(sw);
+        Properties props = new Properties();
+        // Load the properties from SettingsFactory, excluding
+        // FileSettings and FileArraySettings.
+        SettingsFactory sf = LimeProps.instance().getFactory();
+        synchronized (sf) {
+            for (Setting set : sf) {
+                if (!set.isPrivate() && !set.isDefault())
+                    props.put(set.getKey(), set.getValueAsString());
             }
         }
-		sf = MojitoProps.instance().getFactory();
-		synchronized(sf) {
-		    for(Setting set : sf) {
-		        if(!set.isPrivate() && !set.isDefault())
-		            props.put(set.getKey(), set.getValueAsString());
+        sf = MojitoProps.instance().getFactory();
+        synchronized (sf) {
+            for (Setting set : sf) {
+                if (!set.isPrivate() && !set.isDefault())
+                    props.put(set.getKey(), set.getValueAsString());
 
-		    }
-		}
-		// list the properties in the PrintWriter.
-		props.list(pw);
-		pw.flush();
-		_props = sw.toString();
-		
-		// Store extra debugging information.  We removed an old call to
-		// AppFrame.isStarted() because it is no longer useful.
-		if (sessionInfo.isLifecycleLoaded()) {
-            _upTime = CommonUtils.seconds2time(sessionInfo.getCurrentUptime()/1000);
+            }
+        }
+        // list the properties in the PrintWriter.
+        props.list(pw);
+        pw.flush();
+        _props = sw.toString();
+
+        // Store extra debugging information. We removed an old call to
+        // AppFrame.isStarted() because it is no longer useful.
+        if (sessionInfo.isLifecycleLoaded()) {
+            _upTime = CommonUtils.seconds2time(sessionInfo.getCurrentUptime() / 1000);
             _connected = "" + sessionInfo.isConnected();
-            _upToUp = ""+sessionInfo.getNumUltrapeerToUltrapeerConnections();
+            _upToUp = "" + sessionInfo.getNumUltrapeerToUltrapeerConnections();
             _upToLeaf = "" + sessionInfo.getNumUltrapeerToLeafConnections();
             _leafToUp = "" + sessionInfo.getNumLeafToUltrapeerConnections();
             _oldConnections = "" + sessionInfo.getNumOldConnections();
@@ -115,19 +116,19 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
             _activeUploads = "" + sessionInfo.getNumActiveUploads();
             _queuedUploads = "" + sessionInfo.getNumQueuedUploads();
             _activeDownloads = "" + sessionInfo.getNumActiveDownloads();
-            _httpDownloaders = "" +sessionInfo.getNumIndividualDownloaders();
+            _httpDownloaders = "" + sessionInfo.getNumIndividualDownloaders();
             _waitingDownloaders = "" + sessionInfo.getNumWaitingDownloads();
-            _acceptedIncoming = "" +sessionInfo.acceptedIncomingConnection();
-            _sharedFiles = "" +sessionInfo.getSharedFileListSize();
-            _managedFiles = "" +sessionInfo.getManagedFileListSize();
-            _friendFiles = "" +sessionInfo.getAllFriendsFileListSize();
+            _acceptedIncoming = "" + sessionInfo.acceptedIncomingConnection();
+            _sharedFiles = "" + sessionInfo.getSharedFileListSize();
+            _managedFiles = "" + sessionInfo.getManagedFileListSize();
+            _friendFiles = "" + sessionInfo.getAllFriendsFileListSize();
             _guessCapable = "" + sessionInfo.isGUESSCapable();
-            _solicitedCapable= ""+sessionInfo.canReceiveSolicited();
-            _latestSIMPP= "" + sessionInfo.getSimppVersion();
-            _portStable = "" +sessionInfo.isUdpPortStable();
-            _canDoFWT = "" +sessionInfo.canDoFWT();
-            _lastReportedPort = ""+sessionInfo.lastReportedUdpPort();
-            _externalPort = ""+sessionInfo.getPort();
+            _solicitedCapable = "" + sessionInfo.canReceiveSolicited();
+            _latestSIMPP = "" + sessionInfo.getSimppVersion();
+            _portStable = "" + sessionInfo.isUdpPortStable();
+            _canDoFWT = "" + sessionInfo.canDoFWT();
+            _lastReportedPort = "" + sessionInfo.lastReportedUdpPort();
+            _externalPort = "" + sessionInfo.getPort();
             _receivedIpPong = "" + sessionInfo.receivedIpPong();
             _responseSize = "" + sessionInfo.getContentResponsesSize();
             _creationCacheSize = "" + sessionInfo.getCreationCacheSize();
@@ -138,47 +139,46 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
             _waitingSockets = "" + sessionInfo.getNumberOfWaitingSockets();
             _pendingTimeouts = "" + sessionInfo.getNumberOfPendingTimeouts();
             _sp2Workarounds = "" + sessionInfo.getNumConnectionCheckerWorkarounds();
-            _slotManager = ""+ sessionInfo.getUploadSlotManagerInfo();
-            long [] selectStats = sessionInfo.getSelectStats();
-            if(selectStats != null) {
-                _numSelects = ""+ selectStats[0];
+            _slotManager = "" + sessionInfo.getUploadSlotManagerInfo();
+            long[] selectStats = sessionInfo.getSelectStats();
+            if (selectStats != null) {
+                _numSelects = "" + selectStats[0];
                 _numImmediateSelects = "" + selectStats[1];
                 _avgSelectTime = "" + selectStats[2];
             }
-         }
-            
-        
-        //Store the detail, thread counts, and other information.
+        }
+
+        // Store the detail, thread counts, and other information.
         _detail = detail;
 
         Thread[] allThreads = new Thread[Thread.activeCount()];
         int copied = Thread.enumerate(allThreads);
         _threadCount = "" + copied;
         Map<String, Integer> threads = new HashMap<String, Integer>();
-        for(int i = 0; i < copied; i++) {
+        for (int i = 0; i < copied; i++) {
             String name = allThreads[i].getName();
             Integer val = threads.get(name);
-            if(val == null)
+            if (val == null)
                 threads.put(name, new Integer(1));
             else {
-                int num = val.intValue()+1;
-                threads.put(name,new Integer(num));
+                int num = val.intValue() + 1;
+                threads.put(name, new Integer(num));
             }
         }
         sw = new StringWriter();
         pw = new PrintWriter(sw);
-        for(Map.Entry<String, Integer> info : threads.entrySet())
-            pw.println( info.getKey() + ": " + info.getValue());
+        for (Map.Entry<String, Integer> info : threads.entrySet())
+            pw.println(info.getKey() + ": " + info.getValue());
         pw.flush();
-        _otherThreads = sw.toString();            
-	}
+        _otherThreads = sw.toString();
+    }
 
-    /** 
+    /**
      * Returns an array of map entries in this info.
      */
     public final Map.Entry[] getPostRequestParams() {
-	    List<Map.Entry> params = new LinkedList<Map.Entry>();
-	    
+        List<Map.Entry> params = new LinkedList<Map.Entry>();
+
         append(params, LIMEWIRE_VERSION, _limewireVersion);
         append(params, JAVA_VERSION, _javaVersion);
         append(params, OS, _os);
@@ -211,9 +211,9 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
         append(params, THREAD_COUNT, _threadCount);
         append(params, BUG_NAME, _bugName);
         append(params, GUESS_CAPABLE, _guessCapable);
-        append(params, SOLICITED_CAPABLE,_solicitedCapable);
-        append(params, LATEST_SIMPP,_latestSIMPP);
-        //append(params, IP_STABLE,_ipStable);
+        append(params, SOLICITED_CAPABLE, _solicitedCapable);
+        append(params, LATEST_SIMPP, _latestSIMPP);
+        // append(params, IP_STABLE,_ipStable);
         append(params, PORT_STABLE, _portStable);
         append(params, CAN_DO_FWT, _canDoFWT);
         append(params, LAST_REPORTED_PORT, _lastReportedPort);
@@ -241,16 +241,16 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
         append(params, NUM_SELECTS, _numSelects);
         append(params, NUM_IMMEDIATE_SELECTS, _numImmediateSelects);
         append(params, AVG_SELECT_TIME, _avgSelectTime);
-        if(!_userComments.equals("")) {
+        if (!_userComments.equals("")) {
             append(params, USER_COMMENTS, _userComments);
         }
         append(params, MANAGED_FILES, _managedFiles);
         append(params, FRIEND_FILES, _friendFiles);
         // APPEND OTHER PARAMETERS HERE.
-        
+
         return params.toArray(new Map.Entry[params.size()]);
-	}
-    
+    }
+
     /**
      * @return compact printout of the list of parameters
      */
@@ -261,10 +261,10 @@ public final class LocalClientInfoImpl extends LocalAbstractInfo
         }
         return sb.toString();
     }
-    
+
     /**
      * Appends a map entry to the specified list using the specified key and
-     * value.  If the value is null, then the entry is not added.
+     * value. If the value is null, then the entry is not added.
      */
     private final void append(List<Map.Entry> list, String key, String value) {
         if (value != null) {

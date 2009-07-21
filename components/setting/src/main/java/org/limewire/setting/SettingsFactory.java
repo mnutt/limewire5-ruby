@@ -76,19 +76,19 @@ With the call sf.save(), setting.txt now includes:
  */
 public final class SettingsFactory implements Iterable<AbstractSetting>, RemoteSettingController {
     
-    /** Marked true in the event of an error in the load/save of any settings file */ 
+    /** Marked true in the event of an error in the load/save of any settings file. */ 
     private static boolean loadSaveFailureEncountered = false;   
     
-    /** Time interval, after which the accumulated information expires */
+    /** Time interval, after which the accumulated information expires. */
     private static final long EXPIRY_INTERVAL = 14 * 24 * 60 * 60 * 1000; //14 days
     
-    /** An internal Setting to store the last expire time */
+    /** An internal Setting to store the last expire time. */
     private LongSetting LAST_EXPIRE_TIME = null;
     
     /** An internal Setting that controls whether or not unlisted remote settings revert to default. */
     private BooleanSetting REVERT_UNLISTED_REMOTE = null;
     
-    /** <tt>File</tt> object from which settings are loaded and saved */    
+    /** <tt>File</tt> object from which settings are loaded and saved. */    
     private File SETTINGS_FILE;
     
     /** The header written to the settings file. */
@@ -155,14 +155,14 @@ public final class SettingsFactory implements Iterable<AbstractSetting>, RemoteS
     }
 
     /**
-     * Saves a failure event for delayed reporting
+     * Saves a failure event for delayed reporting.
      */
     private static void markFailure() {
         loadSaveFailureEncountered = true;
     }
     
     /**
-     * Resets the failure flag 
+     * Resets the failure flag. 
      */
     public static void resetLoadSaveFailure() {
         loadSaveFailureEncountered = false;
@@ -170,7 +170,7 @@ public final class SettingsFactory implements Iterable<AbstractSetting>, RemoteS
     
     /**
      * Returns the iterator over the settings stored in this factory.
-     *
+     * <p>
      * LOCKING: The caller must ensure that this factory's monitor
      *   is held while iterating over the iterator.
      */
@@ -290,7 +290,7 @@ public final class SettingsFactory implements Iterable<AbstractSetting>, RemoteS
      * properties object and adding only those that should be saved
      * or aren't default) because 'adding' properties may fail if
      * certain settings classes haven't been statically loaded yet.
-     * (Note that we cannot use 'store' since it's only available in 1.2)
+     * (Note that we cannot use 'store' since it's only available in 1.2.)
      */
     public synchronized void save() {
         Properties toSave = (Properties) PROPS.clone();
@@ -350,7 +350,7 @@ public final class SettingsFactory implements Iterable<AbstractSetting>, RemoteS
     }
     
     /**
-     * Return settings properties
+     * Return settings properties.
      */
     Properties getProperties() {
         return PROPS;
@@ -393,7 +393,7 @@ public final class SettingsFactory implements Iterable<AbstractSetting>, RemoteS
      * key and default value.
      *
      * @param key the key for the setting
-     * @param defaultValue the default value for the setting
+     * @param defaultValue the default value for the setting, cannot be null
      */
     public synchronized StringSetting createStringSetting(String key, 
                                                           String defaultValue) {
@@ -426,7 +426,7 @@ public final class SettingsFactory implements Iterable<AbstractSetting>, RemoteS
     }
 
     /**
-     * if max != min, the setting becomes unsettable
+     * If max != min, the setting becomes unsettable.
      */
     public synchronized BooleanSetting createRemoteBooleanSetting(String key, 
               boolean defaultValue, String remoteKey) {

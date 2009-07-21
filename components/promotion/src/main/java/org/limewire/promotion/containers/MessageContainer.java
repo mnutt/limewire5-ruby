@@ -12,7 +12,7 @@ public interface MessageContainer {
     String TYPE_KEY = "T";
 
     /**
-     * @return the type code for this container.
+     * @return the type code for this container
      */
     byte[] getType();
 

@@ -6,10 +6,10 @@ import com.limegroup.gnutella.messages.Message;
  * Allows ContentRequests to be sent.
  * Different ContentAuthorities can send messages to different folks
  * and request permissions from different authorities.
- * 
- * For example..
- *  A IpPortContentAuthority could send messages to a single IpPort.
- *  A DhtContentAuthority could send messages to a DHT.
+ * <p>
+ * For example:
+ * A IpPortContentAuthority could send messages to a single IpPort.
+ * A DhtContentAuthority could send messages to a DHT.
  */
 public interface ContentAuthority {
     

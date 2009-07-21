@@ -56,132 +56,132 @@ import org.limewire.security.SecurityToken;
 public interface MojitoDHT extends Closeable {
     
     /**
-     * Returns the name of the DHT instance
+     * Returns the name of the DHT instance.
      */
     public String getName();
     
     /**
-     * Returns the vendor of the DHT
+     * Returns the vendor of the DHT.
      */
     public Vendor getVendor();
     
     /**
-     * Returns the version of the DHT
+     * Returns the version of the DHT.
      */
     public Version getVersion();
     
     /**
-     * Sets the KeyPair that is used to verify signed messages
+     * Sets the KeyPair that is used to verify signed messages.
      */
     public void setKeyPair(KeyPair keyPair);
     
     /**
-     * Returns the KeyPair that is used to verify signed messages
+     * Returns the KeyPair that is used to verify signed messages.
      */
     public KeyPair getKeyPair();
     
     /**
-     * Returns the DHT stats
+     * Returns the DHT stats.
      */
     public DHTStats getDHTStats();
     
     /**
-     * Returns the local Node ID
+     * Returns the local Node ID.
      */
     public KUID getLocalNodeID();
     
     /**
-     * Returns the local Node's Contact
+     * Returns the local Node's Contact.
      */
     public Contact getLocalNode();
     
     /**
-     * Returns whether or not this DHT is firewalled
+     * Returns whether or not this DHT is firewalled.
      */
     public boolean isFirewalled();
     
     /**
-     * Returns true if this Node is bound to a Network Interface
+     * Returns true if this Node is bound to a Network Interface.
      */
     public boolean isBound();
     
     /**
      * Binds the DHT to the specified Port number and the
-     * any-address
+     * any-address.
      * 
      * @throws IOException
      */
     public void bind(int port) throws IOException;
     
     /**
-     * Binds the DHT to the specified InetAddress and Port number
+     * Binds the DHT to the specified InetAddress and Port number.
      * 
      * @throws IOException
      */
     public void bind(InetAddress addr, int port) throws IOException;
     
     /**
-     * Binds the DHT to the specified SocketAddress
+     * Binds the DHT to the specified SocketAddress.
      */
     public void bind(SocketAddress address) throws IOException;
     
     /**
-     * Returns whether or not this DHT is running
+     * Returns whether or not this DHT is running.
      */
     public boolean isRunning();
     
     /**
-     * Starts the DHT
+     * Starts the DHT.
      */
     public void start();
     
     /**
-     * Stops the DHT
+     * Stops the DHT.
      */
     public void stop();
     
     /**
-     * Closes the DHT instance and releases all resources
+     * Closes the DHT instance and releases all resources.
      */
     public void close();
     
     /**
-     * Returns whether or not the MojitoDHT is bootstrapping
+     * Returns whether or not the MojitoDHT is bootstrapping.
      */
     public boolean isBootstrapping();
     
     /**
-     * Returns whether or not this DHT is bootstrapped
+     * Returns whether or not this DHT is bootstrapped.
      */
     public boolean isBootstrapped();
     
     /**
-     * Returns the approximate size of the DHT
+     * Returns the approximate size of the DHT.
      */
     public BigInteger size();
     
     /**
-     * Sets the external (forced) Port number
+     * Sets the external (forced) Port number.
      */
     public void setExternalPort(int port);
     
     /**
-     * Returns the external (forced) Port number
+     * Returns the external (forced) Port number.
      */
     public int getExternalPort();
     
     /**
-     * Returns the external (forced) contact address
+     * Returns the external (forced) contact address.
      */
     public SocketAddress getContactAddress();
     
     /**
-     * Returns the local address
+     * Returns the local address.
      */
     public SocketAddress getLocalAddress();
     
     /**
-     * Sets the MessageFactory
+     * Sets the MessageFactory.
      */
     public void setMessageFactory(MessageFactory messageFactory);
     
@@ -191,47 +191,47 @@ public interface MojitoDHT extends Closeable {
     public MessageDispatcher setMessageDispatcher(MessageDispatcherFactory messageDispatcherFactory);
     
     /**
-     * Sets the RouteTable
+     * Sets the RouteTable.
      */
     public void setRouteTable(RouteTable routeTable);
     
     /**
-     * Returns the RouteTable
+     * Returns the RouteTable.
      */
     public RouteTable getRouteTable();
     
     /**
-     * Sets the Host Filter
+     * Sets the Host Filter.
      */
     public void setHostFilter(HostFilter hostFilter);
     
     /**
-     * Returns the current Host Filter
+     * Returns the current Host Filter.
      */
     public HostFilter getHostFilter();
     
     /**
-     * Sets the Database
+     * Sets the Database.
      */
     public void setDatabase(Database database);
     
     /**
-     * Returns the Database
+     * Returns the Database.
      */
     public Database getDatabase();
     
     /**
-     * Returns the DHTValueFactoryManager
+     * Returns the DHTValueFactoryManager.
      */
     public DHTValueFactoryManager getDHTValueFactoryManager();
     
     /**
-     * Returns the StorableModelManager
+     * Returns the StorableModelManager.
      */
     public StorableModelManager getStorableModelManager();
     
     /**
-     * Returns the EvictorManager
+     * Returns the EvictorManager.
      */
     public EvictorManager getEvictorManager();
     
@@ -242,7 +242,7 @@ public interface MojitoDHT extends Closeable {
     public DHTFuture<BootstrapResult> bootstrap(Contact node);
     
     /**
-     * Bootstraps the MojitoDHT from the given SocketAddress
+     * Bootstraps the MojitoDHT from the given SocketAddress.
      */
     public DHTFuture<BootstrapResult> bootstrap(SocketAddress dst);
     
@@ -254,27 +254,27 @@ public interface MojitoDHT extends Closeable {
     public DHTFuture<PingResult> findActiveContact();
     
     /**
-     * Tries to ping the given address
+     * Tries to ping the given address.
      */
     public DHTFuture<PingResult> ping(SocketAddress dst);
     
     /**
-     * Tries to find and get a DHTValue with the given EntityKey
+     * Tries to find and get a DHTValue with the given EntityKey.
      */
     public DHTFuture<FindValueResult> get(EntityKey entityKey);
     
     /**
-     * Stores the given key, value pair
+     * Stores the given key, value pair.
      */
     public DHTFuture<StoreResult> put(KUID key, DHTValue value);
     
     /**
-     * Removes the value for the given key
+     * Removes the value for the given key.
      */
     public DHTFuture<StoreResult> remove(KUID key);
     
     /**
-     * Sets the DHTExecutorService
+     * Sets the DHTExecutorService.
      */
     public void setDHTExecutorService(DHTExecutorService executorService);
     
@@ -284,12 +284,12 @@ public interface MojitoDHT extends Closeable {
     public DHTExecutorService getDHTExecutorService();
     
     /**
-     * Sets the TokenProvider
+     * Sets the TokenProvider.
      */
     public void setSecurityTokenProvider(SecurityToken.TokenProvider tokenProvider);
     
     /**
-     * Sets the MACCalculatorRepositoryManager
+     * Sets the MACCalculatorRepositoryManager.
      */
     public void setMACCalculatorRepositoryManager(MACCalculatorRepositoryManager manager);
 }

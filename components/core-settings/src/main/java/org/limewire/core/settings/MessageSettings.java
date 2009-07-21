@@ -7,13 +7,13 @@ import org.limewire.setting.StringArraySetting;
 import org.limewire.setting.StringSetting;
 
 /**
- * Settings for messages
+ * Settings for messages.
  */
 public class MessageSettings extends LimeProps {  
     private MessageSettings() {}
    
     /** 
-     * The maximum allowable length of packets
+     * The maximum allowable length of packets.
      */
     public static final IntSetting MAX_LENGTH = 
         FACTORY.createIntSetting("MAX_LENGTH", 65536);
@@ -26,7 +26,7 @@ public class MessageSettings extends LimeProps {
                 "MessageSettings.stampQueries");
     
     /**
-     * The latest handled routable version of the inspection message.
+     * The latest handled routeable version of the inspection message.
      */
     public static final LongSetting INSPECTION_VERSION = 
         FACTORY.createLongSetting("INSPECTION_VERSION", 0);
@@ -45,13 +45,13 @@ public class MessageSettings extends LimeProps {
         FACTORY.createRemoteStringSetting("TRACKNG_GUID", "", "MessageSettings.trackingGUID");
     
     /**
-     * Whether ttroot urns should go in ggep instead of huge
+     * Whether ttroot urns should go in ggep instead of huge.
      */
     public static final BooleanSetting TTROOT_IN_GGEP = 
         FACTORY.createRemoteBooleanSetting("TTROOT_IN_GGEP", true, "MessageSettings.TTROOTInGGEP");
     
     /**
-     * Whether to send redundant LIME11 and LIME12 messages
+     * Whether to send redundant LIME11 and LIME12 messages.
      */
     public static final BooleanSetting OOB_REDUNDANCY =
         FACTORY.createRemoteBooleanSetting("OOB_REDUNDANCY", false, "MessageSettings.OOBRedundancy");
@@ -64,7 +64,7 @@ public class MessageSettings extends LimeProps {
                 true,"MessageSettings.returnPathInReplies");
     
     /**
-     * Whether to zero the OOB bytes of the guid as described in experiment LWC-1313
+     * Whether to zero the OOB bytes of the guid as described in experiment LWC-1313.
      */
     public static final BooleanSetting GUID_ZERO_EXPERIMENT = 
         FACTORY.createRemoteBooleanSetting("GUID_ZERO_EXPERIMENT", false, 
@@ -72,7 +72,7 @@ public class MessageSettings extends LimeProps {
     
     /**
      * Whether ultrapeers should filter queries to leaves based on firewall status.
-     * Described in LWC-1309
+     * Described in LWC-1309.
      */
     public static final BooleanSetting ULTRAPEER_FIREWALL_FILTERING =
         FACTORY.createRemoteBooleanSetting("ULTRAPEER_FIREWALL_FILTERING",true,

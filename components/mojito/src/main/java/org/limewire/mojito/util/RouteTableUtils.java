@@ -25,7 +25,7 @@ import org.limewire.mojito.routing.Contact;
 import org.limewire.mojito.routing.RouteTable;
 
 /**
- * Utilities for the RouteTable
+ * Utilities for the RouteTable.
  */
 public class RouteTableUtils {
     
@@ -33,7 +33,7 @@ public class RouteTableUtils {
     
     /**
      * Returns the percentage of active Contacts that are alive 
-     * in the RouteTable
+     * in the RouteTable.
      */
     public static float getPercentageOfAliveContacts(RouteTable routeTable) {
         Collection<Contact> activeContacts = routeTable.getActiveContacts();

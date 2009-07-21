@@ -52,7 +52,7 @@ public interface Connection extends IpPort, Connectable {
 
     /**
      * Sets the port where the connected node listens at, not the one got from
-     * socket
+     * socket.
      */
     void setListeningPort(int port);
 
@@ -219,12 +219,12 @@ public interface Connection extends IpPort, Connectable {
     public boolean allowNewPongs();
 
     /**
-     * Sends the SimppVM down the connection
+     * Sends the SimppVM down the connection.
      */
     public void handleSimppVM(SimppVM simppVM) throws IOException;
 
     /**
-     * access the locale pref. of the connected servent
+     * Access the locale preference of the connected servent.
      */
     public String getLocalePref();
 

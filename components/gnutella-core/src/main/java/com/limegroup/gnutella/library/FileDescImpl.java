@@ -1,13 +1,13 @@
 package com.limegroup.gnutella.library;
 
+import static com.limegroup.gnutella.Constants.MAX_FILE_SIZE;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.limewire.core.settings.DHTSettings;
 import org.limewire.listener.EventListener;
@@ -15,10 +15,10 @@ import org.limewire.listener.SourcedEventMulticaster;
 import org.limewire.util.I18NConvert;
 import org.limewire.util.Objects;
 
-import static com.limegroup.gnutella.Constants.MAX_FILE_SIZE;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.UrnSet;
 import com.limegroup.gnutella.licenses.License;
+import com.limegroup.gnutella.licenses.LicenseFactory;
 import com.limegroup.gnutella.licenses.LicenseType;
 import com.limegroup.gnutella.routing.HashFunction;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
@@ -29,7 +29,7 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
  * various utility methods for checking against the encapsulated data.<p>
  */
 
-public class FileDescImpl implements FileDesc {
+class FileDescImpl implements FileDesc {
 
 	/**
 	 * Constant for the index of this <tt>FileDesc</tt> instance in the 
@@ -57,21 +57,13 @@ public class FileDescImpl implements FileDesc {
 	 */
     private final long _modTime;
 
-	/**
-	 * Constant <tt>Set</tt> of <tt>URN</tt> instances for the file.  This
-	 * is immutable.
-	 */
-    private volatile Set<URN> URNS; 
+    private volatile UrnSet modifiableUrns;    
+    private volatile Set<URN> unmodifiableUrns;
 
 	/**
 	 * Constant for the <tt>File</tt> instance.
 	 */
 	private final File FILE;
-
-	/**
-	 * The constant SHA1 <tt>URN</tt> instance.
-	 */
-	private final URN SHA1_URN;
 	
 	/**
 	 * The License, if one exists, for this FileDesc.
@@ -103,20 +95,15 @@ public class FileDescImpl implements FileDesc {
 	 */
 	private int _completedUploads;
 	
-	/** The number of sharelists this is shared in. */
-	private final AtomicInteger shareListCount = new AtomicInteger(0);
-	
-	/** True if this is shared in the gnutella list. */
-	private final AtomicBoolean sharedInGnutella = new AtomicBoolean(false);
-	
 	   /** True if this is a store file. */
-    private final AtomicBoolean storeFile = new AtomicBoolean(false);
+    private volatile boolean storeFile;
     
     private final SourcedEventMulticaster<FileDescChangeEvent, FileDesc> multicaster;
     private final RareFileStrategy rareFileStrategy;
+    private final LicenseFactory licenseFactory;
     
     private final ConcurrentHashMap<String, Object> clientProperties =
-        new ConcurrentHashMap<String, Object>(4, 0.75f, 4); // non-default initialCapacity,
+        new ConcurrentHashMap<String, Object>(4, 0.75f, 1); // non-default initialCapacity,
                                                             // concurrencyLevel, saves
                                                             // ~1k memory / file.
 
@@ -135,6 +122,7 @@ public class FileDescImpl implements FileDesc {
      * @param index the index in the FileManager
      */
     FileDescImpl(RareFileStrategy rareFileStrategy,
+            LicenseFactory licenseFactory,
             SourcedEventMulticaster<FileDescChangeEvent, FileDesc> multicaster,
             File file,
             Set<? extends URN> urns,
@@ -145,6 +133,7 @@ public class FileDescImpl implements FileDesc {
 
 		this.rareFileStrategy = rareFileStrategy;
 		this.multicaster = multicaster;
+		this.licenseFactory = licenseFactory;
 		FILE = Objects.nonNull(file, "file");
         _index = index;
         _name = I18NConvert.instance().compose(FILE.getName());
@@ -152,11 +141,8 @@ public class FileDescImpl implements FileDesc {
         _size = FILE.length();
         assert _size >= 0 && _size <= MAX_FILE_SIZE : "invalid size "+_size+" of file "+FILE;
         _modTime = FILE.lastModified();
-        URNS = Collections.unmodifiableSet(Objects.nonNull(urns, "urns"));
-		SHA1_URN = UrnSet.getSha1(URNS);
-		if(SHA1_URN == null)
-			throw new IllegalArgumentException("no SHA1 URN");
-
+        modifiableUrns = UrnSet.resolve(Objects.nonNull(urns, "urns"));
+        unmodifiableUrns = Collections.unmodifiableSet(modifiableUrns);
         _hits = 0; // Starts off with 0 hits
     }
     
@@ -169,7 +155,7 @@ public class FileDescImpl implements FileDesc {
      * @see com.limegroup.gnutella.library.FileDesc#hasUrns()
      */
 	public boolean hasUrns() {
-		return !URNS.isEmpty();
+		return !modifiableUrns.isEmpty();
 	}
 
 	/* (non-Javadoc)
@@ -204,13 +190,7 @@ public class FileDescImpl implements FileDesc {
      * @see com.limegroup.gnutella.library.FileDesc#getTTROOTUrn()
      */
 	public URN getTTROOTUrn() {
-	    for(URN urn : URNS) {
-	        if(urn.isTTRoot())
-	            return urn;
-	    }
-	    
-	    // this can happen.
-	    return null;
+	    return modifiableUrns.getTTRoot();
 	}
 	
 	/* (non-Javadoc)
@@ -224,21 +204,21 @@ public class FileDescImpl implements FileDesc {
      * @see com.limegroup.gnutella.library.FileDesc#getSHA1Urn()
      */
     public URN getSHA1Urn() {
-        return SHA1_URN;
+        return modifiableUrns.getSHA1();
     }
 
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#setTTRoot(com.limegroup.gnutella.URN)
      */
-    public void setTTRoot(URN ttroot) {
-        boolean contained = getUrns().contains(ttroot);
+    public void addUrn(URN urn) {
+        boolean contained = modifiableUrns.contains(urn);
         if(!contained) {
-            UrnSet s = new UrnSet();
-            s.add(SHA1_URN);
-            s.add(ttroot);
-            URNS = Collections.unmodifiableSet(s);
-            if(multicaster != null) {
-                multicaster.handleEvent(new FileDescChangeEvent(this, FileDescChangeEvent.Type.URNS_CHANGED, ttroot));
+            UrnSet newUrns = new UrnSet(modifiableUrns);
+            newUrns.add(urn);
+            modifiableUrns = newUrns;
+            unmodifiableUrns = Collections.unmodifiableSet(modifiableUrns);
+            if(multicaster != null && urn.isTTRoot()) {
+                multicaster.handleEvent(new FileDescChangeEvent(this, FileDescChangeEvent.Type.TT_ROOT_ADDED, urn));
             }
         }
     }
@@ -247,7 +227,7 @@ public class FileDescImpl implements FileDesc {
      * @see com.limegroup.gnutella.library.FileDesc#getUrns()
      */
 	public Set<URN> getUrns() {
-		return URNS;
+		return unmodifiableUrns;
 	}   
 
 	/* (non-Javadoc)
@@ -264,11 +244,7 @@ public class FileDescImpl implements FileDesc {
         _limeXMLDocs.add(doc);
         
 	    doc.initIdentifier(FILE);
-	    if(doc.isLicenseAvailable())
-	        _license = doc.getLicense();
-	    
-	    if(doc.getLicenseString() != null && doc.getLicenseString().equals(LicenseType.LIMEWIRE_STORE_PURCHASE.name()))
-	            setStoreFile(true);
+	    assignLicense(doc);
     }
     
     /* (non-Javadoc)
@@ -285,11 +261,25 @@ public class FileDescImpl implements FileDesc {
         }
         
         newDoc.initIdentifier(FILE);
-        if(newDoc.isLicenseAvailable())
-            _license = newDoc.getLicense();
-        else if(_license != null && oldDoc.isLicenseAvailable())
-            _license = null;        
+        assignLicense(newDoc);
         return true;
+    }
+    
+    private void assignLicense(LimeXMLDocument doc) {
+        _license = null;
+        if(doc.isLicenseAvailable()) {
+            String license = doc.getLicenseString();
+            if(license != null) {
+                _license = licenseFactory.create(license);
+            } else {
+                _license = null;
+            }
+        } else {
+            _license = null;
+        }
+        
+        storeFile = doc.getLicenseString() != null &&
+                    doc.getLicenseString().equals(LicenseType.LIMEWIRE_STORE_PURCHASE.name());
     }
     
     /* (non-Javadoc)
@@ -350,7 +340,7 @@ public class FileDescImpl implements FileDesc {
      * @see com.limegroup.gnutella.library.FileDesc#containsUrn(com.limegroup.gnutella.URN)
      */
     public boolean containsUrn(URN urn) {
-        return URNS.contains(urn);
+        return modifiableUrns.contains(urn);
     }
     
     /* (non-Javadoc)
@@ -413,7 +403,7 @@ public class FileDescImpl implements FileDesc {
 				"size:     "+_size+"\r\n"+
 				"modTime:  "+_modTime+"\r\n"+
 				"File:     "+FILE+"\r\n"+
-				"urns:     "+URNS+"\r\n"+
+				"urns:     "+modifiableUrns+"\r\n"+
 				"docs:     "+ _limeXMLDocs+"\r\n");
 	}
     
@@ -458,54 +448,12 @@ public class FileDescImpl implements FileDesc {
         }
         return null;
     }
-
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.library.FileDesc#incrementShareListCount()
-     */
-    public void incrementShareListCount() {
-        shareListCount.incrementAndGet();
-    }
-
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.library.FileDesc#decrementShareListCount()
-     */
-    public void decrementShareListCount() {
-        shareListCount.decrementAndGet();
-    }
-    
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.library.FileDesc#getShareListCount()
-     */
-    public int getShareListCount() {
-        return shareListCount.get();
-    }
-
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.library.FileDesc#setSharedWithGnutella(boolean)
-     */
-    public void setSharedWithGnutella(boolean b) {
-        sharedInGnutella.set(b);
-    }
-    
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.library.FileDesc#isSharedWithGnutella()
-     */
-    public boolean isSharedWithGnutella() {
-        return sharedInGnutella.get();
-    }
-
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.library.FileDesc#setStoreFile(boolean)
-     */
-    public void setStoreFile(boolean b) {
-        storeFile.set(b);
-    }
     
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#isStoreFile()
      */
     public boolean isStoreFile() {
-        return storeFile.get();
+        return storeFile;
     }
     
     @Override

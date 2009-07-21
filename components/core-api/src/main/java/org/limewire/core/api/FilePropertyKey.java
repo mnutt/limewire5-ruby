@@ -1,35 +1,40 @@
 package org.limewire.core.api;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.EnumSet;
 
 /**
  * Represents the various properties that a file can have in its meta-data. 
  */
 public enum FilePropertyKey {
-    TITLE,//for audio this is the track name
-    AUTHOR,//for audio files this represents the artists name
-    BITRATE, // ex. 128, 160, 192, 224, 320
-    DESCRIPTION,
-    COMPANY,//for video files this is the studio, for applications the publisher
-    DATE_CREATED,
-    FILE_SIZE, // in bytes
-    GENRE,
-    HEIGHT,
-    LENGTH, // in seconds
-    NAME,
-    PLATFORM,
-    QUALITY,
-    RATING,
-    TRACK_NUMBER,
-    ALBUM,
-    WIDTH,
-    LOCATION,
-    YEAR;
+    TITLE(false),//for audio this is the track name
+    AUTHOR(false),//for audio files this represents the artists name
+    BITRATE(true), // ex. 128, 160, 192, 224, 320
+    DESCRIPTION(false),
+    COMPANY(false),//for video files this is the studio, for applications the publisher
+    DATE_CREATED(true),
+    FILE_SIZE(true), // in bytes
+    GENRE(false),
+    HEIGHT(true),
+    LENGTH(true), // in seconds
+    NAME(false),
+    PLATFORM(false),
+    QUALITY(true),
+    RATING(false),
+    TRACK_NUMBER(false),
+    ALBUM(false),
+    WIDTH(true),
+    LOCATION(false),
+    YEAR(true);
     
-    private final static Collection<FilePropertyKey> indexableKeys = new HashSet<FilePropertyKey>(); 
-    private final static Collection<FilePropertyKey> editableKeys = new HashSet<FilePropertyKey>(); 
-    private final static Collection<FilePropertyKey> longKeys = new HashSet<FilePropertyKey>(); 
+    private final static Collection<FilePropertyKey> indexableKeys = EnumSet.noneOf(FilePropertyKey.class); 
+    private final static Collection<FilePropertyKey> editableKeys = EnumSet.noneOf(FilePropertyKey.class); 
+    
+    private final boolean isLongKey;
+    
+    private FilePropertyKey(boolean isLongKey) {
+        this.isLongKey = isLongKey;
+    }
 
     
     static {
@@ -55,16 +60,6 @@ public enum FilePropertyKey {
         editableKeys.add(YEAR);
         editableKeys.add(RATING);
     };
-    
-    static {
-        longKeys.add(QUALITY);
-        longKeys.add(LENGTH);
-        longKeys.add(YEAR);
-        longKeys.add(HEIGHT);  
-        longKeys.add(WIDTH);  
-        longKeys.add(BITRATE);
-        longKeys.add(FILE_SIZE);
-    };
    
     /**
      * Returns a Collection of the keys which are supposed to be indexed for file searching purposes. 
@@ -84,7 +79,7 @@ public enum FilePropertyKey {
      * Returns true if the key contains a Long value, false otherwise. 
      */
     public static boolean isLong(FilePropertyKey key){
-        return longKeys.contains(key);
+        return key.isLongKey;
     }
 }
 

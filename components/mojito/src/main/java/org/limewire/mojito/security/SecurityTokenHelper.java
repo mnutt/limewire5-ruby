@@ -46,7 +46,7 @@ public class SecurityTokenHelper {
     /**
      * Returns a SocketAddress that can be used to generate a
      * {@link SecurityToken} or a {@link TokenData} object.
-     * 
+     * <p>
      * The reasoning behind this method is the following: Some
      * NAT boxes keep changing the Port for each outgoing UDP
      * packet. So if we respond to a FIND_NODE with the SecurityToken
@@ -66,14 +66,14 @@ public class SecurityTokenHelper {
     }
     
     /**
-     * Creates and returns a {@link SecurityToken} for the given destination {@link Contact}
+     * Creates and returns a {@link SecurityToken} for the given destination {@link Contact}.
      */
     public SecurityToken createSecurityToken(Contact dst) {
         return context.getSecurityTokenProvider().getSecurityToken(getTokenSocketAddress(dst));
     }
     
     /**
-     * Creates and returns a {@link TokenData} for the given source {@link Contact}
+     * Creates and returns a {@link TokenData} for the given source {@link Contact}.
      */
     public TokenData createTokenData(Contact src) {
         return context.getSecurityTokenProvider().getTokenData(getTokenSocketAddress(src));

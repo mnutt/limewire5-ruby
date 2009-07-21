@@ -4,36 +4,36 @@ import org.limewire.setting.AbstractSetting;
 import org.limewire.setting.Setting;
 
 /**
- * SettingEvent are fired when a {@link AbstractSetting} changed its state
+ * SettingEvent are fired when a {@link AbstractSetting} changed its state.
  */
 public class SettingEvent {
     
     /**
-     * Various types of events that may occur
+     * Various types of events that may occur.
      */
     public static enum EventType {
         /**
-         * A Setting was reloaded
+         * A Setting was reloaded.
          */
         RELOAD,
         
         /**
-         * A Setting was reverted to the default value
+         * A Setting was reverted to the default value.
          */
         REVERT_TO_DEFAULT,
         
         /**
-         * The always save flag was changed
+         * The always save flag was changed.
          */
         ALWAYS_SAVE_CHANGED,
         
         /**
-         * The privacy flag was changed
+         * The privacy flag was changed.
          */
         PRIVACY_CHANGED,
         
         /**
-         * The value changed
+         * The value changed.
          */
         VALUE_CHANGED
     }
@@ -43,10 +43,10 @@ public class SettingEvent {
     private final Setting setting;
     
     /**
-     * Create a SettingEvent
+     * Create a SettingEvent.
      * 
-     * @param type The type of the Event
-     * @param setting The Setting that triggered the event
+     * @param type the type of the Event
+     * @param setting the Setting that triggered the event
      */
     public SettingEvent(EventType type, Setting setting) {
         if (type == null) {
@@ -62,14 +62,14 @@ public class SettingEvent {
     }
     
     /**
-     * Returns the type of the event  
+     * Returns the type of the event.  
      */
     public EventType getEventType() {
         return type;
     }
     
     /**
-     * Returns the Setting that triggered the event
+     * Returns the Setting that triggered the event.
      */
     public Setting getSetting() {
         return setting;

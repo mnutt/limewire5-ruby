@@ -73,7 +73,7 @@ public class HashTreeFactoryImpl implements HashTreeFactory {
 
     /**
      * Creates a new HashTree for the given file size, input stream and SHA1.
-     * 
+     * <p>
      * Exists as a hook for tests, to create a HashTree from a File when no
      * FileDesc exists.
      */

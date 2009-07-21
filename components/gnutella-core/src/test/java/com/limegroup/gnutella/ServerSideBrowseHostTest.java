@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
+import junit.framework.Test;
+
 import org.apache.http.protocol.HTTP;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.gnutella.tests.LimeTestUtils;
@@ -14,11 +16,8 @@ import org.limewire.io.ByteReader;
 import org.limewire.io.GUID;
 import org.limewire.util.FileUtils;
 
-import junit.framework.Test;
-
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.google.inject.Stage;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
@@ -48,9 +47,8 @@ import com.limegroup.gnutella.routing.RouteTableMessage;
 public final class ServerSideBrowseHostTest extends ServerSideTestCase {
 
     protected static int TIMEOUT = 2000;
-    private FileManager fileManager;
-    private QueryRequestFactory queryRequestFactory;
-    private MessageFactory messageFactory;
+    @Inject private QueryRequestFactory queryRequestFactory;
+    @Inject private MessageFactory messageFactory;
 
     public ServerSideBrowseHostTest(String name) {
         super(name);
@@ -89,11 +87,7 @@ public final class ServerSideBrowseHostTest extends ServerSideTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
-        super.setUp(injector);
-        fileManager = injector.getInstance(FileManager.class);
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        messageFactory = injector.getInstance(MessageFactory.class);
+        super.setUp(LimeTestUtils.createInjector(Stage.PRODUCTION));
     }
     
     // BEGIN TESTS
@@ -103,7 +97,7 @@ public final class ServerSideBrowseHostTest extends ServerSideTestCase {
         drainAll();
 
         // make sure leaf is sharing
-        assertEquals(2, fileManager.getGnutellaFileList().size());
+        assertEquals(2, gnutellaFileView.size());
 
         // send a query that should be answered
         QueryRequest query = queryRequestFactory.createQueryRequest(GUID.makeGuid(), (byte) 1,
@@ -125,19 +119,17 @@ public final class ServerSideBrowseHostTest extends ServerSideTestCase {
     public void testHTTPRequest() throws Exception {
         FilterSettings.MAX_RESPONSES_PER_REPLY.setValue(10);
         
-        
-        FileManager fm = injector.getInstance(FileManager.class);
-        FileManagerTestUtils.waitForLoad(fm,2000);
+        FileManagerTestUtils.waitForLoad(library, 2000);
         // make sure more than FilterSettings.MAX_RESPONSES_PER_REPLY files
         // are shared
         for (int i = 0; i < FilterSettings.MAX_RESPONSES_PER_REPLY.getValue() * 2; i++) {
             File f = new File(_scratchDir, "sharedFile"+i+".txt");
             f.deleteOnExit();
             FileUtils.writeObject(f, new Integer(i));
-            assertNotNull(fm.getGnutellaFileList().add(f).get(1, TimeUnit.SECONDS));
+            assertNotNull(gnutellaFileCollection.add(f).get(1, TimeUnit.SECONDS));
         }
 
-        assertEquals(2 * FilterSettings.MAX_RESPONSES_PER_REPLY.getValue() + 2, fm.getGnutellaFileList().size());
+        assertEquals(2 * FilterSettings.MAX_RESPONSES_PER_REPLY.getValue() + 2, gnutellaFileView.size());
         
         String result = null;
 

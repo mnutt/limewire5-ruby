@@ -47,7 +47,7 @@ import org.limewire.security.SecurityToken;
 /**
  * The MessageOutputStream class writes a DHTMessage (serializes)
  * to a given OutputStream.
- * 
+ * <p>
  * <b>NOTE</b>: This class is specific to Mojito's Gnutella backed
  * Message format. You may or may not be able to use parts of this
  * class for alternative message formats!
@@ -59,7 +59,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
 	
     /**
-     * Writes the given KUID to the OutputStream
+     * Writes the given KUID to the OutputStream.
      */
     public void writeKUID(KUID kuid) throws IOException {
         if (kuid == null) {
@@ -70,7 +70,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given MessageID to the OutputStream
+     * Writes the given MessageID to the OutputStream.
      */
     public void writeMessageID(MessageID messageId) throws IOException {
         if (messageId == null) {
@@ -81,7 +81,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given BigInteger to the OutputStream
+     * Writes the given BigInteger to the OutputStream.
      */
     public void writeDHTSize(BigInteger estimatedSize) throws IOException {
         byte[] data = estimatedSize.toByteArray();
@@ -93,7 +93,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given DHTValue to the OutputStream
+     * Writes the given DHTValue to the OutputStream.
      */
     public void writeDHTValueEntity(DHTValueEntity entity) throws IOException {
         writeContact(entity.getCreator());
@@ -113,7 +113,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given Collection of KUIDs to the OutputStream
+     * Writes the given Collection of KUIDs to the OutputStream.
      */
     public void writeKUIDs(Collection<KUID> keys) throws IOException {
         writeCollectionSize(keys);
@@ -123,7 +123,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given Collection of DHTValues to the OutputStream
+     * Writes the given Collection of DHTValues to the OutputStream.
      */
     public void writeDHTValueEntities(Collection<? extends DHTValueEntity> values) throws IOException {
         writeCollectionSize(values);
@@ -133,7 +133,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given Signature to the OutputStream
+     * Writes the given Signature to the OutputStream.
      */
     public void writeSignature(byte[] signature) throws IOException {
         if (signature != null && signature.length > 0) {
@@ -145,7 +145,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given Contact to the OutputStream
+     * Writes the given Contact to the OutputStream.
      */
     public void writeContact(Contact node) throws IOException {
         writeVendor(node.getVendor());
@@ -155,7 +155,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given Collection of Contact to the OutputStream
+     * Writes the given Collection of Contact to the OutputStream.
      */
     public void writeContacts(Collection<? extends Contact> nodes) throws IOException {
         writeCollectionSize(nodes);
@@ -165,7 +165,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given InetAddress to the OutputStream
+     * Writes the given InetAddress to the OutputStream.
      */
     public void writeInetAddress(InetAddress addr) throws IOException {
         byte[] address = addr.getAddress();
@@ -174,14 +174,14 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given Port number to the OutputStream
+     * Writes the given Port number to the OutputStream.
      */
     public void writePort(int port) throws IOException {
         writeShort(port);
     }
     
     /**
-     * Writes the given SocketAddress to the OutputStream
+     * Writes the given SocketAddress to the OutputStream.
      */
     public void writeSocketAddress(SocketAddress addr) throws IOException {
         if (addr instanceof InetSocketAddress
@@ -196,7 +196,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given AddressSecurityToken to the OutputStream
+     * Writes the given AddressSecurityToken to the OutputStream.
      */
     public void writeSecurityToken(SecurityToken securityToken) throws IOException {
         if (securityToken != null) {
@@ -210,7 +210,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes an encoded Statistics payload to the OutputStream
+     * Writes an encoded Statistics payload to the OutputStream.
      */
     public void writeStatistics(byte[] statistics) throws IOException {
         if (statistics != null) {
@@ -222,21 +222,21 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given OpCode to the OutputStream
+     * Writes the given OpCode to the OutputStream.
      */
     public void writeOpCode(OpCode opcode) throws IOException {
         writeByte(opcode.toByte());
     }
     
     /**
-     * Writes the given Type to the OutputStream
+     * Writes the given Type to the OutputStream.
      */
     public void writeStatisticType(StatisticType type) throws IOException {
         writeByte(type.toByte());
     }
     
     /**
-     * Writes the given StatusCode to the OutputStream
+     * Writes the given StatusCode to the OutputStream.
      */
     public void writeStatusCode(StatusCode statusCode) throws IOException {
         writeShort(statusCode.shortValue());
@@ -260,7 +260,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the given Collection of StoreStatusCode(s) to the OutputStream
+     * Writes the given Collection of StoreStatusCode(s) to the OutputStream.
      */
     public void writeStoreStatusCodes(Collection<StoreStatusCode> statusCodes) throws IOException {
         writeCollectionSize(statusCodes);
@@ -272,7 +272,7 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the size of the given Collection to the OutputStream
+     * Writes the size of the given Collection to the OutputStream.
      */
     private void writeCollectionSize(Collection c) throws IOException {
         int size = c.size();
@@ -284,21 +284,21 @@ public class MessageOutputStream extends DataOutputStream {
     }
     
     /**
-     * Writes the DHTValueType to the OutputStream
+     * Writes the DHTValueType to the OutputStream.
      */
     public void writeDHTValueType(DHTValueType type) throws IOException {
         writeInt(type.toInt());
     }
     
     /**
-     * Writes the Vendor to the OutputStream
+     * Writes the Vendor to the OutputStream.
      */
     public void writeVendor(Vendor vendor) throws IOException {
         writeInt(vendor.intValue());
     }
     
     /**
-     * Writes the Version to the OutputStream
+     * Writes the Version to the OutputStream.
      */
     public void writeVersion(Version version) throws IOException {
         writeShort(version.shortValue());

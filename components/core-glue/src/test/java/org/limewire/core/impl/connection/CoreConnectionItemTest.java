@@ -1,6 +1,7 @@
 package org.limewire.core.impl.connection;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
@@ -8,7 +9,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.connection.ConnectionItem.Status;
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.FriendPresence;
 import org.limewire.util.BaseTestCase;
 
 import com.limegroup.gnutella.connection.ConnectionBandwidthStatistics;
@@ -64,6 +65,10 @@ public class CoreConnectionItemTest extends BaseTestCase {
             will(returnValue(444));
             allowing(connection).getInetAddress();
             will(returnValue(InetAddress.getLocalHost()));
+            allowing(connection).getInetSocketAddress();
+            will(returnValue(new InetSocketAddress(InetAddress.getLocalHost(), 444)));
+            allowing(connection).isTLSCapable();
+            will(returnValue(true));
         }});
         
         CoreConnectionItem item = new CoreConnectionItem(connection);

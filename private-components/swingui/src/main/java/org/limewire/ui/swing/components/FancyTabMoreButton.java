@@ -135,7 +135,10 @@ class FancyTabMoreButton extends LimeComboBox {
         public void popupMenuCanceled(PopupMenuEvent e) {}
         
         @Override
-        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+            // Reset selected state.
+            setSelected(false);
+        }
         
         @Override
         public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -143,6 +146,8 @@ class FancyTabMoreButton extends LimeComboBox {
             for (FancyTab tab : tabs) {
                 menu.add(createMenuItemFor(menu, tab));
             }
+            // Set selected state to display selected icon.
+            setSelected(true);
         }
     }
 }

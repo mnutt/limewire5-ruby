@@ -59,7 +59,7 @@ public abstract class AbstractChannelInterestWriter implements ChannelWriter, In
             listener.shutdown();
     }
     
-    /** Unused, Unsupported */
+    /** Unused, Unsupported. */
     public void handleIOException(IOException x) {
         throw new RuntimeException("Unsupported", x);
     }

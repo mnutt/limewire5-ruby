@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -19,14 +20,19 @@ import javax.swing.JScrollPane;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.connection.ConnectionItem;
 import org.limewire.core.api.connection.GnutellaConnectionManager;
+import org.limewire.friend.api.FriendPresence;
 import org.limewire.ui.swing.components.FocusJOptionPane;
+import org.limewire.ui.swing.search.FriendPresenceActions;
 import org.limewire.ui.swing.table.TableDoubleClickHandler;
 import org.limewire.ui.swing.table.TablePopupHandler;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.TransformedList;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.inject.Inject;
 
 /**
@@ -47,12 +53,15 @@ public class ConnectionDetailPanel extends JPanel {
     private ConnectionTable connectionTable = new ConnectionTable();
     private JPopupMenu popupMenu = new JPopupMenu();
     
+    private final FriendPresenceActions remoteHostActions;
+    
     /**
      * Constructs the ConnectionDetailPanel to display connections details.
      */
     @Inject
-    public ConnectionDetailPanel(GnutellaConnectionManager gnutellaConnectionManager) {
+    public ConnectionDetailPanel(GnutellaConnectionManager gnutellaConnectionManager, FriendPresenceActions remoteHostActions) {
         this.gnutellaConnectionManager = gnutellaConnectionManager;
+        this.remoteHostActions = remoteHostActions;
         initComponents();
     }
     
@@ -124,7 +133,7 @@ public class ConnectionDetailPanel extends JPanel {
      * Initializes the data models in the container.
      */
     public void initData() {
-        if (!(connectionTable.getModel() instanceof EventTableModel)) {
+        if (!(connectionTable.getModel() instanceof DefaultEventTableModel)) {
             // Create connection list for Swing.  We wrap the actual list in a
             // Swing list to ensure that all events are fired on the UI thread.
             TransformedList<ConnectionItem, ConnectionItem> connectionList = 
@@ -159,10 +168,19 @@ public class ConnectionDetailPanel extends JPanel {
     private void viewLibrary() {
         // Browse hosts and display all selected connections.
         ConnectionItem[] items = connectionTable.getSelectedConnections();
+        remoteHostActions.viewLibrariesOf(Collections2.transform(Collections2.filter(Arrays.asList(items), new Predicate<ConnectionItem>() {
+            @Override
+            public boolean apply(ConnectionItem input) {
+                return input.isConnected();
+            }
+        }), new Function<ConnectionItem, FriendPresence>() {
+            public FriendPresence apply(ConnectionItem from) {
+                return from.getFriendPresence();
+            }
+        }));
+        
         for (ConnectionItem item : items) {
-            if (item.isConnected()) {
-                gnutellaConnectionManager.browseHost(item);
-            } else {
+            if(!item.isConnected()) {
                 FocusJOptionPane.showMessageDialog(this, 
                     I18n.tr("Unable to view files - not yet connected to host"), 
                     I18n.tr("Connections"), JOptionPane.INFORMATION_MESSAGE);

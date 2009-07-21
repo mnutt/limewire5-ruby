@@ -2,6 +2,7 @@ package org.limewire.ui.swing.search;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -24,6 +25,7 @@ import org.limewire.ui.swing.search.model.SearchResultsModelFactory;
 import org.limewire.ui.swing.util.SwingUtils;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 /**
@@ -35,11 +37,14 @@ import com.google.inject.Singleton;
 class TextSearchHandlerImpl implements SearchHandler {
     
     private final SearchFactory searchFactory;
-    private final SearchResultsPanelFactory panelFactory;
+    private final Provider<SearchResultsPanelFactory> searchResultPanelFactory;
     private final SearchNavigator searchNavigator;
-    private final SearchResultsModelFactory searchResultsModelFactory;
+    private final Provider<SearchResultsModelFactory> searchResultsModelFactory;
     private final LifeCycleManager lifeCycleManager;
     private final GnutellaConnectionManager connectionManager;
+    
+    private SearchResultsModelFactory modelFactory;
+    private SearchResultsPanelFactory panelFactory;
     
     /**
      * Constructs a TextSearchHandlerImpl with the specified services and
@@ -47,14 +52,14 @@ class TextSearchHandlerImpl implements SearchHandler {
      */
     @Inject
     TextSearchHandlerImpl(SearchFactory searchFactory,
-            SearchResultsPanelFactory panelFactory,
+            Provider<SearchResultsPanelFactory> searchResultPanelFactory,
             SearchNavigator searchNavigator,
-            SearchResultsModelFactory searchResultsModelFactory,
+            Provider<SearchResultsModelFactory> searchResultsModelFactory,
             LifeCycleManager lifeCycleManager, 
             GnutellaConnectionManager connectionManager) {
         this.searchNavigator = searchNavigator;
         this.searchFactory = searchFactory;
-        this.panelFactory = panelFactory;
+        this.searchResultPanelFactory = searchResultPanelFactory;
         this.searchResultsModelFactory = searchResultsModelFactory;
         this.lifeCycleManager = lifeCycleManager;
         this.connectionManager = connectionManager;
@@ -71,12 +76,16 @@ class TextSearchHandlerImpl implements SearchHandler {
         
         String panelTitle = info.getTitle();
         
+        if(modelFactory == null)
+            modelFactory = searchResultsModelFactory.get();
+        if(panelFactory == null)
+            panelFactory = searchResultPanelFactory.get();
         // Create search results data model and display panel.
-        SearchResultsModel searchModel = searchResultsModelFactory.createSearchResultsModel(info, search);
+        SearchResultsModel searchModel = modelFactory.createSearchResultsModel(info, search);
         SearchResultsPanel searchPanel = panelFactory.createSearchResultsPanel(searchModel);
         
         // Add search results display to the UI, and select its navigation item.
-        SearchNavItem item = searchNavigator.addSearch(panelTitle, searchPanel, search);
+        SearchNavItem item = searchNavigator.addSearch(panelTitle, searchPanel, search, searchModel);
         item.select();
 
         // Add listeners for connection events.
@@ -187,6 +196,21 @@ class TextSearchHandlerImpl implements SearchHandler {
             @Override
             public void handleSearchResult(Search search, SearchResult searchResult) {
                 if(numberOfResults.addAndGet(1) > 10) {
+                    SwingUtils.invokeLater(new Runnable() {
+                        public void run() {
+                            // while not fully connected, assume the
+                            // connections we have are enough
+                            // based on the number of results coming in.
+                            searchPanel.setFullyConnected(true);
+                        }
+                    });
+                    removeListeners(search, searchListenerRef, connectionListenerRef);
+                }
+            }
+            
+            @Override
+            public void handleSearchResults(Search search, Collection<? extends SearchResult> searchResults) {
+                if(numberOfResults.addAndGet(searchResults.size()) > 10) {
                     SwingUtils.invokeLater(new Runnable() {
                         public void run() {
                             // while not fully connected, assume the

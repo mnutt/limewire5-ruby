@@ -21,7 +21,7 @@ import org.limewire.util.StringUtils;
  * Represents a WHOIS request. The request value will be
  * sent to the appropriate whois server, and the response
  * will be parsed for name:value pairs.
- * 
+ * <p>
  * Some whois servers merely report the authoritative
  * server for a given domain, and we support ONE level of
  * forwarding here.
@@ -70,7 +70,7 @@ public class WhoIsRequestImpl implements WhoIsRequest {
      * the whois server and the request can be either for
      * a DNS name or an IP address.
      * 
-     * @param name Request name (ie, "apple.com" or 
+     * @param name request name (ie, "apple.com" or 
      * "17.149.160.49").
      */
     public WhoIsRequestImpl(String name, SocketsManager socketsManager, Map<String,String> defaultServers) {
@@ -105,7 +105,7 @@ public class WhoIsRequestImpl implements WhoIsRequest {
      * Connects to the whois server, sends the request and
      * then reads and parses the reply. Parsed values are
      * accessible via getValue().
-     * 
+     * <p>
      * In most circumstances, this should return in well 
      * under one second, but with sockets there is no such
      * guarantee. Don't block in the UI on a call to this.
@@ -264,8 +264,8 @@ public class WhoIsRequestImpl implements WhoIsRequest {
     /**
      * Get an arbitrary value by name.
      * 
-     * @param name The name of the value that you want.
-     * @return The value associated with the given name.
+     * @param name the name of the value that you want.
+     * @return the value associated with the given name.
      */
     public String getValue(String name) {
         return values.get(name);
@@ -274,8 +274,8 @@ public class WhoIsRequestImpl implements WhoIsRequest {
     /**
      * Set a value for the given name.
      * 
-     * @param name Key name for reply value
-     * @param value Value to store for the key.
+     * @param name key name for reply value
+     * @param value value to store for the key
      */
     protected void setValue(String name, String value) {
         values.put(name, value);
@@ -344,7 +344,6 @@ public class WhoIsRequestImpl implements WhoIsRequest {
      * server list for the request name.
      * 
      * @return Appropriate whois server host name.
-     * @throws
      */
     public String getWhoIsServer() {
         String server = null;

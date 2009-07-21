@@ -24,10 +24,11 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileDescChangeEvent;
-import com.limegroup.gnutella.library.FileList;
-import com.limegroup.gnutella.library.FileListChangedEvent;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.FileViewChangeEvent;
+import com.limegroup.gnutella.library.GnutellaFiles;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
+import com.limegroup.gnutella.library.IncompleteFiles;
 import com.limegroup.gnutella.util.LimeWireUtils;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 
@@ -46,7 +47,8 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
      */
     private static long QRP_DELAY = (LimeWireUtils.isBetaRelease() ? 1 : 60) * 60 * 1000;
 
-    private final FileManager fileManager;
+    private final FileView gnutellaFileView;
+    private final FileView incompleteFileView;
     private final ScheduledExecutorService backgroundExecutor;
     private final ListenerSupport<FileDescChangeEvent> fileDescListenerSupport;
    
@@ -73,12 +75,15 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
     private QueryRouteTable queryRouteTable;
 
     @Inject
-    public QRPUpdater(FileManager fileManager, 
+    public QRPUpdater(
             @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
-            ListenerSupport<FileDescChangeEvent> fileDescListenerSupport) {
-        this.fileManager = fileManager;
+            ListenerSupport<FileDescChangeEvent> fileDescListenerSupport,
+            @GnutellaFiles FileView gnutellaFileView,
+            @IncompleteFiles FileView incompleteFileView) {
         this.backgroundExecutor = backgroundExecutor;
         this.fileDescListenerSupport = fileDescListenerSupport;
+        this.gnutellaFileView = gnutellaFileView;
+        this.incompleteFileView = incompleteFileView;
 
         for (String entry : SearchSettings.LIME_QRP_ENTRIES.get())
             qrpWords.add(entry);
@@ -144,10 +149,9 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
             }
         }
         
-        FileList gnutella = fileManager.getGnutellaFileList();
-        gnutella.getReadLock().lock();
+        gnutellaFileView.getReadLock().lock();
         try {
-            for (FileDesc fd : gnutella) {
+            for (FileDesc fd : gnutellaFileView) {
                 queryRouteTable.add(fd.getFileName());
                 for(LimeXMLDocument doc : fd.getLimeXMLDocuments()) {
                     for(String word : doc.getKeyWords()) {
@@ -162,22 +166,21 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
                 }
             }
         } finally {
-            gnutella.getReadLock().unlock();
+            gnutellaFileView.getReadLock().unlock();
         }
         
         //if partial sharing is allowed, add incomplete file keywords also
         if(SharingSettings.ALLOW_PARTIAL_SHARING.getValue() && SharingSettings.PUBLISH_PARTIAL_QRP.getValue()) {
-            FileList incompletes = fileManager.getIncompleteFileList();
-            incompletes.getReadLock().lock();
+            incompleteFileView.getReadLock().lock();
             try {
-                for(FileDesc fd : incompletes) {
+                for(FileDesc fd : incompleteFileView) {
                     IncompleteFileDesc ifd = (IncompleteFileDesc) fd;
                     if (ifd.hasUrnsAndPartialData()) {
                         queryRouteTable.add(ifd.getFileName());
                     }
                 }
             } finally {
-                incompletes.getReadLock().unlock();
+                incompleteFileView.getReadLock().unlock();
             }
         }
     }
@@ -194,25 +197,27 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
     public void initialize() {
         SearchSettings.PUBLISH_LIME_KEYWORDS.addSettingListener(this);
         SearchSettings.LIME_QRP_ENTRIES.addSettingListener(this);
-        fileManager.getGnutellaFileList().addFileListListener(new EventListener<FileListChangedEvent>() {
+        gnutellaFileView.addListener(new EventListener<FileViewChangeEvent>() {
             @Override
-            public void handleEvent(FileListChangedEvent event) {
+            public void handleEvent(FileViewChangeEvent event) {
                 switch(event.getType()) {
-                case ADDED:
-                case REMOVED:
-                case CLEAR:
+                case FILE_ADDED:
+                case FILE_REMOVED:
+                case FILE_META_CHANGED:
+                case FILE_CHANGED:
+                case FILES_CLEARED:
                     needRebuild = true;
 					break;
                 }
             }
         });
-        fileManager.getIncompleteFileList().addFileListListener(new EventListener<FileListChangedEvent>() {
+        incompleteFileView.addListener(new EventListener<FileViewChangeEvent>() {
             @Override
-            public void handleEvent(FileListChangedEvent event) {
+            public void handleEvent(FileViewChangeEvent event) {
                 switch(event.getType()) {
-                case ADDED:
-                case REMOVED:
-                case CLEAR:
+                case FILE_ADDED:
+                case FILE_REMOVED:
+                case FILES_CLEARED:
                     needRebuild = true;
 					break;
                 }   
@@ -222,7 +227,7 @@ public class QRPUpdater implements SettingListener, Service, Inspectable {
             @Override
             public void handleEvent(FileDescChangeEvent event) {
                 switch(event.getType()) {
-                case URNS_CHANGED:
+                case TT_ROOT_ADDED:
                     needRebuild = true;
 					break;
                 }

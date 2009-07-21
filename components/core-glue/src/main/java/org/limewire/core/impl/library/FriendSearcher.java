@@ -2,8 +2,8 @@ package org.limewire.core.impl.library;
 
 import java.util.Collection;
 
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.search.SearchDetails;
+import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.impl.search.FriendSearchListener;
 
 import com.google.inject.Inject;
@@ -19,7 +19,7 @@ public class FriendSearcher {
     }
     
     public void doSearch(SearchDetails searchDetails, FriendSearchListener listener) {
-        Collection<RemoteFileItem>results = libraries.getMatchingItems(searchDetails);
+        Collection<SearchResult> results = libraries.getMatchingItems(searchDetails);
         listener.handleFriendResults(results);
     }
 }

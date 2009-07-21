@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.URN;
+import org.limewire.filter.Filter;
 
 import com.limegroup.gnutella.library.FileDesc;
 
@@ -15,7 +16,7 @@ public interface LocalFileList extends FileList<LocalFileItem> {
     
     /**
      * Adds the given file to the list.
-     * 
+     * <p>
      * Returns a {@link ListeningFuture} that will notify
      * when a LocalFileItem has been created out of this file.
      */
@@ -26,7 +27,7 @@ public interface LocalFileList extends FileList<LocalFileItem> {
     
     /**
      * Adds all files in the folder to the list.
-     * 
+     * <p>
      * Returns a {@link ListeningFuture} that will notify
      * when a List of potential {@link LocalFileItem LocalFileItems}
      * have been created from this folder.
@@ -40,12 +41,27 @@ public interface LocalFileList extends FileList<LocalFileItem> {
     boolean contains(URN urn);
     
     /** Finds a file by URN */
-    public List<FileDesc> getFileDescsByURN(URN urn);
+    public List<FileDesc> getFileDescsByURN(com.limegroup.gnutella.URN urn);
     
     /**
      * Returns the of FileItem for the given file, or null if it is not in this list.
      * This may return null if the library has not finished loading.
      */
     LocalFileItem getFileItem(File file);
+    
+    /**
+     * Returns true if the file is addable to the list. 
+     */
+    boolean isFileAddable(File file);
+    
+    /**
+     * Removes all files from the list that match the specified filter. 
+     */
+    public void removeFiles(Filter<LocalFileItem> fileFilter);
+
+    /**
+     * Removes all files from the list
+     */
+    void clear();
 
 }

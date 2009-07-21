@@ -1,7 +1,7 @@
 package com.limegroup.gnutella.spam;
 
 /**
- * A token representing the file size
+ * A token representing the file size.
  */
 public class SizeToken extends Token {
 
@@ -11,11 +11,11 @@ public class SizeToken extends Token {
      */
     private static final float SIZE_WEIGHT = 0.6f;
     
-	private final long size;
+    private final long size;
     
-	public SizeToken(long size) {
-		this.size = size;
-	}
+    public SizeToken(long size) {
+        this.size = size;
+    }
     
     @Override
     protected float getWeight() {
@@ -34,8 +34,8 @@ public class SizeToken extends Token {
         return size == ((SizeToken)o).size;
     }
     
-	@Override
+    @Override
     public String toString() {
-		return "size " + size;
-	}
+        return "size " + size;
+    }
 }

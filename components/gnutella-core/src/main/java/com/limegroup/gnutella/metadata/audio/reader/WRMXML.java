@@ -15,7 +15,7 @@ import com.limegroup.gnutella.xml.LimeXMLUtils;
 /**
  * An encapsulation of the XML that describes Windows Media's
  * extended content encryption object.
- *
+ * <p>
  * Construction will always succeed, but the object may be invalid.
  * Consult WRMXML.isValid() to see if the given XML was valid.
  */

@@ -21,7 +21,7 @@ import com.limegroup.gnutella.messages.GGEPKeys;
  *  sends B a message with GUID g, B can acknowledge this message by sending a 
  *  LimeACKVendorMessage to A with GUID g).  It also contains the amount of
  *  results the client wants.
- *
+ * <p>
  *  This message must maintain backwards compatibility between successive
  *  versions.  This entails that any new features would grow the message
  *  outward but shouldn't change the meaning of older fields.  This could lead
@@ -29,14 +29,14 @@ import com.limegroup.gnutella.messages.GGEPKeys;
  *  be reused) but since we don't expect major changes this is probably OK.
  *  EXCEPTION: Version 1 is NEVER accepted.  Only version's 2 and above are
  *  recognized.
- *
- *  Note that this behavior of maintaining backwards compatiblity is really
+ * <p>
+ *  Note that this behavior of maintaining backwards compatibility is really
  *  only necessary for UDP messages since in the UDP case there is probably no
  *  MessagesSupportedVM exchange.
  *  
  *  @version 3
  *  
- *  * Adds a security token to prevent clients from spoofing their ip and just sending
+ *  * Adds a security token to prevent clients from spoofing their IP and just sending
  *  results back after a little while
  */
 public final class LimeACKVendorMessage extends AbstractVendorMessage {
@@ -69,12 +69,10 @@ public final class LimeACKVendorMessage extends AbstractVendorMessage {
 
     /**
      * Constructs a new LimeACKVendorMessage to be sent out.
-     *  @param numResults The number of results (0-255 inclusive) that you want
-     *  for this query.  If you want more than 255 just send 255.
      *  @param replyGUID The guid of the original query/reply that you want to
      *  send reply info for.
-     *  @param addressSecurityToken the query key that is sent along to make sure the 
-     *  opposite side is not spoofing their ip address
+     *  @param numResults The number of results (0-255 inclusive) that you want
+     *  for this query.  If you want more than 255 just send 255.
      */
     public LimeACKVendorMessage(GUID replyGUID, 
                                 int numResults) {

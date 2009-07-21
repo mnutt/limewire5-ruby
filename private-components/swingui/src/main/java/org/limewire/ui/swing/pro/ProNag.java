@@ -14,6 +14,7 @@ import javax.swing.text.html.HTML;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.Application;
+import org.limewire.core.api.connection.GnutellaConnectionManager;
 import org.limewire.ui.swing.components.HTMLPane;
 import org.limewire.ui.swing.components.Resizable;
 import org.limewire.ui.swing.statusbar.ProStatusPanel;
@@ -31,7 +32,8 @@ class ProNag extends JXPanel implements Resizable {
     private final java.awt.Panel parent;
     private final HTMLPane editorPane;
     
-    @Inject public ProNag(Application application, ProStatusPanel proStatusPanel) {
+    @Inject public ProNag(Application application, ProStatusPanel proStatusPanel, 
+                          final GnutellaConnectionManager connectionManager) {
         super(new BorderLayout());
         
         this.application = application;
@@ -58,7 +60,9 @@ class ProNag extends JXPanel implements Resizable {
                     if(href != null && href.equals("_hide_nag_")) {
                         ProNag.this.setVisible(false);
                     } else if(e.getURL() != null) {
-                        NativeLaunchUtils.openURL(e.getURL().toExternalForm());
+                        String url = e.getURL().toExternalForm();
+                        url += "&gs=" + connectionManager.getConnectionStrength().getStrengthId();
+                        NativeLaunchUtils.openURL(url);
                     }
                 }
             }            
@@ -109,12 +113,13 @@ class ProNag extends JXPanel implements Resizable {
     }
     
     
-    public ListeningFuture<Void> loadContents() {
-        return editorPane.setPageAsynchronous(application.getUniqueUrl("http://client-data.limewire.com/client_startup/nag/?html32=true"), createDefaultPage());
+    public ListeningFuture<Void> loadContents(boolean firstLaunch) {
+        return editorPane.setPageAsynchronous(application.addClientInfoToUrl("http://client-data.limewire.com/client_startup/nag/?html32=true&fromFirstRun=" + firstLaunch), createDefaultPage(firstLaunch));
     }
     
-    private String createDefaultPage() {
-        String outgoing = application.getUniqueUrl("http://www.limewire.com/clientpro?offline=true");
+    private String createDefaultPage(boolean firstLaunch) {
+        String outgoing = application.addClientInfoToUrl("http://www.limewire.com/clientpro?offline=true&fromFirstRun=" + firstLaunch);
+        outgoing = outgoing.replace("&", "&amp;"); // must HTML-encode, otherwise things get messed up
         return
          "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">"
          + "<html>" 

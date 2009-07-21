@@ -58,8 +58,8 @@ public class SortFactoryTest extends TestCase {
         MockVisualSearchResult vsr1 = new MockVisualSearchResult("Hello");
         MockVisualSearchResult vsr2 = new MockVisualSearchResult("World");
         
-        vsr1.getProperties().put(FilePropertyKey.YEAR, "2009");
-        vsr2.getProperties().put(FilePropertyKey.YEAR, "2008");
+        vsr1.getProperties().put(FilePropertyKey.YEAR, 2009L);
+        vsr2.getProperties().put(FilePropertyKey.YEAR, 2008L);
         
         // Get long comparator.
         Comparator<VisualSearchResult> comparator = 
@@ -98,8 +98,8 @@ public class SortFactoryTest extends TestCase {
         assertTrue("equal relevance", (result < 0));
 
         // Set test relevance values.
-        vsr1.setRelevance(1.0);
-        vsr2.setRelevance(2.0);
+        vsr1.setRelevance(1);
+        vsr2.setRelevance(2);
         
         // Verify compare for non-equal relevance - order is descending.
         result = comparator.compare(vsr1, vsr2);
@@ -120,8 +120,8 @@ public class SortFactoryTest extends TestCase {
         assertTrue("equal relevance", (result == 0));
 
         // Set test relevance values.
-        vsr1.setRelevance(1.0);
-        vsr2.setRelevance(2.0);
+        vsr1.setRelevance(1);
+        vsr2.setRelevance(2);
         
         // Verify compare for non-equal relevance.
         result = comparator.compare(vsr1, vsr2);

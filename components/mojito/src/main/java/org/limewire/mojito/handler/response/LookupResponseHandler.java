@@ -64,52 +64,52 @@ import org.limewire.security.SecurityToken;
  * lookup process. Subclasses implement lookup specific features
  * like the type of the lookup (FIND_NODE and FIND_VALUE) or
  * different lookup termination conditions.
- * 
+ * <p>
  * Think of the LookupResponseHandler as some kind of State-Machine.
  */
 public abstract class LookupResponseHandler<V extends LookupResult> extends AbstractResponseHandler<V> {
     
     private static final Log LOG = LogFactory.getLog(LookupResponseHandler.class);
     
-    /** The ID we're looking for */
+    /** The ID we're looking for. */
     protected final KUID lookupId;
     
-    /** The ID which is furthest away from the lookupId */
+    /** The ID which is furthest away from the lookupId. */
     private final KUID furthestId;
     
-    /** Set of queried KUIDs */
+    /** Set of queried KUIDs. */
     protected final Set<KUID> queried = new LinkedHashSet<KUID>();
     
-    /** Trie of Contacts we're going to query */
+    /** Trie of Contacts we're going to query. */
     protected final Trie<KUID, Contact> toQuery 
         = new PatriciaTrie<KUID, Contact>(KUID.KEY_ANALYZER);
     
-    /** Trie of Contacts that did respond */
+    /** Trie of Contacts that did respond. */
     protected final Trie<KUID, Entry<Contact, SecurityToken>> responsePath 
         = new PatriciaTrie<KUID, Entry<Contact, SecurityToken>>(KUID.KEY_ANALYZER);
     
-    /** A Map we're using to count the number of hops */
+    /** A Map we're using to count the number of hops. */
     private final Map<KUID, Integer> hopMap = new HashMap<KUID, Integer>();
     
-    /** The k-closest IDs we selected to start the lookup */
+    /** The k-closest IDs we selected to start the lookup. */
     private final Set<KUID> routeTableNodes = new LinkedHashSet<KUID>();
     
-    /** A Set of Contacts that have the same Node ID as the local Node */
+    /** A Set of Contacts that have the same Node ID as the local Node. */
     private final Set<Contact> forcedContacts = new LinkedHashSet<Contact>();
     
-    /** Collection of Contacts that collide with our Node ID */
+    /** Collection of Contacts that collide with our Node ID. */
     protected final Collection<Contact> collisions = new LinkedHashSet<Contact>();
 
-    /** The number of currently active (parallel) searches */
+    /** The number of currently active (parallel) searches. */
     private int activeSearches = 0;
     
-    /** The current hop */
+    /** The current hop. */
     private int currentHop = 0;
     
-    /** The expected result set size (aka K) */
+    /** The expected result set size (aka K). */
     private int resultSetSize;
     
-    /** The number of parallel lookups */
+    /** The number of parallel lookups.*/
     private int parellelism;
 
     /**
@@ -118,23 +118,23 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
      */
     private boolean selectAliveNodesOnly = false;
     
-    /** The time when this lookup started */
+    /** The time when this lookup started. */
     private long startTime = -1L;
     
-    /** The number of Nodes from our RouteTable that failed */
+    /** The number of Nodes from our RouteTable that failed. */
     private int routeTableFailureCount = 0;
     
-    /** The total number of failed lookups */
+    /** The total number of failed lookups. */
     private int totalFailures = 0;
     
     /** 
      * Whether or not the (k+1)-closest Contact should be removed 
-     * from the response Set 
+     * from the response Set. 
      */
     private boolean deleteFurthest = true;
     
     /**
-     * Creates a new LookupResponseHandler
+     * Creates a new LookupResponseHandler.
      */
     protected LookupResponseHandler(Context context, KUID lookupId) {
         super(context);
@@ -149,14 +149,14 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Returns the Key we're looking for
+     * Returns the Key we're looking for.
      */
     public KUID getLookupID() {
         return lookupId;
     }
     
     /**
-     * Sets the result set size
+     * Sets the result set size.
      */
     public void setResultSetSize(int resultSetSize) {
         if (resultSetSize < 0) {
@@ -169,7 +169,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Returns the result set size
+     * Returns the result set size.
      */
     public int getResultSetSize() {
         return resultSetSize;
@@ -177,7 +177,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     
     /**
      * Sets the number of parallel lookups this handler
-     * should maintain
+     * should maintain.
      */
     public void setParallelism(int parellelism) {
         if (parellelism < 0) {
@@ -191,13 +191,13 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     
     /**
      * Returns the default number of parallel lookups this
-     * handler maintains 
+     * handler maintains .
      */
     protected abstract int getDefaultParallelism();
     
     /**
      * Returns the number of parallel lookups this handler
-     * maintains
+     * maintains.
      */
     public int getParallelism() {
         return parellelism;
@@ -205,15 +205,15 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     
     /**
      * Adds the given Contact to the collection of Contacts
-     * that must be contacted during the lookup
+     * that must be contacted during the lookup.
      */
     public void addForcedContact(Contact node) {
         forcedContacts.add(node);
     }
     
     /**
-     * Returns an unmodifieable collection of Contacts
-     * that must be contacted during the lookup
+     * Returns an unmodifiable collection of Contacts
+     * that must be contacted during the lookup.
      */
     public Collection<Contact> getForcedContacts() {
         return Collections.unmodifiableSet(forcedContacts);
@@ -233,14 +233,14 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     
     /**
      * Returns the number of Nodes from our RouteTable that failed
-     * to respond
+     * to respond.
      */
     public int getRouteTableFailureCount() {
         return routeTableFailureCount;
     }
     
     /**
-     * Returns true if the lookup has timed out
+     * Returns true if the lookup has timed out.
      */
     protected abstract boolean isTimeout(long time);
         
@@ -257,7 +257,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     
     /**
      * Returns whether or not only alive Contacts should be
-     * selected (from the RouteTable) for the first hop
+     * selected (from the RouteTable) for the first hop.
      */
     public boolean isSelectAliveNodesOnly() {
         return selectAliveNodesOnly;
@@ -268,7 +268,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
      * that did respond should be deleted from the response Set.
      * This is primarily a memory optimization as we're only interested
      * in the k-closest Contacts.
-     * 
+     * <p>
      * For caching we need the lookup path though (that means we'd set
      * this to false).
      */
@@ -372,7 +372,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * @return if the next step in the lookup should be performed.
+     * @return if the next step in the lookup should be performed
      */
     protected abstract boolean nextStep(ResponseMessage message) throws IOException;
     
@@ -557,7 +557,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Sends a lookup request to the given Contact
+     * Sends a lookup request to the given Contact.
      */
     protected boolean lookup(Contact node) throws IOException {
         LookupRequest request = createLookupRequest(node);
@@ -576,13 +576,13 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Creates and returns a LookupRequest message
+     * Creates and returns a LookupRequest message.
      */
     protected abstract LookupRequest createLookupRequest(Contact node);
     
     /**
      * Calls finishLookup() if the lookup isn't already
-     * finished and there are no parallel searches active
+     * finished and there are no parallel searches active.
      */
     private void finishLookupIfDone() {
         if (!isDone() && !isCancelled() && !hasActiveSearches()) {
@@ -591,19 +591,19 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Called when the lookup finishes
+     * Called when the lookup finishes.
      */
     protected abstract void finishLookup();
     
     /**
-     * Increments the 'activeSearches' counter by one
+     * Increments the 'activeSearches' counter by one.
      */
     protected void incrementActiveSearches() {
         activeSearches++;
     }
     
     /**
-     * Decrements the 'activeSearches' counter by one
+     * Decrements the 'activeSearches' counter by one.
      */
     protected void decrementActiveSearches() {
         if (activeSearches == 0) {
@@ -624,7 +624,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Returns the number of current number of active
+     * Returns the number of current number of active.
      * searches
      */
     protected int getActiveSearches() {
@@ -633,21 +633,21 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     
     /**
      * Returns whether or not there are currently any
-     * searches active
+     * searches active.
      */
     protected boolean hasActiveSearches() {
         return getActiveSearches() > 0;
     }
     
     /** 
-     * Returns whether or not the Node has been queried 
+     * Returns whether or not the Node has been queried. 
      */
     protected boolean isQueried(Contact node) {
         return queried.contains(node.getNodeID());            
     }
     
     /** 
-     * Marks the Node as queried 
+     * Marks the Node as queried. 
      */
     protected void markAsQueried(Contact node) {
         queried.add(node.getNodeID());
@@ -655,28 +655,28 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /** 
-     * Returns whether or not the Node is in the to-query Trie 
+     * Returns whether or not the Node is in the to-query Trie. 
      */
     protected boolean isYetToBeQueried(Contact node) {
         return toQuery.containsKey(node.getNodeID());            
     }
     
     /**
-     * Returns true if there are more Contact to query
+     * Returns true if there are more Contact to query.
      */
     protected boolean hasContactsToQuery() {
     	return !toQuery.isEmpty();
     }
 
     /**
-     * Returns the next Contacts for the lookup
+     * Returns the next Contacts for the lookup.
      */
     protected Collection<Contact> getContactsToQuery(KUID lookupId, int count) {
     	return TrieUtils.select(toQuery, lookupId, count);
     }
     
     /** 
-     * Adds the Node to the to-query Trie 
+     * Adds the Node to the to-query Trie. 
      */
     protected boolean addYetToBeQueried(Contact node, int hop) {
             
@@ -700,7 +700,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Adds the response to the lookup/response Path
+     * Adds the response to the lookup/response Path.
      */
     protected void addToResponsePath(ResponseMessage response) {
         Contact sender = response.getContact();
@@ -712,7 +712,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /** 
-     * Adds the Contact-SecurityToken Tuple to the response Trie
+     * Adds the Contact-SecurityToken Tuple to the response Trie.
      */
     protected void addToResponsePath(Contact node, SecurityToken securityToken) {
         
@@ -730,7 +730,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Returns the lookup/response Path
+     * Returns the lookup/response Path.
      */
     protected Map<Contact, SecurityToken> getPath() {
         return getContacts(responsePath.size());
@@ -738,7 +738,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     
     /**
      * Returns the k-closest Contacts sorted by their closeness
-     * to the given lookup key
+     * to the given lookup key.
      */
     protected Map<Contact, SecurityToken> getNearestContacts() {
         return getContacts(getResultSetSize());
@@ -746,7 +746,7 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     
     /**
      * Returns count number of Contacts sorted by their closeness
-     * to the given lookup key
+     * to the given lookup key.
      */
     protected Map<Contact, SecurityToken> getContacts(int count) {
         if (count < 0) {
@@ -775,14 +775,14 @@ public abstract class LookupResponseHandler<V extends LookupResult> extends Abst
     }
     
     /**
-     * Returns all queried KUIDs
+     * Returns all queried KUIDs.
      */
     protected Set<KUID> getQueried() {
         return queried;
     }
     
     /**
-     * Returns the current hop
+     * Returns the current hop.
      */
     public int getCurrentHop() {
         return currentHop;

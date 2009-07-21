@@ -36,8 +36,8 @@ public class FirewalledAddressSerializer implements AddressSerializer {
     }
 
     @Override
-    public Class<? extends Address> getAddressClass() {
-        return FirewalledAddress.class;
+    public boolean canSerialize(Address address) {
+        return address instanceof FirewalledAddress;
     }
 
     @Override

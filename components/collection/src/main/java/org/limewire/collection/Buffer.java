@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
  * This class is not thread-safe.
  */
 public class Buffer<E> implements Cloneable, Iterable<E> {
-    /**
+    /**<pre>
      * The abstraction function is
      *   [ buf[head], buf[head+1], ..., buf[tail-1] ] if head<=tail
      * or
@@ -35,6 +35,7 @@ public class Buffer<E> implements Cloneable, Iterable<E> {
      * INVARIANT: buf.length=size
      *            0<=head, tail<size
      *            size>=2
+     *<p/re>
      */
     private final int size;
     protected E buf[];
@@ -362,7 +363,7 @@ public class Buffer<E> implements Cloneable, Iterable<E> {
         }
     }
 
-    /** Returns a shallow copy of this, of type Buffer */
+    /** Returns a shallow copy of this, of type Buffer. */
     @Override
     public Buffer<E> clone() throws CloneNotSupportedException {
         return new Buffer<E>(this);        

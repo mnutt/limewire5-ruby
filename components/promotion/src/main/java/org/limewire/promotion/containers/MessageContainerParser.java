@@ -29,7 +29,7 @@ public class MessageContainerParser {
     }
 
     /**
-     * @return a message container parsed from the given ggep, or an exception
+     * @return a message container parsed from the given GGEP, or an exception
      *         if there is a problem parsing the container.
      */
     public MessageContainer parse(GGEP ggepMessage) throws BadGGEPBlockException {
@@ -56,7 +56,7 @@ public class MessageContainerParser {
     /**
      * @return a message container parsed from the given bytes (which should be
      *         a raw GGEP), or an exception if there is a problem parsing the
-     *         container.
+     *         container
      */
     public MessageContainer parse(byte[] rawMessage) throws BadGGEPBlockException {
         return parse(new GGEP(rawMessage, 0));

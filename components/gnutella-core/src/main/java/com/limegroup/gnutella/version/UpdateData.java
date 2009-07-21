@@ -165,7 +165,7 @@ public class UpdateData implements Cloneable, UpdateInformation {
     /** Gets the update text. */
     public String getUpdateText() { return updateText; }
     
-    /** Gets the update URL */
+    /** Gets the update URL. */
     public String getUpdateURL() { return updateURL; }
     
     /** Gets the update style. */
@@ -186,7 +186,7 @@ public class UpdateData implements Cloneable, UpdateInformation {
     /** Gets the update command to run. */
     public String getUpdateCommand() { return updateCommand; }
     
-    /** Gets the update URN */
+    /** Gets the update URN. */
     public URN getUpdateURN() { return urn; }
     
     /** Gets the TigerTreeRoot hash. */

@@ -14,20 +14,20 @@ public class LimeXMLProperties {
 
     /**
      * The default index for responses when there is no file and 
-     * hence none to download. The value is set to 2^32 -1
+     * hence none to download. The value is set to 2^32 -1.
      */
     public static final long DEFAULT_NONFILE_INDEX = 0x00000000FFFFFFFFl;
     
     private String[] BUILT_IN_SCHEMAS = { "application", "audio", "document", "image", "video", "torrent" };
 
-    /** schema resource directory. */
+    /** Schema resource directory. */
     private static final String SCHEMA_RESOURCE_PATH = "org/limewire/xml/schema/";
     
-    /** place where serialized XML data is stored. */
+    /** Place where serialized XML data is stored. */
     private static final String XML_DOCS_DIR = "xml/data";
 
     /**
-     * Returns the name of the directory where the XML Documents are located
+     * Returns the name of the directory where the XML Documents are located.
      */
     public File getXMLDocsDir() {
         return new File(CommonUtils.getUserSettingsDir(), XML_DOCS_DIR);
@@ -35,7 +35,7 @@ public class LimeXMLProperties {
 
     /**
      * Returns the files pertaining to the XML Schemas used for 
-     * querying/responding
+     * querying/responding.
      */
     public URL[] getAllXmlSchemaUrls() {
         URL[] urls = new URL[BUILT_IN_SCHEMAS.length];
@@ -46,9 +46,5 @@ public class LimeXMLProperties {
         return urls;
     }
 }
-
-
-
-
 
 

@@ -51,8 +51,6 @@ public class BlockingStateMachine implements Closeable, Shutdownable {
     
     /**
      * Adds a new state to process.
-     * 
-     * @param newState
      */
     public void addState(final IOState newState) {
         if(LOG.isDebugEnabled())

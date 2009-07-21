@@ -8,7 +8,7 @@ import org.limewire.io.GUID;
 public class InspectionResponse extends AbstractVendorMessage {
     
     
-    /** a bunch of ggep keys */
+    /** A bunch of ggep keys. */
     public static final String DATA_KEY = "D";
     public static final String CHUNK_ID_KEY = "I";
     public static final String TOTAL_CHUNKS_KEY = "T";

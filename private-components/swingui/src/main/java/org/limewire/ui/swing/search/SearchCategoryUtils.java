@@ -3,10 +3,27 @@ package org.limewire.ui.swing.search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.ui.swing.util.I18n;
 
+// TODO: getName() / getUntranslatedName() should be cleaned up when marktr supports 
+//        supports comments like I18n.trc().  
 public class SearchCategoryUtils {
     
     private SearchCategoryUtils() {}
-        
+
+    public static String getUntranslatedName(SearchCategory category) {
+        switch(category) {
+        case ALL:      return "All";
+        case AUDIO:    return "Audio"; 
+        case DOCUMENT: return "Documents"; 
+        case IMAGE:    return "Images"; 
+        case PROGRAM:  return "Programs"; 
+        case VIDEO:    return "Videos"; 
+        case OTHER: 
+        default:
+            return "Other";
+             
+        }
+    }
+    
     public static String getName(SearchCategory category) {
         switch(category) {
         case ALL:      return I18n.trc("All (categories)", "All");

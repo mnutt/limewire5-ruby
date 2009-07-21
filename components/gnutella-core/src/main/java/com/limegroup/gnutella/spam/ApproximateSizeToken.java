@@ -1,7 +1,7 @@
 package com.limegroup.gnutella.spam;
 
 /**
- * A token representing the approximate file size
+ * A token representing the approximate file size.
  */
 public class ApproximateSizeToken extends Token {
 

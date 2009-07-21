@@ -34,7 +34,7 @@ public class DropDownListAutoCompleteControl {
     /** The autocompleter. */
     private final AutoCompleter autoCompleter;
 
-    /** The popup the scroll pane is in */
+    /** The popup the scroll pane is in. */
     protected JPopupMenu popup;
 
     /** Whether or not we tried to show a popup while this wasn't showing */
@@ -84,7 +84,7 @@ public class DropDownListAutoCompleteControl {
     * Sets whether the component is currently performing autocomplete lookups as
     * keystrokes are performed.
     *
-    * @param autoComplete True or false.
+    * @param autoComplete true or false.
     */
     public void setAutoComplete(boolean autoComplete) {
         this.autoComplete = autoComplete;
@@ -94,7 +94,7 @@ public class DropDownListAutoCompleteControl {
     * Gets whether the component is currently performing autocomplete lookups as
     * keystrokes are performed. 
     *
-    * @return True or false.
+    * @return true or false.
     */
     public boolean isAutoCompleting() {
         return autoComplete;
@@ -159,36 +159,36 @@ public class DropDownListAutoCompleteControl {
     private void showPopup() {
         if(autoCompleter.isAutoCompleteAvailable()) {
             if(textField.isShowing()) {
-				Component parent = textField;
-				JComponent component = autoCompleter.getRenderComponent();
+                Component parent = textField;
+                JComponent component = autoCompleter.getRenderComponent();
 
-				// Adjust popup position for text field with painted border.
+                // Adjust popup position for text field with painted border.
                 int leftInset = 0;
-				int bottomInset = 0;
-				int widthInset = 0;
-				if (textField instanceof Paintable) {
-				    Insets paintedInsets = ((Paintable) textField).getPaintedInsets();
-				    leftInset = paintedInsets.left;
-				    bottomInset = paintedInsets.bottom;
+                int bottomInset = 0;
+                int widthInset = 0;
+                if (textField instanceof Paintable) {
+                    Insets paintedInsets = ((Paintable) textField).getPaintedInsets();
+                    leftInset = paintedInsets.left;
+                    bottomInset = paintedInsets.bottom;
                     widthInset = paintedInsets.left + paintedInsets.right;
-				}
-				
-		        // Null out our prior preferred size, then set a new one
-		        // that overrides the width to be the size we want it, but
-		        // preserves the height.
-				Dimension priorPref = component.getPreferredSize();
-		        component.setPreferredSize(null);
-		        Dimension pref = component.getPreferredSize();
-		        pref = new Dimension(textField.getWidth() - widthInset, pref.height+10);
-		        component.setPreferredSize(pref);
-		        if(popup != null && priorPref.equals(pref)) {
-		            return; // no need to change if sizes are same.
-		        }
-		        
-		        // If the popup exists already, hide it & reshow it to make it the right size.
-				if (popup != null) {
-				    hidePopup();
-				}
+                }
+
+                // Null out our prior preferred size, then set a new one
+                // that overrides the width to be the size we want it, but
+                // preserves the height.
+                Dimension priorPref = component.getPreferredSize();
+                component.setPreferredSize(null);
+                Dimension pref = component.getPreferredSize();
+                pref = new Dimension(textField.getWidth() - widthInset, pref.height+10);
+                component.setPreferredSize(pref);
+                if(popup != null && priorPref.equals(pref)) {
+                    return; // no need to change if sizes are same.
+                }
+                
+                // If the popup exists already, hide it & reshow it to make it the right size.
+                if (popup != null) {
+                    hidePopup();
+                }
 
                 popup = createPopup(component);
                 showPending = false;
@@ -229,7 +229,7 @@ public class DropDownListAutoCompleteControl {
         
         /**
          * Fires an action event.
-         *
+         * <p>
          * If the popup is visible, this resets the current
          * text to be the selection on the popup (if something was selected)
          * prior to firing the event.

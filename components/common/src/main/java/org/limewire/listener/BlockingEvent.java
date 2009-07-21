@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * Used to mark an event as needing to be run on a new thread.
- * If queueName is specified, the all events specifying that
+ * If queueName is specified, then all events specifying that
  * queueName within a specific {@link EventListenerList} will
  * be run in the same single-threaded {@link Executor}.
  * 

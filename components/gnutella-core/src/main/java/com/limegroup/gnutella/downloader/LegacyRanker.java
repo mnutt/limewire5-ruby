@@ -1,4 +1,3 @@
-
 package com.limegroup.gnutella.downloader;
 
 import java.util.Collection;
@@ -12,53 +11,48 @@ import org.apache.commons.logging.LogFactory;
 import com.limegroup.gnutella.RemoteFileDesc;
 
 /**
- * A ranker which uses the legacy logic for selecting from available
- * sources.
+ * A ranker which uses the legacy logic for selecting from available sources.
  */
 public class LegacyRanker extends AbstractSourceRanker {
-    
+
     private static final Log LOG = LogFactory.getLog(LegacyRanker.class);
 
-	private final Set<RemoteFileDescContext> rfds;  
-	
-	public LegacyRanker() {
-		rfds = new HashSet<RemoteFileDescContext>();
-	}
-	
-	@Override
+    private final Set<RemoteFileDescContext> rfds;
+
+    public LegacyRanker() {
+        rfds = new HashSet<RemoteFileDescContext>();
+    }
+
+    @Override
     public synchronized boolean addToPool(RemoteFileDescContext host) {
         if (LOG.isDebugEnabled())
-            LOG.debug("adding host "+host+" to be ranked", new Exception());
-		return rfds.add(host);
-	}
+            LOG.debug("adding host " + host + " to be ranked", new Exception());
+        return rfds.add(host);
+    }
 
-    /** 
+    /**
      * Removes and returns the RemoteFileDesc with the highest quality in
-     * filesLeft.  If two or more entries have the same quality, returns the
-     * entry with the highest speed.  
-     *
-     * @param filesLeft the list of file/locations to choose from, which MUST
-     *  have length of at least one.  Each entry MUST be an instance of
-     *  RemoteFileDesc.  The assumption is that all are "same", though this
-     *  isn't strictly needed.
-     * @return the best file/endpoint location 
+     * filesLeft. If two or more entries have the same quality, returns the
+     * entry with the highest speed.
+     * 
+     * @return the best file/endpoint location
      */
-	@Override
+    @Override
     public synchronized RemoteFileDescContext getBest() {
-		if (!hasMore())
+        if (!hasMore())
             return null;
-        
+
         RemoteFileDescContext ret = getBest(rfds.iterator());
-        //The best rfd found so far
+        // The best rfd found so far
         boolean removed = rfds.remove(ret);
         assert removed : "unable to remove RFD.";
-        
+
         if (LOG.isDebugEnabled())
-            LOG.debug("the best we came with is "+ret);
-        
+            LOG.debug("the best we came with is " + ret);
+
         return ret;
     }
-    
+
     static RemoteFileDescContext getBest(Iterator<RemoteFileDescContext> iter) {
         RemoteFileDescContext currentRfdContext = iter.next();
 
@@ -99,28 +93,28 @@ public class LegacyRanker extends AbstractSourceRanker {
                     if (potentialRfd.getSpeed() > currentRfd.getSpeed()) {
                         currentRfdContext = potentialRfdContext;
                     }
-                }            
+                }
             }
         }
-        
+
         return currentRfdContext;
     }
-	
-	@Override
+
+    @Override
     public boolean hasMore() {
-		return !rfds.isEmpty();
-	}
+        return !rfds.isEmpty();
+    }
 
     @Override
     public Collection<RemoteFileDescContext> getShareableHosts() {
         return rfds;
     }
-    
+
     @Override
     protected Collection<RemoteFileDescContext> getPotentiallyBusyHosts() {
         return rfds;
     }
-    
+
     @Override
     public int getNumKnownHosts() {
         return rfds.size();

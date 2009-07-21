@@ -181,6 +181,11 @@ public class IntSet {
         this.list=new ArrayList<Interval>(expectedSize);
     }
 
+    public IntSet(IntSet toCopy) {
+        this(toCopy.size());
+        addAll(toCopy);
+    }
+
     public int size() {
         return this.size;
     }
@@ -204,6 +209,7 @@ public class IntSet {
     }
 
 
+    /** @return true if the int was added, false if it already contained the int. */
     public boolean add(int x) {
         //This code is a pain--nine different return cases.  It could be
         //factored somewhat, but I believe the following is the easiest to
@@ -316,6 +322,15 @@ public class IntSet {
         boolean ret=false;
         for (IntSetIterator iter=s.iterator(); iter.hasNext(); ) {
             ret=(ret | this.add(iter.next()));
+        }
+        return ret;
+    }
+
+    public boolean removeAll(IntSet s) {
+        //TODO2: implement more efficiently!
+        boolean ret=false;
+        for (IntSetIterator iter=s.iterator(); iter.hasNext(); ) {
+            ret=(ret | this.remove(iter.next()));
         }
         return ret;
     }

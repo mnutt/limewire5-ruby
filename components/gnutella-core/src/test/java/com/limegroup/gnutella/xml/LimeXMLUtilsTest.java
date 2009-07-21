@@ -57,7 +57,6 @@ public class LimeXMLUtilsTest extends LimeTestCase {
             "></audio></audios>";
         LimeXMLDocument doc = limeXMLDocumentFactory.createLimeXMLDocument(queryString);
         assertTrue(doc.getAction().equals("test"));
-        assertFalse(doc.actionDetailRequested());
         
         queryString = 
             "<?xml version=\"1.0\"?><audios xsi:noNamespaceSchemaLocation=" +
@@ -70,7 +69,6 @@ public class LimeXMLUtilsTest extends LimeTestCase {
         
         doc = limeXMLDocumentFactory.createLimeXMLDocument(queryString);
         assertTrue(doc.getAction().equals("test"));
-        assertFalse(doc.actionDetailRequested());
         
         queryString = 
             "<?xml version=\"1.0\"?><audios xsi:noNamespaceSchemaLocation=" +
@@ -83,7 +81,6 @@ public class LimeXMLUtilsTest extends LimeTestCase {
         
         doc = limeXMLDocumentFactory.createLimeXMLDocument(queryString);
         assertTrue(doc.getAction().equals("test"));
-        assertTrue(doc.actionDetailRequested());
     }
     
     /**

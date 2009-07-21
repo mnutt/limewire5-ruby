@@ -44,5 +44,18 @@ public class UtilitiesTest extends org.limewire.gnutella.tests.LimeTestCase {
         for (int i=0; i<31; i++) {
             assertEquals(i, Utilities.log2(1<<i));
         }
-    }     
+    }
+
+    public void testPowerOf2() {
+        assertTrue(!Utilities.isPowerOf2(-1));
+        assertTrue(!Utilities.isPowerOf2(0));
+        assertTrue(Utilities.isPowerOf2(1));
+        assertTrue(Utilities.isPowerOf2(2));
+        assertTrue(!Utilities.isPowerOf2(3));
+        assertTrue(Utilities.isPowerOf2(4));
+        assertTrue(Utilities.isPowerOf2(16));
+        assertTrue(!Utilities.isPowerOf2(18));
+        assertTrue(Utilities.isPowerOf2(64));
+        assertTrue(!Utilities.isPowerOf2(71));
+    }
 }

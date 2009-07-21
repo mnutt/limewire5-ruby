@@ -1,19 +1,14 @@
 D/features////
 D/messages////
 /Password.java/1.1/Thu Nov 20 22:34:35 2008//
-/PasswordManagerImpl.java/1.2/Mon Feb 23 16:13:15 2009//
-/SubscriptionListener.java/1.8/Mon Mar 23 14:55:16 2009//
-/XMPPAddressRegistry.java/1.3/Mon Jan  5 17:05:11 2009//
-/XMPPAddressResolver.java/1.31/Mon Feb 23 16:13:15 2009//
-/XMPPAddressSerializer.java/1.6/Mon Dec  8 20:48:06 2008//
-/XMPPAuthenticator.java/1.8/Mon Dec  8 20:55:10 2008//
-/XMPPFirewalledAddress.java/1.5/Mon Feb 23 16:13:15 2009//
-/ConnectionConfigurationFactory.java/1.3/Mon Apr  6 16:05:39 2009//
-/DNSConnectionConfigurationFactory.java/1.1/Thu Apr  2 16:40:17 2009//
-/FallbackConnectionConfigurationFactory.java/1.1/Thu Apr  2 16:40:17 2009//
-/PresenceImpl.java/1.23/Mon Apr  6 16:05:39 2009//
-/ReconnectionManager.java/1.3/Mon Apr  6 16:05:39 2009//
-/UserImpl.java/1.40/Mon Apr  6 16:05:39 2009//
-/XMPPConnectionImpl.java/1.83/Mon Apr  6 16:05:39 2009//
-/XMPPConnectionImplFactory.java/1.1/Thu Apr  2 16:40:17 2009//
-/XMPPServiceImpl.java/1.53/Mon Apr  6 16:05:39 2009//
+/ConnectionConfigurationFactory.java/1.5/Mon Jul 20 19:52:33 2009//
+/DNSConnectionConfigurationFactory.java/1.4/Mon Jul 20 19:52:33 2009//
+/FallbackConnectionConfigurationFactory.java/1.3/Mon Jul 20 19:52:33 2009//
+/PasswordManagerImpl.java/1.4/Mon Jul 20 19:52:33 2009//
+/PresenceImpl.java/1.26/Mon Jul 20 19:52:33 2009//
+/ReconnectionManager.java/1.6/Mon Jul 20 19:52:33 2009//
+/SubscriptionListener.java/1.10/Mon Jul 20 19:52:33 2009//
+/XMPPConnectionFactoryImpl.java/1.4/Tue Jul  7 18:29:42 2009//
+/XMPPConnectionImplFactory.java/1.2/Mon Jul 20 19:52:33 2009//
+/XMPPFriendConnectionImpl.java/1.7/Tue Jul  7 18:48:42 2009//
+/XMPPFriendImpl.java/1.5/Mon Jul 13 19:35:26 2009//

@@ -10,12 +10,13 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Test;
-
+import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.concurrent.ManagedThread;
 import org.limewire.io.IOUtils;
+import org.limewire.listener.AsynchronousMulticasterImpl;
 import org.limewire.listener.EventListenerList;
 import org.limewire.nio.AbstractNBSocket;
 import org.limewire.nio.NBSocket;
@@ -26,6 +27,8 @@ import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.StringUtils;
+
+import junit.framework.Test;
 
 /**
  * Put full UDPConnection system through various tests.
@@ -68,7 +71,8 @@ public final class UDPConnectionTest extends BaseTestCase {
         context = new DefaultRUDPContext(
                 factory, NIODispatcher.instance().getTransportListener(),
                 stubService, new DefaultRUDPSettings());
-        udpSelectorProvider = new UDPSelectorProvider(context, new EventListenerList<UDPSocketChannelConnectionEvent>());
+        Executor executor = ExecutorsHelper.newProcessingQueue("TestEventThread");
+        udpSelectorProvider = new UDPSelectorProvider(context, new AsynchronousMulticasterImpl<UDPSocketChannelConnectionEvent>(executor));
         udpMultiplexor = udpSelectorProvider.openSelector();
         stubService.setUDPMultiplexor(udpMultiplexor);
         NIODispatcher.instance().registerSelector(udpMultiplexor,

@@ -27,7 +27,7 @@ import org.limewire.util.OSUtils;
 import com.google.inject.Inject;
 
 /**
- * System Option View
+ * System Option View.
  */
 public class SystemOptionPanel extends OptionPanel {
 
@@ -217,8 +217,8 @@ public class SystemOptionPanel extends OptionPanel {
      * When I press X is not shown for OSX, OSX automatically minimizes on an X
      * If Run at startup || minimize to try is selected, set System tray icon to
      * true
-     * 
-     * TODO: revisit this and check
+     */ 
+     /* TODO: revisit this and check
      */
     private class StartupShutdownPanel extends OptionPanel {
 

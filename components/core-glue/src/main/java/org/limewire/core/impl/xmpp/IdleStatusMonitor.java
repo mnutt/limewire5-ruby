@@ -3,13 +3,13 @@ package org.limewire.core.impl.xmpp;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.limewire.friend.api.FriendConnectionEvent;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.EventBean;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.activity.XmppActivityEvent.ActivityState;
-import org.limewire.xmpp.api.client.XMPPConnectionEvent;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -21,7 +21,7 @@ class IdleStatusMonitor {
     private final IdleTime idleTime;
     private final ScheduledExecutorService backgroundExecutor;
     private final EventBroadcaster<XmppActivityEvent> activityBroadcaster;
-    private EventBean<XMPPConnectionEvent> connectionEvent;
+    private EventBean<FriendConnectionEvent> connectionEvent;
 
     @Inject
     public IdleStatusMonitor(@Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor, 
@@ -47,8 +47,8 @@ class IdleStatusMonitor {
                 backgroundExecutor.scheduleAtFixedRate(new Runnable() {
                     @Override
                     public void run() {
-                        XMPPConnectionEvent lastEvent = connectionEvent.getLastEvent();
-                        if (idleTime.supportsIdleTime() && lastEvent != null && lastEvent.getType().equals(XMPPConnectionEvent.Type.CONNECTED)) {
+                        FriendConnectionEvent lastEvent = connectionEvent.getLastEvent();
+                        if (idleTime.supportsIdleTime() && lastEvent != null && lastEvent.getType().equals(FriendConnectionEvent.Type.CONNECTED)) {
                             if (idleTime.getIdleTime() > TWENTY_MINUTES_IN_MILLIS) {
                                 activityBroadcaster.broadcast(new XmppActivityEvent(ActivityState.Idle));
                             } else {
@@ -64,7 +64,7 @@ class IdleStatusMonitor {
         });
     }
     
-    @Inject void register(EventBean<XMPPConnectionEvent> connectionSupport) {
+    @Inject void register(EventBean<FriendConnectionEvent> connectionSupport) {
         this.connectionEvent = connectionSupport;
     }
 }

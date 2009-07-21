@@ -1,35 +1,22 @@
 package org.limewire.ui.swing.friends.chat;
 
-import java.net.URI;
-import java.util.Collection;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.impl.AbstractFriendPresence;
 
-import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.feature.Feature;
-import org.limewire.xmpp.api.client.Presence;
-import org.limewire.xmpp.api.client.User;
-
-public class MockPresence implements Presence {
+public class MockPresence extends AbstractFriendPresence implements FriendPresence {
     private String status;
-    private final User user;
+    private final Friend friend;
     private Mode mode;
     private String jid;
     private int priority;
     
-    MockPresence(User user, Mode mode, String status, String jid) {
-        this.user = user;
+    MockPresence(Friend friend, Mode mode, String status, String jid) {
+        this.friend = friend;
         this.mode = mode;
         this.status = status;
         this.jid = jid;
         this.priority = 0;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    @Override
-    public String getJID() {
-        return jid;
     }
 
     @Override
@@ -69,36 +56,11 @@ public class MockPresence implements Presence {
 
     @Override
     public Friend getFriend() {
-        return user;
+        return friend;
     }
 
     @Override
     public String getPresenceId() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Collection<Feature> getFeatures() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Feature getFeature(URI id) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public boolean hasFeatures(URI... id) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void addFeature(Feature feature) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void removeFeature(URI id) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        return jid;
     }
 }

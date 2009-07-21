@@ -6,7 +6,7 @@ import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.xmpp.api.client.FileMetaData;
+import org.limewire.friend.api.FileMetaData;
 
 //import com.limegroup.gnutella.FileDetails;
 
@@ -90,20 +90,6 @@ public class MockLocalFileItem implements LocalFileItem {
     }
     
     @Override
-    public int getFriendShareCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-    
-    @Override
-    public boolean isSharedWithGnutella() {
-        // TODO Auto-generated method stub
-        if(name.indexOf(".bmp") > -1 || name.indexOf(".jpg") > -1)
-            return true;
-        return false;
-    }
-    
-    @Override
     public boolean isShareable() {
         return true;
     }
@@ -119,13 +105,13 @@ public class MockLocalFileItem implements LocalFileItem {
     }
 
     @Override
-    public void setProperty(FilePropertyKey key, Object value) {
-        
-    }
-
-    @Override
     public int getNumUploadAttempts() {
         // TODO Auto-generated method stub
         return 0;
+    }
+
+    @Override
+    public boolean isLoaded() {
+       return true;
     }
 }

@@ -17,8 +17,6 @@ import javax.swing.table.TableCellRenderer;
 
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.FilterPipeline;
 import org.jdesktop.swingx.decorator.SortController;
 import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
@@ -89,9 +87,13 @@ public class TableCellHeaderRenderer extends JXLabel implements TableCellRendere
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
-        JXTable t = (JXTable) table;
 
-        setText((String) value);
+        if(value instanceof String)
+            setText((String) value);
+        else if(value != null)
+            setText(value.toString());
+        else
+            setText("");
         setIcon(sortIcon);
         
         setPreferredSize(new Dimension(20, getPreferredSize().width));
@@ -99,8 +101,8 @@ public class TableCellHeaderRenderer extends JXLabel implements TableCellRendere
         setFont(font);
         
         if(column >= 0) {
-            // show the appropriate arrow if this column is sorted
-            SortOrder order = getSortOrder(t, t.convertColumnIndexToModel(column));
+            // show the appropriate arrow if this column is sorted            
+            SortOrder order = getSortOrder(table, table.convertColumnIndexToModel(column));
             if(order == SortOrder.UNSORTED) { 
                 setIcon(null);
             } else if(order == SortOrder.ASCENDING) {
@@ -118,25 +120,24 @@ public class TableCellHeaderRenderer extends JXLabel implements TableCellRendere
      * column index.  The sort order is meaningful only if the column is the 
      * first sort key column; otherwise, SortOrder.UNSORTED is returned.
      */
-    private SortOrder getSortOrder(JXTable table, int modelColumn) {
-        FilterPipeline filters = table.getFilters();
-        if (filters == null) {
-            return SortOrder.UNSORTED;
-        }
-        
-        SortController sortController = filters.getSortController();
-        if (sortController == null) {
-            return SortOrder.UNSORTED;
-        }
-        
-        List<? extends SortKey> sortKeys = sortController.getSortKeys();
-        if (sortKeys == null) {
-            return SortOrder.UNSORTED;
-        }
-        
-        SortKey firstKey = SortKey.getFirstSortingKey(sortKeys);
-        if ((firstKey != null) && (firstKey.getColumn() == modelColumn)) {
-            return firstKey.getSortOrder();
+    private SortOrder getSortOrder(JTable table, int modelColumn) {
+        if(table instanceof GlazedJXTable) {     
+            SortController sortController = ((GlazedJXTable)table).getSortController();
+            if (sortController == null) {
+                return SortOrder.UNSORTED;
+            }
+            
+            List<? extends SortKey> sortKeys = sortController.getSortKeys();
+            if (sortKeys == null) {
+                return SortOrder.UNSORTED;
+            }
+            
+            SortKey firstKey = SortKey.getFirstSortingKey(sortKeys);
+            if ((firstKey != null) && (firstKey.getColumn() == modelColumn)) {
+                return firstKey.getSortOrder();
+            } else {
+                return SortOrder.UNSORTED;
+            }
         } else {
             return SortOrder.UNSORTED;
         }
@@ -154,7 +155,7 @@ public class TableCellHeaderRenderer extends JXLabel implements TableCellRendere
 
     
     /**
-     * Painter for the background of the header
+     * Painter for the background of the header.
      */
     private class HeaderBackgroundPainter extends AbstractPainter<JXLabel> {
 

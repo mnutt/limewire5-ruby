@@ -36,19 +36,19 @@ import org.limewire.nio.NIOTestUtils;
 import org.limewire.nio.ssl.SSLUtils;
 import org.limewire.util.Base32;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.helpers.UrnHelper;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.messages.Message;
-import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.PushRequest;
 import com.limegroup.gnutella.messages.PushRequestImpl;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryReplyFactory;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
+import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.MessagesSupportedVendorMessage;
 import com.limegroup.gnutella.messages.vendor.PushProxyAcknowledgement;
 import com.limegroup.gnutella.messages.vendor.PushProxyRequest;
@@ -66,23 +66,21 @@ public class ClientSidePushProxyTest extends ClientSideTestCase {
      */
     protected static int TIMEOUT = 1000; // should override super
 
-    private FileManager fileManager;
+    @Inject private ConnectionManager connectionManager;
 
-    private ConnectionManager connectionManager;
+    @Inject private QueryRequestFactory queryRequestFactory;
 
-    private QueryRequestFactory queryRequestFactory;
+    @Inject private ApplicationServices applicationServices;
 
-    private ApplicationServices applicationServices;
+    @Inject private SearchServices searchServices;
 
-    private SearchServices searchServices;
+    @Inject private ResponseFactory responseFactory;
 
-    private ResponseFactory responseFactory;
-
-    private QueryReplyFactory queryReplyFactory;
+    @Inject private QueryReplyFactory queryReplyFactory;
 
     private MyActivityCallback callback;
 
-    private DownloadServices downloadServices;
+    @Inject private DownloadServices downloadServices;
 
     private NetworkManagerStub networkManagerStub;
 
@@ -106,15 +104,7 @@ public class ClientSidePushProxyTest extends ClientSideTestCase {
         super.setUp(injector);
 
         DownloadManagerImpl downloadManager = (DownloadManagerImpl)injector.getInstance(DownloadManager.class);
-        fileManager = injector.getInstance(FileManager.class);
-        connectionManager = injector.getInstance(ConnectionManager.class);
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        applicationServices = injector.getInstance(ApplicationServices.class);
-        searchServices = injector.getInstance(SearchServices.class);
-        responseFactory = injector.getInstance(ResponseFactory.class);
-        queryReplyFactory = injector.getInstance(QueryReplyFactory.class);
         callback = (MyActivityCallback) injector.getInstance(ActivityCallback.class);
-        downloadServices = injector.getInstance(DownloadServices.class);
         
         downloadManager.clearAllDownloads();
         
@@ -169,7 +159,7 @@ public class ClientSidePushProxyTest extends ClientSideTestCase {
         BlockingConnectionUtils.drain(testUP[0]);
 
         // make sure leaf is sharing
-        assertEquals(2, fileManager.getGnutellaFileList().size());
+        assertEquals(2, gnutellaFileView.size());
         assertEquals(1, connectionManager.getNumConnections());
 
         // send a query that should be answered

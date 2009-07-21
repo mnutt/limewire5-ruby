@@ -203,7 +203,7 @@ public class HttpIOSession implements IOSession {
 
     /**
      * Throttles the underlying connection using <code>throttle</code>. If
-     * <code>throttle</code> is null, throtteling is disabled.
+     * <code>throttle</code> is null, throttling is disabled.
      */
     public void setThrottle(final Throttle throttle) {
         assert NIODispatcher.instance().isDispatchThread() :

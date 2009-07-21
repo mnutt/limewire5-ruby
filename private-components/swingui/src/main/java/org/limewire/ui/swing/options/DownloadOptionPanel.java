@@ -1,53 +1,70 @@
 package org.limewire.ui.swing.options;
 
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.limewire.core.settings.SharingSettings;
-import org.limewire.core.settings.iTunesSettings;
 import org.limewire.setting.FileSetting;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.LabelTextField;
 import org.limewire.ui.swing.options.actions.BrowseDirectoryAction;
+import org.limewire.ui.swing.options.actions.CancelDialogAction;
+import org.limewire.ui.swing.options.actions.DialogDisplayAction;
+import org.limewire.ui.swing.options.actions.OKDialogAction;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 import org.limewire.ui.swing.util.SaveDirectoryHandler;
 import org.limewire.util.MediaType;
-import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Downloads Option View
+ * Downloads Option View.
  */
 public class DownloadOptionPanel extends OptionPanel {
 
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
+    private final ManageSaveFoldersOptionPanelFactory manageFoldersOptionPanelFactory;
     
     private SavingPanel savingPanel;
     private JCheckBox clearDownloadsCheckBox;
+
+    //private JCheckBox deleteFileOnCancelCheckBox;
     
     @Inject
-    public DownloadOptionPanel(IconManager iconManager) {
+    public DownloadOptionPanel(Provider<IconManager> iconManager,
+            ManageSaveFoldersOptionPanelFactory manageFoldersOptionPanelFactory) {
         this.iconManager = iconManager;
+        this.manageFoldersOptionPanelFactory = manageFoldersOptionPanelFactory;
         
-        setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
+        setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap, gap 4"));
         
         add(getSavingPanel(), "pushx, growx");
 
         clearDownloadsCheckBox = new JCheckBox(I18n.tr("Clear downloads from list when finished"));
         clearDownloadsCheckBox.setContentAreaFilled(false);
+
+        //we aren't using deleteFileOnCancelCheckBox yet
+        //deleteFileOnCancelCheckBox = new JCheckBox(I18n.tr("When I cancel a download, delete the file"));
+        //deleteFileOnCancelCheckBox.setContentAreaFilled(false);
+        //deleteFileOnCancelCheckBox.setVisible(false);
         
-        add(clearDownloadsCheckBox, "gapleft 15");
+        add(clearDownloadsCheckBox, "wrap");
+        //add(deleteFileOnCancelCheckBox);
     }
     
     private OptionPanel getSavingPanel() {
@@ -60,19 +77,22 @@ public class DownloadOptionPanel extends OptionPanel {
     @Override
     boolean applyOptions() {
         SharingSettings.CLEAR_DOWNLOAD.setValue(clearDownloadsCheckBox.isSelected());
+        //DownloadSettings.DELETE_CANCELED_DOWNLOADS.setValue(deleteFileOnCancelCheckBox.isSelected());
         return getSavingPanel().applyOptions();
     }
 
     @Override
     boolean hasChanged() {
         return getSavingPanel().hasChanged() 
-            || SharingSettings.CLEAR_DOWNLOAD.getValue() != clearDownloadsCheckBox.isSelected();
+            || SharingSettings.CLEAR_DOWNLOAD.getValue() != clearDownloadsCheckBox.isSelected(); 
+         //   || DownloadSettings.DELETE_CANCELED_DOWNLOADS.getValue() != deleteFileOnCancelCheckBox.isSelected();
     }
 
     @Override
     public void initOptions() {
         getSavingPanel().initOptions();
         clearDownloadsCheckBox.setSelected(SharingSettings.CLEAR_DOWNLOAD.getValue());
+        //deleteFileOnCancelCheckBox.setSelected(DownloadSettings.DELETE_CANCELED_DOWNLOADS.getValue());
     }
     
     /**
@@ -86,11 +106,23 @@ public class DownloadOptionPanel extends OptionPanel {
         private JButton browseSaveLocationButton;
         private JCheckBox autoRenameDuplicateFilesCheckBox;
         
-        private JCheckBox shareCompletedDownloadsCheckBox;
-        private JCheckBox addToITunesCheckBox;
+        private ManageSaveFoldersOptionPanel saveFolderPanel;
+        private JButton multiLocationConfigureButton;
+
+        private JRadioButton singleLocationButton;
+
+        private JRadioButton multiLocationButton;
         
         public SavingPanel() {
-            super(I18n.tr("Saving"));
+            super(I18n.tr("Saving Files"));
+            
+            ButtonGroup downloadOptions = new ButtonGroup();
+            singleLocationButton = new JRadioButton(I18n.tr("Save all downloads to one folder:"));
+            multiLocationButton = new JRadioButton(I18n.tr("Save different categories to different folders"));
+            singleLocationButton.setOpaque(false);
+            multiLocationButton.setOpaque(false);
+            downloadOptions.add(singleLocationButton);
+            downloadOptions.add(multiLocationButton);
             
             downloadSaveTextField = new LabelTextField(iconManager);
             downloadSaveTextField.setEditable(false);
@@ -101,28 +133,47 @@ public class DownloadOptionPanel extends OptionPanel {
             autoRenameDuplicateFilesCheckBox = new JCheckBox(I18n.tr("If the file already exists, download it with a different name"));
             autoRenameDuplicateFilesCheckBox.setContentAreaFilled(false);
             
-            shareCompletedDownloadsCheckBox = new JCheckBox(I18n.tr("Share files downloaded from the P2P Network with the P2P Network"));
-            shareCompletedDownloadsCheckBox.setContentAreaFilled(false);
-            
-            addToITunesCheckBox = new JCheckBox(I18n.tr("Add audio files I downloaded from LimeWire to iTunes"));
-            addToITunesCheckBox.setContentAreaFilled(false);
-            
-
-            
-            add(new JLabel(I18n.tr("Save downloads to:")), "split 3");
-            add(downloadSaveTextField, "span, growx, push");
+            add(singleLocationButton);
+            add(downloadSaveTextField, "span, growx");
             add(browseSaveLocationButton, "wrap");
+
+            saveFolderPanel = manageFoldersOptionPanelFactory.create(new OKDialogAction(), new CancelDialogAction());
+            saveFolderPanel.setSize(new Dimension(400,500));
             
-            add(autoRenameDuplicateFilesCheckBox, "gapleft 25, split 2, wrap");
+            multiLocationConfigureButton = new JButton(new DialogDisplayAction(this, saveFolderPanel, 
+                    I18n.tr("Download Folders"),I18n.tr("Configure..."),I18n.tr("Configure where different categories are downloaded")));
             
-            add(shareCompletedDownloadsCheckBox, "split 3, wrap");
-            if(OSUtils.isMacOSX() || OSUtils.isWindows()) {
-                add(addToITunesCheckBox, "split 3, wrap");
-            }
+            add(multiLocationButton);
+            add(multiLocationConfigureButton, "wrap");
+            
+            add(autoRenameDuplicateFilesCheckBox, "wrap");
+            
+            ActionListener downloadSwitchAction = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (singleLocationButton.isSelected()) {
+                        downloadSaveTextField.setVisible(true);
+                        browseSaveLocationButton.setVisible(true);
+                        multiLocationConfigureButton.setVisible(false);
+                    } 
+                    else {
+                        downloadSaveTextField.setVisible(false);
+                        browseSaveLocationButton.setVisible(false);
+                        multiLocationConfigureButton.setVisible(true);
+                    }
+                }
+            };
+            singleLocationButton.addActionListener(downloadSwitchAction);
+            multiLocationButton.addActionListener(downloadSwitchAction);
         }
         
         @Override
         boolean applyOptions() {
+            
+            if (singleLocationButton.isSelected() && saveFolderPanel.isConfigCustom()) {
+                saveFolderPanel.revertToDefault();
+            }
+            
             SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.setValue(autoRenameDuplicateFilesCheckBox.isSelected());
             final String save = downloadSaveTextField.getText();
             if(!save.equals(currentSaveDirectory)) {
@@ -143,13 +194,8 @@ public class DownloadOptionPanel extends OptionPanel {
                     downloadSaveTextField.setText(currentSaveDirectory);
                 }
             }
-            SharingSettings.SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES.setValue(shareCompletedDownloadsCheckBox.isSelected());
-            SharingSettings.ALLOW_PARTIAL_SHARING.setValue(shareCompletedDownloadsCheckBox.isSelected());
             
-            if(OSUtils.isMacOSX() || OSUtils.isWindows()) {
-                iTunesSettings.ITUNES_SUPPORT_ENABLED.setValue(addToITunesCheckBox.isSelected());
-            }
-            return false;
+            return saveFolderPanel.applyOptions();
         }
         
         /**
@@ -183,14 +229,22 @@ public class DownloadOptionPanel extends OptionPanel {
         @Override
         boolean hasChanged() { 
             return  !currentSaveDirectory.equals(downloadSaveTextField.getText()) 
-                    || SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.getValue() != autoRenameDuplicateFilesCheckBox.isSelected()
-                    || SharingSettings.SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES.getValue() != shareCompletedDownloadsCheckBox.isSelected()
-                    || (OSUtils.isMacOSX() || OSUtils.isWindows()) ? iTunesSettings.ITUNES_SUPPORT_ENABLED.getValue() != addToITunesCheckBox.isSelected() : false;
+                    || saveFolderPanel.hasChanged()
+                    || singleLocationButton.isSelected() && saveFolderPanel.isConfigCustom()
+                    || SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.getValue() != autoRenameDuplicateFilesCheckBox.isSelected();
         }
 
         @Override
         public void initOptions() { 
             autoRenameDuplicateFilesCheckBox.setSelected(SwingUiSettings.AUTO_RENAME_DUPLICATE_FILES.getValue());
+            saveFolderPanel.initOptions();
+            
+            if (saveFolderPanel.isConfigCustom()) {
+                multiLocationButton.doClick();
+            }
+            else {
+                singleLocationButton.doClick();
+            }
             
             try {
                 File file = SharingSettings.getSaveDirectory();
@@ -209,12 +263,6 @@ public class DownloadOptionPanel extends OptionPanel {
             } catch (IOException ioe) {
                 currentSaveDirectory = "";
                 downloadSaveTextField.setText("");
-            }
-            
-            shareCompletedDownloadsCheckBox.setSelected(SharingSettings.SHARE_DOWNLOADED_FILES_IN_NON_SHARED_DIRECTORIES.getValue());
-            
-            if(OSUtils.isMacOSX() || OSUtils.isWindows()) {
-                addToITunesCheckBox.setSelected(iTunesSettings.ITUNES_SUPPORT_ENABLED.getValue());
             }
         }
     }

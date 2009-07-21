@@ -27,7 +27,7 @@ import com.limegroup.gnutella.metadata.video.reader.WMVMetaData;
 
 /**
  * Implementation of MetaDataFactory. Returns the appropriate reader/writer for
- * the file type if one exists, null if one does not exist 
+ * the file type if one exists, null if one does not exist.
  */
 @Singleton
 public class MetaDataFactoryImpl implements MetaDataFactory {
@@ -60,8 +60,8 @@ public class MetaDataFactoryImpl implements MetaDataFactory {
     }
     
     /**
-     * factory method which returns an instance of MetaDataEditor which
-     * should be used with the specific file
+     * Factory method which returns an instance of MetaDataEditor which
+     * should be used with the specific file.
      * @param name the name of the file to be annotated
      * @return the MetaDataEditor that will do the annotation.  null if the
      * lime xml repository should be used.
@@ -78,7 +78,6 @@ public class MetaDataFactoryImpl implements MetaDataFactory {
     /**
      * Registers this reader as both an audio and video format reader. Some extensions such
      * as .asf, .wm, .mp4 can contain both audio or video data.
-     * @param reader
      */
     private void registerMultiFormat(MetaReader reader) {
         for (String extension : reader.getSupportedExtensions()) {
@@ -92,25 +91,26 @@ public class MetaDataFactoryImpl implements MetaDataFactory {
     }
 
 	/**
-	 * Registers a reader of audio files. The reader is registered
-	 * with all the associated file extensions it can read. If a reader
-	 * already exists for this file type, an exception is thrown.
-	 */
+     * Registers a reader of audio files. The reader is registered with all the
+     * associated file extensions it can read. If a reader already exists for
+     * this file type, an exception is thrown.
+     */
     private void registerAudioReader(MetaReader reader) {
         for (String extension : reader.getSupportedExtensions()) {
             MetaReader existingReader = readerByExtension.put(extension, reader);
             audioExtensions.add(extension);
             if (existingReader != null) {
-                throw new IllegalArgumentException("factory: " + existingReader.getClass() + " already resistered for: " + extension);
+                throw new IllegalArgumentException("factory: " + existingReader.getClass()
+                        + " already resistered for: " + extension);
             }
         }
     }
-    
+
     /**
-	 * Registers a reader of video files. The reader is registered
-	 * with all the associated file extensions it can read. If a reader
-	 * already exists for this file type, an exception is thrown.
-	 */
+     * Registers a reader of video files. The reader is registered with all the
+     * associated file extensions it can read. If a reader already exists for
+     * this file type, an exception is thrown.
+     */
     private void registerVideoReader(MetaReader reader) {
         for (String extension : reader.getSupportedExtensions()) {
             MetaReader existingReader = readerByExtension.put(extension, reader);

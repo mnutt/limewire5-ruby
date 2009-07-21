@@ -1,7 +1,7 @@
 package com.limegroup.gnutella.spam;
 
 /**
- * A token representing a name/value pair from XML metadata
+ * A token representing a name/value pair from XML metadata.
  */
 public class XMLKeywordToken extends KeywordToken {
     
@@ -12,9 +12,9 @@ public class XMLKeywordToken extends KeywordToken {
      */
     private static final float XML_WEIGHT = 0.2f;
 
-	XMLKeywordToken(String name, String value) {
-		super(name + ":" + value);
-	}
+    XMLKeywordToken(String name, String value) {
+        super(name + ":" + value);
+    }
     
     @Override
     protected float getWeight() {

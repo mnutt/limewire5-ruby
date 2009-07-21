@@ -17,10 +17,11 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.limewire.bittorrent.TorrentManager;
 import org.limewire.collection.DualIterator;
 import org.limewire.collection.MultiIterable;
-import org.limewire.core.api.download.SaveLocationException;
-import org.limewire.core.api.download.SaveLocationException.LocationCode;
+import org.limewire.core.api.download.DownloadException;
+import org.limewire.core.api.download.DownloadException.ErrorCode;
 import org.limewire.core.settings.DownloadSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.UpdateSettings;
@@ -38,16 +39,14 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.service.MessageService;
 import org.limewire.util.FileUtils;
+import org.limewire.util.StringUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.limegroup.bittorrent.BTMetaInfo;
-import com.limegroup.bittorrent.BTMetaInfoFactory;
+import com.limegroup.bittorrent.BTDownloader;
 import com.limegroup.bittorrent.BTTorrentFileDownloader;
-import com.limegroup.bittorrent.TorrentFileSystem;
-import com.limegroup.bittorrent.TorrentManager;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 import com.limegroup.gnutella.downloader.CoreDownloader;
@@ -63,11 +62,10 @@ import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.downloader.ResumeDownloader;
 import com.limegroup.gnutella.downloader.StoreDownloader;
 import com.limegroup.gnutella.downloader.Visitor;
-import com.limegroup.gnutella.downloader.serial.BTMetaInfoMemento;
 import com.limegroup.gnutella.downloader.serial.DownloadMemento;
 import com.limegroup.gnutella.downloader.serial.DownloadSerializer;
+import com.limegroup.gnutella.library.LibraryStatusEvent;
 import com.limegroup.gnutella.library.LibraryUtils;
-import com.limegroup.gnutella.library.ManagedListStatusEvent;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -76,7 +74,7 @@ import com.limegroup.mozilla.MozillaDownload;
 import com.limegroup.mozilla.MozillaDownloaderImpl;
 
 @Singleton
-public class DownloadManagerImpl implements DownloadManager, Service, EventListener<ManagedListStatusEvent> {
+public class DownloadManagerImpl implements DownloadManager, Service, EventListener<LibraryStatusEvent> {
     
     private static final Log LOG = LogFactory.getLog(DownloadManagerImpl.class);
     
@@ -143,41 +141,36 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
     private final Provider<DownloadCallback> downloadCallback;
     private final Provider<MessageRouter> messageRouter;
     private final ScheduledExecutorService backgroundExecutor;
-    private final Provider<TorrentManager> torrentManager;
     private final Provider<PushDownloadManager> pushDownloadManager;
     private final CoreDownloaderFactory coreDownloaderFactory;
     private final DownloadSerializer downloadSerializer;
     private final IncompleteFileManager incompleteFileManager;
     private final RemoteFileDescFactory remoteFileDescFactory;
-    private final BTMetaInfoFactory btMetaInfoFactory;
 
     private final PushEndpointFactory pushEndpointFactory;
-    
+
+    private final Provider<TorrentManager> torrentManager;
+
     @Inject
     public DownloadManagerImpl(@Named("inNetwork") DownloadCallback innetworkCallback,
-            Provider<DownloadCallback> downloadCallback,
-            Provider<MessageRouter> messageRouter,
+            Provider<DownloadCallback> downloadCallback, Provider<MessageRouter> messageRouter,
             @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
-            Provider<TorrentManager> torrentManager,
             Provider<PushDownloadManager> pushDownloadManager,
-            CoreDownloaderFactory coreDownloaderFactory,
-            DownloadSerializer downloaderSerializer,
+            CoreDownloaderFactory coreDownloaderFactory, DownloadSerializer downloaderSerializer,
             IncompleteFileManager incompleteFileManager,
-            RemoteFileDescFactory remoteFileDescFactory,
-            BTMetaInfoFactory btMetaInfoFactory,
-            PushEndpointFactory pushEndpointFactory) {
+            RemoteFileDescFactory remoteFileDescFactory, PushEndpointFactory pushEndpointFactory,
+            Provider<TorrentManager> torrentManager) {
         this.innetworkCallback = innetworkCallback;
         this.downloadCallback = downloadCallback;
         this.messageRouter = messageRouter;
         this.backgroundExecutor = backgroundExecutor;
-        this.torrentManager = torrentManager;
         this.pushDownloadManager = pushDownloadManager;
         this.coreDownloaderFactory = coreDownloaderFactory;
         this.downloadSerializer = downloaderSerializer;
         this.incompleteFileManager = incompleteFileManager;
         this.remoteFileDescFactory = remoteFileDescFactory;
-        this.btMetaInfoFactory = btMetaInfoFactory;
         this.pushEndpointFactory = pushEndpointFactory;
+        this.torrentManager = torrentManager;
     }
 
     /* (non-Javadoc)
@@ -190,7 +183,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
     }
     
     @Inject
-    void register(ListenerSupport<ManagedListStatusEvent> listeners) {
+    void register(ListenerSupport<LibraryStatusEvent> listeners) {
         listeners.addListener(this);
     }
 
@@ -288,7 +281,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
         for(File file : incompleteFiles) {
             try {
                 download(file);
-            } catch (SaveLocationException e) {
+            } catch (DownloadException e) {
                 LOG.error("SLE loading incomplete file", e);
             } catch (CantResumeException e) {
                 LOG.error("CRE loading incomplete file", e);
@@ -600,14 +593,14 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
                                             List<? extends RemoteFileDesc> alts, GUID queryGUID, 
                                             boolean overwrite, File saveDir,
                                             String fileName) 
-        throws SaveLocationException {
+        throws DownloadException {
 
         String fName = getFileName(files, fileName);
         if (conflicts(files, new File(saveDir,fName))) {
             addRemoteFileDescsToDownloader(files);
             
-            throw new SaveLocationException
-            (LocationCode.FILE_ALREADY_DOWNLOADING,
+            throw new DownloadException
+            (ErrorCode.FILE_ALREADY_DOWNLOADING,
                     new File(fName != null ? fName : ""));
         }
 
@@ -663,7 +656,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             boolean overwrite,
             File saveDir,
             String fileName)
-    throws IllegalArgumentException, SaveLocationException {
+    throws IllegalArgumentException, DownloadException {
         
         if (!magnet.isDownloadable()) 
             throw new IllegalArgumentException("magnet not downloadable");
@@ -675,8 +668,8 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             fileName = magnet.getFileNameForSaving();
         }
         if (conflicts(magnet.getSHA1Urn(), 0, new File(saveDir,fileName))) {
-            throw new SaveLocationException
-            (LocationCode.FILE_ALREADY_DOWNLOADING, new File(fileName));
+            throw new DownloadException
+            (ErrorCode.FILE_ALREADY_DOWNLOADING, new File(fileName));
         }
 
         //Note: If the filename exists, it would be nice to check that we are
@@ -701,7 +694,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             boolean overwrite,
             File saveDir,
             String fileName)
-    throws IllegalArgumentException, SaveLocationException {
+    throws IllegalArgumentException, DownloadException {
         
         //Purge entries from incompleteFileManager that have no corresponding
         //file on disk.  This protects against stupid users who delete their
@@ -712,8 +705,8 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
         incompleteFileManager.purge();
         
         if (conflicts(rfd.getSHA1Urn(), 0, new File(saveDir,fileName))) {
-            throw new SaveLocationException
-            (LocationCode.FILE_ALREADY_DOWNLOADING, new File(fileName));
+            throw new DownloadException
+            (ErrorCode.FILE_ALREADY_DOWNLOADING, new File(fileName));
         }
       
         //Start download asynchronously.  This automatically moves downloader to
@@ -731,15 +724,16 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
      * @see com.limegroup.gnutella.DownloadManager#download(java.io.File)
      */ 
     public synchronized Downloader download(File incompleteFile)
-            throws CantResumeException, SaveLocationException { 
+            throws CantResumeException, DownloadException { 
      
         if (conflictsWithIncompleteFile(incompleteFile)) {
-            throw new SaveLocationException
-            (LocationCode.FILE_ALREADY_DOWNLOADING, incompleteFile);
+            throw new DownloadException
+            (ErrorCode.FILE_ALREADY_DOWNLOADING, incompleteFile);
         }
-        
-        if (IncompleteFileManager.isTorrentFolder(incompleteFile)) 
+
+        if (IncompleteFileManager.isTorrentFile(incompleteFile)) {
             return resumeTorrentDownload(incompleteFile);
+        }
 
         //Check if file exists.  TODO3: ideally we'd pass ALL conflicting files
         //to the GUI, so they know what they're overwriting.
@@ -783,52 +777,26 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
         initializeDownload(downloader, true);
         return downloader;
     }
-    
-    private Downloader resumeTorrentDownload(File torrentFolder) 
-    throws CantResumeException, SaveLocationException {
-        File infohash = null; 
-        for (File f : torrentFolder.listFiles()){
-            if (f.getName().startsWith(".dat")) {
-                infohash = f;
-                break;
-            }
+
+    private Downloader resumeTorrentDownload(File torrentFile) throws CantResumeException,
+            DownloadException {
+        if(torrentManager.get().isValid()) {
+            return downloadTorrent(torrentFile, null, false);
+        } else {
+            throw new CantResumeException("Torrent Manager Invalid", torrentFile.getName());
         }
-        
-        String name = IncompleteFileManager.getCompletedName(torrentFolder);
-        if(infohash == null)
-            throw new CantResumeException(name);
-        
-        BTMetaInfoMemento memento = null;
-        try {
-            Object infoObj = FileUtils.readObject(infohash.getAbsolutePath());
-            memento = (BTMetaInfoMemento)infoObj;
-        } catch (Throwable bad) {
-            throw new CantResumeException(name);
-        }
-        
-        BTMetaInfo info;
-        try {
-            info = btMetaInfoFactory.createBTMetaInfoFromMemento(memento);
-        } catch(InvalidDataException ide) {
-            throw new CantResumeException(name);
-        }
-        
-        Downloader ret = downloadTorrent(info, false);
-        if (ret.isResumable())
-            ret.resume();
-        return ret;
     }
     
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.DownloadManager#download(com.limegroup.gnutella.version.DownloadInformation, long)
      */
     public synchronized Downloader download(DownloadInformation info, long now) 
-    throws SaveLocationException {
+    throws DownloadException {
         File dir = LibraryUtils.PREFERENCE_SHARE;
         dir.mkdirs();
         File f = new File(dir, info.getUpdateFileName());
         if(conflicts(info.getUpdateURN(), (int)info.getSize(), f))
-            throw new SaveLocationException(LocationCode.FILE_ALREADY_DOWNLOADING, f);
+            throw new DownloadException(ErrorCode.FILE_ALREADY_DOWNLOADING, f);
         
         incompleteFileManager.purge();
         ManagedDownloader d = coreDownloaderFactory.createInNetworkDownloader(
@@ -838,41 +806,120 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
     }
     
     @Override
-    public Downloader downloadTorrent(URI torrentURI, final boolean overwrite) throws SaveLocationException {
-        final BTTorrentFileDownloader torrentDownloader = coreDownloaderFactory.createTorrentFileDownloader(torrentURI, true);
+    public synchronized Downloader downloadTorrent(URI torrentURI, final boolean overwrite)
+            throws DownloadException {
+        if(!isSavedDownloadsLoaded()) {
+            throw new DownloadException(DownloadException.ErrorCode.FILES_STILL_RESUMING, null);
+        }
+        
+        if(!torrentManager.get().isValid()) {
+            throw new DownloadException(DownloadException.ErrorCode.NO_TORRENT_MANAGER, null);
+        }
+        
+        final BTTorrentFileDownloader torrentDownloader = coreDownloaderFactory
+                .createTorrentFileDownloader(torrentURI, true);
         initializeDownload(torrentDownloader, false);
         return torrentDownloader;
     }
 
     @Override
-    public Downloader downloadTorrent(File torrentFile, boolean overwrite) throws SaveLocationException {
-        if(torrentFile.length() > 1024 * 1024 * 5 ) {
-            //torrent files are supposed to be small. If it is large it is probably not a valid torrent file 
-            throw new SaveLocationException(SaveLocationException.LocationCode.TORRENT_FILE_TOO_LARGE, torrentFile);
+    public synchronized Downloader downloadTorrent(File torrentFile, File saveDirectory, boolean overwrite)
+            throws DownloadException {
+        
+        if(!isSavedDownloadsLoaded()) {
+            throw new DownloadException(DownloadException.ErrorCode.FILES_STILL_RESUMING, torrentFile);
         }
-        BTMetaInfo btMetaInfo = null;
+        
+        if(!torrentManager.get().isValid()) {
+            throw new DownloadException(DownloadException.ErrorCode.NO_TORRENT_MANAGER, torrentFile);
+        }
+        
+        if (torrentFile.length() > 1024 * 1024 * 5) {
+            // torrent files are supposed to be small. If it is large it is
+            // probably not a valid torrent file
+            throw new DownloadException(
+                    DownloadException.ErrorCode.TORRENT_FILE_TOO_LARGE, torrentFile);
+        }
+
+        if(saveDirectory == null) {
+            saveDirectory = SharingSettings.getSaveDirectory();
+        }
+        
+        BTDownloader ret;
         try {
-            btMetaInfo = btMetaInfoFactory.createMetaInfo(torrentFile);
-        } catch(IOException e) {
-            throw new SaveLocationException(e, torrentFile);
+            ret = coreDownloaderFactory.createBTDownloader(torrentFile, saveDirectory);
+        } catch (IOException e) {
+            LOG.error("Error creating BTDownloader", e);
+            if(e instanceof DownloadException) {
+                throw (DownloadException)e;
+            } else {
+                throw new DownloadException(e, torrentFile);
+            }
         }
-        return downloadTorrent(btMetaInfo, overwrite);
-    }
-    
-    @Override
-    public synchronized Downloader downloadTorrent(BTMetaInfo info, boolean overwrite) 
-    throws SaveLocationException {
-        TorrentFileSystem system = info.getFileSystem();
-        checkActiveAndWaiting(info.getURN(), system);
-        if (!overwrite)
-            checkTargetLocation(system, overwrite);
-        else
-            torrentManager.get().killTorrentForFile(system.getCompleteFile());
-        CoreDownloader ret = coreDownloaderFactory.createBTDownloader(info);
+
+        if (overwrite) {
+            Downloader downloader = getDownloaderForURN(ret.getSha1Urn());
+            if (downloader != null) {
+                downloader.stop();
+                downloader.deleteIncompleteFiles();
+            }
+
+            downloader = getDownloaderForIncompleteFile(ret.getIncompleteFile());
+            if (downloader != null) {
+                downloader.stop();
+                downloader.deleteIncompleteFiles();
+            }
+        } else {
+            checkActiveAndWaiting(ret);
+
+            File saveFile = ret.getSaveFile();
+            if (saveFile.exists()) {
+                throw new DownloadException(ErrorCode.FILE_ALREADY_EXISTS, saveFile);
+            }
+        }
+        ret.setSaveFile(saveDirectory, null, overwrite);
+        if(!ret.registerTorrentWithTorrentManager()) {
+            throw new DownloadException(
+                    DownloadException.ErrorCode.NO_TORRENT_MANAGER,
+                    torrentFile);
+        }
         initializeDownload(ret, true);
         return ret;
     }
-    
+
+    /**
+     * Ensures the eventual download location is not already taken by the files
+     * of any other download.
+     */
+    private void checkActiveAndWaiting(BTDownloader ret) throws DownloadException {
+
+        if (torrentManager.get().isManagedTorrent(ret.getTorrentFile())) {
+            throw new DownloadException(ErrorCode.FILE_ALREADY_DOWNLOADING, ret
+                    .getSaveFile());
+        } else if (torrentManager.get().isManagedTorrent(
+                StringUtils.toHexString(ret.getSha1Urn().getBytes()))) {
+            throw new DownloadException(ErrorCode.FILE_ALREADY_DOWNLOADING, ret
+                    .getSaveFile());
+        }
+
+        for (CoreDownloader current : activeAndWaiting) {
+            if (ret.getSha1Urn().equals(current.getSha1Urn())) {
+                throw new DownloadException(ErrorCode.FILE_ALREADY_DOWNLOADING, ret
+                        .getIncompleteFile());
+            }
+
+            if (current.conflictsSaveFile(ret.getSaveFile())) {
+                throw new DownloadException(ErrorCode.FILE_IS_ALREADY_DOWNLOADED_TO, ret
+                        .getSaveFile());
+            }
+
+            if (current.conflictsSaveFile(ret.getIncompleteFile())) {
+                throw new DownloadException(ErrorCode.FILE_ALREADY_DOWNLOADING, ret
+                        .getIncompleteFile());
+            }
+        }
+    }
+
     public synchronized Downloader downloadFromMozilla(MozillaDownload listener) {
         
         CoreDownloader downloader = new MozillaDownloaderImpl(this, listener);
@@ -884,33 +931,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
         fireEvent(downloader, DownloadManagerEvent.Type.ADDED);
         return downloader;
     }
-    
-    private void checkTargetLocation(TorrentFileSystem info, boolean overwrite) 
-    throws SaveLocationException{
-        for (File f : info.getFilesAndFolders()) {
-            if (f.exists())
-                throw new SaveLocationException
-                (LocationCode.FILE_ALREADY_EXISTS, f);
-        }
-    }
-    
-    private void checkActiveAndWaiting(URN urn, TorrentFileSystem system) 
-    throws SaveLocationException {
-        for (CoreDownloader current : activeAndWaiting) {
-            if (urn.equals(current.getSha1Urn())) {
-                // this is the place to add new trackers eventually.
-                throw new SaveLocationException
-                (LocationCode.FILE_ALREADY_DOWNLOADING, system.getCompleteFile());
-            }
-            for (File f : system.getFilesAndFolders()) {
-                if (current.conflictsSaveFile(f)) {
-                    throw new SaveLocationException
-                    (LocationCode.FILE_IS_ALREADY_DOWNLOADED_TO, f);
-                }
-            }
-        }
-    }
-    
+
     /**
      * Performs common tasks for initializing the download.
      * 1) Initializes the downloader.
@@ -1242,7 +1263,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
     /**
      * Listens for events from FileManager
      */
-    public void handleEvent(ManagedListStatusEvent evt) {
+    public void handleEvent(LibraryStatusEvent evt) {
         switch(evt.getType()){
             case LOAD_FINISHING:
                 getIncompleteFileManager().registerAllIncompleteFiles();

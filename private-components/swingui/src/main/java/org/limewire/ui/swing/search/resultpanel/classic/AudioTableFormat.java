@@ -52,7 +52,7 @@ public class AudioTableFormat extends ResultsTableFormat<VisualSearchResult> {
                 new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_AUDIO_NAME", I18n.tr("Filename"), 550, false, true), 
                 new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_AUDIO_EXTENSION", I18n.tr("Extension"), 60, false, true), 
                 new ColumnStateInfo(SIZE_INDEX, "CLASSIC_SEARCH_AUDIO_SIZE", I18n.tr("Size"), 80, false, true), 
-                new ColumnStateInfo(DESCRIPTION_INDEX, "CLASSIC_SEARCH_AUDIO_DESCRIPTION", I18n.tr("Description"), 60, false, true),
+                new ColumnStateInfo(DESCRIPTION_INDEX, "CLASSIC_SEARCH_AUDIO_DESCRIPTION", I18n.tr("Description"), 60, false, false),
                 new ColumnStateInfo(IS_SPAM_INDEX, "CLASSIC_SEARCH_AUDIO_IS_SPAM", "", 10, false, false)
         });
     }

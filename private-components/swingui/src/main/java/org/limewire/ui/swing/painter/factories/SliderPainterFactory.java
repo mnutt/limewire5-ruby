@@ -30,7 +30,7 @@ public class SliderPainterFactory {
     }
     
     /**
-     * Creates a painter for the standard media slider background
+     * Creates a painter for the standard media slider background.
      */
     public AbstractPainter<JComponent> createMediaBackgroundPainter() {
         return new ProgressBarBackgroundPainter(
@@ -40,9 +40,9 @@ public class SliderPainterFactory {
     
     /**
      * Creates a foreground painter for a draggable media slider.
-     *  This takes care of drowing the slider knob and current
+     *  This takes care of drawing the slider knob and current
      *  slider progress. 
-     * 
+     * <p>
      * Should not be cachable so the slider nob can be repainted
      *  easily on mouse events. 
      */

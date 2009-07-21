@@ -67,8 +67,8 @@ public class LWSFileNamingOptionPanel extends OptionPanel {
         add(subFolderComboBox, "gapBottom 20, push");
         add(fileNameComboBox, "gapBottom 20, growx, wrap");
         
-        add(okButton, "skip 1, alignx right, growx, split 2");
-        add(cancelButton);
+        add(okButton, "tag ok, skip 1, alignx right, growx, split 2");
+        add(cancelButton, "tag cancel");
         
     }
     

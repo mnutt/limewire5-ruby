@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +32,7 @@ import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.dht.DHTManager;
 import com.limegroup.gnutella.filters.URNFilter;
 import com.limegroup.gnutella.guess.OnDemandUnicaster;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileViewManager;
 import com.limegroup.gnutella.library.SharedFilesKeywordIndex;
 import com.limegroup.gnutella.messagehandlers.InspectionRequestHandler;
 import com.limegroup.gnutella.messagehandlers.LimeACKHandler;
@@ -91,7 +90,7 @@ public class StandardMessageRouter extends MessageRouterImpl {
             HeadPongFactory headPongFactory, PingReplyFactory pingReplyFactory,
             ConnectionManager connectionManager, @Named("forMeReplyHandler")
             ReplyHandler forMeReplyHandler, QueryUnicaster queryUnicaster,
-            FileManager fileManager, ContentManager contentManager,
+            FileViewManager fileManager, ContentManager contentManager,
             DHTManager dhtManager, UploadManager uploadManager,
             DownloadManager downloadManager, UDPService udpService,
             SearchResultHandler searchResultHandler,
@@ -349,25 +348,11 @@ public class StandardMessageRouter extends MessageRouterImpl {
         if ( (responses == null) || ((responses.length < 1)) )
             return false;
 
-        // if we cannot service a regular query, only send back results for
-        // application-shared metafiles, if any.
         if (!uploadManager.isServiceable()) {        	
-        	List<Response> filtered = new ArrayList<Response>(responses.length);
-        	for(Response r : responses) {
-        		if (r.isMetaFile() && 
-        				fileManager.getGnutellaFileList().isFileApplicationShare(r.getName()))
-        			filtered.add(r);
-        	}
-        	
-        	if (filtered.isEmpty()) {// nothing to send..
         	    notServiced.countMessage(query);
         		return false;
         	}
         	
-        	if (filtered.size() != responses.length)
-        		responses = filtered.toArray(new Response[filtered.size()]);
-        }
-        
         // Here we can do a couple of things - if the query wants
         // out-of-band replies we should do things differently.  else just
         // send it off as usual.  only send out-of-band if you can

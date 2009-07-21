@@ -1,12 +1,24 @@
 package org.limewire.util;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.limewire.inspection.Inspectable;
+import org.limewire.inspection.InspectionPoint;
 
 /**
  * Provides methods to get operating system properties, resources and versions, 
  * and determine operating system criteria.
  */
 public class OSUtils {
+    
+    private static final Log LOG = LogFactory.getLog(OSUtils.class);
     
     static {
         setOperatingSystems();
@@ -26,6 +38,11 @@ public class OSUtils {
      * Variable for whether or not we're on Windows XP.
      */
     private static boolean _isWindowsXP;
+    
+    /** 
+     * Variable for whether or not we're on Windows 7.
+     */
+    private static boolean _isWindows7;
 
     /** 
      * Variable for whether or not we're on Windows 95.
@@ -46,6 +63,11 @@ public class OSUtils {
      * Variable for whether or not we're on Windows Vista.
      */
     private static boolean _isWindowsVista;
+    
+    /**
+     * Variable for whether or not we're on Windows Vista SP2 or higher.
+     */
+    private static boolean _isSlightlyLessBrokenVersionOfWindowsVista;
 
     /** 
      * Variable for whether or not the operating system allows the 
@@ -73,14 +95,20 @@ public class OSUtils {
      */
     private static boolean _isOS2;
 
+    /** Operating System information */
+    @SuppressWarnings("unused") @InspectionPoint("os_info")
+    private static final Inspectable osInspect = new OSInspecter();
+
     /**
      * Sets the operating system variables.
      */
     public static void setOperatingSystems() {
     	_isWindows = false;
     	_isWindowsVista = false;
+        _isSlightlyLessBrokenVersionOfWindowsVista = false;
     	_isWindowsNT = false;
     	_isWindowsXP = false;
+    	_isWindows7 = false;
     	_isWindows95 = false;
     	_isWindows98 = false;
     	_isWindowsMe = false;
@@ -90,26 +118,37 @@ public class OSUtils {
     	_isMacOSX = false;
     
     	String os = System.getProperty("os.name").toLowerCase(Locale.US);
-    
+    	String version = System.getProperty("os.version").toLowerCase(Locale.US);
+    	
     	// set the operating system variables
     	_isWindows = os.indexOf("windows") != -1;
     	
-    	if (os.indexOf("windows nt") != -1)
+    	if (os.indexOf("windows nt") != -1) {
     		_isWindowsNT = true;
-    	if (os.indexOf("windows xp") != -1) 
+    	} else if (os.indexOf("windows xp") != -1) { 
     		_isWindowsXP = true;
-        if (os.indexOf("windows vista") != -1)
+    	} else if(os.indexOf("windows 7") != -1) {
+            _isWindows7 = true;
+        } else if (os.indexOf("windows vista") != -1 && version.startsWith("6.1")) {
+            //In jdk 1.6 before update 14 the os.name system property still returns Windows Vista
+            //The version number is set to 6.1 however, so we can check for that and windows vista 
+            //together to determine if it is windows 7
+            _isWindows7 = true;        
+        } else if (os.indexOf("windows vista") != -1) {
             _isWindowsVista = true;        
-    	if(os.indexOf("windows 95") != -1)
+    	} else if(os.indexOf("windows 95") != -1) {
     	   _isWindows95 = true;
-    	if(os.indexOf("windows 98") != -1)
+    	} else if(os.indexOf("windows 98") != -1) {
     	   _isWindows98 = true;
-    	if(os.indexOf("windows me") != -1)
+    	} else if(os.indexOf("windows me") != -1) {
     	   _isWindowsMe = true;
-        
-    	_isSolaris = os.indexOf("solaris") != -1;
-    	_isLinux   = os.indexOf("linux")   != -1;
-        _isOS2     = os.indexOf("os/2")    != -1;
+    	} else if(os.indexOf("solaris") != -1) {
+    	    _isSolaris = true;    
+    	} else if(os.indexOf("linux")   != -1) {
+    	    _isLinux   = true;    
+    	} else if(os.indexOf("os/2")    != -1) {
+    	    _isOS2     = true;    
+    	}
         
         if(_isWindows || _isLinux)
             _supportsTray = true;
@@ -118,6 +157,43 @@ public class OSUtils {
     		if(os.endsWith("x")) {
     			_isMacOSX = true;
     		}
+    	}
+        
+        // If this is Windows Vista, try to find out whether SP2 (or higher)
+        // is installed, which removes the half-open TCP connection limit.
+    	if(_isWindowsVista) {
+            BufferedReader br = null;
+    	    try {
+                // Execute reg.exe to query a registry key
+    	        Process p = Runtime.getRuntime().exec(new String[] {
+    	                "reg",
+    	                "query",
+    	                "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion",
+    	                "/v",
+    	                "CSDVersion"
+    	        });
+                // Parse the output
+    	        br = new BufferedReader(
+                    new InputStreamReader(p.getInputStream()));
+    	        String line = null;
+    	        while((line = br.readLine()) != null) {
+    	            if(line.matches(".*CSDVersion.*"))
+    	                break;
+    	        }
+                // Assume there won't be more than 9 service packs for Vista
+    	        if(line != null && line.matches(".*Service Pack [2-9]")) {
+                    LOG.debug("Slightly less broken version of Windows Vista");
+    	            _isSlightlyLessBrokenVersionOfWindowsVista = true;
+                }
+    	    } catch(Throwable t) {
+    	        LOG.debug("Failed to determine Windows version", t);
+    	    } finally {
+                if(br != null) {
+                    try {
+                        br.close();
+                    } catch(IOException ignored) {}
+                }
+            }
     	}
     }    
 
@@ -133,6 +209,13 @@ public class OSUtils {
      */
     public static String getOSVersion() {
         return System.getProperty("os.version");
+    }
+
+    /**
+     * Returns the operating system architecture.
+     */
+    public static String getOSArch() {
+        return System.getProperty("os.arch");
     }
 
     /**
@@ -161,6 +244,16 @@ public class OSUtils {
      */
     public static boolean isWindowsXP() {
     	return _isWindowsXP;
+    }
+    
+    /**
+     * Returns whether or not the OS is Windows 7..
+     *
+     * @return <tt>true</tt> if the application is running on Windows 7,
+     *  <tt>false</tt> otherwise
+     */
+    public static boolean isWindows7() {
+        return _isWindows7;
     }
     
     /**
@@ -203,7 +296,7 @@ public class OSUtils {
      * the 10 socket limit.
      */
     public static boolean isSocketChallengedWindows() {
-        return isWindowsVista() || isWindowsXP();
+        return _isWindowsXP || (_isWindowsVista && !_isSlightlyLessBrokenVersionOfWindowsVista);
     }
 
     /**
@@ -306,5 +399,17 @@ public class OSUtils {
     
     public static boolean supportsTLS() {
         return true;
+    }
+    
+    private static class OSInspecter implements Inspectable {
+        @Override
+        public Object inspect() {
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("os_name", getOS());
+            data.put("os_ver", getOSVersion());
+            data.put("os_arch", getOSArch());
+            data.put("num_cpus", Runtime.getRuntime().availableProcessors());
+            return data;
+        }
     }
 }

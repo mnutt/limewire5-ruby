@@ -6,7 +6,6 @@ import static org.limewire.util.Objects.compareToNullIgnoreCase;
 import java.util.Comparator;
 
 import org.limewire.core.api.FilePropertyKey;
-import org.limewire.util.CommonUtils;
 
 /**
  * Factory class for creating sort comparators.
@@ -151,10 +150,8 @@ public class SortFactory {
         return new Comparator<VisualSearchResult>() {
             @Override
             public int compare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                String v1 = vsr1.getPropertyString(key);
-                String v2 = vsr2.getPropertyString(key);
-                Long l1 = CommonUtils.parseLongNoException(v1);
-                Long l2 = CommonUtils.parseLongNoException(v2);
+                Long l1 = (Long)vsr1.getProperty(key);
+                Long l2 = (Long)vsr2.getProperty(key);
                 return compareNullCheck(l1, l2, ascending, true);
             }
         };
@@ -195,8 +192,8 @@ public class SortFactory {
         return new Comparator<VisualSearchResult>() {
             @Override
             public int compare(VisualSearchResult vsr1, VisualSearchResult vsr2) {
-                double r1 = vsr1.getRelevance();
-                double r2 = vsr2.getRelevance();
+                int r1 = vsr1.getRelevance();
+                int r2 = vsr2.getRelevance();
                 return ascending ? compareToNull(r1, r2, false) 
                         : compareToNull(r2, r1, false);
             }

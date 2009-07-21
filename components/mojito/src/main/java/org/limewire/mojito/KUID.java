@@ -67,10 +67,10 @@ public class KUID implements Comparable<KUID>, Serializable {
         0x1
     };
     
-    /** All 160 bits are 0 */
+    /** All 160 bits are 0. */
     public static final KUID MINIMUM;
     
-    /** All 160 bits are 1 */
+    /** All 160 bits are 1. */
     public static final KUID MAXIMUM;
                                            
     static {
@@ -83,10 +83,10 @@ public class KUID implements Comparable<KUID>, Serializable {
         MAXIMUM = new KUID(max);
     }
     
-    /** The id */
+    /** The id. */
     private final byte[] id;
     
-    /** The hashCode of this Object */
+    /** The hashCode of this Object. */
     private final int hashCode;
     
     protected KUID(byte[] id) {
@@ -103,14 +103,14 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * Writes the ID to the OutputStream
+     * Writes the ID to the OutputStream.
      */
     public void write(OutputStream out) throws IOException {
         out.write(id, 0, id.length);
     }
     
     /**
-     * Returns whether or not the 'bitIndex' th bit is set
+     * Returns whether or not the 'bitIndex' th bit is set.
      */
     public boolean isBitSet(int bitIndex) {
         // Take advantage of rounding errors!
@@ -121,7 +121,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     
     /**
      * Sets the specified bit to 1 and returns a new
-     * KUID instance
+     * KUID instance.
      */
     public KUID set(int bit) {
         return set(bit, true);
@@ -129,7 +129,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     
     /**
      * Sets the specified bit to 0 and returns a new
-     * KUID instance
+     * KUID instance.
      */
     public KUID unset(int bit) {
         return set(bit, false);
@@ -137,14 +137,14 @@ public class KUID implements Comparable<KUID>, Serializable {
     
     /**
      * Flips the specified bit from 0 to 1 or vice versa
-     * and returns a new KUID instance
+     * and returns a new KUID instance.
      */
     public KUID flip(int bit) {
         return set(bit, !isBitSet(bit));
     }
     
     /**
-     * Sets or unsets the 'bitIndex' th bit
+     * Sets or unsets the 'bitIndex' th bit.
      */
     private KUID set(int bitIndex, boolean set) {
         // Take advantage of rounding errors!
@@ -164,7 +164,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * Returns the number of bits that are 1
+     * Returns the number of bits that are 1.
      */
     public int bits() {
         int bits = 0;
@@ -180,7 +180,7 @@ public class KUID implements Comparable<KUID>, Serializable {
      * Returns the first bit that differs in this KUID
      * and the given KUID or KeyAnalyzer.NULL_BIT_KEY
      * if all 160 bits are zero or KeyAnalyzer.EQUAL_BIT_KEY
-     * if both KUIDs are equal
+     * if both KUIDs are equal.
      */
     public int bitIndex(KUID nodeId) {
         boolean allNull = true;
@@ -228,7 +228,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * Inverts all bits of the current KUID
+     * Inverts all bits of the current KUID.
      */
     public KUID invert() {
         byte[] result = new byte[id.length];
@@ -286,14 +286,14 @@ public class KUID implements Comparable<KUID>, Serializable {
     /**
      * Returns the raw bytes of the current KUID. The
      * returned byte[] array is a copy and modifications
-     * are not reflected to this KUID
+     * are not reflected to this KUID.
      */
     public byte[] getBytes() {
         return getBytes(0, new byte[id.length], 0, id.length);
     }
     
     /**
-     * Returns the raw bytes of the current KUID from the specified interval
+     * Returns the raw bytes of the current KUID from the specified interval.
      */
     public byte[] getBytes(int srcPos, byte[] dest, int destPos, int length) {
         System.arraycopy(id, srcPos, dest, destPos, length);
@@ -320,7 +320,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * Returns whether or not both KUIDs are equal
+     * Returns whether or not both KUIDs are equal.
      */
     @Override
     public boolean equals(Object o) {
@@ -334,21 +334,21 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
 
     /**
-     * Returns the current KUID as hex String
+     * Returns the current KUID as hex String.
      */
     public String toHexString() {
         return ArrayUtils.toHexString(id);
     }
     
     /**
-     * Returns the current KUID as bin String
+     * Returns the current KUID as bin String.
      */
     public String toBinString() {
         return ArrayUtils.toBinString(id);
     }
     
     /**
-     * Returns the current KUID as BigInteger
+     * Returns the current KUID as BigInteger.
      */
     public BigInteger toBigInteger() {    
         return new BigInteger(1 /* unsigned! */, id);
@@ -520,7 +520,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * Creates and returns a KUID from a byte array
+     * Creates and returns a KUID from a byte array.
      */
     public static KUID createWithBytes(byte[] id) {
         byte[] dst = new byte[id.length];
@@ -529,14 +529,14 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * Creates and returns a KUID from a hex encoded String
+     * Creates and returns a KUID from a hex encoded String.
      */
     public static KUID createWithHexString(String id) {
         return new KUID(ArrayUtils.parseHexString(id));
     }
     
     /**
-     * Creates a KUID from the given InputStream
+     * Creates a KUID from the given InputStream.
      */
     public static KUID createWithInputStream(InputStream in) throws IOException {
         byte[] id = new byte[LENGTH];
@@ -555,7 +555,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * Creates a random ID with the specified byte prefix
+     * Creates a random ID with the specified byte prefix.
      * 
      * @param prefix the fixed prefix bytes
      * @param depth of the Bucket in the Trie
@@ -568,7 +568,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * Creates a random ID with the specified byte prefix
+     * Creates a random ID with the specified byte prefix.
      * 
      * @param prefix the fixed prefix bytes
      * @param depth of the Bucket in the Trie
@@ -593,7 +593,7 @@ public class KUID implements Comparable<KUID>, Serializable {
     }
     
     /**
-     * The default KeyAnalyzer for KUIDs
+     * The default KeyAnalyzer for KUIDs.
      */
     public static final KeyAnalyzer<KUID> KEY_ANALYZER = new KUIDKeyAnalyzer();
     

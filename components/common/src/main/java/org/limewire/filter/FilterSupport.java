@@ -3,10 +3,10 @@ package org.limewire.filter;
 /**
  * Interface for classes that support addition and removal of black list and
  * white list filters.
- * 
+ * <p>
  * Extends {@link Filter} whose implementation delegates to the added black list
  * and white list filters in the following fashion:
- * 
+ * <p>
  * {@link #allow(T)} iterates over the black list to see if one disallows 
  * the instance of <code>T</code>, if not the instance is allowed. Otherwise,
  * the list of white list filters will be queried to veto the black filter's

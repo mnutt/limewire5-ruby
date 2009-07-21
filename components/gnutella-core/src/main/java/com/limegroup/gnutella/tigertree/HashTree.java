@@ -52,7 +52,7 @@ public interface HashTree extends HTTPHeaderValue {
 
     /**
      * Determines if this tree is better than another.
-     *
+     * <p>
      * A tree is considered better if the other's depth is not 'good',
      * and this depth is good, or if both are not good then the depth
      * closer to 'good' is best.

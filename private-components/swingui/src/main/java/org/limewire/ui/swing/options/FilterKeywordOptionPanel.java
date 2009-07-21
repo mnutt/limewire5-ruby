@@ -16,8 +16,9 @@ import net.miginfocom.swing.MigLayout;
 import org.limewire.core.api.spam.SpamManager;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.ui.swing.components.MultiLineLabel;
-import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 import org.limewire.ui.swing.util.I18n;
+
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 /**
  * Creates a table to manage which words will not show up in search results.
@@ -37,7 +38,7 @@ public class FilterKeywordOptionPanel extends AbstractFilterOptionPanel {
         keywordTextField = new JTextField(30);
         addKeywordButton = new JButton(I18n.tr("Add Keyword"));
         
-        filterTable = new FilterTable(GlazedListsSwingFactory.eventTableModel(eventList, new FilterTableFormat(I18n.tr("Keyword"))));
+        filterTable = new FilterTable(new DefaultEventTableModel<String>(eventList, new FilterTableFormat(I18n.tr("Keyword"))));
         okButton = new JButton(okAction);
         addKeywordButton.addActionListener(new ActionListener(){
             @Override
@@ -57,7 +58,7 @@ public class FilterKeywordOptionPanel extends AbstractFilterOptionPanel {
         add(addKeywordButton,"wrap");
         add(new JScrollPane(filterTable), "span 2, grow, wrap");
         
-        add(okButton, "skip 1, alignx right");
+        add(okButton, "tag ok, skip 1, alignx right");
     }
     
     @Override

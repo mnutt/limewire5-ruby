@@ -27,7 +27,7 @@ import java.util.NoSuchElementException;
 import org.limewire.mojito.settings.KademliaSettings;
 
 /**
- * Miscellaneous utilities for Collections
+ * Miscellaneous utilities for Collections.
  */
 public final class CollectionUtils {
     

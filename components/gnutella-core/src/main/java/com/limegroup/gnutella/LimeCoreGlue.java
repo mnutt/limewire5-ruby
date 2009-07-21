@@ -131,8 +131,6 @@ public class LimeCoreGlue implements Service {
         simppManager.get().addSimppSettingsManager(mojito);
         LimeProps.instance().getFactory().setRemoteSettingManager(core);
         MojitoProps.instance().getFactory().setRemoteSettingManager(mojito);
-        core.updateSimppSettings(simppManager.get().getPropsString());
-        mojito.updateSimppSettings(simppManager.get().getPropsString());
         
         if(ApplicationSettings.INITIALIZE_SIMPP.getValue())
             simppManager.get().initialize();

@@ -35,6 +35,7 @@ public class ResourceTest extends TestCase {
         
         List<String> validUnused = new ArrayList<String>();
         validUnused.add("icons/lime.ico");
+        validUnused.add("icons/friends/friends_icon.png");
         
         for(String valid : validUnused) {
             assertTrue("Missing: " + valid + " in list of icons.", leftover.remove(valid));

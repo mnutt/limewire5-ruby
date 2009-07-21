@@ -100,7 +100,7 @@ public class PromptPasswordField extends JPasswordField implements FocusListener
     }
     
     /**
-     * Sets the background painter for this component
+     * Sets the background painter for this component.
      */
     public void setBackgroundPainter(Painter<JTextField> painter) {
         this.backgroundPainter = painter;
@@ -108,7 +108,7 @@ public class PromptPasswordField extends JPasswordField implements FocusListener
     
     /**
      * Sets the painter on this component that manages painting of 
-     *  the prompt text when the text field is empty
+     *  the prompt text when the text field is empty.
      */
     public void setPromptPainter(Painter<JTextField> painter) {
         this.promptPainter = painter;

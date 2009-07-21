@@ -82,7 +82,7 @@ public class SearchResultHandlerTest extends LimeTestCase {
         QueryReply reply = newQueryReply(new Response[] { actionResponse } );
         reply.setSecureStatus(Status.SECURE);
         assertEquals(0, callback.results.size());
-        searchResultHandler.handleQueryReply(reply);
+        searchResultHandler.handleQueryReply(reply, null);
         assertEquals(1, callback.results.size());
         RemoteFileDesc rfd = callback.getRFD();
         assertNotNull(rfd.getXMLDocument());
@@ -98,7 +98,7 @@ public class SearchResultHandlerTest extends LimeTestCase {
         actionResponse.setDocument(actionDoc);
         QueryReply reply = newQueryReply(new Response[] { actionResponse } );
         assertEquals(0, callback.results.size());
-        searchResultHandler.handleQueryReply(reply);
+        searchResultHandler.handleQueryReply(reply, null);
         assertEquals(0, callback.results.size());        
     }
     
@@ -112,7 +112,7 @@ public class SearchResultHandlerTest extends LimeTestCase {
         Response noDoc = responseFactory.createResponse(1, 2, "other", UrnHelper.SHA1);
         QueryReply reply = newQueryReply(new Response[] { actionResponse, noDoc } );
         assertEquals(0, callback.results.size());
-        searchResultHandler.handleQueryReply(reply);
+        searchResultHandler.handleQueryReply(reply, null);
         assertEquals(1, callback.results.size());
         RemoteFileDesc rfd = callback.getRFD();
         assertNull(rfd.getXMLDocument());
@@ -131,7 +131,7 @@ public class SearchResultHandlerTest extends LimeTestCase {
         reply.setSecureStatus(Status.FAILED);
         
         assertEquals(0, callback.results.size());
-        searchResultHandler.handleQueryReply(reply);
+        searchResultHandler.handleQueryReply(reply, null);
         assertEquals(0, callback.results.size());        
     }
     

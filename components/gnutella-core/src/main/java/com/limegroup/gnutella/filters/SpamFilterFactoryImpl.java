@@ -15,19 +15,16 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
     private final Provider<HostileFilter> hostileFilter;
     private final Provider<LocalIPFilter> ipFilter;
     private final Provider<URNFilter> urnFilter;
-    private final Provider<AnomalousQueryFilter> anomalousQueryFilter;
 
     @Inject
     public SpamFilterFactoryImpl(Provider<MutableGUIDFilter> mutableGUIDFilter, 
             Provider<HostileFilter> hostileFilter,
             Provider<LocalIPFilter> ipFilter,
-            Provider<URNFilter> urnFilter,
-            Provider<AnomalousQueryFilter> anomalousQueryFilter) {
+            Provider<URNFilter> urnFilter) {
         this.mutableGUIDFilter = mutableGUIDFilter;
         this.hostileFilter = hostileFilter;
         this.ipFilter = ipFilter;
         this.urnFilter = urnFilter;
-        this.anomalousQueryFilter = anomalousQueryFilter;
     }
     
     /* (non-Javadoc)
@@ -100,11 +97,7 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
         if (FilterSettings.FILTER_HASH_QUERIES.getValue())
             buf.add(new HashFilter());
         
-        //5. Queries with suspicious GUIDs and flags
-        if (FilterSettings.FILTER_ANOMALOUS_QUERIES.getValue())
-            buf.add(anomalousQueryFilter.get());
-        
-        // always filter hostiles
+        //5. Hostile IP addresses.
         buf.add(hostileFilter.get());
 
         return compose(buf);

@@ -1,10 +1,10 @@
 package org.limewire.core.impl.search;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,18 +14,15 @@ import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
-import org.limewire.core.api.FilePropertyKey;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
-import org.limewire.core.api.search.SearchDetails.SearchType;
 import org.limewire.core.api.search.SearchEvent;
 import org.limewire.core.api.search.SearchListener;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.core.api.search.SearchDetails.SearchType;
 import org.limewire.core.api.search.sponsored.SponsoredResult;
 import org.limewire.core.api.search.sponsored.SponsoredResultTarget;
-import org.limewire.core.impl.library.CoreRemoteFileItem;
 import org.limewire.core.impl.library.FriendSearcher;
 import org.limewire.core.settings.PromotionSettings;
 import org.limewire.geocode.GeocodeInformation;
@@ -54,18 +51,17 @@ public class CoreSearchTest extends BaseTestCase {
         super(name);
     }
 
-    @SuppressWarnings( { "unchecked", "cast" })
+    @SuppressWarnings({"unchecked"})
     public void testQueryReplySearchListenerResultsAdded() {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
+        Mockery context = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
 
         PromotionSettings.PROMOTION_SYSTEM_IS_ENABLED.setValue(false);
 
-        final SearchDetails searchDetails = new TestSearchDetails("test", SearchCategory.ALL,
-                SearchType.KEYWORD);
+        final SearchDetails searchDetails = context.mock(SearchDetails.class);
+        final String searchQuery = "test";
+        
         final SearchServices searchServices = context.mock(SearchServices.class);
         final QueryReplyListenerList listenerList = context.mock(QueryReplyListenerList.class);
         final PromotionSearcher promotionSearcher = context.mock(PromotionSearcher.class);
@@ -73,19 +69,27 @@ public class CoreSearchTest extends BaseTestCase {
         final Provider<GeocodeInformation> geoLocation = context.mock(Provider.class);
         final ScheduledExecutorService backgroundExecutor = context
                 .mock(ScheduledExecutorService.class);
-        final EventBroadcaster<SearchEvent> searchEventBroadcaster = (EventBroadcaster<SearchEvent>) context
-                .mock(EventBroadcaster.class);
+        final EventBroadcaster<SearchEvent> searchEventBroadcaster = context.mock(EventBroadcaster.class);
 
-        final byte[] searchGuid = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                16 };
+        final byte[] searchGuid = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+        
         final SearchListener searchListener = context.mock(SearchListener.class);
         final AtomicReference<QueryReplyListener> queryReplyListener = new AtomicReference<QueryReplyListener>();
         final CoreSearch coreSearch = new CoreSearch(searchDetails, searchServices, listenerList,
                 promotionSearcher, friendSearcher, geoLocation, backgroundExecutor,
-                searchEventBroadcaster, null, null);
+                searchEventBroadcaster, null, null, null);
 
-        context.checking(new Expectations() {
-            {
+        context.checking(new Expectations() {{
+                allowing(searchDetails).getSearchQuery();
+                will(returnValue(searchQuery));
+                allowing(searchDetails).getSearchCategory();
+                will(returnValue(SearchCategory.ALL));
+                allowing(searchDetails).getSearchType();
+                will(returnValue(SearchType.KEYWORD));
+                allowing(searchDetails);
+        }});
+        
+        context.checking(new Expectations() {{
                 one(searchEventBroadcaster).broadcast(
                         new SearchEvent(coreSearch, SearchEvent.Type.STARTED));
                 one(searchServices).newQueryGUID();
@@ -93,7 +97,7 @@ public class CoreSearchTest extends BaseTestCase {
                 one(listenerList).addQueryReplyListener(with(equal(searchGuid)),
                         with(any(QueryReplyListener.class)));
                 will(new AssignParameterAction<QueryReplyListener>(queryReplyListener, 1));
-                one(searchServices).query(searchGuid, searchDetails.getSearchQuery(), "",
+                one(searchServices).query(searchGuid, searchQuery, "",
                         MediaType.getAnyTypeMediaType());
                 one(backgroundExecutor).execute(with(any(Runnable.class)));
                 will(new ExecuteRunnableAction());
@@ -129,7 +133,6 @@ public class CoreSearchTest extends BaseTestCase {
                 allowing(address1).getAddressDescription();
                 will(returnValue("address 1 description"));
                 allowing(remoteFileDesc1).getFileName();
-
                 will(returnValue(fileName1));
                 allowing(remoteFileDesc1).getSize();
                 will(returnValue(1234L));
@@ -137,6 +140,8 @@ public class CoreSearchTest extends BaseTestCase {
                 will(returnValue(null));
                 allowing(remoteFileDesc1).getCreationTime();
                 will(returnValue(5678L));
+                allowing(remoteFileDesc1).getSHA1Urn();
+                will(returnValue(null));
                 one(searchListener).handleSearchResult(with(same(coreSearch)),
                         with(new SearchResultMatcher(fileName1)));
             }
@@ -146,18 +151,17 @@ public class CoreSearchTest extends BaseTestCase {
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings( { "unchecked", "cast" })
+    @SuppressWarnings({"unchecked"})
     public void testFriendSearchListenerResultsAdded() {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
+        Mockery context = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
 
         PromotionSettings.PROMOTION_SYSTEM_IS_ENABLED.setValue(false);
 
-        final SearchDetails searchDetails = new TestSearchDetails("test", SearchCategory.ALL,
-                SearchType.KEYWORD);
+        final SearchDetails searchDetails = context.mock(SearchDetails.class);
+        final String searchQuery = "test";
+        
         final SearchServices searchServices = context.mock(SearchServices.class);
         final QueryReplyListenerList listenerList = context.mock(QueryReplyListenerList.class);
         final PromotionSearcher promotionSearcher = context.mock(PromotionSearcher.class);
@@ -165,8 +169,7 @@ public class CoreSearchTest extends BaseTestCase {
         final Provider<GeocodeInformation> geoLocation = context.mock(Provider.class);
         final ScheduledExecutorService backgroundExecutor = context
                 .mock(ScheduledExecutorService.class);
-        final EventBroadcaster<SearchEvent> searchEventBroadcaster = (EventBroadcaster<SearchEvent>) context
-                .mock(EventBroadcaster.class);
+        final EventBroadcaster<SearchEvent> searchEventBroadcaster = context.mock(EventBroadcaster.class);
         final Clock clock = context.mock(Clock.class);
 
         final byte[] searchGuid = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
@@ -175,64 +178,65 @@ public class CoreSearchTest extends BaseTestCase {
         final AtomicReference<FriendSearchListener> friendSearchListener = new AtomicReference<FriendSearchListener>();
         final CoreSearch coreSearch = new CoreSearch(searchDetails, searchServices, listenerList,
                 promotionSearcher, friendSearcher, geoLocation, backgroundExecutor,
-                searchEventBroadcaster, null, clock);
+                searchEventBroadcaster, null, clock, null);
 
-        context.checking(new Expectations() {
-            {
-                one(searchEventBroadcaster).broadcast(
-                        new SearchEvent(coreSearch, SearchEvent.Type.STARTED));
-                one(searchServices).newQueryGUID();
-                will(returnValue(searchGuid));
-                one(listenerList).addQueryReplyListener(with(equal(searchGuid)),
-                        with(any(QueryReplyListener.class)));
-                one(searchServices).query(searchGuid, searchDetails.getSearchQuery(), "",
-                        MediaType.getAnyTypeMediaType());
-                one(backgroundExecutor).execute(with(any(Runnable.class)));
-                will(new ExecuteRunnableAction());
-                one(friendSearcher).doSearch(with(equal(searchDetails)),
-                        with(any(FriendSearchListener.class)));
-                will(new AssignParameterAction<FriendSearchListener>(friendSearchListener, 1));
-                one(searchListener).searchStarted(coreSearch);
-            }
-        });
+        context.checking(new Expectations() {{
+            allowing(searchDetails).getSearchQuery();
+            will(returnValue(searchQuery));
+            allowing(searchDetails).getSearchCategory();
+            will(returnValue(SearchCategory.ALL));
+            allowing(searchDetails).getSearchType();
+            will(returnValue(SearchType.KEYWORD));
+            allowing(searchDetails);
+        }});
+        
+        context.checking(new Expectations() {{
+            one(searchEventBroadcaster).broadcast(
+                    new SearchEvent(coreSearch, SearchEvent.Type.STARTED));
+            one(searchServices).newQueryGUID();
+            will(returnValue(searchGuid));
+            one(listenerList).addQueryReplyListener(with(equal(searchGuid)),
+                    with(any(QueryReplyListener.class)));
+            one(searchServices).query(searchGuid, searchQuery, "",
+                    MediaType.getAnyTypeMediaType());
+            one(backgroundExecutor).execute(with(any(Runnable.class)));
+            will(new ExecuteRunnableAction());
+            one(friendSearcher).doSearch(with(equal(searchDetails)),
+                    with(any(FriendSearchListener.class)));
+            will(new AssignParameterAction<FriendSearchListener>(friendSearchListener, 1));
+            one(searchListener).searchStarted(coreSearch);
+        }});
 
         coreSearch.addSearchListener(searchListener);
 
         coreSearch.start();
 
-        final CoreRemoteFileItem coreRemoteFileItem1 = context.mock(CoreRemoteFileItem.class);
         final SearchResult searchResult1 = context.mock(SearchResult.class);
         final String fileName1 = "filename1";
 
-        context.checking(new Expectations() {
-            {
-                allowing(coreRemoteFileItem1).getSearchResult();
-                will(returnValue(searchResult1));
+        context.checking(new Expectations() {{
                 allowing(searchResult1).getFileName();
                 will(returnValue(fileName1));
-                one(searchListener).handleSearchResult(with(same(coreSearch)),
-                        with(new SearchResultMatcher(fileName1)));
-            }
-        });
+                one(searchListener).handleSearchResults(with(same(coreSearch)),
+                        with(new SearchResultsListMatcher(Collections.singletonList(fileName1))));
+        }});
 
-        friendSearchListener.get().handleFriendResults(
-                Arrays.asList((RemoteFileItem) coreRemoteFileItem1));
+        friendSearchListener.get().handleFriendResults(Arrays.asList(searchResult1));
 
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings( { "unchecked", "cast" })
+    @SuppressWarnings({"unchecked"})
     public void testQueryReplySearchListenerPromotionsAdded() {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
+        Mockery context = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
 
         PromotionSettings.PROMOTION_SYSTEM_IS_ENABLED.setValue(true);
 
-        final SearchDetails searchDetails = new TestSearchDetails("test", SearchCategory.ALL,
-                SearchType.KEYWORD);
+        final SearchDetails searchDetails = context.mock(SearchDetails.class);
+        final String searchQuery = "test";
+        
         final SearchServices searchServices = context.mock(SearchServices.class);
         final QueryReplyListenerList listenerList = context.mock(QueryReplyListenerList.class);
         final PromotionSearcher promotionSearcher = context.mock(PromotionSearcher.class);
@@ -240,21 +244,31 @@ public class CoreSearchTest extends BaseTestCase {
         final Provider<GeocodeInformation> geoLocation = context.mock(Provider.class);
         final ScheduledExecutorService backgroundExecutor = context
                 .mock(ScheduledExecutorService.class);
-        final EventBroadcaster<SearchEvent> searchEventBroadcaster = (EventBroadcaster<SearchEvent>) context
-                .mock(EventBroadcaster.class);
+        final EventBroadcaster<SearchEvent> searchEventBroadcaster = context.mock(EventBroadcaster.class);
         final Clock clock = context.mock(Clock.class);
 
-        final byte[] searchGuid = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                16 };
+        final byte[] searchGuid = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+        
         final SearchListener searchListener = context.mock(SearchListener.class);
         final AtomicReference<QueryReplyListener> queryReplyListener = new AtomicReference<QueryReplyListener>();
         final CoreSearch coreSearch = new CoreSearch(searchDetails, searchServices, listenerList,
                 promotionSearcher, friendSearcher, geoLocation, backgroundExecutor,
-                searchEventBroadcaster, null, clock);
+                searchEventBroadcaster, null, clock, null);
 
         final GeocodeInformation geocodeInformation = null;
 
         final AtomicReference<PromotionSearchResultsCallback> promotionResultCallback = new AtomicReference<PromotionSearchResultsCallback>();
+        
+        context.checking(new Expectations() {{
+            allowing(searchDetails).getSearchQuery();
+            will(returnValue(searchQuery));
+            allowing(searchDetails).getSearchCategory();
+            will(returnValue(SearchCategory.ALL));
+            allowing(searchDetails).getSearchType();
+            will(returnValue(SearchType.KEYWORD));
+            allowing(searchDetails);
+        }});
+        
         context.checking(new Expectations() {
             {
                 allowing(promotionSearcher).isEnabled();
@@ -266,7 +280,7 @@ public class CoreSearchTest extends BaseTestCase {
                 one(listenerList).addQueryReplyListener(with(equal(searchGuid)),
                         with(any(QueryReplyListener.class)));
                 will(new AssignParameterAction<QueryReplyListener>(queryReplyListener, 1));
-                one(searchServices).query(searchGuid, searchDetails.getSearchQuery(), "",
+                one(searchServices).query(searchGuid, searchQuery, "",
                         MediaType.getAnyTypeMediaType());
                 exactly(2).of(backgroundExecutor).execute(with(any(Runnable.class)));
                 will(new ExecuteRunnableAction());
@@ -275,7 +289,7 @@ public class CoreSearchTest extends BaseTestCase {
                 one(searchListener).searchStarted(coreSearch);
                 allowing(geoLocation).get();
                 will(returnValue(geocodeInformation));
-                one(promotionSearcher).search(with(equal(searchDetails.getSearchQuery())),
+                one(promotionSearcher).search(with(equal(searchQuery)),
                         with(any(PromotionSearchResultsCallback.class)),
                         with(any(GeocodeInformation.class)));
                 will(new AssignParameterAction<PromotionSearchResultsCallback>(
@@ -291,8 +305,8 @@ public class CoreSearchTest extends BaseTestCase {
         final PromotionOptions options = context.mock(PromotionOptions.class);
 
         final String title = "title";
-        final String displayUrl = "displayurl.com";
-        final String url = "http://url.com/blahblahblah";
+        final String displayUrl = "displayurlrwqd43.com";
+        final String url = "http://urlasdasr.com`/blahblahblah";
         final String description = "description";
         
         final String expectedUrl = PromotionSettings.REDIRECT_URL.get() + "?url=" + url + "&now=52&id=42";
@@ -335,6 +349,31 @@ public class CoreSearchTest extends BaseTestCase {
         assertEquals(displayUrl, sponsoredResult.getVisibleUrl());
         
         context.assertIsSatisfied();
+    }
+    
+    private final class SearchResultsListMatcher extends BaseMatcher<Collection<? extends SearchResult>> {
+        private final List<String> names;
+
+        private SearchResultsListMatcher(List<String> names) {
+            this.names = names;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public boolean matches(Object item) {
+            Collection<? extends SearchResult> searchResults = (Collection<? extends SearchResult>)item;
+            assertEquals(item.toString(), names.size(), searchResults.size());
+            int i = 0;
+            for(SearchResult result : searchResults) {
+                assertEquals(names.get(i++), result.getFileName());
+            }
+            return true;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+
+        }
     }
 
     private final class SearchResultMatcher extends BaseMatcher<SearchResult> {
@@ -389,41 +428,6 @@ public class CoreSearchTest extends BaseTestCase {
         }
     }
 
-    private final class TestSearchDetails implements SearchDetails {
-
-        private final SearchCategory searchCategory;
-
-        private final String query;
-
-        private final SearchType searchType;
-
-        public TestSearchDetails(String query, SearchCategory searchCategory, SearchType searchType) {
-            this.query = query;
-            this.searchCategory = searchCategory;
-            this.searchType = searchType;
-        }
-
-        @Override
-        public SearchCategory getSearchCategory() {
-            return searchCategory;
-        }
-
-        @Override
-        public String getSearchQuery() {
-            return query;
-        }
-
-        @Override
-        public SearchType getSearchType() {
-            return searchType;
-        }
-        
-        @Override
-        public Map<FilePropertyKey, String> getAdvancedDetails() {
-            return Collections.emptyMap();
-        }
-    }
-    
     @SuppressWarnings("unchecked")
     public void testStop() {
         Mockery context = new Mockery();
@@ -435,7 +439,7 @@ public class CoreSearchTest extends BaseTestCase {
         final SearchServices searchServices = context.mock(SearchServices.class);
         final SearchListener listener = context.mock(SearchListener.class);
         
-        final CoreSearch search = new CoreSearch(null, searchServices, listenerList, null, null, null, null, searchEventBroadcaster, null, null);
+        final CoreSearch search = new CoreSearch(null, searchServices, listenerList, null, null, null, null, searchEventBroadcaster, null, null, null);
         
         context.checking(new Expectations() {
             {
@@ -469,7 +473,7 @@ public class CoreSearchTest extends BaseTestCase {
         final SearchListener listener = context.mock(SearchListener.class);
         final SearchDetails details = context.mock(SearchDetails.class);
         
-        final CoreSearch search = new CoreSearch(details, searchServices, listenerList, null, null, null, null, searchEventBroadcaster, null, null);
+        final CoreSearch search = new CoreSearch(details, searchServices, listenerList, null, null, null, null, searchEventBroadcaster, null, null, null);
         
         context.checking(new Expectations() {
             {
@@ -508,5 +512,36 @@ public class CoreSearchTest extends BaseTestCase {
         search.repeat();
         
         context.assertIsSatisfied();
+    }
+    
+    public void testGetCategory() {
+        Mockery context = new Mockery();
+        
+        final SearchDetails searchDetails = context.mock(SearchDetails.class);
+        
+        final CoreSearch coreSearch = new CoreSearch(searchDetails, null, null, null, null, null, 
+                null, null, null, null, null);
+        
+        context.checking(new Expectations() {{
+            one(searchDetails).getSearchCategory();
+            will(returnValue(SearchCategory.IMAGE));
+            one(searchDetails).getSearchCategory();
+            will(returnValue(SearchCategory.DOCUMENT));
+            allowing(searchDetails);
+        }});
+        
+        
+        assertEquals(SearchCategory.IMAGE, coreSearch.getCategory());
+        assertEquals(SearchCategory.DOCUMENT, coreSearch.getCategory());
+    }
+    
+    public void testGetQueryGuid() {
+        final CoreSearch coreSearch = new CoreSearch(null, null, null, null, null, null, 
+                null, null, null, null, null);
+        
+        coreSearch.searchGuid = new byte[] {4,3,2,1,'q','x','x','x','x','x','x','x','x','x','x','x'};
+        
+        assertEquals(new GUID(new byte[] {4,3,2,1,'q','x','x','x','x','x','x','x','x','x','x','x'}),
+                coreSearch.getQueryGuid());
     }
 }

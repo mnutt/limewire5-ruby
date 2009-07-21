@@ -12,6 +12,7 @@ import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.lifecycle.ServiceRegistry;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.Response;
@@ -19,12 +20,12 @@ import com.limegroup.gnutella.messages.QueryRequestFactory;
 
 public class SharedFileKeywordsIndexImplIntegrationTest extends LimeTestCase {
 
-    private QueryRequestFactory queryRequestFactory;
-    private ManagedFileList managedList;
-    private GnutellaFileList fileList;
-    private SharedFilesKeywordIndex keywordIndex;
+    @Inject private QueryRequestFactory queryRequestFactory;
+    @Inject private Library managedList;
+    @Inject @GnutellaFiles private FileCollection fileList;
+    @Inject private SharedFilesKeywordIndex keywordIndex;
     private Response[] responses;
-    private Injector injector;
+    @Inject private Injector injector;
 
     private File f1, f2, f3;
 
@@ -38,11 +39,7 @@ public class SharedFileKeywordsIndexImplIntegrationTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
-        fileList = injector.getInstance(FileManager.class).getGnutellaFileList();
-        managedList = injector.getInstance(FileManager.class).getManagedFileList();
-        keywordIndex = injector.getInstance(SharedFilesKeywordIndex.class);
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
+        LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
         injector.getInstance(ServiceRegistry.class).initialize();
         assertLoads(managedList); // Ensure it starts up & schemas load & all.
     }
@@ -184,11 +181,11 @@ public class SharedFileKeywordsIndexImplIntegrationTest extends LimeTestCase {
         assertEquals("unexpected response length", 1, responses.length);
         
         f1.delete();
-        assertFileChangedFails("NOT_MANAGEABLE", managedList, f1);
+        assertFileChangedFails(FileViewChangeFailedException.Reason.NOT_MANAGEABLE, managedList, f1);
         responses = keywordIndex.query(queryRequestFactory.createQuery("name", (byte) 3));
         assertEquals("unexpected response length", 0, responses.length);
         
-        assertFileChangedFails("OLD_WASNT_MANAGED", managedList, f2);
+        assertFileChangedFails(FileViewChangeFailedException.Reason.OLD_WASNT_MANAGED, managedList, f2);
         responses = keywordIndex.query(queryRequestFactory.createQuery("name", (byte) 3));
         assertEquals("unexpected response length", 0, responses.length);
     }

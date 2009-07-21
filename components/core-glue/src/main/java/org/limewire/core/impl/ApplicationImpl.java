@@ -1,6 +1,7 @@
 package org.limewire.core.impl;
 
 import org.limewire.core.api.Application;
+import org.limewire.http.httpclient.HttpClientInstanceUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -9,7 +10,7 @@ import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 @Singleton
-class ApplicationImpl implements Application {
+class ApplicationImpl implements Application, HttpClientInstanceUtils {
     
     private final ApplicationServices applicationServices;
     private final LifecycleManager lifecycleManager;
@@ -22,7 +23,7 @@ class ApplicationImpl implements Application {
     }
     
     @Override
-    public String getUniqueUrl(String baseUrl) {
+    public String addClientInfoToUrl(String baseUrl) {
         return LimeWireUtils.addLWInfoToUrl(baseUrl, applicationServices.getMyGUID());
     }
     

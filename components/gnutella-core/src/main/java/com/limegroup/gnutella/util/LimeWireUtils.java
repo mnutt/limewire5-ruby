@@ -429,7 +429,8 @@ public final class LimeWireUtils {
             "&lv="   + EncodingUtils.encode(LimeWireUtils.getLimeWireVersion()) +
             "&jv="   + EncodingUtils.encode(VersionUtils.getJavaVersion()) +
             "&os="   + EncodingUtils.encode(OSUtils.getOS()) +
-            "&osv="  + EncodingUtils.encode(OSUtils.getOSVersion());
+            "&osv="  + EncodingUtils.encode(OSUtils.getOSVersion()) +
+            "&sc="   + ApplicationSettings.SESSIONS.getValue();
                
         return url;
     }

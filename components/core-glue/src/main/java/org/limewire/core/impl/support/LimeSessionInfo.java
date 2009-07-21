@@ -20,7 +20,9 @@ import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.connection.ConnectionCheckerManager;
 import com.limegroup.gnutella.downloader.DiskController;
 import com.limegroup.gnutella.library.CreationTimeCache;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.simpp.SimppManager;
 import com.limegroup.gnutella.uploader.UploadSlotManager;
 
@@ -42,7 +44,8 @@ class LimeSessionInfo implements SessionInfo {
     private final UploadServices uploadServices;
     private final ConnectionCheckerManager connectionCheckerManager;
     private final NIODispatcher nioDispatcher;
-    private final FileManager fileManager;
+    private final Library library;
+    private final FileView gnutellaFileView;
     private final SimppManager simppManager;
     private final UploadSlotManager uploadSlotManager;
     private final ConnectionServices connectionServices;
@@ -57,9 +60,10 @@ class LimeSessionInfo implements SessionInfo {
                            ByteBufferCache byteBufferCache, UDPService udpService, Acceptor acceptor,
                            DownloadServices downloadServices, UploadServices uploadServices,
                            ConnectionCheckerManager connectionCheckerManager, NIODispatcher nioDispatcher,
-                           FileManager fileManager, SimppManager simppManager,
+                           Library library, SimppManager simppManager,
                            UploadSlotManager uploadSlotManager, ConnectionServices connectionServices,
-                           LifecycleManager lifecycleManager, RemoteLibraryManager remoteLibraryManager) {
+                           LifecycleManager lifecycleManager, RemoteLibraryManager remoteLibraryManager,
+                           @GnutellaFiles FileView gnutellaFileView) {
         this.dispatcher = dispatcher;
         this.downloadManager = downloadManager;
         this.statistics = statistics;
@@ -75,12 +79,13 @@ class LimeSessionInfo implements SessionInfo {
         this.uploadServices = uploadServices;
         this.connectionCheckerManager = connectionCheckerManager;
         this.nioDispatcher = nioDispatcher;
-        this.fileManager = fileManager;
+        this.library = library;
         this.simppManager = simppManager;
         this.uploadSlotManager = uploadSlotManager;
         this.connectionServices = connectionServices;
         this.lifecycleManager = lifecycleManager;
         this.remoteLibraryManager = remoteLibraryManager;
+        this.gnutellaFileView = gnutellaFileView;
     }
 
     
@@ -238,12 +243,12 @@ class LimeSessionInfo implements SessionInfo {
 
     @Override
     public int getSharedFileListSize() {
-        return fileManager.getGnutellaFileList().size();
+        return gnutellaFileView.size();
     }
 
     @Override
     public int getManagedFileListSize() {
-        return fileManager.getManagedFileList().size();
+        return library.size();
     }
 
     @Override

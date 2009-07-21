@@ -8,7 +8,7 @@ import junit.framework.Test;
 import org.limewire.util.BaseTestCase;
 
 /**
- * Unit tests for BucketQueue
+ * Unit tests for <code>BucketQueue</code>.
  */
 @SuppressWarnings("unchecked")
 public class BucketQueueTest extends BaseTestCase {
@@ -246,16 +246,4 @@ public class BucketQueueTest extends BaseTestCase {
         } catch (IllegalArgumentException e) { }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

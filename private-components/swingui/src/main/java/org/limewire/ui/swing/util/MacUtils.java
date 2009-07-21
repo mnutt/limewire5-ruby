@@ -8,7 +8,7 @@ import net.roydesign.ui.FolderDialog;
 
 /**
  * A collection of OSX GUI utilities.
- *
+ * <p>
  * This is in a separate class so that we won't have classloading errors if
  * OSX jars aren't included with other installations.
  */

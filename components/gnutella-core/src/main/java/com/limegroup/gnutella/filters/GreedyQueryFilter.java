@@ -5,7 +5,7 @@ import com.limegroup.gnutella.messages.QueryRequest;
 
 /** 
  * Stops queries that are bound to match too many files.  
- *
+ * <p>
  * Currently, queries that are blocked include "a.asf, d.mp3, etc." or
  * single-character searches.  Additionally, queries such as "*.mp3" or 
  * "mpg" or "*.*" are to be blocked, are at least set to travel less than
@@ -71,7 +71,7 @@ public class GreedyQueryFilter implements SpamFilter {
 
 
     /** To combat system-wide gnutella overflow, this method checks for
-     *  permutations of "*.*"
+     *  permutations of "*.*".
      */
     private boolean isObfuscatedGeneralSearch(final String queryString) {
         final String unacceptable = "*.- ";

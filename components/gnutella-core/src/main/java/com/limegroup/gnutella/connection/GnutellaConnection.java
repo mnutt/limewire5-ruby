@@ -189,7 +189,7 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
      * latency.
      */
 
-    /** A lock for QRP activity on this connection */
+    /** A lock for QRP activity on this connection. */
     private final Object QRP_LOCK = new Object();
 
     /** Non-blocking throttle for outgoing messages. */
@@ -239,12 +239,12 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
     private volatile long _busyTime = -1;
 
     /**
-     * Whether this connection is a push proxy for me
+     * Whether this connection is a push proxy for me.
      */
     private volatile boolean myPushProxy;
 
     /**
-     * Whether I am a push proxy for this connection
+     * Whether I am a push proxy for this connection.
      */
     private volatile boolean pushProxyFor;
 
@@ -283,7 +283,7 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
     private boolean receivedCapVM = false;
 
     /**
-     * The maximum protocol version for which OOB proxying has beend turned off
+     * The maximum protocol version for which OOB proxying has been turned off
      * by leaf peer. Defaults to 0 to allow all OOB versions to be proxied.
      */
     private int _maxDisabledOOBProtocolVersion = 0;
@@ -598,9 +598,9 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
     }
 
     /**
-     * Set's a leaf's busy timer to now, if bSet is true, else clears the flag
+     * Set's a leaf's busy timer to now, if bSet is true, else clears the flag.
      * 
-     * @param bSet Whether to SET or CLEAR the busy timer for this host
+     * @param bSet whether to SET or CLEAR the busy timer for this host
      */
     public void setBusy(boolean bSet) {
         if (bSet) {
@@ -775,8 +775,8 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
     }
 
     /**
+     * Default access for testing.
      * @return true if the query should be sent.
-     * default access for testing.
      */
     boolean shouldSendQuery(QueryRequest query) {
         // if Hops Flow is in effect, and this is a QueryRequest, and the
@@ -998,42 +998,42 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
         // 3.5) The query originator should not disallow proxying.
         // 4) We must be able to OOB and have great success rate.
         if (getConnectionCapabilities().remoteHostSupportsLeafGuidance() < 1) {
-            LOG.trace("Not OOB proxying: remote host doesn't support leaf guidance");
+            LOG.info("Not OOB proxying: remote host doesn't support leaf guidance");
             return query;
         }
         if (query.desiresOutOfBandRepliesV3()) {
-            LOG.trace("Not OOB proxying: query already requests OOBv3");
+            LOG.info("Not OOB proxying: query already requests OOBv3");
             return query;
         }
 
         if (query.doNotProxy()) {
-            LOG.trace("Not OOB proxying: query says no");
+            LOG.info("Not OOB proxying: query says no");
             return query;
         }
 
         if (_maxDisabledOOBProtocolVersion >= ReplyNumberVendorMessage.VERSION) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Not OOB proxying: disabled version is "
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Not OOB proxying: disabled version is "
                         + _maxDisabledOOBProtocolVersion);
             }
             return query;
         } else {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("query might be proxied for max disabled version "
+            if (LOG.isInfoEnabled()) {
+                LOG.info("query might be proxied for max disabled version "
                         + _maxDisabledOOBProtocolVersion + " " + Arrays.toString(query.getGUID()));
             }
         }
 
         if(!networkManager.isOOBCapable()) {
-            LOG.trace("Not OOB proxying: not OOB capable");
+            LOG.info("Not OOB proxying: not OOB capable");
             return query;
         }
         if(!outOfBandStatistics.isSuccessRateGreat()) {
-            LOG.trace("Not OOB proxying: success rate isn't great");
+            LOG.info("Not OOB proxying: success rate isn't great");
             return query;
         }
         if(!outOfBandStatistics.isOOBEffectiveForProxy()) {
-            LOG.trace("Not OOB proxying: OOB isn't effective enough");
+            LOG.info("Not OOB proxying: OOB isn't effective enough");
             return query;
         }
 

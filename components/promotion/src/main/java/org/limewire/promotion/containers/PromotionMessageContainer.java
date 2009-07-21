@@ -92,7 +92,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
     }
 
     /**
-     * a goodness ratio, between 0 and 1. If greater than 1, sets to 1. If less
+     * A goodness ratio, between 0 and 1. If greater than 1, sets to 1. If less
      * than 0, sets to 0. This is an approximation with only 8 bits of
      * resolution.
      */
@@ -211,7 +211,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
 
     /**
      * @return an array of 0 or more {@link Locale} instances with their country
-     *         property set to a two-character ISO country code.
+     *         property set to a two-character ISO country code
      */
     public Locale[] getTerritories() {
         List<Locale> territoryList = new ArrayList<Locale>();
@@ -302,7 +302,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
     }
 
     /**
-     * if the key is recognized as an encodable key, returns a shortened
+     * If the key is recognized as an encodable key, returns a shortened
      * version. Otherwise returns the original key. Package visible for testing.
      */
     String encodePropertyKey(String key) {
@@ -315,7 +315,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
     }
 
     /**
-     * takes a key like "xxx.yyy.zzz" splits it and encodes each token
+     * Takes a key like "xxx.yyy.zzz" splits it and encodes each token
      * individually, then rejoins them.
      */
     private String encodeDottedPropertyKey(String key) {
@@ -552,7 +552,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
         if (!(obj instanceof PromotionMessageContainer))
             return false;
         PromotionMessageContainer compare = (PromotionMessageContainer) obj;
-        if (!new Long(getUniqueID()).equals(compare.getUniqueID()))
+        if (getUniqueID() != compare.getUniqueID())
             return false;
         if (!getKeywords().equals(compare.getKeywords()))
             return false;
@@ -642,7 +642,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
         }
 
         /**
-         * @return true if point is within this restriction.
+         * @return true if point is within this restriction
          */
         public boolean contains(LatitudeLongitude point) {
             return center.distanceFrom(point) <= (radiusInMeters / 1000.0);
@@ -728,7 +728,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
 
         /**
          * @return if true and LW supports a "Store" tab, open this into that
-         *         tab, creating it if it's not already open.
+         *         tab, creating it if it's not already open
          */
         public boolean isOpenInStoreTab() {
             return openInStoreTab;
@@ -739,8 +739,8 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
         }
 
         /**
-         * @return if true and LW supports a "Spot" tab, open this into that
-         *         tab, creating it if it's not already open.
+         * @return if true and LimeWire supports a "Spot" tab, open this into that
+         *         tab, creating it if it's not already open
          */
         public boolean isOpenInUnknownTab() {
             return openInUnknownTab;
@@ -752,7 +752,7 @@ public class PromotionMessageContainer implements MessageContainer, Serializable
 
         /**
          * @return if true and LW supports a "Client" (browser) tab, open this
-         *         into that tab, creating it if it's not already open.
+         *         into that tab, creating it if it's not already open
          */
         public boolean isOpenInHomeTab() {
             return openInHomeTab;

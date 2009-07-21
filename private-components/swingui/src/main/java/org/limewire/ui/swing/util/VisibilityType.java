@@ -1,7 +1,7 @@
 package org.limewire.ui.swing.util;
 
 /**
- * enum to represent visibility of ui components
+ * enum to represent visibility of UI components.
  */
 public enum VisibilityType {
     VISIBLE,

@@ -18,6 +18,7 @@ import org.limewire.core.settings.SearchSettings;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
+import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.io.NetworkInstanceUtils;
@@ -221,7 +222,7 @@ final class SearchResultHandlerImpl implements SearchResultHandler {
      * @return <tt>true</tt> if the GUI will (probably) display the results,
      *  otherwise <tt>false</tt> 
      */
-    public void handleQueryReply(final QueryReply qr) {
+    public void handleQueryReply(final QueryReply qr, Address address) {
         try {
             qr.validate();
         } catch(BadPacketException bpe) {
@@ -325,13 +326,12 @@ final class SearchResultHandlerImpl implements SearchResultHandler {
             countClassC(qr,response);
             RemoteFileDesc rfd;
             try {
-                rfd = response.toRemoteFileDesc(qr, null, remoteFileDescFactory, pushEndpointFactory);
+                rfd = response.toRemoteFileDesc(qr, address, remoteFileDescFactory, pushEndpointFactory);
             } catch (UnknownHostException e) {
                 throw new RuntimeException("should not have happened", e);
             }
             rfd.setSecureStatus(secureStatus);
             Set<? extends IpPort> alts = response.getLocations();
-            activityCallback.get().handleQueryResult(rfd, qr, alts);
             
             // Set the spam rating for the RemoteFileDesc
             float spamRating = spamManager.get().calculateSpamRating(rfd);
@@ -339,6 +339,9 @@ final class SearchResultHandlerImpl implements SearchResultHandler {
             // Count non-spam results for dynamic querying
             if(skipSpam || spamRating < spamThreshold)
                 numGoodSentToFrontEnd++;
+            
+            // Send the result to the UI
+            activityCallback.get().handleQueryResult(rfd, qr, alts);
         }
         
         accountAndUpdateDynamicQueriers(qr, numGoodSentToFrontEnd);

@@ -413,7 +413,7 @@ public class DownloadAltLocTest extends DownloadTestCase {
             public void run() {
                 try {
                     Thread.sleep(complete ? 4000 : 1500);
-                    FileDesc fd = fileManager.getManagedFileList().getFileDescsMatching(TestFile.hash()).get(0);
+                    FileDesc fd = library.getFileDescsMatching(TestFile.hash()).get(0);
                     assertTrue(fd instanceof IncompleteFileDesc);
                     altLocManager.add(
                             alternateLocationFactory.create(rfd2),this);

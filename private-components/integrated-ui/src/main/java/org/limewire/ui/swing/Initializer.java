@@ -6,15 +6,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicHTML;
 
@@ -23,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jdesktop.application.Application;
 import org.limewire.core.impl.mozilla.LimeMozillaOverrides;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.core.settings.SharingSettings;
 import org.limewire.io.IOUtils;
 import org.limewire.net.FirewallService;
 import org.limewire.nio.NIODispatcher;
@@ -37,7 +37,9 @@ import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.components.SplashWindow;
 import org.limewire.ui.swing.event.ExceptionPublishingSwingEventService;
 import org.limewire.ui.swing.mainframe.AppFrame;
+import org.limewire.ui.swing.settings.InstallSettings;
 import org.limewire.ui.swing.settings.StartupSettings;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LocaleUtils;
 import org.limewire.ui.swing.util.MacOSXUtils;
@@ -48,6 +50,8 @@ import org.limewire.util.I18NConvert;
 import org.limewire.util.OSUtils;
 import org.limewire.util.Stopwatch;
 import org.limewire.util.SystemUtils;
+import org.limewire.util.Version;
+import org.limewire.util.VersionFormatException;
 import org.mozilla.browser.MozillaPanel;
 
 import com.google.inject.AbstractModule;
@@ -60,6 +64,7 @@ import com.limegroup.gnutella.ActiveLimeWireCheck;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.LimeCoreGlue;
 import com.limegroup.gnutella.UPnPManager;
+import com.limegroup.gnutella.ActiveLimeWireCheck.ActiveLimeWireException;
 import com.limegroup.gnutella.LimeCoreGlue.InstallFailedException;
 import com.limegroup.gnutella.browser.ExternalControl;
 import com.limegroup.gnutella.util.LimeWireUtils;
@@ -221,6 +226,8 @@ public final class Initializer {
             IOUtils.close(inputStream);
         }
 
+		updateVersionsUsed(properties);
+		
         String exists = properties.getProperty(LimeWireUtils.getLimeWireVersion());
         if (exists == null || !exists.equals("true")) {
             SwingUtils.invokeAndWait(new Runnable() {
@@ -229,7 +236,8 @@ public final class Initializer {
                     if (awtSplash != null) {
                         awtSplash.setVisible(false);
                     }
-                    
+                    //must warn users about sharing documents again after an upgrade
+                    SharingSettings.WARN_SHARING_DOCUMENTS_WITH_WORLD.setValue(true);
                     boolean confirmed = new IntentDialog(LimeWireUtils.getLimeWireVersion()).confirmLegal();
                     if (!confirmed) {
                         System.exit(0);
@@ -252,6 +260,21 @@ public final class Initializer {
             }
         }
     }
+
+    /**
+     * Fills in any previously run versions from the versions.props file. 
+     */
+    private void updateVersionsUsed(Properties properties) {
+        for(Object key : properties.keySet()) {
+		    String versionString = key.toString();
+		    try {
+                Version version = new Version(versionString);
+                InstallSettings.PREVIOUS_RAN_VERSIONS.add(version.getVersion());
+            } catch (VersionFormatException e) {
+               //do nothing
+            }
+		}
+    }
   
 
     /** Initializes the very early things. */
@@ -266,6 +289,7 @@ public final class Initializer {
             LimeCoreGlue.preinstall();
             stopwatch.resetAndLog("Preinstall");
         } catch(InstallFailedException ife) {
+            GuiUtils.hideAndDisposeAllWindows();
             failPreferencesPermissions();
         }
 
@@ -331,8 +355,10 @@ public final class Initializer {
      */
     private void validateStartup(String[] args) {        
         // check if this version has expired.
-        if (System.currentTimeMillis() > EXPIRATION_DATE) 
+        if (System.currentTimeMillis() > EXPIRATION_DATE) {
+            GuiUtils.hideAndDisposeAllWindows();
             failExpired();
+        }
         
         // Yield so any other events can be run to determine
         // startup status, but only if we're going to possibly
@@ -355,12 +381,21 @@ public final class Initializer {
         }
         
         // Exit if another LimeWire is already running...
-        ActiveLimeWireCheck activeLimeWireCheck = new ActiveLimeWireCheck(args, StartupSettings.ALLOW_MULTIPLE_INSTANCES.getValue());
-        stopwatch.resetAndLog("Create ActiveLimeWireCheck");
-        if (activeLimeWireCheck.checkForActiveLimeWire()) {
-            System.exit(0);
+        if(!StartupSettings.ALLOW_MULTIPLE_INSTANCES.getValue()) {
+            ActiveLimeWireCheck activeCheck = ActiveLimeWireCheck.instance();
+            stopwatch.resetAndLog("Create ActiveLimeWireCheck");
+            try {
+                if(activeCheck.checkForActiveLimeWire(args))
+                    System.exit(0);
+            } catch(ActiveLimeWireException e) {
+                LOG.debug(e);
+                stopwatch.resetAndLog("Warn user about running instance");
+                GuiUtils.hideAndDisposeAllWindows();
+                if(!warnAlreadyRunning())
+                    System.exit(0);
+            }
+            stopwatch.resetAndLog("Run ActiveLimeWireCheck");
         }
-        stopwatch.resetAndLog("Run ActiveLimeWireCheck");
     }
     
     /** Wires together LimeWire. */
@@ -387,6 +422,7 @@ public final class Initializer {
     private void validateEarlyCore() {        
         // See if our NIODispatcher clunked out.
         if(!nioDispatcher.get().isRunning()) {
+            GuiUtils.hideAndDisposeAllWindows();
             failInternetBlocked();
         }
         stopwatch.resetAndLog("Check for NIO dispatcher");
@@ -617,29 +653,44 @@ public final class Initializer {
     private void failPreferencesPermissions() {
         fail(I18n.tr("LimeWire could not create a temporary preferences folder.\n\nThis is generally caused by a lack of permissions.  Please make sure that LimeWire (and you) have access to create files/folders on your computer.  If the problem persists, please visit www.limewire.com and click the \'Support\' link.\n\nLimeWire will now exit.  Thank You."));
     }
-    
+   
     /** Shows a msg & fails. */
     private void fail(final String msgKey) {
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    JOptionPane.showMessageDialog(null,
-                            new MultiLineLabel(msgKey, 300),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            });
-        } catch (InterruptedException ignored) {
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if(cause instanceof RuntimeException)
-                throw (RuntimeException)cause;
-            if(cause instanceof Error)
-                throw (Error)cause;
-            throw new RuntimeException(cause);
-        }
+        SwingUtils.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(null,
+                        new MultiLineLabel(msgKey, 300),
+                        I18n.tr("Error"),
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
         System.exit(1);
     }
     
+    /**
+     * Warns the user that another instance of LimeWire appears to be
+     * running and that it should be shut down before proceeding.
+     * 
+     * @return true if the user chooses to proceed.
+     */
+    private boolean warnAlreadyRunning() {
+        final AtomicInteger response =
+            new AtomicInteger(JOptionPane.CANCEL_OPTION);
+        final String message = I18n.tr("Another instance of LimeWire " +
+                "appears to be running. Please completely shut down all " +
+                "other instances of LimeWire before continuing. If this " +
+                "problem persists, please restart your computer.");
+        SwingUtils.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                response.set(JOptionPane.showConfirmDialog(null,
+                        new MultiLineLabel(message, 300),
+                        I18n.tr("LimeWire is already running"),
+                        JOptionPane.OK_CANCEL_OPTION));
+            }
+        });
+        return response.get() == JOptionPane.OK_OPTION;
+    }
 }
 

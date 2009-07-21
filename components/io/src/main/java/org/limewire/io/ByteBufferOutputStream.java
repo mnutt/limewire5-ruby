@@ -95,7 +95,7 @@ public class ByteBufferOutputStream extends OutputStream {
     
     /**
      * Returns a byte[] of the valid bytes written to this stream.
-     *
+     * <p>
      * This _may_ return a reference to the backing array itself (but it is not
      * guaranteed to), so the ByteBufferOutputStream should not be used again
      * after this is called if you want to preserve the contents of the array.

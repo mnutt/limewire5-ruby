@@ -6,7 +6,7 @@ import org.limewire.core.api.Application;
 public class MockApplication implements Application {
     
     @Override
-    public String getUniqueUrl(String baseUrl) {
+    public String addClientInfoToUrl(String baseUrl) {
         return baseUrl;
     }
     

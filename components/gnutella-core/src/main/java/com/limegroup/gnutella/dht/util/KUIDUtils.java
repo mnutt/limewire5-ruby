@@ -17,7 +17,7 @@ public class KUIDUtils {
     private KUIDUtils() {}
     
     /**
-     * Converts the given SHA-1 URN into a KUID
+     * Converts the given SHA-1 URN into a KUID.
      */
     public static KUID toKUID(URN urn) {
         if (!urn.isSHA1()) {
@@ -27,7 +27,7 @@ public class KUIDUtils {
     }
     
     /**
-     * Converts the given KUID into a SHA-1 URN
+     * Converts the given KUID into a SHA-1 URN.
      */
     public static URN toURN(KUID kuid) {
         try {
@@ -38,7 +38,7 @@ public class KUIDUtils {
     }
     
     /**
-     * Returns a KUID for the GUID (KUID = SHA-1(GUID))
+     * Returns a KUID for the GUID (KUID = SHA-1(GUID)).
      */
     public static KUID toKUID(GUID guid) {
         try {

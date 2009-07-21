@@ -30,7 +30,7 @@ import java.util.concurrent.TimeoutException;
  * and suspend the Threads until an another Thread sets a
  * return value or an Exception which will be thrown by the
  * get() method.
- * 
+ * <p>
  * The main differences between OnewayExchanger and 
  * java.util.concurrent.Exchanger are:
  * 
@@ -73,7 +73,7 @@ public class OnewayExchanger<V, E extends Throwable> {
      * Creates an OnewayExchanger that is either configured
      * for a single shot which means the return value or the
      * Exception cannot be changed after they've been set.
-     * 
+     * <p>
      * Default is false.
      */
     public OnewayExchanger(boolean oneShot) {
@@ -153,7 +153,7 @@ public class OnewayExchanger<V, E extends Throwable> {
     }
     
     /**
-     * Returns true if the OnewayExchanger is cancelled
+     * Returns true if the OnewayExchanger is cancelled.
      */
     public synchronized boolean isCancelled() {
         return cancelled;
@@ -161,7 +161,7 @@ public class OnewayExchanger<V, E extends Throwable> {
     
     /**
      * Returns true if the get() method will return immediately
-     * by throwing an Exception or returning a value
+     * by throwing an Exception or returning a value.
      */
     public synchronized boolean isDone() {
         return done;
@@ -169,21 +169,21 @@ public class OnewayExchanger<V, E extends Throwable> {
     
     /**
      * Returns true if calling the get() method will
-     * throw an Exception
+     * throw an Exception.
      */
     public synchronized boolean throwsException() {
         return cancelled || exception != null;
     }
     
     /**
-     * Returns true if this is an one-shot OnewayExchanger
+     * Returns true if this is an one-shot OnewayExchanger.
      */
     public boolean isOneShot() {
         return oneShot;
     }
     
     /**
-     * Sets the value that will be returned by the get() method
+     * Sets the value that will be returned by the get() method.
      */
     public synchronized void setValue(V value) {
         if (cancelled) {
@@ -200,7 +200,7 @@ public class OnewayExchanger<V, E extends Throwable> {
     }
     
     /**
-     * Sets the Exception that will be thrown by the get() method
+     * Sets the Exception that will be thrown by the get() method.
      */
     public synchronized void setException(E exception) {
         if (exception == null) {
@@ -222,7 +222,7 @@ public class OnewayExchanger<V, E extends Throwable> {
     
     /**
      * Resets the OnewayExchanger so that it can be
-     * reused unless it's configured for a single shot
+     * reused unless it's configured for a single shot.
      */
     public synchronized void reset() {
         if (oneShot) {

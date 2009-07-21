@@ -1,13 +1,6 @@
 package org.limewire.collection;
 
-/**
- * 
- * <pre>
- * Output: bf1: 1100 
- *         bf2: 1010 
- *         av:  0001
- * </pre>
- */
+
 public class NorView extends BooleanFunction {
 
     public NorView(BitField first, BitField... more) {

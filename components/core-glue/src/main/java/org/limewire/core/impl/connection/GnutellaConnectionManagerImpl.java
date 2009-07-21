@@ -13,8 +13,6 @@ import org.limewire.core.api.connection.ConnectionItem;
 import org.limewire.core.api.connection.ConnectionLifecycleEventType;
 import org.limewire.core.api.connection.ConnectionStrength;
 import org.limewire.core.api.connection.GnutellaConnectionManager;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
@@ -47,7 +45,6 @@ public class GnutellaConnectionManagerImpl
     private final ConnectionManager connectionManager;
     private final PropertyChangeSupport changeSupport = new SwingSafePropertyChangeSupport(this);
     private final ConnectionServices connectionServices;
-    private final RemoteLibraryManager remoteLibraryManager;
 
     /** Mapping of connections to ConnectionItem instances. */
     private final Map<RoutedConnection, ConnectionItem> connectionMap;
@@ -67,12 +64,10 @@ public class GnutellaConnectionManagerImpl
     @Inject
     public GnutellaConnectionManagerImpl(
             ConnectionManager connectionManager,
-            ConnectionServices connectionServices,
-            RemoteLibraryManager remoteLibraryManager) {
+            ConnectionServices connectionServices) {
         
         this.connectionManager = Objects.nonNull(connectionManager, "connectionManager");
         this.connectionServices = connectionServices;
-        this.remoteLibraryManager = remoteLibraryManager;
 
         // Create map of connection items.
         connectionMap = new HashMap<RoutedConnection, ConnectionItem>();
@@ -279,19 +274,6 @@ public class GnutellaConnectionManagerImpl
     @Override
     public EventList<ConnectionItem> getConnectionList() {
         return connectionItemList;
-    }
-    
-    /**
-     * Scans the specified connection host for shared files.  This 
-     * implementation displays the files as a remote library.
-     */
-    @Override
-    public void browseHost(ConnectionItem item) {
-        // Get FriendPresence for connection.  
-        FriendPresence hostPresence = item.getFriendPresence();
-
-        // Display library for connection.
-        remoteLibraryManager.addPresenceLibrary(hostPresence);
     }
 
     /**

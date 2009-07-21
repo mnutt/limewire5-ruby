@@ -17,19 +17,20 @@ import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.util.PrivilegedAccessor;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.IncompleteFileCollection;
 
 public class IncompleteFileManagerTest extends LimeTestCase {
     
-    private IncompleteFileManager incompleteFileManager;
+    @Inject private IncompleteFileManager incompleteFileManager;
     private RemoteFileDesc rfd1, rfd2;
-    private FileManager fm;
-    private VerifyingFileFactory verifyingFileFactory;
-    private Injector injector;
+    @Inject private VerifyingFileFactory verifyingFileFactory;
+    @Inject private Injector injector;
+    @Inject private IncompleteFileCollection incompleteFileCollection;
     
     public IncompleteFileManagerTest(String name) {
         super(name);
@@ -41,10 +42,7 @@ public class IncompleteFileManagerTest extends LimeTestCase {
     
     @Override
     public void setUp() {
-        injector = LimeTestUtils.createInjector();
-        fm = injector.getInstance(FileManager.class);
-        verifyingFileFactory = injector.getInstance(VerifyingFileFactory.class);
-        incompleteFileManager = injector.getInstance(IncompleteFileManager.class);
+        LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
     }
 
     /** @param urn a SHA1 urn, or null */
@@ -176,7 +174,7 @@ public class IncompleteFileManagerTest extends LimeTestCase {
      * added / removed incomplete file.
      */
     public void testFileManagerIsNotified() throws Exception {
-        assertEquals(0, fm.getIncompleteFileList().size()); // begin with 0 shared.
+        assertEquals(0, incompleteFileCollection.size()); // begin with 0 shared.
         
         //Populate IFM with a hash.
         rfd1=newRFD("some file name", 1839, 
@@ -185,18 +183,18 @@ public class IncompleteFileManagerTest extends LimeTestCase {
         VerifyingFile vf=verifyingFileFactory.createVerifyingFile(1839);
         incompleteFileManager.addEntry(tmp1, vf, true);
         
-        assertEquals(1, fm.getIncompleteFileList().size()); // 1 added.
+        assertEquals(1, incompleteFileCollection.size()); // 1 added.
         
         // make sure it's associated with a URN.
         URN urn = URN.createSHA1Urn(    
             "urn:sha1:GLSTHIPQGSSZTS5FJUPAKPZWUGYQYPFB");
-        FileDesc fd = fm.getIncompleteFileList().getFileDesc(urn);
+        FileDesc fd = incompleteFileCollection.getFileDesc(urn);
         assertNotNull(urn);
         assertInstanceof(com.limegroup.gnutella.library.IncompleteFileDesc.class, fd);
         
         incompleteFileManager.removeEntry(tmp1);
         
-        assertEquals(0, fm.getIncompleteFileList().size()); // back to 0 shared.
+        assertEquals(0, incompleteFileCollection.size()); // back to 0 shared.
     }   
 
     public void testCompletedHash_NotFound() throws Throwable{

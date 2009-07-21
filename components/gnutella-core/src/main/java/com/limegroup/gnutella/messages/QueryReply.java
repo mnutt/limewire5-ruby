@@ -29,9 +29,9 @@ public interface QueryReply extends Message, SecureMessage {
 
     /**
      * Sets the guid for this message. Is needed, when we want to cache 
-     * query replies or sfor some other reason want to change the GUID as 
-     * per the guid of query request
-     * @param guid The guid to be set
+     * query replies or for some other reason want to change the GUID as 
+     * per the guid of query request.
+     * @param guid the guid to be set
      */
     public void setGUID(GUID guid);
 
@@ -48,7 +48,7 @@ public interface QueryReply extends Message, SecureMessage {
      */
     public boolean isBrowseHostReply();
 
-    /** Return the associated xml metadata string if the queryreply
+    /** Return the associated xml metadata string if the query reply
      *  contained one.
      */
     public byte[] getXMLBytes();
@@ -70,7 +70,7 @@ public interface QueryReply extends Message, SecureMessage {
     public int getPort();
 
     /** Returns the IP address of the responding host in standard
-     *  dotted-decimal format, e.g., "192.168.0.1" */
+     *  dotted-decimal format, e.g., "192.168.0.1". */
     public String getIP();
 
     /**
@@ -170,7 +170,7 @@ public interface QueryReply extends Message, SecureMessage {
     public boolean isFakeMulticast();
 
     /**
-     * @return null or a non-zero lenght array of PushProxy hosts.
+     * @return null or a non-zero length array of PushProxy hosts.
      */
     public Set<? extends IpPort> getPushProxies();
 
@@ -195,7 +195,7 @@ public interface QueryReply extends Message, SecureMessage {
      * This method calculates the quality of service for a given host.  The
      * calculation is some function of whether or not the host is busy, whether
      * or not the host has ever received an incoming connection, etc.
-     * 
+     * <p>
      * Moved this code from SearchView to here permanently, so we avoid
      * duplication.  It makes sense from a data point of view, but this method
      * isn't really essential an essential method.
@@ -215,7 +215,7 @@ public interface QueryReply extends Message, SecureMessage {
     public boolean isFirewalled();
 
     /**
-     * parses the message packet and throws a <code>BadPacketException</code> if the
+     * Parses the message packet and throws a <code>BadPacketException</code> if the
      * packet was invalid.
      * @throws BadPacketException
      */

@@ -20,14 +20,16 @@ import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.util.I18NConvert;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.connection.BlockingConnectionFactory;
 import com.limegroup.gnutella.handshaking.HeaderNames;
 import com.limegroup.gnutella.handshaking.HeadersFactory;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -69,14 +71,16 @@ public class I18NSendReceiveTest extends LimeTestCase {
     private static final String[] FILES = {
         FILE_0, FILE_1, FILE_2, FILE_3, FILE_4, META_FILE_0, META_FILE_1, 
         META_FILE_2};
-    private HeadersFactory headersFactory;
-    private BlockingConnectionFactory connectionFactory;
-    private QueryRequestFactory queryRequestFactory;
-    private LifecycleManager lifecycleManager;
-    private ConnectionServices connectionServices;
-    private FileManager fileManager;
-    private LimeXMLDocumentFactory limeXMLDocumentFactory;
-    private SchemaReplyCollectionMapper schemaReplyCollectionMapper;
+    
+    @Inject private HeadersFactory headersFactory;
+    @Inject private BlockingConnectionFactory connectionFactory;
+    @Inject private QueryRequestFactory queryRequestFactory;
+    @Inject private LifecycleManager lifecycleManager;
+    @Inject private ConnectionServices connectionServices;
+    @Inject private Library library;
+    @Inject private LimeXMLDocumentFactory limeXMLDocumentFactory;
+    @Inject private SchemaReplyCollectionMapper schemaReplyCollectionMapper;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
 
     public I18NSendReceiveTest(String name) {
         super(name);
@@ -106,15 +110,7 @@ public class I18NSendReceiveTest extends LimeTestCase {
         TEST_PORT++;
         doSettings();
         
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
-        headersFactory = injector.getInstance(HeadersFactory.class);
-        connectionFactory = injector.getInstance(BlockingConnectionFactory.class);
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        lifecycleManager = injector.getInstance(LifecycleManager.class);
-        connectionServices = injector.getInstance(ConnectionServices.class);
-        fileManager = injector.getInstance(FileManager.class);
-        limeXMLDocumentFactory = injector.getInstance(LimeXMLDocumentFactory.class);
-        schemaReplyCollectionMapper = injector.getInstance(SchemaReplyCollectionMapper.class);
+        LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
         
         lifecycleManager.start();
         connectionServices.connect();
@@ -126,7 +122,7 @@ public class I18NSendReceiveTest extends LimeTestCase {
             fo.write('a');
             fo.flush();
             fo.close();
-            assertNotNull(fileManager.getGnutellaFileList().add(f).get(1, TimeUnit.SECONDS));
+            assertNotNull(gnutellaFileCollection.add(f).get(1, TimeUnit.SECONDS));
         }
     }
 
@@ -289,9 +285,7 @@ public class I18NSendReceiveTest extends LimeTestCase {
      * add the metadata
      */
     private void addMetaData(String fname, String xmlstr) throws Exception {
-        FileManager fm = fileManager;
-        FileDesc fd = 
-            fm.getManagedFileList().getFileDesc(new File(_scratchDir, fname));
+        FileDesc fd = library.getFileDesc(new File(_scratchDir, fname));
         
         LimeXMLDocument newDoc = 
             limeXMLDocumentFactory.createLimeXMLDocument(buildXMLString(xmlstr));

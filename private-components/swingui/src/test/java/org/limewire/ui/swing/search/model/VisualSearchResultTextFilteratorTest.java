@@ -34,7 +34,7 @@ public class VisualSearchResultTextFilteratorTest extends TestCase {
         final String PROPERTY_2 = "Author";
         
         // Create test search result, and add indexable properties.
-        VisualSearchResult vsr = new MockVisualSearchResult("Test");
+        MockVisualSearchResult vsr = new MockVisualSearchResult("Test");
         
         Map<FilePropertyKey, Object> propertyMap = vsr.getProperties();
         propertyMap.put(FilePropertyKey.TITLE, PROPERTY_1);

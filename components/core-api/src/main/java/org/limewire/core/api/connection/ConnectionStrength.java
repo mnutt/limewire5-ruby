@@ -2,30 +2,49 @@ package org.limewire.core.api.connection;
 
 /** The strength of your Gnutella connection. */
 public enum ConnectionStrength {
-    /** You aren't connected to the internet at all. */
-    NO_INTERNET,
+    // THE IDs associated with each enum SHOULD NEVER CHANGE.
+    // We are purposely NOT using the ordinal, because
+    // ordinals can change over time.  These ids cannot,
+    // because they are used by external code.
     
-    /** You might be connected to the internet, but not connected to Gnutella. */
-    DISCONNECTED,
+    /** You aren't connected to the Internet at all. */
+    NO_INTERNET(0),
+    
+    /** You might be connected to the Internet, but not connected to Gnutella. */
+    DISCONNECTED(1),
     
     /** You are attempting to connect to Gnutella. */
-    CONNECTING,
+    CONNECTING(2),
     
     /** You have a weak connection to Gnutella. */
-    WEAK,
+    WEAK(3),
     
-    /** You have a slightly better than weak connection to Gnutella **/
-    WEAK_PLUS,
+    /** You have a slightly better than weak connection to Gnutella. **/
+    WEAK_PLUS(4),
     
     /** Your connection to Gnutella is OK, but could be better. */
-    MEDIUM, 
+    MEDIUM(5), 
     
     /** Your connection to Gnutella is a little better than OK, but still, it could be better. */
-    MEDIUM_PLUS,
+    MEDIUM_PLUS(6),
     
     /** You are fully connected to Gnutella. */
-    FULL, 
+    FULL(7), 
     
     /** You have a kickass connection to Gnutella. */
-    TURBO;
+    TURBO(8);
+    
+    private final int strengthId;
+    
+    private ConnectionStrength(int id) {
+        this.strengthId = id;
+    }
+
+    /**
+     * Returns the ID associated with this strength. A given strength's ID will
+     * never change.
+     */
+    public int getStrengthId() {
+        return strengthId;
+    }
 }

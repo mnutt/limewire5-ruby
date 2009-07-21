@@ -1,16 +1,25 @@
 package org.limewire.ui.swing.search.resultpanel.list;
 
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
+import org.limewire.util.Objects;
 
-public class SearchHighlightUtil {
+class SearchHighlightUtil {
     private static final Log LOG = LogFactory.getLog(SearchHighlightUtil.class);
+    
+    private final StringBuilder builderBuffer = new StringBuilder();
+    private final Matcher matcher;
 
-    private SearchHighlightUtil() {
+     SearchHighlightUtil(String search) {
+         // Create literal string with escaped regex characters.
+         String literalSearch = createLiteralSearch(Objects.nonNull(search, "search"));
+         
+         // Create pattern to match on word boundary, and match content.
+         Pattern pattern = Pattern.compile("\\b(" + literalSearch + ")", Pattern.CASE_INSENSITIVE);
+         matcher = pattern.matcher("");
     }
 
     /**
@@ -19,39 +28,26 @@ public class SearchHighlightUtil {
      * Multiple search words are separated by space characters; matches occur
      * on word boundaries.
      */
-    public static String highlight(String search, String content) {
+    public String highlight(String content) {
         if (content == null) {
             return "";
         }
         
-        if (search == null) {
-            return content;
-        }
-
-        // Create literal string with escaped regex characters.
-        String literalSearch = createLiteralSearch(search);
-        
-        // Create pattern to match on word boundary, and match content.
-        Pattern pattern = Pattern.compile("\\b(" + literalSearch + ")", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(content);
-        
-        StringBuilder bldr = new StringBuilder();
+        matcher.reset(content);
+        builderBuffer.setLength(0);
         int index = 0;
         while (matcher.find()) {
-            MatchResult result = matcher.toMatchResult();
-
-            int startIndex = result.start();
-            bldr.append(content.substring(index, startIndex));
-            String word = result.group();
-            bldr.append("<b>").append(word).append("</b>");
+            int startIndex = matcher.start();
+            builderBuffer.append(content.substring(index, startIndex));
+            String word = matcher.group();
+            builderBuffer.append("<b>").append(word).append("</b>");
             index = matcher.end();
-
             LOG.debugf("Start: {0} url: {1} end: {2}", startIndex, word, matcher.end());
         }
 
-        if (bldr.length() > 0) {
-            bldr.append(content.substring(index));
-            return bldr.toString();
+        if (builderBuffer.length() > 0) {
+            builderBuffer.append(content.substring(index));
+            return builderBuffer.toString();
         }
         return content;
     }

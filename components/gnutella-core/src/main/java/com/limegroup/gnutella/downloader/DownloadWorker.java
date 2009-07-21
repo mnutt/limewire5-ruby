@@ -119,19 +119,19 @@ public class DownloadWorker {
     private static final Log LOG = LogFactory.getLog(DownloadWorker.class);
 
     // /////////////////////// Policy Controls ///////////////////////////
-    /** The smallest interval that can be split for parallel download */
+    /** The smallest interval that can be split for parallel download. */
     private static final int MIN_SPLIT_SIZE = 16 * 1024; // 16 KB
 
     /**
      * The lowest (cumulative) bandwidth we will accept without stealing the
-     * entire grey area from a downloader for a new one
+     * entire grey area from a downloader for a new one.
      */
     private static final float MIN_ACCEPTABLE_SPEED = DownloadSettings.MAX_DOWNLOAD_BYTES_PER_SEC
             .getValue() < 8 ? 0.1f : 0.5f;
 
     /**
      * The speed of download workers that haven't been started yet or do not
-     * have enough measurements
+     * have enough measurements.
      */
     private static final int UNKNOWN_SPEED = -1;
 
@@ -149,7 +149,7 @@ public class DownloadWorker {
 
     /**
      * The time to wait trying to establish a push connection if only a UDP push
-     * has been sent (as is in the case of altlocs)
+     * has been sent (as is in the case of altlocs).
      */
     private static final int UDP_PUSH_CONNECT_TIME = 6000; // 6 seconds
 
@@ -167,7 +167,7 @@ public class DownloadWorker {
     /**
      * The number of seconds to wait for a busy host (if it didn't give us a
      * retry after header) if we don't have any active downloaders.
-     * 
+     * <p>
      * Note that there are some acceptable problems with the way this values are
      * used. Namely, if we have sources X & Y and source X is tried first, but
      * is busy, its busy-time will be set to 1 minute. Then source Y is tried
@@ -180,7 +180,7 @@ public class DownloadWorker {
     /**
      * The minimum number of seconds to wait for a busy host if we do have some
      * active downloaders.
-     * 
+     * <p>
      * Note that there are some acceptable problems with the way this values are
      * used. Namely, if we have sources X & Y and source X is tried first and is
      * accepted. Then source Y is tried and is busy, so its busy-time is set to
@@ -199,19 +199,19 @@ public class DownloadWorker {
     private final DownloadStatsTracker statsTracker;
 
     /**
-     * Whether I was interrupted before starting
+     * Whether I was interrupted before starting.
      */
     private final AtomicBoolean _interrupted = new AtomicBoolean(false);
 
     /**
-     * The downloader that will do the actual downloading 
+     * The downloader that will do the actual downloading. 
      */
      //TODO: un-volatilize after fixing the assertion failures
      
     private volatile HTTPDownloader _downloader;
 
     /**
-     * Whether I should release the ranges that I have leased for download 
+     * Whether I should release the ranges that I have leased for download. 
      */ 
      //TODO: un-volatilize after fixing the assertion failures
      
@@ -412,11 +412,10 @@ public class DownloadWorker {
      * download if no file was available. - Loop again if the requested range
      * was unavailable but other data is available. - Queue up if we were
      * instructed to be queued. - Download if we were told to download.
-     * 
+     * <p>
      * In all events, either the download completely finishes or a callback is
      * eventually notified of success or failure & the state continues moving.
      * 
-     * @param status
      */
     private void httpRequestFinished(ConnectionStatus status) {
         if (LOG.isDebugEnabled())
@@ -458,7 +457,7 @@ public class DownloadWorker {
      * Begins the process of downloading. When downloading finishes, this will
      * either finish the download (if an error occurred) or move to the next
      * state.
-     * 
+     * <p>
      * A successful download will reset the failed count on the RFD. A
      * DiskException while downloading will notify the manager of a problem.
      */
@@ -543,7 +542,7 @@ public class DownloadWorker {
 
     /**
      * Begins a THEX download if it was just requested.
-     * 
+     * <p>
      * If the request failed, this will immediately increment the state so that
      * the body of the response can be consumed. Otherwise it will schedule a
      * download to take place and increment the state when finished.
@@ -575,7 +574,7 @@ public class DownloadWorker {
     }
 
     /**
-     * Release the ranges assigned to our downloader
+     * Release the ranges assigned to our downloader.
      */
     private void releaseRanges() {
 
@@ -667,7 +666,7 @@ public class DownloadWorker {
 
     /**
      * Attempts to establish a connection to the host in RFD.
-     * 
+     * <p>
      * This will return immediately, scheduling callbacks for the connection
      * events. The appropriate ConnectObserver (Push or Direct) will be notified
      * via handleConnect if successful or shutdown if not. From there, the rest
@@ -863,9 +862,9 @@ public class DownloadWorker {
      * Completes the assignAndRequest by incrementing the state using the
      * ConnectionStatus that is generated by processing of the response headers.
      * 
-     * @param x Any IOException encountered while processing
-     * @param range The range initially requested
-     * @param victim The possibly null victim to steal from.
+     * @param x any IOException encountered while processing
+     * @param range the range initially requested
+     * @param victim the possibly null victim to steal from.
      */
     private void completeAssignAndRequest(IOException x, Range range,
             DownloadWorker victim) {
@@ -880,13 +879,13 @@ public class DownloadWorker {
     /**
      * Completes the assign & request process by parsing the response headers
      * and completing either assignWhite or assignGrey.
-     * 
+     * <p>
      * If victim is null, it is assumed that we are completing assignGrey.
      * Otherwise, we are completing assignWhite.
      * 
-     * @param x Any IOException encountered while processing
-     * @param range The range initially requested
-     * @param victim The possibly null victim to steal from.
+     * @param x any IOException encountered while processing
+     * @param range the range initially requested
+     * @param victim the possibly null victim to steal from.
      * @return
      */
     @SuppressWarnings({"ThrowFromFinallyBlock"})
@@ -1015,8 +1014,6 @@ public class DownloadWorker {
      * Completes assigning a white range to a downloader. If the downloader
      * shortened any of the requested ranges, this will release the remaining
      * pieces back to the VerifyingFile.
-     * 
-     * @param expectedRange
      */
     private void completeAssignWhite(Range expectedRange) {
         // The _downloader may have told us that we're going to read less data
@@ -1065,7 +1062,7 @@ public class DownloadWorker {
     }
 
     /**
-     * picks an unclaimed interval from the verifying file
+     * Picks an unclaimed interval from the verifying file.
      * 
      * @throws NoSuchRangeException if the remote host is partial and doesn't
      *         have the ranges we need
@@ -1349,8 +1346,8 @@ public class DownloadWorker {
     // //// various handlers for failure states of the assign process /////
 
     /**
-     * no more ranges to download or no more people to steal from - finish
-     * download
+     * No more ranges to download or no more people to steal from - finish
+     * download.
      */
     private ConnectionStatus handleNoMoreDownloaders() {
         _manager.addToRanker(rfdContext);
@@ -1358,7 +1355,7 @@ public class DownloadWorker {
     }
 
     /**
-     * The file does not have such ranges
+     * The file does not have such ranges.
      */
     private ConnectionStatus handleNoRanges() {
         // forget the ranges we are pretending uploader is busy.
@@ -1395,7 +1392,7 @@ public class DownloadWorker {
     }
 
     /**
-     * The ranges exist in the file, but the remote host does not have them
+     * The ranges exist in the file, but the remote host does not have them.
      */
     private ConnectionStatus handleRangeNotAvailable() {
         rfdContext.resetFailedCount();
@@ -1444,7 +1441,7 @@ public class DownloadWorker {
     // ////// end handlers of various failure states ///////
 
     /**
-     * interrupts this downloader.
+     * Interrupts this downloader.
      */
     void interrupt() {
         if (_interrupted.getAndSet(true))
@@ -1559,7 +1556,7 @@ public class DownloadWorker {
 
         private PushDetails pushDetails;
 
-        /** Additional Shutdownable to notify if we are shutdown */
+        /** Additional Shutdownable to notify if we are shutdown. */
         private volatile Shutdownable toCancel;
 
         /** Determines if this is shutdown yet. */

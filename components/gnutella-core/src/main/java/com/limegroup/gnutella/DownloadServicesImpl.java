@@ -3,13 +3,12 @@ package com.limegroup.gnutella;
 import java.io.File;
 import java.util.List;
 
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.io.GUID;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 
@@ -27,7 +26,7 @@ public class DownloadServicesImpl implements DownloadServices {
      * @see com.limegroup.gnutella.DownloadServices#download(java.io.File)
      */ 
     public Downloader download(File incompleteFile)
-            throws CantResumeException, SaveLocationException {
+            throws CantResumeException, DownloadException {
         return downloadManager.get().download(incompleteFile);
     }
 
@@ -35,7 +34,7 @@ public class DownloadServicesImpl implements DownloadServices {
      * @see com.limegroup.gnutella.DownloadServices#download(com.limegroup.gnutella.browser.MagnetOptions, boolean, java.io.File, java.lang.String)
      */
     public Downloader download(MagnetOptions magnet, boolean overwrite,
-    		File saveDir, String fileName) throws SaveLocationException {
+    		File saveDir, String fileName) throws DownloadException {
     	return downloadManager.get().download(magnet, overwrite, saveDir, fileName);
     }
 
@@ -43,7 +42,7 @@ public class DownloadServicesImpl implements DownloadServices {
      * @see com.limegroup.gnutella.DownloadServices#download(com.limegroup.gnutella.browser.MagnetOptions, boolean)
      */
     public Downloader download(MagnetOptions magnet, boolean overwrite) 
-    	throws SaveLocationException {
+    	throws DownloadException {
     	if (!magnet.isDownloadable()) {
     		throw new IllegalArgumentException("invalid magnet: not have enough information for downloading");
     	}
@@ -54,7 +53,7 @@ public class DownloadServicesImpl implements DownloadServices {
      * (non-Javadoc)
      * @see com.limegroup.gnutella.DownloadServices#download(com.limegroup.store.StoreDescriptor, boolean, java.io.File, java.lang.String)
      */
-    public Downloader downloadFromStore(RemoteFileDesc rfd, boolean overwrite, File saveDir, String fileName) throws SaveLocationException {
+    public Downloader downloadFromStore(RemoteFileDesc rfd, boolean overwrite, File saveDir, String fileName) throws DownloadException {
         return downloadManager.get().downloadFromStore(rfd, overwrite, saveDir, fileName);
     }
 
@@ -63,7 +62,7 @@ public class DownloadServicesImpl implements DownloadServices {
      */
     public Downloader download(RemoteFileDesc[] files,
     								  boolean overwrite, GUID queryGUID) 
-    	throws SaveLocationException {
+    	throws DownloadException {
     	return download(files, queryGUID, overwrite, null, null);
     }
 
@@ -73,7 +72,7 @@ public class DownloadServicesImpl implements DownloadServices {
     public Downloader download(RemoteFileDesc[] files,
                                       GUID queryGUID, 
                                       boolean overwrite, File saveDir, String fileName)
-    	throws SaveLocationException {
+    	throws DownloadException {
     	return download(files, RemoteFileDesc.EMPTY_LIST, queryGUID,
     			overwrite, saveDir, fileName);
     }
@@ -85,7 +84,7 @@ public class DownloadServicesImpl implements DownloadServices {
     								  List<? extends RemoteFileDesc> alts,
     								  GUID queryGUID,
     								  boolean overwrite)
-    	throws SaveLocationException {
+    	throws DownloadException {
     	return download(files, alts, queryGUID, overwrite, null, null);
     }
 
@@ -96,17 +95,9 @@ public class DownloadServicesImpl implements DownloadServices {
                                       List<? extends RemoteFileDesc> alts, GUID queryGUID,
                                       boolean overwrite, File saveDir,
     								  String fileName)
-    	throws SaveLocationException {
+    	throws DownloadException {
     	return downloadManager.get().download(files, alts, queryGUID, overwrite, saveDir,
     							   fileName);
-    }
-
-    /* (non-Javadoc)
-     * @see com.limegroup.gnutella.DownloadServices#downloadTorrent(com.limegroup.bittorrent.BTMetaInfo, boolean)
-     */
-    public Downloader downloadTorrent(BTMetaInfo info, boolean overwrite)
-    		throws SaveLocationException {
-    	return downloadManager.get().downloadTorrent(info, overwrite);
     }
 
     /* (non-Javadoc)

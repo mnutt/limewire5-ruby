@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
@@ -83,18 +84,30 @@ public final class LocalIPFilter extends AbstractIPFilter {
     private void refreshHostsImpl() {
         LOG.debug("refreshing hosts");
         
-        // Load basic bad...
+        // Load the local blacklist, stripping out invalid entries
         IPList newBad = new IPList();
         String[] allHosts = FilterSettings.BLACK_LISTED_IP_ADDRESSES.get();
+        ArrayList<String> valid = new ArrayList<String>(allHosts.length);
         for (int i=0; i<allHosts.length; i++) {
-            newBad.add(allHosts[i]);
+            if(newBad.add(allHosts[i]))
+                valid.add(allHosts[i]);
+        }
+        if(valid.size() != allHosts.length) {
+            allHosts = valid.toArray(new String[0]);
+            FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(allHosts);
         }
         
-        // Load basic good...
+        // Load the local whitelist, stripping out invalid entries
         IPList newGood = new IPList();
         allHosts = FilterSettings.WHITE_LISTED_IP_ADDRESSES.get();
+        valid = new ArrayList<String>(allHosts.length);
         for (int i=0; i<allHosts.length; i++) {
-            newGood.add(allHosts[i]);
+            if(newGood.add(allHosts[i]))
+                valid.add(allHosts[i]);
+        }
+        if(valid.size() != allHosts.length) {
+            allHosts = valid.toArray(new String[0]);
+            FilterSettings.WHITE_LISTED_IP_ADDRESSES.set(allHosts);
         }
 
         // Load data from hostiles.txt (if it wasn't already loaded!)...
@@ -121,22 +134,11 @@ public final class LocalIPFilter extends AbstractIPFilter {
         goodHosts = newGood;
     }
     
-    /** Determiens if any blacklisted hosts exist. */
+    /** Determines if any blacklisted hosts exist. */
     public boolean hasBlacklistedHosts() {
         return 
           (FilterSettings.USE_NETWORK_FILTER.getValue() && hostileNetworkFilter.hasBlacklistedHosts())
           || !badHosts.isEmpty();
-    }
-    
-    /** The logmin distance to bad or hostile ips. */
-    public int logMinDistanceTo(IP ip) {
-        // If the address is on the whitelist, return the maximum distance
-        if(goodHosts.logMinDistanceTo(ip) == 0)
-            return 32;
-        int min = badHosts.logMinDistanceTo(ip);
-        if(FilterSettings.USE_NETWORK_FILTER.getValue())
-            min = Math.min(min, hostileNetworkFilter.logMinDistanceTo(ip));
-        return min;
     }
     
     @Override

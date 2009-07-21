@@ -1,5 +1,8 @@
 package org.limewire.inspection;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Thrown upon a problem with inspection.
  * <p>
@@ -18,15 +21,29 @@ package org.limewire.inspection;
  * 
  */
 public class InspectionException extends Exception {
+    
+    private final List<InspectionRequirement> requirements;
 
     public InspectionException() {
+        this.requirements = Collections.emptyList();
     }
 
     public InspectionException(String msg) {
         super(msg);
+        this.requirements = Collections.emptyList();
     }
 
     public InspectionException(Throwable cause) {
         super(cause);
+        this.requirements = Collections.emptyList();
+    }
+    
+    public InspectionException(String msg, List<InspectionRequirement> requirements) {
+        super(msg);
+        this.requirements = requirements;
+    }
+    
+    public List<InspectionRequirement> getRequirements() {
+        return requirements;
     }
 }

@@ -11,16 +11,16 @@ import java.util.SortedSet;
 /**
  * Represents a set of distinct integers. 
  * Like {@link Set}, <code>SparseIntSet</code> is <b>not synchronized</b>.
- * 
+ * <p>
  * The integers in this set are sorted in ascending order.  It would be nice for it
  * to implement the SortedSet interface eventually.
- * 
+ * <p>
  * Optimized to have compact representation when the set is "sparse". (For "dense" sets 
  * you should use IntSet.)  Integers are stored as primitives, so you're guaranteed 4*N bytes
  * of memory used after calling the compact() method.
- *  
+ * <p>
  * All retrieval and insertion operations run in O(log n) time, where n is the size of the set. 
- * 
+ * <p>
  * This class is not thread-safe.
  */
 public class SparseIntSet extends AbstractSet<Integer> {
@@ -32,7 +32,7 @@ public class SparseIntSet extends AbstractSet<Integer> {
     private int modCount;
     
     /**
-     * Creates an empty set with capacity = 8
+     * Creates an empty set with capacity = 8.
      * (similar to ArrayList)
      */
     public SparseIntSet() {
@@ -56,7 +56,7 @@ public class SparseIntSet extends AbstractSet<Integer> {
     }
     
     /**
-     * compacts this set to occupy 4*size() bytes of memory.
+     * Compacts this set to occupy 4*size() bytes of memory.
      */
     public void compact() {
         int oldCapacity = list.length;

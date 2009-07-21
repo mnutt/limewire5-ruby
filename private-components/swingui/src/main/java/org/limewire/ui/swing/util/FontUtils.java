@@ -1,6 +1,7 @@
 package org.limewire.ui.swing.util;
 
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
@@ -11,6 +12,7 @@ import java.util.Map;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.text.html.StyleSheet;
 
 public class FontUtils {
     
@@ -43,28 +45,26 @@ public class FontUtils {
 
     public static void underline(JComponent component) {
         Font font = component.getFont();
-        
-        if (font == null) {
-            return;
+        if(font != null) {  
+            component.setFont(deriveUnderline(font, true));
         }
-        
-        component.setFont(deriveUnderline(font, true));
     }
     
     public static boolean isUnderlined(JComponent component) {
         Font font = component.getFont();
-        Map<TextAttribute, ?> map = font.getAttributes();
-        return map.get(TextAttribute.UNDERLINE) == TextAttribute.UNDERLINE_ON;
+        if(font != null) {
+            Map<TextAttribute, ?> map = font.getAttributes();
+            return map.get(TextAttribute.UNDERLINE) == TextAttribute.UNDERLINE_ON;
+        } else {
+            return false;
+        }
     }
     
     public static void removeUnderline(JComponent component) {
-        Font font = component.getFont();
-        
-        if (font == null) {
-            return;
+        Font font = component.getFont();        
+        if (font != null) {
+            component.setFont(deriveUnderline(font, false));
         }
-        
-        component.setFont(deriveUnderline(font, false));
     }
 
     public static Font deriveUnderline(Font font, boolean underlined) {
@@ -76,7 +76,7 @@ public class FontUtils {
     
     /**
      * Determines if a font can display up to a point in the string.
-     *
+     * <p>
      * Returns -1 if it can display the whole string.
      */
     public static boolean canDisplay(Font f, String s) {
@@ -118,5 +118,25 @@ public class FontUtils {
             }
         }
         return largestRect;
+    }
+    
+    /**
+     * Truncates the given message to a maxWidth in pixels.
+     */
+    public static String getTruncatedMessage(String message, Font font, int maxWidth) {
+        String ELIPSES = "...";
+        while (getPixelWidth(message, font) > (maxWidth)) {
+            message = message.substring(0, message.length() - (ELIPSES.length() + 1)) + ELIPSES;
+        }
+        return message;
+    }
+
+    /**
+     * Returns the width of the message in the given font.
+     */
+    public static int getPixelWidth(String text, Font font) {
+        StyleSheet css = new StyleSheet();
+        FontMetrics fontMetrics = css.getFontMetrics(font);
+        return fontMetrics.stringWidth(text);
     }
 }

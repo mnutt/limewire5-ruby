@@ -27,7 +27,7 @@ import org.limewire.mojito.KUID;
 public interface LookupRequest extends RequestMessage {
     
     /**
-     * The ID we're looking for
+     * The ID we're looking for.
      */
     public KUID getLookupID();
 }

@@ -84,7 +84,7 @@ public class UploadSlotManagerImpl implements UploadSlotManager {
      * Polls for an available upload slot. (HTTP-style)
      * 
      * @param user the user that will use the upload slot
-     * @parm queue if the user can enter the queue 
+     * @param queue if the user can enter the queue 
      * @param highPriority if the user needs an upload slot now or never 
      * @return the position in the queue if queued, -1 if rejected,
      * 0 if it can proceed immediately
@@ -205,7 +205,7 @@ public class UploadSlotManagerImpl implements UploadSlotManager {
     }
     
     /**
-     * kills any active uploaders that can be preempted and have lower priority
+     * Kills any active uploaders that can be preempted and have lower priority.
      */
     private void killPreemptible(int priority) {
         for(int i = active.size() - 1; i >= 0; i--) {
@@ -304,7 +304,7 @@ public class UploadSlotManagerImpl implements UploadSlotManager {
     }
     
     /**
-     * adds a request to the appropriate queue if not already there
+     * Adds a request to the appropriate queue if not already there.
      * @return the position in the queue (>= 1)
      */
     @SuppressWarnings("unchecked")
@@ -321,7 +321,7 @@ public class UploadSlotManagerImpl implements UploadSlotManager {
     }
     
     /**
-     * adds an active request.  
+     * Adds an active request.  
      */
     private void addActiveRequest(UploadSlotRequest request) {
         int i = 0;
@@ -338,7 +338,7 @@ public class UploadSlotManagerImpl implements UploadSlotManager {
     }
     
     /**
-     * Cancels the request issued by this UploadSlotListener
+     * Cancels the request issued by this UploadSlotListener.
      */
     public synchronized void cancelRequest(UploadSlotUser user) {
         if (LOG.isDebugEnabled())
@@ -382,8 +382,8 @@ public class UploadSlotManagerImpl implements UploadSlotManager {
     }
     
     /**
-     * resumes an uploader from the resumable queue
-     * (in this specific case a Seeding BT uploader)
+     * Resumes an uploader from the resumable queue
+     * (in this specific case a Seeding BT uploader).
      */
     private void resumeQueued() {
         // can't resume if someone is still active
@@ -536,7 +536,7 @@ public class UploadSlotManagerImpl implements UploadSlotManager {
     }
     
     /**
-     * An arraylist that keeps some stats on its elements. 
+     * An ArrayList that keeps some stats on its elements. 
      */
     private static class CountingList<E> extends ArrayList<E> 
     implements Inspectable {

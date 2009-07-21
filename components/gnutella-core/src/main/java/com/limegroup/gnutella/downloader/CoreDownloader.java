@@ -68,7 +68,7 @@ public interface CoreDownloader extends Downloader, ListenerSupport<DownloadStat
     public void initialize();
 
     /**
-     * Returns the type of download
+     * Returns the type of download.
      */
     public DownloaderType getDownloadType();
 

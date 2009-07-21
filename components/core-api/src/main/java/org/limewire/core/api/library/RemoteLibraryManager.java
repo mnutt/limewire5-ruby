@@ -1,20 +1,24 @@
 package org.limewire.core.api.library;
 
-import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
 
 import ca.odell.glazedlists.EventList;
 
 public interface RemoteLibraryManager {
     
     /**
-     * Adds a new presence to the list of remote libraries.
-     * If a presence with the same ID already exists, this
-     * returns the preexisting library.  If the presence
-     * is the first with that particular friend, a FriendLibrary
-     * is created.
+     * Returns the {@link PresenceLibrary} for this particular
+     * {@link FriendPresence}.
      */
-    PresenceLibrary addPresenceLibrary(FriendPresence presence);
+    PresenceLibrary getPresenceLibrary(FriendPresence presence);
+
+    /**
+     * Adds a new presence to the list of remote libraries. If a presence with
+     * the same ID already exists, returns false. If the presence is the first
+     * with that particular friend, a FriendLibrary is created and returns true.
+     */
+    boolean addPresenceLibrary(FriendPresence presence);
     
     /**
      * Removes a presence from the list of presence libraries
@@ -40,15 +44,15 @@ public interface RemoteLibraryManager {
      */
     boolean hasFriendLibrary(Friend friend);
 
-    /** A list of all friend's libraries suitable for use in Swing. */
+    /** A list of all friends' libraries suitable for use in Swing. */
     EventList<FriendLibrary> getSwingFriendLibraryList();
     
-    /** Returns a FileList that is a concatenation of all friends libraries. */
-    FileList<RemoteFileItem> getAllFriendsFileList();
+    /** Returns a SearchResultList that is a concatenation of all friends libraries. */
+    SearchResultList getAllFriendsFileList();
     
     /** 
-	 * Returns the FriendLibrary for this friend if one exists, null 
-	 * if one does not exist 
-	 */
+     * Returns the FriendLibrary for this friend if one exists, null 
+     * if one does not exist. 
+     */
     FriendLibrary getFriendLibrary(Friend friend);
 }

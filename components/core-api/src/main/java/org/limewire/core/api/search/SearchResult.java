@@ -1,7 +1,6 @@
 package org.limewire.core.api.search;
 
 import java.util.List;
-import java.util.Map;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
@@ -12,8 +11,6 @@ public interface SearchResult {
 
     String getFileExtension();
     
-    Map<FilePropertyKey, Object> getProperties();
-
     Object getProperty(FilePropertyKey key);
     
     Category getCategory();
@@ -21,8 +18,8 @@ public interface SearchResult {
     long getSize();
     
     /**
-     * Returns a subset of sources identified for a file. 
-     * Limiting the number of sources to friends plus 2 other sources.
+     * Returns a subset of sources identified for a file, limiting the number
+     * of alt-locs returned.
      */
     List<RemoteHost> getSources();
     
@@ -34,6 +31,9 @@ public interface SearchResult {
      * @return full file name including extension
      */
     String getFileName();
+    
+    /** Returns the filename without an extension. */
+    String getFileNameWithoutExtension();
     
     String getMagnetURL();
 

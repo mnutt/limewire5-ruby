@@ -7,7 +7,7 @@ import com.limegroup.gnutella.messages.Message;
 
 /**
  * A very basic queue of messages.
- *
+ * <p>
  * All messages are FIFO.
  */
 public class BasicQueue implements MessageQueue {
@@ -15,12 +15,12 @@ public class BasicQueue implements MessageQueue {
     private List<Message> QUEUE = new LinkedList<Message>();
     
     
-    /** Adds a new message */
+    /** Adds a new message. */
     public void add(Message m) {
         QUEUE.add(m);
     }
     
-    /** Removes the next message */
+    /** Removes the next message. */
     public Message removeNext() {
         if(QUEUE.isEmpty())
             return null;

@@ -22,7 +22,7 @@ import com.limegroup.gnutella.ReplyHandler;
 
 /**
  * Manages dynamic querying for Ultrapeers.
- *
+ * <p>
  * This maintains the data for all active queries for this Ultrapeer and any
  * of its leaves, also providing an interface for removing active queries.
  * Queries may be removed, for example, when a leaf node with an active query
@@ -31,13 +31,13 @@ import com.limegroup.gnutella.ReplyHandler;
 @Singleton
 public final class QueryDispatcherImpl implements QueryDispatcher {
 
-	/**
-	 * <tt>Map</tt> of outstanding queries.  
-	 */
+    /**
+     * <tt>Map</tt> of outstanding queries.  
+     */
     @InspectableForSize("number of dispatched queries")
-	private final Map<GUID, QueryHandler> QUERIES = new HashMap<GUID, QueryHandler>();
+    private final Map<GUID, QueryHandler> QUERIES = new HashMap<GUID, QueryHandler>();
 
-    /** Details about the queries */
+    /** Details about the queries. */
     @InspectionPoint("dispatched queries details")
     public final Inspectable queryDetail = new Inspectable() {
         @Override
@@ -49,11 +49,11 @@ public final class QueryDispatcherImpl implements QueryDispatcher {
         }
     };
     
-	/**
-	 * <tt>List</tt> of new queries to add.
-	 * LOCKING: Thread-safe, although you must obtain a lock on NEW_QUERIES if
-	 * it's ever iterated over.  
-	 */
+    /**
+     * <tt>List</tt> of new queries to add.
+     * LOCKING: Thread-safe, although you must obtain a lock on NEW_QUERIES if
+     * it's ever iterated over.  
+     */
     @InspectableForSize("number of newly dispatched queries")
 	private final List<QueryHandler> NEW_QUERIES =
         Collections.synchronizedList(new LinkedList<QueryHandler>());
@@ -78,13 +78,13 @@ public final class QueryDispatcherImpl implements QueryDispatcher {
 	public void addQuery(QueryHandler handler) {
         handler.sendQuery();  // immediately send out one query.
         synchronized(NEW_QUERIES) {
-		    NEW_QUERIES.add(handler);
-		    if(NEW_QUERIES.size() == 1 && !_active) {
-		        _active = true;
-		        PROCESSOR.execute(this);
+            NEW_QUERIES.add(handler);
+            if(NEW_QUERIES.size() == 1 && !_active) {
+                _active = true;
+                PROCESSOR.execute(this);
             }
-		}
-	}
+        }
+    }
 
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.search.QueryDispatcher#removeReplyHandler(com.limegroup.gnutella.ReplyHandler)
@@ -149,8 +149,6 @@ public final class QueryDispatcherImpl implements QueryDispatcher {
     
     /**
      * Removes the specified <tt>ReplyHandler</tt> from NEW_QUERIES & QUERIES.
-     *
-     * @param handler the <tt>ReplyHandler</tt> to remove
      */
     private void remove(GUID guid) {
         synchronized(NEW_QUERIES) {
@@ -199,21 +197,21 @@ public final class QueryDispatcherImpl implements QueryDispatcher {
                 ErrorService.error(t);
             }
         }
-	}
+    }
 
 	/**
-	 * Processes current queries.
-	 */
-	private boolean processQueries() {
-		synchronized(NEW_QUERIES) {
-            synchronized(QUERIES) {
-                for(QueryHandler qh : NEW_QUERIES)
+     * Processes current queries.
+     */
+    private boolean processQueries() {
+        synchronized (NEW_QUERIES) {
+            synchronized (QUERIES) {
+                for (QueryHandler qh : NEW_QUERIES)
                     QUERIES.put(qh.getGUID(), qh);
             }
-			NEW_QUERIES.clear();
-		}
+            NEW_QUERIES.clear();
+        }
 
-	    
+    
         synchronized(QUERIES) {
             Iterator<QueryHandler> iter = QUERIES.values().iterator();
             while(iter.hasNext()) {

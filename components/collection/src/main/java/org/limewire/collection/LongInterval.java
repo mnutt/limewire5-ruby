@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.limewire.util.ByteUtils;
 
 /**
- * An implementation of range that stores data in longs
+ * An implementation of range that stores data in longs.
  */
 public class LongInterval extends Range implements Serializable {
     private static final long serialVersionUID = -2562093104400487445L;

@@ -1,71 +1,79 @@
 package org.limewire.ui.swing.friends.chat;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.event.HyperlinkListener;
 
 import org.bushe.swing.event.annotation.EventSubscriber;
+import org.jdesktop.application.Resource;
+import org.jdesktop.swingx.JXPanel;
+import org.limewire.friend.api.FriendConnectionEvent;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.ui.swing.event.EventAnnotationProcessor;
-import org.limewire.xmpp.api.client.XMPPConnectionEvent;
+import org.limewire.ui.swing.util.GuiUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import net.miginfocom.swing.MigLayout;
+
+/**
+ * Main Chat window. This is the parent container for the chat window.
+ */
 @Singleton
-public class ChatPanel extends JPanel implements Displayable {
+public class ChatPanel extends JXPanel implements Displayable {
     private static final Log LOG = LogFactory.getLog(ChatPanel.class);
     private final ConversationPaneFactory conversationFactory;
     private final JPanel conversationPanel;
     private final ChatFriendListPane friendsPanel;
     private final Map<String, ConversationPane> chats;
-    private final ChatTopPanel chatTopPanel;
+    
+    @Resource private Color border;
     
     @Inject
-    public ChatPanel(ConversationPaneFactory conversationFactory, IconLibrary icons, ChatFriendListPane friendsPanel,
+    public ChatPanel(ConversationPaneFactory conversationFactory, ChatFriendListPane friendsPanel,
             ChatTopPanel chatTopPanel) {
-        super(new BorderLayout());
+        GuiUtils.assignResources(this);
+
+        setLayout(new MigLayout("gap 0, insets 0 0 0 2, fill"));
+        setBorder(BorderFactory.createMatteBorder(1,1,0,1, border));
         
-        this.chatTopPanel = chatTopPanel;
         this.conversationFactory = conversationFactory;
         this.friendsPanel = friendsPanel;
         this.chats = new HashMap<String, ConversationPane>();
 
-        //Dimensions according to the spec
         setPreferredSize(new Dimension(400, 240));
-        add(friendsPanel, BorderLayout.WEST);
-        add(chatTopPanel, BorderLayout.NORTH);
+        add(chatTopPanel, "dock north");
+        add(friendsPanel, "dock west");
+
         conversationPanel = new JPanel(new BorderLayout());
         setConversationPanel(buildMessagesPane());
-        add(conversationPanel, BorderLayout.CENTER);
+        add(conversationPanel, "dock center");
         
         EventAnnotationProcessor.subscribe(this);
-        
     }
     
-    void setMinimizeAction(Action minimizeAction) {
-        chatTopPanel.setMinimizeAction(minimizeAction);
-    }
     
-    @Inject void register(ListenerSupport<XMPPConnectionEvent> connectionSupport) {
-        connectionSupport.addListener(new EventListener<XMPPConnectionEvent>() {
+    @Inject void register(ListenerSupport<FriendConnectionEvent> connectionSupport) {
+        connectionSupport.addListener(new EventListener<FriendConnectionEvent>() {
             @Override
             @SwingEDTEvent
-            public void handleEvent(XMPPConnectionEvent event) {
+            public void handleEvent(FriendConnectionEvent event) {
                 switch(event.getType()) {
                 case CONNECTED:
                     handleSignon();
@@ -104,13 +112,20 @@ public class ChatPanel extends JPanel implements Displayable {
         }
     }
     
+    /**
+     * Starts a conversation chat with this friend.
+     */
+    public void fireConversationStarted(String friendId) {
+        friendsPanel.fireConversationStarted(friendId);
+    }
+    
     @EventSubscriber
     public void handleSelectedConversation(ConversationSelectedEvent event) {
         ChatFriend chatFriend = event.getFriend();
         LOG.debugf("ConversationSelectedEvent with friend: {0}", chatFriend.getName());
         ConversationPane chatPane = chats.get(chatFriend.getID());
         if (chatPane == null) {
-            chatPane = conversationFactory.create(event.getWriter(), chatFriend, getLoggedInID());
+            chatPane = conversationFactory.create(event.getWriter(), chatFriend);
             chats.put(chatFriend.getID(), chatPane);
         }
         
@@ -165,12 +180,8 @@ public class ChatPanel extends JPanel implements Displayable {
             ((Displayable)component).handleDisplay();
         }
     }
-    
-    public void setLoggedInID(String id) {
-        friendsPanel.setLoggedInID(id);    
-    }
-    
-    private String getLoggedInID() {
-        return friendsPanel.getLoggedInID();
+
+    public void markActiveConversationRead() {
+        friendsPanel.markActiveConversationRead();
     }
 }

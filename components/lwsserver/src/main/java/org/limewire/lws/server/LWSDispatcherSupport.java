@@ -130,7 +130,6 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
      * store\app\pages\client\ClientCom\command\                                              -&gt; null
      * store\app\pages\client\ClientCom\ccccommand                                            -&gt; null
      * 
-     * @param
      */
     protected abstract String getCommand(String request);
     
@@ -156,8 +155,7 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
      * store\app\pages\client\ClientCom\ccccommand                                            -&gt; {"command" -> null}
      * </pre>
      * 
-     * @param request
-     * @return arugments in the order they are placed in the URL
+     * @return arguments in the order they are placed in the URL
      */
     protected abstract Map<String,String> getArgs(String request);
     
@@ -302,7 +300,7 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
 
     /**
      * Wraps the message <tt>msg</tt> using callback function
-     * <tt>callback</tt>. The msesage is surrounded by
+     * <tt>callback</tt>. The message is surrounded by
      * {@link Constants.CALLBACK_QUOTE}s and all quotes in the message,
      * {@link Constants.CALLBACK_QUOTE}, are escaped.
      * 
@@ -464,7 +462,7 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
         /**
          * Opens a connection based on the passed in URL <code>url</code>.
          * 
-         * @param host  URL to open
+         * @param host URL to open
          * @return a connection based on the passed in URL <code>url</code>.
          * @throws IOException if an IO error occurs
          */
@@ -653,7 +651,7 @@ public abstract class LWSDispatcherSupport implements LWSDispatcher {
     }
 
     /**
-     * Reponses sent back from servers.
+     * Responses sent back from servers.
      */
     public interface Responses {
     

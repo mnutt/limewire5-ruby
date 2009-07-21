@@ -27,10 +27,10 @@ import org.limewire.nio.observer.ConnectObserver;
  */
 public class NIOSocket extends AbstractNBSocket {
 
-    /** The underlying channel the socket is using */
+    /** The underlying channel the socket is using. */
     private final SocketChannel channel;
 
-    /** The Socket that this delegates to */
+    /** The Socket that this delegates to. */
     private final Socket socket;
 
     /** The remote socket address. */

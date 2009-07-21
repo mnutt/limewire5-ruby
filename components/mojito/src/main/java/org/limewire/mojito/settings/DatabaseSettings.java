@@ -25,21 +25,21 @@ import org.limewire.setting.IntSetting;
 import org.limewire.setting.LongSetting;
 
 /**
- * Settings for the Database, DHTValue and for the DHTValueManager
+ * Settings for the Database, DHTValue and for the DHTValueManager.
  */
 public final class DatabaseSettings extends MojitoProps {
     
     private DatabaseSettings() {}
     
     /**
-     * The maximum number of Keys a single Node can store
+     * The maximum number of Keys a single Node can store.
      */
     public static final IntSetting MAX_DATABASE_SIZE
         = FACTORY.createRemoteIntSetting("MAX_DATABASE_SIZE", 16384, 
                 "Mojito.MaxDatabaseSize", 32, 65536);
     
     /**
-     * The maximum number of Values per Key a single Node can store
+     * The maximum number of Values per Key a single Node can store.
      */
     public static final IntSetting MAX_VALUES_PER_KEY
         = FACTORY.createRemoteIntSetting("MAX_VALUES_PER_KEY", 5, 
@@ -47,8 +47,8 @@ public final class DatabaseSettings extends MojitoProps {
     
     /**
      * The maximum number of keys a single IP can store in the DHT.
-     * (assuming random distribution of keys)
-     * 
+     * (assuming random distribution of keys).
+     * <pre>
      * v = total number of values for one IP
      * n = DHT size
      * k = replication param (default 20)
@@ -58,7 +58,7 @@ public final class DatabaseSettings extends MojitoProps {
      * x = (v*k)/n  ==> x = (v*20)/100000 = (1/5000)*v
      * 
      * --> with x = 5, v = 25'000
-     * 
+     * </pre>
      * Considering even NAT'd addresses, this should be enough
      */
     // LimeWire 4.13.3
@@ -76,7 +76,7 @@ public final class DatabaseSettings extends MojitoProps {
     //        "Mojito.MaxKeysPerIPBanLimit", 1, Integer.MAX_VALUE - 1);
     
     /**
-     * The time after a non-local value expires
+     * The time after a non-local value expires.
      */
     public static final LongSetting VALUE_EXPIRATION_TIME
         = FACTORY.createRemoteLongSetting("VALUE_EXPIRATION_TIME", 60L*60L*1000L, 
@@ -98,14 +98,14 @@ public final class DatabaseSettings extends MojitoProps {
                 "Mojito.ValueRepublishInterval", 3L*60L*1000L, 24L*60L*60L*1000L);
     
     /**
-     * The period of the StorablePublisher
+     * The period of the StorablePublisher.
      */
     public static final LongSetting STORABLE_PUBLISHER_PERIOD
         = FACTORY.createRemoteLongSetting("STORABLE_PUBLISHER_PERIOD", 5L*60L*1000L, 
                 "Mojito.StorablePublisherPeriod", 5L*60L*1000L, 60L*60L*1000L);
     
     /**
-     * The period of the DatabaseCleaner
+     * The period of the DatabaseCleaner.
      */
     public static final LongSetting DATABASE_CLEANER_PERIOD
         = FACTORY.createRemoteLongSetting("DATABASE_CLEANER_PERIOD", 5L*60L*1000L, 
@@ -113,13 +113,13 @@ public final class DatabaseSettings extends MojitoProps {
     
     /**
      * The *alpha* factor for the Exponentially Moving Average (EMA) 
-     * computation of the value request load
+     * computation of the value request load.
      */
     public static final FloatSetting VALUE_REQUEST_LOAD_SMOOTHING_FACTOR 
         = FACTORY.createFloatSetting("VALUE_REQUEST_LOAD_SMOOTHING_FACTOR", 0.25f);
     
     /**
-     * The delay (in sec) after which we null back the value request load
+     * The delay (in sec) after which we null back the value request load.
      */
     // 1 minute
     public static final IntSetting VALUE_REQUEST_LOAD_NULLING_DELAY
@@ -128,7 +128,7 @@ public final class DatabaseSettings extends MojitoProps {
     /**
      * Whether or not to delete a DHTValue from the Database if we're
      * the furthest of the k closest Nodes and a new Node comes along
-     * that is nearer
+     * that is nearer.
      */
     public static final BooleanSetting DELETE_VALUE_IF_FURTHEST_NODE
         = FACTORY.createRemoteBooleanSetting("DELETE_VALUE_IF_FURTHEST_NODE", 
@@ -136,7 +136,7 @@ public final class DatabaseSettings extends MojitoProps {
     
     /**
      * Whether or not we limit the number of values a certain Class C
-     * Network can store at the local Node
+     * Network can store at the local Node.
      */
     public static final BooleanSetting LIMIT_VALUES_PER_NETWORK
         = FACTORY.createRemoteBooleanSetting("LIMIT_VALUES_PER_NETWORK", 
@@ -144,7 +144,7 @@ public final class DatabaseSettings extends MojitoProps {
     
     /**
      * The maximum number of values a certain Class C Network can
-     * store at the local Node
+     * store at the local Node.
      */
     public static final IntSetting MAX_VALUES_PER_NETWORK
         = FACTORY.createRemoteIntSetting("MAX_VALUES_PER_NETWORK", 
@@ -152,7 +152,7 @@ public final class DatabaseSettings extends MojitoProps {
     
     /**
      * Whether or not we limit the number of values a single IP address
-     * can store at the local Node
+     * can store at the local Node.
      */
     public static final BooleanSetting LIMIT_VALUES_PER_ADDRESS
         = FACTORY.createRemoteBooleanSetting("LIMIT_VALUES_PER_ADDRESS", 
@@ -160,8 +160,8 @@ public final class DatabaseSettings extends MojitoProps {
     
     /**
      * The maximum number of keys a single IP can store in the DHT.
-     * (assuming random distribution of keys)
-     * 
+     * (assuming random distribution of keys).
+     * <pre>
      * v = total number of values for one IP
      * n = DHT size
      * k = replication param (default 20)
@@ -171,15 +171,15 @@ public final class DatabaseSettings extends MojitoProps {
      * x = (v*k)/n  ==> x = (v*20)/100000 = (1/5000)*v
      * 
      * --> with x = 5, v = 25'000
-     * 
-     * Considering even NAT'd addresses, this should be enough
+     * </pre>
+     * Considering even NAT'd addresses, this should be enough.
      */
     public static final IntSetting MAX_VALUES_PER_ADDRESS
         = FACTORY.createRemoteIntSetting("MAX_VALUES_PER_ADDRESS", 
             5, "Mojito.MaxValuesPerAddress", 1, Integer.MAX_VALUE - 1);
     
     /**
-     * Whether or not we validate the creator of a value
+     * Whether or not we validate the creator of a value.
      */
     public static final BooleanSetting VALIDATE_VALUE_CREATOR
         = FACTORY.createRemoteBooleanSetting("VALIDATE_VALUE_CREATOR", 

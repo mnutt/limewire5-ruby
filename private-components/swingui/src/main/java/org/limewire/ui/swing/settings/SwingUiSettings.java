@@ -26,11 +26,11 @@ public final class SwingUiSettings extends LimeProps {
     public static final FileArraySetting VISTA_WARN_DIRECTORIES =
         FACTORY.createFileArraySetting("VISTA_WARN_DIRECTORIES", new File[0]);
     
-    /**
-     * This setting is used to track whether or not the user wants to show offline buddies in the left panel.
-     */
-    public static final BooleanSetting XMPP_SHOW_OFFLINE =
-        (BooleanSetting)FACTORY.createBooleanSetting("XMPP_SHOW_OFFLINE", true).setPrivate(true);
+//    /**
+//     * This setting is used to track whether or not the user wants to show offline buddies in the left panel.
+//     */
+//    public static final BooleanSetting XMPP_SHOW_OFFLINE =
+//        (BooleanSetting)FACTORY.createBooleanSetting("XMPP_SHOW_OFFLINE", true).setPrivate(true);
 
     /**
      * Whether or not 'REMEMBER_ME' is checked -- this has nothing to do with
@@ -196,7 +196,7 @@ public final class SwingUiSettings extends LimeProps {
     public static final FileSetting LAST_FILECHOOSER_DIRECTORY =
         FACTORY.createFileSetting("LAST_FILECHOOSER_DIR", getDefaultLastFileChooserDir()).setAlwaysSave(true);
 
-    /** Whether collecting and reporting usage stats is allowed */
+    /** Whether collecting and reporting usage stats is allowed.*/
     public static final BooleanSetting USAGE_STATS =
         FACTORY.createBooleanSetting("USAGE_STATS", false);
 
@@ -243,21 +243,25 @@ public final class SwingUiSettings extends LimeProps {
     public static final BooleanSetting PLAYER_ENABLED =
         FACTORY.createBooleanSetting("PLAYER_ENABLED", true);
     
-    /** Shows an overlay on My Library first time logging in */
-    public static final BooleanSetting SHOW_FRIEND_OVERLAY_MESSAGE =
-        FACTORY.createBooleanSetting("SHOW_FRIEND_OVERLAY_MESSAGE", true);
+    /** Shows a sign-on overlay message to highlight the Library/Private Shared feature. */
+    public static final BooleanSetting SHOW_LIBRARY_OVERLAY_MESSAGE =
+        FACTORY.createBooleanSetting("SHOW_LIBRARY_OVERLAY_MESSAGE", true);
     
-    /** Shows an overlay on My Library first time going to My Library  */
-    public static final BooleanSetting SHOW_FIRST_TIME_LIBRARY_OVERLAY_MESSAGE =
-        FACTORY.createBooleanSetting("SHOW_FIRST_TIME_LIBRARY_OVERLAY_MESSAGE", true);
+    /** Shows a sign-on overlay message to highlight the Sharing features. */
+    public static final BooleanSetting SHOW_SHARING_OVERLAY_MESSAGE =
+        FACTORY.createBooleanSetting("SHOW_SHARING_OVERLAY_MESSAGE", true);
     
-    /** True if the user has logged into chat and viewed their library after, false otherwise */
-    public static final BooleanSetting HAS_LOGGED_IN_AND_SHOWN_LIBRARY =
-        FACTORY.createBooleanSetting("HAS_LOGGED_IN_AND_SHOWN_LIBRARY", false);
+    /** If the Library filters are displayed or not. */
+    public static final BooleanSetting SHOW_LIBRARY_FILTERS =
+        FACTORY.createBooleanSetting("SHOW_LIBRARY_FILTERS", true);
 
-    /** Setting for whether or not to resolve hostnames in Advanced Tools */
+    /** Setting for whether or not to resolve host names in Advanced Tools. */
     public static final BooleanSetting RESOLVE_CONNECTION_HOSTNAMES =
         FACTORY.createBooleanSetting("RESOLVE_CONNECTION_HOSTNAMES", true);
+    
+    /**Saves the download tray size when it the tray is resized    */
+    public static final IntSetting DOWNLOAD_TRAY_SIZE = 
+        FACTORY.createIntSetting("DOWNLOAD_TRAY_SIZE", 0);
 
     /**
      * Returns the default directory for the file chooser.

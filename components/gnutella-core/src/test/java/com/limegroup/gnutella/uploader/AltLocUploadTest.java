@@ -78,9 +78,11 @@ import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.http.ConstantHTTPHeaderValue;
 import com.limegroup.gnutella.http.HTTPConstants;
 import com.limegroup.gnutella.http.HTTPHeaderName;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -88,8 +90,8 @@ import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.HeadPing;
 import com.limegroup.gnutella.messages.vendor.HeadPong;
 import com.limegroup.gnutella.statistics.TcpBandwidthStatistics;
-import com.limegroup.gnutella.uploader.authentication.GnutellaBrowseFileListProvider;
-import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.GnutellaBrowseFileViewProvider;
+import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileViewProvider;
 
 public class AltLocUploadTest extends LimeTestCase {
 
@@ -125,15 +127,18 @@ public class AltLocUploadTest extends LimeTestCase {
 
     private TestUploadManager uploadManager;
 
-    private AltLocManager altLocManager;
+    @Inject private AltLocManager altLocManager;
 
     private URN hashURN;
 
-    private AlternateLocationFactory alternateLocationFactory;
+    @Inject private AlternateLocationFactory alternateLocationFactory;
 
-    private Injector injector;
+    @Inject private Injector injector;
 
-    private LifecycleManager lifecycleManager;
+    @Inject private LifecycleManager lifecycleManager;
+
+    @Inject private Library library;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
 
     public AltLocUploadTest(String name) {
         super(name);
@@ -160,26 +165,20 @@ public class AltLocUploadTest extends LimeTestCase {
                 bind(UploadManager.class).to(TestUploadManager.class);
                 bind(HTTPUploadSessionManager.class).to(TestUploadManager.class);
             }
-        });
+        }, LimeTestUtils.createModule(this));
 
-
-        lifecycleManager = injector.getInstance(LifecycleManager.class);
         lifecycleManager.start();
         uploadManager = (TestUploadManager) injector.getInstance(UploadManager.class);
         
-        FileManager fileManager = injector.getInstance(FileManager.class);
-        FileManagerTestUtils.waitForLoad(fileManager, 2000);
+       
+        FileManagerTestUtils.waitForLoad(library, 2000);
         File testDir = TestUtils.getResourceFile(testDirName);
         assertTrue("test directory could not be found", testDir.isDirectory());
         File testFile = new File(testDir, fileName);
-        Future<FileDesc> f1 = fileManager.getGnutellaFileList().add(testFile);
+        Future<FileDesc> f1 = gnutellaFileCollection.add(testFile);
         fd = f1.get(1, TimeUnit.SECONDS);
         assertNotNull(fd);
         
-        altLocManager = injector.getInstance(AltLocManager.class);
-
-        alternateLocationFactory = injector.getInstance(AlternateLocationFactory.class);
-
         client = new DefaultHttpClient();
     }
 
@@ -1407,14 +1406,14 @@ public class AltLocUploadTest extends LimeTestCase {
         TestUploadManager(UploadSlotManager slotManager,
                 HttpRequestHandlerFactory httpRequestHandlerFactory,
                 Provider<HTTPAcceptor> httpAcceptor,
-                Provider<FileManager> fileManager, Provider<ActivityCallback> activityCallback,
+                Provider<ActivityCallback> activityCallback,
                 TcpBandwidthStatistics tcpBandwidthStatistics,
-                Provider<GnutellaUploadFileListProvider> gnutellaUploadFileListProvider,
-                Provider<GnutellaBrowseFileListProvider> gnutellaBrowseFileListProvider,
-                UrnValidator urnValidator) {
+                Provider<GnutellaUploadFileViewProvider> gnutellaUploadFileListProvider,
+                Provider<GnutellaBrowseFileViewProvider> gnutellaBrowseFileListProvider,
+                UrnValidator urnValidator, Library library) {
             super(slotManager, httpRequestHandlerFactory, httpAcceptor,
-                    fileManager, activityCallback, tcpBandwidthStatistics, gnutellaUploadFileListProvider,
-                    gnutellaBrowseFileListProvider, urnValidator);
+                    activityCallback, tcpBandwidthStatistics, gnutellaUploadFileListProvider,
+                    gnutellaBrowseFileListProvider, urnValidator, library);
         }
         
         @Override

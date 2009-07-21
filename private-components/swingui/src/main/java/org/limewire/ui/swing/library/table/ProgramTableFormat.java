@@ -12,33 +12,37 @@ import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 
+import com.google.inject.Inject;
+
 /**
- * Table format for the Program Table when it is in My Library
+ * Table format for the Program Table when it is in My Library.
  */
-public class ProgramTableFormat<T extends LocalFileItem> extends AbstractMyLibraryFormat<T> {
-    static final int ACTION_INDEX = 0;
-    static final int NAME_INDEX = 1;
-    static final int SIZE_INDEX = 2;
-    static final int PLATFORM_INDEX = 3;
-    static final int COMPANY_INDEX = 4;
-    static final int DESCRIPTION_INDEX = 5;
-    static final int HIT_INDEX = 6;
-    static final int UPLOADS_INDEX = 7;
-    static final int UPLOAD_ATTEMPTS_INDEX = 8;
-    static final int PATH_INDEX = 9;
+public class ProgramTableFormat<T extends LocalFileItem> extends AbstractLibraryFormat<T> {
+
+    static final int NAME_INDEX = 0;
+    static final int SIZE_INDEX = 1;
+    static final int PLATFORM_INDEX = 2;
+    static final int COMPANY_INDEX = 3;
+    static final int DESCRIPTION_INDEX = 4;
+    static final int HIT_INDEX = 5;
+    static final int UPLOADS_INDEX = 6;
+    static final int UPLOAD_ATTEMPTS_INDEX = 7;
+    static final int PATH_INDEX = 8;
+    static final int ACTION_INDEX = 9;
     
+    @Inject
     public ProgramTableFormat() {
         super(ACTION_INDEX, "LIBRARY_PROGRAM_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
-                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_PROGRAM_ACTION", I18n.tr("Sharing"), 61, true, false),
-                new ColumnStateInfo(NAME_INDEX, "LIBRARY_PROGRAM_NAME", I18n.tr("Name"), 493, true, true), 
+                new ColumnStateInfo(NAME_INDEX, "LIBRARY_PROGRAM_NAME", I18n.tr("Name"), 480, true, true), 
                 new ColumnStateInfo(SIZE_INDEX, "LIBRARY_PROGRAM_SIZE", I18n.tr("Size"), 60, false, true),
                 new ColumnStateInfo(PLATFORM_INDEX, "LIBRARY_PROGRAM_PLATFORM", I18n.tr("Platform"), 120, false, true), 
-                new ColumnStateInfo(COMPANY_INDEX, "LIBRARY_PROGRAM_COMPANY", I18n.tr("Company"), 180, true, true), 
+                new ColumnStateInfo(COMPANY_INDEX, "LIBRARY_PROGRAM_COMPANY", I18n.tr("Company"), 230, true, true), 
                 new ColumnStateInfo(DESCRIPTION_INDEX, "LIBRARY_PROGRAM_DESCRIPTION", I18n.tr("Description"), 120, false, true), 
                 new ColumnStateInfo(HIT_INDEX, "LIBRARY_PROGRAM_HITS", I18n.tr("Hits"), 100, false, true), 
                 new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_PROGRAM_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
                 new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_PROGRAM_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true),
                 new ColumnStateInfo(PATH_INDEX, "LIBRARY_PROGRAM_PATH", I18n.tr("Location"), 200, false, true),
+                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_PROGRAM_ACTION", I18n.tr(" "), 22, 22, true, false)
         });
     }
 

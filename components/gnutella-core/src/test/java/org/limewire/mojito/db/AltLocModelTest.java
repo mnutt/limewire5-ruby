@@ -1,8 +1,8 @@
 package org.limewire.mojito.db;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import org.limewire.core.settings.DHTSettings;
 import org.limewire.gnutella.tests.LimeTestCase;
@@ -10,13 +10,16 @@ import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.inject.AbstractModule;
 import org.limewire.util.TestUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.dht.db.AltLocModel;
 import com.limegroup.gnutella.dht.db.AltLocValueFactory;
 import com.limegroup.gnutella.dht.util.KUIDUtils;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.RareFileStrategy;
 import com.limegroup.gnutella.tigertree.HashTree;
 import com.limegroup.gnutella.tigertree.HashTreeCache;
@@ -24,6 +27,8 @@ import com.limegroup.gnutella.tigertree.HashTreeCache;
 public class AltLocModelTest extends LimeTestCase {
     private FileDesc fileDesc;
     private Injector injector;
+    @Inject @GnutellaFiles private FileCollection gnutellaCollection;
+    @Inject private Library library;
 
     public AltLocModelTest(String name) {
         super(name);
@@ -37,13 +42,12 @@ public class AltLocModelTest extends LimeTestCase {
             protected void configure() {
                 bind(RareFileStrategy.class).to(AlwaysRareStrategy.class);
             }
-        });
-        FileManager fileManager = injector.getInstance(FileManager.class);
+        }, LimeTestUtils.createModule(this));
 
-        FileManagerTestUtils.waitForLoad(fileManager, 5000);
+        FileManagerTestUtils.waitForLoad(library, 5000);
         
         File testMp3 = TestUtils.getResourceFile("com/limegroup/gnutella/resources/berkeley.mp3");
-        fileDesc = fileManager.getGnutellaFileList().add(testMp3).get(1, TimeUnit.SECONDS);
+        fileDesc = gnutellaCollection.add(testMp3).get(5, TimeUnit.SECONDS);
         assertNotNull(fileDesc);
     }
 

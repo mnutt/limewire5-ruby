@@ -9,7 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * A collection of constants & utilities for Creative Commons licenses
+ * A collection of constants & utilities for Creative Commons licenses.
  */
 public final class CCConstants {
     
@@ -18,7 +18,7 @@ public final class CCConstants {
     /** 
      * The string that is inserted into QRP & goes out in license queries
      * when searching for Creative Commons licenses.
-     *
+     * <p>
      * THIS CAN NEVER EVER CHANGE.
      * (And, if you really do change it for some reason, make sure
      *  that you update the value in the various .xsd files.)
@@ -31,15 +31,15 @@ public final class CCConstants {
      */
     public static final String URL_INDICATOR = "verify at";
     
-    /** The header to include in RDF documents */
+    /** The header to include in RDF documents. */
     public static final String CC_RDF_HEADER = "<!-- <rdf:RDF xmlns=\"http://web.resource.org/cc/\"" +
             " xmlns:dc=\"http://purl.org/dc/elements/1.1/\"" +
             " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">";
     
-    /** The footer of the RDF block */
+    /** The footer of the RDF block. */
     public static final String CC_RDF_FOOTER = "</rdf:RDF> -->";
     
-    /** various types of licenses and combinations of permited/prohibited uses */
+    /** various types of licenses and combinations of permitted/prohibited uses. */
     public static final int ATTRIBUTION = 0;
     public static final int ATTRIBUTION_NO_DERIVS = 0x1;
     public static final int ATTRIBUTION_NON_COMMERCIAL = 0x2;
@@ -47,7 +47,7 @@ public final class CCConstants {
     public static final int ATTRIBUTION_SHARE = 0x4;
     public static final int ATTRIBUTION_SHARE_NON_COMMERCIAL = ATTRIBUTION_SHARE | ATTRIBUTION_NON_COMMERCIAL;
     
-    /** URI's for each type of license */
+    /** URI's for each type of license. */
     public static final String ATTRIBUTION_URI = "http://creativecommons.org/licenses/by/2.5/";
     public static final String ATTRIBUTION_NO_DERIVS_URI = "http://creativecommons.org/licenses/by-nd/2.5/";
     public static final String ATTRIBUTION_NON_COMMERCIAL_URI = "http://creativecommons.org/licenses/by-nc/2.5/";

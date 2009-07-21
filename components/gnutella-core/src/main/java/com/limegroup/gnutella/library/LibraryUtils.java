@@ -1,5 +1,7 @@
 package com.limegroup.gnutella.library;
 
+import static com.limegroup.gnutella.Constants.MAX_FILE_SIZE;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
@@ -10,20 +12,17 @@ import org.limewire.util.FileUtils;
 import org.limewire.util.MediaType;
 import org.limewire.util.OSUtils;
 
-import static com.limegroup.gnutella.Constants.MAX_FILE_SIZE;
-
-
 public class LibraryUtils {
     
     // TODO: refactor back into filemanger for test mocking... use instances.
     
-    /** Subdirectory that is always shared */
+    /** Subdirectory that is always shared. */
     public static final File PROGRAM_SHARE;
 
     /** Subdirectory that also is always shared. */
     public static final File PREFERENCE_SHARE;
 
-    /** Subdirectory used to share special application files */
+    /** Subdirectory used to share special application files. */
     public static final File APPLICATION_SPECIAL_SHARE;
 
     static {
@@ -50,7 +49,6 @@ public class LibraryUtils {
     }
 
     /** 
-     * @param file
      * @return <code>isFilePhysicallyManagable(file) && isFileAllowedToBeManaged(file))</code>
      */
     public static boolean isFileManagable(File file) {
@@ -60,7 +58,7 @@ public class LibraryUtils {
     /**
      * Returns true if this file is not too large, not too small,
      * not null, not a directory, not unreadable, not hidden.
-     * 
+     * <p>
      * Returns false otherwise.
      */
     public static boolean isFilePhysicallyManagable(File file) {
@@ -77,16 +75,28 @@ public class LibraryUtils {
     }
 
     /**
-     * Checks to see if this file is an program; if it is, and it's also not
-     * a forrced share, this returns false.  For all other files types
-     * it return true.
+     * If managing programs is disabled and the specified file is not a forced
+     * share, returns false if the file is a program. Otherwise returns false
+     * if the file's extension is banned. Otherwise returns true.
      */
     public static boolean isFileAllowedToBeManaged(File file) {
+        String ext = FileUtils.getFileExtension(file).toLowerCase(Locale.US);
         if(!LibrarySettings.ALLOW_PROGRAMS.getValue() && !LibraryUtils.isForcedShare(file)) {
-            MediaType ext = MediaType.getMediaTypeForExtension(FileUtils.getFileExtension(file));
-            return ext != MediaType.getProgramMediaType();
+            MediaType type = MediaType.getMediaTypeForExtension(ext);
+            if(type == MediaType.getProgramMediaType())
+                return false;
         }
         
+// TODO: This generated a small # of complaints (and broke some tests, but not hard to fix those)
+//       Before re-adding, should confirm that we definitely want this behavior, and maybe 
+//       turn it into an option?  The UI right now exposes these extensions as
+//       "banned search result extensions", which is a little different than what this code is doing.
+        
+//        String dotExt = "." + ext;
+//        for(String banned : FilterSettings.BANNED_EXTENSIONS.get()) {
+//            if(banned.equals(dotExt))
+//                return false;
+//        }
         return true;    
     }
     

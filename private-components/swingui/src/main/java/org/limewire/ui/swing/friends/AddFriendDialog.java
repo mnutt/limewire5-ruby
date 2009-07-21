@@ -5,18 +5,18 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.LimeJDialog;
+import org.limewire.ui.swing.util.GuiUtils;
+
 import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.util.Objects;
-import org.limewire.xmpp.api.client.XMPPConnection;
+import org.limewire.friend.api.FriendConnection;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -25,12 +25,11 @@ import net.miginfocom.swing.MigLayout;
  */
 public class AddFriendDialog extends LimeJDialog {
 
-    public AddFriendDialog(JComponent parent, final XMPPConnection connection) {
-        super(SwingUtilities.getWindowAncestor(parent), tr("Add Friend"));
-        setLocationRelativeTo(parent);
+    public AddFriendDialog(final FriendConnection connection) {
+        super(GuiUtils.getMainFrame(), tr("Add Friend"));
         // The dialog can only be popped up when the user is signed in, so
         // connection should never be null
-        Objects.nonNull(connection, "XMPP connection");
+        Objects.nonNull(connection, "connection");
         setModalityType(ModalityType.MODELESS);
         setLayout(new MigLayout());
         setResizable(false);
@@ -59,7 +58,7 @@ public class AddFriendDialog extends LimeJDialog {
                 final String nickname = nick;
                 setVisible(false);
                 dispose();
-                connection.addUser(username, nickname);
+                connection.addNewFriend(username, nickname);
             }
         };
 
@@ -110,5 +109,6 @@ public class AddFriendDialog extends LimeJDialog {
 
         pack();
         setVisible(true);
+        setLocationRelativeTo(GuiUtils.getMainFrame());
     }
 }

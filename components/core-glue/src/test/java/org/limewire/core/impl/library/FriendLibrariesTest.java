@@ -10,12 +10,12 @@ import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.FriendLibrary;
 import org.limewire.core.api.library.PresenceLibrary;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
+import org.limewire.core.api.search.SearchResult;
 import org.limewire.util.BaseTestCase;
-import org.limewire.xmpp.api.client.Presence;
+import org.limewire.friend.api.FriendPresence;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -36,17 +36,17 @@ public class FriendLibrariesTest extends BaseTestCase {
 
         final EventList<FriendLibrary> friendLibraryList = new BasicEventList<FriendLibrary>();
         final EventList<PresenceLibrary> presenceLibraryList1 = new BasicEventList<PresenceLibrary>();
-        final EventList<RemoteFileItem> remoteFileItemList1 = new BasicEventList<RemoteFileItem>();
+        final EventList<SearchResult> remoteFileItemList1 = new BasicEventList<SearchResult>();
 
         final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
         final FriendLibrary friendLibrary1 = context.mock(FriendLibrary.class);
         final PresenceLibrary presenceLibrary1 = context.mock(PresenceLibrary.class);
 
-        final RemoteFileItem remoteFileItem1 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem1 = context.mock(SearchResult.class);
         final String name1 = "name1";
         final Category category1 = Category.AUDIO;
 
-        final Presence presence1 = context.mock(Presence.class);
+        final FriendPresence presence1 = context.mock(FriendPresence.class);
         final String presenceId1 = "1";
 
         context.checking(new Expectations() {
@@ -63,7 +63,7 @@ public class FriendLibrariesTest extends BaseTestCase {
                 allowing(presenceLibrary1).getModel();
                 will(returnValue(remoteFileItemList1));
 
-                allowing(remoteFileItem1).getName();
+                allowing(remoteFileItem1).getFileNameWithoutExtension();
                 will(returnValue(name1));
                 allowing(remoteFileItem1).getCategory();
                 will(returnValue(category1));
@@ -89,7 +89,7 @@ public class FriendLibrariesTest extends BaseTestCase {
         assertEquals(1, suggestions.size());
         assertContains(suggestions, name1);
 
-        Collection<RemoteFileItem> matchingItems = friendLibraries
+        Collection<SearchResult> matchingItems = friendLibraries
                 .getMatchingItems(new TestSearchDetails("name", SearchCategory.AUDIO));
         assertEquals(1, matchingItems.size());
         assertContains(matchingItems, remoteFileItem1);
@@ -147,25 +147,25 @@ public class FriendLibrariesTest extends BaseTestCase {
 
         final EventList<FriendLibrary> friendLibraryList = new BasicEventList<FriendLibrary>();
         final EventList<PresenceLibrary> presenceLibraryList1 = new BasicEventList<PresenceLibrary>();
-        final EventList<RemoteFileItem> remoteFileItemList1 = new BasicEventList<RemoteFileItem>();
+        final EventList<SearchResult> remoteFileItemList1 = new BasicEventList<SearchResult>();
 
         final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
         final FriendLibrary friendLibrary1 = context.mock(FriendLibrary.class);
         final PresenceLibrary presenceLibrary1 = context.mock(PresenceLibrary.class);
 
-        final RemoteFileItem remoteFileItem1 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem1 = context.mock(SearchResult.class);
         final String name1 = "name1";
         final Category category1 = Category.AUDIO;
 
-        final RemoteFileItem remoteFileItem2 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem2 = context.mock(SearchResult.class);
         final String name2 = "name2";
         final Category category2 = Category.DOCUMENT;
 
-        final RemoteFileItem remoteFileItem3 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem3 = context.mock(SearchResult.class);
         final String name3 = "blah1";
         final Category category3 = Category.AUDIO;
 
-        final Presence presence1 = context.mock(Presence.class);
+        final FriendPresence presence1 = context.mock(FriendPresence.class);
         final String presenceId1 = "1";
 
         context.checking(new Expectations() {
@@ -182,17 +182,17 @@ public class FriendLibrariesTest extends BaseTestCase {
                 allowing(presenceLibrary1).getModel();
                 will(returnValue(remoteFileItemList1));
 
-                allowing(remoteFileItem1).getName();
+                allowing(remoteFileItem1).getFileNameWithoutExtension();
                 will(returnValue(name1));
                 allowing(remoteFileItem1).getCategory();
                 will(returnValue(category1));
 
-                allowing(remoteFileItem2).getName();
+                allowing(remoteFileItem2).getFileNameWithoutExtension();
                 will(returnValue(name2));
                 allowing(remoteFileItem2).getCategory();
                 will(returnValue(category2));
 
-                allowing(remoteFileItem3).getName();
+                allowing(remoteFileItem3).getFileNameWithoutExtension();
                 will(returnValue(name3));
                 allowing(remoteFileItem3).getCategory();
                 will(returnValue(category3));
@@ -224,7 +224,7 @@ public class FriendLibrariesTest extends BaseTestCase {
         assertEquals(1, suggestions.size());
         assertContains(suggestions, name1);
 
-        Collection<RemoteFileItem> matchingItems = friendLibraries
+        Collection<SearchResult> matchingItems = friendLibraries
                 .getMatchingItems(new TestSearchDetails("name", SearchCategory.AUDIO));
         assertEquals(1, matchingItems.size());
         assertContains(matchingItems, remoteFileItem1);
@@ -299,10 +299,10 @@ public class FriendLibrariesTest extends BaseTestCase {
 
         final EventList<FriendLibrary> friendLibraryList = new BasicEventList<FriendLibrary>();
         final EventList<PresenceLibrary> presenceLibraryList1 = new BasicEventList<PresenceLibrary>();
-        final EventList<RemoteFileItem> remoteFileItemList1 = new BasicEventList<RemoteFileItem>();
+        final EventList<SearchResult> remoteFileItemList1 = new BasicEventList<SearchResult>();
 
         final EventList<PresenceLibrary> presenceLibraryList2 = new BasicEventList<PresenceLibrary>();
-        final EventList<RemoteFileItem> remoteFileItemList2 = new BasicEventList<RemoteFileItem>();
+        final EventList<SearchResult> remoteFileItemList2 = new BasicEventList<SearchResult>();
 
         final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
         final FriendLibrary friendLibrary1 = context.mock(FriendLibrary.class);
@@ -311,22 +311,22 @@ public class FriendLibrariesTest extends BaseTestCase {
         final FriendLibrary friendLibrary2 = context.mock(FriendLibrary.class);
         final PresenceLibrary presenceLibrary2 = context.mock(PresenceLibrary.class);
 
-        final RemoteFileItem remoteFileItem1 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem1 = context.mock(SearchResult.class);
         final String name1 = "name1";
         final Category category1 = Category.AUDIO;
 
-        final RemoteFileItem remoteFileItem2 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem2 = context.mock(SearchResult.class);
         final String name2 = "name2";
         final Category category2 = Category.DOCUMENT;
 
-        final RemoteFileItem remoteFileItem3 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem3 = context.mock(SearchResult.class);
         final String name3 = "blah1";
         final Category category3 = Category.AUDIO;
 
-        final Presence presence1 = context.mock(Presence.class);
+        final FriendPresence presence1 = context.mock(FriendPresence.class);
         final String presenceId1 = "1";
 
-        final Presence presence2 = context.mock(Presence.class);
+        final FriendPresence presence2 = context.mock(FriendPresence.class);
         final String presenceId2 = "2";
 
         context.checking(new Expectations() {
@@ -355,17 +355,17 @@ public class FriendLibrariesTest extends BaseTestCase {
                 allowing(presenceLibrary2).getModel();
                 will(returnValue(remoteFileItemList2));
 
-                allowing(remoteFileItem1).getName();
+                allowing(remoteFileItem1).getFileNameWithoutExtension();
                 will(returnValue(name1));
                 allowing(remoteFileItem1).getCategory();
                 will(returnValue(category1));
 
-                allowing(remoteFileItem2).getName();
+                allowing(remoteFileItem2).getFileNameWithoutExtension();
                 will(returnValue(name2));
                 allowing(remoteFileItem2).getCategory();
                 will(returnValue(category2));
 
-                allowing(remoteFileItem3).getName();
+                allowing(remoteFileItem3).getFileNameWithoutExtension();
                 will(returnValue(name3));
                 allowing(remoteFileItem3).getCategory();
                 will(returnValue(category3));
@@ -399,7 +399,7 @@ public class FriendLibrariesTest extends BaseTestCase {
         assertEquals(1, suggestions.size());
         assertContains(suggestions, name1);
 
-        Collection<RemoteFileItem> matchingItems = friendLibraries
+        Collection<SearchResult> matchingItems = friendLibraries
                 .getMatchingItems(new TestSearchDetails("name", SearchCategory.AUDIO));
         assertEquals(1, matchingItems.size());
         assertContains(matchingItems, remoteFileItem1);
@@ -473,20 +473,20 @@ public class FriendLibrariesTest extends BaseTestCase {
 
         final EventList<FriendLibrary> friendLibraryList = new BasicEventList<FriendLibrary>();
         final EventList<PresenceLibrary> presenceLibraryList1 = new BasicEventList<PresenceLibrary>();
-        final EventList<RemoteFileItem> remoteFileItemList1 = new BasicEventList<RemoteFileItem>();
+        final EventList<SearchResult> remoteFileItemList1 = new BasicEventList<SearchResult>();
 
         final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
         final FriendLibrary friendLibrary1 = context.mock(FriendLibrary.class);
         final PresenceLibrary presenceLibrary1 = context.mock(PresenceLibrary.class);
 
-        final RemoteFileItem remoteFileItem1 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem1 = context.mock(SearchResult.class);
         final String name1 = "name1";
         final Category category1 = Category.AUDIO;
         final Map<FilePropertyKey, Object> properties1 = new HashMap<FilePropertyKey, Object>();
         final String album1 = "nameo";
         properties1.put(FilePropertyKey.ALBUM, album1);
 
-        final Presence presence1 = context.mock(Presence.class);
+        final FriendPresence presence1 = context.mock(FriendPresence.class);
         final String presenceId1 = "1";
 
         context.checking(new Expectations() {
@@ -503,7 +503,7 @@ public class FriendLibrariesTest extends BaseTestCase {
                 allowing(presenceLibrary1).getModel();
                 will(returnValue(remoteFileItemList1));
 
-                allowing(remoteFileItem1).getName();
+                allowing(remoteFileItem1).getFileNameWithoutExtension();
                 will(returnValue(name1));
                 allowing(remoteFileItem1).getCategory();
                 will(returnValue(category1));
@@ -534,7 +534,7 @@ public class FriendLibrariesTest extends BaseTestCase {
         assertContains(suggestions, name1);
         assertContains(suggestions, album1);
 
-        Collection<RemoteFileItem> matchingItems = friendLibraries
+        Collection<SearchResult> matchingItems = friendLibraries
                 .getMatchingItems(new TestSearchDetails("name", SearchCategory.AUDIO));
         assertEquals(1, matchingItems.size());
         assertContains(matchingItems, remoteFileItem1);
@@ -624,27 +624,27 @@ public class FriendLibrariesTest extends BaseTestCase {
 
         final EventList<FriendLibrary> friendLibraryList = new BasicEventList<FriendLibrary>();
         final EventList<PresenceLibrary> presenceLibraryList1 = new BasicEventList<PresenceLibrary>();
-        final EventList<RemoteFileItem> remoteFileItemList1 = new BasicEventList<RemoteFileItem>();
+        final EventList<SearchResult> remoteFileItemList1 = new BasicEventList<SearchResult>();
 
         final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
         final FriendLibrary friendLibrary1 = context.mock(FriendLibrary.class);
         final PresenceLibrary presenceLibrary1 = context.mock(PresenceLibrary.class);
 
-        final RemoteFileItem remoteFileItem1 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem1 = context.mock(SearchResult.class);
         final String name1 = "name1";
         final Category category1 = Category.AUDIO;
         final Map<FilePropertyKey, Object> properties1 = new HashMap<FilePropertyKey, Object>();
         final String author1 = "nameo1";
         properties1.put(FilePropertyKey.AUTHOR, author1);
 
-        final RemoteFileItem remoteFileItem2 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem2 = context.mock(SearchResult.class);
         final String name2 = "name2";
         final Category category2 = Category.DOCUMENT;
         final Map<FilePropertyKey, Object> properties2 = new HashMap<FilePropertyKey, Object>();
         final String author2 = "nameo2";
         properties2.put(FilePropertyKey.AUTHOR, author2);
 
-        final Presence presence1 = context.mock(Presence.class);
+        final FriendPresence presence1 = context.mock(FriendPresence.class);
         final String presenceId1 = "1";
 
         context.checking(new Expectations() {
@@ -661,7 +661,7 @@ public class FriendLibrariesTest extends BaseTestCase {
                 allowing(presenceLibrary1).getModel();
                 will(returnValue(remoteFileItemList1));
 
-                allowing(remoteFileItem1).getName();
+                allowing(remoteFileItem1).getFileNameWithoutExtension();
                 will(returnValue(name1));
                 allowing(remoteFileItem1).getCategory();
                 will(returnValue(category1));
@@ -675,7 +675,7 @@ public class FriendLibrariesTest extends BaseTestCase {
                     }
                 }
 
-                allowing(remoteFileItem2).getName();
+                allowing(remoteFileItem2).getFileNameWithoutExtension();
                 will(returnValue(name2));
                 allowing(remoteFileItem2).getCategory();
                 will(returnValue(category2));
@@ -704,7 +704,7 @@ public class FriendLibrariesTest extends BaseTestCase {
         Map<FilePropertyKey, String> advancedDetails1 = new HashMap<FilePropertyKey, String>();
         advancedDetails1.put(FilePropertyKey.AUTHOR, "n");
 
-        Collection<RemoteFileItem> matchingItems = friendLibraries
+        Collection<SearchResult> matchingItems = friendLibraries
                 .getMatchingItems(new TestSearchDetails("", SearchCategory.AUDIO, advancedDetails1));
         assertEquals(1, matchingItems.size());
         assertContains(matchingItems, remoteFileItem1);
@@ -783,27 +783,27 @@ public class FriendLibrariesTest extends BaseTestCase {
 
         final EventList<FriendLibrary> friendLibraryList = new BasicEventList<FriendLibrary>();
         final EventList<PresenceLibrary> presenceLibraryList1 = new BasicEventList<PresenceLibrary>();
-        final EventList<RemoteFileItem> remoteFileItemList1 = new BasicEventList<RemoteFileItem>();
+        final EventList<SearchResult> remoteFileItemList1 = new BasicEventList<SearchResult>();
 
         final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
         final FriendLibrary friendLibrary1 = context.mock(FriendLibrary.class);
         final PresenceLibrary presenceLibrary1 = context.mock(PresenceLibrary.class);
 
-        final RemoteFileItem remoteFileItem1 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem1 = context.mock(SearchResult.class);
         final String name1 = "name 1";
         final Category category1 = Category.AUDIO;
         final Map<FilePropertyKey, Object> properties1 = new HashMap<FilePropertyKey, Object>();
         final String author1 = "nameo 1";
         properties1.put(FilePropertyKey.AUTHOR, author1);
 
-        final RemoteFileItem remoteFileItem2 = context.mock(RemoteFileItem.class);
+        final SearchResult remoteFileItem2 = context.mock(SearchResult.class);
         final String name2 = "name 2";
         final Category category2 = Category.DOCUMENT;
         final Map<FilePropertyKey, Object> properties2 = new HashMap<FilePropertyKey, Object>();
         final String author2 = "nameo 2";
         properties2.put(FilePropertyKey.AUTHOR, author2);
 
-        final Presence presence1 = context.mock(Presence.class);
+        final FriendPresence presence1 = context.mock(FriendPresence.class);
         final String presenceId1 = "1";
 
         context.checking(new Expectations() {
@@ -820,7 +820,7 @@ public class FriendLibrariesTest extends BaseTestCase {
                 allowing(presenceLibrary1).getModel();
                 will(returnValue(remoteFileItemList1));
 
-                allowing(remoteFileItem1).getName();
+                allowing(remoteFileItem1).getFileNameWithoutExtension();
                 will(returnValue(name1));
                 allowing(remoteFileItem1).getCategory();
                 will(returnValue(category1));
@@ -834,7 +834,7 @@ public class FriendLibrariesTest extends BaseTestCase {
                     }
                 }
 
-                allowing(remoteFileItem2).getName();
+                allowing(remoteFileItem2).getFileNameWithoutExtension();
                 will(returnValue(name2));
                 allowing(remoteFileItem2).getCategory();
                 will(returnValue(category2));
@@ -909,7 +909,7 @@ public class FriendLibrariesTest extends BaseTestCase {
         Map<FilePropertyKey, String> advancedDetails1 = new HashMap<FilePropertyKey, String>();
         advancedDetails1.put(FilePropertyKey.AUTHOR, "n");
 
-        Collection<RemoteFileItem> matchingItems = friendLibraries
+        Collection<SearchResult> matchingItems = friendLibraries
                 .getMatchingItems(new TestSearchDetails("", SearchCategory.AUDIO, advancedDetails1));
         assertEquals(1, matchingItems.size());
         assertContains(matchingItems, remoteFileItem1);

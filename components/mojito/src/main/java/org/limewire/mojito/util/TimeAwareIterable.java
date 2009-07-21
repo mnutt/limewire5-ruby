@@ -34,15 +34,15 @@ import org.limewire.collection.CollectionUtils;
  * have been returned or if there's not enough time remaining
  * (i.e. if the average time between next()/hasNext() calls is
  * higher than the remaining time).
- * 
+ * <p>
  * The selection of elements looks about this. The gap between
  * selected elements gets bigger and bigger as we're approaching
  * the maximum time for which this Iterable is valid.
- * 
+ * <pre>
  * a-b-c-d-e-f-g-h-i-j-k-l-m-n-o-p-q-r-s-t-u-v-w-x-y-z
  * ^ ^   ^     ^       ^         ^           ^
  * 0 ------------------- time --------------------> max
- * 
+ * </pre>
  * Implementation detail: Unlike with regular Iterators where you 
  * may call next() multiple times in a row without checking whether 
  * or not it has more elements you must check on every iteration
@@ -57,21 +57,21 @@ public class TimeAwareIterable<E> implements Iterable<E> {
     private final List<? extends E> elements;
     
     /**
-     * Creates a TimeAwareIterable with a default sample size of 10
+     * Creates a TimeAwareIterable with a default sample size of 10.
      * 
-     * @param maxTime The maximum time this Iterable is valid
-     * @param elements The elements to process
+     * @param maxTime the maximum time this Iterable is valid
+     * @param elements the elements to process
      */
     public TimeAwareIterable(long maxTime, Collection<? extends E> elements) {
         this(10, maxTime, elements);
     }
     
     /**
-     * Creates a TimeAwareIterable
+     * Creates a TimeAwareIterable.
      * 
-     * @param sampleSize The sample size to compute the average time between calls
-     * @param maxTime The maximum time this Iterable is valid
-     * @param elements The elements to process
+     * @param sampleSize the sample size to compute the average time between calls
+     * @param maxTime the maximum time this Iterable is valid
+     * @param elements the elements to process
      */
     public TimeAwareIterable(int sampleSize, long maxTime, 
             Collection<? extends E> elements) {
@@ -89,7 +89,7 @@ public class TimeAwareIterable<E> implements Iterable<E> {
     }
 
     /**
-     * The actual Iterator
+     * The actual Iterator.
      */
     private class TimeAwareIterator implements Iterator<E> {
         

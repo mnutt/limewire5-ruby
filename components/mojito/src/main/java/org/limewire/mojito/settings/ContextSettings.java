@@ -43,14 +43,14 @@ public class ContextSettings extends MojitoProps {
                 "Mojito.ShutdownMessagesMultiplier", 0, 20);
     
     /**
-     * The time interval to compute the locally estimated Network size
+     * The time interval to compute the locally estimated Network size.
      */
     public static final LongSetting ESTIMATE_NETWORK_SIZE_EVERY
         = FACTORY.createRemoteLongSetting("ESTIMATE_NETWORK_SIZE_EVERY", 60L*1000L,
                 "Mojito.EstimateNetworkSizeEvery", 1000L, 5L*60L*1000L);
     
     /**
-     * The time interval in which the estimated Network size can be updated
+     * The time interval in which the estimated Network size can be updated.
      */
     public static final LongSetting UPDATE_NETWORK_SIZE_EVERY
         = FACTORY.createRemoteLongSetting("UPDATE_NETWORK_SIZE_EVERY", 5L*1000L,
@@ -81,27 +81,27 @@ public class ContextSettings extends MojitoProps {
                 "Mojito.MaxRemoteHistorySize", 0, 100);
     
     /**
-     * Whether or not to estimate the Network size
+     * Whether or not to estimate the Network size.
      */
     public static final BooleanSetting COUNT_REMOTE_SIZE
         = FACTORY.createRemoteBooleanSetting("COUNT_REMOTE_SIZE", 
                 true, "Mojito.CountRemoteSize");
     
     /**
-     * The number smallest and biggest DHT size estimates to skip
+     * The number smallest and biggest DHT size estimates to skip.
      */
     public static final IntSetting SKIP_REMOTE_ESTIMATES
         = FACTORY.createRemoteIntSetting("SKIP_REMOTE_ESTIMATES", 1, 
                 "Mojito.SkipRemoteEstimates", 0, Integer.MAX_VALUE);
     
     /**
-     * The name of the master key file
+     * The name of the master key file.
      */
     public static final StringSetting MASTER_KEY
         = FACTORY.createStringSetting("MASTER_KEY", "public.key");
     
     /**
-     * The maximum time to wait on an Object
+     * The maximum time to wait on an Object.
      */
     public static final LongSetting WAIT_ON_LOCK
         = FACTORY.createLongSetting("WAIT_ON_LOCK", 3L*60L*1000L);
@@ -114,33 +114,33 @@ public class ContextSettings extends MojitoProps {
         = FACTORY.createBooleanSetting("ASSERT_COLLISION_PING", true);
     
     /**
-     * This Node's Vendor code
+     * This Node's Vendor code.
      */
     public static final IntSetting VENDOR
         = FACTORY.createIntSetting("VENDOR", ArrayUtils.toInteger("LIME"));
     
     /**
-     * This Node's Version
+     * This Node's Version.
      */
     public static final IntSetting VERSION
         = FACTORY.createIntSetting("VERSION", 0);
     
     /**
-     * Returns the local Node's Vendor ID
+     * Returns the local Node's Vendor ID.
      */
     public static Vendor getVendor() {
         return Vendor.valueOf(ContextSettings.VENDOR.getValue());
     }
     
     /**
-     * Returns the local Node's Version number
+     * Returns the local Node's Version number.
      */
     public static Version getVersion() {
         return Version.valueOf(ContextSettings.VERSION.getValue());
     }
     
     /**
-     * Whether or not we're sending a shutdown message
+     * Whether or not we're sending a shutdown message.
      */
     public static final BooleanSetting SEND_SHUTDOWN_MESSAGE
         = FACTORY.createBooleanSetting("SEND_SHUTDOWN_MESSAGE", true);
@@ -154,7 +154,7 @@ public class ContextSettings extends MojitoProps {
         = FACTORY.createBooleanSetting("THROW_EXCEPTION_IF_NOT_BOOTSTRAPPED", true);
     
     /**
-     * Returns the lock timeout
+     * Returns the lock timeout.
      */
     public static long getWaitOnLock(long timeout) {
         return Math.max((long)(timeout * 1.5f), 

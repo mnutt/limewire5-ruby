@@ -22,13 +22,17 @@ import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.FileUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.http.HTTPHeaderName;
 import com.limegroup.gnutella.http.HttpTestUtils;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 
 /**
  * This class tests HTTP requests involving URNs, as specified in HUGE v094,
@@ -42,13 +46,15 @@ public final class UrnHttpRequestTest extends LimeTestCase {
     private static final String STATUS_404 = "HTTP/1.1 404 Not Found";
     private static final String STATUS_400 = "HTTP/1.1 400 Bad Request";
 
-    private FileManager fileManager;
+   @Inject private Library library;
+   @Inject @GnutellaFiles private FileView gnutellaFileView;
 
     private HTTPUploadManager uploadManager;
 
-    private LifecycleManager lifeCycleManager;
+    @Inject private LifecycleManager lifeCycleManager;
     
-    private NetworkManager networkManager;
+    @Inject private NetworkManager networkManager;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
 
     public UrnHttpRequestTest(String name) {
         super(name);
@@ -67,19 +73,13 @@ public final class UrnHttpRequestTest extends LimeTestCase {
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
 
         // initialize services
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
 
         uploadManager = (HTTPUploadManager) injector.getInstance(UploadManager.class);
-        
-        networkManager = injector.getInstance(NetworkManager.class);
-        
-        // start services
-        lifeCycleManager = injector.getInstance(LifecycleManager.class);
         lifeCycleManager.start();
         
         // make sure the FileDesc objects in file manager are up-to-date
-        fileManager = injector.getInstance(FileManager.class);
-        FileManagerTestUtils.waitForLoad(fileManager,2000);
+        FileManagerTestUtils.waitForLoad(library,2000);
 
         // create shared files with random content
         Random random = new Random();
@@ -89,10 +89,10 @@ public final class UrnHttpRequestTest extends LimeTestCase {
             File file = new File(_scratchDir, "file" + i + ".tmp");
             FileUtils.writeObject(file, data);
             file.deleteOnExit();
-            assertNotNull(fileManager.getGnutellaFileList().add(file).get(1, TimeUnit.SECONDS));
+            assertNotNull(gnutellaFileCollection.add(file).get(1, TimeUnit.SECONDS));
         }
         
-        assertGreaterThanOrEquals("FileManager should have loaded files", 5, fileManager.getGnutellaFileList().size());
+        assertGreaterThanOrEquals("FileManager should have loaded files", 5, gnutellaFileCollection.size());
     }
 
     @Override
@@ -109,7 +109,7 @@ public final class UrnHttpRequestTest extends LimeTestCase {
         UploadSettings.HARD_MAX_UPLOADS.setValue(0);
 
         try {
-            for (FileDesc fd: fileManager.getGnutellaFileList()) {
+            for (FileDesc fd: gnutellaFileView) {
                 String uri = LimeTestUtils.getRelativeRequest(fd.getSHA1Urn());
 
                 BasicHttpRequest request = new BasicHttpRequest("GET", uri,
@@ -131,7 +131,7 @@ public final class UrnHttpRequestTest extends LimeTestCase {
      * Test requests by URN.
      */
     public void testHttpUrnRequest() throws Exception {
-        for (FileDesc fd : fileManager.getGnutellaFileList()) {
+        for (FileDesc fd : gnutellaFileView) {
             String uri = "/uri-res/N2R?" + fd.getSHA1Urn().httpStringValue();
 
             BasicHttpRequest request = new BasicHttpRequest("GET", uri,
@@ -148,7 +148,7 @@ public final class UrnHttpRequestTest extends LimeTestCase {
      * /get/0//uri-res/N2R?urn:sha1:AZUCWY54D63______PHN7VSVTKZA3YYT HTTP/1.1
      */
     public void testMalformedHttpUrnRequest() throws Exception {
-        for (FileDesc fd : fileManager.getGnutellaFileList()) {
+        for (FileDesc fd : gnutellaFileView) {
             String uri = "/get/0//uri-res/N2R?"
                     + fd.getSHA1Urn().httpStringValue();
 
@@ -166,7 +166,7 @@ public final class UrnHttpRequestTest extends LimeTestCase {
      * the X-Gnutella-Content-URN header is always returned.
      */
     public void testTraditionalGetForReturnedUrn() throws Exception {
-        for (FileDesc fd : fileManager.getGnutellaFileList()) {
+        for (FileDesc fd : gnutellaFileView) {
             String uri = LimeTestUtils.getRelativeRequest(fd.getSHA1Urn());
 
             BasicHttpRequest request = new BasicHttpRequest("GET", uri,
@@ -189,7 +189,7 @@ public final class UrnHttpRequestTest extends LimeTestCase {
      * expected.
      */
     public void testTraditionalGetWithContentUrn() throws Exception {
-        for (FileDesc fd : fileManager.getGnutellaFileList()) {
+        for (FileDesc fd : gnutellaFileView) {
             String uri = LimeTestUtils.getRelativeRequest(fd.getSHA1Urn());
 
             BasicHttpRequest request = new BasicHttpRequest("GET", uri,
@@ -207,7 +207,7 @@ public final class UrnHttpRequestTest extends LimeTestCase {
      * error code 404.
      */
     public void testTraditionalGetWithInvalidContentUrn() throws Exception {
-        for (FileDesc fd : fileManager.getGnutellaFileList()) {
+        for (FileDesc fd : gnutellaFileView) {
             String uri = LimeTestUtils.getRelativeRequest(fd.getSHA1Urn());
 
             BasicHttpRequest request = new BasicHttpRequest("GET", uri,
@@ -228,7 +228,7 @@ public final class UrnHttpRequestTest extends LimeTestCase {
      * matching X-Gnutella-Content-URN header values also fail with 404.
      */
     public void testInvalidTraditionalGetWithValidContentUrn() throws Exception {
-        for (FileDesc fd : fileManager.getGnutellaFileList()) {
+        for (FileDesc fd : gnutellaFileView) {
             String uri = LimeTestUtils.getRelativeRequest(fd.getSHA1Urn());
             uri = uri.substring(0, uri.length() - 2)+ "xx";
             

@@ -33,7 +33,7 @@ import org.limewire.util.Decorator;
 public final class NetworkUtils {
     
     /**
-     * Netmask for Class C Networks
+     * Netmask for Class C Networks.
      */
     public static final int CLASS_C_NETMASK = 0xFFFFFF00;
     
@@ -79,7 +79,7 @@ public final class NetworkUtils {
 	
     /**
      * Returns whether or not the specified address is valid.
-     * 
+     * <p>
      * This method is IPv6 compliant
      */
     public static boolean isValidAddress(byte[] address) {
@@ -246,7 +246,7 @@ public final class NetworkUtils {
     /**
      * Returns whether or not the two IP addresses share the same
      * first octet in their address.  
-     * 
+     * <p>
      * This method is IPv6 compliant but returns always false if
      * any of the two addresses in an IPv6 address.
      * 
@@ -260,7 +260,7 @@ public final class NetworkUtils {
     /**
      * Returns whether or not the two IP addresses share the same
      * first octet in their address.  
-     * 
+     * <p>
      * This method is IPv6 compliant but returns always false if
      * any of the two addresses in an IPv6 address.
      * 
@@ -279,9 +279,9 @@ public final class NetworkUtils {
      * Returns whether or not the two IP addresses share the same
      * first two octets in their address -- the most common
      * indication that they may be on the same network.
-     *
+     * <p>
      * Private networks are NOT CONSIDERED CLOSE.
-     *
+     * <p>
      * This method is IPv6 compliant but returns always false if
      * any of the two addresses in a true IPv6 address.
      * 
@@ -302,9 +302,9 @@ public final class NetworkUtils {
      * Utility method for determining whether or not the given 
      * address is private taking an InetAddress object as argument
      * like the isLocalAddress(InetAddress) method. 
-     *
+     * <p>
      * This method is IPv6 compliant.
-     * 
+     * <p>
      * Don't make this method public please.
      *
      * @return <tt>true</tt> if the specified address is private,
@@ -368,7 +368,7 @@ public final class NetworkUtils {
     
     /**
      * Checks if the given address is a private address.
-     * 
+     * <p>
      * This method is IPv6 compliant
      * 
      * @param address the address to check
@@ -423,8 +423,8 @@ public final class NetworkUtils {
     
     /**
      * Determines if the given socket is from a local host.
-     * 
-     * This method is IPv6 compliant
+     * <p>
+     * This method is IPv6 compliant.
      */
     public static boolean isLocalHost(Socket socket) {
         return isLocalAddress(socket.getInetAddress());
@@ -448,7 +448,7 @@ public final class NetworkUtils {
     }
     
     /**
-     * parses an ip:port byte-packed values.  
+     * Parses an ip:port byte-packed values.  
      * 
      * @return a collection of <tt>IpPort</tt> objects.
      * @throws InvalidDataException if an invalid IP is found or the size 
@@ -466,32 +466,32 @@ public final class NetworkUtils {
      * @param data the packed IpPorts.
      * @param decorator A decorator that can optionally change the IpPort that is added into the returned list.
      * @return a collection of <tt>IpPort</tt> objects.
-     * @throws InvalidDataException if an invalid Ip is found or the size 
-     * is not divisble by six
+     * @throws InvalidDataException if an invalid IP is found or the size 
+     * is not divisible by six
      */
     public static List<IpPort> unpackIps(byte [] data, Decorator<IpPort, ? extends IpPort> decorator) throws InvalidDataException {
-    	if (data.length % 6 != 0)
-    		throw new InvalidDataException("invalid size");
-    	
-    	int size = data.length/6;
-    	List<IpPort> ret = new ArrayList<IpPort>(size);
-    	byte [] current = new byte[6];
-    	for (int i=0;i<size;i++) {
-    		System.arraycopy(data,i*6,current,0,6);
+        if (data.length % 6 != 0)
+            throw new InvalidDataException("invalid size");
+
+        int size = data.length/6;
+        List<IpPort> ret = new ArrayList<IpPort>(size);
+        byte [] current = new byte[6];
+        for (int i=0;i<size;i++) {
+            System.arraycopy(data,i*6,current,0,6);
             IpPort ipp = NetworkUtils.getIpPort(current, java.nio.ByteOrder.LITTLE_ENDIAN);
             if(decorator != null) {
                 ipp = decorator.decorate(ipp);
                 if(ipp == null)
                     throw new InvalidDataException("decorator returned null");
             }
-    		ret.add(ipp);
-    	}
-    	
-    	return Collections.unmodifiableList(ret);
+            ret.add(ipp);
+        }
+
+        return Collections.unmodifiableList(ret);
     }
     
     /**
-     * Filters unique IPs based on a Class C Netmask
+     * Filters unique IPs based on a Class C Netmask.
      */
     public static <T extends IpPort> Collection<T> filterOnePerClassC(Collection<T> c) {
         return filterUnique(c, CLASS_C_NETMASK);
@@ -523,7 +523,7 @@ public final class NetworkUtils {
     /**
      * Applies the netmask on the lower four bytes of the given 
      * InetAddress and returns it as an Integer.
-     * 
+     * <p>
      * This method is IPv6 compliant but shouldn't be called if
      * the InetAddress is neither IPv4 compatible nor mapped!
      */
@@ -533,8 +533,8 @@ public final class NetworkUtils {
     }
     
     /**
-     * Converts integer <code>ip</code> into byt array.
-     * 
+     * Converts integer <code>ip</code> into byte array.
+     * <p>
      * This method is not IPv6 compliant.
      */
     public static byte[] toByteAddress(int ip) {
@@ -589,7 +589,7 @@ public final class NetworkUtils {
     
     /**
      * Returns the IP:Port as byte array.
-     * 
+     * <p>
      * This method is IPv6 compliant
      */
     public static byte[] getBytes(SocketAddress addr, java.nio.ByteOrder order) throws UnknownHostException {
@@ -603,7 +603,7 @@ public final class NetworkUtils {
     
     /**
      * Returns the IP:Port as byte array.
-     * 
+     * <p>
      * This method is IPv6 compliant
      */
     public static byte[] getBytes(IpPort ipp, java.nio.ByteOrder order) {
@@ -612,7 +612,7 @@ public final class NetworkUtils {
     
     /**
      * Returns the IP:Port as byte array.
-     * 
+     * <p>
      * This method is IPv6 compliant
      */
     public static byte[] getBytes(InetAddress addr, int port, java.nio.ByteOrder order) {
@@ -636,7 +636,7 @@ public final class NetworkUtils {
      * Creates an IpPort out of network data. The ByteOrder is used to determine
      * the order of the port. Throws <code>InvalidDataException</code> if the
      * data is invalid.
-     * 
+     * <p>
      * This method is IPv6 compliant.
      */
     public static IpPort getIpPort(byte[] ipport, java.nio.ByteOrder order)
@@ -654,24 +654,33 @@ public final class NetworkUtils {
         if (!NetworkUtils.isValidPort(port))
             throw new InvalidDataException("Bad Port: " + port);
         
-        InetAddress host;
-        try {
-            byte[] ip = new byte[ipport.length - 2];
-            System.arraycopy(ipport, 0, ip, 0, ip.length);
-            host = InetAddress.getByAddress(ip);
-        } catch(UnknownHostException uhe) {
-            throw new InvalidDataException("bad host.");
+        // Optimized for IPv4 as far as memory goes..
+        if(ipport.length == 6) {
+            IP ip = new IP(ipport, 0);
+            if(!NetworkUtils.isValidAddress(ip)) {
+                throw new InvalidDataException("invalid addr: " + ip);
+            }
+            
+            return new MemoryOptimizedIpPortImpl(ip, shortport);
+        } else { // any other length, go w/ IPv6.
+            InetAddress host;
+            try {
+                byte[] ip = new byte[ipport.length - 2];
+                System.arraycopy(ipport, 0, ip, 0, ip.length);  
+                host = InetAddress.getByAddress(ip);
+            } catch(UnknownHostException uhe) {
+                throw new InvalidDataException(uhe);
+            }
+            if(!NetworkUtils.isValidAddress(host)) {
+                throw new InvalidDataException("invalid addr: " + host);
+            }
+            return new IpPortImpl(host, port);
         }
-        
-        if (!NetworkUtils.isValidAddress(host))
-            throw new InvalidDataException("invalid addr: " + host);
-        
-        return new IpPortImpl(new InetSocketAddress(host, port));
     }
     
     /**
-     * Parses ip port in the same fashion as {@link #getIpPort(byte[], java.nio.ByteOrder)}.
-     * 
+     * Parses IP port in the same fashion as {@link #getIpPort(byte[], java.nio.ByteOrder)}.
+     * <p>
      * Creates Connectable using <code>tlsCapable</code>. 
      */
     public static Connectable getConnectable(byte[] ipport, java.nio.ByteOrder order, boolean tlsCapable) throws InvalidDataException {
@@ -681,7 +690,7 @@ public final class NetworkUtils {
     
     /**
      * Returns true if both SocketAddresses are either IPv4 or IPv6 addresses
-     * 
+     * <p>
      * This method is IPv6 compliant
      */
     public static boolean isSameAddressSpace(SocketAddress a, SocketAddress b) {
@@ -693,7 +702,7 @@ public final class NetworkUtils {
     /**
      * Returns true if both InetAddresses are compatible (IPv4 and IPv4
      * or IPv6 and IPv6).
-     * 
+     * <p>
      * This method is IPv6 compliant
      */
     public static boolean isSameAddressSpace(InetAddress a, InetAddress b) {
@@ -822,7 +831,7 @@ public final class NetworkUtils {
     }
     
     /**
-     * Returns true if the given byte-array is a loopback address
+     * Returns true if the given byte-array is a loopback address.
      */
     static boolean isLoopbackAddress(byte[] address) {
         if (isIPv4Address(address) || isIPv4MappedAddress(address)) {
@@ -838,7 +847,7 @@ public final class NetworkUtils {
     }
     
     /**
-     * Returns true if the given byte-array is a link-local address
+     * Returns true if the given byte-array is a link-local address.
      */
     static boolean isLinkLocalAddress(byte[] address) {
         if (isIPv4Address(address) || isIPv4MappedAddress(address)) {
@@ -908,7 +917,7 @@ public final class NetworkUtils {
     
     /**
      * Returns true if the given byte-array is a broadcast address
-     * 
+     * <p>
      * This method is IPv6 compliant but returns always false if
      * the given address is neither a true IPv4, nor an IPv4-mapped
      * address.
@@ -924,7 +933,7 @@ public final class NetworkUtils {
     /**
      * Returns true if the given InetAddress is a private IPv4-compatible
      * address.
-     * 
+     * <p>
      * It checks for a somewhat tricky and undefined case. An address such
      * as ::0000:192.168.0.1 is an IPv6 address, it's an IPv4-compatible
      * address but it's by IPv6 definition not a site-local (private) address.
@@ -1015,8 +1024,6 @@ public final class NetworkUtils {
     /**
      * Returns the index of the ':' separator between ip and port and checks
      * if it's at a valid position.
-     * @param ipPort
-     * @return
      * @throws IOException if separator is not found or not at a valid position
      */
     static int getAndCheckIpPortSeparator(String ipPort) throws IOException {
@@ -1030,21 +1037,20 @@ public final class NetworkUtils {
     }
     
     /**
-     * Returns a Connectable of the ipport as described by "a.b.c.d:port".
+     * Returns a Connectable of the ipPort as described by "a.b.c.d:port".
      * 
-     * @param ipPort a string representing an ip and porte 
+     * @param ipPort a string representing an IP and port 
      * @throws IOException parsing failed.
      */
     public static Connectable parseIpPort(String ipPort, boolean tlsCapable) throws IOException {
         int separator = getAndCheckIpPortSeparator(ipPort);
-    	InetAddress address = getAndCheckAddress(ipPort.substring(0, separator));
-    	int port = parsePort(ipPort.substring(separator+1));
-    	return new ConnectableImpl(new InetSocketAddress(address, port), tlsCapable);
+        InetAddress address = getAndCheckAddress(ipPort.substring(0, separator));
+        int port = parsePort(ipPort.substring(separator+1));
+        return new ConnectableImpl(new InetSocketAddress(address, port), tlsCapable);
     }
     
     
     /**
-     * Returns an  
      * @param http a string representing a port and an ip
      * @return an object implementing IpPort 
      * @throws IOException parsing failed.

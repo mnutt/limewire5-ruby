@@ -40,6 +40,8 @@ public class HTTPUploader extends AbstractUploader implements Uploader {
         
     private String method;
 	
+    private volatile String friendId;
+    
     private HttpResponse lastResponse;
 
     private PushEndpoint pushEndpoint;
@@ -75,6 +77,10 @@ public class HTTPUploader extends AbstractUploader implements Uploader {
         setFileSize(file.length());
         setUploadBegin(0);
         setUploadEnd(getFileSize());
+    }
+    
+    public void setFriendId(String id) {
+        this.friendId = id;
     }
     
     public InetAddress getConnectedHost() {
@@ -260,5 +266,10 @@ public class HTTPUploader extends AbstractUploader implements Uploader {
     @Override
     public int getNumUploadConnections() {
         return 1;
+    }
+
+    @Override
+    public String getPresenceId() {
+        return friendId;
     }
 }

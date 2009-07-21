@@ -53,10 +53,6 @@ public class MockConnectionManagerImpl implements GnutellaConnectionManager {
     }
 
     @Override
-    public void browseHost(ConnectionItem item) {
-    }
-
-    @Override
     public EventList<ConnectionItem> getConnectionList() {
         return new BasicEventList<ConnectionItem>();
     }

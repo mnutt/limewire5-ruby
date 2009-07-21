@@ -13,18 +13,17 @@ import org.limewire.collection.glazedlists.AbstractListEventListener;
 import org.limewire.core.api.browse.Browse;
 import org.limewire.core.api.browse.BrowseFactory;
 import org.limewire.core.api.browse.BrowseListener;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.library.FriendLibrary;
 import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.PresenceLibrary;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.core.impl.friend.FriendRemoteFileDescDeserializer;
 import org.limewire.core.impl.search.RemoteFileDescAdapter;
-import org.limewire.core.impl.xmpp.XMPPRemoteFileDescDeserializer;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.LibraryChangedEvent;
+import org.limewire.friend.api.feature.AddressFeature;
 import org.limewire.io.Address;
-import org.limewire.io.IpPortSet;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.Log;
@@ -32,8 +31,6 @@ import org.limewire.logging.LogFactory;
 import org.limewire.net.ConnectivityChangeEvent;
 import org.limewire.net.SocketsManager;
 import org.limewire.net.address.AddressResolutionObserver;
-import org.limewire.xmpp.api.client.LibraryChangedEvent;
-import org.limewire.xmpp.api.client.XMPPAddress;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
@@ -58,8 +55,6 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
      */
     final Set<PresenceLibrary> librariesToBrowse = Collections.synchronizedSet(new HashSet<PresenceLibrary>());
 
-    private final XMPPRemoteFileDescDeserializer remoteFileDescDeserializer;
-    
     /**
      * Is incremented when a new connectivity change event is received, should
      * only be modified holding the lock to {@link #librariesToBrowse}.
@@ -75,11 +70,10 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
 
     @Inject
     public PresenceLibraryBrowser(BrowseFactory browseFactory, RemoteLibraryManager remoteLibraryManager,
-            SocketsManager socketsManager, XMPPRemoteFileDescDeserializer remoteFileDescDeserializer) {
+            SocketsManager socketsManager, FriendRemoteFileDescDeserializer remoteFileDescDeserializer) {
         this.browseFactory = browseFactory;
         this.remoteLibraryManager = remoteLibraryManager;
         this.socketsManager = socketsManager;
-        this.remoteFileDescDeserializer = remoteFileDescDeserializer;
     }
 
     @Inject 
@@ -125,8 +119,21 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
 
     @Override
     public void handleEvent(LibraryChangedEvent event) {
-        remoteLibraryManager.removePresenceLibrary(event.getData());
-        remoteLibraryManager.addPresenceLibrary(event.getData());
+        // The idea behind this is that we want to provide incremental updates to 
+        // a PresenceLibrary, without requiring the entire library disappear
+        // and reappear.  We need to know if adding the presence library succeeded,
+        // but also need to trigger a browse if it didn't (because it already existed).
+        FriendPresence friend = event.getData();
+        PresenceLibrary existingLibrary = remoteLibraryManager.getPresenceLibrary(friend);
+        if(!remoteLibraryManager.addPresenceLibrary(friend) && existingLibrary != null) {
+            LOG.debugf("Library changed event for {0}, but existing library -- rebrowsing into existing library", friend);
+            // the library already existed for this presence --
+            // we need to trigger our own browse.
+            // There's a small chance the existingLibrary is an older version of
+            // a PresenceLibrary (not the current one) -- if that does happen,
+            // the worst this will do is cause a second browse to happen.
+            tryToResolveAndBrowse(existingLibrary, latestConnectivityEventRevision);
+        }
     }
     
     void browse(final PresenceLibrary presenceLibrary) {
@@ -145,30 +152,47 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
         LOG.debugf("browsing {0} ...", friendPresence.getPresenceId());
         final Browse browse = browseFactory.createBrowse(friendPresence);
         
-        final XMPPAddress address;
-        if(!friendPresence.getFriend().isAnonymous()) {
-            address = (XMPPAddress) addressFeature.getFeature();    
-        } else {
-            address = null;
-        }
-        
         // TODO: We need to capture the Browse and call stop on it when the library is removed,
         //       otherwise the browse can be lingering in the background.
         browse.start(new BrowseListener() {
+            // Build an in-transit list and replace at the end, but only if there's
+            // no existing list, or if we have enough memory to duplicate the list.
+            private final List<SearchResult> transitList;
+            
+            // (anonymous constructor)
+            {
+                int size = presenceLibrary.size();
+                if(size == 0) {
+                    transitList = null;
+                } else if (remoteLibraryManager.getAllFriendsFileList().size() > 5000) {
+                    // can run low on memory, so clear old list & add as new ones come.
+                    presenceLibrary.clear();
+                    transitList = null;
+                } else {
+                    transitList = new ArrayList<SearchResult>(size);
+                }
+            }
+            
             public void handleBrowseResult(SearchResult searchResult) {
                 LOG.debugf("browse result: {0}, {1}", searchResult.getUrn(), searchResult.getSize());
                 RemoteFileDescAdapter remoteFileDescAdapter = (RemoteFileDescAdapter)searchResult;
-                if(!friendPresence.getFriend().isAnonymous()) {
-                    // TODO: This should be removed & the address passed here should be corrected.
-                    // copy construct to add injectables and change address to xmpp address                    
-                    remoteFileDescAdapter = new RemoteFileDescAdapter(remoteFileDescDeserializer.promoteRemoteFileDescAndExchangeAddress(remoteFileDescAdapter.getRfd(), address), 
-                    	new IpPortSet(remoteFileDescAdapter.getAlts()), friendPresence);
+                // need to upgrade the RFD to be use the friendpresence.
+                remoteFileDescAdapter = new RemoteFileDescAdapter(remoteFileDescAdapter, friendPresence);
+                if(transitList != null) {
+                    transitList.add(remoteFileDescAdapter);
+                } else {
+                    presenceLibrary.addNewResult(remoteFileDescAdapter);
                 }
-                RemoteFileItem file = new CoreRemoteFileItem(remoteFileDescAdapter);
-                presenceLibrary.addFile(file);
             }
             @Override
             public void browseFinished(boolean success) {
+                if(transitList != null) {
+                    LOG.debugf("Finished browse of {0}, setting resulting files into existing list", friendPresence);
+                    presenceLibrary.setNewResults(transitList);
+                } else {
+                    LOG.debugf("Finished browse of {0}, no in-transit list.", friendPresence);
+                }
+                
                 if(success) {
                     presenceLibrary.setState(LibraryState.LOADED);
                 } else {
@@ -281,9 +305,10 @@ class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
             synchronized (librariesToBrowse) {
                 currentRevision = ++latestConnectivityEventRevision;
                 copy = new ArrayList<PresenceLibrary>(librariesToBrowse);
-                LOG.debugf("revision: {0}, libraries to browse again: {1}", currentRevision, copy);
                 librariesToBrowse.clear();
             }
+            // outside of synchronized to avoid dead lock
+            LOG.debugf("revision: {0}, libraries to browse again: {1}", currentRevision, copy);
             for (PresenceLibrary library : copy) {
                 tryToResolveAndBrowse(library, currentRevision);
             }

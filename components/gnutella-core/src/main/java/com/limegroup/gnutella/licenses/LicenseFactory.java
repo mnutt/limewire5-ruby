@@ -11,7 +11,7 @@ public interface LicenseFactory {
     /**
      * Checks if the specified license-URI is valid for the given URN
      * without doing any expensive lookups.
-     *
+     * <p>
      * The URI must have been retrieved via getLicenseURI.
      *
      */

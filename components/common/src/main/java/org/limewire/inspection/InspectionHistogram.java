@@ -6,7 +6,9 @@ import java.util.Map;
 /**
  * An utility class for adding inspection histograms.
  * Typed for convenience.  
+ * <p>
  * Note1: the bencoded keys are going to use the String.valueOf(K).
+ * <p>
  * Note2: deliberately not using Weak map, so don't use with objects that
  * you can't afford leaked.  
  */

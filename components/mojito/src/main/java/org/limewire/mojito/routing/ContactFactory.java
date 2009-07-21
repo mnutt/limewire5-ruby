@@ -35,7 +35,7 @@ public class ContactFactory {
     private ContactFactory() {}
     
     /**
-     * Creates and returns a local Contact
+     * Creates and returns a local Contact.
      * 
      * @param vendor our vendor ID
      * @param version the version
@@ -46,7 +46,7 @@ public class ContactFactory {
     }
     
     /**
-     * Creates and returns a local Contact
+     * Creates and returns a local Contact.
      * 
      * @param vendor our vendor ID
      * @param version the version
@@ -60,7 +60,7 @@ public class ContactFactory {
     
     /**
      * Creates and returns a live Contact. A live Contact is a Node
-     * that send us a Message
+     * that send us a Message.
      * 
      * @param sourceAddress the source address
      * @param vendor the Vendor ID of the Node
@@ -79,7 +79,7 @@ public class ContactFactory {
     }
     
     /**
-     * Creates and returns an unknown Contact
+     * Creates and returns an unknown Contact.
      * 
      * @param vendor the Vendor ID of the Node
      * @param version the Version

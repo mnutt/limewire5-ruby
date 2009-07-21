@@ -84,4 +84,8 @@ public class PendingEventMulticasterImpl<E> implements EventMulticaster<E>, Pend
         }
     }
 
+    @Override
+    public EventListenerList.EventListenerListContext getListenerContext() {
+        return multicaster.getListenerContext();
+    }
 }

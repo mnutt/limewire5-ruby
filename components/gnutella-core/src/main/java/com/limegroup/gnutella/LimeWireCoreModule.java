@@ -30,12 +30,10 @@ import org.limewire.inspection.Inspector;
 import org.limewire.inspection.InspectorImpl;
 import org.limewire.io.LimeWireIOModule;
 import org.limewire.io.LocalSocketAddressProvider;
-import org.limewire.listener.AsynchronousMulticaster;
+import org.limewire.listener.AsynchronousCachingEventMulticasterImpl;
+import org.limewire.listener.AsynchronousEventBroadcaster;
 import org.limewire.listener.BroadcastPolicy;
-import org.limewire.listener.CachingEventMulticaster;
-import org.limewire.listener.CachingEventMulticasterImpl;
 import org.limewire.listener.EventBean;
-import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.mojito.LimeWireMojitoModule;
 import org.limewire.mojito.io.MessageDispatcherFactory;
@@ -63,33 +61,9 @@ import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import com.limegroup.bittorrent.BTConnectionFactory;
-import com.limegroup.bittorrent.BTConnectionFactoryImpl;
-import com.limegroup.bittorrent.BTContextFactory;
-import com.limegroup.bittorrent.BTContextFactoryImpl;
-import com.limegroup.bittorrent.BTMetaInfoFactory;
-import com.limegroup.bittorrent.BTMetaInfoFactoryImpl;
 import com.limegroup.bittorrent.BTUploaderFactory;
 import com.limegroup.bittorrent.BTUploaderFactoryImpl;
 import com.limegroup.bittorrent.LimeWireBittorrentModule;
-import com.limegroup.bittorrent.ManagedTorrentFactory;
-import com.limegroup.bittorrent.ManagedTorrentFactoryImpl;
-import com.limegroup.bittorrent.TorrentEvent;
-import com.limegroup.bittorrent.TorrentEventListener;
-import com.limegroup.bittorrent.TorrentManager;
-import com.limegroup.bittorrent.TorrentManagerImpl;
-import com.limegroup.bittorrent.choking.ChokerFactory;
-import com.limegroup.bittorrent.choking.ChokerFactoryImpl;
-import com.limegroup.bittorrent.dht.DHTPeerLocator;
-import com.limegroup.bittorrent.dht.DHTPeerLocatorImpl;
-import com.limegroup.bittorrent.dht.DHTPeerPublisher;
-import com.limegroup.bittorrent.dht.DHTPeerPublisherImpl;
-import com.limegroup.bittorrent.handshaking.BTConnectionFetcherFactory;
-import com.limegroup.bittorrent.handshaking.BTConnectionFetcherFactoryImpl;
-import com.limegroup.bittorrent.tracking.TrackerFactory;
-import com.limegroup.bittorrent.tracking.TrackerFactoryImpl;
-import com.limegroup.bittorrent.tracking.TrackerManagerFactory;
-import com.limegroup.bittorrent.tracking.TrackerManagerFactoryImpl;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactoryImpl;
 import com.limegroup.gnutella.auth.IpPortContentAuthorityFactory;
@@ -136,8 +110,7 @@ import com.limegroup.gnutella.licenses.LicenseFactory;
 import com.limegroup.gnutella.licenses.LicenseFactoryImpl;
 import com.limegroup.gnutella.lws.server.LWSManager;
 import com.limegroup.gnutella.lws.server.LWSManagerImpl;
-import com.limegroup.gnutella.malware.DangerousFileChecker;
-import com.limegroup.gnutella.malware.FileExtensionChecker;
+import com.limegroup.gnutella.malware.LimeWireMalwareModule;
 import com.limegroup.gnutella.messagehandlers.MessageHandlerBinderImpl;
 import com.limegroup.gnutella.messages.LocalPongInfo;
 import com.limegroup.gnutella.messages.LocalPongInfoImpl;
@@ -180,6 +153,7 @@ import com.limegroup.gnutella.search.QueryDispatcher;
 import com.limegroup.gnutella.search.QueryDispatcherImpl;
 import com.limegroup.gnutella.search.QueryHandlerFactory;
 import com.limegroup.gnutella.search.QueryHandlerFactoryImpl;
+import com.limegroup.gnutella.settings.LimeWireSettingsModule;
 import com.limegroup.gnutella.settings.SettingsBackedProxySettings;
 import com.limegroup.gnutella.settings.SettingsBackedSocketBindingSettings;
 import com.limegroup.gnutella.simpp.LimeWireSimppModule;
@@ -194,7 +168,6 @@ import com.limegroup.gnutella.uploader.HttpRequestHandlerFactoryImpl;
 import com.limegroup.gnutella.uploader.LimeWireUploaderModule;
 import com.limegroup.gnutella.uploader.UploadSlotManager;
 import com.limegroup.gnutella.uploader.UploadSlotManagerImpl;
-import com.limegroup.gnutella.util.EventDispatcher;
 import com.limegroup.gnutella.util.FECUtils;
 import com.limegroup.gnutella.util.FECUtilsImpl;
 import com.limegroup.gnutella.version.UpdateCollectionFactory;
@@ -203,11 +176,8 @@ import com.limegroup.gnutella.version.UpdateHandler;
 import com.limegroup.gnutella.version.UpdateHandlerImpl;
 import com.limegroup.gnutella.version.UpdateMessageVerifier;
 import com.limegroup.gnutella.version.UpdateMessageVerifierImpl;
-import com.limegroup.gnutella.xml.LimeXMLDocumentFactory;
-import com.limegroup.gnutella.xml.LimeXMLDocumentFactoryImpl;
-import com.limegroup.gnutella.xml.LimeXMLReplyCollectionFactory;
-import com.limegroup.gnutella.xml.LimeXMLReplyCollectionFactoryImpl;
-import com.limegroup.gnutella.xml.SchemaReplyCollectionMapper;
+import com.limegroup.gnutella.xml.LimeWireXmlModule;
+
 
 /**
  * The module that defines what implementations are used within
@@ -232,10 +202,12 @@ public class LimeWireCoreModule extends AbstractModule {
     protected void configure() {
         binder().install(new LimeWireCommonModule());
         binder().install(new LimeWireCoreSettingsModule());
+        binder().install(new LimeWireSettingsModule());
         binder().install(new LimeWireNetModule(SettingsBackedProxySettings.class, SettingsBackedSocketBindingSettings.class));
         binder().install(new LimeWireDownloadModule());
         binder().install(new LimeWireHashTreeModule());        
         binder().install(new LimeWireDHTModule());
+        
         binder().install(new LimeWireHttpModule());
         binder().install(new LimeWireSearchModule());
         binder().install(new LimeWireStatisticsModule());
@@ -245,8 +217,7 @@ public class LimeWireCoreModule extends AbstractModule {
         binder().install(new LimeWireMojitoModule());
         binder().install(new LimeWireSecurityCertificateModule());
         binder().install(new LimewireGeocodeModule());        
-        binder().install(new LimeWirePromotionModule(PromotionBinderRequestorImpl.class, PromotionServicesImpl.class));
-        
+        binder().install(new LimeWirePromotionModule(PromotionBinderRequestorImpl.class, PromotionServicesImpl.class));        
         binder().install(new LimeWireSimppModule());
         binder().install(new LimeWireBittorrentModule());
         binder().install(new LimeWireLibraryModule());
@@ -255,6 +226,8 @@ public class LimeWireCoreModule extends AbstractModule {
         binder().install(new LimeWireFiltersModule());
         binder().install(new LimeWireCoreConnectionModule());
         binder().install(new LimeWireBootstrapModule());
+        binder().install(new LimeWireMalwareModule());
+        binder().install(new LimeWireXmlModule());
         
         if(activityCallbackClass != null) {
             bind(ActivityCallback.class).to(activityCallbackClass);
@@ -271,9 +244,6 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(HandshakeResponderFactory.class).to(HandshakeResponderFactoryImpl.class);
         bind(HeadersFactory.class).to(HeadersFactoryImpl.class);
         bind(PushEndpointFactory.class).to(PushEndpointFactoryImpl.class);
-        bind(ManagedTorrentFactory.class).to(ManagedTorrentFactoryImpl.class);
-        bind(TrackerManagerFactory.class).to(TrackerManagerFactoryImpl.class);
-        bind(TrackerFactory.class).to(TrackerFactoryImpl.class);
         bind(HeadPongFactory.class).to(HeadPongFactoryImpl.class);
         bind(UploadManager.class).to(HTTPUploadManager.class);
         bind(HTTPUploadSessionManager.class).to(HTTPUploadManager.class);
@@ -287,7 +257,6 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(QueryReplyFactory.class).to(QueryReplyFactoryImpl.class);
         bind(MessageDispatcherFactory.class).to(LimeMessageDispatcherFactoryImpl.class);
         bind(CapabilitiesVMFactory.class).to(CapabilitiesVMFactoryImpl.class);
-        bind(BTContextFactory.class).to(BTContextFactoryImpl.class);
         bind(LifecycleManager.class).to(LifecycleManagerImpl.class);
         bind(LocalPongInfo.class).to(LocalPongInfoImpl.class);
         bind(MongrelManager.class).to(MongrelManagerImpl.class);
@@ -300,13 +269,10 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(ApplicationServices.class).to(ApplicationServicesImpl.class);
         bind(SpamServices.class).to(SpamServicesImpl.class);
         bind(DHTControllerFacade.class).to(DHTControllerFacadeImpl.class);
-        bind(ChokerFactory.class).to(ChokerFactoryImpl.class);
-        bind(BTConnectionFetcherFactory.class).to(BTConnectionFetcherFactoryImpl.class);
         bind(DHTBootstrapperFactory.class).to(DHTBootstrapperFactoryImpl.class);
         bind(DHTNodeFetcherFactory.class).to(DHTNodeFetcherFactoryImpl.class);
         bind(UDPReplyHandlerFactory.class).to(UDPReplyHandlerFactoryImpl.class);
         bind(UDPReplyHandlerCache.class).to(UDPReplyHandlerCacheImpl.class);
-        bind(BTConnectionFactory.class).to(BTConnectionFactoryImpl.class);
         bind(SocketProcessor.class).to(Acceptor.class);
         bind(DownloadManager.class).to(DownloadManagerImpl.class).asEagerSingleton();
         bind(BrowseHostHandlerManagerImpl.class).asEagerSingleton();
@@ -321,9 +287,7 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(VendorMessageFactory.class).to(VendorMessageFactoryImpl.class);
         bind(VendorMessageParserBinder.class).to(VendorMessageParserBinderImpl.class);
         bind(UDPCrawlerPongFactory.class).to(UDPCrawlerPongFactoryImpl.class);
-        bind(LimeXMLReplyCollectionFactory.class).to(LimeXMLReplyCollectionFactoryImpl.class);
         bind(LicenseFactory.class).to(LicenseFactoryImpl.class);
-        bind(LimeXMLDocumentFactory.class).to(LimeXMLDocumentFactoryImpl.class);
         bind(MetaDataFactory.class).to(MetaDataFactoryImpl.class);
         bind(SaveLocationManager.class).to(DownloadManager.class);
         bind(BTUploaderFactory.class).to(BTUploaderFactoryImpl.class);
@@ -341,8 +305,6 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(ReplyHandler.class).annotatedWith(Names.named("forMeReplyHandler")).to(ForMeReplyHandler.class);
         bind(MessageRouter.class).to(StandardMessageRouter.class);
         bind(UploadSlotManager.class).to(UploadSlotManagerImpl.class);
-        bind(new TypeLiteral<EventDispatcher<TorrentEvent, TorrentEventListener>>(){}).to(TorrentManager.class);
-        bind(TorrentManager.class).to(TorrentManagerImpl.class);
         bind(BandwidthManager.class).to(BandwidthManagerImpl.class);
         bind(SecureMessageVerifier.class).toProvider(SecureMessageVerifierProvider.class);
         bind(SecureMessageVerifier.class).annotatedWith(Names.named("inspection")).toProvider(InspectionVerifierProvider.class);
@@ -356,8 +318,6 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(ConnectionManager.class).to(ConnectionManagerImpl.class);
         bind(MessageHandlerBinder.class).to(MessageHandlerBinderImpl.class);
         bind(QueryDispatcher.class).to(QueryDispatcherImpl.class);
-        bind(DHTPeerPublisher.class).to(DHTPeerPublisherImpl.class);
-        bind(DHTPeerLocator.class).to(DHTPeerLocatorImpl.class);
         bind(Acceptor.class).to(AcceptorImpl.class);        
         bind(UpdateHandler.class).to(UpdateHandlerImpl.class);
         bind(SecurityToken.TokenProvider.class).to(SecurityToken.AddressSecurityTokenProvider.class);
@@ -365,13 +325,12 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(InspectionResponseFactory.class).to(InspectionResponseFactoryImpl.class);
         bind(FECUtils.class).to(FECUtilsImpl.class);
         bind(NodeAssigner.class).to(NodeAssignerImpl.class);
-        bind(BTMetaInfoFactory.class).to(BTMetaInfoFactoryImpl.class);
         bind(OutgoingQueryReplyFactory.class).to(OutgoingQueryReplyFactoryImpl.class);
         bind(UPnPManagerConfiguration.class).to(UPnPManagerConfigurationImpl.class);
         bind(Bootstrapper.Listener.class).to(HostCatcher.class);
-        bind(DangerousFileChecker.class).to(FileExtensionChecker.class);
         bind(RareFileStrategy.class).to(RareFileStrategyImpl.class);
         bind(MulticastService.class).to(MulticastServiceImpl.class);
+        bind(NetworkUpdateSanityChecker.class).to(NetworkUpdateSanityCheckerImpl.class);
         
         bindAll(Names.named("fastExecutor"), ScheduledExecutorService.class, FastExecutorProvider.class, ExecutorService.class, Executor.class);
         bindAll(Names.named("unlimitedExecutor"), ListeningExecutorService.class, UnlimitedExecutorProvider.class, Executor.class, ExecutorService.class);
@@ -383,21 +342,17 @@ public class LimeWireCoreModule extends AbstractModule {
         
         Executor fwtEventExecutor = ExecutorsHelper.newProcessingQueue("FirewallEventThread");
         
-        AsynchronousMulticaster<FirewallTransferStatusEvent> asyncTransferMulticaster 
-            = new AsynchronousMulticaster<FirewallTransferStatusEvent>(fwtEventExecutor);
-        CachingEventMulticaster<FirewallTransferStatusEvent> fwtStatusMulticaster =
-            new CachingEventMulticasterImpl<FirewallTransferStatusEvent>(BroadcastPolicy.IF_NOT_EQUALS, asyncTransferMulticaster, asyncTransferMulticaster.getListenerContext());
-        bind(new TypeLiteral<EventBean<FirewallTransferStatusEvent>>(){}).toInstance(fwtStatusMulticaster);
-        bind(new TypeLiteral<EventBroadcaster<FirewallTransferStatusEvent>>(){}).toInstance(fwtStatusMulticaster);
-        bind(new TypeLiteral<ListenerSupport<FirewallTransferStatusEvent>>(){}).toInstance(fwtStatusMulticaster);
+        AsynchronousCachingEventMulticasterImpl<FirewallTransferStatusEvent> asyncTransferMulticaster 
+            = new AsynchronousCachingEventMulticasterImpl<FirewallTransferStatusEvent>(fwtEventExecutor, BroadcastPolicy.IF_NOT_EQUALS);
+        bind(new TypeLiteral<EventBean<FirewallTransferStatusEvent>>(){}).toInstance(asyncTransferMulticaster);
+        bind(new TypeLiteral<AsynchronousEventBroadcaster<FirewallTransferStatusEvent>>(){}).toInstance(asyncTransferMulticaster);
+        bind(new TypeLiteral<ListenerSupport<FirewallTransferStatusEvent>>(){}).toInstance(asyncTransferMulticaster);
         
-        AsynchronousMulticaster<FirewallStatusEvent> asyncStatusMulticaster =
-            new AsynchronousMulticaster<FirewallStatusEvent>(fwtEventExecutor);
-        CachingEventMulticaster<FirewallStatusEvent> firewalledStatusMulticaster =
-            new CachingEventMulticasterImpl<FirewallStatusEvent>(BroadcastPolicy.IF_NOT_EQUALS, asyncStatusMulticaster, asyncStatusMulticaster.getListenerContext());
-        bind(new TypeLiteral<EventBean<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);
-        bind(new TypeLiteral<EventBroadcaster<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);
-        bind(new TypeLiteral<ListenerSupport<FirewallStatusEvent>>(){}).toInstance(firewalledStatusMulticaster);
+        AsynchronousCachingEventMulticasterImpl<FirewallStatusEvent> asyncStatusMulticaster =
+            new AsynchronousCachingEventMulticasterImpl<FirewallStatusEvent>(fwtEventExecutor, BroadcastPolicy.IF_NOT_EQUALS);
+        bind(new TypeLiteral<EventBean<FirewallStatusEvent>>(){}).toInstance(asyncStatusMulticaster);
+        bind(new TypeLiteral<AsynchronousEventBroadcaster<FirewallStatusEvent>>(){}).toInstance(asyncStatusMulticaster);
+        bind(new TypeLiteral<ListenerSupport<FirewallStatusEvent>>(){}).toInstance(asyncStatusMulticaster);
         
         // These are bound because they are Singletons & Services, and must be started.
         bind(Statistics.class);
@@ -415,7 +370,6 @@ public class LimeWireCoreModule extends AbstractModule {
         bind(WebServiceGlue.class);
         bind(QRPUpdater.class);
         bind(DaapManager.class);
-        bind(SchemaReplyCollectionMapper.class);
         bind(FirewalledAddressSerializer.class).asEagerSingleton();
         bind(SameNATAddressResolver.class).asEagerSingleton();
         bind(ConnectableConnector.class).asEagerSingleton();

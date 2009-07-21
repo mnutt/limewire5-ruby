@@ -3,7 +3,6 @@ package org.limewire.core.impl.library;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
-import org.limewire.core.api.search.SearchResult;
 import org.limewire.util.BaseTestCase;
 
 import com.limegroup.gnutella.ApplicationServices;
@@ -62,35 +61,4 @@ public class MagnetLinkFactoryImplTest extends BaseTestCase {
                 magnetLink1);
         context.assertIsSatisfied();
     }
-
-    public void testCreateMagnetLinkRemoteFileItem() throws Exception {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
-
-        final NetworkManager networkManager = context.mock(NetworkManager.class);
-        final ApplicationServices applicationServices = context.mock(ApplicationServices.class);
-
-        MagnetLinkFactoryImpl magnetLinkFactoryImpl = new MagnetLinkFactoryImpl(networkManager,
-                applicationServices);
-
-        final CoreRemoteFileItem coreRemoteFileItem1 = context.mock(CoreRemoteFileItem.class);
-        final SearchResult searchResult1 = context.mock(SearchResult.class);
-        context.checking(new Expectations() {
-            {
-                one(coreRemoteFileItem1).getSearchResult();
-                will(returnValue(searchResult1));
-                one(searchResult1).getMagnetURL();
-                will(returnValue("magnetlink"));
-            }
-        });
-        String magnetLink1 = magnetLinkFactoryImpl.createMagnetLink(coreRemoteFileItem1);
-
-        assertEquals("magnetlink", magnetLink1);
-
-        context.assertIsSatisfied();
-    }
-
 }

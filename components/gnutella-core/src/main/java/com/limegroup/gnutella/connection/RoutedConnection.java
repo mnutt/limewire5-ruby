@@ -58,7 +58,7 @@ public interface RoutedConnection extends Connection, ReplyHandler {
      * Returns true iff this connection is a shielded leaf connection, and has
      * signalled that it does not want to receive routed queries (no upload
      * slots or some other reason). If so, we will not include its QRT table in
-     * last hop QRT tables we send out (if we are an Ultrapeer)
+     * last hop QRT tables we send out (if we are an Ultrapeer).
      * 
      * @return true iff this connection is a busy leaf (don't include his QRT
      *         table)
@@ -103,17 +103,17 @@ public interface RoutedConnection extends Connection, ReplyHandler {
     public void setPersonalFilter(SpamFilter filter);
 
     /**
-     * Returns whether or not this connection is a push proxy for me
+     * Returns whether or not this connection is a push proxy for me.
      */
     public boolean isMyPushProxy();
 
     /**
-     * Returns whether or not I'm a push proxy for this connection
+     * Returns whether or not I'm a push proxy for this connection.
      */
     public boolean isPushProxyFor();
 
     /**
-     * Sets whether or not I'm a push proxy for this connection
+     * Sets whether or not I'm a push proxy for this connection.
      */
     public void setPushProxyFor(boolean pushProxyFor);
 
@@ -121,7 +121,7 @@ public interface RoutedConnection extends Connection, ReplyHandler {
 
     /**
      * set preferencing for the responder (The preference of the Responder is
-     * used when creating the response (in Connection.java: conclude..))
+     * used when creating the response (in Connection.java: conclude..)).
      */
     public void setLocalePreferencing(boolean b);
 

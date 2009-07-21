@@ -45,14 +45,14 @@ public class StatusCode implements Serializable, Comparable<StatusCode> {
     }
     
     /**
-     * Returns the actual status code
+     * Returns the actual status code.
      */
     public int shortValue() {
         return code;
     }
     
     /**
-     * Returns the description of the StatusCode
+     * Returns the description of the StatusCode.
      */
     public String getDescription() {
         return description;

@@ -22,7 +22,7 @@ public interface VendorMessageFactory {
             byte[] fromNetwork, Network network) throws BadPacketException;
 
     /**
-     * The interface for custom VendorMessageParser(s)
+     * The interface for custom VendorMessageParser(s).
      */
     public static interface VendorMessageParser {
         public VendorMessage parse(byte[] guid, byte ttl, byte hops, int version, 

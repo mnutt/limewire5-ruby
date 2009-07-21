@@ -57,7 +57,7 @@ import org.limewire.security.SecurityToken;
 
 
 /**
- * The default implementation of the MessageFactory
+ * The default implementation of the MessageFactory.
  */
 public class DefaultMessageFactory implements MessageFactory {
 

@@ -1289,10 +1289,6 @@ public class TestUploader {
                                     return false;
                                 }
                                 @Override
-                                public int logMinDistanceTo(IP ip) {
-                                    return 0;
-                                }
-                                @Override
                                 public void refreshHosts(IPFilterCallback callback) {
                                 }
                                 @Override

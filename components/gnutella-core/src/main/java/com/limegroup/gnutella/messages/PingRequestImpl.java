@@ -22,27 +22,27 @@ import com.limegroup.gnutella.util.DataUtils;
 public class PingRequestImpl extends AbstractMessage implements PingRequest {
 
     /**
-     * With the Big Ping and Big Pong extensions pings may have a payload
+     * With the Big Ping and Big Pong extensions pings may have a payload.
      */
     private byte[] payload = null;
     
     /**
-     * The GGEP blocks carried in this ping - parsed when necessary
+     * The GGEP blocks carried in this ping - parsed when necessary.
      */
     private GGEP _ggep;
     
     /////////////////Constructors for incoming messages/////////////////
     /**
-     * Creates a normal ping from data read on the network
+     * Creates a normal ping from data read on the network.
      */
     PingRequestImpl(byte[] guid, byte ttl, byte hops) {
         super(guid, Message.F_PING, ttl, hops, 0);
     }
 
     /**
-     * Creates a big ping request from data read from the network
+     * Creates a big ping request from data read from the network.
      * 
-     * @param payload the headers etc. which the big pings contain.
+     * @param payload the headers etc. which the big pings contain
      */
     PingRequestImpl(byte[] guid, byte ttl, byte hops, byte[] payload) {
         super(guid, Message.F_PING, ttl, hops, payload.length);
@@ -51,7 +51,7 @@ public class PingRequestImpl extends AbstractMessage implements PingRequest {
 
     //////////////////////Constructors for outgoing Pings/////////////
     /**
-     * Creates a normal ping with a new GUID
+     * Creates a normal ping with a new GUID.
      *
      * @param ttl the ttl of the new Ping
      */
@@ -61,7 +61,7 @@ public class PingRequestImpl extends AbstractMessage implements PingRequest {
     }
     
     /**
-     * Creates a normal ping with a specified GUID
+     * Creates a normal ping with a specified GUID.
      *
      * @param ttl the ttl of the new Ping
      */
@@ -96,7 +96,7 @@ public class PingRequestImpl extends AbstractMessage implements PingRequest {
      * Accessor for whether or not this ping meets the criteria for being a
      * "heartbeat" ping, namely having ttl=0 and hops=1.
      * 
-     * @return <tt>true</tt> if this ping apears to be a "heartbeat" ping,
+     * @return <tt>true</tt> if this ping appears to be a "heartbeat" ping,
      *  otherwise <tt>false</tt>
      */
     public boolean isHeartbeat() {
@@ -144,7 +144,7 @@ public class PingRequestImpl extends AbstractMessage implements PingRequest {
     }
 
     /**
-     * get locale of this PingRequest 
+     * Get locale of this PingRequest.
      */
     public String getLocale() {
         if(payload != null && payload.length > 0) {

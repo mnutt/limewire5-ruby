@@ -54,6 +54,7 @@ import org.limewire.util.ByteUtils;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.Endpoint;
 import com.limegroup.gnutella.NetworkManager;
@@ -64,9 +65,12 @@ import com.limegroup.gnutella.altlocs.AltLocManager;
 import com.limegroup.gnutella.altlocs.AlternateLocationFactory;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.library.CreationTimeCache;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.LibraryUtils;
 import com.limegroup.gnutella.library.SharedFilesKeywordIndex;
 import com.limegroup.gnutella.messages.Message.Network;
@@ -99,8 +103,11 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
     
     private SecurityToken _token;
     
-    private Injector injector;
-    private TLSManager tlsManager;
+    @Inject private Injector injector;
+    @Inject private TLSManager tlsManager;
+    @Inject private Library library;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
+    @Inject @GnutellaFiles private FileView gnutellaFileView;
 
     public QueryReplyTest(String name) {
 		super(name);
@@ -119,12 +126,11 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
     public void setUp() throws Exception {
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
         	    
-	    injector = LimeTestUtils.createInjector();
+	    injector = LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
 	    
         byte[] data = new byte[16];
         new Random().nextBytes(data);
         _token = new AddressSecurityToken(data, injector.getInstance(MACCalculatorRepositoryManager.class));
-        tlsManager = injector.getInstance(TLSManager.class);
     }
 		
 	/**
@@ -648,7 +654,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
         responses[1]=responseFactory.createResponse(0x2FF2, 0xF11F, "OneMore file  ", UrnHelper.SHA1);
         // first take input of proxies
         String[] hosts = {"www.limewire.com", "www.limewire.org",
-                          "www.susheeldaswani.com"};
+                          "www.google.com"};
         Set proxies = new TreeSet(IpPort.COMPARATOR);
         for (int i = 0; i < hosts.length; i++)
             proxies.add(new IpPortImpl(hosts[i], 6346));
@@ -1099,7 +1105,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
         MessageFactory messageFactory = injector.getInstance(MessageFactory.class);
         
         String[] hosts = {"www.limewire.com", "www.limewire.org",
-                          "www.susheeldaswani.com", "www.berkeley.edu"};
+                          "www.google.com", "www.berkeley.edu"};
 
         for (int outer = 0; outer < hosts.length; outer++) {
             //PushProxyInterface[] proxies = new PushProxyInterface[outer+1];
@@ -1189,14 +1195,13 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
         ResponseFactory responseFactory = injector.getInstance(ResponseFactory.class);
         MessageFactory messageFactory = injector.getInstance(MessageFactory.class);
         QueryRequestFactory queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        FileManager fileManager = injector.getInstance(FileManager.class);
         SharedFilesKeywordIndex keywordIndex = injector.getInstance(SharedFilesKeywordIndex.class);
         injector.getInstance(ServiceRegistry.class).initialize();
         addFilesToLibrary();
         addAlternateLocationsToFiles();
         
         boolean checked = false;
-        for(FileDesc fd : fileManager.getGnutellaFileList()) {
+        for(FileDesc fd : gnutellaFileView) {
 			Response testResponse = responseFactory.createResponse(fd);
 
             String name = fd.getFileName();
@@ -1253,13 +1258,12 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
         ResponseFactory responseFactory = injector.getInstance(ResponseFactory.class);
         MessageFactory messageFactory = injector.getInstance(MessageFactory.class);
         QueryRequestFactory queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        FileManager fileManager = injector.getInstance(FileManager.class);
         SharedFilesKeywordIndex keywordIndex = injector.getInstance(SharedFilesKeywordIndex.class);
         injector.getInstance(ServiceRegistry.class).initialize();
         addFilesToLibrary();
         addCreationTimeToFiles();
         boolean checked = false;
-        for(FileDesc fd : fileManager.getGnutellaFileList()) {
+        for(FileDesc fd : gnutellaFileView) {
 			long expectTime = (fd.getIndex() + 1) * 10013;
 			Response testResponse = responseFactory.createResponse(fd);
 			assertEquals(fd.toString(), expectTime, testResponse.getCreateTime());
@@ -1485,7 +1489,6 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
     }
 
     private void addFilesToLibrary() throws Exception {
-        FileManager fileManager = injector.getInstance(FileManager.class);
         File testDir = LimeTestUtils.getDirectoryWithLotsOfFiles();
         testDir = testDir.getCanonicalFile();
         assertTrue("could not find the gnutella directory", testDir.isDirectory());
@@ -1499,19 +1502,18 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
         assertNotNull("no files to test against", testFiles);
         assertNotEquals("no files to test against", 0, testFiles.length);
 
-        FileManagerTestUtils.waitForLoad(fileManager, 5000);
+        FileManagerTestUtils.waitForLoad(library, 5000);
         for(File file : testFiles) {
-            fileManager.getGnutellaFileList().add(file).get(1, TimeUnit.SECONDS);
+            gnutellaFileCollection.add(file).get(1, TimeUnit.SECONDS);
         }
 
-        assertEquals("unexpected number of shared files", testFiles.length, fileManager.getGnutellaFileList().size());
+        assertEquals("unexpected number of shared files", testFiles.length, gnutellaFileCollection.size());
     }
     
     private void addAlternateLocationsToFiles() throws Exception {
         AltLocManager altLocManager = injector.getInstance(AltLocManager.class);
         AlternateLocationFactory alternateLocationFactory = injector.getInstance(AlternateLocationFactory.class);
-        FileManager fileManager = injector.getInstance(FileManager.class);
-        for(FileDesc fd : fileManager.getGnutellaFileList()) {
+        for(FileDesc fd : gnutellaFileView) {
             URN urn = fd.getSHA1Urn();
             for(int j = 0; j < MAX_LOCATIONS + 5; j++) {
                 altLocManager.add(alternateLocationFactory.create("1.2.3." + j, urn), null);
@@ -1521,8 +1523,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
     
     private void addCreationTimeToFiles() throws Exception {
         CreationTimeCache creationTimeCache = injector.getInstance(CreationTimeCache.class);
-        FileManager fileManager = injector.getInstance(FileManager.class);
-        for(FileDesc fd : fileManager.getGnutellaFileList()) {
+        for(FileDesc fd : gnutellaFileView) {
             long time = (fd.getIndex() + 1) * 10013;
             creationTimeCache.addTime(fd.getSHA1Urn(), time);
             creationTimeCache.commitTime(fd.getSHA1Urn());
@@ -1747,7 +1748,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
         MessageFactory messageFactory = injector.getInstance(MessageFactory.class);
 
         String[] hosts = {"www.limewire.com", "www.limewire.org",
-                "www.susheeldaswani.com", "www.berkeley.edu"};
+                "www.google.com", "www.berkeley.edu"};
 
         //PushProxyInterface[] proxies = new PushProxyInterface[outer+1];
         Set proxies = new TreeSet(IpPort.COMPARATOR);
@@ -1791,7 +1792,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
         MessageFactory messageFactory = injector.getInstance(MessageFactory.class);
 
         String[] hosts = {"www.limewire.com", "www.limewire.org",
-                "www.susheeldaswani.com", "www.berkeley.edu"};
+                "www.google.com", "www.berkeley.edu"};
 
         //PushProxyInterface[] proxies = new PushProxyInterface[outer+1];
         Set proxies = new TreeSet(IpPort.COMPARATOR);
@@ -1876,7 +1877,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
         MessageFactory messageFactory = injector.getInstance(MessageFactory.class);
 
         String[] hosts = {"www.limewire.com", "www.limewire.org",
-                "www.susheeldaswani.com", "www.berkeley.edu"};
+                "www.google.com", "www.berkeley.edu"};
 
         //PushProxyInterface[] proxies = new PushProxyInterface[outer+1];
         Set proxies = new TreeSet(IpPort.COMPARATOR);

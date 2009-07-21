@@ -8,12 +8,10 @@ import java.lang.reflect.Modifier;
 /**
  * A helper class that makes setting and reverting the values of private fields easier,
  *  more consistent, and slightly safer.
- *  
- * <p> NOTE: This class should be avoided at all costs.  Currently it only exists for testing
+ * <p> 
+ * NOTE: This class should be avoided at all costs.  Currently it only exists for testing
  *  classes that use LimeWireUtils.  For static classes reset should always be called prior
  *  to any conditions that might end execution of a test case.
- *  
- *  
  */
 public class PrivateAccessor {
     
@@ -25,7 +23,7 @@ public class PrivateAccessor {
     private final Method setMethod;
     
     /**
-     * Constructs and initialises the PrivateAccessor.  Does not allow overriding of final.
+     * Constructs and initializes the PrivateAccessor.  Does not allow overriding of final.
      * 
      * @param clazz  the Class object to access the field in 
      * @param instance  the instance of the class, or null for static classes
@@ -39,7 +37,7 @@ public class PrivateAccessor {
     }
     
     /**
-     * Constructs and initialises the PrivateAccessor.  Allows overriding of final.
+     * Constructs and initializes the PrivateAccessor.  Allows overriding of final.
      * 
      * <p>Should not be used in real test cases, for adhoc testing only.
      * 

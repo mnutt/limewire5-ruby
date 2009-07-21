@@ -25,7 +25,7 @@ import com.limegroup.gnutella.library.FileDesc;
  */
 public class LimitReachedRequestHandler extends SimpleNHttpRequestHandler {
 
-    /** Time to wait for a retry-after because we're validating the file */
+    /** Time to wait for a retry-after because we're validating the file.*/
     public static final String RETRY_AFTER_VALIDATING = 20 + "";
 
     /**
@@ -43,7 +43,7 @@ public class LimitReachedRequestHandler extends SimpleNHttpRequestHandler {
 
     /**
      * Number of seconds the remote host should wait before retrying in case we
-     * still have alt-locs left to send. (15 minute)
+     * still have alt-locs left to send. (15 minute).
      */
     private static final String NORMAL_RETRY_AFTER = "" + RETRY_AFTER_TIME;
 
@@ -55,7 +55,7 @@ public class LimitReachedRequestHandler extends SimpleNHttpRequestHandler {
     /** Error msg to use when validating. */
     private static final String VALIDATING_MSG = "Validating file.  One moment please.";
 
-    /** True if this is a LimitReached state because we're validating the file */
+    /** True if this is a LimitReached state because we're validating the file. */
     private final boolean validating;
 
     private final HTTPUploader uploader;
@@ -66,8 +66,6 @@ public class LimitReachedRequestHandler extends SimpleNHttpRequestHandler {
     /**
      * Creates a new <tt>LimitReachedUploadState</tt> with the specified
      * <tt>FileDesc</tt>.
-     * 
-     * @param fd the <tt>FileDesc</tt> for the upload
      */
     LimitReachedRequestHandler(HTTPUploader uploader, HTTPHeaderUtils httpHeaderUtils, AltLocManager altLocManager) {
         this.uploader = uploader;
@@ -120,7 +118,7 @@ public class LimitReachedRequestHandler extends SimpleNHttpRequestHandler {
     }
     
     /**
-     * Returns smaller Retry-After value for authenticated friend downloads 
+     * Returns smaller Retry-After value for authenticated friend downloads. 
      */
     // TODO breaks knowledge about friend downloads, this layer should not
     // be aware of friends stuff

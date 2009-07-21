@@ -1,10 +1,12 @@
 package org.limewire.ui.swing.components;
 
+import java.awt.EventQueue;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -25,11 +27,12 @@ import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.concurrent.ListeningExecutorService;
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.ui.swing.util.SwingUtils;
+import org.limewire.util.ExceptionUtils;
 
 /**
  * An editor pane that forces synchronous page loading unless you use the
  * {@link #setPageAsynchronous(String, String)} method.
- * 
+ * <p>
  * Much of this comes from JEditorPane and had to be copied out because of package-private problems.
  */
 public class HTMLPane extends JEditorPane {
@@ -63,15 +66,21 @@ public class HTMLPane extends JEditorPane {
                 try {
                     setPageImpl(new URL(url));
                 } catch(IOException iox) {
-                    SwingUtils.invokeLater(new Runnable() {
-                        public void run() {
-                            setContentType("text/html");
-                            setText(backupPage);
-                            setCaretPosition(0);
-                        }
-                    });
+                    setBackup();
+                } catch(RuntimeInterruptedException rie) {
+                    setBackup();
                 }
                 return null;
+            }
+            
+            private void setBackup() {
+                SwingUtils.invokeLater(new Runnable() {
+                    public void run() {
+                        setContentType("text/html");
+                        setText(backupPage);
+                        setCaretPosition(0);
+                    }
+                });
             }
         });
         return currentLoad;
@@ -86,10 +95,13 @@ public class HTMLPane extends JEditorPane {
         setPageImpl(page);
     }
     
-    // Note the use of SwingUtils vs SwingUtilities.
+    // Note the use of SwingUtils vs SwingUtilities & also a custom invokeAndWait
     // SwingUtils will invoke immediately if already in the dispatch thread,
     // SwingUtilities will always force to the end of the queue --
     // The uses here (of both) are very deliberate.
+    // invokeAndWait is special because we want to rethrow InterruptedException
+    // as IOException, because we're expecting to be interrupted occasionally
+    // and do not want to report the error.
     private void setPageImpl(final URL page) throws IOException {
         if (page == null) {
             throw new IOException("invalid url");
@@ -97,7 +109,7 @@ public class HTMLPane extends JEditorPane {
 
         pageLoaded = false;
         final AtomicReference<URL> loaded = new AtomicReference<URL>();
-        SwingUtils.invokeAndWait(new Runnable() {
+        invokeAndWait(new Runnable() {
             public void run() {
                 loaded.set(getPage());
                 // reset scrollbar
@@ -111,7 +123,7 @@ public class HTMLPane extends JEditorPane {
         InputStream in = new InterruptableStream(getStream(page));
         if (kit != null) {
             final AtomicReference<Document> doc = new AtomicReference<Document>();
-            SwingUtils.invokeAndWait(new Runnable() {
+            invokeAndWait(new Runnable() {
                 @Override
                 public void run() {
                     doc.set(initializeModel(kit, page));
@@ -151,7 +163,7 @@ public class HTMLPane extends JEditorPane {
     public void setDocument(final Document doc) {
         // Ensure the document is set on the EDT thread,
         // because it triggers a repaint (and it should be).
-        SwingUtils.invokeAndWait(new Runnable() {
+        invokeAndWait(new Runnable() {
             @Override
             public void run() {
                 HTMLPane.super.setDocument(doc);
@@ -184,13 +196,40 @@ public class HTMLPane extends JEditorPane {
             }
         }
 
-        SwingUtils.invokeAndWait(new Runnable() {
+        invokeAndWait(new Runnable() {
             @Override
             public void run() {
                 handleConnectionProperties(conn);
             }
         });
         return conn.getInputStream();
+    }
+    
+    // This rethrows InterruptedException as RuntimeInterruptedException,
+    // so that we can catch it in the setPageImpl call and respond to it.
+    private void invokeAndWait(final Runnable runnable) throws RuntimeInterruptedException {
+        if(EventQueue.isDispatchThread()) {
+            runnable.run();
+        } else {
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        runnable.run();
+                    }
+                });
+            } catch (InterruptedException e) {
+                throw new RuntimeInterruptedException(e);
+            } catch (InvocationTargetException e) {
+                ExceptionUtils.rethrow(e);
+            }
+        }
+    }
+    
+    private static class RuntimeInterruptedException extends RuntimeException {
+        public RuntimeInterruptedException(Throwable t) {
+            super(t);
+        }
     }
 
     // Copied from {@link JEditorPane#handleConnectionProperties(URLConnection)} because of package-private problems.
@@ -230,7 +269,7 @@ public class HTMLPane extends JEditorPane {
 
     /**
      * Updated to set the asynchronous priority to -1, although it shouldn't
-     * matter because we explicitly load documents ourselves 
+     * matter because we explicitly load documents ourselves.
      */
     private static class SynchronousEditorKit extends HTMLEditorKit {
         @Override

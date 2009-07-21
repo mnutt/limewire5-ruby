@@ -193,10 +193,10 @@ public class ByteBufferInputStream extends InputStream {
     /**
      * Returns a reference to the existing buffers if possible.
      * If not possible, returns a copy of the data in a new buffer.
-     * 
+     * <p>
      * This advances the read mark, as if the requested data has
      * been read.
-     * 
+     * <p>
      * If there wasn't enough data to place into the buffer, the
      * buffer is created with as much data as possible.
      */

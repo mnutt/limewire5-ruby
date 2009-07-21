@@ -19,9 +19,10 @@ import java.util.SortedMap;
  * See <a href="http://en.wikipedia.org/wiki/Trie">Trie</a> for more information.
  * <p>
  * @modified David Soh (yunharla00@hotmail.com)
+ * <pre>
  *      1. added getIterator() & getIterator(String) for enhanced AutoCompleteTextField use.
  *      2. disallowed adding duplicates
- *
+ *</pre>
  */
 public class StringTrieSet implements AutoCompleteDictionary, Iterable<String> {
     /**
@@ -85,7 +86,7 @@ public class StringTrieSet implements AutoCompleteDictionary, Iterable<String> {
     }
 
     /**
-     * Returns all values (entire TrieSet)
+     * Returns all values (entire TrieSet).
      */
     public Iterator<String> iterator() {
         return map.values().iterator();

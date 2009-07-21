@@ -40,9 +40,9 @@ public interface NetworkInstanceUtils {
      * Returns whether or not the two IP addresses share the same
      * first two octets in their address -- the most common
      * indication that they may be on the same network.
-     *
+     * <p>
      * Private networks are NOT CONSIDERED CLOSE.
-     *
+     * <p>
      * This method is IPv6 compliant but returns always false if
      * any of the two addresses in a true IPv6 address.
      * 
@@ -81,7 +81,7 @@ public interface NetworkInstanceUtils {
      * Utility method for determining whether or not the given 
      * address is private taking an InetAddress object as argument
      * like the isLocalAddress(InetAddress) method. 
-     *
+     * <p>
      * This method is IPv6 compliant
      *
      * @return <tt>true</tt> if the specified address is private,
@@ -91,7 +91,7 @@ public interface NetworkInstanceUtils {
     
     /**
      * Checks if the given address is a private address.
-     * 
+     * <p>
      * This method is IPv6 compliant
      * 
      * @param address the address to check
@@ -102,7 +102,7 @@ public interface NetworkInstanceUtils {
      * Utility method for determining whether or not the given 
      * address is private.  Delegates to 
      * <tt>isPrivateAddress(InetAddress)</tt>.
-     *
+     * <p>
      * Returns true if the host is unknown.
      *
      * @return <tt>true</tt> if the specified address is private,

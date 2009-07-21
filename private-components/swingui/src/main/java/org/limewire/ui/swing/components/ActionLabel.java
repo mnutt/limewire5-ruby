@@ -33,9 +33,6 @@ public class ActionLabel extends JXLabel  {
 
     /**
      * Constructs a new clickable label whose text is in the hex color described.
-     * 
-     * @param action
-     * @param color
      */
     public ActionLabel(Action action, boolean showHand) {
         setAction(action, showHand);

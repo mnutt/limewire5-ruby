@@ -40,7 +40,7 @@ import com.limegroup.gnutella.Uploader.UploadStatus;
 import com.limegroup.gnutella.auth.UrnValidator;
 import com.limegroup.gnutella.http.HttpContextParams;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.statistics.TcpBandwidthStatistics;
 import com.limegroup.gnutella.uploader.FileRequestHandler;
 import com.limegroup.gnutella.uploader.HTTPUploadSession;
@@ -49,8 +49,8 @@ import com.limegroup.gnutella.uploader.HTTPUploader;
 import com.limegroup.gnutella.uploader.HttpRequestHandlerFactory;
 import com.limegroup.gnutella.uploader.UploadSlotManager;
 import com.limegroup.gnutella.uploader.UploadType;
-import com.limegroup.gnutella.uploader.authentication.GnutellaBrowseFileListProvider;
-import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.GnutellaBrowseFileViewProvider;
+import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileViewProvider;
 
 /**
  * Manages {@link HTTPUploader} objects that are created by
@@ -189,9 +189,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
     private final Map<String, RequestCache> REQUESTS = new FixedsizeForgetfulHashMap<String, RequestCache>(
             250);
 
-    private volatile Provider<ActivityCallback> activityCallback;
-
-    private volatile Provider<FileManager> fileManager;
+    private final Provider<ActivityCallback> activityCallback;
 
     private volatile boolean started;
     
@@ -201,28 +199,31 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
     
     private final TcpBandwidthStatistics tcpBandwidthStatistics;
 
-    private final Provider<GnutellaUploadFileListProvider> gnutellaUploadFileListProvider;
+    private final Provider<GnutellaUploadFileViewProvider> gnutellaUploadFileListProvider;
 
-    private final Provider<GnutellaBrowseFileListProvider> gnutellaBrowseFileListProvider;
+    private final Provider<GnutellaBrowseFileViewProvider> gnutellaBrowseFileListProvider;
     
     private final UrnValidator urnValidator;
+    
+    private final Library library;
     
     @Inject
     public HTTPUploadManager(UploadSlotManager slotManager,
             HttpRequestHandlerFactory httpRequestHandlerFactory,
             Provider<HTTPAcceptor> httpAcceptor,
-            Provider<FileManager> fileManager, Provider<ActivityCallback> activityCallback,
+            Provider<ActivityCallback> activityCallback,
             TcpBandwidthStatistics tcpBandwidthStatistics,
-            Provider<GnutellaUploadFileListProvider> gnutellaFileListProvider,
-            Provider<GnutellaBrowseFileListProvider> gnutellaBrowseFileListProvider,
-            UrnValidator urnValidator) {
+            Provider<GnutellaUploadFileViewProvider> gnutellaFileListProvider,
+            Provider<GnutellaBrowseFileViewProvider> gnutellaBrowseFileListProvider,
+            UrnValidator urnValidator,
+            Library library) {
         this.gnutellaUploadFileListProvider = gnutellaFileListProvider;
         this.gnutellaBrowseFileListProvider = gnutellaBrowseFileListProvider;
         this.slotManager = Objects.nonNull(slotManager, "slotManager");
         this.httpRequestHandlerFactory = httpRequestHandlerFactory;
         this.freeLoaderRequestHandler = httpRequestHandlerFactory.createFreeLoaderRequestHandler();
         this.httpAcceptor = Objects.nonNull(httpAcceptor, "httpAcceptor");
-        this.fileManager = Objects.nonNull(fileManager, "fileManager");
+        this.library = Objects.nonNull(library, "library");
         this.activityCallback = Objects.nonNull(activityCallback, "activityCallback");
         this.tcpBandwidthStatistics = Objects.nonNull(tcpBandwidthStatistics, "tcpBandwidthStatistics");
         this.urnValidator = urnValidator;
@@ -405,9 +406,6 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
             return false;
         }
         
-        if (fileManager.get().getGnutellaFileList().hasApplicationSharedFiles())
-            return slotManager.hasHTTPSlotForMeta(uploadsInProgress()
-                    + getNumQueuedUploads());
         return isServiceable();
     }
 
@@ -438,7 +436,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
     public boolean releaseLock(File file) {
         assert started;
         
-        FileDesc fd = fileManager.get().getManagedFileList().getFileDesc(file);
+        FileDesc fd = library.getFileDesc(file);
         if (fd != null)
             return killUploadsForFileDesc(fd);
         else
@@ -487,11 +485,11 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
         }
 
         FileDesc fd = session.getUploader().getFileDesc();
-        if (!urnValidator.isValid(fd.getSHA1Urn())) {
-            urnValidator.validate(fd.getSHA1Urn());
+        URN sha1 = fd.getSHA1Urn();
+        if (!urnValidator.isValid(sha1)) {
+            urnValidator.validate(sha1);
         }
 
-        URN sha1 = fd.getSHA1Urn();
 
         if (rqc.isDupe(sha1) && UploadSettings.CHECK_DUPES.getValue()) {
             if (LOG.isDebugEnabled())
@@ -734,6 +732,11 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
 
     public HTTPUploader getOrCreateUploader(HttpRequest request,
             HttpContext context, UploadType type, String filename) {
+        return getOrCreateUploader(request, context, type, filename, null);
+    }
+    
+    public HTTPUploader getOrCreateUploader(HttpRequest request,
+            HttpContext context, UploadType type, String filename, String friendID) {
         assert started;
         
         HTTPUploadSession session = getOrCreateSession(context);
@@ -762,6 +765,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
                 cleanupFinishedUploader(uploader);
 
                 uploader = new HTTPUploader(filename, session, tcpBandwidthStatistics);
+                uploader.setFriendId(friendID);
             } else {
                 // reuse existing uploader object
                 uploader.reinitialize();
@@ -769,6 +773,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
         } else {
             // first request for this session
             uploader = new HTTPUploader(filename, session);
+            uploader.setFriendId(friendID);
         }
 
         String method = request.getRequestLine().getMethod();

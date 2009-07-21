@@ -17,7 +17,7 @@ public interface DataMessage extends RUDPMessage {
     /** Return the data in the GUID as the data1 chunk. */
     public ByteBuffer getData1Chunk();
 
-    /** Return the data in the payload as the data2 chunk/ */
+    /** Return the data in the payload as the data2 chunk. */
     public ByteBuffer getData2Chunk();
 
     /** Returns the piece of data at this point of the message. */

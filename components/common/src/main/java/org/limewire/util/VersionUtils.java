@@ -9,12 +9,12 @@ public class VersionUtils {
 
     private VersionUtils() {}
     
-    /** Utility methods for determing if we're atleast Java 1.5. */
+    /** Utility methods for determining if we're at least Java 1.5. */
     public static boolean isJava15OrAbove() {
         return isJavaVersionOrAbove("1.5");
     }
     
-    /** Utility methods for determing if we're atleast Java 1.6. */
+    /** Utility methods for determining if we're at least Java 1.6. */
     public static boolean isJava16OrAbove() {
         return isJavaVersionOrAbove("1.6");
     }

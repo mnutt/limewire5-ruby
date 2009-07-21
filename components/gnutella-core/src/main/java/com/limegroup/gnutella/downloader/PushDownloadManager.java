@@ -97,12 +97,12 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
      */
     private static long UDP_PUSH_FAILTIME = 5000;
     
-    /** Pool on which blocking HTTP PushProxy requests are handled */
+    /** Pool on which blocking HTTP PushProxy requests are handled. */
     private final ExecutorService PUSH_THREAD_POOL =
         ExecutorsHelper.newFixedSizeThreadPool(10, "PushProxy Requests");
     
     /**
-     * number of files that we have sent a udp push for and are waiting a connection.
+     * Number of files that we have sent a udp push for and are waiting a connection.
      * LOCKING: obtain UDP_FAILOVER if manipulating the contained sets as well!
      */
     private final Map<byte[], AtomicInteger>  
@@ -142,19 +142,18 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
             @Named("defaults") Provider<HttpParams> defaultParams,
             @Named("backgroundExecutor") ScheduledExecutorService scheduler,
             Provider<SocketProcessor> processor,
-    		NetworkManager networkManager,
-    		Provider<IPFilter> ipFilter,
-    		Provider<UDPService> udpService,
-    		Provider<UDPSelectorProvider> udpSelectorProvider,
-    		Provider<PushEndpointCache> pushEndpointCache,
-    		RemoteFileDescFactory remoteFileDescFactory,
-    		EventBroadcaster<ConnectivityChangeEvent> connectivityEventBroadcaster) {
-    	this.messageRouter = router;
-    	this.httpExecutor = executor;
+            NetworkManager networkManager,
+            Provider<IPFilter> ipFilter, Provider<UDPService> udpService,
+            Provider<UDPSelectorProvider> udpSelectorProvider,
+            Provider<PushEndpointCache> pushEndpointCache,
+            RemoteFileDescFactory remoteFileDescFactory,
+            EventBroadcaster<ConnectivityChangeEvent> connectivityEventBroadcaster) {
+        this.messageRouter = router;
+        this.httpExecutor = executor;
         this.defaultParams = defaultParams;
         this.backgroundExecutor = scheduler;
-    	this.socketProcessor = processor;
-    	this.networkManager = networkManager;
+        this.socketProcessor = processor;
+        this.networkManager = networkManager;
         this.ipFilter = ipFilter;
         this.udpService = udpService;
         this.udpSelectorProvider = udpSelectorProvider;
@@ -205,7 +204,7 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
      * If the GIV is for a file that was never requested or
      * has already been downloaded, this will deal with it appropriately.
      * In any case this eventually closes the socket.
-     * 
+     * <p>
      * Non-blocking.
      * 
      * @modifies this
@@ -279,11 +278,7 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
      *
      * @param file the <tt>RemoteFileDesc</tt> constructed from the query 
      *  hit, containing data about the host we're pushing to
-     * @param observer The ConnectObserver to notify of success or failure
-     * @param waitForLocalAddress whether or not to wait for the local address
-     * to be determined
-     * @return <tt>true</tt> if the push was successfully sent, otherwise
-     *  <tt>false</tt>
+     * @param observer the ConnectObserver to notify of success or failure
      */
     public void sendPush(RemoteFileDesc file, MultiShutdownable observer) {
         if (LOG.isDebugEnabled()) {
@@ -335,7 +330,7 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     
     /**
      * Sends a push through multicast.
-     *
+     * <p>
      * Returns true only if the RemoteFileDesc was a reply to a multicast query
      * and we wanted to send through multicast.  Otherwise, returns false,
      * as we shouldn't reply on the multicast network.
@@ -438,7 +433,7 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     
     /**
      * Sends a push through TCP.
-     *
+     * <p>
      * This method will always return immediately,
      * and the PushConnector will be notified or success or failure.
      */
@@ -448,9 +443,9 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
                          networkManager.canDoFWT() &&
                         !networkManager.acceptedIncomingConnection();
 
-    	PushData data = new PushData(observer, file, guid, shouldDoFWTransfer);
+        PushData data = new PushData(observer, file, guid, shouldDoFWTransfer);
 
-    	// if there are no proxies, send through the network
+        // if there are no proxies, send through the network
         Set<? extends IpPort> proxies = getPushProxies(file);
         if(proxies.isEmpty()) {
             sendPushThroughNetwork(data);
@@ -464,8 +459,6 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     
     /**
      * Sends a push through the network.  The observer is notified upon failure.
-     * 
-     * @param data
      */
     private void sendPushThroughNetwork(PushData data) {
         LOG.debug("sending through network");
@@ -600,44 +593,47 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
      */
     private class PushHttpClientListener implements HttpClientListener {
         /** The HttpMethods that are being executed. */
-    	private final Collection<HttpUriRequest> methods;
+        private final Collection<HttpUriRequest> methods;
+
         /** Information about the push. */
         private final PushData data;
-        
-    	PushHttpClientListener(Collection <? extends HttpUriRequest> methods, PushData data) {
-    		this.methods = new LinkedList<HttpUriRequest>(methods);
-    		this.data = data;
-    	}
-    	
-    	public boolean requestFailed(HttpUriRequest request, HttpResponse response, IOException exc) {
-    	    if (LOG.isWarnEnabled()) {
-    	        LOG.warn("PushProxy request exception: " + request.getURI(), exc);
-    	    }
-    		httpExecutor.get().releaseResources(response);
-    		methods.remove(request);
 
-    		URI uri = request.getURI();
-    		if (LOG.isDebugEnabled()) {
-                LOG.debug("Removing push proxy: " + uri + " for " + new GUID(data.file.getClientGUID()));
+        PushHttpClientListener(Collection<? extends HttpUriRequest> methods, PushData data) {
+            this.methods = new LinkedList<HttpUriRequest>(methods);
+            this.data = data;
+        }
+
+        public boolean requestFailed(HttpUriRequest request, HttpResponse response, IOException exc) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("PushProxy request exception: " + request.getURI(), exc);
             }
-    		removePushProxy(data.file.getClientGUID(), uri);
-    		
-    		if (methods.isEmpty()) // all failed
+            httpExecutor.get().releaseResources(response);
+            methods.remove(request);
+
+            URI uri = request.getURI();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Removing push proxy: " + uri + " for "
+                        + new GUID(data.file.getClientGUID()));
+            }
+            removePushProxy(data.file.getClientGUID(), uri);
+
+            if (methods.isEmpty()) // all failed
                 sendPushThroughNetwork(data);
             return true;
-    	}
-    	
-    	public boolean requestComplete(HttpUriRequest request, HttpResponse response) {
-    		methods.remove(request);
-    		int statusCode = response.getStatusLine().getStatusCode();
-    		httpExecutor.get().releaseResources(response);
-    		if (statusCode == 202) {
-    			if(LOG.isDebugEnabled())
-    				LOG.debug("Successful push proxy: " + request.getURI());
-    			
-    			if (data.isFWTransfer()) {
-    			    LOG.debug("Starting fwt communication");
-    			    AbstractNBSocket socket = udpSelectorProvider.get().openSocketChannel().socket();
+        }
+
+        public boolean requestComplete(HttpUriRequest request, HttpResponse response) {
+            methods.remove(request);
+            int statusCode = response.getStatusLine().getStatusCode();
+            httpExecutor.get().releaseResources(response);
+            if (statusCode == 202) {
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Successful push proxy: " + request.getURI());
+
+                if (data.isFWTransfer()) {
+                    LOG.debug("Starting fwt communication");
+                    AbstractNBSocket socket = udpSelectorProvider.get().openSocketChannel()
+                            .socket();
                     data.getMultiShutdownable().addShutdownable(socket);
                     IpPort publicAddress = getPublicAddress(data.getFile().getAddress());
                     // TODO: see issue: LWC-2278
@@ -647,18 +643,20 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
                 }
                 
                 return false; // don't need to process any more methods.
-    		} 
-            
-    		if(LOG.isWarnEnabled())
-    		    LOG.warn("Invalid push proxy: " + request.getURI() + ", response: " + response.getStatusLine().getStatusCode() + ", reason: " + response.getStatusLine().getReasonPhrase());
-    		
-    		removePushProxy(data.file.getClientGUID(), request.getURI());
+            }
 
-    		if (methods.isEmpty()) // all failed 
-    		    sendPushThroughNetwork(data);
-            
+            if (LOG.isWarnEnabled())
+                LOG.warn("Invalid push proxy: " + request.getURI() + ", response: "
+                        + response.getStatusLine().getStatusCode() + ", reason: "
+                        + response.getStatusLine().getReasonPhrase());
+
+            removePushProxy(data.file.getClientGUID(), request.getURI());
+
+            if (methods.isEmpty()) // all failed
+                sendPushThroughNetwork(data);
+
             return true; // try more.
-    	}
+        }
 
         @Override
         public boolean allowRequest(HttpUriRequest request) {
@@ -694,7 +692,6 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     /**
      * Adds the necessary data into UDP_FAILOVER so that a PushFailoverRequestor
      * knows if it should send a request.
-     * @param file
      */
     private void addUDPFailover(RemoteFileDesc file) {
         synchronized (UDP_FAILOVER) {
@@ -710,8 +707,6 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     
     /**
      * Removes data from UDP_FAILOVER, indicating a push has used it.
-     * 
-     * @param guid
      */
     private void cancelUDPFailover(byte[] clientGUID) {
         synchronized (UDP_FAILOVER) {
@@ -760,42 +755,42 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     }
     
     /**
-     * sends a tcp push if the udp push has failed.
+     * Sends a tcp push if the udp push has failed.
      */
     private class PushFailoverRequestor implements Runnable {
 
     	final RemoteFileDesc _file;
-    	final byte [] _guid;
-    	final MultiShutdownable connector;
 
-    	public PushFailoverRequestor(RemoteFileDesc file,
-    			byte[] guid,
-                MultiShutdownable connector) {
-    		_file = file;
-    		_guid = guid;
-    		this.connector = connector;
-    	}
+        final byte[] _guid;
 
-    	public void run() {
-    		if (shouldProceed()) 
-    			sendPushTCP(_file, _guid, connector);
-    	}
+        final MultiShutdownable connector;
 
-    	protected boolean shouldProceed() {
-    		byte[] key =_file.getClientGUID();
+        public PushFailoverRequestor(RemoteFileDesc file, byte[] guid, MultiShutdownable connector) {
+            _file = file;
+            _guid = guid;
+            this.connector = connector;
+        }
 
-    		synchronized(UDP_FAILOVER) {
-    			AtomicInteger requests = UDP_FAILOVER.get(key);
-    			if (requests!=null && requests.get() > 0) {
-    			    if (requests.decrementAndGet() == 0) {
-    			        UDP_FAILOVER.remove(key);
-    			    }
+        public void run() {
+            if (shouldProceed())
+                sendPushTCP(_file, _guid, connector);
+        }
+
+        protected boolean shouldProceed() {
+            byte[] key = _file.getClientGUID();
+
+            synchronized (UDP_FAILOVER) {
+                AtomicInteger requests = UDP_FAILOVER.get(key);
+                if (requests != null && requests.get() > 0) {
+                    if (requests.decrementAndGet() == 0) {
+                        UDP_FAILOVER.remove(key);
+                    }
                     return true;
-    			}
-    		}
-    		return false;
-    	}
-   }
+                }
+            }
+            return false;
+        }
+    }
     
     /**
      * Non-blocking read-channel to parse the rest of a GIV request
@@ -893,10 +888,10 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     private static class FWTConnectObserver implements ConnectObserver {
 
     	private final SocketProcessor processor;
-    	
-    	FWTConnectObserver(SocketProcessor processor) {
-    		this.processor = processor;
-    	}
+
+        FWTConnectObserver(SocketProcessor processor) {
+            this.processor = processor;
+        }
     	
         public void handleIOException(IOException iox) {}
 
@@ -910,9 +905,11 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     
     /** Shutdownable that does nothing, because it's not possible for it to be shutdown. */
     private static class NullMultiShutdownable implements MultiShutdownable {
-		public void shutdown() {}
-        
-		public void addShutdownable(Shutdownable newCancel) {}
+        public void shutdown() {
+        }
+
+        public void addShutdownable(Shutdownable newCancel) {
+        }
         
         /** Returns true iff cancelled. */
         public boolean isCancelled() {
@@ -922,12 +919,13 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     
     /**
      * Returns true if <code>address</code> is a {@link FirewalledAddress}
-     * the network manager has a valid local addresss and one of the following
+     * the network manager has a valid local address and one of the following
      * is true:
-     * 
+     * <pre>
      * 1) this peer can accept incoming connections
      * 2) this peer can do firewalled transfers and the {@link FirewalledAddress}
      *    also supports firewalled transfers
+     * </pre>
      */
     @Override
     public boolean canConnect(Address address) {
@@ -954,11 +952,12 @@ public class PushDownloadManager implements ConnectionAcceptor, PushedSocketHand
     }
     
     /**
-     * Returns the fwt version supported by address
-     * 
+     * Returns the fwt version supported by address.
+     * Returns:<pre>
      * 0 - if firewalled address or push endpoint but not fwt capability
      * > 0 - if firewalled address or push endpoint and fwt capability
      * -1 if not a valid address;
+     * </pre>
      */
     private static int getFWTVersion(Address address) {
         if (address instanceof FirewalledAddress) {

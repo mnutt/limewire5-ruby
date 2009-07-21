@@ -26,6 +26,15 @@ public class UrnSet implements Set<URN>, Iterable<URN>, Cloneable, Serializable 
     /** The sole URNs this knows about. */
     private URN sha1, ttroot;
     
+    /** Returns a set of UrnSet version of the set. */
+    public static UrnSet resolve(Set<? extends URN> set) {
+        if(set instanceof UrnSet) {
+            return (UrnSet)set;
+        } else {
+            return new UrnSet(set);
+        }
+    }
+    
     /** Constructs an empty UrnSet. */
     public UrnSet() {}
     
@@ -58,11 +67,11 @@ public class UrnSet implements Set<URN>, Iterable<URN>, Cloneable, Serializable 
         return sha1 == null ? 0 : sha1.hashCode();
     }
     
-    URN getSHA1() {
+    public URN getSHA1() {
         return sha1;
     }
     
-    URN getTTRoot() {
+    public URN getTTRoot() {
         return ttroot;
     }
     

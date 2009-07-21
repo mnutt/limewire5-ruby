@@ -42,7 +42,7 @@ import java.util.NoSuchElementException;
         Abby
         Bob
         Chris
-* </pre>
+</pre>
 * @author Anurag Singla initial revision 
 * @author Christopher Rohrs bug fix, specification cleanup, and unit tests
 */
@@ -65,7 +65,7 @@ public class DoublyLinkedList<E> implements Iterable<DoublyLinkedList.ListElemen
      */
     private ListElement<E> last;
     
-    /** Creates new empty DoublyLinkedList */
+    /** Creates new empty DoublyLinkedList. */
     public DoublyLinkedList()
     {
         //allocate space for both start & last pointers
@@ -84,8 +84,8 @@ public class DoublyLinkedList<E> implements Iterable<DoublyLinkedList.ListElemen
     /**
      * Inserts an object at the end of the list, returning its 
      * corresponding element.
-     * @param value the value of the new element.
-     * @return the element holding value.
+     * @param value the value of the new element
+     * @return the element holding value
      */
     public ListElement<E> addLast(E value)
     {
@@ -122,8 +122,8 @@ public class DoublyLinkedList<E> implements Iterable<DoublyLinkedList.ListElemen
     }
 
     /**
-     * Removes the specified element from the list
-     * @param element The element to be removed.  This must be an element
+     * Removes the specified element from the list.
+     * @param element the element to be removed.  This must be an element
      *  of this.
      */
     public void remove(ListElement<E> element)
@@ -143,10 +143,9 @@ public class DoublyLinkedList<E> implements Iterable<DoublyLinkedList.ListElemen
     }
 
     /**
-     * Removes all entries from this list
+     * Removes all entries from this list.
      */
-    public void clear() 
-    {
+    public void clear() {
         //since no elements, make start & last point to each other
         start.next = last;
         last.prev = start;
@@ -221,23 +220,23 @@ public class DoublyLinkedList<E> implements Iterable<DoublyLinkedList.ListElemen
      */
     public static class ListElement<E> {
         /**
-         * The key/object it stores
+         * The key/object it stores.
          */
         E key;
     
         /**
-         * Reference to the previous element in the list
+         * Reference to the previous element in the list.
          */
         ListElement<E> prev;
     
         /**
-         * Reference to the next element in the list
+         * Reference to the next element in the list.
          */
         ListElement<E> next;
     
         /**
-         * creates a new instance, with the specified key
-         * @param key The key/value to be stored in this list element
+         * Creates a new instance, with the specified key.
+         * @param key the key/value to be stored in this list element
          */
         ListElement(E key) {
             //store the object
@@ -248,7 +247,6 @@ public class DoublyLinkedList<E> implements Iterable<DoublyLinkedList.ListElemen
         }
     
         /**
-         * returns the key stored in this element
          * @return the key stored in this element
          */
         public E getKey() {

@@ -32,13 +32,13 @@ public interface FindValueRequest extends LookupRequest {
     
     /**
      * Returns a Collection of KUIDs the remote Node
-     * is looking for
+     * is looking for.
      */
     public Collection<KUID> getSecondaryKeys();
     
     /**
      * Returns the type of the value the remote Node
-     * is looking for
+     * is looking for.
      */
     public DHTValueType getDHTValueType();
 }

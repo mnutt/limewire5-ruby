@@ -22,7 +22,7 @@ public interface AlternateLocation extends HTTPHeaderValue, Comparable<Alternate
     public static final String ALT_VENDOR = "ALT";
 
     /**
-     * The three types of medium altlocs travel through
+     * The three types of medium altlocs travel through.
      */
     public static final int MESH_PING = 0;
 
@@ -38,17 +38,17 @@ public interface AlternateLocation extends HTTPHeaderValue, Comparable<Alternate
     URN getSHA1Urn();
 
     /**
-     * Accessor to find if this has been demoted
+     * Accessor to find if this has been demoted.
      */
     int getCount();
 
     /**
-     * package access, accessor to the value of _demoted
+     * package access, accessor to the value of _demoted.
      */
     boolean isDemoted();
 
     /**
-     * Creates a new <tt>RemoteFileDesc</tt> from this AlternateLocation
+     * Creates a new <tt>RemoteFileDesc</tt> from this AlternateLocation.
      *
      * @param size the size of the file for the new <tt>RemoteFileDesc</tt> 
      *  -- this is necessary to make sure the download bucketing works 
@@ -65,13 +65,13 @@ public interface AlternateLocation extends HTTPHeaderValue, Comparable<Alternate
     boolean isMe();
 
     /**
-     * increment the count.
+     * Increment the count.
      * @see demote
      */
     void increment();
 
     /**
-     * could return null
+     * Could return null.
      */
     AlternateLocation createClone();
 

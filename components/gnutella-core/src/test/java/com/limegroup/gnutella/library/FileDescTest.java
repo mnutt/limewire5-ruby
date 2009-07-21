@@ -71,11 +71,6 @@ public final class FileDescTest extends org.limewire.gnutella.tests.LimeTestCase
             factory.createFileDesc(file, urns, -1);
             fail("negative index should not be permitted for FileDesc constructor");
         } catch(IndexOutOfBoundsException ignored) {}
-        
-        try {
-            factory.createFileDesc(file, Collections.EMPTY_SET, 0);
-            fail("no sha1 urn should not be permitted for FileDesc constructor");
-        } catch(IllegalArgumentException ignored) {}
 	}
     
     /**
@@ -97,9 +92,11 @@ public final class FileDescTest extends org.limewire.gnutella.tests.LimeTestCase
         Iterator it = fileList.iterator();
         for(int i = 0; it.hasNext(); i++) {
             File file = (File)it.next();
+            factory.createFileDesc(file, Collections.EMPTY_SET, 0);
             Set urns = UrnHelper.calculateAndCacheURN(file, urnCache); 
             factory.createFileDesc(file, urns, i);
         }
+        
     }
     
     public void testIsRareFile() throws Exception {

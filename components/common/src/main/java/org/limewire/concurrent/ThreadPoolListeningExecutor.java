@@ -5,7 +5,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.limewire.listener.EventListener;
@@ -17,7 +16,7 @@ import org.limewire.listener.EventListener;
  * This allows an {@link EventListener} of {@link FutureEvent} to be added to
  * the Futures with {@link ListeningFuture#addFutureListener(EventListener)}.
  */
-public class ThreadPoolListeningExecutor extends ThreadPoolExecutor implements
+public class ThreadPoolListeningExecutor extends ErrorCatchingThreadPoolExecutor implements
         ListeningExecutorService {
 
     public ThreadPoolListeningExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,

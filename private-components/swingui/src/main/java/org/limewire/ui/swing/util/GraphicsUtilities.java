@@ -1,6 +1,6 @@
 package org.limewire.ui.swing.util;
 /*
- * $Id: GraphicsUtilities.java,v 1.10 2008/11/18 21:27:26 meverett Exp $
+ * $Id: GraphicsUtilities.java,v 1.11 2009/06/08 19:52:44 dsullivan Exp $
  *
  * Dual-licensed under LGPL (Sun and Romain Guy) and BSD (Romain Guy).
  *
@@ -384,9 +384,9 @@ public class GraphicsUtilities {
      * Creates a thumbnail of the source image. This scales the image in a single pass, resulting in
      * a low quality thumbnail but the aspect ratio of the image is still preserved.
      * 
-     * @param image - image to create a thumbnail of
-     * @param maxTargetWidth - max width the thumbnail can be
-     * @param maxTargetHeight - max height the thumbnail ca
+     * @param image image to create a thumbnail of
+     * @param maxTargetWidth max width the thumbnail can be
+     * @param maxTargetHeight max height the thumbnail ca
      */
     public static BufferedImage createRatioPreservedThumbnailFast(BufferedImage image, int maxWidth, int maxHeight) {
         int width = image.getWidth();
@@ -421,9 +421,9 @@ public class GraphicsUtilities {
      * Returns a thumbnail of the source image. This preserves the aspect ratio of the image. All images will
      * always be scaled to fit within the targetWidth and the taretHeight of the image. 
      * 
-     * @param image - image to create a thumbnail of
-     * @param maxTargetWidth - max width the thumbnail can be
-     * @param maxTargetHeight - max height the thumbnail can be
+     * @param image image to create a thumbnail of
+     * @param maxTargetWidth max width the thumbnail can be
+     * @param maxTargetHeight max height the thumbnail can be
      */
     @SuppressWarnings("null")
     public static BufferedImage createRatioPreservedThumbnail(BufferedImage image, int maxTargetWidth, int maxTargetHeight) {

@@ -105,7 +105,7 @@ public class TestUtils {
      * This method will find a jar with the given resource path and will extract the
      * contents from the first jar it finds that matches that path into a unique temporary
      * directory. Callers should delete the directory when they are done using it.
-     * 
+     * <p>
      * If the resource is found in the classpath as not a jar, then the resources are instead 
      * copied to the unique temp directory.
      */

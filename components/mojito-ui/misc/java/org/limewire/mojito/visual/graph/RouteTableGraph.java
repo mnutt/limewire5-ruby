@@ -63,7 +63,7 @@ public abstract class RouteTableGraph implements RouteTableListener {
         
         /**
          * Clears the tree and add this <tt>Vertex</tt>
-         * as the new root
+         * as the new root.
          */
         public synchronized void newRoot(Vertex root) {
             removeAllEdges();

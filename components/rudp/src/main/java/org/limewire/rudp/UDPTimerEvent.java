@@ -13,7 +13,7 @@ import org.apache.commons.logging.LogFactory;
  * When done with the event, unregister it.
  */
 public abstract class UDPTimerEvent implements Comparable<UDPTimerEvent> {
-	
+
     private static final Log LOG =
         LogFactory.getLog(UDPTimerEvent.class);
 
@@ -22,7 +22,7 @@ public abstract class UDPTimerEvent implements Comparable<UDPTimerEvent> {
     
     private volatile boolean _shouldUnregister;
     
-    /** the UDPConnectionProcessor this event refers to */
+    /** the UDPConnectionProcessor this event refers to. */
     protected final WeakReference<UDPConnectionProcessor> _udpCon;
 
    /**
@@ -34,24 +34,24 @@ public abstract class UDPTimerEvent implements Comparable<UDPTimerEvent> {
     }
     
     /**
-     * checks whether the UDPConnectionProcessor has been finalized and if so,
+     * Checks whether the UDPConnectionProcessor has been finalized and if so,
      * unregisters this event from the given scheduler
      * Also checks if this is event wants to unregister itself
      * @return whether the UDPConnectionProcessor was unregistered.
      */
     final boolean shouldUnregister() {
-    	
-    	if (_udpCon.get() == null || _shouldUnregister) {
-    		LOG.debug("Event decided to unregister itself");
-    		return  true;
-    	}
 
-    	return false;
+        if (_udpCon.get() == null || _shouldUnregister) {
+            LOG.debug("Event decided to unregister itself");
+            return  true;
+        }
+
+        return false;
     }
     
     protected final void unregister() {
-    	_shouldUnregister=true;
-    	_eventTime=1;
+        _shouldUnregister=true;
+        _eventTime=1;
     }
 
    /**
@@ -71,12 +71,12 @@ public abstract class UDPTimerEvent implements Comparable<UDPTimerEvent> {
 
   
     public final void handleEvent(){
-    	UDPConnectionProcessor udpCon = _udpCon.get();
-    	
-    	if (udpCon==null)
-    		return;
-    	
-    	doActualEvent(udpCon);
+        UDPConnectionProcessor udpCon = _udpCon.get();
+        
+        if (udpCon==null)
+            return;
+        
+        doActualEvent(udpCon);
     }
     
     /**

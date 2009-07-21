@@ -1,7 +1,5 @@
 package org.limewire.inject;
 
-import java.util.Arrays;
-
 import junit.framework.Test;
 
 import org.limewire.concurrent.AbstractLazySingletonProvider;
@@ -47,13 +45,13 @@ public class AbstractModuleTest extends BaseTestCase {
                 bind(S1.class).to(S1I.class);
             }
         });
-        Injector child = Guice.createInjector(Stage.PRODUCTION, Arrays.asList(Modules.providersFrom(parent), new AbstractModule() {
+        Injector child = parent.createChildInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(S2.class).to(S2I.class);
                 bind(S3I.class);
             }
-        }));
+        });
         
         assertSame(parent.getInstance(S1.class), child.getInstance(S1.class));
         assertTrue(S1I.created);

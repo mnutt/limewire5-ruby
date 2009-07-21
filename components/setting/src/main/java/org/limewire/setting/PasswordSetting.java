@@ -63,7 +63,6 @@ public final class PasswordSetting extends AbstractSetting<String> {
     }
 
     /**
-     * Returns the encryption algorithm
      * @return the encryption algorithm
      */
     public String getAlgorithm() {
@@ -72,7 +71,7 @@ public final class PasswordSetting extends AbstractSetting<String> {
     
     /**
      * Returns true if the passed password equals the
-     * current password
+     * current password.
      */
     public boolean equals(String password) {
         if (password == null) {
@@ -91,8 +90,6 @@ public final class PasswordSetting extends AbstractSetting<String> {
     }
     
     /**
-     * Returns the value of this setting.
-     * 
      * @return the value of this setting
      */
     public String get() {
@@ -109,7 +106,7 @@ public final class PasswordSetting extends AbstractSetting<String> {
     }
 
     /**
-     * Load value from property string value
+     * Load value from property string value.
      * 
      * @param sValue property string value
      */
@@ -124,7 +121,7 @@ public final class PasswordSetting extends AbstractSetting<String> {
     
     /**
      * Sets the algorithm and encrypts the password if
-     * necessary
+     * necessary.
      */
     private void postInitWithAlgorithm(String algorithm) {
         this.algorithm = algorithm;
@@ -136,7 +133,7 @@ public final class PasswordSetting extends AbstractSetting<String> {
     
     /**
      * Returns true if password is encrypted (i.e. starts with
-     * a known algorithm prefix)
+     * a known algorithm prefix).
      */
     private static boolean isEncrypted(String password) {
         for (String algorithm : ALGORITHMS) {
@@ -148,14 +145,14 @@ public final class PasswordSetting extends AbstractSetting<String> {
     }
     
     /**
-     * Encrypts the password and returns it as hex string
+     * Encrypts the password and returns it as hex string.
      */
     private static String encrypt(String algorithm, String password) {
         return encrypt(algorithm, "UTF-8", password);
     }
     
     /**
-     * Encrypts the password and returns it as hex string
+     * Encrypts the password and returns it as hex string.
      */
     private static String encrypt(String algorithm, String encoding, String password) {
         if (password == null)
@@ -175,7 +172,7 @@ public final class PasswordSetting extends AbstractSetting<String> {
     }
     
     /**
-     * Encodes and returns b as hex string
+     * Encodes and returns b as hex string.
      */
     private static String toHexString(byte[] bytes) {
         StringBuilder buffer = new StringBuilder(bytes.length * 2);

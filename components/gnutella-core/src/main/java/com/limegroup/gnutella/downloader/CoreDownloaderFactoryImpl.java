@@ -1,11 +1,12 @@
 package com.limegroup.gnutella.downloader;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.io.GUID;
 import org.limewire.io.InvalidDataException;
 
@@ -13,7 +14,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.limegroup.bittorrent.BTDownloader;
-import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.bittorrent.BTTorrentFileDownloader;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.browser.MagnetOptions;
@@ -56,7 +56,7 @@ public class CoreDownloaderFactoryImpl implements CoreDownloaderFactory {
 
     public ManagedDownloader createManagedDownloader(RemoteFileDesc[] files,
             GUID originalQueryGUID, File saveDirectory, String fileName, boolean overwrite)
-            throws SaveLocationException {
+            throws DownloadException {
         ManagedDownloader md = managedDownloaderFactory.get();
         md.addInitialSources(Arrays.asList(files), fileName);
         md.setQueryGuid(originalQueryGUID);
@@ -65,7 +65,7 @@ public class CoreDownloaderFactoryImpl implements CoreDownloaderFactory {
     }
 
     public MagnetDownloader createMagnetDownloader(MagnetOptions magnet, boolean overwrite,
-            File saveDirectory, String fileName) throws SaveLocationException {
+            File saveDirectory, String fileName) throws DownloadException {
         if (!magnet.isDownloadable())
             throw new IllegalArgumentException("magnet not downloadable");
         if (fileName == null)
@@ -79,7 +79,7 @@ public class CoreDownloaderFactoryImpl implements CoreDownloaderFactory {
     }
 
     public InNetworkDownloader createInNetworkDownloader(DownloadInformation info, File dir,
-            long startTime) throws SaveLocationException {
+            long startTime) throws DownloadException {
         InNetworkDownloader id = inNetworkDownloaderFactory.get();
         id.addInitialSources(null, info.getUpdateFileName());
         id.setSaveFile(dir, info.getUpdateFileName(), true);
@@ -88,7 +88,7 @@ public class CoreDownloaderFactoryImpl implements CoreDownloaderFactory {
     }
 
     public ResumeDownloader createResumeDownloader(File incompleteFile, String name, long size)
-            throws SaveLocationException {
+            throws DownloadException {
         ResumeDownloader rd = resumeDownloaderFactory.get();
         rd.addInitialSources(null, name);
         rd.setSaveFile(null, name, false);
@@ -97,16 +97,17 @@ public class CoreDownloaderFactoryImpl implements CoreDownloaderFactory {
     }
 
     public StoreDownloader createStoreDownloader(RemoteFileDesc rfd, File saveDirectory,
-            String fileName, boolean overwrite) throws SaveLocationException {
+            String fileName, boolean overwrite) throws DownloadException {
         StoreDownloader sd = storeDownloaderFactory.get();
         sd.addInitialSources(Collections.singletonList(rfd), fileName);
         sd.setSaveFile(saveDirectory, fileName, overwrite);
         return sd;
     }
 
-    public BTDownloader createBTDownloader(BTMetaInfo info) {
+    @Override
+    public BTDownloader createBTDownloader(File torrent, File saveDirectory) throws IOException {
         BTDownloader bd = btDownloaderFactory.get();
-        bd.initBtMetaInfo(info);
+        bd.init(torrent, saveDirectory);
         return bd;
     }
     
@@ -123,8 +124,8 @@ public class CoreDownloaderFactoryImpl implements CoreDownloaderFactory {
             CoreDownloader downloader = coreFactory.get();
             downloader.initFromMemento(memento);
             return downloader;
-        } catch (ClassCastException cce) {
-            throw new InvalidDataException("invalid memento!", cce);
+        } catch (Throwable t) {
+            throw new InvalidDataException("invalid memento!", t);
         }
     }
 

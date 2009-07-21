@@ -9,11 +9,14 @@ import org.limewire.concurrent.ListeningFuture;
 import org.limewire.concurrent.SimpleFuture;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.URN;
+import org.limewire.core.api.library.FileItem;
+import org.limewire.core.api.library.FileProcessingEvent;
 import org.limewire.core.api.library.LibraryFileList;
 import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
-import org.limewire.core.api.library.FileItem;
+import org.limewire.filter.Filter;
+import org.limewire.listener.EventListener;
 
 import com.limegroup.gnutella.library.FileDesc;
 
@@ -24,8 +27,17 @@ import ca.odell.glazedlists.impl.swing.SwingThreadProxyEventList;
 
 public class FileListAdapter implements LocalFileList, LibraryFileList {
 
-    private final EventList<LocalFileItem> eventList = GlazedLists.threadSafeList(new BasicEventList<LocalFileItem>());
-    private final EventList<LocalFileItem> swingEventList = new SwingThreadProxyEventList<LocalFileItem>(eventList);
+    private EventList<LocalFileItem> eventList = GlazedLists.threadSafeList(new BasicEventList<LocalFileItem>());
+    private EventList<LocalFileItem> swingEventList = new SwingThreadProxyEventList<LocalFileItem>(eventList);
+    
+    public FileListAdapter() {
+        
+    }
+    
+    public FileListAdapter(MockCombinedShareList combinedShareList) {
+        eventList = combinedShareList.createMemberList();
+        swingEventList = new SwingThreadProxyEventList<LocalFileItem>(eventList);
+    }
     
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -104,8 +116,38 @@ public class FileListAdapter implements LocalFileList, LibraryFileList {
     }
 
     @Override
-    public List<FileDesc> getFileDescsByURN(URN urn) {
+    public List<FileDesc> getFileDescsByURN(com.limegroup.gnutella.URN urn) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public boolean isFileAddable(File file) {
+        return true;
+    }
+
+    @Override
+    public void addFileProcessingListener(EventListener<FileProcessingEvent> listener) {
+        
+    }
+
+    @Override
+    public void removeFileProcessingListener(EventListener<FileProcessingEvent> listener) {
+        
+    }
+
+    @Override
+    public void removeFiles(Filter<LocalFileItem> fileFilter) {
+        
+    }
+
+    @Override
+    public void clear() {
+        eventList.clear();
+    }
+
+    @Override
+    public void cancelPendingTasks() {
+        
     }
 }

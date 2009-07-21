@@ -6,13 +6,12 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.listener.ListenerSupport;
 
-import com.limegroup.bittorrent.BTMetaInfo;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 import com.limegroup.gnutella.downloader.CoreDownloader;
@@ -145,14 +144,14 @@ LWSIntegrationServicesDelegate, PushedSocketHandler, ListenerSupport<DownloadMan
      * @param saveDir can be null, then the default save directory is used
      * @param fileName can be null, then the first filename of one of element of
      * <code>files</code> is taken.
-     * @throws SaveLocationException when there was an error setting the
+     * @throws DownloadException when there was an error setting the
      * location of the final download destination.
      *
      *     @modifies this, disk 
      */
     public Downloader download(RemoteFileDesc[] files, List<? extends RemoteFileDesc> alts,
             GUID queryGUID, boolean overwrite, File saveDir, String fileName)
-            throws SaveLocationException;
+            throws DownloadException;
 
     /**
      * Creates a new MAGNET downloader.  Immediately tries to download from
@@ -168,11 +167,11 @@ LWSIntegrationServicesDelegate, PushedSocketHandler, ListenerSupport<DownloadMan
      * @param saveDir can be null, then the default save directory is used
      * @param filename the final file name, or <code>null</code> if unknown
      * @exception IllegalArgumentException if the magnet is not downloadable
-     * @throws SaveLocationException if the file can't save because of an 
+     * @throws DownloadException if the file can't save because of an 
      * existing file in the location
      */
     public Downloader download(MagnetOptions magnet, boolean overwrite, File saveDir,
-            String fileName) throws IllegalArgumentException, SaveLocationException;
+            String fileName) throws IllegalArgumentException, DownloadException;
 
     /**
      * Creates a new LimeWire Store (LWS) download. Store downloads are handled 
@@ -190,42 +189,36 @@ LWSIntegrationServicesDelegate, PushedSocketHandler, ListenerSupport<DownloadMan
      * @param fileName name of the completed file
      * @return a download object
      * @throws IllegalArgumentException if there is a bad argument
-     * @throws SaveLocationException if the file is already downloading
+     * @throws DownloadException if the file is already downloading
      */
     public Downloader downloadFromStore(RemoteFileDesc rfd, boolean overwrite, File saveDir,
-            String fileName) throws IllegalArgumentException, SaveLocationException;
+            String fileName) throws IllegalArgumentException, DownloadException;
 
     /**
      * Starts a resume download for the given incomplete file.
      * @exception CantResumeException incompleteFile is not a valid 
      * incomplete file
-     * @throws SaveLocationException if the file can't save because of an 
+     * @throws DownloadException if the file can't save because of an 
      * existing file in the location 
      */
     public Downloader download(File incompleteFile) throws CantResumeException,
-            SaveLocationException;
+            DownloadException;
 
     /**
      * Downloads an InNetwork update, using the info from the DownloadInformation.
      */
-    public Downloader download(DownloadInformation info, long now) throws SaveLocationException;
+    public Downloader download(DownloadInformation info, long now) throws DownloadException;
 
     /**
      * Downloads the torrent file from the specified URI then begins the torrent download as a seperate item.
      */
-    public Downloader downloadTorrent(URI torrentURI, boolean overwrite) throws SaveLocationException;
+    public Downloader downloadTorrent(URI torrentURI, boolean overwrite) throws DownloadException;
     
     /**
      * Opens the torrent for the specified file, and begins the torrent download.
      */
-    public Downloader downloadTorrent(File torrentFile, boolean overwrite) throws SaveLocationException;
+    public Downloader downloadTorrent(File torrentFile, File saveDirectory, boolean overwrite) throws DownloadException;
     
-    /**
-     * Downloads the given torrent specified by the meta info object.
-     */
-    public Downloader downloadTorrent(BTMetaInfo info, boolean overwrite)
-            throws SaveLocationException;
-
     /**
      * Returns <code>true</code> if there already is a download with the same urn. 
      * @param urn may be <code>null</code>, then a check based on the fileName

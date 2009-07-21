@@ -11,6 +11,7 @@ import org.limewire.io.GUID;
 import org.limewire.io.NetworkUtils;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
+import org.limewire.net.ConnectBackRequest;
 import org.limewire.net.ConnectBackRequestedEvent;
 import org.limewire.net.SocketsManager;
 import org.limewire.net.SocketsManager.ConnectType;
@@ -238,7 +239,8 @@ public final class PushManager implements EventListener<ConnectBackRequestedEven
 
     @Override
     public void handleEvent(ConnectBackRequestedEvent event) {
+        ConnectBackRequest request = event.getData();
         // can assume false for lan, since same NAT resolver would have spotted that and opened a direct connection
-        acceptPushUpload(event.getAddress(), event.getClientGuid(), false, event.getSupportedFWTVersion() > 0);
+        acceptPushUpload(request.getAddress(), request.getClientGuid(), false, request.getSupportedFWTVersion() > 0);
     }
 }

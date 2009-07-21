@@ -11,12 +11,12 @@ package org.limewire.security;
 public interface SettingsProvider {
     
     /**
-     * Time in milliseconds
+     * Time in milliseconds.
      */
     public long getChangePeriod();
     
     /**
-     * Time in milliseconds
+     * Time in milliseconds.
      */
     public long getGracePeriod();
 }

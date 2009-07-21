@@ -43,7 +43,7 @@ public enum LicenseType {
     }
 
     /**
-     * Determines the license type based on the a license type and the actual license
+     * Determines the license type based on the a license type and the actual license.
      */
     public static LicenseType determineLicenseType(String license, String type) {
         if (hasCCLicense(license, type))

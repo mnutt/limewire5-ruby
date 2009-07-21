@@ -23,7 +23,8 @@ import com.google.inject.Provider;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.daap.DaapManager;
 import com.limegroup.gnutella.filters.IPFilter;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.Library;
 
 public class DaapManagerImplTest extends BaseTestCase {
 
@@ -39,8 +40,8 @@ public class DaapManagerImplTest extends BaseTestCase {
     @SuppressWarnings("unchecked")
     public void testStartingDaapServerConnectingToItAndStopping() throws Exception {
         Mockery context = new Mockery();
-        final FileManager fileManager = context.mock(FileManager.class);
-        final Provider<FileManager> fileManagerProvider = context.mock(Provider.class);
+        final Library library = context.mock(Library.class);
+        final FileView fileView  = context.mock(FileView.class);
         final ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1);
         final IPFilter ipFilter = context.mock(IPFilter.class);
         final Provider<IPFilter> ipFilterProvider = context.mock(Provider.class);
@@ -49,14 +50,12 @@ public class DaapManagerImplTest extends BaseTestCase {
                 .mock(Provider.class);
         final ActivityCallback activityCallback = context.mock(ActivityCallback.class);
         final Provider<ActivityCallback> activityCallbackProvider = context.mock(Provider.class);
-        DaapManager daapManager = new DaapManager(executorService, fileManagerProvider,
-                ipFilterProvider, networkInstanceUtilsProvider, activityCallbackProvider);
+        DaapManager daapManager = new DaapManager(executorService, ipFilterProvider,
+                networkInstanceUtilsProvider, activityCallbackProvider, fileView, library);
         DaapManagerImpl daapServer = new DaapManagerImpl(daapManager);
 
         context.checking(new Expectations() {
             {
-                allowing(fileManagerProvider).get();
-                will(returnValue(fileManager));
                 allowing(ipFilterProvider).get();
                 will(returnValue(ipFilter));
                 allowing(networkInstanceUtilsProvider).get();

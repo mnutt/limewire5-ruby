@@ -337,11 +337,13 @@ public class DIMERecord {
 
     /**
      * Returns one of the type constants:
+     * <pre>
      *  TYPE_UNCHANGED
      *  TYPE_MEDIA_TYPE
      *  TYPE_ABSOLUTE_URI
      *  TYPE_UNKNOWN
      *  TYPE_NONE
+     *  </pre>
      */
     public int getTypeId() {
         return _byte2 & TYPE_MASK;

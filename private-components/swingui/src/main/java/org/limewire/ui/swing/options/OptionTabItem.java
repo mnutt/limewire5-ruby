@@ -13,7 +13,7 @@ public interface OptionTabItem {
     String getId();
     
     /**
-     * Returns the OptionPanel associated with this tab
+     * Returns the OptionPanel associated with this tab.
      */
     public OptionPanel getOptionPanel();
     

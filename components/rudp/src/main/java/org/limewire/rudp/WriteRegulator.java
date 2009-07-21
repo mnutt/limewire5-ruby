@@ -10,19 +10,19 @@ public class WriteRegulator {
     private static final Log LOG =
       LogFactory.getLog(WriteRegulator.class);
 
-    /** Don't adjust the skipping of sleeps until the window has initialized */
+    /** Don't adjust the skipping of sleeps until the window has initialized. */
     private static final int   MIN_START_WINDOW     = 40;
 
-    /** When the window space hits this size, it is low */
+    /** When the window space hits this size, it is low. */
     private static final int   LOW_WINDOW_SPACE     = 4;
 
-    /** Cap the quick sending of blocks at this number */
+    /** Cap the quick sending of blocks at this number. */
     private static final int   MAX_SKIP_LIMIT       = 14;
 
-    /** The low failure rate at optimal throughput */
+    /** The low failure rate at optimal throughput. */
     private static final float LOW_FAILURE_RATE     = 3f / 100f;
 
-    /** The high failure rate at optimal throughput */
+    /** The high failure rate at optimal throughput. */
     private static final float HIGH_FAILURE_RATE    = 4f / 100f;
 
 
@@ -36,7 +36,7 @@ public class WriteRegulator {
 
 
     /** Keep track of how many successes/failures there are in 
-        writing messages */
+        writing messages. */
     private FailureTracker _tracker;
         
 
@@ -135,12 +135,12 @@ public class WriteRegulator {
             int multiple = LOW_WINDOW_SPACE / Math.max(1, receiverWindowSpace);
             sleepTime = (((int)srtt) * multiple) / (LOW_WINDOW_SPACE + 1);
 
-			if ( receiverWindowSpace <= (LOW_WINDOW_SPACE/2) ) {
-            	sleepTime = rto;
-				if(LOG.isDebugEnabled())  
-					LOG.debug("LOW_WINDOW sT:"+sleepTime);
-			}
-			minTime = sleepTime;
+            if ( receiverWindowSpace <= (LOW_WINDOW_SPACE/2) ) {
+                sleepTime = rto;
+                if(LOG.isDebugEnabled())  
+                    LOG.debug("LOW_WINDOW sT:"+sleepTime);
+            }
+            minTime = sleepTime;
         }
 
         if(LOG.isDebugEnabled())  
@@ -213,10 +213,10 @@ public class WriteRegulator {
 
             // If we are majorly affecting the RTT, then slow down right now
             if ( rtt > maxRTT || realRTT > maxRTT ) {
-				minTime = lowRTT / 4;
-				if ( gettingSlow == 0 )
-            		_skipLimit--;
-				gettingSlow = 50;
+                minTime = lowRTT / 4;
+                if ( gettingSlow == 0 )
+                    _skipLimit--;
+                gettingSlow = 50;
                 //sleepTime = (16*rtt) / 7;
                 if(LOG.isDebugEnabled())  
                     LOG.debug(
@@ -269,10 +269,10 @@ public class WriteRegulator {
 
         // Ensure that any minimum sleep time is enforced
         sleepTime = Math.max(sleepTime, minTime);
-		
-		// Reduce the gettingSlow indicator over time
-		if ( gettingSlow > 0 )
-			gettingSlow--;
+
+        // Reduce the gettingSlow indicator over time
+        if ( gettingSlow > 0 )
+            gettingSlow--;
 
         return sleepTime;
         //------------- Sleep ------------------------
@@ -280,14 +280,14 @@ public class WriteRegulator {
 
 
     /** 
-     * Record a message success 
+     * Record a message success.
      */
     public void addMessageSuccess() {
         _tracker.addSuccess();
     }
 
     /** 
-     * Record a message failure 
+     * Record a message failure.
      */
     public void addMessageFailure() {
         _tracker.addFailure();
@@ -295,41 +295,41 @@ public class WriteRegulator {
 
 
     /**
-     *  Keep track of overall successes and failures 
+     *  Keep track of overall successes and failures. 
      */
     private class FailureTracker {
 
-    	private static final int HISTORY_SIZE=100;
-    	
-    	private final byte [] _data = new byte[HISTORY_SIZE];
-    	
-    	private boolean _rollover =false;
-    	private int _index;
+        private static final int HISTORY_SIZE=100;
+        
+        private final byte [] _data = new byte[HISTORY_SIZE];
+        
+        private boolean _rollover =false;
+        private int _index;
 
 
         /**
-         * Add one to the successful count
+         * Add one to the successful count.
          */
         public void addSuccess() {
 
-        	_data[_index++]=1;
-        	if (_index>=HISTORY_SIZE-1){
-        		LOG.debug("rolled over");
-        		_index=0;
-        		_rollover=true;
-        	}
+            _data[_index++]=1;
+            if (_index>=HISTORY_SIZE-1){
+                LOG.debug("rolled over");
+                _index=0;
+                _rollover=true;
+            }
         }
 
         /**
-         * Add one to the failure count
+         * Add one to the failure count.
          */
         public void addFailure() {
-        	_data[_index++]=0;
-        	if (_index>=HISTORY_SIZE-1){
-        		LOG.debug("rolled over");
-        		_index=0;
-        		_rollover=true;
-        	}
+            _data[_index++]=0;
+            if (_index>=HISTORY_SIZE-1){
+                LOG.debug("rolled over");
+                _index=0;
+                _rollover=true;
+            }
         }
 
         /**
@@ -342,23 +342,23 @@ public class WriteRegulator {
         }
 
         /**
-         * Compute the failure rate of last HISTORY_SIZE blocks once up and running
+         * Compute the failure rate of last HISTORY_SIZE blocks once up and running.
          */
         public float failureRate() {
 
-        	int total=0;
-        	for (int i=0;i < (_rollover ? HISTORY_SIZE : _index);i++)
-        		total+=_data[i];
-        	
-        	if (LOG.isDebugEnabled()) {
-        		LOG.debug("failure rate from "+_index+ 
-        				" measurements and rollover "+_rollover+
-        				" total is "+total+
-						" and rate "+ 
-						(1- (float)total / (float)(_rollover ? HISTORY_SIZE : _index)));
-        	}
-        	
-        	return 1- ((float)total / (float)(_rollover ? HISTORY_SIZE : _index));
+            int total=0;
+            for (int i=0;i < (_rollover ? HISTORY_SIZE : _index);i++)
+                total+=_data[i];
+            
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("failure rate from "+_index+ 
+                        " measurements and rollover "+_rollover+
+                        " total is "+total+
+                        " and rate "+ 
+                        (1- (float)total / (float)(_rollover ? HISTORY_SIZE : _index)));
+            }
+            
+            return 1- ((float)total / (float)(_rollover ? HISTORY_SIZE : _index));
         }
 
         

@@ -8,7 +8,7 @@ import net.roydesign.event.ApplicationEvent;
 import net.roydesign.mac.MRJAdapter;
 
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.lifecycle.LifeCycleManager;
 import org.limewire.ui.swing.event.AboutDisplayEvent;
 import org.limewire.ui.swing.event.ExitApplicationEvent;
@@ -123,14 +123,20 @@ public class MacEventHandler {
                 externalControl.enqueueControlRequest(file.getAbsolutePath());
             } else {
                 try {
-                    downloadManager.downloadTorrent(file, false);
-                } catch (SaveLocationException e) {
-                    activityCallback.handleSaveLocationException(new DownloadAction() {
+                    downloadManager.downloadTorrent(file, null, false);
+                } catch (DownloadException e) {
+                    activityCallback.handleDownloadException(new DownloadAction() {
                         @Override
-                        public void download(File saveFile, boolean overwrite)
-                                throws SaveLocationException {
-                            downloadManager.downloadTorrent(file, overwrite);
+                        public void download(File saveDirectory, boolean overwrite)
+                                throws DownloadException {
+                            downloadManager.downloadTorrent(file, saveDirectory, overwrite);
                         }
+
+                        @Override
+                        public void downloadCanceled(DownloadException ignored) {
+                            //nothing to do
+                        }
+
                     }, e, false);
 
                 }

@@ -28,7 +28,7 @@ public class ThrottleWriter implements ChannelWriter, InterestWritableByteChanne
     /** The amount of data we were told we can write. */
     private int available;
     
-    /** Whether we interested the channel last time */
+    /** Whether we interested the channel last time. */
     private boolean channelInterested;
     
     private final Listener throttleListener;
@@ -169,7 +169,7 @@ public class ThrottleWriter implements ChannelWriter, InterestWritableByteChanne
             listener.shutdown();
     }
     
-    /** Unused, Unsupported */
+    /** Unused, Unsupported. */
     public void handleIOException(IOException x) {
         throw new RuntimeException("Unsupported", x);
     }
@@ -211,7 +211,7 @@ public class ThrottleWriter implements ChannelWriter, InterestWritableByteChanne
     
     private final class Listener implements ThrottleListener {        
 
-        /** The object that the Throttle will recognize as the SelectionKey attachments */
+        /** The object that the Throttle will recognize as the SelectionKey attachments. */
         private Object attachment;
         
         /**

@@ -15,6 +15,7 @@ import ca.odell.glazedlists.PopularityList;
 import ca.odell.glazedlists.RangeList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.ThresholdList;
+import ca.odell.glazedlists.TransactionList;
 import ca.odell.glazedlists.UniqueList;
 import ca.odell.glazedlists.CollectionList.Model;
 import ca.odell.glazedlists.FunctionList.Function;
@@ -127,6 +128,16 @@ public class GlazedListsFactory {
             lock.unlock();
         }
     }
+    
+    public static <E, S> SimpleFunctionList<S, E> simpleFunctionList(EventList<S> source, Function<S,E> forward) {
+        Lock lock = source.getReadWriteLock().readLock();
+        lock.lock();
+        try {            
+            return new SimpleFunctionList<S, E>(source, forward);
+        } finally {
+            lock.unlock();
+        }
+    } 
     
     public static <E> GroupingList<E> groupingList(EventList<E> source) {
         Lock lock = source.getReadWriteLock().readLock();
@@ -283,6 +294,16 @@ public class GlazedListsFactory {
         lock.lock();
         try {            
             return new UniqueList<E>(source, comparator);
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    public static <E> TransactionList<E> transactionList(EventList<E> source) {
+        Lock lock = source.getReadWriteLock().readLock();
+        lock.lock();
+        try {            
+            return new TransactionList<E>(source);
         } finally {
             lock.unlock();
         }

@@ -10,16 +10,14 @@ public class LimeAssociationOption {
     /** The association. */
     private final ShellAssociation association;
 
-    /** A short name & description */
+    /** A short name & description. */
     private final String name, description;
 
     /**
      * Constructs a new LimeAssociationOption linking a ShellAssociation to a
      * setting, short name & description.
      * 
-     * @param association The ShellAssociation
-     * @param setting The Setting to control whether it should be registered
-     *        automatically
+     * @param association the ShellAssociation
      * @param name A short name of the association
      * @param description A description of the association
      */
@@ -32,8 +30,6 @@ public class LimeAssociationOption {
     /**
      * Either links or delinks the association to this program. This does not
      * effect the setting.
-     * 
-     * @param enabled
      */
     public void setEnabled(boolean enabled) {
         if (enabled) {

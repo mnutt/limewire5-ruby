@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,7 +17,6 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JWindow;
-import javax.swing.text.html.StyleSheet;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -30,6 +28,7 @@ import org.limewire.listener.ListenerSupport;
 import org.limewire.ui.swing.animate.AnimatorEvent;
 import org.limewire.ui.swing.animate.FadeInOutAnimator;
 import org.limewire.ui.swing.animate.MoveAnimator;
+import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.util.StringUtils;
 import org.limewire.util.SystemUtils;
@@ -123,7 +122,7 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
             StringBuffer titleBuffer1 = new StringBuffer();
             StringBuffer remainingMessage = buildLine(titleBuffer1, title, titleFont, 150);
             titleLine1 = titleBuffer1.toString().trim();
-            titleLine2 = getTruncatedMessage(remainingMessage.toString().trim(), titleFont, 180);
+            titleLine2 = FontUtils.getTruncatedMessage(remainingMessage.toString().trim(), titleFont, 180);
         }
 
         JLabel titleLabel1 = new JLabel(titleLine1);
@@ -144,7 +143,7 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
         StringBuffer remainingMessage = buildLine(messageBuffer1, message, bodyFont, 180);
 
         String messageLine1 = messageBuffer1.toString().trim();
-        String messageLine2 = getTruncatedMessage(remainingMessage.toString().trim(), bodyFont, 180);
+        String messageLine2 = FontUtils.getTruncatedMessage(remainingMessage.toString().trim(), bodyFont, 180);
 
         JLabel messageLabel1 = new JLabel(messageLine1);
         messageLabel1.setFont(bodyFont);
@@ -237,7 +236,7 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
         // find the first line.
         while (message.hasMoreTokens()) {
             String currentToken = message.nextToken();
-            int pixels = getPixelWidth(line + currentToken, font);
+            int pixels = FontUtils.getPixelWidth(line + currentToken, font);
             if (pixels < (pixelWidth)) {
                 line.append(currentToken);
                 if (message.hasMoreTokens()) {
@@ -261,26 +260,6 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
         }
 
         return remaining;
-    }
-
-    /**
-     * Truncates the given message to a maxWidth in pixels.
-     */
-    private String getTruncatedMessage(String message, Font font, int maxWidth) {
-        String ELIPSES = "...";
-        while (getPixelWidth(message, font) > (maxWidth)) {
-            message = message.substring(0, message.length() - (ELIPSES.length() + 1)) + ELIPSES;
-        }
-        return message;
-    }
-
-    /**
-     * Returns the width of the message in the given font and editor kit.
-     */
-    private int getPixelWidth(String text, Font font) {
-        StyleSheet css = new StyleSheet();
-        FontMetrics fontMetrics = css.getFontMetrics(font);
-        return fontMetrics.stringWidth(text);
     }
 
     /**

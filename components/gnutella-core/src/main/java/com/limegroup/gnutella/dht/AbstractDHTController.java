@@ -83,7 +83,7 @@ public abstract class AbstractDHTController implements DHTController {
     protected final Log LOG = LogFactory.getLog(getClass());
     
     /**
-     * The instance of the DHT
+     * The instance of the DHT.
      */
     protected final MojitoDHT dht;
 
@@ -103,17 +103,17 @@ public abstract class AbstractDHTController implements DHTController {
     private final NodeForwarder nodeForwarder = new NodeForwarder();
     
     /**
-     * The DHT event dispatcher
+     * The DHT event dispatcher.
      */
     private final EventDispatcher<DHTEvent, DHTEventListener> dispatcher;
     
     /**
-     * The mode of this DHTController
+     * The mode of this DHTController.
      */
     private final DHTMode mode;
     
     /**
-     * Get and save the current RouteTable version
+     * Get and save the current RouteTable version.
      */
     private final int routeTableVersion;
     
@@ -192,14 +192,14 @@ public abstract class AbstractDHTController implements DHTController {
     }
 
     /**
-     * Returns the current RouteTable version
+     * Returns the current RouteTable version.
      */
     protected final int getRouteTableVersion() {
         return routeTableVersion;
     }
     
     /**
-     * A factory method to create MojitoDHTs
+     * A factory method to create MojitoDHTs.
      */
     protected abstract MojitoDHT createMojitoDHT(Vendor vendor, Version version);
     

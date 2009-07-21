@@ -24,13 +24,15 @@ import org.limewire.core.settings.NetworkSettings;
 import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.http.httpclient.HttpClientUtils;
-import org.limewire.http.httpclient.LimeHttpClient;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.limegroup.gnutella.Response;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -43,13 +45,14 @@ public class BrowseTest extends LimeTestCase {
 
     private final int PORT = 6668;
 
-    private HttpClient client;
+    @Inject private HttpClient client;
 
     protected String protocol;
 
-    private FileManager fileManager;
-
-    private MessageFactory messageFactory;
+    @Inject private Library library;
+    @Inject @GnutellaFiles private FileView gnutellaFileView;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
+    @Inject private MessageFactory messageFactory;
     
     private String host;
     
@@ -71,13 +74,9 @@ public class BrowseTest extends LimeTestCase {
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
         NetworkSettings.PORT.setValue(PORT);
 
-        Injector injector = LimeTestUtils.createInjectorAndStart();
+        LimeTestUtils.createInjectorAndStart(LimeTestUtils.createModule(this));
         
-        fileManager = injector.getInstance(FileManager.class);
-        messageFactory = injector.getInstance(MessageFactory.class);
-        client = injector.getInstance(LimeHttpClient.class);
-        
-        FileManagerTestUtils.waitForLoad(fileManager,2000);
+        FileManagerTestUtils.waitForLoad(library,2000);
         File shareDir = LimeTestUtils.getDirectoryWithLotsOfFiles();
         File[] testFiles = shareDir.listFiles(new FileFilter() {
             public boolean accept(File file) {
@@ -86,7 +85,7 @@ public class BrowseTest extends LimeTestCase {
         });
         assertGreaterThan("Not enough files to test against", 50, testFiles.length);
         for(File file : testFiles) {
-            assertNotNull(fileManager.getGnutellaFileList().add(file).get(1, TimeUnit.SECONDS));
+            assertNotNull(gnutellaFileCollection.add(file).get(1, TimeUnit.SECONDS));
         }
         
         host = protocol + "://localhost:" + PORT;
@@ -123,15 +122,15 @@ public class BrowseTest extends LimeTestCase {
                 }
             }
 
-            assertEquals(fileManager.getGnutellaFileList().size(), files.size());
-            fileManager.getGnutellaFileList().getReadLock().lock();
+            assertEquals(gnutellaFileView.size(), files.size());
+            gnutellaFileView.getReadLock().lock();
             try {
-                for(FileDesc result : fileManager.getGnutellaFileList()) {
+                for(FileDesc result : gnutellaFileView) {
                     boolean contained = files.remove(result.getFileName());
                     assertTrue("File is missing in browse response: " + result.getFileName(), contained);
                 }
             } finally {
-                fileManager.getGnutellaFileList().getReadLock().unlock();
+                gnutellaFileView.getReadLock().unlock();
             }
             assertTrue("Browse returned more results than shared: " + files, files.isEmpty());
         } finally {

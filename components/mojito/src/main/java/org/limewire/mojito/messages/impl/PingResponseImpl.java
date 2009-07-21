@@ -33,7 +33,7 @@ import org.limewire.mojito.routing.Version;
 
 
 /**
- * An implementation of PingResponse (Pong)
+ * An implementation of PingResponse (Pong).
  */
 public class PingResponseImpl extends AbstractResponseMessage
         implements PingResponse {

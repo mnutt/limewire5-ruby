@@ -1,6 +1,5 @@
 D/jmock////
 /bcel.jar/1.1/Tue Dec  4 22:55:52 2007/-kb/
-/inspTool.jar/1.2/Wed Jan 16 22:16:19 2008/-kb/
 /javax.servlet-5.1.12.jar/1.2/Tue Sep  2 22:36:18 2008/-kb/
 /jaxen-core-1.0-fcs.jar/1.1/Tue Dec  4 22:55:52 2007/-kb/
 /jing.jar/1.1/Tue Dec  4 22:55:52 2007/-kb/
@@ -10,3 +9,4 @@ D/jmock////
 /pmd.jar/1.1/Tue Dec  4 22:55:52 2007/-kb/
 /saxpath-1.0-fcs.jar/1.1/Tue Dec  4 22:55:52 2007/-kb/
 /xerces.jar/1.1/Tue Dec  4 22:55:52 2007/-kb/
+/inspTool-0.3.jar/1.1/Thu Jun 11 00:33:47 2009/-kb/

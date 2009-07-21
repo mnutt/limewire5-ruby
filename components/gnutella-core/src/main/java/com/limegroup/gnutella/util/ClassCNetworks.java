@@ -67,7 +67,7 @@ public class ClassCNetworks {
         return ret;
     }
     
-    /** returns the top n class C networks in easy to bencode format */ 
+    /** Returns the top n class C networks in easy to bencode format.*/ 
     public byte [] getTopInspectable(int number) {
         List<Map.Entry<Integer, Integer>> top = getTop();
         number = Math.min(top.size(), number);
@@ -96,7 +96,7 @@ public class ClassCNetworks {
     }
     
     /**
-     * Combines the provided class C networks into this one
+     * Combines the provided class C networks into this one.
      */
     public void addAll(ClassCNetworks... other) {
         for(ClassCNetworks c : other) {

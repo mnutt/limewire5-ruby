@@ -50,11 +50,11 @@ public interface SourceRanker {
     public int calculateWaitTime();
 
     /**
-     * stops the ranker, clearing any state
+     * Stops the ranker, clearing any state.
      */
     public void stop();
 
-    /** sets the Mesh handler if any */
+    /** Sets the Mesh handler if any. */
     public void setMeshHandler(MeshHandler handler);
 
     /** 

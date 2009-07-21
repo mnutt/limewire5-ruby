@@ -16,34 +16,36 @@ import org.limewire.service.ErrorService;
  */
 public class CircularByteBuffer {
 
-	private static final DevNull DEV_NULL = new DevNull();
-	
-	private final ByteBufferCache cache;
-	private final int capacity;
+    private static final DevNull DEV_NULL = new DevNull();
+
+    private final ByteBufferCache cache;
+
+    private final int capacity;
+
     private ByteBuffer in, out;
-    
+
     private ByteOrder order = ByteOrder.BIG_ENDIAN;
-    
+
     private boolean lastOut = true;
-    
+
     public CircularByteBuffer(int capacity, ByteBufferCache cache) {
-    	this.cache = cache;
-    	this.capacity = capacity;
+        this.cache = cache;
+        this.capacity = capacity;
     }
-    
+
     private void initBuffers() {
-    	if (in == null) {
-    		assert out == null;
-    		in = cache.getHeap(capacity);
-    		out = in.asReadOnlyBuffer();
-    	} else 
-    		assert out != null;
+        if (in == null) {
+            assert out == null;
+            in = cache.getHeap(capacity);
+            out = in.asReadOnlyBuffer();
+        } else
+            assert out != null;
     }
 
     public final int remainingIn() {
-    	if (in == null)
-    		return capacity;
-    	
+        if (in == null)
+            return capacity;
+
         int i = in.position();
         int o = out.position();
         if (i > o)
@@ -63,9 +65,9 @@ public class CircularByteBuffer {
             throw new BufferOverflowException();
         
         if (src.hasRemaining())
-        	lastOut = false;
+            lastOut = false;
         else 
-        	return;
+            return;
         
         initBuffers();
         if (src.remaining() > in.remaining()) {
@@ -115,9 +117,9 @@ public class CircularByteBuffer {
             throw new BufferUnderflowException();
         
         if (length > 0)
-        	lastOut = true;
+            lastOut = true;
         else
-        	return;
+            return;
         
         if (out.remaining() < length) {
             int remaining = out.remaining();
@@ -136,9 +138,9 @@ public class CircularByteBuffer {
             throw new BufferUnderflowException();
         
         if (dest.remaining() > 0)
-        	lastOut = true;
+            lastOut = true;
         else
-        	return;
+            return;
         
         if (out.remaining() < dest.remaining()) { 
             dest.put(out);
@@ -151,11 +153,11 @@ public class CircularByteBuffer {
     }
     
     private void releaseIfEmpty() {
-    	if (in != null && out != null && out.position() == in.position()) {
-    		cache.release(in);
-    		in = null;
-    		out = null;
-    	}
+        if (in != null && out != null && out.position() == in.position()) {
+            cache.release(in);
+            in = null;
+            out = null;
+        }
     }
     
     public int write(WritableByteChannel sink, int len) throws IOException {
@@ -165,16 +167,16 @@ public class CircularByteBuffer {
             if (!out.hasRemaining())
                 out.rewind();
             if (in.position() > out.position()) {
-            	if (len == Integer.MAX_VALUE)
-            		out.limit(in.position());
-            	else
-            		out.limit(Math.min(in.position(), len - written + out.position()));
+                if (len == Integer.MAX_VALUE)
+                    out.limit(in.position());
+                else
+                    out.limit(Math.min(in.position(), len - written + out.position()));
             }
             try {
-            	thisTime = sink.write(out);
+                thisTime = sink.write(out);
             } finally {
-            	if (thisTime > 0)
-            		lastOut = true;
+                if (thisTime > 0)
+                    lastOut = true;
             }
             
             out.limit(out.capacity());
@@ -188,11 +190,11 @@ public class CircularByteBuffer {
     }
     
     public int write(WritableByteChannel sink) throws IOException {
-    	return write(sink, Integer.MAX_VALUE);
+        return write(sink, Integer.MAX_VALUE);
     }
     
     /**
-     * Reads data from the source channel
+     * Reads data from the source channel.
      * @return the amount of data read, >= 0
      * @throws IOException if an error occurred or 
      * no data was read and end of stream was reached.
@@ -208,19 +210,19 @@ public class CircularByteBuffer {
             if (out.position() > in.position()) 
                 in.limit(out.position());
             try {
-            	thisTime = source.read(in);
+                thisTime = source.read(in);
             } finally {
-            	if (thisTime > 0)
-            		lastOut = false;
+                if (thisTime > 0)
+                    lastOut = false;
             }
             
             in.limit(in.capacity());
             if (thisTime == 0)
                 break;
             if (thisTime == -1) {
-            	if (read == 0)
-            		throw new IOException();
-            	return read;
+                if (read == 0)
+                    throw new IOException();
+                return read;
             }
             
             read += thisTime;
@@ -234,55 +236,56 @@ public class CircularByteBuffer {
     }
     
     public int capacity() {
-    	return capacity;
+        return capacity;
     }
     
     @Override
     public String toString() {
-    	return "circular buffer in:"+in+" out:"+out;
+        return "circular buffer in:"+in+" out:"+out;
     }
     
     public void order(ByteOrder order) {
-    	this.order = order;
+        this.order = order;
     }
     
     public int getInt() throws BufferUnderflowException {
-    	if (remainingOut() < 4) 
-    		throw new BufferUnderflowException();
-    	
-    	if (order == ByteOrder.BIG_ENDIAN)
-    		return getU() << 24 | getU() << 16 | getU() << 8 | getU();
-    	else
-    		return getU() | getU() << 8 | getU() << 16 | getU() << 24;
+        if (remainingOut() < 4)
+            throw new BufferUnderflowException();
+
+        if (order == ByteOrder.BIG_ENDIAN)
+            return getU() << 24 | getU() << 16 | getU() << 8 | getU();
+        else
+            return getU() | getU() << 8 | getU() << 16 | getU() << 24;
     }
-    
+
     private int getU() {
-    	return get() & 0xFF;
+        return get() & 0xFF;
     }
-    
+
     public void discard(int num) {
-    	if (remainingOut() < num)
-    		throw new BufferUnderflowException();
-    	try {
-    		write(DEV_NULL, num);
-    	} catch (IOException impossible){
-    		ErrorService.error(impossible);
-    	}
+        if (remainingOut() < num)
+            throw new BufferUnderflowException();
+        try {
+            write(DEV_NULL, num);
+        } catch (IOException impossible) {
+            ErrorService.error(impossible);
+        }
     }
-    
+
     private static class DevNull implements WritableByteChannel {
 
-		public int write(ByteBuffer src) throws IOException {
-			int ret = src.remaining();
-			src.position(src.limit());
-			return ret;
-		}
+        public int write(ByteBuffer src) throws IOException {
+            int ret = src.remaining();
+            src.position(src.limit());
+            return ret;
+        }
 
-		public void close() throws IOException {}
+        public void close() throws IOException {
+        }
 
-		public boolean isOpen() {
-			return true;
-		}
-    	
+        public boolean isOpen() {
+            return true;
+        }
+
     }
 }

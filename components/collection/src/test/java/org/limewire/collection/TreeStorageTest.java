@@ -20,7 +20,7 @@ public class TreeStorageTest extends BaseTestCase {
     }
     
     /**
-     * Generator that does simple xor
+     * Generator that does simple XOR.
      */
     private final NodeGenerator xorGen = new NodeGenerator() {
         public byte [] generate(byte [] left, byte [] right) {
@@ -76,7 +76,7 @@ public class TreeStorageTest extends BaseTestCase {
     }
     
     /**
-     * Test basic functionality
+     * Test basic functionality.
      */
     public void testGeneral() throws Exception {
         
@@ -106,7 +106,7 @@ public class TreeStorageTest extends BaseTestCase {
         assertTrue(storage.getVerifiedNodes().contains(4));
         assertTrue(storage.getVerifiedNodes().contains(5));
         
-        // when we add 8 and 9 node 4 will dissapear
+        // when we add 8 and 9 node 4 will disappear
         storage.add(8, tree.get(8));
         assertFalse(storage.getVerifiedNodes().contains(8));
         assertTrue(storage.getVerifiedNodes().contains(4));
@@ -117,7 +117,7 @@ public class TreeStorageTest extends BaseTestCase {
         assertFalse(storage.getVerifiedNodes().contains(4));
         
         
-        // if we use 8 and 9 they will dissapear
+        // if we use 8 and 9 they will disappear
         // and 4 will appear
         storage.used(8);
         assertTrue(storage.getVerifiedNodes().contains(8));
@@ -130,7 +130,7 @@ public class TreeStorageTest extends BaseTestCase {
         assertFalse(storage.getVerifiedNodes().contains(9));
         assertTrue(storage.getUsedNodes().contains(4));
         
-        // if we use 5 then 4 and 5 will dissapear
+        // if we use 5 then 4 and 5 will disappear
         // and 2 will appear
         assertFalse(storage.getVerifiedNodes().contains(2));
         storage.used(5);

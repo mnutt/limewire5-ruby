@@ -10,11 +10,6 @@ public class MockAddressFactory implements AddressFactory{
     }
 
     @Override
-    public AddressSerializer getSerializer(Class<? extends Address> addressClass) throws IllegalArgumentException {
-        return new MockAddressSerializer();
-    }
-
-    @Override
     public AddressSerializer getSerializer(String addressType) {
         return new MockAddressSerializer();
     }
@@ -27,5 +22,10 @@ public class MockAddressFactory implements AddressFactory{
     @Override
     public Address deserialize(String address) throws IOException {
         return new MockAddress();
+    }
+
+    @Override
+    public AddressSerializer getSerializer(Address address) throws IllegalArgumentException {
+        return new MockAddressSerializer();
     }
 }

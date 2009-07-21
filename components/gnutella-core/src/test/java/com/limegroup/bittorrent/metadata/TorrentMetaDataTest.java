@@ -15,8 +15,8 @@ import org.limewire.util.BaseTestCase;
 import org.limewire.util.NameValue;
 import org.limewire.util.URIUtils;
 
-import com.limegroup.bittorrent.BTData;
-import com.limegroup.bittorrent.BTData.BTFileData;
+import org.limewire.bittorrent.BTData;
+import org.limewire.bittorrent.BTData.BTFileData;
 
 public class TorrentMetaDataTest extends BaseTestCase {
 

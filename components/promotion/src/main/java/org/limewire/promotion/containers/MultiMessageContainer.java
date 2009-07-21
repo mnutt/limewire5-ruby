@@ -30,7 +30,7 @@ public class MultiMessageContainer extends MapMessageContainer {
 
     /**
      * @return the wrapped bytes, or a new empty array if there is a problem
-     *         loading the array.
+     *         loading the array
      */
     private byte[] getWrappedBytes() {
         final byte[] bytes = getBytes(KEY_WRAPPED_BYTES);
@@ -45,7 +45,7 @@ public class MultiMessageContainer extends MapMessageContainer {
     /**
      * @return a list of wrapped messages, in the same order they were added.
      *         This method does not cache results, so a second call will create
-     *         a new list with new instances of the wrapped messages.
+     *         a new list with new instances of the wrapped messages
      */
     public List<MessageContainer> getWrappedMessages() {
         final List<MessageContainer> list = new ArrayList<MessageContainer>();

@@ -10,7 +10,7 @@ public interface MetaDataFactory {
     
     /**
      * Returns an editor for a file if one exists or null if LimeWire
-     * does not support editing the file type meta data
+     * does not support editing the file type meta data.
      */
     public MetaWriter getEditorForFile(String name);
     
@@ -22,7 +22,7 @@ public interface MetaDataFactory {
     
     /**
      * Reads the meta data from the file if the file type is supported
-     * or return null if reading the file meta data if not supprted
+     * or return null if reading the file meta data if not supported.
      */
     public MetaData parse(File f) throws IOException;
     
@@ -45,7 +45,7 @@ public interface MetaDataFactory {
     public boolean containsVideoReader(File f);
     
     /**
-     * Registers a reader factory for a number of file extensions
+     * Registers a reader factory for a number of file extensions.
      * @throws IllegalArgumentException if another factory is already registered
      * for one of the given extensions
      */

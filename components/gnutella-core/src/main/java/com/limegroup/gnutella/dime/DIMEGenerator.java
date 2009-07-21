@@ -12,13 +12,14 @@ import java.util.List;
  * See: http://www-106.ibm.com/developerworks/library/ws-dime/
  * (or http://www.perfectxml.com/DIME.asp )
  * for information about DIME.
- *
+ * <pre>
  * To use this class, use:
  *     DIMEGenerator gen = new DIMEGenerator();
  *     gen.add(recordOne);
  *     gen.add(recordTwo);
  *     etc...
  *     gen.write(myOutputStream);
+ * </pre>
  * To write the same records to another output stream, simply call
  *     gen.write(anotherOutputStream);
  * again.
@@ -52,7 +53,7 @@ public class DIMEGenerator {
     
     /**
      * Writes the given list of DIMERecords to a stream.
-     *
+     * <p>
      * Does not do chunking.
      */
     public void write(OutputStream out) throws IOException {

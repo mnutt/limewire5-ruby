@@ -29,7 +29,7 @@ public class CollectionUtils {
 
     /**
      * Converts the given Collection to a Set (if it isn't
-     * already a Set)
+     * already a Set).
      */
     public static <T> Set<T> toSet(Collection<T> c) {
         if (c instanceof Set) {
@@ -41,7 +41,7 @@ public class CollectionUtils {
 
     /**
      * Converts the given Collection to a List (if it isn't
-     * already a List)
+     * already a List).
      */
     public static <T> List<T> toList(Collection<T> c) {
         if (c instanceof List) {

@@ -10,7 +10,7 @@ public final class LogUtils {
     }
 
     /**
-     * Returns wheather or not the Log4J library is available
+     * Returns whether or not the Log4J library is available.
      */
     public static boolean isLog4JAvailable() {
         try {

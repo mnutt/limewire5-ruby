@@ -1,12 +1,17 @@
 package org.limewire.ui.swing.friends.login;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.assistedinject.FactoryProvider;
 
 public class LimeWireUiFriendsLoginModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        bind(FriendActions.class).to(FriendsSignInPanel.class);
+        bind(XMPPUserEntryLoginPanelFactory.class).toProvider(
+              FactoryProvider.newFactory(XMPPUserEntryLoginPanelFactory.class, XMPPUserEntryLoginPanel.class));
+        bind(AutoLoginService.class);
+        bind(FacebookLoginActionFactory.class).toProvider(FactoryProvider.newFactory(FacebookLoginActionFactory.class,
+                FacebookLoginAction.class));
     }
 
 }

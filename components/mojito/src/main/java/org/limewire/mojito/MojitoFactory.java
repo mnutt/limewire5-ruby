@@ -80,9 +80,9 @@ public class MojitoFactory {
      */
     private static Context create(String name, boolean firewalled) {
         return create(name, 
-        			ContextSettings.getVendor(), 
-        			ContextSettings.getVersion(), 
-        			firewalled);
+                    ContextSettings.getVendor(), 
+                    ContextSettings.getVersion(), 
+                    firewalled);
     }
     
     /**

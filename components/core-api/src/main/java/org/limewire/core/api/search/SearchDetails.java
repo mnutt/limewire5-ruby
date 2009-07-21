@@ -9,7 +9,18 @@ import org.limewire.core.api.FilePropertyKey;
  */
 public interface SearchDetails {
     
-    public static enum SearchType { KEYWORD, WHATS_NEW };
+    public static enum SearchType {
+        KEYWORD(false), WHATS_NEW(false), SINGLE_BROWSE(true), MULTIPLE_BROWSE(true), ALL_FRIENDS_BROWSE(true);
+        private final boolean browse;
+
+        SearchType(boolean isBrowse) {
+            browse = isBrowse;
+        }
+
+        public boolean isBrowse() {
+            return browse;
+        }
+    };
     
     /** What category this search is in. */
     public SearchCategory getSearchCategory();

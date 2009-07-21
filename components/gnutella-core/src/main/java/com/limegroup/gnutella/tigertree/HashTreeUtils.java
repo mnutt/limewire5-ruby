@@ -125,7 +125,7 @@ public class HashTreeUtils {
 
     /**
      * Calculates which depth we want to use for the HashTree. For small files
-     * we can save a lot of memory by not creating such a large HashTree
+     * we can save a lot of memory by not creating such a large HashTree.
      * 
      * @param size
      *            the fileSize
@@ -164,12 +164,12 @@ public class HashTreeUtils {
 
     /**
      *  Calculates a the node size based on the file size and the target depth.
-     *  
+     *  <p>
      *   A tree of depth n has 2^(n-1) leaf nodes, so ideally the file will be
      *   split in that many chunks.  However, since chunks have to be powers of 2,
      *   we make the size of each chunk the closest power of 2 that is bigger than
      *   the ideal size.
-     *   
+     *   <p>
      *   This ensures the resulting tree will have between 2^(n-2) and 2^(n-1) nodes.
      */
     public static int calculateNodeSize(long fileSize, int depth) {

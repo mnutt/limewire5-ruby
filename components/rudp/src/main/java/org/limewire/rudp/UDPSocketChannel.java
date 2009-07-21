@@ -25,8 +25,8 @@ import org.limewire.util.BufferUtils;
 
 /**
  * Interface between reading channels & UDP's data.
- * Analagous to SocketChannel combined w/ a SocketInterestReadAdapter & SocketInterestWriteAdapter.
- * 
+ * Analogous to SocketChannel combined w/ a SocketInterestReadAdapter & SocketInterestWriteAdapter.
+ * <p>
  * This class _is_ the SocketChannel for UDP, except because we wrote it,
  * we can make it implement InterestReadChannel & InterestWriteChannel, so
  * we don't need the additional InterestAdapter.
@@ -40,7 +40,7 @@ public class UDPSocketChannel extends AbstractNBSocketChannel implements Interes
     /** The processor this channel is writing to / reading from. */
     private final UDPConnectionProcessor processor;
     
-    /** The <tt>RUDPContext</tt> containing the TransportListener to notify for pending events */
+    /** The <tt>RUDPContext</tt> containing the TransportListener to notify for pending events. */
     private final RUDPContext context;
     
     /** The Socket object this UDPSocketChannel is used for. */
@@ -64,7 +64,7 @@ public class UDPSocketChannel extends AbstractNBSocketChannel implements Interes
     /** A lock to hold while manipulating chunks or activeChunk. */
     private final Object writeLock = new Object();
     
-    /** Whether or not we've propogated the shutdown to other writers. */
+    /** Whether or not we've propagated the shutdown to other writers. */
     private boolean shutdown = false;
 
     private final Role role;
@@ -188,12 +188,8 @@ public class UDPSocketChannel extends AbstractNBSocketChannel implements Interes
     }
     
     /**
-     * Transfers the chunks in the DataRecord's msg to the ByteBuffer. Sets the record as being succesfully read after
+     * Transfers the chunks in the DataRecord's msg to the ByteBuffer. Sets the record as being successfully read after
      * all data is read from it.
-     * 
-     * @param record
-     * @param to
-     * @return
      */
     private int transfer(DataRecord record, ByteBuffer to) {
         DataMessage msg = record.msg;

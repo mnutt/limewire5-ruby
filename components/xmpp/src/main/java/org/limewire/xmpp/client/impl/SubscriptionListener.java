@@ -9,13 +9,13 @@ import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
-import org.jivesoftware.smack.util.StringUtils;
+import org.limewire.friend.api.FriendRequest;
+import org.limewire.friend.api.FriendRequestDecisionHandler;
+import org.limewire.friend.api.FriendRequestEvent;
+import org.limewire.friend.impl.util.PresenceUtils;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.xmpp.api.client.FriendRequest;
-import org.limewire.xmpp.api.client.FriendRequestDecisionHandler;
-import org.limewire.xmpp.api.client.FriendRequestEvent;
 
 /**
  * Handles presence subscriptions and unsubscriptions on an XMPP connection
@@ -42,7 +42,7 @@ implements PacketListener, PacketFilter, FriendRequestDecisionHandler {
     public void processPacket(Packet packet) {
         try {
             Presence presence = (Presence)packet;
-            String friendUsername = StringUtils.parseBareAddress(packet.getFrom());
+            String friendUsername = PresenceUtils.parseBareAddress(packet.getFrom());
             if(presence.getType() == Type.subscribe) {
                 LOG.debugf("subscribe from {0}", friendUsername);
                 // If this is a new friend request, ask the user what to do

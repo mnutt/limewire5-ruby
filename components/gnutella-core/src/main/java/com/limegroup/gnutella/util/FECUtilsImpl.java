@@ -10,7 +10,7 @@ import com.onionnetworks.fec.FECCodeFactory;
 import com.onionnetworks.util.Buffer;
 
 /**
- * Encapsulates lots of the FEC-related ugliness 
+ * Encapsulates lots of the FEC-related ugliness.
  */
 @Singleton
 public class FECUtilsImpl implements FECUtils {

@@ -114,7 +114,7 @@ public class SameNATAddressResolver implements AddressResolver, RegisteringEvent
      * Resolves a {@link FirewalledAddress} to the {@link Connectable} of its 
      * {@link FirewalledAddress#getPrivateAddress() private address} if this peer
      * and the peer the address belongs to are behind the same firewall.
-     * 
+     * <p>
      * Otherwise resolves the address to a {@link ResolvedFirewalledAddress} to
      * mark it as resolved.
      */

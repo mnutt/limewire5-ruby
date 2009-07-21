@@ -1,5 +1,7 @@
 package com.limegroup.bittorrent;
 
+import org.limewire.bittorrent.Torrent;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -8,18 +10,19 @@ import com.limegroup.gnutella.ActivityCallback;
 @Singleton
 public class BTUploaderFactoryImpl implements BTUploaderFactory {
 
-    private final Provider<TorrentManager> torrentManager;
     private final Provider<ActivityCallback> activityCallback;
 
     @Inject
-    public BTUploaderFactoryImpl(Provider<TorrentManager> torrentManager, Provider<ActivityCallback> activityCallback) {
-        this.torrentManager = torrentManager;
+    public BTUploaderFactoryImpl(Provider<ActivityCallback> activityCallback) {
         this.activityCallback = activityCallback;
     }
-    
-    public BTUploader createBTUploader(ManagedTorrent torrent,
-            BTMetaInfo info) {
-        return new BTUploader(torrent, info, torrentManager.get(), activityCallback.get());
+
+    @Override
+    public BTUploader createBTUploader(Torrent torrent) {
+        BTUploader btUploader = new BTUploader(torrent, activityCallback.get());
+        btUploader.registerTorrentListener();
+        activityCallback.get().addUpload(btUploader);
+        return btUploader;
     }
 
 }

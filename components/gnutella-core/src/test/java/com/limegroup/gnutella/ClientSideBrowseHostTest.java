@@ -20,8 +20,8 @@ import junit.framework.Test;
 
 import org.apache.http.protocol.HTTP;
 import org.limewire.core.api.browse.BrowseListener;
-import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.friend.api.feature.AddressFeature;
 import org.limewire.gnutella.tests.ActivityCallbackStub;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.gnutella.tests.NetworkManagerStub;
@@ -124,7 +124,7 @@ public class ClientSideBrowseHostTest extends ClientSideTestCase {
 
             // tell the leaf to browse host the file, should result in direct HTTP
             // request
-            searchServices.doAsynchronousBrowseHost(new MockFriendPresence(new MockFriend(), new AddressFeature(callback.getRFD().getAddress())), new GUID(), new BrowseListener() {
+            searchServices.doAsynchronousBrowseHost(new MockFriendPresence(new MockFriend(), null, new AddressFeature(callback.getRFD().getAddress())), new GUID(), new BrowseListener() {
                 public void handleBrowseResult(SearchResult searchResult) {
                     //To change body of implemented methods use File | Settings | File Templates.
                 }
@@ -195,7 +195,7 @@ public class ClientSideBrowseHostTest extends ClientSideTestCase {
             
             // tell the leaf to browse host the file, should result in PushProxy
             // request
-            searchServices.doAsynchronousBrowseHost(new MockFriendPresence(new MockFriend(), new AddressFeature(callback.getRFD().getAddress())), new GUID(), new BrowseListener() {
+            searchServices.doAsynchronousBrowseHost(new MockFriendPresence(new MockFriend(), null, new AddressFeature(callback.getRFD().getAddress())), new GUID(), new BrowseListener() {
                 public void handleBrowseResult(SearchResult searchResult) {
                     //To change body of implemented methods use File | Settings | File Templates.
                 }
@@ -302,7 +302,7 @@ public class ClientSideBrowseHostTest extends ClientSideTestCase {
         assertNotNull(callback.getRFD());
 
         // tell the leaf to browse host the file,
-        searchServices.doAsynchronousBrowseHost(new MockFriendPresence(new MockFriend(), new AddressFeature(callback.getRFD().getAddress())), new GUID(), new BrowseListener() {
+        searchServices.doAsynchronousBrowseHost(new MockFriendPresence(new MockFriend(), null, new AddressFeature(callback.getRFD().getAddress())), new GUID(), new BrowseListener() {
                 public void handleBrowseResult(SearchResult searchResult) {
                     //To change body of implemented methods use File | Settings | File Templates.
                 }

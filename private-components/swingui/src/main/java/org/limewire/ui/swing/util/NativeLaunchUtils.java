@@ -52,144 +52,150 @@ import org.limewire.util.SystemUtils;
 public final class NativeLaunchUtils {
     private static final Log LOG = LogFactory.getLog(NativeLaunchUtils.class);
             
-	/**
-	 * <tt>boolean</tt> specifying whether or not the necessary Mac
-	 * classes were loaded successfully.
-	 */
-	private static boolean _macClassesLoadedSuccessfully = true;
+    /**
+     * <tt>boolean</tt> specifying whether or not the necessary Mac
+     * classes were loaded successfully.
+     */
+    private static boolean _macClassesLoadedSuccessfully = true;
 
-	/**
-	 * The openURL method of com.apple.mrj.MRJFileUtils.
-	 */
-	private static Method _openURL;
+    /**
+     * The openURL method of com.apple.mrj.MRJFileUtils.
+     */
+    private static Method _openURL;
 
-	/** 
-	 * Loads the necessary Mac classes if running on Mac.
-	 */
-	static {
-	    if(OSUtils.isMacOSX()) {
-			try {
-				loadMacClasses();		
-			} catch(IOException ioe) {
-				_macClassesLoadedSuccessfully = false;
-			}
-		}
-	}
-
-	/** 
-	 * This class should be never be instantiated; this just ensures so. 
-	 */
-	private NativeLaunchUtils() {}
-	
-	/**
-	 * Opens the specified url in a browser. 
-	 *
-	 * <p>A browser will only be opened if the underlying operating system 
-	 * recognizes the url as one that should be opened in a browser, 
-	 * namely a url that ends in .htm or .html.
-	 *
-	 * @param url  The url to open
-	 */
-	public static void openURL(String url) {
-	    try {
-	        Desktop.getDesktop().browse(new URI(url));
-        } catch (Throwable t) {
-    	    try {
-                if (OSUtils.isWindows()) {
-                    openURLWindows(url);
-                } else if (OSUtils.isMacOSX()) {
-                    openURLMac(url);
-                } else {
-                    openURLLinux(url);
-                }
-            } catch (IOException iox) {
-                logException(I18n.tr("Unable to open URL"), I18n.tr("Open URL"), iox);
+    /** 
+     * Loads the necessary Mac classes if running on Mac.
+     */
+    static {
+        if(OSUtils.isMacOSX()) {
+            try {
+                loadMacClasses();		
+            } catch(IOException ioe) {
+                _macClassesLoadedSuccessfully = false;
             }
-        } 
+        }
     }
 
-	/**
-	 * Trys to open the url with the default browser on linux, passing it the specified
-     * url.
-     * 
-	 * @param url the url to open in the browser
-	 */
-	private static Process openURLLinux(String url) throws IOException {
-	    return exec("xdg-open", url);
+    /** 
+     * This class should be never be instantiated; this just ensures so. 
+     */
+    private NativeLaunchUtils() {}
+    
+    /**
+     * Opens the specified url in a browser. 
+     *
+     * <p>A browser will only be opened if the underlying operating system 
+     * recognizes the url as one that should be opened in a browser, 
+     * namely a url that ends in .htm or .html.
+     *
+     * @param url the url to open
+     */
+    public static void openURL(final String url) {
+        ManagedThread managedThread = new ManagedThread( new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Desktop.getDesktop().browse(new URI(url));
+                } catch (Throwable t) {
+                    try {
+                        if (OSUtils.isWindows()) {
+                            openURLWindows(url);
+                        } else if (OSUtils.isMacOSX()) {
+                            openURLMac(url);
+                        } else {
+                            openURLLinux(url);
+                        }
+                    } catch (IOException iox) {
+                        logException(I18n.tr("Unable to open URL"), I18n.tr("Open URL"), iox);
+                    }
+                } 
+            }
+        });
+        managedThread.start();
     }
 
     /**
-	 * Opens the default web browser on windows, passing it the specified
-	 * url.
-	 *
-	 * @param url the url to open in the browser
-	 */
-	private static void openURLWindows(String url) throws IOException {
-		SystemUtils.openURL(url);
-	}
-	
-	/**
-	 * Opens the specified url in the default browser on the Mac.
-	 * This makes use of the dynamically-loaded MRJ classes.
-	 *
-	 * @param url the url to load
-	 *
-	 * @throws <tt>IOException</tt> if the necessary mac classes were not
-	 *         loaded successfully or if another exception was
-	 *         throws -- it wraps these exceptions in an <tt>IOException</tt>
-	 */
-	private static void openURLMac(String url) throws IOException {
-		if(!_macClassesLoadedSuccessfully) throw new IOException();
-		try {
-			Object[] params = new Object[] {url};
-			_openURL.invoke(null, params);
-		} 
-		catch (NoSuchMethodError err) {
-			throw new IOException();
-			// this can occur when earlier versions of MRJ are used which
-			// do not support the openURL method.
-		} catch (NoClassDefFoundError err) {
-			throw new IOException();
-			// this can occur under runtime environments other than MRJ.
-		} catch (IllegalAccessException iae) {
-			throw new IOException();
-		} catch (InvocationTargetException ite) {
-			throw new IOException();
-		}
-	}
-	
-	/**
-	 * Launches the specified file.  If the file's Category is PROGRAM or OTHER, this delegates to 
-	 * <code>launchExplorer(file)</code>
-	 */
-	public static void safeLaunchFile(File file){
-	    Category category = CategoryUtils.getCategory(file);
-	    if(category == Category.PROGRAM || category == Category.OTHER){
-	        launchExplorer(file);
-	    } else {
+     * Trys to open the url with the default browser on linux, passing it the specified
+     * url.
+     * 
+     * @param url the url to open in the browser
+     */
+    private static Process openURLLinux(String url) throws IOException {
+        return exec("xdg-open", url);
+    }
+
+    /**
+     * Opens the default web browser on windows, passing it the specified
+     * url.
+     *
+     * @param url the url to open in the browser
+     */
+    private static void openURLWindows(String url) throws IOException {
+        SystemUtils.openURL(url);
+    }
+
+    /**
+     * Opens the specified url in the default browser on the Mac.
+     * This makes use of the dynamically-loaded MRJ classes.
+     *
+     * @param url the url to load
+     *
+     * @throws <tt>IOException</tt> if the necessary Mac classes were not
+     *         loaded successfully or if another exception was
+     *         throws -- it wraps these exceptions in an <tt>IOException</tt>
+     */
+    private static void openURLMac(String url) throws IOException {
+        if(!_macClassesLoadedSuccessfully) throw new IOException();
+        try {
+            Object[] params = new Object[] {url};
+            _openURL.invoke(null, params);
+        } 
+        catch (NoSuchMethodError err) {
+            throw new IOException();
+            // this can occur when earlier versions of MRJ are used which
+            // do not support the openURL method.
+        } catch (NoClassDefFoundError err) {
+            throw new IOException();
+            // this can occur under runtime environments other than MRJ.
+        } catch (IllegalAccessException iae) {
+            throw new IOException();
+        } catch (InvocationTargetException ite) {
+            throw new IOException();
+        }
+    }
+
+    /**
+     * Launches the specified file.  If the file's Category is PROGRAM or OTHER, this delegates to 
+     * <code>launchExplorer(file)</code>
+     */
+    public static void safeLaunchFile(File file){
+        Category category = CategoryUtils.getCategory(file);
+        if(category == Category.PROGRAM || category == Category.OTHER){
+            launchExplorer(file);
+        } else {
             launchFile(file);
         }
-	}
+    }
 
-	/**
-	 * Launches the file whose abstract path is specified in the <tt>File</tt>
-	 * parameter. This method will not launch any file with .exe, .vbs, .lnk,
-	 * .bat, .sys, or .com extensions, diplaying an error if one of the file is
-	 * of one of these types.
-	 * 
-	 * This is run on its own thread to prevent ui calls from blocking.
-	 *
-	 * @param file the file to launch
-	 * @return an object for accessing the launch process; null, if the process
-	 *         can be represented (e.g. the file was launched through a native
-	 *         call)
-	 */
-	private static void launchFile(final File file) {
-	    ManagedThread managedThread = new ManagedThread( new Runnable() {
-	    @Override
-	        public void run() {
-        	    try {
-        	        launchFileImpl(file);
+    /**
+     * Launches the file whose abstract path is specified in the <tt>File</tt>
+     * parameter. This method will not launch any file with .exe, .vbs, .lnk,
+     * .bat, .sys, or .com extensions, displaying an error if one of the file is
+     * of one of these types.
+     * 
+     * This is run on its own thread to prevent ui calls from blocking.
+     *
+     * @param file the file to launch
+     * @return an object for accessing the launch process; null, if the process
+     *         can be represented (e.g. the file was launched through a native
+     *         call)
+     */
+    private static void launchFile(final File file) {
+        ManagedThread managedThread = new ManagedThread( new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    launchFileImpl(file);
                 } catch (LaunchException lex) {
                     logException(I18n.tr("Unable to open file: {0}", file.getName()),
                             I18n.tr("Open File"), lex);
@@ -200,48 +206,48 @@ public final class NativeLaunchUtils {
                     logException(I18n.tr("Unable to open file: {0}", file.getName()),
                             I18n.tr("Open File"), ex);
                 }
-    	    }
-	    });
-	    managedThread.start();
-	    
+            }
+        });
+        managedThread.start();
+        
     }
-	
-	private static void launchFileImpl(File file) throws IOException, SecurityException {
-		String path = file.getCanonicalPath();
-		String extCheckString = path.toLowerCase(Locale.US);
+    
+    private static void launchFileImpl(File file) throws IOException, SecurityException {
+        String path = file.getCanonicalPath();
+        String extCheckString = path.toLowerCase(Locale.US);
 
-	     if(!extCheckString.endsWith(".exe") &&
-	                !extCheckString.endsWith(".vbs") &&
-	                !extCheckString.endsWith(".lnk") &&
-	                !extCheckString.endsWith(".bat") &&
-	                !extCheckString.endsWith(".sys") &&
-	                !extCheckString.endsWith(".com")) {
-	         
-	         if(OSUtils.isLinux()) {
-	             //Desktop.open is not working well under linux
-	             //it converts the path to a uri and many programs are not supporting it properly
-	             int exitCode = -1;
-	             try {
-    	             Process process = launchFileLinux(path);
-    	             exitCode = process.waitFor();
-	             } catch(Exception e) {
-	                 //exceptions can be thrown when launcher does not exist
-	                 exitCode = -1;
-	             }
-	             
-	             if(exitCode != 0) {
-	                 //a non-zero exit value means there was an error opening the file
-	                 //failing back to Desktop.open
-	                 openFile(file);
-	             }
-	         } else {
-	             //Using Desktop.open for windows and mac
-	             openFile(file);
-	         }
-	     } else {
+        if(!extCheckString.endsWith(".exe") &&
+                    !extCheckString.endsWith(".vbs") &&
+                    !extCheckString.endsWith(".lnk") &&
+                    !extCheckString.endsWith(".bat") &&
+                    !extCheckString.endsWith(".sys") &&
+                    !extCheckString.endsWith(".com")) {
+            
+             if(OSUtils.isLinux()) {
+                 //Desktop.open is not working well under linux
+                 //it converts the path to a uri and many programs are not supporting it properly
+                 int exitCode = -1;
+                 try {
+                     Process process = launchFileLinux(path);
+                     exitCode = process.waitFor();
+                 } catch(Exception e) {
+                     //exceptions can be thrown when launcher does not exist
+                     exitCode = -1;
+                 }
+                 
+                 if(exitCode != 0) {
+                     //a non-zero exit value means there was an error opening the file
+                     //failing back to Desktop.open
+                     openFile(file);
+                 }
+             } else {
+                 //Using Desktop.open for windows and mac
+                 openFile(file);
+             }
+        } else {
              throw new SecurityException();
          }
-	}
+    }
 
     private static void openFile(File file) throws IOException {
         String path = file.getCanonicalPath();
@@ -309,7 +315,7 @@ public final class NativeLaunchUtils {
         return null;
     }
     
-	private static String[] selectFileCommandLinux(File file) {
+    private static String[] selectFileCommandLinux(File file) {
         String path = null;
         File parentDir = file.isDirectory() ? file : file.getParentFile();
         try {
@@ -317,58 +323,52 @@ public final class NativeLaunchUtils {
         } catch (IOException err) {
             path = parentDir.getAbsolutePath();
         }
-        //TODO see what file browsers are available and use the one that is.
-        //TODO would be nice to select the file instead of just open the explorer
-        String[] command = new String[] { 
-                "nautilus", path};
-        
-        return command;
+        return new String[] {"xdg-open", path};        
     }
 
-	/**
-	 * Launches the given file on Linux.
-	 *
-	 * @param path the path of the file to launch
-	 *
-	 * @return Process which was used to open the file. In this case the xdg-open. 
-	 * The actual file will be opened in another process.
-	 */
-	 private static Process launchFileLinux(String path) throws IOException {
-	        return exec("xdg-open", path);
-	 }
-	 
     /**
-	 * Launches the given file on Windows.
-	 *
-	 * @param path the path of the file to launch
-	 *
-	 * @return an int for the exit code of the native method
-	 */
-	private static int launchFileWindows(String path) throws IOException {
+     * Launches the given file on Linux.
+     *
+     * @param path the path of the file to launch
+     *
+     * @return Process which was used to open the file. In this case the xdg-open. 
+     * The actual file will be opened in another process.
+     */
+    private static Process launchFileLinux(String path) throws IOException {
+        return exec("xdg-open", path);
+    }
+    
+    /**
+     * Launches the given file on Windows.
+     *
+     * @param path the path of the file to launch
+     *
+     * @return an int for the exit code of the native method
+     */
+    private static int launchFileWindows(String path) throws IOException {
         try {
             return SystemUtils.openFile(path);
         } catch(IOException iox) {
             throw new LaunchException(iox, path);
         }
-	}
+    }
 
-	/**
-	 * Launches a file on OSX, appending the full path of the file to the
-	 * "open" command that opens files in their associated applications
-	 * on OSX.
-	 *
-	 * @param file the <tt>File</tt> instance denoting the abstract pathname
-	 *  of the file to launch
-	 * @return 
-	 * @throws IOException if an I/O error occurs in making the runtime.exec()
-	 *  call or in getting the canonical path of the file
-	 */
-	private static Process launchFileMacOSX(final String file) throws IOException {
-	    return exec(new String[]{"open", file});
-	}
+    /**
+     * Launches a file on OSX, appending the full path of the file to the
+     * "open" command that opens files in their associated applications
+     * on OSX.
+     *
+     * @param file the <tt>File</tt> instance denoting the abstract pathname
+     *  of the file to launch
+     * @throws IOException if an I/O error occurs in making the runtime.exec()
+     *  call or in getting the canonical path of the file
+     */
+    private static Process launchFileMacOSX(final String file) throws IOException {
+        return exec(new String[]{"open", file});
+    }
     
     /**
-     * Launches the Finder and selects the given File
+     * Launches the Finder and selects the given File.
      */
     private static String[] selectFileCommand(File file) {
         String path = null;
@@ -391,37 +391,37 @@ public final class NativeLaunchUtils {
         return command;
     }
     
-	/** 
-	 * Loads specialized classes for the Mac needed to launch files.
-	 *
-	 * @return <tt>true</tt>  if initialization succeeded,
-	 *	   	   <tt>false</tt> if initialization failed
-	 *
-	 * @throws <tt>IOException</tt> if an exception occurs loading the
-	 *         necessary classes
-	 */
-	@SuppressWarnings("unchecked")
+    /** 
+     * Loads specialized classes for the Mac needed to launch files.
+     *
+     * @return <tt>true</tt>  if initialization succeeded,
+     *	   	   <tt>false</tt> if initialization failed
+     *
+     * @throws <tt>IOException</tt> if an exception occurs loading the
+     *         necessary classes
+     */
+    @SuppressWarnings("unchecked")
     private static void loadMacClasses() throws IOException {
-		try {
-			Class mrjAdapter = Class.forName("net.roydesign.mac.MRJAdapter");
-			_openURL = mrjAdapter.getDeclaredMethod("openURL", new Class[]{String.class});
-		} catch (ClassNotFoundException cnfe) {
-			throw new IOException();
-		} catch (NoSuchMethodException nsme) {
-			throw new IOException();
-		} catch (SecurityException se) {
-			throw new IOException();
-		} 
-	}
+        try {
+            Class mrjAdapter = Class.forName("net.roydesign.mac.MRJAdapter");
+            _openURL = mrjAdapter.getDeclaredMethod("openURL", new Class[]{String.class});
+        } catch (ClassNotFoundException cnfe) {
+            throw new IOException();
+        } catch (NoSuchMethodException nsme) {
+            throw new IOException();
+        } catch (SecurityException se) {
+            throw new IOException();
+        } 
+    }
     
-	private static Process exec(String... commands) throws LaunchException {
-	    ProcessBuilder pb = new ProcessBuilder(commands);
-	    try {
+    private static Process exec(String... commands) throws LaunchException {
+        ProcessBuilder pb = new ProcessBuilder(commands);
+        try {
             return pb.start();
         } catch (IOException e) {
             throw new LaunchException(e, commands);
         }
-	}
+    }
     
     /**
      * Logs the specified exception, and displays the specified user message
@@ -440,31 +440,31 @@ public final class NativeLaunchUtils {
             }
         });
     }
-	
-	public static class LaunchException extends IOException {
-	    
-	    private final String[] command;
+    
+    public static class LaunchException extends IOException {
+        
+        private final String[] command;
 
-	    /**
-	     * @param cause the exception that occurred during execution of command
-	     * @param command the executed command
-	     */
-	    public LaunchException(IOException cause, String... command) {
-	        this.command = command;
-	        
-	        initCause(cause);
-	    }
+        /**
+         * @param cause the exception that occurred during execution of command
+         * @param command the executed command
+         */
+        public LaunchException(IOException cause, String... command) {
+            this.command = command;
+            
+            initCause(cause);
+        }
 
-	    /**
-	     * @param command the executed command
-	     */
-	    public LaunchException(String... command) {
-	        this.command = command;
-	    }
+        /**
+         * @param command the executed command.
+         */
+        public LaunchException(String... command) {
+            this.command = command;
+        }
 
-	    public String[] getCommand() {
-	        return command;
-	    }
-	}
-	    
+        public String[] getCommand() {
+            return command;
+        }
+    }
+    
 }

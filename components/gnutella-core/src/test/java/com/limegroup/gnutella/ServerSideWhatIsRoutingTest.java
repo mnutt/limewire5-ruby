@@ -17,13 +17,14 @@ import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.util.TestUtils;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.connection.BlockingConnectionFactory;
 import com.limegroup.gnutella.handshaking.HeadersFactory;
 import com.limegroup.gnutella.helpers.UrnHelper;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileCollection;
+import com.limegroup.gnutella.library.GnutellaFiles;
 import com.limegroup.gnutella.messages.FeatureSearchData;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
@@ -72,17 +73,19 @@ public final class ServerSideWhatIsRoutingTest extends LimeTestCase {
      */
     private BlockingConnection ULTRAPEER_2;
 
-    private LifecycleManager lifecycleManager;
+    @Inject private LifecycleManager lifecycleManager;
 
-    private ConnectionServices connectionServices;
+    @Inject private ConnectionServices connectionServices;
 
-    private BlockingConnectionFactory blockingConnectionFactory;
+    @Inject private BlockingConnectionFactory blockingConnectionFactory;
 
-    private HeadersFactory headersFactory;
+    @Inject private HeadersFactory headersFactory;
 
-    private QueryRequestFactory queryRequestFactory;
+    @Inject private QueryRequestFactory queryRequestFactory;
 
-    private CapabilitiesVMFactory capabilitiesVMFactory;
+    @Inject private CapabilitiesVMFactory capabilitiesVMFactory;
+    
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
 
 	public ServerSideWhatIsRoutingTest(String name) {
         super(name);
@@ -124,14 +127,7 @@ public final class ServerSideWhatIsRoutingTest extends LimeTestCase {
         setSettings();
         assertEquals("unexpected port", PORT, NetworkSettings.PORT.getValue());
 
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
-        lifecycleManager = injector.getInstance(LifecycleManager.class);
-        connectionServices = injector.getInstance(ConnectionServices.class);
-        blockingConnectionFactory = injector.getInstance(BlockingConnectionFactory.class);
-        headersFactory = injector.getInstance(HeadersFactory.class);
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        capabilitiesVMFactory = injector.getInstance(CapabilitiesVMFactory.class);
-        FileManager fileManager = injector.getInstance(FileManager.class);
+        LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
         
         lifecycleManager.start();
         connectionServices.connect();	
@@ -139,8 +135,8 @@ public final class ServerSideWhatIsRoutingTest extends LimeTestCase {
         // get the resource file for com/limegroup/gnutella
         File berkeley = TestUtils.getResourceFile("com/limegroup/gnutella/berkeley.txt");
         File susheel = TestUtils.getResourceFile("com/limegroup/gnutella/susheel.txt");
-        assertNotNull(fileManager.getGnutellaFileList().add(berkeley).get(1, TimeUnit.SECONDS));
-        assertNotNull(fileManager.getGnutellaFileList().add(susheel).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(berkeley).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(susheel).get(1, TimeUnit.SECONDS));
         
 		connect();
         assertEquals("unexpected port", PORT, NetworkSettings.PORT.getValue());

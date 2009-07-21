@@ -118,7 +118,7 @@ public class BucketMessageContainer extends MultiMessageContainer {
     }
 
     /**
-     * @param bucket Records the bucket number that this collection of messages
+     * @param bucket records the bucket number that this collection of messages
      *        represents
      */
     public void setBucketNumber(int bucket) {
@@ -126,7 +126,7 @@ public class BucketMessageContainer extends MultiMessageContainer {
     }
 
     /**
-     * @return The bucket number as set, or -1 if the bucket wasn't set or there
+     * @return the bucket number as set, or -1 if the bucket wasn't set or there
      *         was a problem parsing.
      */
     public int getBucketNumber() {

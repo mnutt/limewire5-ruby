@@ -51,7 +51,8 @@ public class ListViewRowHeightRuleTest extends TestCase {
 
     private void assertStuff(BasicDownloadState state, String search, RowDisplayConfig config, boolean subHeadingEmpty, boolean metadataNull) {
         mock.setDownloadState(state);
-        RowDisplayResult result = rule.getDisplayResult(mock, search);
+        rule.initializeWithSearch(search);
+        RowDisplayResult result = rule.getDisplayResult(mock);
         assertEquals(config, result.getConfig());
         assertEquals(subHeadingEmpty , result.getSubheading() == null || "".equals(result.getSubheading()));
         assertEquals(metadataNull, result.getMetadata() == null);
@@ -72,7 +73,8 @@ public class ListViewRowHeightRuleTest extends TestCase {
         mock.setDownloadState(BasicDownloadState.NOT_STARTED);
         mock.setSubHeading("bar");
         mock.setDownloadState(BasicDownloadState.NOT_STARTED);
-        RowDisplayResult result = rule.getDisplayResult(mock, "foo");
+        rule.initializeWithSearch("foo");
+        RowDisplayResult result = rule.getDisplayResult(mock);
         //Only subheading is explicitly wrapped in HTML tags by the listviewrowheightrule.
         //The heading is wrapped in tags elsewhere later in the processing chain but subheading
         //is more simple and is wrapped here.

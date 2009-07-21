@@ -1,7 +1,7 @@
 package org.limewire.core.api.connection;
 
 /**
- * The various reasons why FWT status is either true or false
+ * The various reasons why FWT status is either true or false.
  */
 public enum FWTStatusReason {
     UNKNOWN,

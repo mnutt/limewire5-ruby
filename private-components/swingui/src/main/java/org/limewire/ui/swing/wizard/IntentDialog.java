@@ -27,6 +27,8 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.action.UrlAction;
+import org.limewire.ui.swing.components.HTMLLabel;
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.components.MultiLineLabel;
@@ -34,7 +36,6 @@ import org.limewire.ui.swing.painter.GenericBarPainter;
 import org.limewire.ui.swing.util.FontUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LanguageUtils;
-import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.PainterUtils;
 import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.util.SystemUtils;
@@ -55,30 +56,19 @@ public class IntentDialog extends LimeJDialog {
     private final Paint headerBottomBorder2 = new Color(0xffffff);
     
     private final JLabel headingLabel;
-    private final MultiLineLabel bodyLabel;
+    private final HTMLLabel bodyLabel;
     private final JLabel agreeLabel;
-    private final JButton copyrightButton;
     private final JButton licenseButton;
     private final JButton privacyButton;
     private final JLabel languageLabel;
     private final JXButton agreeButton;
     private final JXButton exitButton;
+    private final JLabel copyrightLabel;
+    private final JLabel policiesLabel;
     
-    private final String copyrightURL = "http://www.limewire.com/learnmore/copyright";
-    private final String licenseURL = "http://www.limewire.com/learnmore/agreement";
-    private final String privacyURL = "http://www.limewire.com/learnmore/privacy";
-    
-    private final Action urlAction = new AbstractAction(){
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if(e.getSource().equals(copyrightButton))
-                NativeLaunchUtils.openURL(copyrightURL);
-            else if(e.getSource().equals(licenseButton))
-                NativeLaunchUtils.openURL(licenseURL);
-            else if(e.getSource().equals(privacyButton))
-                NativeLaunchUtils.openURL(privacyURL);
-        }
-    };
+    private final String copyrightURL = "http://www.limewire.com/client_redirect/?page=copyright";
+    private final String licenseURL = "http://www.limewire.com/client_redirect/?page=agreement";
+    private final String privacyURL = "http://www.limewire.com/client_redirect/?page=privacy";
     
     private boolean agreed = false;
     
@@ -100,26 +90,32 @@ public class IntentDialog extends LimeJDialog {
         
         headingLabel = new JLabel();
         headingLabel.setFont(headingFont);
+        
+        copyrightLabel = new JLabel();
+        copyrightLabel.setFont(headingFont);
+        
+        policiesLabel = new JLabel();
+        policiesLabel.setFont(headingFont);
+        
         agreeLabel = new MultiLineLabel("", 500);
         agreeLabel.setFont(smallFont);
         //FontUtils.bold(agreeLabel);
-        copyrightButton = new HyperlinkButton(urlAction);
-        copyrightButton.setFocusPainted(false);
-        copyrightButton.setFont(smallFont);
-        FontUtils.underline(copyrightButton);
-        copyrightButton.setForeground(new Color(0x2152a6));
-        licenseButton = new HyperlinkButton(urlAction);
+        licenseButton = new HyperlinkButton(new UrlAction(licenseURL));
         licenseButton.setFocusPainted(false);
         licenseButton.setFont(smallFont);
         FontUtils.underline(licenseButton);
         licenseButton.setForeground(new Color(0x2152a6));
-        privacyButton = new HyperlinkButton(urlAction);
+        privacyButton = new HyperlinkButton(new UrlAction(privacyURL));
         privacyButton.setFocusPainted(false);
         privacyButton.setFont(smallFont);
         FontUtils.underline(privacyButton);
         privacyButton.setForeground(new Color(0x2152a6));
-        bodyLabel = new MultiLineLabel("", 500);        
-        bodyLabel.setFont(smallFont);
+        bodyLabel = new HTMLLabel("");
+        bodyLabel.setHtmlFont(smallFont);
+        bodyLabel.setHtmlLinkForeground(new Color(0x2152a6));
+        bodyLabel.setEditable(false);
+        bodyLabel.setOpaque(false);
+        
         languageLabel = new JLabel();
         languageLabel.setFont(smallFont);
         agreeButton = new JXButton();
@@ -150,11 +146,12 @@ public class IntentDialog extends LimeJDialog {
         
         int indent = 14;
         headerBar.add(headingLabel, "grow, wrap");
-        panel.add(bodyLabel, "gapleft " + indent + ", gaptop 10, wrap");
-        panel.add(copyrightButton, "gapleft " + indent +  ", gaptop 20, wrap");
-        panel.add(licenseButton, "gapleft " + indent +  ", wrap");
-        panel.add(privacyButton, "gapleft " + indent +  ", wrap");
-        panel.add(agreeLabel, "gapleft " + indent +  ", gaptop 40, wrap");
+        panel.add(copyrightLabel, "gapleft " + indent + ", gaptop 10, wrap");
+        panel.add(bodyLabel, "gapleft " + (indent + indent) + ", gaptop 10, wrap");
+        panel.add(policiesLabel, "gapleft " + indent + ", gaptop 20, wrap");
+        panel.add(licenseButton, "gaptop 10, gapleft " + (indent + indent) +  ", wrap");
+        panel.add(privacyButton, "gapleft " + (indent + indent) +  ", wrap");
+        panel.add(agreeLabel, "gapleft " + indent +  ", gaptop 30, wrap");
 
         langInnerPanel.add(languageLabel);
         langInnerPanel.add(languageDropDown);
@@ -264,16 +261,15 @@ public class IntentDialog extends LimeJDialog {
      *  on the language selected in the combo box.
      */
     private void setTextContents() {
-
         String heading  = I18n.tr("Some Legal Stuff");
         String bodyText1
-        = I18n.tr("LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only. Copyright laws may forbid obtaining or distributing certain copyrighted content. Learn more about your rights below:");
-        String copyText = I18n.tr("Copyright Information");
+        = I18n.tr("<html><body>LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only. Copyright laws may forbid obtaining or distributing certain copyrighted content. Learn more about <a href=\"{0}\">Copyright Information</a></body></html>", copyrightURL);
+        String copyInfringementText = I18n.tr("Copyright Infringement");
         String privacyText = I18n.tr("Privacy Policy");
         String licenseText = I18n.tr("License");
-        String agreementText = I18n.tr("By clicking \"I Agree\", you agree to not use LimeWire for copyright infringement.");
+        String agreementText = I18n.tr("By clicking \"I Agree\", you agree that you have read, understand and assent to the terms of the License Agreement and Privacy Policy. You also agree that you will not use LimeWire for copyright infringement.");
         String languageText = I18n.tr("Choose your language");
-        
+        String policiesText = I18n.tr("Policies Governing Your Use:");
         
         Action exitAction = new AbstractAction(I18n.tr("Exit")){
             @Override
@@ -291,7 +287,8 @@ public class IntentDialog extends LimeJDialog {
         
         headingLabel.setText(heading);
         bodyLabel.setText(bodyText1);
-        copyrightButton.setText(copyText);
+        copyrightLabel.setText(copyInfringementText);
+        policiesLabel.setText(policiesText);
         licenseButton.setText(licenseText);
         privacyButton.setText(privacyText);
         agreeLabel.setText(agreementText);

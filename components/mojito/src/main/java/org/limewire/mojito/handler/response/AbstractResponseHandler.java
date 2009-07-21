@@ -41,30 +41,30 @@ import org.limewire.mojito.util.ContactUtils;
 
 
 /**
- * An abstract base class for ResponseHandlers
+ * An abstract base class for ResponseHandlers.
  */
 public abstract class AbstractResponseHandler<V extends Result> implements ResponseHandler, DHTTask<V> {
     
     private static final Log LOG = LogFactory.getLog(AbstractResponseHandler.class);
     
-    /** The number of errors that have occurred */
+    /** The number of errors that have occurred. */
     private int errors = 0;
     
-    /** The total time that has elapsed since the request was sent */
+    /** The total time that has elapsed since the request was sent. */
     private long elapsedTime;
     
-    /** The timeout of this handler */
+    /** The timeout of this handler. */
     private long timeout;
     
-    /** The maximum number of errors that may occur */
+    /** The maximum number of errors that may occur. */
     private int maxErrors;
     
-    /** A handle to Context */
+    /** A handle to Context. */
     protected final Context context;
     
     private volatile OnewayExchanger<V, ExecutionException> exchanger;
     
-    /** The time of the last response we received */
+    /** The time of the last response we received. */
     protected long lastResponseTime = 0L;
     
     public AbstractResponseHandler(Context context) {
@@ -128,7 +128,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
     
     /**
-     * Override this method to start the ResponseHandler
+     * Override this method to start the ResponseHandler.
      */
     protected abstract void start() throws DHTException;
     
@@ -141,7 +141,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
     
     /**
-     * Sets the timeout of this handler
+     * Sets the timeout of this handler.
      */
     public void setTimeout(long timeout) {
         if (timeout < 0L) {
@@ -168,21 +168,21 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
     
     /**
-     * Returns the time when the last response was received
+     * Returns the time when the last response was received.
      */
     protected long getLastResponseTime() {
         return lastResponseTime;
     }
     
     /**
-     * Resets the error counter
+     * Resets the error counter.
      */
     protected void resetErrors() {
         errors = 0;
     }
     
     /**
-     * Returns the number of errors that have occurred
+     * Returns the number of errors that have occurred.
      */
     protected int getErrors() {
         return errors;
@@ -190,7 +190,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     
     /**
      * Sets the maximum number of errors that may occur before
-     * we're giving up to re-send a request
+     * we're giving up to re-send a request.
      */
     public void setMaxErrors(int maxErrors) {
         if (maxErrors < 0) {
@@ -202,7 +202,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     
     /**
      * Returns the maximum number of errors that may occur before
-     * we're giving up to re-send a request
+     * we're giving up to re-send a request.
      */
     public int getMaxErrors() {
         return maxErrors;
@@ -217,7 +217,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
     
     /**
-     * See handleResponse()
+     * See handleResponse().
      */
     protected abstract void response(ResponseMessage message, long time) throws IOException;
     
@@ -245,7 +245,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
 
     /**
-     * See handleTimeout()
+     * See handleTimeout().
      */
     protected abstract void timeout(KUID nodeId, SocketAddress dst, RequestMessage message, long time) throws IOException;
     
@@ -281,7 +281,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
     
     /**
-     * Resends the given Message to nodeId/dst
+     * Resends the given Message to nodeId/dst.
      */
     protected void resend(KUID nodeId, SocketAddress dst, RequestMessage message) throws IOException {
         
@@ -293,7 +293,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
     
     /**
-     * See handleError()
+     * See handleError().
      */
     protected abstract void error(KUID nodeId, SocketAddress dst, RequestMessage message, IOException e);
     
@@ -318,7 +318,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
     
     /**
-     * See handleTick()
+     * See handleTick().
      */
     protected void tick() {
     }
@@ -348,7 +348,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     /**
      * Returns whether or not this handler is done which
      * means if it has returned a result or threw an
-     * Exception
+     * Exception.
      */
     public boolean isDone() {
         return exchanger.isDone();
@@ -356,7 +356,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     
     /**
      * Sets the return value which will be returned by the 
-     * call() method
+     * call() method.
      */
     protected void setReturnValue(V value) {
     	exchanger.setValue(value);
@@ -364,16 +364,16 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     
     /**
      * Sets the Exception which will be thrown by the
-     * call() method
+     * call() method.
      */
     protected void setException(DHTException ex) {
         ExecutionException e = new ExecutionException(ex);
         e.setStackTrace(ex.getStackTrace());
-    	exchanger.setException(e);
+        exchanger.setException(e);
     }
     
     /**
-     * A helper method to throw Timeout Exceptions
+     * A helper method to throw Timeout Exceptions.
      */
     protected void fireTimeoutException(KUID nodeId, SocketAddress address, 
             RequestMessage request, long time) {
@@ -381,7 +381,7 @@ public abstract class AbstractResponseHandler<V extends Result> implements Respo
     }
     
     /**
-     * A helper method to create Timeout Exceptions
+     * A helper method to create Timeout Exceptions.
      */
     protected DHTTimeoutException createTimeoutException(KUID nodeId, SocketAddress address, 
             RequestMessage request, long time) {

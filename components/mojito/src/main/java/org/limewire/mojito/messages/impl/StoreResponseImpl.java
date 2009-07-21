@@ -34,7 +34,7 @@ import org.limewire.mojito.util.CollectionUtils;
 
 
 /**
- * An implementation of StoreResponse
+ * An implementation of StoreResponse.
  */
 public class StoreResponseImpl extends AbstractResponseMessage
         implements StoreResponse {

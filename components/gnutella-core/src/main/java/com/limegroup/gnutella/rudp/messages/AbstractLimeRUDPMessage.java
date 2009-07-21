@@ -10,7 +10,7 @@ import com.limegroup.gnutella.util.DataUtils;
 
 /**
  * An abstract class that extends from Message and takes a 
- * DHTMessage as a delegate argument
+ * DHTMessage as a delegate argument.
  */
 public abstract class AbstractLimeRUDPMessage<T extends RUDPMessage> 
         extends AbstractMessage implements RUDPMessage {

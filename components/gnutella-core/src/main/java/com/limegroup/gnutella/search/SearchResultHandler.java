@@ -2,8 +2,11 @@ package com.limegroup.gnutella.search;
 
 import java.util.List;
 
+import org.limewire.io.Address;
 import org.limewire.io.GUID;
 
+import com.limegroup.gnutella.RemoteFileDesc;
+import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.filters.response.ResponseFilter;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -62,12 +65,15 @@ public interface SearchResultHandler {
     public int getNumResultsForQuery(GUID guid);
     
     /** 
-	 * Handles the given query reply. Only one thread may call it at a time.
-     *      
-	 * @return <tt>true</tt> if the GUI will (probably) display the results,
-	 *  otherwise <tt>false</tt> 
+     * Handles the given query reply. Only one thread may call it at a time.
+     * 
+     * @param address the common address for all responses of that query reply, 
+     * can be null. If it is null {@link Response#toRemoteFileDesc(QueryReply, Address, com.limegroup.gnutella.downloader.RemoteFileDescFactory, com.limegroup.gnutella.PushEndpointFactory)}
+     * will construct a new address for the {@link RemoteFileDesc}.
+     * @return <tt>true</tt> if the GUI will (probably) display the results,
+     *  otherwise <tt>false</tt> 
      */
-    public void handleQueryReply(final QueryReply qr);
+    public void handleQueryReply(final QueryReply qr, Address address);
     
     /** Sets the new filter to use for response filters. */
     void setResponseFilter(ResponseFilter responseFilter);

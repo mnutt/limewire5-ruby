@@ -17,6 +17,7 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * This class specifies the content of a table that contains
@@ -35,10 +36,10 @@ public class DocumentTableFormat extends ResultsTableFormat<VisualSearchResult> 
     static final int IS_SPAM_INDEX = 8;
     
     /** Icon manager used to find native file type information. */
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     
     @Inject
-    public DocumentTableFormat(IconManager iconManager) {
+    public DocumentTableFormat(Provider<IconManager> iconManager) {
         super("CLASSIC_SEARCH_DOCUMENT_TABLE", NAME_INDEX, FROM_INDEX, IS_SPAM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_DOCUMENT_FROM", I18n.tr("From"), 88, true, true), 
                 new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_DOCUMENT_NAME", I18n.tr("Name"), 493, true, true), 
@@ -72,7 +73,7 @@ public class DocumentTableFormat extends ResultsTableFormat<VisualSearchResult> 
             case TYPE_INDEX: 
                 // Use icon manager to return MIME description.
                 return (iconManager != null) ?
-                    iconManager.getMIMEDescription(vsr.getFileExtension()) : 
+                    iconManager.get().getMIMEDescription(vsr.getFileExtension()) : 
                     vsr.getFileExtension();
             case SIZE_INDEX: return vsr.getSize();
             case DATE_INDEX: return vsr.getProperty(FilePropertyKey.DATE_CREATED);

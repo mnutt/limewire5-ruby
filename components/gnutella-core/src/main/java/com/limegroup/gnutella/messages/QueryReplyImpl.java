@@ -1,6 +1,5 @@
 package com.limegroup.gnutella.messages;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,73 +42,79 @@ import com.limegroup.gnutella.uploader.HTTPHeaderUtils;
 import com.limegroup.gnutella.util.DataUtils;
 
 /**
- * A query reply.  Contains information about the responding host in addition to
- * an array of responses.  These responses are not parsed until the getResponses
- * method is called.  For efficiency reasons, bad query reply packets may not be
- * discovered until the getResponses methods are called.<p>
- *
- * This class has partial support for BearShare-style query reply trailers.  You
- * can extract the vendor code, push flag, and busy flag. These methods may
- * throw BadPacketException if the metadata cannot be extracted.  Note that
- * BadPacketException does not mean that other data (namely responses) cannot be
- * read; MissingDataException might have been a better name.  
+ * A query reply. Contains information about the responding host in addition to
+ * an array of responses. These responses are not parsed until the getResponses
+ * method is called. For efficiency reasons, bad query reply packets may not be
+ * discovered until the getResponses methods are called.
+ * <p>
  * 
- * This class also encapsulates xml metadata.  See the description of the QHD 
+ * This class has partial support for BearShare-style query reply trailers. You
+ * can extract the vendor code, push flag, and busy flag. These methods may
+ * throw BadPacketException if the metadata cannot be extracted. Note that
+ * BadPacketException does not mean that other data (namely responses) cannot be
+ * read; MissingDataException might have been a better name.
+ * <p>
+ * This class also encapsulates xml metadata. See the description of the QHD
  * below for more details.
  */
 public class QueryReplyImpl extends AbstractMessage implements QueryReply {
-    //WARNING: see note in Message about IP addresses.
+    // WARNING: see note in Message about IP addresses.
 
     /** The mask for extracting the push flag from the QHD common area. */
-    private static final byte PUSH_MASK=(byte)0x01;
+    private static final byte PUSH_MASK = (byte) 0x01;
+
     /** The mask for extracting the busy flag from the QHD common area. */
-    private static final byte BUSY_MASK=(byte)0x04;
+    private static final byte BUSY_MASK = (byte) 0x04;
+
     /** The mask for extracting the busy flag from the QHD common area. */
-    private static final byte UPLOADED_MASK=(byte)0x08;
+    private static final byte UPLOADED_MASK = (byte) 0x08;
+
     /** The mask for extracting the busy flag from the QHD common area. */
-    private static final byte SPEED_MASK=(byte)0x10;
+    private static final byte SPEED_MASK = (byte) 0x10;
+
     /** The mask for extracting the GGEP flag from the QHD common area. */
-    static final byte GGEP_MASK=(byte)0x20;
+    static final byte GGEP_MASK = (byte) 0x20;
+
     /** The mask for extracting the chat flag from the QHD private area. */
-    private static final byte CHAT_MASK=(byte)0x01;
-    
-    
+    private static final byte CHAT_MASK = (byte) 0x01;
+
     /** Our static and final instance of the GGEPUtil helper class. */
     private static final GGEPUtil _ggepUtil = new GGEPUtil();
-    
+
     /** the payload. */
     private byte[] _payload;
-    
-    /** The raw ip address of the host returning the hit.*/  
-    private byte[] _address = new byte[4];    
-    
+
+    /** The raw ip address of the host returning the hit. */
+    private byte[] _address = new byte[4];
+
     /** Whether or not this message has been verified as secure. */
     private Status _secureStatus = Status.INSECURE;
-    
-    /** True if the responses and metadata have been extracted. */  
+
+    /** True if the responses and metadata have been extracted. */
     private boolean _parsed = false;
-    
+
     /** The parsed query reply data. */
     private volatile QueryReplyData _data;
-    
+
     // TODO move to QueryReply decorator?
     /** Whether or not this reply is allowed to have MCAST. */
     private volatile boolean _multicastAllowed = false;
-    
-    /** The cached clientGUID. */  
-    private byte[] clientGUID = null;    
+
+    /** The cached clientGUID. */
+    private byte[] clientGUID = null;
 
     private final NetworkManager networkManager;
+
     private final NetworkInstanceUtils networkInstanceUtils;
+
     private final ResponseFactory responseFactory;
-    
+
     private final boolean local;
-    
+
     private volatile boolean badPacket;
-    
-    
-    QueryReplyImpl(byte[] guid, byte ttl, byte hops, byte[] payload,
-            Network network, NetworkInstanceUtils networkInstanceUtils, NetworkManager networkManager,
+
+    QueryReplyImpl(byte[] guid, byte ttl, byte hops, byte[] payload, Network network,
+            NetworkInstanceUtils networkInstanceUtils, NetworkManager networkManager,
             ResponseFactory responseFactory) throws BadPacketException {
         super(guid, Message.F_QUERY_REPLY, ttl, hops, payload.length, network);
         this.networkManager = networkManager;
@@ -117,33 +122,32 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         this.responseFactory = responseFactory;
         this._payload = payload;
         this.badPacket = true;
-        
-        if(!NetworkUtils.isValidPort(getPort())) {
-			throw new BadPacketException("invalid port");
-		}
-        
+
+        if (!NetworkUtils.isValidPort(getPort())) {
+            throw new BadPacketException("invalid port");
+        }
+
         // 0xFFFFFFFF00000000L = Integer.MIN_VALUE * 2
-        if( (getSpeedFromPayload() & 0xFFFFFFFF00000000L) != 0) {
-			throw new BadPacketException("invalid speed: " + getSpeedFromPayload());
-		} 		
-		
-		setAddress();
-		
-		if(!NetworkUtils.isValidAddress(getIPBytes())) {
-		    throw new BadPacketException("invalid address");
-		}
-		
-		this.local = false;
-        //repOk();
+        if ((getSpeedFromPayload() & 0xFFFFFFFF00000000L) != 0) {
+            throw new BadPacketException("invalid speed: " + getSpeedFromPayload());
+        }
+
+        setAddress();
+
+        if (!NetworkUtils.isValidAddress(getIPBytes())) {
+            throw new BadPacketException("invalid address");
+        }
+
+        this.local = false;
+        // repOk();
     }
 
     protected QueryReplyImpl(byte[] guid, byte ttl, int port, byte[] ip, long speed,
-            Response[] responses, byte[] clientGUID, byte[] xmlBytes,
-            boolean includeQHD, boolean needsPush, boolean isBusy,
-            boolean finishedUpload, boolean measuredSpeed,
+            Response[] responses, byte[] clientGUID, byte[] xmlBytes, boolean includeQHD,
+            boolean needsPush, boolean isBusy, boolean finishedUpload, boolean measuredSpeed,
             boolean supportsChat, boolean supportsBH, boolean isMulticastReply,
-            boolean supportsFWTransfer, Set<? extends IpPort> proxies,
-            SecurityToken securityToken, NetworkInstanceUtils networkInstanceUtils, NetworkManager networkManager,
+            boolean supportsFWTransfer, Set<? extends IpPort> proxies, SecurityToken securityToken,
+            NetworkInstanceUtils networkInstanceUtils, NetworkManager networkManager,
             ResponseFactory responseFactory) {
         super(guid, Message.F_QUERY_REPLY, ttl, (byte) 0, 0, Network.UNKNOWN);
 
@@ -152,24 +156,24 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         this.responseFactory = responseFactory;
         this.local = true;
         this.badPacket = true;
-        
+
         if (xmlBytes.length > XML_MAX_SIZE)
-            throw new IllegalArgumentException("xml too large: " + StringUtils.getUTF8String(xmlBytes));
+            throw new IllegalArgumentException("xml too large: "
+                    + StringUtils.getUTF8String(xmlBytes));
 
         final int n = responses.length;
-		if(!NetworkUtils.isValidPort(port)) {
-			throw new IllegalArgumentException("invalid port: "+port);
-		} else if(ip.length != 4) {
-			throw new IllegalArgumentException("invalid ip length: "+ip.length);
-        } else if(!NetworkUtils.isValidAddress(ip)) {
-            throw new IllegalArgumentException("invalid address: " + 
-                    NetworkUtils.ip2string(ip));
-		} else if((speed & 0xFFFFFFFF00000000l) != 0) {
-			throw new IllegalArgumentException("invalid speed: "+speed);
-		} else if(n >= 256) {
-			throw new IllegalArgumentException("invalid num responses: "+n);
-		}
-        
+        if (!NetworkUtils.isValidPort(port)) {
+            throw new IllegalArgumentException("invalid port: " + port);
+        } else if (ip.length != 4) {
+            throw new IllegalArgumentException("invalid ip length: " + ip.length);
+        } else if (!NetworkUtils.isValidAddress(ip)) {
+            throw new IllegalArgumentException("invalid address: " + NetworkUtils.ip2string(ip));
+        } else if ((speed & 0xFFFFFFFF00000000l) != 0) {
+            throw new IllegalArgumentException("invalid speed: " + speed);
+        } else if (n >= 256) {
+            throw new IllegalArgumentException("invalid num responses: " + n);
+        }
+
         _data = new QueryReplyData();
         _data.setXmlBytes(xmlBytes);
         _data.setProxies(proxies);
@@ -177,150 +181,140 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         _data.setSecurityToken(securityToken != null ? securityToken.getBytes() : null);
         boolean supportsTLS = networkManager.isIncomingTLSEnabled();
         _data.setTLSCapable(supportsTLS);
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {
-            //Write beginning of payload.
-            //Downcasts are ok, even if they go negative
+            // Write beginning of payload.
+            // Downcasts are OK, even if they go negative
             baos.write(n);
-            ByteUtils.short2leb((short)port, baos);
+            ByteUtils.short2leb((short) port, baos);
             baos.write(ip, 0, ip.length);
-            ByteUtils.int2leb((int)speed, baos);
-            
-            //Write each response
-            for (int left=n; left>0; left--) {
-                Response r=responses[n-left];
+            ByteUtils.int2leb((int) speed, baos);
+
+            // Write each response
+            for (int left = n; left > 0; left--) {
+                Response r = responses[n - left];
                 r.writeToStream(baos);
             }
-            //Write QHD if desired
+            // Write QHD if desired
             if (includeQHD || securityToken != null) {
-                //a) vendor code.  This is hardcoded here for simplicity,
-                //efficiency, and to prevent character decoding problems.  If you
-                //change this, be sure to change CommonUtils.QHD_VENDOR_NAME as
-                //well.
-                baos.write(76); //'L'
-                baos.write(73); //'I'
-                baos.write(77); //'M'
-                baos.write(69); //'E'
-                
-                //b) payload length
+                // a) vendor code. This is hard coded here for simplicity,
+                // efficiency, and to prevent character decoding problems. If
+                // you
+                // change this, be sure to change CommonUtils.QHD_VENDOR_NAME as
+                // well.
+                baos.write(76); // 'L'
+                baos.write(73); // 'I'
+                baos.write(77); // 'M'
+                baos.write(69); // 'E'
+
+                // b) payload length
                 baos.write(COMMON_PAYLOAD_LEN);
-                
+
                 // size of standard, no options, ggep block...
-                int ggepLen=
-                    _ggepUtil.getQRGGEP(false, false, false, false,
-                                        IpPort.EMPTY_SET, null).length;
-                
-                //c) PART 1: common area flags and controls.  See format in
-                //parseResults2.
+                int ggepLen = _ggepUtil.getQRGGEP(false, false, false, false, IpPort.EMPTY_SET,
+                        null).length;
+
+                // c) PART 1: common area flags and controls. See format in
+                // parseResults2.
                 boolean hasProxies = (proxies != null) && (proxies.size() > 0);
-                byte flags=
-                    (byte)((needsPush && !isMulticastReply ? PUSH_MASK : 0) 
-                           | BUSY_MASK 
-                           | UPLOADED_MASK 
-                           | SPEED_MASK
-                           | GGEP_MASK);
-                byte controls=
-                    (byte)(PUSH_MASK
-                           | (isBusy && !isMulticastReply ? BUSY_MASK : 0) 
-                           | (finishedUpload ? UPLOADED_MASK : 0)
-                           | (measuredSpeed || isMulticastReply ? SPEED_MASK : 0)
-                           | (supportsBH || isMulticastReply || hasProxies ||
-                              supportsFWTransfer || securityToken != null ||
-                              supportsTLS ? 
-                                      GGEP_MASK : (ggepLen > 0 ? GGEP_MASK : 0)) );
+                byte flags = (byte) ((needsPush && !isMulticastReply ? PUSH_MASK : 0) | BUSY_MASK
+                        | UPLOADED_MASK | SPEED_MASK | GGEP_MASK);
+                byte controls = (byte) (PUSH_MASK | (isBusy && !isMulticastReply ? BUSY_MASK : 0)
+                        | (finishedUpload ? UPLOADED_MASK : 0)
+                        | (measuredSpeed || isMulticastReply ? SPEED_MASK : 0) | (supportsBH
+                        || isMulticastReply || hasProxies || supportsFWTransfer
+                        || securityToken != null || supportsTLS ? GGEP_MASK
+                        : (ggepLen > 0 ? GGEP_MASK : 0)));
                 baos.write(flags);
                 baos.write(controls);
-                
-                //d) PART 2: size of xmlBytes + 1.
+
+                // d) PART 2: size of xmlBytes + 1.
                 int xmlSize = xmlBytes.length + 1;
                 if (xmlSize > XML_MAX_SIZE)
-                    xmlSize = XML_MAX_SIZE;  // yes, truncate!
+                    xmlSize = XML_MAX_SIZE; // yes, truncate!
                 ByteUtils.short2leb(((short) xmlSize), baos);
-                
-                //e) private area: one byte with flags 
-                //for chat support
+
+                // e) private area: one byte with flags
+                // for chat support
                 byte chatSupport = supportsChat ? CHAT_MASK : 0;
                 baos.write(chatSupport);
-                
-                //f) the GGEP block
-                byte[] ggepBytes = _ggepUtil.getQRGGEP(supportsBH,
-                                                       isMulticastReply,
-                                                       supportsFWTransfer,
-                                                       supportsTLS,
-                                                       proxies, securityToken);
+
+                // f) the GGEP block
+                byte[] ggepBytes = _ggepUtil.getQRGGEP(supportsBH, isMulticastReply,
+                        supportsFWTransfer, supportsTLS, proxies, securityToken);
                 baos.write(ggepBytes, 0, ggepBytes.length);
-                
+
                 writeSecureGGEP(baos, xmlBytes);
-                
-                //g) actual xml.
+
+                // g) actual xml.
                 baos.write(xmlBytes, 0, xmlBytes.length);
-                
+
                 // write null after xml, as specified
                 baos.write(0);
             }
 
-            //Write footer
+            // Write footer
             baos.write(clientGUID, 0, 16);
-            
+
             // setup payload params
             _payload = baos.toByteArray();
             updateLength(_payload.length);
-        }
-        catch (IOException reallyBad) {
+        } catch (IOException reallyBad) {
             ErrorService.error(reallyBad);
         }
 
-		setAddress();
+        setAddress();
     }
-    
+
     public void validate() throws BadPacketException {
         parseResults();
-        if(badPacket) {
+        if (badPacket) {
             throw new BadPacketException();
         }
     }
-    
+
     /** Writes the 'secureGGEP' GGEP. */
     protected void writeSecureGGEP(ByteArrayOutputStream out, byte[] xml) {
         // writes the secure ggep portion.
         // don't forget to secure the null after the XML also.
     }
 
-	/**
-	 * Sets the IP address bytes.
-	 */
-	private void setAddress() {
-		_address[0] = _payload[3];
+    /**
+     * Sets the IP address bytes.
+     */
+    private void setAddress() {
+        _address[0] = _payload[3];
         _address[1] = _payload[4];
         _address[2] = _payload[5];
-        _address[3] = _payload[6];		
-	}
-	
-	public void setOOBAddress(InetAddress addr, int port) {
-		_address =addr.getAddress();
-		ByteUtils.short2leb((short)port,_payload,1);
-		
-	}
+        _address[3] = _payload[6];
+    }
+
+    public void setOOBAddress(InetAddress addr, int port) {
+        _address = addr.getAddress();
+        ByteUtils.short2leb((short) port, _payload, 1);
+
+    }
 
     /**
-     * Sets the guid for this message. Is needed, when we want to cache 
-     * query replies or sfor some other reason want to change the GUID as 
-     * per the guid of query request
-     * @param guid The guid to be set
+     * Sets the guid for this message. Is needed, when we want to cache query
+     * replies or for some other reason want to change the GUID as per the guid
+     * of query request.
+     * 
+     * @param guid the guid to be set
      */
     @Override
     public void setGUID(GUID guid) {
         super.setGUID(guid);
     }
 
-	// inherit doc comment
+    // inherit doc comment
     @Override
     public void writePayload(OutputStream out) throws IOException {
         out.write(_payload);
     }
-    
+
     /**
      * Sets this reply to be considered a 'browse host' reply.
      */
@@ -328,8 +322,7 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         parseResults();
         _data.setBrowseHostReply(isBH);
     }
-    
-    
+
     /**
      * Gets whether or not this reply is from a browse host request.
      */
@@ -338,8 +331,9 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         return _data.isBrowseHostReply();
     }
 
-    /** Return the associated xml metadata string if the queryreply
-     *  contained one.
+    /**
+     * Return the associated xml metadata string if the query reply contained
+     * one.
      */
     public byte[] getXMLBytes() {
         parseResults();
@@ -348,16 +342,16 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
 
     /** Return the number of results N in this query. */
     public short getResultCount() {
-        //The result of ubyte2int always fits in a short, so downcast is ok.
-        return (short)ByteUtils.ubyte2int(_payload[0]);
+        // The result of ubyte2int always fits in a short, so downcast is OK.
+        return (short) ByteUtils.ubyte2int(_payload[0]);
     }
-    
+
     public short getPartialResultCount() {
         parseResults();
         return _data.getPartialResultCount();
     }
-    
-    /** 
+
+    /**
      * @return the number of unique results (per SHA1) carried in this message
      */
     public short getUniqueResultCount() {
@@ -366,18 +360,20 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
     }
 
     public int getPort() {
-        return ByteUtils.ushort2int(ByteUtils.leb2short(_payload,1));
+        return ByteUtils.ushort2int(ByteUtils.leb2short(_payload, 1));
     }
 
-    /** Returns the IP address of the responding host in standard
-     *  dotted-decimal format, e.g., "192.168.0.1" */
+    /**
+     * Returns the IP address of the responding host in standard dotted-decimal
+     * format, e.g., "192.168.0.1".
+     */
     public String getIP() {
-        return NetworkUtils.ip2string(_address); //takes care of signs
+        return NetworkUtils.ip2string(_address); // takes care of signs
     }
 
     /**
      * Accessor the IP address in byte array form.
-     *
+     * 
      * @return the IP address for this query hit as an array of bytes
      */
     public byte[] getIPBytes() {
@@ -385,52 +381,56 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
     }
 
     private long getSpeedFromPayload() {
-        return ByteUtils.uint2long(ByteUtils.leb2int(_payload,7));
+        return ByteUtils.uint2long(ByteUtils.leb2int(_payload, 7));
     }
-    
+
     public int getSpeed() {
         // TODO move to QueryReply decorator?
-        return isReplyToMulticastQuery() ? Integer.MAX_VALUE : ByteUtils.long2int(getSpeedFromPayload()); //safe cast;
+        return isReplyToMulticastQuery() ? Integer.MAX_VALUE : ByteUtils
+                .long2int(getSpeedFromPayload()); // safe cast;
     }
-    
+
     /**
-     * Returns the Response[].  Throws BadPacketException if this
-     * data couldn't be extracted.
+     * Returns the Response[]. Throws BadPacketException if this data couldn't
+     * be extracted.
      */
     public Response[] getResultsArray() throws BadPacketException {
         parseResults();
         Response[] responses = _data.getResponses();
-        if(responses == null)
+        if (responses == null)
             throw new BadPacketException();
         return responses;
     }
 
-    /** Returns an iterator that will yield the results, each as an
-     *  instance of the Response class.  Throws BadPacketException if
-     *  this data couldn't be extracted.  */
+    /**
+     * Returns an iterator that will yield the results, each as an instance of
+     * the Response class. Throws BadPacketException if this data couldn't be
+     * extracted.
+     */
     public Iterator<Response> getResults() throws BadPacketException {
         return getResultsAsList().iterator();
     }
 
-
-    /** Returns a List that will yield the results, each as an
-     *  instance of the Response class.  Throws BadPacketException if
-     *  this data couldn't be extracted.  */
+    /**
+     * Returns a List that will yield the results, each as an instance of the
+     * Response class. Throws BadPacketException if this data couldn't be
+     * extracted.
+     */
     public List<Response> getResultsAsList() throws BadPacketException {
         return Arrays.asList(getResultsArray());
     }
-    
-    /** 
-     * Returns the name of this' vendor, all capitalized.  Throws
+
+    /**
+     * Returns the name of this' vendor, all capitalized. Throws
      * BadPacketException if the data couldn't be extracted, either because it
-     * is missing or corrupted. 
+     * is missing or corrupted.
      */
     private String getVendorFromPayload() throws BadPacketException {
         parseResults();
         String vendor = _data.getVendor();
-        if (vendor==null)
+        if (vendor == null)
             throw new BadPacketException();
-        return vendor;        
+        return vendor;
     }
 
     public String getVendor() {
@@ -442,11 +442,11 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         }
     }
 
-    /** 
+    /**
      * Returns true if this's push flag is set, i.e., a push download is needed.
-     * Returns false if the flag is present but not set.  Throws
+     * Returns false if the flag is present but not set. Throws
      * BadPacketException if the flag couldn't be extracted, either because it
-     * is missing or corrupted.  
+     * is missing or corrupted.
      */
     public boolean getNeedsPush() throws BadPacketException {
         parseResults();
@@ -463,10 +463,10 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         }
     }
 
-    /** 
-     * Returns true if this has no more download slots.  Returns false if the
-     * busy bit is present but not set.  Throws BadPacketException if the flag
-     * couldn't be extracted, either because it is missing or corrupted.  
+    /**
+     * Returns true if this has no more download slots. Returns false if the
+     * busy bit is present but not set. Throws BadPacketException if the flag
+     * couldn't be extracted, either because it is missing or corrupted.
      */
     public boolean getIsBusy() throws BadPacketException {
         parseResults();
@@ -483,10 +483,10 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         }
     }
 
-    /** 
+    /**
      * Returns true if this has successfully uploaded a complete file (bit set).
-     * Returns false if the bit is not set.  Throws BadPacketException if the
-     * flag couldn't be extracted, either because it is missing or corrupted.  
+     * Returns false if the bit is not set. Throws BadPacketException if the
+     * flag couldn't be extracted, either because it is missing or corrupted.
      */
     public boolean getHadSuccessfulUpload() throws BadPacketException {
         parseResults();
@@ -499,15 +499,16 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         case FALSE:
             return false;
         default:
-            throw new IllegalStateException("Bad value for uploaded flag: " + _data.getUploadedFlag());
+            throw new IllegalStateException("Bad value for uploaded flag: "
+                    + _data.getUploadedFlag());
         }
     }
 
-    /** 
+    /**
      * Returns true if the speed in this QueryReply was measured (bit set).
-     * Returns false if it was set by the user (bit unset).  Throws
+     * Returns false if it was set by the user (bit unset). Throws
      * BadPacketException if the flag couldn't be extracted, either because it
-     * is missing or corrupted.  
+     * is missing or corrupted.
      */
     public boolean getIsMeasuredSpeed() throws BadPacketException {
         parseResults();
@@ -520,18 +521,19 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         case FALSE:
             return false;
         default:
-            throw new IllegalStateException("Bad value for measured speed flag: " + _data.getMeasuredSpeedFlag());
+            throw new IllegalStateException("Bad value for measured speed flag: "
+                    + _data.getMeasuredSpeedFlag());
         }
     }
-    
+
     /** Returns the bytes of the signature from the secure GGEP block. */
     public byte[] getSecureSignature() {
         parseResults();
         SecureGGEPData sg = _data.getSecureGGEP();
-        if(sg != null) {
+        if (sg != null) {
             try {
                 return sg.getGGEP().getBytes(GGEPKeys.GGEP_HEADER_SIGNATURE);
-            } catch(BadGGEPPropertyException bgpe) {
+            } catch (BadGGEPPropertyException bgpe) {
                 return null;
             }
         } else {
@@ -542,15 +544,14 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
     /** Passes in the appropriate bytes of the payload to the signature. */
     public void updateSignatureWithSecuredBytes(Signature signature) throws SignatureException {
         parseResults();
-        SecureGGEPData sg = _data.getSecureGGEP();       
-        if(sg != null) {
+        SecureGGEPData sg = _data.getSecureGGEP();
+        if (sg != null) {
             signature.update(_payload, 0, sg.getStartIndex());
             int end = sg.getEndIndex();
             int length = _payload.length - 16 - end;
             signature.update(_payload, end, length);
         }
     }
-
 
     /** Determines if the message was verified. */
     public synchronized Status getSecureStatus() {
@@ -560,8 +561,8 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
     /** Sets whether or not the message is verified. */
     public synchronized void setSecureStatus(Status secureStatus) {
         this._secureStatus = secureStatus;
-    }    
-    
+    }
+
     /** Returns true iff this client supports TLS. */
     public boolean isTLSCapable() {
         parseResults();
@@ -599,47 +600,49 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         return firewalled;
     }
 
-    /** @return true if the remote host can firewalled transfers.
+    /**
+     * @return true if the remote host can firewalled transfers.
      */
     public boolean getSupportsFWTransfer() {
         parseResults();
         return _data.isSupportsFWTransfer();
     }
 
-    /** @return 1 or greater if FW Transfer is supported, else 0.
+    /**
+     * @return 1 or greater if FW Transfer is supported, else 0.
      */
     public byte getFWTransferVersion() {
         parseResults();
         return _data.getFwTransferVersion();
     }
 
-    /** 
+    /**
      * Returns true iff the client supports browse host feature.
      */
     public boolean getSupportsBrowseHost() {
         parseResults();
         return _data.isSupportsBrowseHost();
     }
-    
-    /** 
+
+    /**
      * Returns true iff the reply was sent in response to a multicast query.
+     * 
      * @return true, iff the reply was sent in response to a multicast query,
-     * false otherwise
-     * @exception Throws BadPacketException if
-     * the flag couldn't be extracted, either because it is missing or
-     * corrupted.  Typically this exception is treated the same way as returning
-     * false. 
+     *         false otherwise
+     * @exception Throws BadPacketException if the flag couldn't be extracted,
+     *            either because it is missing or corrupted. Typically this
+     *            exception is treated the same way as returning false.
      */
     public boolean isReplyToMulticastQuery() {
         parseResults();
         return _multicastAllowed && _data.isReplyToMulticast();
     }
-    
+
     /** Sets whether or not this reply is allowed to have an MCAST field. */
     public void setMulticastAllowed(boolean allowed) {
         _multicastAllowed = allowed;
     }
-    
+
     /** Returns true if this reply tried to fake an MCAST field. */
     public boolean isFakeMulticast() {
         parseResults();
@@ -647,204 +650,202 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
     }
 
     /**
-     * @return null or a non-zero lenght array of PushProxy hosts.
+     * @return null or a non-zero length array of PushProxy hosts.
      */
     public Set<? extends IpPort> getPushProxies() {
         parseResults();
         return _data.getProxies();
     }
-    
+
     /**
-     * Returns the message authentication bytes that were sent along with
-     * this query reply or null the none have been sent.
+     * Returns the message authentication bytes that were sent along with this
+     * query reply or null the none have been sent.
      */
     public byte[] getSecurityToken() {
         parseResults();
         return _data.getSecurityToken();
     }
-    
+
     /**
-     * Determines if this result has secure data.
-     * This does NOT determine if the result has been verified
-     * as secure.
+     * Determines if this result has secure data. This does NOT determine if the
+     * result has been verified as secure.
      */
     public boolean hasSecureData() {
         parseResults();
         return _data.getSecureGGEP() != null;
     }
-    
-    /** @modifies _data
-     *  @effects tries to extract responses from payload and store in responses.
+
+    /**
+     * @modifies _data
+     * @effects tries to extract responses from payload and store in responses.
      */
     private synchronized void parseResults() {
         if (_parsed)
             return;
-        _parsed=true;
+        _parsed = true;
         parseResults2();
     }
 
     /**
-     * Parses the individual results for the hit.  If any one of the 
-     * results is invalid, none of them will be initialized, and the
-     * accessor methods for this class will all throw 
-     * <tt>BadPacketException</tt>.  This is because a single invalid
-     * response invalidates other invariants, such as the field for
-     * the number of results matching the size of the result array.
+     * Parses the individual results for the hit. If any one of the results is
+     * invalid, none of them will be initialized, and the accessor methods for
+     * this class will all throw <tt>BadPacketException</tt>. This is because a
+     * single invalid response invalidates other invariants, such as the field
+     * for the number of results matching the size of the result array.
      */
     private void parseResults2() {
-        //index into payload to look for next response
-        int i=11;
-        
+        // index into payload to look for next response
+        int i = 11;
+
         _data = new QueryReplyData();
 
-        //1. Extract responses.  These are not copied to this.responses until
-        //they are verified.  Note, however that the metainformation need not be
-        //verified for these to be acceptable.  Also note that exceptions are
-        //silently caught.
-        int left=getResultCount();          //number of records left to get
-        
+        // 1. Extract responses. These are not copied to this.responses until
+        // they are verified. Note, however that the metai nformation need not be
+        // verified for these to be acceptable. Also note that exceptions are
+        // silently caught.
+        int left = getResultCount(); // number of records left to get
+
         // sanity check
         if (left > FilterSettings.MAX_RESPONSES_PER_REPLY.getValue())
             return;
-        
-        Response[] responses=new Response[left];
-        Set<URN> urns = new HashSet<URN>(responses.length); // set for the urns carried in this reply
+
+        Response[] responses = new Response[left];
+        Set<URN> urns = new HashSet<URN>(responses.length); // set for the urns
+                                                            // carried in this
+                                                            // reply
         short uniqueURNs = 0;
         short partialURNs = 0;
         try {
-            InputStream bais = 
-                new ByteArrayInputStream(_payload,i,_payload.length-i);             
-            //For each record...
-            for ( ; left > 0; left--) {
+            InputStream bais = new ByteArrayInputStream(_payload, i, _payload.length - i);
+            // For each record...
+            for (; left > 0; left--) {
                 Response r = responseFactory.createFromStream(bais);
                 if (r.getRanges() != null && r.getRanges().getSize() > 0)
                     partialURNs++;
-                responses[responses.length-left] = r;
-                i+=r.getIncomingLength();
-                
+                responses[responses.length - left] = r;
+                i += r.getIncomingLength();
+
                 if (r.getUrns().isEmpty())
                     uniqueURNs++;
                 else
                     urns.addAll(r.getUrns());
             }
-            //All set.  Accept parsed results.
+            // All set. Accept parsed results.
             _data.setResponses(responses);
         } catch (ArrayIndexOutOfBoundsException e) {
             return;
         } catch (IOException e) {
             return;
         }
-        
+
         // remember how many unique urns this reply carries
         uniqueURNs += (short) urns.size();
         _data.setUniqueResultURNs(uniqueURNs);
-        _data.setPartialResultCount((short)Math.min(uniqueURNs, partialURNs));
-        
-        //2. Extract BearShare-style metainformation, if any.  Any exceptions
-        //are silently caught.  The definitive reference for this format is at
-        //http://www.clip2.com/GnutellaProtocol04.pdf.  Briefly, the format is 
-        //      vendor code           (4 bytes, case insensitive)
-        //      common payload length (4 byte, unsigned, always>0)
-        //      common payload        (length given above.  See below.)
-        //      vendor payload        (length until clientGUID)
-        //The normal 16 byte clientGUID follows, of course.
+        _data.setPartialResultCount((short) Math.min(uniqueURNs, partialURNs));
+
+        // 2. Extract BearShare-style meta information, if any. Any exceptions
+        // are silently caught. The definitive reference for this format is at
+        // http://www.clip2.com/GnutellaProtocol04.pdf. Briefly, the format is
+        // vendor code (4 bytes, case insensitive)
+        // common payload length (4 byte, unsigned, always>0)
+        // common payload (length given above. See below.)
+        // vendor payload (length until clientGUID)
+        // The normal 16 byte clientGUID follows, of course.
         //
-        //The first byte of the common payload has a one in its 0'th bit* if we
-        //should try a push.  However, if there is a second byte, and if the
-        //0'th bit of this byte is zero, the 0'th bit of the first byte should
-        //actually be interpreted as MAYBE.  Unfortunately LimeWire 1.4 failed
-        //to set this bit in the second byte, so it should be ignored when 
-        //parsing, though set on writing.
+        // The first byte of the common payload has a one in its 0'th bit* if we
+        // should try a push. However, if there is a second byte, and if the
+        // 0'th bit of this byte is zero, the 0'th bit of the first byte should
+        // actually be interpreted as MAYBE. Unfortunately LimeWire 1.4 failed
+        // to set this bit in the second byte, so it should be ignored when
+        // parsing, though set on writing.
         //
-        //The remaining bits of the first byte of the common payload area tell
-        //whether the corresponding bits in the optional second byte is defined.
-        //The idea behind having two bits per flag is to distinguish between
-        //YES, NO, and MAYBE.  These bits are as followed:
-        //      bit 1*  undefined, for historical reasons
-        //      bit 2   1 iff server is busy
-        //      bit 3   1 iff server has successfully completed an upload
-        //      bit 4   1 iff server's reported speed was actually measured, not
-        //              simply set by the user.
+        // The remaining bits of the first byte of the common payload area tell
+        // whether the corresponding bits in the optional second byte is
+        // defined.
+        // The idea behind having two bits per flag is to distinguish between
+        // YES, NO, and MAYBE. These bits are as followed:
+        // bit 1* undefined, for historical reasons
+        // bit 2 1 iff server is busy
+        // bit 3 1 iff server has successfully completed an upload
+        // bit 4 1 iff server's reported speed was actually measured, not
+        // simply set by the user.
         //
         // GGEP Stuff
         // Byte 5 and 6, if the 5th bit is set, signal that there is a GGEP
-        // block.  The GGEP block will be after the common payload and will be
+        // block. The GGEP block will be after the common payload and will be
         // headed by the GGEP magic prefix (see the GGEP class for more details.
         //
         // If there is a GGEP block, then we look to see what is supported.
         //
-        //*Here, we use 0-(N-1) numbering.  So "0'th bit" refers to the least
-        //significant bit.
-        /* ----------------------------------------------------------------
-         * QHD UPDATE 8/17/01
-         * Here is an updated QHD spec.
+        // *Here, we use 0-(N-1) numbering. So "0'th bit" refers to the least
+        // significant bit.
+        /*
+         * ---------------------------------------------------------------- QHD
+         * UPDATE 8/17/01 Here is an updated QHD spec.
          * 
-         * Byte 0-3 : Vendor Code
-         * Byte 4   : Public area size (COMMON_PAYLOAD_LEN)
-         * Byte 5-6 : Public area (as described above)
-         * Byte 7-8 : Size of XML + 1 (for a null), you need to count backward
-         * from the client GUID.
-         * Byte 9   : private vendor flag
-         * Byte 10-X: GGEP area (may contain multiple GGEP blocks)
-         * Byte X-beginning of xml : (new) private area
-         * Byte (payload.length - 16 - xmlSize (above)) - 
-                (payload.length - 16 - 1) : XML!!
-         * Byte (payload.length - 16 - 1) : NULL
-         * Last 16 Bytes: client GUID.
+         * Byte 0-3 : Vendor Code Byte 4 : Public area size (COMMON_PAYLOAD_LEN)
+         * Byte 5-6 : Public area (as described above) Byte 7-8 : Size of XML +
+         * 1 (for a null), you need to count backward from the client GUID. Byte
+         * 9 : private vendor flag Byte 10-X: GGEP area (may contain multiple
+         * GGEP blocks) Byte X-beginning of xml : (new) private area Byte
+         * (payload.length - 16 - xmlSize (above)) - (payload.length - 16 - 1) :
+         * XML!! Byte (payload.length - 16 - 1) : NULL Last 16 Bytes: client
+         * GUID.
          */
         try {
-			if (i >= (_payload.length-16)) {   //see above
+            if (i >= (_payload.length - 16)) { // see above
                 throw new BadPacketException("No QHD");
             }
-			
-            //Attempt to verify.  Results are not copied to this until verified.
-            String vendorT=null;
-            int pushFlagT=UNDEFINED;
-            int busyFlagT=UNDEFINED;
-            int uploadedFlagT=UNDEFINED;
-            int measuredSpeedFlagT=UNDEFINED;
-            boolean supportsChatT=false;
-            boolean supportsBrowseHostT=false;
-            boolean replyToMulticastT=false;
+
+            // Attempt to verify. Results are not copied to this until verified.
+            String vendorT = null;
+            int pushFlagT = UNDEFINED;
+            int busyFlagT = UNDEFINED;
+            int uploadedFlagT = UNDEFINED;
+            int measuredSpeedFlagT = UNDEFINED;
+            boolean supportsChatT = false;
+            boolean supportsBrowseHostT = false;
+            boolean replyToMulticastT = false;
             Set<? extends IpPort> proxies = IpPort.EMPTY_SET;
             byte[] securityToken = null;
             boolean supportsTLST = false;
-            
-            //a) extract vendor code
+
+            // a) extract vendor code
             try {
-                //Must use ISO encoding since characters are more than two
-                //bytes on other platforms.
-                vendorT=new String(_payload, i, 4, "ISO-8859-1");
-                assert vendorT.length()==4 : "Vendor length wrong.  Wrong character encoding?";
+                // Must use ISO encoding since characters are more than two
+                // bytes on other platforms.
+                vendorT = new String(_payload, i, 4, "ISO-8859-1");
+                assert vendorT.length() == 4 : "Vendor length wrong.  Wrong character encoding?";
             } catch (UnsupportedEncodingException e) {
                 throw new IllegalStateException("No support for ISO-8859-1 encoding");
             }
-            i+=4;
+            i += 4;
 
-            //b) extract payload length
-            int length=ByteUtils.ubyte2int(_payload[i]);
-            if (length<=0)
+            // b) extract payload length
+            int length = ByteUtils.ubyte2int(_payload[i]);
+            if (length <= 0)
                 throw new BadPacketException("Common payload length zero.");
-            
-            i++;
-            if ((i + length) > (_payload.length-16)) // 16 is trailing GUID size
-                throw new BadPacketException("Common payload length imprecise!");
-            _data.setQHDOffset(i-1);
 
-            //c) extract push and busy bits from common payload
+            i++;
+            if ((i + length) > (_payload.length - 16)) // 16 is trailing GUID
+                                                       // size
+                throw new BadPacketException("Common payload length imprecise!");
+            _data.setQHDOffset(i - 1);
+
+            // c) extract push and busy bits from common payload
             // REMEMBER THAT THE PUSH BIT IS SET OPPOSITE THAN THE OTHERS.
             // (The 'I understand' is the second bit, the Yes/No is the first)
-            if (length > 1) {   //BearShare 2.2.0+
-                byte control=_payload[i];
-                byte flags=_payload[i+1];
-                if ((flags & PUSH_MASK)!=0)
-                    pushFlagT = (control&PUSH_MASK)==1 ? TRUE : FALSE;
-                if ((control & BUSY_MASK)!=0)
-                    busyFlagT = (flags&BUSY_MASK)!=0 ? TRUE : FALSE;
-                if ((control & UPLOADED_MASK)!=0)
-                    uploadedFlagT = (flags&UPLOADED_MASK)!=0 ? TRUE : FALSE;
-                if ((control & SPEED_MASK)!=0)
-                    measuredSpeedFlagT = (flags&SPEED_MASK)!=0 ? TRUE : FALSE;
+            if (length > 1) { // BearShare 2.2.0+
+                byte control = _payload[i];
+                byte flags = _payload[i + 1];
+                if ((flags & PUSH_MASK) != 0)
+                    pushFlagT = (control & PUSH_MASK) == 1 ? TRUE : FALSE;
+                if ((control & BUSY_MASK) != 0)
+                    busyFlagT = (flags & BUSY_MASK) != 0 ? TRUE : FALSE;
+                if ((control & UPLOADED_MASK) != 0)
+                    uploadedFlagT = (flags & UPLOADED_MASK) != 0 ? TRUE : FALSE;
+                if ((control & SPEED_MASK) != 0)
+                    measuredSpeedFlagT = (flags & SPEED_MASK) != 0 ? TRUE : FALSE;
                 if ((control & GGEP_MASK) != 0 && (flags & GGEP_MASK) != 0) {
                     GGEPParser parser = new GGEPParser();
                     parser.scanForGGEPs(_payload, i + 2);
@@ -855,15 +856,18 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
                         try {
                             supportsBrowseHostT = ggep.hasKey(GGEPKeys.GGEP_HEADER_BROWSE_HOST);
                             if (ggep.hasKey(GGEPKeys.GGEP_HEADER_FW_TRANS)) {
-                                _data.setFwTransferVersion(ggep.getBytes(GGEPKeys.GGEP_HEADER_FW_TRANS)[0]);
+                                _data.setFwTransferVersion(ggep
+                                        .getBytes(GGEPKeys.GGEP_HEADER_FW_TRANS)[0]);
                                 _data.setSupportsFWTransfer(_data.getFwTransferVersion() > 0);
                             }
-                            replyToMulticastT = ggep.hasKey(GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE);
+                            replyToMulticastT = ggep
+                                    .hasKey(GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE);
                             proxies = _ggepUtil.getPushProxies(ggep);
                             if (ggep.hasKey(GGEPKeys.GGEP_HEADER_SECURE_OOB)) {
                                 securityToken = ggep.getBytes(GGEPKeys.GGEP_HEADER_SECURE_OOB);
                                 if (securityToken == null || securityToken.length == 0) {
-                                    throw new BadPacketException("Message had empty OOB security token");
+                                    throw new BadPacketException(
+                                            "Message had empty OOB security token");
                                 }
                             }
                             supportsTLST = ggep.hasKey(GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
@@ -871,17 +875,17 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
                         }
                     }
                     // store the data about the secure result, if it's there.
-                    if(parser.getSecureGGEP() != null) {
+                    if (parser.getSecureGGEP() != null) {
                         _data.setSecureGGEP(new SecureGGEPData(parser));
                     }
                 }
-                i+=2; // increment used bytes appropriately...
+                i += 2; // increment used bytes appropriately...
             }
 
             if (length > 2) { // expecting XML.
-                //d) we need to get the xml stuff.  
-                //first we should get its size, then we have to look 
-                //backwards and get the actual xml...
+                // d) we need to get the xml stuff.
+                // first we should get its size, then we have to look
+                // backwards and get the actual xml...
                 int a, b, temp;
                 temp = ByteUtils.ubyte2int(_payload[i++]);
                 a = temp;
@@ -889,32 +893,27 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
                 b = temp << 8;
                 int xmlSize = a | b;
                 if (xmlSize > 1) {
-                    int xmlInPayloadIndex = _payload.length-16-xmlSize;
-                    byte[] xmlBytes = new byte[xmlSize-1];
-                    System.arraycopy(_payload, xmlInPayloadIndex,
-                                     xmlBytes, 0,
-                                     (xmlSize-1));
+                    int xmlInPayloadIndex = _payload.length - 16 - xmlSize;
+                    byte[] xmlBytes = new byte[xmlSize - 1];
+                    System.arraycopy(_payload, xmlInPayloadIndex, xmlBytes, 0, (xmlSize - 1));
                     _data.setXmlBytes(xmlBytes);
-                }
-                else
+                } else
                     _data.setXmlBytes(DataUtils.EMPTY_BYTE_ARRAY);
             }
 
-            //Parse LimeWire's private area.  Currently only a single byte
-            //whose LSB is 0x1 if we support chat, or 0x0 if we do.
-            //Shareaza also supports our chat, don't disclude them...
-            int privateLength=_payload.length-i;
-            if (privateLength>0 && (vendorT.equals("LIME") ||
-                                    vendorT.equals("RAZA"))) {
+            // Parse LimeWire's private area. Currently only a single byte
+            // whose LSB is 0x1 if we support chat, or 0x0 if we do.
+            // Shareaza also supports our chat, don't disclude them...
+            int privateLength = _payload.length - i;
+            if (privateLength > 0 && (vendorT.equals("LIME") || vendorT.equals("RAZA"))) {
                 byte privateFlags = _payload[i];
                 supportsChatT = (privateFlags & CHAT_MASK) != 0;
             }
 
-            if (i>_payload.length-16)
-                throw new BadPacketException(
-                    "Common payload length too large.");
-            
-            //All set.  Accept parsed values.
+            if (i > _payload.length - 16)
+                throw new BadPacketException("Common payload length too large.");
+
+            // All set. Accept parsed values.
             _data.setVendor(vendorT.toUpperCase(Locale.US));
             _data.setPushFlag(pushFlagT);
             _data.setBusyFlag(busyFlagT);
@@ -926,87 +925,87 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
             _data.setProxies(proxies);
             _data.setSecurityToken(securityToken);
             _data.setTLSCapable(supportsTLST);
-            
+
             badPacket = false;
         } catch (BadPacketException e) {
             return;
         } catch (IndexOutOfBoundsException e) {
             return;
-        } 
+        }
     }
 
-    /** Returns the 16 byte client ID (i.e., the "footer") of the
-     *  responding host.  */
+    /**
+     * Returns the 16 byte client ID (i.e., the "footer") of the responding
+     * host.
+     */
     public byte[] getClientGUID() {
-        if(clientGUID == null) {
+        if (clientGUID == null) {
             byte[] result = new byte[16];
-            //Copy the last 16 bytes of payload to result.  Note that there may
-            //be metainformation before the client GUID.  So it is not correct
-            //to simply count after the last result record.
-            int length=super.getLength();
-            System.arraycopy(_payload, length-16, result, 0, 16);
+            // Copy the last 16 bytes of payload to result. Note that there may
+            // be meta information before the client GUID. So it is not correct
+            // to simply count after the last result record.
+            int length = super.getLength();
+            System.arraycopy(_payload, length - 16, result, 0, 16);
             clientGUID = result;
         }
         return clientGUID;
     }
-    
+
     public byte[] getPayload() {
         return _payload;
     }
 
     @Override
     public String toString() {
-        return ("QueryReply::\r\n"+
-				getResultCount()+" hits\r\n"+
-				super.toString()+"\r\n"+
-				"ip: "+getIP()+"\r\n");				
+        return ("QueryReply::\r\n" + getResultCount() + " hits\r\n" + super.toString() + "\r\n"
+                + "ip: " + getIP() + "\r\n");
     }
-    
 
-	/**
-     * This method calculates the quality of service for a given host.  The
+    /**
+     * This method calculates the quality of service for a given host. The
      * calculation is some function of whether or not the host is busy, whether
      * or not the host has ever received an incoming connection, etc.
-     * 
+     * <p>
      * Moved this code from SearchView to here permanently, so we avoid
-     * duplication.  It makes sense from a data point of view, but this method
+     * duplication. It makes sense from a data point of view, but this method
      * isn't really essential an essential method.
-     *
+     * 
      * @return a int from -1 to 3, with -1 for "never work" and 3 for "always
-     * work".  Typically a return value of N means N+1 stars will be displayed
-     * in the GUI. */
-	public int calculateQualityOfService() {
+     *         work". Typically a return value of N means N+1 stars will be
+     *         displayed in the GUI.
+     */
+    public int calculateQualityOfService() {
         boolean iFirewalled = !networkManager.acceptedIncomingConnection();
         // TODO change to an enum
-        final int YES=1;
-        final int MAYBE=0;
-        final int NO=-1;
-        
+        final int YES = 1;
+        final int MAYBE = 0;
+        final int NO = -1;
+
         /* Is the remote host busy? */
-		int busy;
-		try {
-			busy=this.getIsBusy() ? YES : NO;
-		} catch (BadPacketException e) {
-			busy = MAYBE;
-		}
-		
-		boolean isMCastReply = this.isReplyToMulticastQuery();
+        int busy;
+        try {
+            busy = this.getIsBusy() ? YES : NO;
+        } catch (BadPacketException e) {
+            busy = MAYBE;
+        }
+
+        boolean isMCastReply = this.isReplyToMulticastQuery();
 
         /* Is the remote host firewalled? */
-		int heFirewalled;
-		
-		if( isMCastReply ) {
-		    iFirewalled = false;
-		    heFirewalled = NO;
-		} else if(networkInstanceUtils.isPrivateAddress(this.getIPBytes())) {
-			heFirewalled = YES;
-		} else {
-			try {
-				heFirewalled=this.getNeedsPush()? YES : NO;
-			} catch (BadPacketException e) {
-				heFirewalled = MAYBE;
-			}
-		}
+        int heFirewalled;
+
+        if (isMCastReply) {
+            iFirewalled = false;
+            heFirewalled = NO;
+        } else if (networkInstanceUtils.isPrivateAddress(this.getIPBytes())) {
+            heFirewalled = YES;
+        } else {
+            try {
+                heFirewalled = this.getNeedsPush() ? YES : NO;
+            } catch (BadPacketException e) {
+                heFirewalled = MAYBE;
+            }
+        }
 
         /* Push Proxy availability? */
         boolean hasPushProxies = false;
@@ -1018,46 +1017,48 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
             heFirewalled = NO;
         }
 
-        /* In the old days, busy hosts were considered bad.  Now they're ok (but
-         * not great) because of alternate locations.  WARNING: before changing
-         * this method, take a look at isFirewalledQuality! */
-		if(Arrays.equals(_address, networkManager.getAddress())) {
-			return 3;       // same address -- display it
+        /*
+         * In the old days, busy hosts were considered bad. Now they're OK (but
+         * not great) because of alternate locations. WARNING: before changing
+         * this method, take a look at isFirewalledQuality!
+         */
+        if (Arrays.equals(_address, networkManager.getAddress())) {
+            return 3; // same address -- display it
         } else if (isMCastReply) {
-            return 4;       // multicast, maybe busy (but doesn't matter)
-        } else if (iFirewalled && heFirewalled==YES) {
-            return -1;      //     both firewalled; transfer impossible
-        } else if (busy==MAYBE || heFirewalled==MAYBE) {
-            return 0;       //*    older client; can't tell
-        } else if (busy==YES) {
-            assert heFirewalled==NO || !iFirewalled;
-            if (heFirewalled==YES)
-                return 0;   //*    busy, push
+            return 4; // multicast, maybe busy (but doesn't matter)
+        } else if (iFirewalled && heFirewalled == YES) {
+            return -1; // both firewalled; transfer impossible
+        } else if (busy == MAYBE || heFirewalled == MAYBE) {
+            return 0; // * older client; can't tell
+        } else if (busy == YES) {
+            assert heFirewalled == NO || !iFirewalled;
+            if (heFirewalled == YES)
+                return 0; // * busy, push
             else
-                return 1;   //**   busy, direct connect
-        } else if (busy==NO) {
-            assert heFirewalled==NO || !iFirewalled;
-            if (heFirewalled==YES && !hasPushProxies)
-                return 2;   //***  not busy, no/not many proxies, old push
+                return 1; // ** busy, direct connect
+        } else if (busy == NO) {
+            assert heFirewalled == NO || !iFirewalled;
+            if (heFirewalled == YES && !hasPushProxies)
+                return 2; // *** not busy, no/not many proxies, old push
             else
-                return 3;   //**** not busy, has proxies or direct connect
+                return 3; // **** not busy, has proxies or direct connect
         } else {
             assert false : "Unexpected case!";
             return -1;
         }
-	}
-	
-	/**
-	 * Utility method for determining whether or not the given "quality"
-	 * score for a <tt>QueryReply</tt> denotes that the host is firewalled
-	 * or not.
-	 *
-	 * @param quality the quality, or score, in question
-	 * @return <tt>true</tt> if the quality denotes that the host is 
-	 * firewalled, otherwise <tt>false</tt> */
-	public static boolean isFirewalledQuality(int quality) {
-        return quality==0 || quality==2;
-	}
+    }
+
+    /**
+     * Utility method for determining whether or not the given "quality" score
+     * for a <tt>QueryReply</tt> denotes that the host is firewalled or not.
+     * 
+     * @param quality the quality, or score, in question
+     * @return <tt>true</tt> if the quality denotes that the host is firewalled,
+     *         otherwise <tt>false</tt>
+     */
+    public static boolean isFirewalledQuality(int quality) {
+        return quality == 0 || quality == 2;
+    }
 
     public boolean isFirewalled() {
         // TODO move to QueryReply decorator?
@@ -1070,72 +1071,78 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
         return firewalled && !isReplyToMulticastQuery();
     }
 
-    /** Handles all our GGEP stuff.  Caches potential GGEP blocks for efficiency.
+    /**
+     * Handles all our GGEP stuff. Caches potential GGEP blocks for efficiency.
      */
     static class GGEPUtil {
 
-        /** The standard GGEP block for a LimeWire QueryReply.  
-         *  Currently has no keys.
+        /**
+         * The standard GGEP block for a LimeWire QueryReply. Currently has no
+         * keys.
          */
         private final byte[] _standardGGEP;
-        
+
         /** A GGEP block that has the 'Browse Host' extension. */
         private final byte[] _bhGGEP;
-        
+
         /** A GGEP Block with BH & TLS */
         private final byte[] _bhTLSGGEP;
-        
-        /** A GGEP block that has the 'Multicast Source' extension.  
-         *  Useful for Query Replies for a Query from a multicast source.
+
+        /**
+         * A GGEP block that has the 'Multicast Source' extension. Useful for
+         * Query Replies for a Query from a multicast source.
          */
         private final byte[] _mcGGEP;
-        
+
         /** A GGEP Block with MC + TLS. */
         private final byte[] _mcTLSGGEP;
-        
+
         /** A GGEP Block with BH & MC. */
         private final byte[] _bhAndMC;
-        
+
         /** A GGEP Block with BH, MC & TLS. */
         private final byte[] _bhMCAndTLS;
-        
+
         /** A TLS GGEP Block only. */
         private final byte[] _tlsGGEP;
-        
+
         public GGEPUtil() {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             _standardGGEP = create(out);
             _bhGGEP = create(out, GGEPKeys.GGEP_HEADER_BROWSE_HOST);
             _mcGGEP = create(out, GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE);
-            _mcTLSGGEP = create(out, GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE, GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
-            _bhAndMC = create(out, GGEPKeys.GGEP_HEADER_BROWSE_HOST, GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE);
-            _bhTLSGGEP = create(out, GGEPKeys.GGEP_HEADER_BROWSE_HOST, GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
-            _bhMCAndTLS = create(out, GGEPKeys.GGEP_HEADER_BROWSE_HOST, GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE, GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
+            _mcTLSGGEP = create(out, GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE,
+                    GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
+            _bhAndMC = create(out, GGEPKeys.GGEP_HEADER_BROWSE_HOST,
+                    GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE);
+            _bhTLSGGEP = create(out, GGEPKeys.GGEP_HEADER_BROWSE_HOST,
+                    GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
+            _bhMCAndTLS = create(out, GGEPKeys.GGEP_HEADER_BROWSE_HOST,
+                    GGEPKeys.GGEP_HEADER_MULTICAST_RESPONSE, GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
             _tlsGGEP = create(out, GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
         }
-        
+
         private byte[] create(ByteArrayOutputStream out, String... headers) {
             out.reset();
             GGEP combo = new GGEP(true);
-            for(String header : headers)
+            for (String header : headers)
                 combo.put(header);
             try {
                 combo.write(out);
-            } catch (IOException writeError) {}
+            } catch (IOException writeError) {
+            }
             byte[] data = out.toByteArray();
             assert data != null;
             return data;
         }
-        
-        /** @return The appropriate byte[] corresponding to the GGEP block you
-         * desire. 
+
+        /**
+         * @return the appropriate byte[] corresponding to the GGEP block you
+         *         desire.
          */
-        public byte[] getQRGGEP(boolean supportsBH,
-                                boolean isMulticastResponse,
-                                boolean supportsFWTransfer,
-                                boolean supportsTLS,
-                                Set<? extends IpPort> proxies,
-                                SecurityToken securityToken) {
+        public byte[] getQRGGEP(boolean supportsBH, boolean isMulticastResponse,
+                boolean supportsFWTransfer, boolean supportsTLS, Set<? extends IpPort> proxies,
+                SecurityToken securityToken) {
             byte[] retGGEPBlock = _standardGGEP;
 
             // we have specific field values so we can't use precached ggeps
@@ -1154,8 +1161,7 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
                 if (supportsTLS)
                     retGGEP.put(GGEPKeys.GGEP_HEADER_TLS_CAPABLE);
                 if (supportsFWTransfer)
-                    retGGEP.put(GGEPKeys.GGEP_HEADER_FW_TRANS,
-                                new byte[] {RUDPUtils.VERSION});
+                    retGGEP.put(GGEPKeys.GGEP_HEADER_FW_TRANS, new byte[] { RUDPUtils.VERSION });
                 if (securityToken != null) {
                     retGGEP.put(GGEPKeys.GGEP_HEADER_SECURE_OOB, securityToken.getBytes());
                 }
@@ -1163,15 +1169,19 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
                 // if a PushProxyInterface is valid, write up to MAX_PROXIES
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 int numWritten = 0;
-                BitNumbers bn = HTTPHeaderUtils.getTLSIndices(proxies, Math.min(MAX_PROXIES, proxies.size()));
+                BitNumbers bn = HTTPHeaderUtils.getTLSIndices(proxies, Math.min(MAX_PROXIES,
+                        proxies.size()));
                 if (!proxies.isEmpty()) {
                     Iterator<? extends IpPort> iter = proxies.iterator();
-                    while(iter.hasNext() && (numWritten < MAX_PROXIES)) {
+                    while (iter.hasNext() && (numWritten < MAX_PROXIES)) {
                         IpPort ppi = iter.next();
                         try {
-                            baos.write(NetworkUtils.getBytes(ppi, java.nio.ByteOrder.LITTLE_ENDIAN));
+                            baos
+                                    .write(NetworkUtils.getBytes(ppi,
+                                            java.nio.ByteOrder.LITTLE_ENDIAN));
                             numWritten++;
-                        } catch (IOException ignored) { } // cannot happen on ByteArrayOutputStream
+                        } catch (IOException ignored) {
+                        } // cannot happen on ByteArrayOutputStream
                     }
                 }
 
@@ -1180,14 +1190,15 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
                     if (numWritten > 0) {
                         retGGEP.put(GGEPKeys.GGEP_HEADER_PUSH_PROXY, baos.toByteArray());
                         // add the TLS push proxies info, if any.
-                        if(!bn.isEmpty())
+                        if (!bn.isEmpty())
                             retGGEP.put(GGEPKeys.GGEP_HEADER_PUSH_PROXY_TLS, bn.toByteArray());
                     }
                     // set up return value
                     baos.reset();
                     retGGEP.write(baos);
                     retGGEPBlock = baos.toByteArray();
-                } catch (IOException ignored) { } // cannot happen on ByteArrayOutputStream
+                } catch (IOException ignored) {
+                } // cannot happen on ByteArrayOutputStream
             }
             // else if (supportsBH && supportsFWTransfer &&
             // isMulticastResponse), since supportsFWTransfer is only helpful
@@ -1200,35 +1211,37 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
                 retGGEPBlock = _bhTLSGGEP;
             else if (supportsBH)
                 retGGEPBlock = _bhGGEP;
-            else if(isMulticastResponse && supportsTLS)
+            else if (isMulticastResponse && supportsTLS)
                 retGGEPBlock = _mcTLSGGEP;
-            else if(isMulticastResponse)
+            else if (isMulticastResponse)
                 retGGEPBlock = _mcGGEP;
-            else if(supportsTLS)
+            else if (supportsTLS)
                 retGGEPBlock = _tlsGGEP;
             else
                 retGGEPBlock = _standardGGEP;
             return retGGEPBlock;
         }
-        
-        /** @return a <tt>Set</tt> of <tt>IpPortCombo</tt> instances,
-         *  which can be empty but is guaranteed not to be <tt>null</tt>, as 
-         *  described by the GGEP blocks.
-         *
-         * @param ggeps the array of GGEP extensions that may or may not
-         *  contain push proxy data
+
+        /**
+         * @return a <tt>Set</tt> of <tt>IpPortCombo</tt> instances, which can be
+         *         empty but is guaranteed not to be <tt>null</tt>, as described
+         *         by the GGEP blocks
+         * 
+         * @param ggeps the array of GGEP extensions that may or may not contain
+         *        push proxy data
          */
         public Set<? extends IpPort> getPushProxies(GGEP ggep) {
             Set<IpPort> proxies = null;
             BitNumbers bn = null;
-            
+
             // First try and get the bits for which PPs support TLS.
-            if(ggep.hasValueFor(GGEPKeys.GGEP_HEADER_PUSH_PROXY_TLS)) {
+            if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_PUSH_PROXY_TLS)) {
                 try {
                     bn = new BitNumbers(ggep.getBytes(GGEPKeys.GGEP_HEADER_PUSH_PROXY_TLS));
-                } catch(BadGGEPPropertyException bad) {}
+                } catch (BadGGEPPropertyException bad) {
+                }
             }
-            
+
             if (ggep.hasValueFor(GGEPKeys.GGEP_HEADER_PUSH_PROXY)) {
                 try {
                     byte[] proxyBytes = ggep.getBytes(GGEPKeys.GGEP_HEADER_PUSH_PROXY);
@@ -1238,42 +1251,45 @@ public class QueryReplyImpl extends AbstractMessage implements QueryReply {
                         byte[] combo = new byte[6];
                         if (bais.read(combo, 0, combo.length) == combo.length) {
                             try {
-                                if(proxies == null)
+                                if (proxies == null)
                                     proxies = new IpPortSet();
-                                IpPort ipp = NetworkUtils.getIpPort(combo, java.nio.ByteOrder.LITTLE_ENDIAN);
+                                IpPort ipp = NetworkUtils.getIpPort(combo,
+                                        java.nio.ByteOrder.LITTLE_ENDIAN);
                                 // make it a connectable if the TLS bit is set.
-                                if(bn != null && bn.isSet(i))
+                                if (bn != null && bn.isSet(i))
                                     ipp = new ConnectableImpl(ipp, true);
                                 proxies.add(ipp);
-                            } catch (InvalidDataException malformedPair) {}
+                            } catch (InvalidDataException malformedPair) {
+                            }
                         }
                         i++;
                     }
-                 } catch (BadGGEPPropertyException bad) {}
+                } catch (BadGGEPPropertyException bad) {
+                }
             }
             return proxies != null ? proxies : IpPort.EMPTY_SET;
         }
     }
-    
+
     @Override
     public Class<? extends Message> getHandlerClass() {
         return QueryReply.class;
     }
- 
+
     public boolean isLocal() {
         return local;
     }
-    
+
     int getGGEPStart() {
         parseResults();
         return _data.getGGEPStart();
     }
-    
+
     int getGGEPEnd() {
         parseResults();
         return _data.getGGEPEnd();
     }
-    
+
     int getQHDOffset() {
         parseResults();
         return _data.getQHDOffset();

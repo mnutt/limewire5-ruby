@@ -50,7 +50,7 @@ public class FixedsizeHashMap<K, V> {
     private final int maxSize;
     
     /**
-     * Create a new hashMap that stores only the specified number of entries
+     * Create a new hashMap that stores only the specified number of entries.
      *
      * @param size the number of entries to hold
      * @exception IllegalArgumentException if size is less < 1.
@@ -93,8 +93,8 @@ public class FixedsizeHashMap<K, V> {
     }
     
     /**
-     * Returns the value mapped to the given key
-     * @param key The given key
+     * Returns the value mapped to the given key.
+     * @param key the given key
      * @return the value given key maps to
      */
     public synchronized V get(K key) {
@@ -102,14 +102,13 @@ public class FixedsizeHashMap<K, V> {
     }
     
     /**
-     * clears all entries from the map.
+     * Clears all entries from the map.
      */
     public synchronized void clear() {
         hashMap.clear();
     }
     
     /**
-     * Returns the string representation of the mappings
      * @return the string representation of the mappings
      */
     @Override

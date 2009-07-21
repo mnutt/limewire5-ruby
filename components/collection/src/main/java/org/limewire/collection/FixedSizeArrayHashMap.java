@@ -12,17 +12,17 @@ import java.util.Set;
 /**
  * A fixed size HashMap that provides indexed access.  The replacement
  * policy is FIFO and the iteration order is from newest to oldest.
- * 
+ * <p>
  * Adding an already existing element will postpone the ejection of that
  * element. 
- * 
+ * <p>
  * It does not support the null element.
  */
 public class FixedSizeArrayHashMap<K, V> extends HashMap<K, V> implements RandomAccessMap<K, V> {
 
     private Buffer<Map.Entry<K, V>> buf;
     
-    /** Creates a FixedSizeArrayHashMap with the specified maxmium capacity. */
+    /** Creates a FixedSizeArrayHashMap with the specified maximum capacity. */
     public FixedSizeArrayHashMap(int maxCapacity) {
         this.buf = new Buffer<Map.Entry<K, V>>(maxCapacity);
     }

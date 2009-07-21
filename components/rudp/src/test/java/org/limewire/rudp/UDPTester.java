@@ -7,12 +7,14 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.text.NumberFormat;
+import java.util.concurrent.Executor;
 
+import org.limewire.concurrent.ExecutorsHelper;
+import org.limewire.listener.AsynchronousMulticasterImpl;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.rudp.messages.RUDPMessageFactory;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import org.limewire.util.AssertComparisons;
-import org.limewire.listener.EventListenerList;
 
 public class UDPTester {
 
@@ -52,9 +54,10 @@ public class UDPTester {
         DefaultMessageDispatcher dispatcher = new DefaultMessageDispatcher();
         DefaultUDPService service = new DefaultUDPService(dispatcher);
         RUDPMessageFactory factory = new DefaultMessageFactory();
+        Executor executor = ExecutorsHelper.newProcessingQueue("TestEventThread");
         udpSelectorProvider = new UDPSelectorProvider(new DefaultRUDPContext(
                 factory, NIODispatcher.instance().getTransportListener(),
-                service, new DefaultRUDPSettings()), new EventListenerList<UDPSocketChannelConnectionEvent>());
+                service, new DefaultRUDPSettings()), new AsynchronousMulticasterImpl<UDPSocketChannelConnectionEvent>(executor));
         UDPMultiplexor udpMultiplexor = udpSelectorProvider.openSelector();
         dispatcher.setUDPMultiplexor(udpMultiplexor);
         NIODispatcher.instance().registerSelector(udpMultiplexor, udpSelectorProvider.getUDPSocketChannelClass());

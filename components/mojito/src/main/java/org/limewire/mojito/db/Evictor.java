@@ -28,7 +28,7 @@ import org.limewire.mojito.routing.RouteTable;
 public interface Evictor {
     
     /**
-     * Returns true if the given {@link DHTValueEntity} is expired
+     * Returns true if the given {@link DHTValueEntity} is expired.
      */
     public boolean isExpired(RouteTable routeTable, DHTValueEntity entity);
 }

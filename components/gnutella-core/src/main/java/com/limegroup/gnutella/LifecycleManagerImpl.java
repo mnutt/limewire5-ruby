@@ -170,6 +170,16 @@ public class LifecycleManagerImpl implements LifecycleManager {
         // save limewire.props & other settings
         SettingsGroupManager.instance().save();
         
+        // Try to make sure urgent shutdown tasks are performed if the JVM
+        // is terminated (this may not work on Windows - see 
+        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4486580).
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                ActiveLimeWireCheck.instance().releaseLock();
+            }
+        });
+        
         loadBackgroundTasksBlocking();
 
         serviceRegistry.start();

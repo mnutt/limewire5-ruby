@@ -22,12 +22,17 @@ public class InspectorImpl implements Inspector {
     private static Log LOG = LogFactory.getLog(InspectorImpl.class);
     
     private volatile Properties props;
-    private final Injector injector;
+    private volatile Injector injector;
     
     private final AtomicBoolean loading = new AtomicBoolean(false);
     
     @Inject
     InspectorImpl(Injector injector) {
+        this.injector = injector;
+    }
+    
+    @Override
+    public void setInjector(Injector injector) {
         this.injector = injector;
     }
     

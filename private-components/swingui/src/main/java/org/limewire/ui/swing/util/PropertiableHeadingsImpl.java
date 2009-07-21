@@ -4,20 +4,21 @@ import java.text.SimpleDateFormat;
 
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.PropertiableFile;
+import org.limewire.inject.LazySingleton;
 import org.limewire.util.CommonUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-@Singleton
+@LazySingleton
 class PropertiableHeadingsImpl implements PropertiableHeadings {
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("M/d/yyyy");
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     
     @Inject
-    public PropertiableHeadingsImpl(IconManager iconManager) {
+    public PropertiableHeadingsImpl(Provider<IconManager> iconManager) {
         this.iconManager = iconManager;
     }
     
@@ -28,8 +29,8 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
         String renderName = "";
         switch (propertiable.getCategory()) {
         case AUDIO:
-            String artist = getPropertyString(propertiable, FilePropertyKey.AUTHOR);
-            String title = getPropertyString(propertiable, FilePropertyKey.TITLE);
+            String artist = propertiable.getPropertyString(FilePropertyKey.AUTHOR);
+            String title = propertiable.getPropertyString(FilePropertyKey.TITLE);
             if (!StringUtils.isEmpty(artist) && !StringUtils.isEmpty(title)) {
                 renderName = artist + " - " + title;
             } else {
@@ -46,11 +47,6 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
         }
         return renderName.trim();
     }
-    
-    private String getPropertyString(PropertiableFile propertiable, FilePropertyKey key) {
-        Object property = propertiable.getProperty(key);
-        return property == null ? null : property.toString();
-    }
 
     private String getFileExtension(PropertiableFile propertiableFile) {
         return FileUtils.getFileExtension(propertiableFile.getFileName());
@@ -63,9 +59,9 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
 
         switch (propertiable.getCategory()) {
         case AUDIO: {
-            String albumTitle = getPropertyString(propertiable, FilePropertyKey.ALBUM);
-            Long qualityScore = getQualityScoreLong(propertiable);
-            Long length = getLengthLong(propertiable);
+            String albumTitle = propertiable.getPropertyString(FilePropertyKey.ALBUM);
+            Long qualityScore = (Long)propertiable.getProperty(FilePropertyKey.QUALITY);
+            Long length = (Long)propertiable.getProperty(FilePropertyKey.LENGTH);
 
             boolean insertHyphen = false;
             if (!StringUtils.isEmpty(albumTitle)) {
@@ -78,9 +74,9 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
                     subheading += " - ";
                 }
                 subheading += GuiUtils.toQualityString(qualityScore);
-                String bitRate = getPropertyString(propertiable, FilePropertyKey.BITRATE);
+                Long bitRate = (Long)propertiable.getProperty(FilePropertyKey.BITRATE);
                 if (bitRate != null) {
-                    subheading += " (" + getPropertyString(propertiable, FilePropertyKey.BITRATE) + ")";
+                    subheading += " (" + bitRate+ ")";
                 }
                 insertHyphen = true;
             }
@@ -88,15 +84,15 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
             if (length != null) {
                 subheading = addLength(subheading, length, insertHyphen);
             } else {
-                Long fileSize = getFileSizeLong(propertiable);
+                Long fileSize = (Long)propertiable.getProperty(FilePropertyKey.FILE_SIZE);
                 subheading = addFileSize(subheading, fileSize, insertHyphen);
             }
         }
             break;
         case VIDEO: {
-            Long qualityScore = getQualityScoreLong(propertiable);
-            Long length = getLengthLong(propertiable);
-            Long fileSize = getFileSizeLong(propertiable);
+            Long qualityScore = (Long)propertiable.getProperty(FilePropertyKey.QUALITY);
+            Long length = (Long)propertiable.getProperty(FilePropertyKey.LENGTH);
+            Long fileSize = (Long)propertiable.getProperty(FilePropertyKey.FILE_SIZE);
 
             boolean insertHyphen = false;
             if (qualityScore != null) {
@@ -111,7 +107,7 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
         }
             break;
         case IMAGE: {
-            Long fileSize = getFileSizeLong(propertiable);
+            Long fileSize = (Long)propertiable.getProperty(FilePropertyKey.FILE_SIZE);
             
             boolean insertHyphen = false;
             Object time = propertiable.getProperty(FilePropertyKey.DATE_CREATED);
@@ -130,11 +126,11 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
         case DOCUMENT:
         case OTHER:
         default: {
-             subheading = iconManager.getMIMEDescription(propertiable);
+             subheading = iconManager.get().getMIMEDescription(propertiable);
              subheading = subheading == null ? "" : subheading;
             // TODO add name of program used to open this file, not included in
             // 5.0
-            Long fileSize = getFileSizeLong(propertiable);
+            Long fileSize = (Long)propertiable.getProperty(FilePropertyKey.FILE_SIZE);
             subheading = addFileSize(subheading, fileSize, !"".equals(subheading));
         }
         }
@@ -151,18 +147,6 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
         }
         return subheading;
     }
-    
-    @Override
-    public String getLength(PropertiableFile propertiable) {
-        Long length = getLengthLong(propertiable);
-        return length != null ? CommonUtils.seconds2time(length) : null;
-    }
-    
-    @Override
-    public String getQualityScore(PropertiableFile propertiableFile) {
-        Long qualityScore = getQualityScoreLong(propertiableFile);
-        return qualityScore != null ? GuiUtils.toQualityString(qualityScore) : null;
-    }
 
     private String addFileSize(String subheading, Long fileSize, boolean insertHyphen) {
         if (fileSize != null) {
@@ -173,24 +157,12 @@ class PropertiableHeadingsImpl implements PropertiableHeadings {
         }
         return subheading;
     }
-
-    private Long getLengthLong(PropertiableFile propertiable) {
-        return CommonUtils.parseLongNoException(getPropertyString(propertiable, FilePropertyKey.LENGTH));
-    }
-
-    private Long getQualityScoreLong(PropertiableFile propertiable) {
-        return CommonUtils.parseLongNoException(getPropertyString(propertiable, FilePropertyKey.QUALITY));
-    }
-
-    private Long getFileSizeLong(PropertiableFile propertiable) {
-        return CommonUtils.parseLongNoException(getPropertyString(propertiable, FilePropertyKey.FILE_SIZE));
-    }
     
     @Override
     public String getFileSize(PropertiableFile propertiable) {
-        Long fileSize = getFileSizeLong(propertiable);
+        Long fileSize = (Long)propertiable.getProperty(FilePropertyKey.FILE_SIZE);
         if (fileSize != null) {
-            return GuiUtils.toUnitbytes(fileSize);
+            return GuiUtils.toUnitbytes(fileSize) + "  (" + GuiUtils.toBytes(fileSize) + ")";
         }
         return "";
     }

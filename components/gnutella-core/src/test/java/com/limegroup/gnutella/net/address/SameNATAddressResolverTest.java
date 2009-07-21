@@ -8,7 +8,6 @@ import org.limewire.gnutella.tests.NetworkManagerStub;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
-import org.limewire.io.Address.EventType;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.net.ConnectivityChangeEvent;
@@ -55,8 +54,8 @@ public class SameNATAddressResolverTest extends BaseTestCase {
         context.checking(new Expectations() {{
             one(eventBroadcaster).broadcast(with(any(ConnectivityChangeEvent.class)));
         }});
-        resolver.handleEvent(new AddressEvent(context.mock(Address.class), EventType.ADDRESS_CHANGED));
-        resolver.handleEvent(new AddressEvent(context.mock(Address.class), EventType.ADDRESS_CHANGED));
+        resolver.handleEvent(new AddressEvent(context.mock(Address.class), AddressEvent.Type.ADDRESS_CHANGED));
+        resolver.handleEvent(new AddressEvent(context.mock(Address.class), AddressEvent.Type.ADDRESS_CHANGED));
         context.assertIsSatisfied();
     }
 

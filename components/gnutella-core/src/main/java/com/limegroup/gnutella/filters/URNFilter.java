@@ -1,22 +1,20 @@
 package com.limegroup.gnutella.filters;
 
 import java.io.IOException;
-import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.limewire.core.settings.FilterSettings;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.spam.SpamManager;
-
-import org.limewire.core.settings.FilterSettings;
 
 /**
  * A filter that blocks query responses with URNs that match either of
@@ -27,7 +25,7 @@ import org.limewire.core.settings.FilterSettings;
 public class URNFilter implements SpamFilter {
     
     private static final Log LOG = LogFactory.getLog(URNFilter.class);
-    private final HashSet<URN> blacklist = new HashSet<URN>();
+    private ImmutableSet<URN> blacklist = null;
     private final SpamManager spamManager;
 
     @Inject
@@ -40,17 +38,18 @@ public class URNFilter implements SpamFilter {
      * starts and on SIMPP updates.
      */ 
     public void refreshURNs() {
-        blacklist.clear();
+        ImmutableSet.Builder<URN> builder = ImmutableSet.builder();
         try {
             for(String s : FilterSettings.FILTERED_URNS_LOCAL.get())
-                blacklist.add(URN.createSHA1Urn("urn:sha1:" + s));
+                builder.add(URN.createSHA1Urn("urn:sha1:" + s));
             if(FilterSettings.USE_NETWORK_FILTER.getValue()) {
                 for(String s : FilterSettings.FILTERED_URNS_REMOTE.get())
-                    blacklist.add(URN.createSHA1Urn("urn:sha1:" + s));
+                    builder.add(URN.createSHA1Urn("urn:sha1:" + s));
             }
         } catch (IOException iox) {
             LOG.debug("Error creating URN blacklist: ", iox);
         }
+        blacklist = builder.build();
     }
     
     /**
@@ -59,6 +58,8 @@ public class URNFilter implements SpamFilter {
      */
     @Override
     public boolean allow(Message m) {
+        if(blacklist == null)
+            return true;
         if(m instanceof QueryReply) {
             QueryReply q = (QueryReply)m;
             try {

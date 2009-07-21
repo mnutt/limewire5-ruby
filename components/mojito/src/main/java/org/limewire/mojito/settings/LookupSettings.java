@@ -25,7 +25,7 @@ import org.limewire.setting.IntSetting;
 import org.limewire.setting.LongSetting;
 
 /**
- * Setting for Kademlia lookups
+ * Setting for Kademlia lookups.
  */
 public class LookupSettings extends MojitoProps {
     
@@ -40,40 +40,40 @@ public class LookupSettings extends MojitoProps {
 
     /**
      * Whether or not the (k+1)-closest Contact should be
-     * removed from the response Set
+     * removed from the response Set.
      */
     public static final BooleanSetting DELETE_FURTHEST_CONTACT
         = FACTORY.createBooleanSetting("DELETE_FURTHEST_CONTACT", true);
     
     /**
-     * The FIND_NODE lookup timeout
+     * The FIND_NODE lookup timeout.
      */
     public static final LongSetting FIND_NODE_LOOKUP_TIMEOUT
         = FACTORY.createRemoteLongSetting("FIND_NODE_LOOKUP_TIMEOUT", 
                 90L*1000L, "Mojito.FindNodeLookupTimeout", 10L*1000L, 5L*60L*1000L);
 
     /**
-     * The FIND_VALUE lookup timeout
+     * The FIND_VALUE lookup timeout.
      */
     public static final LongSetting FIND_VALUE_LOOKUP_TIMEOUT
         = FACTORY.createRemoteLongSetting("FIND_VALUE_LOOKUP_TIMEOUT", 
                 90L*1000L, "Mojito.FindValueLookupTimeout", 10L*1000L, 5L*60L*1000L);
 
     /**
-     * Whether or not a value lookup is exhaustive
+     * Whether or not a value lookup is exhaustive.
      */
     public static final BooleanSetting EXHAUSTIVE_VALUE_LOOKUP
         = FACTORY.createBooleanSetting("EXHAUSTIVE_VALUE_LOOKUP", false);
 
     /**
-     * The number of parallel FIND_VALUE lookups
+     * The number of parallel FIND_VALUE lookups.
      */
     public static final IntSetting FIND_VALUE_PARALLEL_LOOKUPS
         = FACTORY.createRemoteIntSetting("FIND_VALUE_PARALLEL_LOOKUPS", 10, 
                 "Mojito.FindValueParallelLookups", 1, 30);
 
     /**
-     * The number of parallel FIND_NODE lookups
+     * The number of parallel FIND_NODE lookups.
      */
     public static final IntSetting FIND_NODE_PARALLEL_LOOKUPS
         = FACTORY.createRemoteIntSetting("FIND_NODE_PARALLEL_LOOKUPS", 5, 
@@ -98,9 +98,9 @@ public class LookupSettings extends MojitoProps {
                 0.0f, "Mojito.ContactsScrubberRequiredRatio", 0.0f, 1.0f);
     
     /**
-     * Returns the lock timeout for a lookup process
+     * Returns the lock timeout for a lookup process.
      * 
-     * @param findNode Whether it's a FIND_NODE or FIND_VALUE operation
+     * @param findNode whether it's a FIND_NODE or FIND_VALUE operation
      */
     public static long getWaitOnLock(boolean findNode) {
         long waitOnLock = 0L;

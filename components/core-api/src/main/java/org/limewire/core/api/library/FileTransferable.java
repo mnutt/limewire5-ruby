@@ -45,10 +45,6 @@ public class FileTransferable implements Transferable {
         this(files, EMPTY_FILE_TRANSFER_LiST);
     }
     
-    /**
-     * @param realFiles
-     * @param lazyFiles
-     */
     public FileTransferable(List<File> realFiles,
             List<? extends File> lazyFiles) {
         if (realFiles == null) { 

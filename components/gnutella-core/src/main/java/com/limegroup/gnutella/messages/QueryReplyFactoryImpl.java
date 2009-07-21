@@ -39,11 +39,14 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      * Creates a new query reply. The number of responses is responses.length
      * The Browse Host GGEP extension is ON by default.
      * 
-     * @requires 0 < port < 2^16 (i.e., can fit in 2 unsigned bytes),
+     * @requires 
+     * <xmp>
+     *           0 < port < 2^16 (i.e., can fit in 2 unsigned bytes),
      *           ip.length==4 and ip is in <i>BIG-endian</i> byte order, 0 <
      *           speed < 2^32 (i.e., can fit in 4 unsigned bytes),
      *           responses.length < 2^8 (i.e., can fit in 1 unsigned byte),
      *           clientGUID.length==16
+     *</xmp>
      */
     public QueryReply createQueryReply(byte[] guid, byte ttl, int port,
             byte[] ip, long speed, Response[] responses, byte[] clientGUID,
@@ -121,6 +124,11 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      * constructor has no support for undefined push or busy bits. The Browse
      * Host GGEP extension is ON by default.
      * 
+     * @param xmlBytes ghe (non-null) byte[] containing aggregated and indexed
+     *        information regarding file metadata. In terms of byte-size, this
+     *        should not be bigger than 65535 bytes. Anything larger will result
+     *        in an Exception being throw. This String is assumed to consist of
+     *        compressed data.
      * @param needsPush true iff this is firewalled and the downloader should
      *        attempt a push without trying a normal download.
      * @param isBusy true iff this server is busy, i.e., has no more upload
@@ -129,15 +137,10 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      *        upload
      * @param measuredSpeed true iff speed is measured, not as reported by the
      *        user
-     * @param xmlBytes The (non-null) byte[] containing aggregated and indexed
-     *        information regarding file metadata. In terms of byte-size, this
-     *        should not be bigger than 65535 bytes. Anything larger will result
-     *        in an Exception being throw. This String is assumed to consist of
-     *        compressed data.
      * @param supportsChat true iff the host currently allows chatting.
      * @param proxies an array of PushProxy interfaces. will be included in the
      *        replies GGEP extension.
-     * @exception IllegalArgumentException Thrown if xmlBytes.length >
+     * @exception IllegalArgumentException thrown if xmlBytes.length >
      *            XML_MAX_SIZE
      */
     public QueryReply createQueryReply(byte[] guid, byte ttl, int port,
@@ -158,6 +161,11 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      * constructor has no support for undefined push or busy bits. The Browse
      * Host GGEP extension is ON by default.
      * 
+     * @param xmlBytes the (non-null) byte[] containing aggregated and indexed
+     *        information regarding file metadata. In terms of byte-size, this
+     *        should not be bigger than 65535 bytes. Anything larger will result
+     *        in an Exception being throw. This String is assumed to consist of
+     *        compressed data
      * @param needsPush true iff this is firewalled and the downloader should
      *        attempt a push without trying a normal download.
      * @param isBusy true iff this server is busy, i.e., has no more upload
@@ -166,11 +174,6 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      *        upload
      * @param measuredSpeed true iff speed is measured, not as reported by the
      *        user
-     * @param xmlBytes The (non-null) byte[] containing aggregated and indexed
-     *        information regarding file metadata. In terms of byte-size, this
-     *        should not be bigger than 65535 bytes. Anything larger will result
-     *        in an Exception being throw. This String is assumed to consist of
-     *        compressed data.
      * @param supportsChat true iff the host currently allows chatting.
      * @param proxies an array of PushProxy interfaces. will be included in the
      *        replies GGEP extension.
@@ -197,6 +200,11 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      * constructor has no support for undefined push or busy bits. The Browse
      * Host GGEP extension is ON by default.
      * 
+     * @param xmlBytes the (non-null) byte[] containing aggregated and indexed
+     *        information regarding file metadata. In terms of byte-size, this
+     *        should not be bigger than 65535 bytes. Anything larger will result
+     *        in an Exception being throw. This String is assumed to consist of
+     *        compressed data
      * @param needsPush true iff this is firewalled and the downloader should
      *        attempt a push without trying a normal download.
      * @param isBusy true iff this server is busy, i.e., has no more upload
@@ -205,11 +213,6 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      *        upload
      * @param measuredSpeed true iff speed is measured, not as reported by the
      *        user
-     * @param xmlBytes The (non-null) byte[] containing aggregated and indexed
-     *        information regarding file metadata. In terms of byte-size, this
-     *        should not be bigger than 65535 bytes. Anything larger will result
-     *        in an Exception being throw. This String is assumed to consist of
-     *        compressed data.
      * @param supportsChat true iff the host currently allows chatting.
      * @param proxies an array of PushProxy interfaces. will be included in the
      *        replies GGEP extension.
@@ -235,6 +238,11 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      * constructor has no support for undefined push or busy bits. The Browse
      * Host GGEP extension is ON by default.
      * 
+     * @param xmlBytes the (non-null) byte[] containing aggregated and indexed
+     *        information regarding file metadata. In terms of byte-size, this
+     *        should not be bigger than 65535 bytes. Anything larger will result
+     *        in an Exception being throw. This String is assumed to consist of
+     *        compressed data
      * @param needsPush true iff this is firewalled and the downloader should
      *        attempt a push without trying a normal download.
      * @param isBusy true iff this server is busy, i.e., has no more upload
@@ -243,11 +251,6 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      *        upload
      * @param measuredSpeed true iff speed is measured, not as reported by the
      *        user
-     * @param xmlBytes The (non-null) byte[] containing aggregated and indexed
-     *        information regarding file metadata. In terms of byte-size, this
-     *        should not be bigger than 65535 bytes. Anything larger will result
-     *        in an Exception being throw. This String is assumed to consist of
-     *        compressed data.
      * @param supportsChat true iff the host currently allows chatting.
      * @param proxies an array of PushProxy interfaces. will be included in the
      *        replies GGEP extension.
@@ -284,8 +287,8 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
      * the payload cannot be mutated, it shouldn't make difference if different
      * query replies maintain reference to same payload
      * 
-     * @param guid The new GUID for the reply
-     * @param reply The query reply from where to copy the fields into the new
+     * @param guid the new GUID for the reply
+     * @param reply the query reply from where to copy the fields into the new
      *        constructed query reply
      */
     public QueryReply createQueryReply(byte[] guid, QueryReply reply) {
@@ -311,7 +314,7 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
     }
     
     /**
-     * Copy constructor
+     * Copy constructor.
      * @param ggep new ggep byte [] to add to this reply
      * @return original reply but with the ggep in it.
      */
@@ -400,7 +403,7 @@ public class QueryReplyFactoryImpl implements QueryReplyFactory {
     
     /**
      * @param ggep the ggep we should add the return path info to
-     * @return the suffix we should use, null if we can't add for some reason.
+     * @return the suffix we should use, null if we can't add for some reason
      */
     private String getReturnPathSuffix(GGEP ggep) {
         for (int i = 0; i < 100000; i++) { // large number to make it impractical to avoid

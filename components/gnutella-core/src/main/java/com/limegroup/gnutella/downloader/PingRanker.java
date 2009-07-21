@@ -41,7 +41,7 @@ public class PingRanker extends AbstractSourceRanker implements MessageListener,
         new RFDAltDeprioritizer();
     
     /**
-     * new hosts (as RFDs) that we've learned about
+     * New hosts (as RFDs) that we've learned about.
      */
     private Set<RemoteFileDescContext> newHosts;
     
@@ -65,17 +65,17 @@ public class PingRanker extends AbstractSourceRanker implements MessageListener,
     private TreeSet<RemoteFileDescContext> verifiedHosts;
     
     /**
-     * The urn to use to create pings
+     * The urn to use to create pings.
      */
     private URN sha1;
     
     /**
-     * The guid to use for my headPings
+     * The guid to use for my headPings.
      */
     private GUID myGUID;
     
     /**
-     * whether the ranker has been stopped.
+     * Whether the ranker has been stopped.
      */
     private boolean running;
     
@@ -117,7 +117,7 @@ public class PingRanker extends AbstractSourceRanker implements MessageListener,
     }
     
     /**
-     * adds the collection of hosts to to the internal structures
+     * Adds the collection of hosts to to the internal structures.
      */
     private boolean addInternal(Collection<? extends RemoteFileDescContext> c) {
         boolean ret = false;
@@ -226,7 +226,7 @@ public class PingRanker extends AbstractSourceRanker implements MessageListener,
     }
     
     /**
-     * pings a bunch of hosts if necessary
+     * Pings a bunch of hosts if necessary.
      */
     private void pingNewHosts() {
         // if we have reached our desired # of altlocs, don't ping
@@ -294,7 +294,7 @@ public class PingRanker extends AbstractSourceRanker implements MessageListener,
     }
     
     /**
-     * schedules a push ping to each proxy of the given host
+     * Schedules a push ping to each proxy of the given host.
      */
     private void pingProxies(RemoteFileDescContext rfdContext, PushEndpoint pushEndpoint) {
         if (networkManager.acceptedIncomingConnection() || 
@@ -331,7 +331,7 @@ public class PingRanker extends AbstractSourceRanker implements MessageListener,
     }
     
     /**
-     * Informs the Ranker that a host has replied with a HeadPong
+     * Informs the Ranker that a host has replied with a HeadPong.
      */
     public void processMessage(Message m, ReplyHandler handler) {
         
@@ -467,8 +467,8 @@ public class PingRanker extends AbstractSourceRanker implements MessageListener,
     }
         
     /**
-     * a ranker that deprioritizes RFDs from altlocs, used to make sure
-     * we ping the hosts that actually returned results first
+     * A ranker that deprioritizes RFDs from altlocs, used to make sure
+     * we ping the hosts that actually returned results first.
      */
     private static final class RFDAltDeprioritizer implements Comparator<RemoteFileDescContext>{
         public int compare(RemoteFileDescContext rfd1, RemoteFileDescContext rfd2) {

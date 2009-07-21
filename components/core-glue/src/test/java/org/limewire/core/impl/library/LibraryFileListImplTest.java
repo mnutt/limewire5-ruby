@@ -11,8 +11,8 @@ import org.limewire.listener.EventListener;
 import org.limewire.util.AssignParameterAction;
 import org.limewire.util.BaseTestCase;
 
-import com.limegroup.gnutella.library.FileListChangedEvent;
-import com.limegroup.gnutella.library.ManagedFileList;
+import com.limegroup.gnutella.library.FileViewChangeEvent;
+import com.limegroup.gnutella.library.Library;
 
 public class LibraryFileListImplTest extends BaseTestCase {
 
@@ -24,16 +24,16 @@ public class LibraryFileListImplTest extends BaseTestCase {
     public void testPropertyChangesUpdateLibraryState() {
         Mockery context = new Mockery();
 
-        final ManagedFileList managedList = context.mock(ManagedFileList.class);
+        final Library managedList = context.mock(Library.class);
         final CoreLocalFileItemFactory coreLocalFileItemFactory = context
                 .mock(CoreLocalFileItemFactory.class);
 
-        final AtomicReference<EventListener<FileListChangedEvent>> fileListListener = new AtomicReference<EventListener<FileListChangedEvent>>();
+        final AtomicReference<EventListener<FileViewChangeEvent>> fileListListener = new AtomicReference<EventListener<FileViewChangeEvent>>();
         final AtomicReference<PropertyChangeListener> propertyChangeListener = new AtomicReference<PropertyChangeListener>();
         context.checking(new Expectations() {
             {
-                one(managedList).addFileListListener(with(any(EventListener.class)));
-                will(new AssignParameterAction<EventListener<FileListChangedEvent>>(
+                one(managedList).addListener(with(any(EventListener.class)));
+                will(new AssignParameterAction<EventListener<FileViewChangeEvent>>(
                         fileListListener, 0));
                 one(managedList).addPropertyChangeListener(with(any(PropertyChangeListener.class)));
                 will(new AssignParameterAction<PropertyChangeListener>(propertyChangeListener, 0));

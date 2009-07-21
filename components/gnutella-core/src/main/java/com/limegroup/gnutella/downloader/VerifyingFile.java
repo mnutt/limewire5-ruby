@@ -23,21 +23,21 @@ import com.limegroup.gnutella.tigertree.HashTree;
 /**
  * A control point for all access to the file being downloaded to, also does 
  * on-the-fly verification.
- * 
+ * <p>
  * Every region of the file can be in one of five states, and can move from one
  * state to another only in the following order:
- * 
+ * <pre>
  *   1. available for download 
  *   2. currently being downloaded 
  *   3. waiting to be written.
  *   4. written (and immediately into, if possible..)
  *   5. verified, or if it doesn't verify back to
  *   1. available for download   
- *   
- * In order to maintain these constraints, the only possible operations are:
+ * </pre>
+ * In order to maintain these constraints, the only possible operations are:<pre>
  *   Lease a block - find an area which is available for download and claim it
  *   Write a block - report that the specified block has been read from the network.
- *   Release a block - report that the specified block will not be downloaded.
+ *   Release a block - report that the specified block will not be downloaded.</pre>
  */
 public class VerifyingFile {
     
@@ -49,14 +49,14 @@ public class VerifyingFile {
     static final float MAX_CORRUPTION = 0.9f;
     
     /** The default chunk size - if we don't have a tree we request chunks this big.
-     * 
+     * <p>
      *  This is a power of two in order to minimize the number of small partial chunk
      *  downloads that will be required after we learn the chunk size from the TigerTree,
      *  since the chunk size will always be a power of two.
      */
     static final int DEFAULT_CHUNK_SIZE = 131072; //128 KB = 128 * 1024 B = 131072 bytes
     
-    /** How much to verify at a time */
+    /** How much to verify at a time. */
     private static final int VERIFYABLE_CHUNK = 64 * 1024; // 64k
     
     /**
@@ -65,7 +65,7 @@ public class VerifyingFile {
     private volatile RandomAccessFile fos;
     
     /**
-     * Whether this file is open for writing
+     * Whether this file is open for writing.
      */
     private volatile boolean isOpen;
 
@@ -73,21 +73,21 @@ public class VerifyingFile {
      * The eventual completed size of the file we're writing.
      */
     private final long completedSize;
-	
-	/**
-	 * How much data did we lose due to corruption
-	 */
-	private long lostSize;
+
+    /**
+     * How much data did we lose due to corruption.
+     */
+    private long lostSize;
     
     /**
      * The VerifyingFile uses an IntervalSet to keep track of the blocks written
-     * to disk and find out which blocks to check before writing to disk
+     * to disk and find out which blocks to check before writing to disk.
      */
     private final IntervalSet verifiedBlocks;
     
     /**
      * Ranges that are currently being written by the ManagedDownloader. 
-     * 
+     * <p>
      * Replaces the IntervalSet of needed ranges previously stored in the 
      * ManagedDownloader but which could get out of sync with the verifiedBlocks
      * IntervalSet and is therefore replaced by a more failsafe implementation.
@@ -101,7 +101,7 @@ public class VerifyingFile {
     private IntervalSet partialBlocks;
     
     /**
-     * Ranges that are discarded (but verification was attempted)
+     * Ranges that are discarded (but verification was attempted).
      */
     private IntervalSet savedCorruptBlocks;
     
@@ -116,7 +116,7 @@ public class VerifyingFile {
     private SelectionStrategy blockChooser = null;
     
     /**
-     * The hashtree we use to verify chunks, if any
+     * The hashtree we use to verify chunks, if any.
      */
     private HashTree hashTree;
     
@@ -126,12 +126,12 @@ public class VerifyingFile {
     private String expectedHashRoot;
     
     /**
-     * Whether someone is currently requesting the hash tree
+     * Whether someone is currently requesting the hash tree.
      */
     private boolean hashTreeRequested;
     
     /**
-     * Whether we are actually verifying chunks
+     * Whether we are actually verifying chunks.
      */
     private boolean discardBad = true;
     
@@ -178,7 +178,7 @@ public class VerifyingFile {
     /**
      * Opens this VerifyingFile for writing.
      * MUST be called before anything else.
-     *
+     * <p>
      * If there is no completion size, this fails.
      */
     public void open(File file) throws IOException {
@@ -208,7 +208,7 @@ public class VerifyingFile {
     }
 
     /**
-     * used to add blocks direcly. Blocks added this way are marked
+     * Used to add blocks directly. Blocks added this way are marked
      * partial.
      */
     public synchronized void addInterval(Range interval) {
@@ -217,8 +217,8 @@ public class VerifyingFile {
     }
 
     public void registerWriteCallback(WriteRequest request, WriteCallback callback) {
-    	request.startScheduling();
-    	
+        request.startScheduling();
+    
         if (writeBlockImpl(request)) {
             callback.writeScheduled();
         } else {
@@ -228,24 +228,17 @@ public class VerifyingFile {
 
     /**
      * Writes bytes to the underlying file.
-     * 
-     * @param currPos the position in the file to write to
-     * @param start the start position in the buffer to read from
-     * @param length the length of data in the buffer to use
-     * @param buf the buffer of data
-     * @return null if this scheduled a write or wasn't open, otherwise Object
-     * that can be used to schedule a write.
      */
     public boolean writeBlock(WriteRequest request) {
         if(!validateState(request))
-        	return true;
+            return true;
         
         request.startProcessing();
         updateState(request.in);
         boolean canWrite = diskController.get().canWriteNow();
         
         if(canWrite)
-        	return writeBlockImpl(request);
+            return writeBlockImpl(request);
          else  // do not try to write if something else is waiting.
             return false;
     }
@@ -253,10 +246,6 @@ public class VerifyingFile {
     /**
      * Writes bytes to the underlying file.
      * 
-     * @param currPos the position in the file to write to
-     * @param start the start position in the buffer to read from
-     * @param length the length of data in the buffer to use
-     * @param buf the buffer of data
      * @return true if this scheduled a write or wasn't open, false if it couldn't.
      */
     private boolean writeBlockImpl(WriteRequest request) {
@@ -285,10 +274,10 @@ public class VerifyingFile {
     }
     
     private synchronized void updateState(Range intvl) {
-		/// some stuff to help debugging ///
-        assert leasedBlocks.contains(intvl) :
-                "trying to write an interval "+intvl+" that wasn't leased.\n"+dumpState();
-		
+        // / some stuff to help debugging ///
+        assert leasedBlocks.contains(intvl) : "trying to write an interval " + intvl
+                + " that wasn't leased.\n" + dumpState();
+
         assert !(partialBlocks.contains(intvl) || savedCorruptBlocks.contains(intvl) || pendingBlocks.contains(intvl)) :
             "trying to write an interval "+intvl+ " that was already written"+dumpState();
             
@@ -309,21 +298,21 @@ public class VerifyingFile {
             pendingBlocks.add(intvl);
         }
     }
-    
+
     /**
      * @return false if this request should return immediately
      */
     private boolean validateState(WriteRequest request) {
-    	if(request.length == 0) //nothing to write? return
-    		return false;
+        if (request.length == 0) // nothing to write? return
+            return false;
 
-    	if(fos == null)
-    		throw new IllegalStateException("no fos!");
+        if (fos == null)
+            throw new IllegalStateException("no fos!");
 
-    	if (!isOpen())
-    		return false;
+        if (!isOpen())
+            return false;
 
-    	return true;
+        return true;
     }
     
     
@@ -331,9 +320,6 @@ public class VerifyingFile {
      * Set whether or not we're going to do a one-time full scan
      * on this file for verified blocks once we find a
      * hash tree.
-     * 
-     * @param scan
-     * @param length
      */
     public void setScanForExistingBlocks(boolean scan, long length) 
     throws IOException {
@@ -354,7 +340,7 @@ public class VerifyingFile {
     
     /**
      * Returns a block of data that needs to be written.
-     * 
+     * <p>
      * This method will not break up contiguous chunks into smaller chunks.
      */
     public Range leaseWhite() throws NoSuchElementException {
@@ -518,15 +504,15 @@ public class VerifyingFile {
         return verifiedBlocks.getSize();
     }
   
-	/**
-	 * @return how much data was lost due to corruption
-	 */
-	public synchronized long getAmountLost() {
-		return lostSize;
-	}
-	
     /**
-     * Determines if all blocks have been written to disk and verified
+     * @return how much data was lost due to corruption
+     */
+    public synchronized long getAmountLost() {
+        return lostSize;
+    }
+
+    /**
+     * Determines if all blocks have been written to disk and verified.
      */
     public synchronized boolean isComplete() {
         if (hashTree != null)
@@ -735,7 +721,7 @@ public class VerifyingFile {
     }
     
     /**
-     * flags that someone is currently requesting the tree
+     * Flags that someone is currently requesting the tree.
      */
     public synchronized void setHashTreeRequested(boolean yes) {
         hashTreeRequested = yes;
@@ -760,11 +746,11 @@ public class VerifyingFile {
         verifyChunks(-1);
     }
     
-	/**
-	 * Schedules those chunks that can be verified against the hash tree
-	 * for verification.
-	 */
-	private void verifyChunks(long existingFileSize) {
+    /**
+     * Schedules those chunks that can be verified against the hash tree for
+     * verification.
+     */
+    private void verifyChunks(long existingFileSize) {
         boolean fullScan = existingFileSize != -1;
         HashTree tree = getHashTree(); // capture the tree.
         // if we have a tree, see if there is a completed chunk in the partial list
@@ -791,7 +777,7 @@ public class VerifyingFile {
     /**
      * iterates through the pending blocks and checks if the recent write has created
      * some (verifiable) full chunks.  Its not possible to verify more than two chunks
-     * per method call unless the downloader is being deserialized from disk
+     * per method call unless the downloader is being deserialized from disk.
      */
     private synchronized List<Range> findVerifyableBlocks(long existingFileSize) {
         if (LOG.isTraceEnabled())
@@ -865,23 +851,23 @@ public class VerifyingFile {
         
         @Override
         public void runChunkJob(byte[] buf) {
-    		try {
-    		    if(LOG.isTraceEnabled())
-    		        LOG.trace("Writing intvl: " + intvl);
-                
-    			synchronized(fos) {
-    				fos.seek(intvl.getLow());
-    				fos.write(buf, 0, (int)(intvl.getHigh() - intvl.getLow() + 1));
-    			}
-    			
-    			synchronized(VerifyingFile.this) {
-    			    pendingBlocks.delete(intvl);
-    			    partialBlocks.add(intvl);
+            try {
+                if (LOG.isTraceEnabled())
+                    LOG.trace("Writing intvl: " + intvl);
+
+                synchronized (fos) {
+                    fos.seek(intvl.getLow());
+                    fos.write(buf, 0, (int) (intvl.getHigh() - intvl.getLow() + 1));
+                }
+
+                synchronized (VerifyingFile.this) {
+                    pendingBlocks.delete(intvl);
+                    partialBlocks.add(intvl);
                     freedPending = true;
-    			}
-    			
-    			verifyChunks();
-            } catch(IOException diskIO) {
+                }
+
+                verifyChunks();
+            } catch (IOException diskIO) {
                 synchronized(VerifyingFile.this) {
                     pendingBlocks.delete(intvl);
                     storedException = diskIO;
@@ -902,19 +888,19 @@ public class VerifyingFile {
                 }
             }
         }
-	}
-    
-    /**  A simple Runnable that schedules a verification of the file. */
+    }
+
+    /** A simple Runnable that schedules a verification of the file. */
     private class EmptyVerifier implements Runnable {
-    	private final long existingFileSize;
-    	
-    	EmptyVerifier(long existingFileSize) {
-    	    this.existingFileSize = existingFileSize;
-    	}
-        
+        private final long existingFileSize;
+
+        EmptyVerifier(long existingFileSize) {
+            this.existingFileSize = existingFileSize;
+        }
+
         public void run() {
             verifyChunks(existingFileSize);
-            synchronized(VerifyingFile.this) {
+            synchronized (VerifyingFile.this) {
                 VerifyingFile.this.notify();
             }
         }
@@ -944,49 +930,56 @@ public class VerifyingFile {
             } else {
                 return false;
             }
-        } 
+        }
     }
+
     public static class WriteRequest {
-    	public final long currPos;
-    	public final int start;
-    	public final int length;
-    	public final byte[] buf;
-    	public final Range in;
-    	private boolean processed, done, scheduled;
-    	WriteRequest(long currPos, int start, int length, byte [] buf) {
-    		this.currPos = currPos;
-    		this.start = start;
-    		this.length = length;
-    		this.buf = buf;
-    		in = Range.createRange(currPos, currPos + length - 1);
-    	}
-    	
-    	private synchronized void startProcessing() {
-    		if (isInvalidForWriting())
-    			throw new IllegalStateException("invalid request state");
-    		processed = true;
-    	}
-    	
-    	private synchronized void startScheduling() {
-    		if (isInvalidForCallback())
-    			throw new IllegalStateException("invalid request state");
-    		scheduled = true;
-    	}
-    	
-    	private synchronized void setDone() {
-    		if (done)
-    			throw new IllegalStateException("invalid request state");
-    		done = true;
-    	}
-    	
-    	public synchronized boolean isInvalidForCallback(){
-    		return !processed || done || scheduled;
-    	}
-    	
-    	public synchronized boolean isInvalidForWriting() {
-    		return done || processed;
-    	}
-    	
+        public final long currPos;
+
+        public final int start;
+
+        public final int length;
+
+        public final byte[] buf;
+
+        public final Range in;
+
+        private boolean processed, done, scheduled;
+
+        WriteRequest(long currPos, int start, int length, byte[] buf) {
+            this.currPos = currPos;
+            this.start = start;
+            this.length = length;
+            this.buf = buf;
+            in = Range.createRange(currPos, currPos + length - 1);
+        }
+
+        private synchronized void startProcessing() {
+            if (isInvalidForWriting())
+                throw new IllegalStateException("invalid request state");
+            processed = true;
+        }
+
+        private synchronized void startScheduling() {
+            if (isInvalidForCallback())
+                throw new IllegalStateException("invalid request state");
+            scheduled = true;
+        }
+
+        private synchronized void setDone() {
+            if (done)
+                throw new IllegalStateException("invalid request state");
+            done = true;
+        }
+
+        public synchronized boolean isInvalidForCallback() {
+            return !processed || done || scheduled;
+        }
+
+        public synchronized boolean isInvalidForWriting() {
+            return done || processed;
+        }
+
     }
 }
 

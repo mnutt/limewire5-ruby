@@ -45,7 +45,7 @@ public class TrackComparator implements Comparator<String> {
 
     /**
      * Compares non null track data of the simplified Long structure or
-     *  a gibersish string.
+     *  a gibberish string.
      *  
      * <p>Gibberish goes to the bottom and is String sorted.
      * <p>Longs go to the top and are Long sorted.

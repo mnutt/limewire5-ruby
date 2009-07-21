@@ -33,43 +33,43 @@ public class DHTValueEntity implements Serializable {
     private static final long serialVersionUID = 2007158043378144871L;
 
     /**
-     * The creator of the value
+     * The creator of the value.
      */
     private final Contact creator;
     
     /**
-     * The sender of the value (store forward)
+     * The sender of the value (store forward).
      */
     private final Contact sender;
     
     /**
-     * The (primary) key of the value
+     * The (primary) key of the value.
      */
     private final KUID primaryKey;
     
     /**
-     * The secondary key of the value
+     * The secondary key of the value.
      */
     private final KUID secondaryKey;
     
     /**
-     * The actual value
+     * The actual value.
      */
     private final DHTValue value;
     
     /**
-     * The time when this value was created (local time)
+     * The time when this value was created (local time).
      */
     private final long creationTime = System.currentTimeMillis();
     
     /**
      * Flag for whether or not this is a local entity
-     * (i.e. Sender and Creator are both the local Node)
+     * (i.e. Sender and Creator are both the local Node).
      */
     private final boolean local;
     
     /**
-     * The hash code of this entity
+     * The hash code of this entity.
      */
     private final int hashCode;
     

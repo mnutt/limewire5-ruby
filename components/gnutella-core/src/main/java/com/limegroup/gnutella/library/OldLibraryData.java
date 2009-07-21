@@ -94,8 +94,7 @@ final class OldLibraryData extends AbstractSettingsGroup {
 	 * Cleans special file sharing settings by removing references to files that
 	 * no longer exist.
 	 */
-	@SuppressWarnings("deprecation")
-    public final void clean() {
+	public final void clean() {
 	    OldLibrarySettings.DIRECTORIES_TO_SHARE.clean();
 		Set<File> parents = OldLibrarySettings.DIRECTORIES_TO_SHARE.get();
 		clean(DIRECTORIES_NOT_TO_SHARE, parents);

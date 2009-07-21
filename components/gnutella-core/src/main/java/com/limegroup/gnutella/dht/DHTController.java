@@ -16,17 +16,17 @@ import com.limegroup.gnutella.dht.DHTManager.DHTMode;
 public interface DHTController {
     
     /**
-     * Starts the DHT Node
+     * Starts the DHT Node.
      */
     public void start();
     
     /**
-     * Stops the DHT Node
+     * Stops the DHT Node.
      */
     public void stop();
 
     /**
-     * Returns maxNodes number of active Node IP:Ports
+     * Returns maxNodes number of active Node IP:Ports.
      */
     public List<IpPort> getActiveDHTNodes(int maxNodes);
     
@@ -46,38 +46,38 @@ public interface DHTController {
     public void addPassiveDHTNode(SocketAddress hostAddress);
     
     /**
-     * Adds the given <code>Contact</code> to the local RouteTable
+     * Adds the given <code>Contact</code> to the local RouteTable.
      */
     public void addContact(Contact node);
     
     /**
-     * Sends the updated capabilities to our connections (Gnutella)
+     * Sends the updated capabilities to our connections (Gnutella).
      */
     public void sendUpdatedCapabilities();
     
     /**
-     * Returns the mode of the DHTController
+     * Returns the mode of the DHTController.
      */
     public DHTMode getDHTMode();
     
     /**
-     * Returns whether this Node is running or not
+     * Returns whether this Node is running or not.
      */
     public boolean isRunning();
     
     /**
-     * Returns whether or not this node is bootstrapped
+     * Returns whether or not this node is bootstrapped.
      */
     public boolean isBootstrapped();
     
     /**
-     * Returns whether this Node is waiting for Nodes or not
+     * Returns whether this Node is waiting for Nodes or not.
      */
     public boolean isWaitingForNodes();
     
     /**
      * A callback method to notify the DHTController about 
-     * ConnectionLifecycleEvents
+     * ConnectionLifecycleEvents.
      */
     public void handleConnectionLifecycleEvent(ConnectionLifecycleEvent evt);
     

@@ -59,7 +59,7 @@ public interface QueryRequestFactory {
      * Creates a new query for the specified URN set.
      * 
      * @param urnSet the <tt>Set</tt> of <tt>URNs</tt>s to request.
-     * @return a new <tt>QueryRequest</tt> for the specied UrnTypes and URNs
+     * @return a new <tt>QueryRequest</tt> for the specified UrnTypes and URNs
      * @throws <tt>NullPointerException</tt> if either sets are null.
      */
     public QueryRequest createQuery(Set<? extends URN> urnSet);
@@ -92,9 +92,9 @@ public interface QueryRequestFactory {
     /**
      * Creates a new query for the specified file name and the designated XML.
      * 
-     * @param query the file name to search for
      * @param guid I trust that this is a address encoded guid. Your loss if it
      *        isn't....
+     * @param query the file name to search for
      * @return a new <tt>QueryRequest</tt> for the specified query that has
      *         encoded the input ip and port into the GUID and appropriate
      *         marked the query to signify out of band support.
@@ -109,9 +109,9 @@ public interface QueryRequestFactory {
     /**
      * Creates a new query for the specified file name and the designated XML.
      * 
-     * @param query the file name to search for
      * @param guid I trust that this is a address encoded guid. Your loss if it
      *        isn't....
+     * @param query the file name to search for
      * @param type can be null - the type of results you want.
      * @return a new <tt>QueryRequest</tt> for the specified query that has
      *         encoded the input ip and port into the GUID and appropriate
@@ -142,16 +142,16 @@ public interface QueryRequestFactory {
     /**
      * Creates a new 'What is new'? query with the specified guid and ttl.
      * 
-     * @param ttl the desired ttl of the query.
      * @param guid the desired guid of the query.
+     * @param ttl the desired ttl of the query.
      */
     public QueryRequest createWhatIsNewQuery(byte[] guid, byte ttl);
 
     /**
      * Creates a new 'What is new'? query with the specified guid and ttl.
      * 
-     * @param ttl the desired ttl of the query.
      * @param guid the desired guid of the query.
+     * @param ttl the desired ttl of the query.
      */
     public QueryRequest createWhatIsNewQuery(byte[] guid, byte ttl,
             MediaType type);
@@ -159,16 +159,16 @@ public interface QueryRequestFactory {
     /**
      * Creates a new 'What is new'? OOB query with the specified guid and ttl.
      * 
-     * @param ttl the desired ttl of the query.
      * @param guid the desired guid of the query.
+     * @param ttl the desired ttl of the query.
      */
     public QueryRequest createWhatIsNewOOBQuery(byte[] guid, byte ttl);
 
     /**
      * Creates a new 'What is new'? OOB query with the specified guid and ttl.
      * 
-     * @param ttl the desired ttl of the query.
      * @param guid the desired guid of the query.
+     * @param ttl the desired ttl of the query.
      */
     public QueryRequest createWhatIsNewOOBQuery(byte[] guid, byte ttl,
             MediaType type);
@@ -273,7 +273,7 @@ public interface QueryRequestFactory {
 
     /**
      * Creates a new query from the existing query and loses the OOB marking.
-     * 
+     * <p>
      * This should only be used for messages that originated from this client.
      * 
      * @param qr the <tt>QueryRequest</tt> to copy
@@ -374,7 +374,7 @@ public interface QueryRequestFactory {
      * canReceiveOutOfBandReplies .
      * 
      * @requires 0<=minSpeed<2^16 (i.e., can fit in 2 unsigned bytes)
-     * @param queryUrns <tt>Set</tt> of <tt>URN</tt> instances requested for
+     * @param queryUrns <code>Set</code> of <code>URN</code> instances requested for
      *        this query, which may be empty or null if no URNs were requested
      * @throws <tt>IllegalArgumentException</tt> if the query string, the xml
      *         query string, and the urns are all empty, or if the feature
@@ -393,7 +393,7 @@ public interface QueryRequestFactory {
      * canReceiveOutOfBandReplies .
      * 
      * @requires 0<=minSpeed<2^16 (i.e., can fit in 2 unsigned bytes)
-     * @param queryUrns <tt>Set</tt> of <tt>URN</tt> instances requested for
+     * @param queryUrns <code>Set</code> of <code>URN</code> instances requested for
      *        this query, which may be empty or null if no URNs were requested
      * @throws <tt>IllegalArgumentException</tt> if the query string, the xml
      *         query string, and the urns are all empty, or if the feature
@@ -426,12 +426,12 @@ public interface QueryRequestFactory {
 
     /**
      * Builds a new query from scratch but you can flag it as a Requery, if
-     * needed. If you need to make a query that accepts out-of-band results, be
+,     * needed. If you need to make a query that accepts out-of-band results, be
      * sure to set the guid correctly (see GUID.makeAddressEncodedGUI) and set
      * canReceiveOutOfBandReplies .
      * 
      * @requires 0<=minSpeed<2^16 (i.e., can fit in 2 unsigned bytes)
-     * @param queryUrns <tt>Set</tt> of <tt>URN</tt> instances requested for
+     * @param queryUrns <code>Set</code> of <code>URN</code> instances requested for
      *        this query, which may be empty or null if no URNs were requested
      * @throws <tt>IllegalArgumentException</tt> if the query string, the xml
      *         query string, and the urns are all empty, or if the capability

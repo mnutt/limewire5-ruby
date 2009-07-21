@@ -14,9 +14,9 @@ import org.limewire.i18n.I18nMarker;
  * A generic type of media, i.e., "video" or "audio".
  * Many different file formats can be of the same media type.
  * MediaType's are immutable.
- *
- * // See http://www.mrc-cbu.cam.ac.uk/Help/mimedefault.html
- * 
+ *<p>
+ * See http://www.mrc-cbu.cam.ac.uk/Help/mimedefault.html
+ * <p>
  * Implementation note: Since MediaType implements serialization and there
  * are inner anonymous classes be careful where to add new inner classes
  * and fields.
@@ -46,7 +46,7 @@ public class MediaType implements Serializable {
     public static final String OTHER = I18nMarker.marktr("Other");
 
     /**
-     * Type for 'any file'
+     * Type for 'any file'.
      */
     private static final MediaType TYPE_ANY = 
         new MediaType(SCHEMA_ANY_TYPE, ANY_TYPE, null) {
@@ -61,23 +61,26 @@ public class MediaType implements Serializable {
     };
        
     /**
-     * Type for 'documents'
+     * Type for 'documents'.
      */
-    private static final MediaType TYPE_DOCUMENTS =
+
+    private static final MediaType TYPE_DOCUMENTS = 
         new MediaType(SCHEMA_DOCUMENTS, DOCUMENTS,
-            new String[] {
-                "html", "htm", "xhtml", "mht", "mhtml", "xml",
-                "txt", "ans", "asc", "diz", "eml",
-                "pdf", "ps", "eps", "epsf", "dvi", 
-                "rtf", "wri", "doc", "mcw", "wps",
-                "xls", "wk1", "dif", "csv", "ppt", "tsv",
-                "hlp", "chm", "lit",
-                "tex", "texi", "latex", "info", "man",
-                "wp", "wpd", "wp5", "wk3", "wk4", "shw", 
-                "sdd", "sdw", "sdp", "sdc",
-                "sxd", "sxw", "sxp", "sxc",
-                "abw", "kwd"
-            });
+            new String[] { 
+                "123", "abw", "accdb", "accde", "accdr", "accdt", "ans", "asc", "asp",
+                "bdr", "chm", "css", "csv", "dat", "db", "dif", "diz", "doc", "docm", "docx",
+                "dotm", "dotx", "dvi", "eml", "eps", "epsf", "fm", "grv", "gsa", "gts", "hlp",
+                "htm", "html", "idb", "idx", "iif", "info", "js", "jsp", "kfl", "kwd", "latex", "lif", 
+                "lit", "log", "man", "mcw", "mdb", "mht", "mhtml", "mny", "msg", "obi", "odp", "ods", 
+                "odt", "ofx", "one", "onepkg", "ost", "pages", "pdf", "php", "pot", "potm", "potx", "pps", "ppsm",
+                "ppsx", "ppt", "pptm", "pptx", "ps", "pub", "qba", "qbb", "qdb", "qbi", "qbm", "qbw", "qbx", "qdf", 
+                "qel", "qfp", "qpd", "qph", "qmd", "qsd", "rtf", "scd", "sdc", "sdd", "sdp", "sdw", "shw", "sldx", 
+                "sxc", "sxd", "sxp", "sxw", "t01", "t02", "t03", "t04", "t05", "t06", "t07", "t08", "t09", "t98", 
+                "t99", "ta0", "ta1", "ta2", "ta3", "ta4", "ta5", "ta6", "ta7", "ta8", "ta9", "tax", "tax2008", 
+                "tex", "texi", "toc", "tsv", "tvl", "txf", "txt", "wk1", "wk3", "wk4", "wks", "wp", "wp5", "wpd", 
+                "wps", "wri", "xhtml", "xlam", "xls", "xlsb", "xlsm", "xlsx", "xltm", "xltx", "xml", 
+                "xsf", "xsn" 
+             });
             
     /**
      * Type for linux/osx programs, used for Aggregator.
@@ -85,7 +88,7 @@ public class MediaType implements Serializable {
    private static final MediaType TYPE_LINUX_OSX_PROGRAMS =
         new MediaType(SCHEMA_PROGRAMS, PROGRAMS,
             new String[] {
-                "bin", "mdb", "sh", "csh", "awk", "pl",
+                "app", "bin", "mdb", "sh", "csh", "awk", "pl",
                 "rpm", "deb", "gz", "gzip", "z", "bz2", "zoo", "tar", "tgz",
                 "taz", "shar", "hqx", "sit", "dmg", "7z", "jar", "zip", "nrg",
                 "cue", "iso", "jnlp", "rar", "sh"
@@ -99,11 +102,11 @@ public class MediaType implements Serializable {
             new String[] {
                 "exe", "zip", "jar", "cab", "msi", "msp",
                 "arj", "rar", "ace", "lzh", "lha", "bin", "nrg", "cue", 
-                "iso", "jnlp"
+                "iso", "jnlp", "bat", "lnk", "vbs"
             });            
         
     /**
-     * Type for 'programs'
+     * Type for 'programs'.
      */
     private static final MediaType TYPE_PROGRAMS =
         new MediaType(SCHEMA_PROGRAMS, PROGRAMS, 
@@ -112,7 +115,7 @@ public class MediaType implements Serializable {
         );
         
     /**
-     * Type for 'audio'
+     * Type for 'audio'.
      */
     private static final MediaType TYPE_AUDIO =
         new MediaType(SCHEMA_AUDIO, AUDIO,
@@ -129,7 +132,7 @@ public class MediaType implements Serializable {
             });
         
     /**
-     * Type for 'video'
+     * Type for 'video'.
      */
     private static final MediaType TYPE_VIDEO =
         new MediaType(SCHEMA_VIDEO, VIDEO,
@@ -142,11 +145,11 @@ public class MediaType implements Serializable {
                 "fli", "flc", "flx", "flv", 
                 "wml", "vrml", "swf", "dcr", "jve", "nsv", 
                 "mkv", "ogm",
-                "cdg", "srt", "sub", "idx", "flv"
+                "cdg", "srt", "sub", "flv"
             });
         
     /**
-     * Type for 'images'
+     * Type for 'images'.
      */
     private static final MediaType TYPE_IMAGES =
         new MediaType(SCHEMA_IMAGES, IMAGES,
@@ -164,7 +167,7 @@ public class MediaType implements Serializable {
             });
     
     /**
-     * Type for 'other'
+     * Type for 'other'.
      */
     private static final MediaType TYPE_OTHER = 
         new MediaType(SCHEMA_OTHER, OTHER, null) {
@@ -223,7 +226,7 @@ public class MediaType implements Serializable {
      * @param schema a MIME compliant non-localizable identifier,
      *  that matches file categories (and XSD schema names).
      * @param descriptionKey a media identifier that can be used
-     *  to retreive a localizable descriptive text.
+     *  to retrieve a localizable descriptive text.
      * @param extensions a list of all file extensions of this
      *  type.  Must be all lowercase.  If null, this matches
      *  any file.
@@ -266,7 +269,7 @@ public class MediaType implements Serializable {
     
     /** 
      * Returns this' media-type (a MIME content-type category)
-     * (previously returned a description key)
+     * (previously returned a description key).
      */
     @Override
     public String toString() {
@@ -275,7 +278,7 @@ public class MediaType implements Serializable {
     
     /** 
      * Returns this' description key in localizable resources
-     * (now distinct from the result of the toString method)
+     * (now distinct from the result of the toString method).
      */
     public String getDescriptionKey() {
         return descriptionKey;
@@ -361,7 +364,7 @@ public class MediaType implements Serializable {
     }
         
     /*
-     * We canoncialize the default mediatypes, but since MediaType has
+     * We canonicalize the default mediatypes, but since MediaType has
      * a public constructor only 'equals' comparisons should be used.
      */
     Object readResolve() throws ObjectStreamException {
@@ -415,7 +418,7 @@ public class MediaType implements Serializable {
     }
     
     /**
-     * Retrives the program type specific for OS X & Linux.
+     * Retrieves the program type specific for OS X & Linux.
      */
     public static MediaType getOsxAndLinuxProgramMediaType() {
         return TYPE_LINUX_OSX_PROGRAMS;

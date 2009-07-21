@@ -13,7 +13,7 @@ import java.util.TreeMap;
 /**
  * Structure that contains only the necessary nodes of a hash tree, automatically
  * verifies new nodes against the root and compacts the tree as nodes are used.
- * 
+ * <p>
  * For the numbering of the nodes check
  * http://www.limewire.org/wiki/index.php?title=HashTreeRangeEncoding
  */
@@ -87,7 +87,7 @@ public class TreeStorage {
     }
     
     /**
-     * @return the reprsentation as defined on the wiki page
+     * @return the representation as defined on the wiki page
      */
     public Collection<Integer> getUsedNodes() {
         // reel easy

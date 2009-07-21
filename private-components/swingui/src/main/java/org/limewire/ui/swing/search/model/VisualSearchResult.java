@@ -1,14 +1,13 @@
 package org.limewire.ui.swing.search.model;
 
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.library.PropertiableFile;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.ui.swing.filter.FilterableItem;
 import org.limewire.ui.swing.nav.NavSelectable;
 
 /**
@@ -16,7 +15,7 @@ import org.limewire.ui.swing.nav.NavSelectable;
  * may be supported by multiple sources, and may also contain an aggregation 
  * of similar results.   
  */
-public interface VisualSearchResult extends NavSelectable, PropertiableFile {
+public interface VisualSearchResult extends NavSelectable, PropertiableFile, FilterableItem {
 
     /**
      * Returns a list of core SearchResult values associated with this visual 
@@ -38,12 +37,6 @@ public interface VisualSearchResult extends NavSelectable, PropertiableFile {
      * Returns the file extension for the search result.
      */
     String getFileExtension();
-
-    /**
-     * Returns a map containing FilePropertyKey objects and their associated
-     * values. 
-     */
-    Map<FilePropertyKey, Object> getProperties();
 
     /**
      * Returns the value associated with the specified FilePropertyKey as a
@@ -83,18 +76,6 @@ public interface VisualSearchResult extends NavSelectable, PropertiableFile {
      * Sets an indicator that determines if the result is visible.
      */
     void setVisible(boolean visible);
-    
-    /**
-     * Adds the specified listener to the list that is notified when the 
-     * value of a bound property is changed.
-     */
-    void addPropertyChangeListener(PropertyChangeListener listener);
-    
-    /**
-     * Removes the specified listener from the list that is notified when the
-     * value of a bound property is changed.
-     */
-    void removePropertyChangeListener(PropertyChangeListener listener);
 
     /**
      * Returns an indicator that determines if similar results are visible.
@@ -159,19 +140,7 @@ public interface VisualSearchResult extends NavSelectable, PropertiableFile {
     /**
      * Returns the relevance value of the search result.  
      */
-    double getRelevance();
-    
-    /**
-     * Returns an indicator that determines if the context options are 
-     * displayed for the search result.
-     */
-    boolean isShowingContextOptions();
-    
-    /**
-     * Sets an indicator that determines if the context options are 
-     * displayed for the search result.
-     */
-    void setShowingContextOptions(boolean showing);
+    int getRelevance();
     
     /**
      * Returns an indicator that determines if the result is an existing 

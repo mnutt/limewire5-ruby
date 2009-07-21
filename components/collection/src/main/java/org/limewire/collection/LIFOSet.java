@@ -51,9 +51,6 @@ public class LIFOSet<E> implements Set<E>{
     
     /**
      * Adds the given element to the head of the set.
-     * 
-     * @return true
-     * 
      */
     public boolean add(E o) {
         if(set.add(o)) {

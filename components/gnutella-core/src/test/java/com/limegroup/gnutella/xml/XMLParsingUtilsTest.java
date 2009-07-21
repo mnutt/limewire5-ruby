@@ -138,7 +138,8 @@ public class XMLParsingUtilsTest extends LimeTestCase {
         Map<String, String> result = r.get(0);
         assertEquals(result.toString(), "m&alformed", result.get("audios__audio__album__"));
         assertEquals(result.toString(), "Rock 'n Roll", result.get("audios__audio__title__"));
-        assertEquals(result.toString(), "Sung by \"Joe Smith\"", result.get("audios__audio__comments__"));
+        assertEquals(result.toString(), null, result.get("audios__audio__comments__")); // comment is not kept
+//        assertEquals(result.toString(), "Sung by \"Joe Smith\"", result.get("audios__audio__comments__"));
         assertEquals(result.toString(), "also <malformed", result.get("audios__audio__artist__"));
         assertEquals(result.toString(), ">still malformed", result.get("audios__audio__license__"));
         assertEquals(result.toString(), "s pace", result.get("audios__audio__language__"));

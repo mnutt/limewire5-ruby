@@ -27,28 +27,28 @@ import org.limewire.mojito.KUID;
 
 
 /**
- * An interface for Buckets
+ * An interface for Buckets.
  */
 public interface Bucket extends Serializable {
     
     /**
-     * Returns the Bucket KUID
+     * Returns the Bucket KUID.
      */
     public KUID getBucketID();
 
     /**
-     * Returns the depth of the Bucket in the Trie
+     * Returns the depth of the Bucket in the Trie.
      */
     public int getDepth();
 
     /**
-     * Set the time stamp of the Bucket to 'now'
+     * Set the time stamp of the Bucket to 'now'.
      */
     public void touch();
 
     /**
      * Returns the time stamp when this Bucket was refreshed
-     * last time
+     * last time.
      */
     public long getTimeStamp();
 
@@ -63,7 +63,7 @@ public interface Bucket extends Serializable {
     public Contact addCachedContact(Contact node);
 
     /**
-     * Updates the Contact in this bucket 
+     * Updates the Contact in this bucket.
      */
     public Contact updateContact(Contact node);
     
@@ -83,92 +83,92 @@ public interface Bucket extends Serializable {
     public Contact getCachedContact(KUID nodeId);
 
     /**
-     * Returns the best matching Contact for the provided KUID
+     * Returns the best matching Contact for the provided KUID.
      */
     public Contact select(KUID nodeId);
 
     /**
-     * Returns the 'count' best matching Contacts for the provided KUID
+     * Returns the 'count' best matching Contacts for the provided KUID.
      */
     public Collection<Contact> select(KUID nodeId, int count);
 
     /**
-     * Removes the Contact that has the provided KUID
+     * Removes the Contact that has the provided KUID.
      */
     public boolean remove(KUID nodeId);
 
     /**
-     * Removes the Contact that has the provided KUID
+     * Removes the Contact that has the provided KUID.
      */
     public boolean removeActiveContact(KUID nodeId);
 
     /**
-     * Removes the Contact that has the provided KUID
+     * Removes the Contact that has the provided KUID.
      */
     public boolean removeCachedContact(KUID nodeId);
 
     /**
-     * Returns whether or not this Bucket contains a Contact with this KUID
+     * Returns whether or not this Bucket contains a Contact with this KUID.
      */
     public boolean contains(KUID nodeId);
 
     /**
-     * Returns whether or not this Bucket contains a Contact with this KUID
+     * Returns whether or not this Bucket contains a Contact with this KUID.
      */
     public boolean containsActiveContact(KUID nodeId);
 
     /**
-     * Returns whether or not this Bucket contains a Contact with this KUID
+     * Returns whether or not this Bucket contains a Contact with this KUID.
      */
     public boolean containsCachedContact(KUID nodeId);
 
     /**
-     * Returns whether or not this Bucket is full
+     * Returns whether or not this Bucket is full.
      */
     public boolean isActiveFull();
 
     /**
-     * Returns whether or not this Bucket is full
+     * Returns whether or not this Bucket is full.
      */
     public boolean isCacheFull();
 
     /**
-     * Returns whether or not this Bucket is too deep in the Trie
+     * Returns whether or not this Bucket is too deep in the Trie.
      */
     public boolean isTooDeep();
 
     /**
-     * Returns whether or not this Bucket is in the smallest subtree
+     * Returns whether or not this Bucket is in the smallest subtree.
      */
     public boolean isInSmallestSubtree();
 
     /**
-     * Returns all active Contacts as List
+     * Returns all active Contacts as List.
      */
     public Collection<Contact> getActiveContacts();
 
     /**
-     * Returns all cached Contacts as List
+     * Returns all cached Contacts as List.
      */
     public Collection<Contact> getCachedContacts();
 
     /**
-     * Returns the least recently seen active Contact
+     * Returns the least recently seen active Contact.
      */
     public Contact getLeastRecentlySeenActiveContact();
 
     /**
-     * Returns the most recently seen active Contact
+     * Returns the most recently seen active Contact.
      */
     public Contact getMostRecentlySeenActiveContact();
 
     /**
-     * Returns the least recently seen cached Contact
+     * Returns the least recently seen cached Contact.
      */
     public Contact getLeastRecentlySeenCachedContact();
 
     /**
-     * Returns the most recently seen cached Contact
+     * Returns the most recently seen cached Contact.
      */
     public Contact getMostRecentlySeenCachedContact();
     
@@ -178,17 +178,17 @@ public interface Bucket extends Serializable {
     public void purge();
 
     /**
-     * Splits the Bucket into two parts
+     * Splits the Bucket into two parts.
      */
     public List<Bucket> split();
 
     /**
-     * Returns the total number of Contacts in the Bucket
+     * Returns the total number of Contacts in the Bucket.
      */
     public int size();
 
     /**
-     * Returns the number of active Contacts in the Bucket
+     * Returns the number of active Contacts in the Bucket.
      */
     public int getActiveSize();
     
@@ -199,27 +199,27 @@ public interface Bucket extends Serializable {
     public int getMaxActiveSize();
     
     /**
-     * Returns the number of cached Contacts in the Bucket
+     * Returns the number of cached Contacts in the Bucket.
      */
     public int getCacheSize();
 
     /**
-     * Clears the Bucket
+     * Clears the Bucket.
      */
     public void clear();
     
     /**
-     * Returns whether or not this Bucket needs to be refreshed
+     * Returns whether or not this Bucket needs to be refreshed.
      */
     public boolean isRefreshRequired();
     
     /**
-     * Returns true if the given Contact is the local Node
+     * Returns true if the given Contact is the local Node.
      */
     public boolean isLocalNode(Contact node);
     
     /**
-     * Returns the ClassfulNetworkCounter of this Bucket
+     * Returns the ClassfulNetworkCounter of this Bucket.
      */
     public ClassfulNetworkCounter getClassfulNetworkCounter();
 }

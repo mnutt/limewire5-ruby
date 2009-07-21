@@ -25,9 +25,6 @@ import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.painter.effects.ShadowPathEffect;
 import org.limewire.ui.swing.util.GuiUtils;
 
-import com.google.inject.Singleton;
-
-@Singleton
 public class ShapeDialog extends JXPanel implements Resizable {
 
 
@@ -79,7 +76,7 @@ public class ShapeDialog extends JXPanel implements Resizable {
     }
     
     /**
-     * shows c centered in the Frame with no autoclose
+     * Shows c centered in the Frame with no autoclose.
      */
     public void show(Component c){
         show(c, null, false);
@@ -90,7 +87,7 @@ public class ShapeDialog extends JXPanel implements Resizable {
      * 
      * @param c the Component shown
      * @param owner the dialog owner.  Dialog will be centered in frame if this is null
-     * @param autoClose Dialog will have PopupMenu close behavior (clicking away or pressing esc closes dialog)
+     * @param autoClose Dialog will have PopupMenu close behavior (clicking away or pressing ESC closes dialog)
      */
     public void show(Component c, Component owner, boolean autoClose) {
         removeAll();

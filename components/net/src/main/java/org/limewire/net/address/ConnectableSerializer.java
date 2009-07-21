@@ -34,8 +34,9 @@ public class ConnectableSerializer implements AddressSerializer {
         return "direct-connect";
     }
 
-    public Class<? extends Address> getAddressClass() {
-        return Connectable.class;
+    @Override
+    public boolean canSerialize(Address address) {
+        return address instanceof Connectable;
     }
 
     public Address deserialize(String address) throws IOException {
@@ -55,7 +56,7 @@ public class ConnectableSerializer implements AddressSerializer {
             try {
                 IpPort ipPort = NetworkUtils.getIpPort(hostPort, ByteOrder.BIG_ENDIAN);
                 boolean supportsTLS = IOUtils.readByte(in) == (byte)1;
-                return new ConnectableImpl(ipPort.getAddress(), ipPort.getPort(), supportsTLS);
+                return new ConnectableImpl(ipPort, supportsTLS);
             } catch (InvalidDataException e) {
                 throw new IOException(e);
             }

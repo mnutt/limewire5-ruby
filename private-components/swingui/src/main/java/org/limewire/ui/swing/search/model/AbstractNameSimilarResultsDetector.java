@@ -43,6 +43,10 @@ public abstract class AbstractNameSimilarResultsDetector extends AbstractSimilar
             }
         }
     }
+    
+    public void clear(){
+        matchCache.clear();
+    }
 
     public CleanStringCache getNameCache() {
         return nameCache;

@@ -7,7 +7,7 @@ import java.util.Map;
  * to get information about and control what happens to the
  * chat window, other than by way of keyboard input and
  * received instant messages.
- *
+ *<p>
  * Make sure that methods here are called
  * from within the EDT.
  *
@@ -15,7 +15,7 @@ import java.util.Map;
 public interface Conversation {
 
     /**
-     * Updates the display of all the messages
+     * Updates the display of all the messages.
      */
     public void displayMessages();
 

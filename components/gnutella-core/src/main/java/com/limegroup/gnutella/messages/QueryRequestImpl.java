@@ -170,11 +170,11 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         if(normalize && query != null)
             query = I18NConvert.instance().getNorm(query);
         
-		if((query == null || query.length() == 0) &&
-		   (richQuery == null || richQuery.length() == 0) &&
-		   (queryUrns == null || queryUrns.size() == 0)) {
-			throw new IllegalArgumentException("cannot create empty query");
-		}		
+        if((query == null || query.length() == 0) &&
+           (richQuery == null || richQuery.length() == 0) &&
+           (queryUrns == null || queryUrns.size() == 0)) {
+            throw new IllegalArgumentException("cannot create empty query");
+        }
 
         if(query != null && query.length() > MAX_QUERY_LENGTH) {
             throw new IllegalArgumentException("query too big: " + query);
@@ -230,64 +230,60 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         }
 
         MIN_SPEED = minSpeed;
-		if(query == null) {
-			this.QUERY = "";
-		} else {
-			this.QUERY = query;
-		}
-		if(richQuery == null || richQuery.equals("") ) {
-			this.XML_DOC = null;
-		} else {
-		    LimeXMLDocument doc = null;
-		    try {
-		        doc = limeXMLDocumentFactory.createLimeXMLDocument(richQuery);
-            } catch(SAXException ignored) {
-            } catch(SchemaNotFoundException ignored) {
-            } catch(IOException ignored) {
+        if (query == null) {
+            this.QUERY = "";
+        } else {
+            this.QUERY = query;
+        }
+        if (richQuery == null || richQuery.equals("")) {
+            this.XML_DOC = null;
+        } else {
+            LimeXMLDocument doc = null;
+            try {
+                doc = limeXMLDocumentFactory.createLimeXMLDocument(richQuery);
+            } catch (SAXException ignored) {
+            } catch (SchemaNotFoundException ignored) {
+            } catch (IOException ignored) {
             }
             this.XML_DOC = doc;
-		}
-		
-		Set<URN> tempQueryUrns = null;
-		if(queryUrns != null) {
-			tempQueryUrns = new UrnSet(queryUrns);
-		} else {
-			tempQueryUrns = URN.NO_URN_SET;
-		}
+        }
+
+        Set<URN> tempQueryUrns = null;
+        if (queryUrns != null) {
+            tempQueryUrns = new UrnSet(queryUrns);
+        } else {
+            tempQueryUrns = URN.NO_URN_SET;
+        }
 
         this.QUERY_KEY = addressSecurityToken;
         this._doNotProxy = doNotProxy;
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            ByteUtils.short2leb((short)MIN_SPEED,baos); // write minspeed
-            baos.write(getQueryFieldValue().getBytes("UTF-8"));              // write query
-            baos.write(0);                             // null
+            ByteUtils.short2leb((short) MIN_SPEED, baos); // write minspeed
+            baos.write(getQueryFieldValue().getBytes("UTF-8")); // write query
+            baos.write(0); // null
 
-			
-            // now write any & all HUGE v0.93 General Extension Mechanism 
-			// extensions
+            // now write any & all HUGE v0.93 General Extension Mechanism
+            // extensions
 
-			// this specifies whether or not the extension was successfully
-			// written, meaning that the HUGE GEM delimiter should be
-			// written before the next extension
+            // this specifies whether or not the extension was successfully
+            // written, meaning that the HUGE GEM delimiter should be
+            // written before the next extension
             boolean addDelimiterBefore = false;
-			
+
             byte[] richQueryBytes = null;
-            if(XML_DOC != null) {
+            if (XML_DOC != null) {
                 assert richQuery != null;
                 richQueryBytes = richQuery.getBytes("UTF-8");
-			}
-            
-			// add the rich query
-            addDelimiterBefore = 
-			    writeGemExtension(baos, addDelimiterBefore, richQueryBytes);
+            }
 
-			// add the urns
-            addDelimiterBefore = 
-			    writeGemExtensions(baos, addDelimiterBefore, 
-								   tempQueryUrns == null ? null : 
-								   tempQueryUrns.iterator());
+            // add the rich query
+            addDelimiterBefore = writeGemExtension(baos, addDelimiterBefore, richQueryBytes);
+
+            // add the urns
+            addDelimiterBefore = writeGemExtensions(baos, addDelimiterBefore,
+                    tempQueryUrns == null ? null : tempQueryUrns.iterator());
 
             // add the GGEP Extension, if necessary....
             // *----------------------------
@@ -299,8 +295,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
                 // get query key in byte form....
                 ByteArrayOutputStream qkBytes = new ByteArrayOutputStream();
                 this.QUERY_KEY.write(qkBytes);
-                ggepBlock.put(GGEPKeys.GGEP_HEADER_QUERY_KEY_SUPPORT,
-                              qkBytes.toByteArray());
+                ggepBlock.put(GGEPKeys.GGEP_HEADER_QUERY_KEY_SUPPORT, qkBytes.toByteArray());
             }
 
             // add the What Is header
@@ -344,7 +339,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
             // ----------------------------*
 
             baos.write(0);                             // final null
-		} 
+        } 
         catch(UnsupportedEncodingException uee) {
             //this should never happen from the getBytes("UTF-8") call
             //but there are UnsupportedEncodingExceptions being reported
@@ -356,20 +351,20 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
                                                + richQuery);
         }
         catch (IOException e) {
-		    ErrorService.error(e);
-		}
+            ErrorService.error(e);
+        }
 
-		PAYLOAD = baos.toByteArray();
-		updateLength(PAYLOAD.length);
+        PAYLOAD = baos.toByteArray();
+        updateLength(PAYLOAD.length);
 
-		this.QUERY_URNS = Collections.unmodifiableSet(tempQueryUrns);
+        this.QUERY_URNS = Collections.unmodifiableSet(tempQueryUrns);
     }
 
     /**
      * Generate query string field based on query string ({@link #QUERY} value
-     *
-     * Assumptions:
-     * 1. {@link #QUERY} is already set prior to this method getting called
+     * <p>
+     * Assumption:
+     * {@link #QUERY} is already set prior to this method getting called
      *
      * @return String representing the query field in the message
      */
@@ -389,37 +384,38 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
 
 
     /**
-     * Build a new query with data snatched from network
+     * Build a new query with data snatched from network.
      *
      * @param guid the message guid
-	 * @param ttl the time to live of the query
-	 * @param hops the hops of the query
-	 * @param payload the query payload, containing the query string and any
-	 *  extension strings
-	 * @param network the network that this query came from.
-	 * @throws <tt>BadPacketException</tt> if this is not a valid query
+     * @param ttl the time to live of the query
+     * @param hops the hops of the query
+     * @param payload the query payload, containing the query string and any
+     *  extension strings
+     * @param network the network that this query came from.
+     * @throws <tt>BadPacketException</tt> if this is not a valid query
      */
     QueryRequestImpl(byte[] guid, byte ttl, byte hops, byte[] payload, Network network,
-            LimeXMLDocumentFactory limeXMLDocumentFactory, MACCalculatorRepositoryManager manager) throws BadPacketException {
+            LimeXMLDocumentFactory limeXMLDocumentFactory, MACCalculatorRepositoryManager manager)
+            throws BadPacketException {
         super(guid, Message.F_QUERY, ttl, hops, payload.length, network);
-		PAYLOAD=payload;
-		
+        PAYLOAD = payload;
+
         QueryRequestPayloadParser parser = new QueryRequestPayloadParser(payload, manager);
 
-		QUERY = parser.query;
+        QUERY = parser.query;
 
-	    LimeXMLDocument tempDoc = null;
-	    try {
-	        tempDoc = limeXMLDocumentFactory.createLimeXMLDocument(parser.richQuery);
-        } catch(SAXException ignored) {
-        } catch(SchemaNotFoundException ignored) {
+        LimeXMLDocument tempDoc = null;
+        try {
+            tempDoc = limeXMLDocumentFactory.createLimeXMLDocument(parser.richQuery);
+        } catch (SAXException ignored) {
+        } catch (SchemaNotFoundException ignored) {
         } catch(IOException ignored) {
         }
         this.XML_DOC = tempDoc;
-		MIN_SPEED = parser.minSpeed;
-        
-		_featureSelector = parser.featureSelector;
-        
+        MIN_SPEED = parser.minSpeed;
+
+        _featureSelector = parser.featureSelector;
+
         _doNotProxy = parser.doNotProxy;
         
         _metaMask = parser.metaMask;
@@ -427,21 +423,18 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         _isSecurityTokenRequired = parser.hasSecurityTokenRequest;
         
         _partialResultsDesired = parser.partialResultsDesired;
-        
-		if(parser.queryUrns == null) {
-			QUERY_URNS =Collections.emptySet(); 
-		}
-		else {
-			QUERY_URNS = Collections.unmodifiableSet(parser.queryUrns);
-		}
+
+        if (parser.queryUrns == null) {
+            QUERY_URNS = Collections.emptySet();
+        } else {
+            QUERY_URNS = Collections.unmodifiableSet(parser.queryUrns);
+        }
         QUERY_KEY = parser.addressSecurityToken;
-		if(QUERY.length() == 0 &&
-		   parser.richQuery.length() == 0 &&
-		   QUERY_URNS.size() == 0) {
-			throw new BadPacketException("empty query");
-		}       
-        if(QUERY.length() > MAX_QUERY_LENGTH) {
-            //throw BadPacketException.QUERY_TOO_BIG;
+        if (QUERY.length() == 0 && parser.richQuery.length() == 0 && QUERY_URNS.size() == 0) {
+            throw new BadPacketException("empty query");
+        }
+        if (QUERY.length() > MAX_QUERY_LENGTH) {
+            // throw BadPacketException.QUERY_TOO_BIG;
             throw new BadPacketException("query too big: " + QUERY);
         }        
 
@@ -472,7 +465,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         if (MessageSettings.STAMP_QUERIES.getValue())
             GUID.timeStampGuid(ret);
         return ret;
-	}
+    }
 
     @Override
     protected void writePayload(OutputStream out) throws IOException {
@@ -480,7 +473,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
     }
 
     /**
-     * Accessor fot the payload of the query hit.
+     * Accessor for the payload of the query hit.
      *
      * @return the query hit payload
      */
@@ -499,11 +492,11 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         return QUERY;
     }
     
-	/**
-	 * Returns the rich query LimeXMLDocument.
-	 *
-	 * @return the rich query LimeXMLDocument
-	 */
+    /**
+     * Returns the rich query LimeXMLDocument.
+     *
+     * @return the rich query LimeXMLDocument
+     */
     public LimeXMLDocument getRichQuery() {
         return XML_DOC;
     }
@@ -518,34 +511,34 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
             return XML_DOC.getXMLString();
     }       
  
-	/**
-	 * Returns the <tt>Set</tt> of <tt>URN</tt> instances for this query.
-	 *
-	 * @return  the <tt>Set</tt> of <tt>URN</tt> instances for this query, which
-	 * may be empty (not null) if no URNs were requested
-	 */
+    /**
+     * Returns the <tt>Set</tt> of <tt>URN</tt> instances for this query.
+     *
+     * @return  the <tt>Set</tt> of <tt>URN</tt> instances for this query, which
+     * may be empty (not null) if no URNs were requested
+     */
     public Set<URN> getQueryUrns() {
-		return QUERY_URNS;
+        return QUERY_URNS;
     }
-	
-	/**
-	 * Returns whether or not this query contains URNs.
-	 *
-	 * @return <tt>true</tt> if this query contains URNs,<tt>false</tt> otherwise
-	 */
-	public boolean hasQueryUrns() {
-		return !QUERY_URNS.isEmpty();
-	}
 
     /**
-	 * Note: the minimum speed can be represented as a 2-byte unsigned
-	 * number, but Java shorts are signed.  Hence we must use an int.  The
-	 * value returned is always smaller than 2^16.
-	 */
-	public int getMinSpeed() {
-		return MIN_SPEED;
-	}
+     * Returns whether or not this query contains URNs.
+     * 
+     * @return <tt>true</tt> if this query contains URNs,<tt>false</tt>
+     *         otherwise
+     */
+    public boolean hasQueryUrns() {
+        return !QUERY_URNS.isEmpty();
+    }
 
+    /**
+     * Note: the minimum speed can be represented as a 2-byte unsigned number,
+     * but Java shorts are signed. Hence we must use an int. The value returned
+     * is always smaller than 2^16.
+     */
+    public int getMinSpeed() {
+        return MIN_SPEED;
+    }
 
     /**
      * Returns true if the query source is a firewalled servent.
@@ -588,7 +581,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
     /**
      * Returns true if the query source can accept out-of-band replies for
      * any supported protocol version.
-     * 
+     * <p>
      * Use getReplyAddress() and getReplyPort() if this is true to know where to
      * it. Always send XML if you are sending an out-of-band reply.
      */
@@ -687,17 +680,16 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         return (new GUID(getGUID())).getPort();
     }
 
+    /**
+     * Accessor for whether or not this is a requery from a LimeWire.
+     * 
+     * @return <tt>true</tt> if it is an automated requery from a LimeWire,
+     *         otherwise <tt>false</tt>
+     */
+    public boolean isLimeRequery() {
+        return GUID.isLimeRequeryGUID(getGUID());
+    }
 
-	/**
-	 * Accessor for whether or not this is a requery from a LimeWire.
-	 *
-	 * @return <tt>true</tt> if it is an automated requery from a LimeWire,
-	 *  otherwise <tt>false</tt>
-	 */
-	public boolean isLimeRequery() {
-		return GUID.isLimeRequeryGUID(getGUID());
-	}
-    
     /**
      * @return true if this is likely a query for LimeWire.
      */
@@ -795,7 +787,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         originated = true;
     }
     
-    /** Determines if this is an originated query */
+    /** Determines if this is an originated query. */
     public boolean isOriginated() {
         return originated;
     }
@@ -812,7 +804,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
     /**
      * @effects Writes given extension string to given stream, adding
      * delimiter if necessary, reporting whether next call should add
-     * delimiter. ext may be null or zero-length, in which case this is noop
+     * delimiter. ext may be null or zero-length, in which case this is noop.
      */
     protected boolean writeGemExtension(OutputStream os, 
                                         boolean addPrefixDelimiter, 
@@ -830,7 +822,7 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
      /**
      * @effects Writes each extension string in exts to given stream,
      * adding delimiters as necessary. exts may be null or empty, in
-     *  which case this is noop
+     *  which case this is noop.
      */
     protected boolean writeGemExtensions(OutputStream os, 
                                          boolean addPrefixDelimiter, 
@@ -854,56 +846,52 @@ public class QueryRequestImpl extends AbstractMessage implements QueryRequest {
         }
         return baos.toByteArray();
     }
-    
-	@Override
+
+    @Override
     public int hashCode() {
-		if(_hashCode == 0) {
-			int result = 17;
-			result = (37*result) + QUERY.hashCode();
-			if( XML_DOC != null )
-			    result = (37*result) + XML_DOC.hashCode();
-			result = (37*result) + QUERY_URNS.hashCode();
-			if(QUERY_KEY != null) {
-				result = (37*result) + QUERY_KEY.hashCode();
-			}
-			// TODO:: ADD GUID!!
-			_hashCode = result;
-		}
-		return _hashCode;
-	}
+        if (_hashCode == 0) {
+            int result = 17;
+            result = (37 * result) + QUERY.hashCode();
+            if (XML_DOC != null)
+                result = (37 * result) + XML_DOC.hashCode();
+            result = (37 * result) + QUERY_URNS.hashCode();
+            if (QUERY_KEY != null) {
+                result = (37 * result) + QUERY_KEY.hashCode();
+            }
+            // TODO:: ADD GUID!!
+            _hashCode = result;
+        }
+        return _hashCode;
+    }
 
-	// overrides Object.toString
-	@Override
+    // overrides Object.toString
+    @Override
     public boolean equals(Object o) {
-		if(o == this) return true;
-		if(!(o instanceof QueryRequestImpl)) return false;
-		QueryRequestImpl qr = (QueryRequestImpl)o;
-		return (MIN_SPEED == qr.MIN_SPEED &&
-				QUERY.equals(qr.QUERY) &&
-				(XML_DOC == null ? qr.XML_DOC == null : 
-				    XML_DOC.equals(qr.XML_DOC)) &&
-				QUERY_URNS.equals(qr.QUERY_URNS) &&
-				Arrays.equals(getGUID(), qr.getGUID()) &&
-				Arrays.equals(PAYLOAD, qr.PAYLOAD));
-	}
-
+        if (o == this)
+            return true;
+        if (!(o instanceof QueryRequestImpl))
+            return false;
+        QueryRequestImpl qr = (QueryRequestImpl) o;
+        return (MIN_SPEED == qr.MIN_SPEED && QUERY.equals(qr.QUERY)
+                && (XML_DOC == null ? qr.XML_DOC == null : XML_DOC.equals(qr.XML_DOC))
+                && QUERY_URNS.equals(qr.QUERY_URNS) && Arrays.equals(getGUID(), qr.getGUID()) && Arrays
+                .equals(PAYLOAD, qr.PAYLOAD));
+    }
 
     @Override
     public String toString() {
- 		return "<query: \""+getQuery()+"\", "+
-            "ttl: "+getTTL()+", "+
-            "hops: "+getHops()+", "+            
-            "meta: \""+getRichQueryString()+"\", "+
-            "urns: "+getQueryUrns().size()+">";
+        return "<query: \"" + getQuery() + "\", " + "ttl: " + getTTL() + ", " + "hops: "
+                + getHops() + ", " + "meta: \"" + getRichQueryString() + "\", " + "urns: "
+                + getQueryUrns().size() + ">";
     }
 
-
-    static byte[] patchInGGEP(byte[] payload, GGEP ggep, MACCalculatorRepositoryManager manager) throws BadPacketException {
+    static byte[] patchInGGEP(byte[] payload, GGEP ggep, MACCalculatorRepositoryManager manager)
+            throws BadPacketException {
         QueryRequestPayloadParser parser = new QueryRequestPayloadParser(payload, manager);
         HUGEExtension huge = parser.huge;
         if (huge != null) {
             // we write in the last modifiable block if available, so our
-            // values are still there in the merged version that is read back 
+            // values are still there in the merged version that is read back
             // from the network: this is not good
             GGEPBlock block = getLastBlock(huge.getGGEPBlocks());
             if (block != null) {

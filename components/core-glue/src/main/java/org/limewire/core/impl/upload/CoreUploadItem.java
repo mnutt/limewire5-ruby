@@ -3,20 +3,19 @@ package org.limewire.core.impl.upload;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
+import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.upload.UploadErrorState;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadState;
-import org.limewire.core.impl.URNImpl;
-import org.limewire.core.impl.friend.GnutellaPresence;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.feature.LimewireFeature;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
+import org.limewire.util.FileUtils;
 
 import com.limegroup.bittorrent.BTUploader;
 import com.limegroup.gnutella.CategoryConverter;
@@ -24,23 +23,22 @@ import com.limegroup.gnutella.InsufficientDataException;
 import com.limegroup.gnutella.Uploader;
 import com.limegroup.gnutella.Uploader.UploadStatus;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.uploader.HTTPUploader;
 import com.limegroup.gnutella.uploader.UploadType;
 
 class CoreUploadItem implements UploadItem {
 
-    private final Uploader uploader;
-
+    private final Uploader uploader;    
+    private final FriendPresence friendPresence;
     private final PropertyChangeSupport support = new SwingSafePropertyChangeSupport(this);
-    
-    private volatile Map<FilePropertyKey, Object> propertiesMap;
     
     public final static long UNKNOWN_TIME = Long.MAX_VALUE;
     private final UploadItemType uploadItemType;
     private boolean isFinished = false;
+    private UploadRemoteHost uploadRemoteHost;
     
-    public CoreUploadItem(Uploader uploader) {
+    public CoreUploadItem(Uploader uploader, FriendPresence friendPresence) {
         this.uploader = uploader;
+        this.friendPresence = friendPresence;
         uploadItemType = uploader instanceof BTUploader ? UploadItemType.BITTORRENT : UploadItemType.GNUTELLA;
     }
 
@@ -186,18 +184,10 @@ class CoreUploadItem implements UploadItem {
     }
 
     @Override
-    public String getHost() {
-        // TODO: this knows too much about what BrowseRequestHandler is doing
-        if (getState() == UploadState.BROWSE_HOST || getState() == UploadState.BROWSE_HOST_DONE) {
-            if (!"".equals(getFileName())) {
-                return getFileName();
-            } else if (uploader instanceof HTTPUploader) {
-                String id = uploader.getAddress() + ":" + uploader.getPort();
-                return new GnutellaPresence(uploader, id).getFriend().getRenderName();
-            }
-
-        }
-        return uploader.getHost();
+    public RemoteHost getRemoteHost() {
+        if(uploadRemoteHost == null)
+            uploadRemoteHost = new UploadRemoteHost();
+        return uploadRemoteHost;
     }
     
     @Override
@@ -215,7 +205,7 @@ class CoreUploadItem implements UploadItem {
     
     @Override
     public String toString(){
-        return "CoreUploadItem: " + getFileName() + ", " + getState() + ", " + getHost();
+        return "CoreUploadItem: " + getFileName() + ", " + getState();
     }
 
     @Override
@@ -242,7 +232,6 @@ class CoreUploadItem implements UploadItem {
         } else {
             return UNKNOWN_TIME;
         }
-
     }
     
     @Override
@@ -263,10 +252,26 @@ class CoreUploadItem implements UploadItem {
         }
         return UploadErrorState.NO_ERROR;
     }
-
+    
     @Override
-    public Object getProperty(FilePropertyKey key) {
-        return getPropertiesMap().get(key);
+    public Object getProperty(FilePropertyKey property) {
+        FileDesc fd = uploader.getFileDesc();
+        if(fd != null) {
+            switch(property) {
+            case NAME:
+                return FileUtils.getFilenameNoExtension(fd.getFileName());
+            case DATE_CREATED:
+                long ct = fd.lastModified();
+                return ct == -1 ? null : ct;
+            case FILE_SIZE:
+                return fd.getFileSize();            
+            default:
+                Category category = CategoryConverter.categoryForFileName(fd.getFileName());
+                return FilePropertyKeyPopulator.get(category, property, fd.getXMLDocument());
+            }
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -284,45 +289,9 @@ class CoreUploadItem implements UploadItem {
     public URN getUrn() {
         com.limegroup.gnutella.URN urn = uploader.getUrn();
         if(urn != null) {
-            return new URNImpl(urn);
+            return urn;
         }
         return null;
-    }
-    
-    /**
-     * Lazily builds the properties map for this local file item. Uses double
-     * checked locking to prevent multiple threads from creating this map.
-     */
-    private Map<FilePropertyKey, Object> getPropertiesMap() {        
-        if (propertiesMap == null) {
-            synchronized (this) {
-                if (propertiesMap == null) {
-                    reloadProperties();
-                }
-            }
-        }
-        return propertiesMap;
-    }
-    
-    /**
-     * Reloads the properties map to whatever values are stored in the
-     * LimeXmlDocs for this file.
-     */
-    private void reloadProperties() {
-        synchronized (this) {
-            
-            Map<FilePropertyKey, Object> reloadedMap = Collections
-                    .synchronizedMap(new HashMap<FilePropertyKey, Object>());
-            
-            
-            FileDesc fileDesc = uploader.getFileDesc();
-            
-            if(fileDesc != null) {
-                FilePropertyKeyPopulator.populateProperties(fileDesc.getFileName(), fileDesc.getFileSize(), 
-                        fileDesc.getFile().lastModified(), reloadedMap, fileDesc.getXMLDocument());
-            }
-            propertiesMap = reloadedMap;
-        }
     }
 
     @Override
@@ -347,5 +316,47 @@ class CoreUploadItem implements UploadItem {
     void finish(){
         isFinished = true;
         fireDataChanged();
+    }
+    
+    /**
+     * Creates a RemoteHost for this uploader. This allows browses on the 
+     * person uploading this file.
+     */
+    private class UploadRemoteHost implements RemoteHost {
+        
+        @Override
+        public FriendPresence getFriendPresence() {
+            return friendPresence;
+        }
+
+        @Override
+        public boolean isBrowseHostEnabled() {
+            if(friendPresence.getFriend().isAnonymous()) {
+                return uploader.isBrowseHostEnabled();
+            } else {
+                //ensure friend/user still logged in through LW
+                return friendPresence.hasFeatures(LimewireFeature.ID);
+            }
+        }
+
+        @Override
+        public boolean isChatEnabled() {
+            if(friendPresence.getFriend().isAnonymous()) {
+                return false;
+            }else { //TODO: this isn't entirely correct. Friend could have signed
+                // ouf of LW but still be logged in through other service allowing chat
+                return friendPresence.hasFeatures(LimewireFeature.ID);
+            }
+        }
+
+        @Override
+        public boolean isSharingEnabled() {
+            if(friendPresence.getFriend().isAnonymous()) {
+                return false;
+            } else {
+                //ensure friend/user still logged in through LW
+                return friendPresence.hasFeatures(LimewireFeature.ID);
+            }
+        }
     }
 }

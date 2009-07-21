@@ -45,7 +45,7 @@ public class NumericTextField extends JTextField {
     }
 
     /**
-     * Given an int, set the content of the text field
+     * Given an int, set the content of the text field.
      *
      * @param value set on the field
      */

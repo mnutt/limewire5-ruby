@@ -1,7 +1,7 @@
 package com.limegroup.gnutella.spam;
 
 /**
- * A token representing a SHA1 URN
+ * A token representing a SHA1 URN.
  */
 public class UrnToken extends KeywordToken {
 
@@ -11,9 +11,9 @@ public class UrnToken extends KeywordToken {
      */
     private static final float URN_WEIGHT = 1;
     
-	UrnToken(String urn) {
+    UrnToken(String urn) {
         super(urn);
-	}
+    }
     
     @Override
     protected float getWeight() {

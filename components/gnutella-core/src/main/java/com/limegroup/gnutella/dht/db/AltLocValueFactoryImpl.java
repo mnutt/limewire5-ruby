@@ -41,14 +41,14 @@ public class AltLocValueFactoryImpl implements AltLocValueFactory {
     }
 
     /**
-     * Factory method to create AltLocValue
+     * Factory method to create AltLocValue.
      */
     public AltLocValue createFromData(Version version, byte[] data) throws DHTValueException {
         return new AltLocValueImpl(version, data);
     }
     
     /**
-     * Factory method for testing purposes
+     * Factory method for testing purposes.
      */
     AltLocValue createAltLocValue(Version version, byte[] guid, int port, 
             long length, byte[] ttroot, boolean firewalled) {

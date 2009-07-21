@@ -1,12 +1,13 @@
 package org.limewire.ui.swing.friends.chat;
 
-import org.limewire.xmpp.api.client.FileMetaData;
 import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.FileMetaData;
+import org.limewire.friend.api.FriendPresence;
+
 import static org.limewire.ui.swing.util.I18n.tr;
 
 /**
- * impl of a message containing a file offer
+ * Implementation of a message containing a file offer.
  */
 public class MessageFileOfferImpl extends AbstractMessageImpl implements MessageFileOffer {
 
@@ -49,13 +50,16 @@ public class MessageFileOfferImpl extends AbstractMessageImpl implements Message
 
     @Override
     public String format() {
-        boolean isIncoming = (getType() == Message.Type.Received);
+        boolean isIncoming = (getType() == Message.Type.RECEIVED);
         return isIncoming ? formatIncoming() : formatOutgoing();
     }
 
     private String formatOutgoing() {
-        String fileOfferSent = tr("Sharing file with {0}", getFriendID());
-        return fileOfferSent + formatButtonText(getFileOffer().getName(), false);
+        StringBuffer fileOfferOutgoingMsg = new StringBuffer();
+        
+        fileOfferOutgoingMsg.append(tr("Sharing file with {0}", getFriendID()));
+        fileOfferOutgoingMsg.append(formatButtonText(getFileOffer().getName(), false));
+        return fileOfferOutgoingMsg.toString();
     }
 
     private String formatButtonText(String buttonText, boolean buttonEnabled) {

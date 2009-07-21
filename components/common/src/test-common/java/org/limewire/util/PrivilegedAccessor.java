@@ -141,7 +141,7 @@ public class PrivilegedAccessor {
      * The static method is called on all superclasses of the class to.
      * The call chain starts with the supermost class, eventually leading
      * back to the class supplied as the argument.
-     *
+     * <p>
      * Returns an array of PairTuple of (Class, Object) where each entry
      * represents one return value, Class being the class that returned Object.
      *
@@ -164,10 +164,10 @@ public class PrivilegedAccessor {
      * The static method is called on all superclasses of the class to.
      * The call chain starts with the supermost class, eventually leading
      * back to the class supplied as the argument.
-     *
+     * <p>
      * Returns an array of PairTuple of (Class, Object) where each entry
      * represents one return value, Class being the class that returned Object.
-     *
+     * <p>
      * Necessary for using native-type parameters and when the arguments
      * are subclassed objects.
      *
@@ -197,7 +197,6 @@ public class PrivilegedAccessor {
     /**
      *
      * @param instance the object instance
-     * @param methodName the
      */
     public static Method getMethod(Object instance, 
                                    String methodName, 
@@ -215,7 +214,6 @@ public class PrivilegedAccessor {
     /**
      * @param class the class to find the statics methods in
      * @param methodName the name of the static method
-     * @param the parameter classes
      */
     @SuppressWarnings("unchecked")
     public static List<Method> getAllStaticMethods(Class entryClass,

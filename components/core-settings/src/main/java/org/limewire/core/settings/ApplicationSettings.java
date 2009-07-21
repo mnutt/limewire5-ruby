@@ -9,17 +9,17 @@ import org.limewire.setting.StringArraySetting;
 import org.limewire.setting.StringSetting;
 import org.limewire.util.OSUtils;
 
-
 /**
- * Settings for LimeWire application
+ * Settings for LimeWire application.
  */
 public class ApplicationSettings extends LimeProps {
 
     private ApplicationSettings() {}
     
     /**
-     * The Client ID number
+     * The Client ID number.
      */
+    @InspectablePrimitive("client id")
     public static final StringSetting CLIENT_ID = 
         FACTORY.createStringSetting("CLIENT_ID", "");
 
@@ -30,10 +30,16 @@ public class ApplicationSettings extends LimeProps {
     public static final LongSetting AVERAGE_UPTIME =
         FACTORY.createExpirableLongSetting("AVERAGE_UPTIME", 0);
     
+    /** The length of the last n sessions, in seconds. */
     @InspectablePrimitive("last n application uptimes")
-    public static final StringArraySetting LAST_N_UPTIMES =
-        FACTORY.createStringArraySetting("LAST_N_UPTIMES", new String[0]);
+    public static final StringArraySetting UPTIME_HISTORY =
+        FACTORY.createStringArraySetting("UPTIME_HISTORY", new String[0]);
    
+    /** The length of the last n intervals between sessions, in seconds. */
+    @InspectablePrimitive("last n application downtimes")
+    public static final StringArraySetting DOWNTIME_HISTORY =
+        FACTORY.createStringArraySetting("DOWNTIME_HISTORY", new String[0]);
+    
     /**
 	 * The total time this user has used the application.
 	 */    
@@ -59,18 +65,21 @@ public class ApplicationSettings extends LimeProps {
     public static final IntSetting TOTAL_CONNECTIONS =
         FACTORY.createIntSetting("TOTAL_CONNECTIONS", 0);
     
-    
     /**
-     * The total number of times the application  has been run --
+     * The total number of times the application has been run --
 	 * used in calculating the average amount of time this user
-	 * leaves the application on.
+	 * leaves the application on. Initialized to 0 because it will be
+     * incremented at the start of each session, after loading settings.
      */
     @InspectablePrimitive("number of sessions")
     public static final IntSetting SESSIONS =
-        FACTORY.createIntSetting("SESSIONS", 1);
+        FACTORY.createIntSetting("SESSIONS", 0);
     
     /**
-     * The time that this was last shutdown (system time in milliseconds).
+     * The time when the program was last shut down (system time in
+     * milliseconds). This value is periodically updated while running in case
+     * the program shuts down unexpectedly, so it's only at startup that it
+     * represents the previous session's shutdown time. 
      */
     @InspectablePrimitive("last shutdown time")
     public static final LongSetting LAST_SHUTDOWN_TIME =
@@ -92,9 +101,8 @@ public class ApplicationSettings extends LimeProps {
         FACTORY.createBooleanSetting("CURRENTLY_RUNNING", false);            
     
     /**
-     * The fraction of time this is running, a unitless quality.  This is
-     * used to identify highly available hosts with big pongs.  This value
-     * should only be updated once per session.
+     * The fraction of time the program is running, a unitless quality. This is
+     * used to identify highly available hosts.
      */    
     public static final FloatSetting FRACTIONAL_UPTIME =
         FACTORY.createFloatSetting("FRACTIONAL_UPTIME", 0.0f);
@@ -142,6 +150,14 @@ public class ApplicationSettings extends LimeProps {
     public static final BooleanSetting USE_SECURE_RESULTS =
         FACTORY.createBooleanSetting("USE_SECURE_RESULTS", true);
     
+    /**
+     * Returns true if the user has agreed to allow LimeWire to anonymously
+     * gather usage statistics.
+     */
+    @InspectablePrimitive("anonymous usage statistics")
+    public static final BooleanSetting ALLOW_ANONYMOUS_STATISTICS_GATHERING =
+        FACTORY.createBooleanSetting("ALLOW_ANONYMOUS_STATISTICS_GATHERING", true);
+    
     /** If simpp should be initialized when core is initialized. */
     public static final BooleanSetting INITIALIZE_SIMPP =
         FACTORY.createBooleanSetting("INITIALIZE_SIMPP", true);
@@ -160,5 +176,4 @@ public class ApplicationSettings extends LimeProps {
             lang += "_" + lv;
         return lang;
     }
-
 }

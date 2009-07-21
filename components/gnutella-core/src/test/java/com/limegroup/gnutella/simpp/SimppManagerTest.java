@@ -22,8 +22,6 @@ import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
-import com.limegroup.gnutella.settings.SimppSettingsManager;
-
 
 public class SimppManagerTest extends LimeTestCase {
     
@@ -87,9 +85,7 @@ public class SimppManagerTest extends LimeTestCase {
 
     @Override
     public void setUp() throws Exception {
-        
         setSettings();
-        
     }
     
     public void createSimppManager() throws Exception {
@@ -111,7 +107,6 @@ public class SimppManagerTest extends LimeTestCase {
 		simppManager = injector.getInstance(SimppManager.class);
 		lifecycleManager = injector.getInstance(LifecycleManager.class);
         messageFactory = injector.getInstance(MessageFactory.class);
-        
 		
         lifecycleManager.start();
     }
@@ -420,7 +415,6 @@ public class SimppManagerTest extends LimeTestCase {
         //1. Test that Simpp files read off disk take effect. 
         changeSimppFile(OLD_SIMPP_FILE);
         createSimppManager();
-        updateSimppSettings();
 
         assertEquals("base case did not revert to defaults",12, 
                      SimppManagerTestSettings.TEST_UPLOAD_SETTING.getValue());
@@ -440,7 +434,6 @@ public class SimppManagerTest extends LimeTestCase {
     public void testSimppSettingObeysMax() throws Exception {
         changeSimppFile(OLD_SIMPP_FILE);
         createSimppManager();
-        updateSimppSettings();
         
         assertEquals("base case did not revert to defaults",12, 
                      SimppManagerTestSettings.TEST_UPLOAD_SETTING.getValue());
@@ -460,7 +453,6 @@ public class SimppManagerTest extends LimeTestCase {
     public void testSimppSettingObeysMin() throws Exception {
         changeSimppFile(OLD_SIMPP_FILE);
         createSimppManager();
-        updateSimppSettings();
         
         assertEquals("base case did not revert to defaults",12, 
                SimppManagerTestSettings.TEST_UPLOAD_SETTING.getValue());
@@ -504,7 +496,6 @@ public class SimppManagerTest extends LimeTestCase {
     private void changeSimppFile(File inputFile) throws Exception {        
         FileUtils.copy(inputFile, _simppFile);
         
-//        PrivilegedAccessor.setValue(SimppManager.class, "INSTANCE", null);
         PrivilegedAccessor.setValue(SimppManagerImpl.class, "MIN_VERSION", 
                                     new Integer(0));//so we can use 1,2,3
         //reload the SimppManager and Capabilities VM
@@ -513,10 +504,4 @@ public class SimppManagerTest extends LimeTestCase {
             capabilitiesVMFactory.getCapabilitiesVM();
         }
     }
-    
-    private void updateSimppSettings() throws Exception {
-        for (SimppSettingsManager ssm : simppManager.getSimppSettingsManagers())
-            ssm.updateSimppSettings(simppManager.getPropsString());
-    }
-    
 }

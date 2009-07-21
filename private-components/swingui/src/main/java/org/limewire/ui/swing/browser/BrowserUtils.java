@@ -16,13 +16,14 @@ import org.mozilla.interfaces.nsIWebBrowserChrome;
 import org.w3c.dom.Node;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class BrowserUtils {
 
     private static final LimeDomListener DOM_ADAPTER = new LimeDomListener();
 
     /**
-     * Registers a handler for urls with target = "_blank"
+     * Registers a handler for URLs with target = "_blank"
      */
     @Inject
     public static void registerBlankTarget() {
@@ -42,7 +43,7 @@ public class BrowserUtils {
 
     @Inject
     public static void registerMagnetProtocol(final MagnetFactory magnetFactory,
-            final MagnetHandler magnetHandler) {
+            final Provider<MagnetHandler> magnetHandler) {
         addProcotolHandlerAction("magnet", new UriAction() {
             @Override
             public boolean uriClicked(TargetedUri targetedUrl) {
@@ -50,7 +51,7 @@ public class BrowserUtils {
                     URI uri = URIUtils.toURI(targetedUrl.getUri());
                     MagnetLink[] magnetLinks = magnetFactory.parseMagnetLink(uri);
                     for (MagnetLink magnetLink : magnetLinks) {
-                        magnetHandler.handleMagnet(magnetLink);
+                        magnetHandler.get().handleMagnet(magnetLink);
                     }
                 } catch (URISyntaxException e) {
                     return false;
@@ -61,8 +62,7 @@ public class BrowserUtils {
     }
     
     @Inject
-    public static void registerMailToProtocol(final MagnetFactory magnetFactory,
-            final MagnetHandler magnetHandler) {
+    public static void registerMailToProtocol(final MagnetFactory magnetFactory) {
         addProcotolHandlerAction("mailto", new UriAction() {
             @Override
             public boolean uriClicked(final TargetedUri targetedUrl) {
@@ -86,7 +86,7 @@ public class BrowserUtils {
     }
 
     /**
-     * Adds a {@link UriAction} for the specified uri protocol (magnet, etc..)
+     * Adds a {@link UriAction} for the specified URI protocol (magnet, etc..)
      */
     public static void addProcotolHandlerAction(String protocol, UriAction action) {
         DOM_ADAPTER.addProtocolHandlerAction(protocol, action);
@@ -114,7 +114,7 @@ public class BrowserUtils {
     }
 
     /**
-     * Adds LimeDomListener to chromeAdapter
+     * Adds LimeDomListener to chromeAdapter.
      */
     static void addDomListener(final nsIWebBrowserChrome chrome) {
         nsIDOMEventTarget eventTarget = XPCOMUtils.qi(chrome.getWebBrowser().getContentDOMWindow(),

@@ -61,7 +61,7 @@ public class GuiUtils {
     private static DateFormat DATETIME_FORMAT;
       
     /**
-     * Localizable constants
+     * Localizable constants.
      */
     public static String GENERAL_UNIT_BYTES;
     public static String GENERAL_UNIT_KILOBYTES;
@@ -109,7 +109,7 @@ public class GuiUtils {
      * into a localizable representation of an integer, with
      * digit grouping using locale dependant separators.
      *
-     * @param value the number to convert to a numeric String.
+     * @param value the number to convert to a numeric String
      *
      * @return a localized String representing the integer value
      */
@@ -122,12 +122,12 @@ public class GuiUtils {
      * kilobyte string grouping digits with locale-dependant thousand separator
      * and with "KB" locale-dependant unit at the end.
      *
-     * @param bytes the number of bytes to convert to a kilobyte String.
+     * @param bytes the number of bytes to convert to a kilobyte String
      *
      * @return a String representing the number of kilobytes that the
      *         <code>bytes</code> argument evaluates to, with "KB" appended
      *         at the end.  If the input value is negative, the string
-     *         returned will be "? KB".
+     *         returned will be "? KB"
      */
     public static String toKilobytes(long bytes) {
         if (bytes < 0)
@@ -146,7 +146,7 @@ public class GuiUtils {
      * and a limited precision of 4 significant digits. 
      * 
      *
-     * @param bytes the number of bytes to convert to a size String.
+     * @param bytes the number of bytes to convert to a size String
      * @return a String representing the number of kilobytes that the
      *         <code>bytes</code> argument evaluates to, with
      *         "B"/"KB"/"MB"/"GB"/TB" appended at the end. If the input value is
@@ -188,6 +188,25 @@ public class GuiUtils {
             return numberFormat.format((double)bytes / unitValue) + " " + unitName;
         } catch(ArithmeticException ae) {
             return "0 " + unitName;
+            // internal java error, just return 0.
+        }
+    }
+    
+    /**
+     * Converts the passed in number of bytes into a byte-size string.
+     * The returned String is always a locale-dependant thousand separated
+     * String of bytes.
+     */
+    public static String toBytes(long bytes) {
+        if (bytes < 0) {
+            return "? " + GENERAL_UNIT_KILOBYTES;
+        }
+        
+        NumberFormat numberFormat = NUMBER_FORMAT0;
+        try {
+            return numberFormat.format(bytes) + " " + GENERAL_UNIT_BYTES;
+        } catch(ArithmeticException ae) {
+            return "0 " + GENERAL_UNIT_BYTES;
             // internal java error, just return 0.
         }
     }
@@ -244,21 +263,21 @@ public class GuiUtils {
         return GuiUtils.getMainFrame();
     }
     
-	/**
-	 * Inject fields from AppFrame.properties into object. Fields to be injected
-	 * should be annotated <code>@Resource</code> and defined in AppFrame.properties as
-	 * <code>ClassNameWithoutPackage.variableName=resource</code>
-	 * 
-	 * @param object the object whose fields will be injected
-	 */
-	public static void assignResources(Object object) {
+    /**
+     * Inject fields from AppFrame.properties into object. Fields to be injected
+     * should be annotated <code>@Resource</code> and defined in AppFrame.properties as
+     * <code>ClassNameWithoutPackage.variableName=resource</code>
+     * 
+     * @param object the object whose fields will be injected
+     */
+    public static void assignResources(Object object) {
 
-		Application.getInstance().getContext().getResourceMap(AppFrame.class)
-				.injectFields(object);
-	}
+        Application.getInstance().getContext().getResourceMap(AppFrame.class)
+            .injectFields(object);
+    }
     
     /**
-     * Convert a color object to a hex string
+     * Convert a color object to a hex string.
      */
     public static String colorToHex(Color colorCode){
         int r = colorCode.getRed();
@@ -388,7 +407,7 @@ public class GuiUtils {
     }
     
     /**
-     * Determines if the Start On Startup option is availble.
+     * Determines if the Start On Startup option is available.
      */
     public static boolean shouldShowStartOnStartupWindow() {
         return OSUtils.isMacOSX() ||
@@ -396,7 +415,8 @@ public class GuiUtils {
     }
     
     /**
-     * Returns a string representing the quality score just like toQualityString not including the trailing word 'Quality'
+     * Returns a string representing the quality score just like 
+     * toQualityString not including the trailing word 'Quality'.
      */
     public static String toQualityStringShort(long qualityScore) {
         if (qualityScore <= 1) {
@@ -410,9 +430,11 @@ public class GuiUtils {
     
     /**
      * Returns a quality string for the given quality score.
+     * <pre>
      * <= 1  Poor Quality
      * == 2  Good Quality
      * >  2  Excellent Quality
+     * </pre>
      */
     public static String toQualityString(long qualityScore) {
         if (qualityScore <= 1) {
@@ -464,7 +486,7 @@ public class GuiUtils {
     
     /**
      * Adds an action to hide a window / dialog.
-     *
+     * <p>
      * On OSX, this is done by typing 'Command-W'.
      * On all other platforms, this is done by hitting 'ESC'.
      */
@@ -507,7 +529,7 @@ public class GuiUtils {
 
     /**
      * Determines if a font can display up to a point in the string.
-     *
+     * <p>
      * Returns -1 if it can display the whole string.
      */
     public static boolean canDisplay(Font f, String s) {
@@ -517,4 +539,18 @@ public class GuiUtils {
         else
             return false;
     }
+    
+    /**
+     * Iterates over all the windows owned by this process then hides and 
+     *  disposes them.
+     */
+    public static void hideAndDisposeAllWindows() {
+        for(Window window : Window.getWindows()) {
+            try {
+                window.setVisible(false);
+                window.dispose();
+            } catch(Throwable ignored) {}
+        }
+    }
+
 }

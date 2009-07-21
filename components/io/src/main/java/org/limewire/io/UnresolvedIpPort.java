@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An IpPort that has not been resolved in DNS
+ * An IpPort that has not been resolved in DNS.
  */
 public interface UnresolvedIpPort {
     

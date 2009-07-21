@@ -5,9 +5,9 @@ import java.util.Date;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.limewire.friend.api.FileMetaData;
+import org.limewire.friend.impl.FileMetaDataImpl;
 import org.limewire.util.BaseTestCase;
-import org.limewire.xmpp.api.client.FileMetaData;
-import org.limewire.xmpp.client.impl.messages.FileMetaDataImpl;
 import org.limewire.xmpp.client.impl.messages.IQTestUtils;
 import org.limewire.xmpp.client.impl.messages.InvalidIQException;
 import org.limewire.xmpp.client.impl.messages.filetransfer.FileTransferIQ.TransferType;

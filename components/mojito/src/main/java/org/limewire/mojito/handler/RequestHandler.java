@@ -30,7 +30,7 @@ import org.limewire.mojito.messages.RequestMessage;
 public interface RequestHandler {
     
     /**
-     * Called to handle a request
+     * Called to handle a request.
      * 
      * @param message the message to handle
      * @throws IOException

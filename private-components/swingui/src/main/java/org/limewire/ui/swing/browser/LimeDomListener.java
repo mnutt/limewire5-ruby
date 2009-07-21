@@ -19,10 +19,10 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
- * Launches target="_blank" links in native browsers and swallows their
- * DomEvents to prevent default behavior.
+ * Notifies registered actions of links being clicked and if the actions
+ * handle the event, it prevents the default action from happening.
  */
-class LimeDomListener implements nsIDOMEventListener {
+public class LimeDomListener implements nsIDOMEventListener {
 
     private static final Log LOG = LogFactory.getLog(LimeDomListener.class);
 
@@ -32,9 +32,10 @@ class LimeDomListener implements nsIDOMEventListener {
 
     /**
      * Adds a {@link UriAction} for the specified target. They are only invoked
-     * if there is no matching protocol action.
+     * if there is no matching protocol action. Use empty string to register
+     * actions for link clicks that don't have a target
      */
-    void addTargetedUrlAction(String target, UriAction action) {
+    public void addTargetedUrlAction(String target, UriAction action) {
         targetActions.put(target, action);
     }
 
@@ -63,7 +64,6 @@ class LimeDomListener implements nsIDOMEventListener {
                     }
                 }
                 String target = targetedUri.getTarget();
-                if (target != null) {
                     UriAction action = targetActions.get(target);
                     if (action != null) {
                         if (action.uriClicked(targetedUri)) {
@@ -72,7 +72,6 @@ class LimeDomListener implements nsIDOMEventListener {
                         }
                     }
                 }
-            }
         } catch (MozillaRuntimeException e) {
             // This should not occur
             LOG.error("MozillaRuntimeException", e);
@@ -106,7 +105,7 @@ class LimeDomListener implements nsIDOMEventListener {
             if (map != null) {
                 Node hrefNode = map.getNamedItem("href");
                 if (hrefNode != null) {
-                    String target = null;
+                    String target = "";
                     URI absoluteURI = null;
                     try {
                         absoluteURI = new URI(encode(hrefNode.getNodeValue()));

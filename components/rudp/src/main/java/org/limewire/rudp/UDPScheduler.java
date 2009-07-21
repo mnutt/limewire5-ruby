@@ -23,30 +23,30 @@ public class UDPScheduler extends ManagedThread {
     
    // private static final Log LOG = LogFactory.getLog(UDPScheduler.class);
 
-    /** This is the default event when nothing is scheduled */
-	public static final  UDPTimerEvent NO_EVENT  = new NoEvent(Long.MAX_VALUE);
+    /** This is the default event when nothing is scheduled. */
+    public static final  UDPTimerEvent NO_EVENT  = new NoEvent(Long.MAX_VALUE);
 
-    /** The name that the scheduler thread will have */
-	private static final String NAME_OF_THREAD = "UDPScheduler";
+    /** The name that the scheduler thread will have. */
+    private static final String NAME_OF_THREAD = "UDPScheduler";
 
-    /** The active list of scheduled events */
-	private List<UDPTimerEvent> _connectionEvents;
+    /** The active list of scheduled events. */
+    private List<UDPTimerEvent> _connectionEvents;
 
-    /** The next event to be handled */
-	private UDPTimerEvent       _scheduledEvent;
+    /** The next event to be handled. */
+    private UDPTimerEvent       _scheduledEvent;
 
     private boolean             _started;
 
-	/** Keep track of a singleton instance */
+    /** Keep track of a singleton instance. */
     private static UDPScheduler _instance    = null;
 
     /** For offloading the synchronization issues, maintain a second thread
-        for updating events */
+        for updating events. */
     private UpdateThread                _updateThread;
     
     /**
-     * object used to make sure only one copy of the two threads exist per
-     * enclosing object
+     * Object used to make sure only one copy of the two threads exist per
+     * enclosing object.
      */
     private final Object _updateThreadLock = new Object();
     private final Object _mainThreadLock = new Object();
@@ -55,11 +55,11 @@ public class UDPScheduler extends ManagedThread {
      *  Return the <code>UDPScheduler</code> singleton.
      */
     public static synchronized UDPScheduler instance() {
-		// Create the singleton if it doesn't yet exist
-		if ( _instance == null ) {
-			_instance = new UDPScheduler();
-		}
-		return _instance;
+        // Create the singleton if it doesn't yet exist
+        if ( _instance == null ) {
+            _instance = new UDPScheduler();
+        }
+        return _instance;
     }
 
     /**
@@ -68,69 +68,69 @@ public class UDPScheduler extends ManagedThread {
     private UDPScheduler() {
         super(NAME_OF_THREAD);
         
-		_connectionEvents    = new ArrayList<UDPTimerEvent>();
-		_scheduledEvent      = NO_EVENT;
+        _connectionEvents    = new ArrayList<UDPTimerEvent>();
+        _scheduledEvent      = NO_EVENT;
         _started             = false;
         _updateThread        = null;
     }
 
     /**
-     *  Register a <code>UDPTimerEvent</code> for scheduling events
+     *  Register a <code>UDPTimerEvent</code> for scheduling events.
      */
-	public void register(UDPTimerEvent evt) {
+    public void register(UDPTimerEvent evt) {
         
-		startThreads();
+        startThreads();
         _updateThread.registerEvent(evt);
 
-	}
-	
+    }
 
-	private final synchronized void registerSync(UDPTimerEvent evt) {
-		_connectionEvents.add(evt);
-	}
 
-	/**
-	 * starts both threads if they haven't been started yet.
-	 */
-	private final void startThreads() {
-		synchronized(_mainThreadLock) {
-		    if ( !_started ) {
-		        _started = true;
-		        setDaemon(true);
-		        start();
-		    }
-		}
-		
-		synchronized(_updateThreadLock) {
-			if ( _updateThread == null ) {
-				_updateThread = new UpdateThread();
-				_updateThread.setDaemon(true);
-				_updateThread.start();
-			}
-		}
-	}
+    private final synchronized void registerSync(UDPTimerEvent evt) {
+        _connectionEvents.add(evt);
+    }
+
+    /**
+     * starts both threads if they haven't been started yet.
+     */
+    private final void startThreads() {
+        synchronized(_mainThreadLock) {
+            if ( !_started ) {
+                _started = true;
+                setDaemon(true);
+                start();
+            }
+        }
+
+        synchronized(_updateThreadLock) {
+            if ( _updateThread == null ) {
+                _updateThread = new UpdateThread();
+                _updateThread.setDaemon(true);
+                _updateThread.start();
+            }
+        }
+    }
 
 
     /**
-     *  Notify the scheduler that a connection has a new scheduled event
+     *  Notify the scheduler that a connection has a new scheduled event.
      */
-	public void scheduleEvent(UDPTimerEvent evt) {
+    public void scheduleEvent(UDPTimerEvent evt) {
 
         startThreads();
 
         // Pass the event update to the update thread.
         _updateThread.addEvent(evt);
-	}
+    }
 
     /**
-     *  Shortcut test for a second thread to deal with the new schedule handoff
+     *  Shortcut test for a second thread to deal with the new schedule handoff.
      */
     class UpdateThread extends ManagedThread {
         List<UDPTimerEvent> _listSchedule;
         List<UDPTimerEvent> _listRegister;
 
         /**
-         *  Initialize the list of pending event updates
+         *  Initialize the list of pending event updates.
          */
         public UpdateThread() {
             super("UDPUpdateThread");
@@ -139,7 +139,7 @@ public class UDPScheduler extends ManagedThread {
         }
 
         /**
-         *  Schedule an event for update in the main event list
+         *  Schedule an event for update in the main event list.
          */
         public synchronized void addEvent(UDPTimerEvent evt) {
               _listSchedule.add(evt);
@@ -148,8 +148,8 @@ public class UDPScheduler extends ManagedThread {
         
         
         public synchronized void registerEvent(UDPTimerEvent evt) {
-        	_listRegister.add(evt);
-        	notify();
+            _listRegister.add(evt);
+            notify();
         }
         
         /**
@@ -192,7 +192,7 @@ public class UDPScheduler extends ManagedThread {
                 // Wait for more event updates
                 synchronized(this) {
                     if (_listSchedule.size() > 0 || 
-							_listRegister.size() > 0)
+                            _listRegister.size() > 0)
                         continue;
                     try {
                         wait();
@@ -202,7 +202,7 @@ public class UDPScheduler extends ManagedThread {
         }
 
         /**
-         *  Process the updating of an event
+         *  Process the updating of an event.
          */
         private void updateSchedule(UDPTimerEvent evt) {
             synchronized(UDPScheduler.this) {
@@ -219,19 +219,19 @@ public class UDPScheduler extends ManagedThread {
     }
 
     /**
-	 *  Wait for scheduled events on UDPTimerEvent, 
-     *  run them and reschedule
+     *  Wait for scheduled events on UDPTimerEvent, 
+     *  run them and reschedule.
      */
- 	@Override
+    @Override
     public void run() {
-		long  waitTime;
-	
+        long  waitTime;
+
         // Specify that an interrupt is okay
 
-		while (true) {
+        while (true) {
             // wait for an existing or future event
             try {
-            	synchronized(this) {
+                synchronized(this) {
                     if ( _scheduledEvent == NO_EVENT ) {
                         // Wait a long time since there is nothing to do
                         waitTime = 0;
@@ -262,50 +262,50 @@ public class UDPScheduler extends ManagedThread {
             // Run the event and rework the schedule.
             runEvent();
             reworkSchedule();
-		}
-	}
+        }
+    }
 
     /**
-	 *  Run the scheduled UDPTimerEvent event
+     *  Run the scheduled UDPTimerEvent event.
      */
- 	private synchronized void runEvent() {
+    private synchronized void runEvent() {
 
-		if (_scheduledEvent.shouldUnregister())
-			_connectionEvents.remove(_scheduledEvent);
-		else
-			_scheduledEvent.handleEvent();
+        if (_scheduledEvent.shouldUnregister())
+            _connectionEvents.remove(_scheduledEvent);
+        else
+            _scheduledEvent.handleEvent();
 
-	}
+    }
 
     /**
-	 *  Go through the active UDPTimerEvent and find the next event.
+     *  Go through the active UDPTimerEvent and find the next event.
      *  For now, I don't think it is necessary to resort the list.
      */
- 	private synchronized void reworkSchedule() {
-		UDPTimerEvent evt;
-		long          time;
+    private synchronized void reworkSchedule() {
+        UDPTimerEvent evt;
+        long          time;
 
-		_scheduledEvent      = NO_EVENT;
-		for (int i = 0; i < _connectionEvents.size(); i++) {
-			evt = _connectionEvents.get(i);
-			time = evt.getEventTime();
-			if ( evt  != NO_EVENT && 
-				 (time < _scheduledEvent.getEventTime() || 
+        _scheduledEvent      = NO_EVENT;
+        for (int i = 0; i < _connectionEvents.size(); i++) {
+            evt = _connectionEvents.get(i);
+            time = evt.getEventTime();
+            if ( evt  != NO_EVENT && 
+                    (time < _scheduledEvent.getEventTime() || 
                  _scheduledEvent == NO_EVENT)) {
-				_scheduledEvent = evt;
-			}
-		}
-	}
+                _scheduledEvent = evt;
+            }
+        }
+    }
 
-	private static final class NoEvent extends UDPTimerEvent {
-		public NoEvent(long time) {
-			super(time,null);
-		}
+    private static final class NoEvent extends UDPTimerEvent {
+        public NoEvent(long time) {
+            super(time,null);
+        }
 
-		@Override
+        @Override
         protected void doActualEvent(UDPConnectionProcessor udpCon) {
-		}
-	} 
+        }
+    } 
 
 }
 

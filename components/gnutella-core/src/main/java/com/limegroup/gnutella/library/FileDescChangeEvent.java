@@ -10,7 +10,7 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 public class FileDescChangeEvent extends DefaultSourceTypeEvent<FileDesc, FileDescChangeEvent.Type> {
     
-    public static enum Type { URNS_CHANGED, LOAD }
+    public static enum Type { TT_ROOT_ADDED }
     
     private final List<? extends LimeXMLDocument> xmlDocs;
     private final URN urn;

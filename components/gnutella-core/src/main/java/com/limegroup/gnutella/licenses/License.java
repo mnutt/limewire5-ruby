@@ -9,7 +9,7 @@ import com.limegroup.gnutella.URN;
 
 /**
  * Contains methods related to verification.
- *
+ * <p>
  * It is possible that the License is a bulk license and contains
  * information related to multiple works.  This license is encapsulated
  * so that it contains information unique to a single verification location.
@@ -26,7 +26,7 @@ public interface License {
     
     /**
      * True if this license has been externally verified.
-     *
+     * <p>
      * This does NOT indicate whether or not the license was valid.
      */
     public boolean isVerified();
@@ -38,8 +38,8 @@ public interface License {
     
     /**
      * True if this license was verified and is valid & matches the given URN.
-     *
-     * If the provided URN is null, this will return true as long as atleast
+     * <p>
+     * If the provided URN is null, this will return true as long as at least
      * one work in this license is valid.  If the license provided no URNs
      * for a work, this will also return true.  If URNs were provided for
      * all works and a URN is given here, this will only return true if the
@@ -49,7 +49,7 @@ public interface License {
     
     /**
      * Returns a description of this license.
-     *
+     * <p>
      * Retrieves the description for the particular URN.  If no URN is given,
      * a best-guess is used to extract the correct description.
      */
@@ -62,7 +62,7 @@ public interface License {
     
     /**
      * Returns the location of the deed for this license.
-     *
+     * <p>
      * Retrieves the deed for the work with the given URN.  If no URN is given,
      * a best-guess is used to extract the correct license deed.
      */

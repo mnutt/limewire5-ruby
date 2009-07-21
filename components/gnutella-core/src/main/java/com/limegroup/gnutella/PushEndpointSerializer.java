@@ -42,8 +42,8 @@ public class PushEndpointSerializer implements AddressSerializer {
     }
 
     @Override
-    public Class<? extends Address> getAddressClass() {
-        return PushEndpoint.class;
+    public boolean canSerialize(Address address) {
+        return address instanceof PushEndpoint;
     }
 
     @Override

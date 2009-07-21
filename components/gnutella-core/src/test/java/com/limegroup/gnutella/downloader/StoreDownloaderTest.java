@@ -7,7 +7,7 @@ import java.util.List;
 
 import junit.framework.Test;
 
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.gnutella.tests.NetworkManagerStub;
@@ -26,8 +26,7 @@ import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.helpers.UrnHelper;
-import com.limegroup.gnutella.library.FileManager;
-import com.limegroup.gnutella.library.FileManagerStub;
+import com.limegroup.gnutella.library.LibraryStubModule;
 import com.limegroup.gnutella.stubs.ConnectionManagerStub;
 import com.limegroup.gnutella.stubs.MessageRouterStub;
 
@@ -66,11 +65,11 @@ public class StoreDownloaderTest extends LimeTestCase{
             protected void configure() {
                bind(ConnectionManager.class).to(ConnectionManagerStub.class);
                bind(MessageRouter.class).to(MessageRouterStub.class);
-               bind(FileManager.class).to(FileManagerStub.class);
                bind(NetworkManager.class).to(NetworkManagerStub.class);
                bind(LocalSocketAddressProvider.class).toInstance(localSocketAddressProviderStub);
             } 
         });
+        allModules.add(new LibraryStubModule());
         allModules.addAll(Arrays.asList(modules));
         injector = LimeTestUtils.createInjector(allModules.toArray(new Module[0]));
         remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
@@ -98,8 +97,6 @@ public class StoreDownloaderTest extends LimeTestCase{
         assertFalse(downloader.allowAddition(null));
         
         assertFalse(downloader.canSendRequeryNow());
-        
-        assertFalse(downloader.hasBrowseEnabledHost());
         
         assertEquals(0, downloader.getNumberOfAlternateLocations());
         
@@ -155,7 +152,7 @@ public class StoreDownloaderTest extends LimeTestCase{
             downloadManager.downloadFromStore(rfd, false, _storeDir, "test.txt" );
             fail("File already downloading");
         }
-        catch(SaveLocationException e) {
+        catch(DownloadException e) {
             
         }
     }

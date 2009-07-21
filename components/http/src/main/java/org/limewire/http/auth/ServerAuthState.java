@@ -4,7 +4,7 @@ import org.apache.http.auth.Credentials;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * Context object for http authentication that is attached to
+ * Context object for HTTP authentication that is attached to
  * {@link HttpContext}.
  */
 public class ServerAuthState {
@@ -36,7 +36,7 @@ public class ServerAuthState {
     }
 
     /**
-     * Sets the credentials sent in the http request. 
+     * Sets the credentials sent in the HTTP request. 
      */
     public void setCredentials(Credentials credentials) {
         this.credentials = credentials;

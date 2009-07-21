@@ -5,13 +5,12 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import org.jdesktop.beans.AbstractBean;
-import org.limewire.core.api.friend.feature.features.LimewireFeature;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.MessageReader;
+import org.limewire.friend.api.MessageWriter;
+import org.limewire.friend.api.feature.LimewireFeature;
 import org.limewire.ui.swing.util.SwingUtils;
-import org.limewire.xmpp.api.client.MessageReader;
-import org.limewire.xmpp.api.client.MessageWriter;
-import org.limewire.xmpp.api.client.Presence;
-import org.limewire.xmpp.api.client.Presence.Mode;
-import org.limewire.xmpp.api.client.User;
 
 /**
  * @author Mario Aquino, Object Computing, Inc.
@@ -21,42 +20,42 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
 
     private boolean chatting;
     private boolean activeConversation;
-    private final User user;
+    private final Friend friend;
     private String status;
-    private Mode mode;
+    private FriendPresence.Mode mode;
     private long chatStartTime;
     private boolean hasUnviewedMessages;
 
-    ChatFriendImpl(final Presence presence) {
-        this.user = presence.getUser();
+    ChatFriendImpl(final FriendPresence presence) {
+        this.friend = presence.getFriend();
         this.status = presence.getStatus();
         this.mode = presence.getMode();
     }
 
     @Override
-    public User getUser() {
-        return user;
+    public Friend getFriend() {
+        return friend;
     }
     
     @Override
     public String getID() {
-        return user.getId();
+        return friend.getId();
     }
 
     @Override
-    public Mode getMode() {
+    public FriendPresence.Mode getMode() {
         return mode;
     }
     
-    void setMode(Mode mode) {
-        Mode oldMode = getMode();
+    void setMode(FriendPresence.Mode mode) {
+        FriendPresence.Mode oldMode = getMode();
         this.mode = mode;
         firePropertyChange("mode", oldMode, mode);
     }
 
     @Override
     public String getName() {
-        return user.getRenderName();
+        return friend.getRenderName();
     }
 
     @Override
@@ -87,7 +86,7 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
 
     @Override
     public MessageWriter createChat(MessageReader reader) {
-        return user.createChat(reader);
+        return friend.createChat(reader);
     }
 
     @Override
@@ -102,7 +101,7 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
     public void update() {
         // If there's an available presence, set to "Available"
         // If no available presence, use highest priority presence.
-        Presence presence = getPresenceForModeAndStatus();
+        FriendPresence presence = getPresenceForModeAndStatus();
         if (presence != null) {
             setStatus(presence.getStatus());
             setMode(presence.getMode());
@@ -134,7 +133,7 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
 
     @Override
     public boolean isSignedInToLimewire() {
-        for (Presence presence : user.getPresences().values()) {
+        for (FriendPresence presence : friend.getPresences().values()) {
             if (presence.getFeature(LimewireFeature.ID) != null) {
                 return true;
             }
@@ -144,7 +143,7 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
 
     @Override
     public boolean isSignedIn() {
-        return user.isSignedIn();
+        return friend.isSignedIn();
     }
 
     @Override
@@ -159,19 +158,19 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
         firePropertyChange("receivingUnviewedMessages", oldHasUnviewedMessages, hasMessages);
     }
 
-    private Presence getPresenceForModeAndStatus() {
-        ArrayList<Presence> presences = new ArrayList<Presence>(user.getPresences().values());
+    private FriendPresence getPresenceForModeAndStatus() {
+        ArrayList<FriendPresence> presences = new ArrayList<FriendPresence>(friend.getPresences().values());
         Collections.sort(presences, new ModeAndPriorityPresenceComparator());
         return presences.size() == 0 ? null : presences.get(presences.size()-1);
     }
     
-    private static class ModeAndPriorityPresenceComparator implements Comparator<Presence> {
+    private static class ModeAndPriorityPresenceComparator implements Comparator<FriendPresence> {
         @Override
-        public int compare(Presence o1, Presence o2) {
+        public int compare(FriendPresence o1, FriendPresence o2) {
             if (!o1.getMode().equals(o2.getMode())) {
-                if (o1.getMode() == Presence.Mode.available) {
+                if (o1.getMode() == FriendPresence.Mode.available) {
                     return 1;
-                } else if (o2.getMode() == Presence.Mode.available) {
+                } else if (o2.getMode() == FriendPresence.Mode.available) {
                     return -1;
                 }
             }

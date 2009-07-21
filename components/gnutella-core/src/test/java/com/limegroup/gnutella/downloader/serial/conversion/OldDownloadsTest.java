@@ -79,13 +79,15 @@ public class OldDownloadsTest extends org.limewire.gnutella.tests.LimeTestCase {
     private DownloadSerializer getSerializerFor(String file) throws Exception {
         LOG.debug("-Trying to read downloads.dat from \""+file+"\"");
         File downloadDat = TestUtils.getResourceInPackage(file, OldDownloadsTest.class);
-        File copiedDat = File.createTempFile("lwc", "copyDat");
-        CommonUtils.copyFile(downloadDat, copiedDat);
-        File newSaveFile = File.createTempFile("lwc", "saveTmp");
-        newSaveFile.delete();
         
-        DownloadSerializeSettings oldSettings = new DownloadSerialSettingsStub(copiedDat, copiedDat);
-        DownloadSerializeSettings newSettings = new DownloadSerialSettingsStub(newSaveFile, newSaveFile);
+        File oldSaveLocation = File.createTempFile("lwc", "oldSaveFile");
+        CommonUtils.copyFile(downloadDat, oldSaveLocation);
+        
+        File newSaveLocation = File.createTempFile("lwc", "newSaveFile");
+        newSaveLocation.delete();
+        
+        DownloadSerializeSettings oldSettings = new DownloadSerialSettingsStub(oldSaveLocation, oldSaveLocation);
+        DownloadSerializeSettings newSettings = new DownloadSerialSettingsStub(newSaveLocation, newSaveLocation);
         DownloadSerializer downloadSerializer = new DownloadSerializerImpl(newSettings);
         
         DownloadUpgradeTask downloadUpgradeTask = new DownloadUpgradeTask(injector.getInstance(OldDownloadConverter.class), oldSettings, newSettings, downloadSerializer); 

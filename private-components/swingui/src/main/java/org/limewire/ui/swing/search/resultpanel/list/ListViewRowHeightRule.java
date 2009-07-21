@@ -16,11 +16,14 @@ public interface ListViewRowHeightRule {
         }
     }
     
+    /** Initializes this rule with a search. */
+    void initializeWithSearch(String search);
+    
     /**
      * Determines which combination of heading, subheading, and metadata should display
-     * in the list view of the search results, given a specific VisualSearchResult 
+     * in the list view of the search results, given a specific VisualSearchResult.
      */
-    RowDisplayResult getDisplayResult(VisualSearchResult vsr, String searchText);
+    RowDisplayResult getDisplayResult(VisualSearchResult vsr);
     
     public static interface RowDisplayResult {
         String getHeading();

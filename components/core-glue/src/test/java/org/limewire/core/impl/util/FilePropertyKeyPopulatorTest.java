@@ -1,15 +1,11 @@
 package org.limewire.core.impl.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.util.BaseTestCase;
-import org.limewire.util.FileUtils;
 
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 import com.limegroup.gnutella.xml.LimeXMLNames;
@@ -20,9 +16,6 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
     }
 
     public void testAudioFilePopulation() throws Exception {
-        final String fileName = "testFileName.mp3";
-        final Long fileSize = new Long(1234);
-        final Long creationTime = new Long(5678);
         final String title = "Hello World";
         final String artist = "Me and you";
         final String album = "Testing the waters";
@@ -32,7 +25,9 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         final Long seconds = new Long(956);
         final Long year = new Long(1999);
         final String track = "5";
-        final Long quality = new Long(2);
+        
+        final long fileSize = 1234;
+        final int quality = 2;
 
         Mockery context = new Mockery() {
             {
@@ -64,31 +59,22 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
             }
         });
 
-        Map<FilePropertyKey, Object> map = new HashMap<FilePropertyKey, Object>();
-        FilePropertyKeyPopulator
-                .populateProperties(fileName, fileSize, creationTime, map, document);
 
-        assertEquals(artist, map.get(FilePropertyKey.AUTHOR));
-        assertEquals(title, map.get(FilePropertyKey.TITLE));
-        assertEquals(album, map.get(FilePropertyKey.ALBUM));
-        assertEquals(genre, map.get(FilePropertyKey.GENRE));
-        assertEquals(track, map.get(FilePropertyKey.TRACK_NUMBER));
-        assertEquals(year, map.get(FilePropertyKey.YEAR));
-        assertEquals(seconds, map.get(FilePropertyKey.LENGTH));
-        assertEquals(bitrate, map.get(FilePropertyKey.BITRATE));
-        assertEquals(comments, map.get(FilePropertyKey.DESCRIPTION));
-        assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
-        assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
-        assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
-        assertEquals(quality, map.get(FilePropertyKey.QUALITY));
+        assertEquals(artist, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.AUTHOR, document));
+        assertEquals(title, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.TITLE, document));
+        assertEquals(album, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.ALBUM, document));
+        assertEquals(genre, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.GENRE, document));
+        assertEquals(track, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.TRACK_NUMBER, document));
+        assertEquals(year, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.YEAR, document));
+        assertEquals(seconds, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.LENGTH, document));
+        assertEquals(bitrate, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.BITRATE, document));
+        assertEquals(comments, FilePropertyKeyPopulator.get(Category.AUDIO, FilePropertyKey.DESCRIPTION, document));
+        assertEquals(quality, FilePropertyKeyPopulator.calculateQuality(Category.AUDIO, "mp3", fileSize, document));
 
         context.assertIsSatisfied();
     }
 
     public void testVideoFilePopulation() throws Exception {
-        final String fileName = "testFileName.mpg";
-        final Long fileSize = new Long(1234);
-        final Long creationTime = new Long(5678);
         final String title = "Hello World";
         final String genre = "Rock";
         final String comments = "woah!";
@@ -100,7 +86,9 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
         final Long bitrate = new Long(128);
         final Long seconds = new Long(956);
         final Long year = new Long(1999);
-        final Long quality = new Long(2);
+        
+        final long fileSize = 1234;
+        final int quality = 2;
 
         Mockery context = new Mockery() {
             {
@@ -136,33 +124,23 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
             }
         });
 
-        Map<FilePropertyKey, Object> map = new HashMap<FilePropertyKey, Object>();
-        FilePropertyKeyPopulator
-                .populateProperties(fileName, fileSize, creationTime, map, document);
-
-        assertEquals(rating, map.get(FilePropertyKey.RATING));
-        assertEquals(producer, map.get(FilePropertyKey.AUTHOR));
-        assertEquals(title, map.get(FilePropertyKey.TITLE));
-        assertEquals(company, map.get(FilePropertyKey.COMPANY));
-        assertEquals(genre, map.get(FilePropertyKey.GENRE));
-        assertEquals(height, map.get(FilePropertyKey.HEIGHT));
-        assertEquals(width, map.get(FilePropertyKey.WIDTH));
-        assertEquals(year, map.get(FilePropertyKey.YEAR));
-        assertEquals(seconds, map.get(FilePropertyKey.LENGTH));
-        assertEquals(bitrate, map.get(FilePropertyKey.BITRATE));
-        assertEquals(comments, map.get(FilePropertyKey.DESCRIPTION));
-        assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
-        assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
-        assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
-        assertEquals(quality, map.get(FilePropertyKey.QUALITY));
+        assertEquals(rating, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.RATING, document));
+        assertEquals(producer, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.AUTHOR, document));
+        assertEquals(title, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.TITLE, document));
+        assertEquals(company, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.COMPANY, document));
+        assertEquals(genre, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.GENRE, document));
+        assertEquals(height, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.HEIGHT, document));
+        assertEquals(width, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.WIDTH, document));
+        assertEquals(year, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.YEAR, document));
+        assertEquals(seconds, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.LENGTH, document));
+        assertEquals(bitrate, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.BITRATE, document));
+        assertEquals(comments, FilePropertyKeyPopulator.get(Category.VIDEO, FilePropertyKey.DESCRIPTION, document));
+        assertEquals(quality, FilePropertyKeyPopulator.calculateQuality(Category.VIDEO, "mpg", fileSize, document));
 
         context.assertIsSatisfied();
     }
 
     public void testImageFilePopulation() throws Exception {
-        final String fileName = "testFileName.jpg";
-        final Long fileSize = new Long(1234);
-        final Long creationTime = new Long(5678);
         final String author = "Hello World";
         final String title = "Rock";
         final String comments = "woah!";
@@ -185,24 +163,14 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
             }
         });
 
-        Map<FilePropertyKey, Object> map = new HashMap<FilePropertyKey, Object>();
-        FilePropertyKeyPopulator
-                .populateProperties(fileName, fileSize, creationTime, map, document);
-
-        assertEquals(author, map.get(FilePropertyKey.AUTHOR));
-        assertEquals(title, map.get(FilePropertyKey.TITLE));
-        assertEquals(comments, map.get(FilePropertyKey.DESCRIPTION));
-        assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
-        assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
-        assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
+        assertEquals(author, FilePropertyKeyPopulator.get(Category.IMAGE, FilePropertyKey.AUTHOR, document));
+        assertEquals(title, FilePropertyKeyPopulator.get(Category.IMAGE, FilePropertyKey.TITLE, document));
+        assertEquals(comments, FilePropertyKeyPopulator.get(Category.IMAGE, FilePropertyKey.DESCRIPTION, document));
 
         context.assertIsSatisfied();
     }
 
     public void testDocumentFilePopulation() throws Exception {
-        final String fileName = "testFileName.txt";
-        final Long fileSize = new Long(1234);
-        final Long creationTime = new Long(5678);
         final String author = "Hello World";
         final String title = "Rock";
         final String comments = "woah!";
@@ -225,24 +193,14 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
             }
         });
 
-        Map<FilePropertyKey, Object> map = new HashMap<FilePropertyKey, Object>();
-        FilePropertyKeyPopulator
-                .populateProperties(fileName, fileSize, creationTime, map, document);
-
-        assertEquals(author, map.get(FilePropertyKey.AUTHOR));
-        assertEquals(title, map.get(FilePropertyKey.TITLE));
-        assertEquals(comments, map.get(FilePropertyKey.DESCRIPTION));
-        assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
-        assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
-        assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
+        assertEquals(author, FilePropertyKeyPopulator.get(Category.DOCUMENT, FilePropertyKey.AUTHOR, document));
+        assertEquals(title, FilePropertyKeyPopulator.get(Category.DOCUMENT, FilePropertyKey.TITLE, document));
+        assertEquals(comments, FilePropertyKeyPopulator.get(Category.DOCUMENT, FilePropertyKey.DESCRIPTION, document));
 
         context.assertIsSatisfied();
     }
 
     public void testProgramFilePopulation() throws Exception {
-        final String fileName = "testFileName.exe";
-        final Long fileSize = new Long(1234);
-        final Long creationTime = new Long(5678);
         final String company = "Hello World";
         final String title = "Rock";
         final String platform = "woah!";
@@ -264,17 +222,10 @@ public class FilePropertyKeyPopulatorTest extends BaseTestCase {
                 will(returnValue(platform.toString()));
             }
         });
-
-        Map<FilePropertyKey, Object> map = new HashMap<FilePropertyKey, Object>();
-        FilePropertyKeyPopulator
-                .populateProperties(fileName, fileSize, creationTime, map, document);
-
-        assertEquals(company, map.get(FilePropertyKey.COMPANY));
-        assertEquals(title, map.get(FilePropertyKey.TITLE));
-        assertEquals(platform, map.get(FilePropertyKey.PLATFORM));
-        assertEquals(FileUtils.getFilenameNoExtension(fileName), map.get(FilePropertyKey.NAME));
-        assertEquals(fileSize, map.get(FilePropertyKey.FILE_SIZE));
-        assertEquals(creationTime, map.get(FilePropertyKey.DATE_CREATED));
+        
+        assertEquals(company, FilePropertyKeyPopulator.get(Category.PROGRAM, FilePropertyKey.COMPANY, document));
+        assertEquals(title, FilePropertyKeyPopulator.get(Category.PROGRAM, FilePropertyKey.TITLE, document));
+        assertEquals(platform, FilePropertyKeyPopulator.get(Category.PROGRAM, FilePropertyKey.PLATFORM, document));
 
         context.assertIsSatisfied();
     }

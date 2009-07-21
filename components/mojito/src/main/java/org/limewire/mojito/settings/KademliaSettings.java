@@ -20,14 +20,14 @@
 package org.limewire.mojito.settings;
 
 /**
- * Various Kademlia related Settings
+ * Various Kademlia related Settings.
  */
 public class KademliaSettings {
     
     private KademliaSettings() {}
     
     /**
-     * The replication parameter is also known as K
+     * The replication parameter is also known as K.
      */
     public static final FakeIntSetting REPLICATION_PARAMETER = new FakeIntSetting(20);
     

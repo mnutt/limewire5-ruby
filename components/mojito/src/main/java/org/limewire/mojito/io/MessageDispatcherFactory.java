@@ -27,7 +27,7 @@ import org.limewire.mojito.Context;
 public interface MessageDispatcherFactory {
     
     /**
-     * Creates and returns an instance of {@link MessageDispatcher}
+     * Creates and returns an instance of {@link MessageDispatcher}.
      * 
      * @param context the Mojito {@link Context}
      * @return {@link MessageDispatcher}

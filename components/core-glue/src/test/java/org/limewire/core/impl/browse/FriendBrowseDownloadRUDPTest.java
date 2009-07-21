@@ -6,43 +6,40 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.Icon;
+
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.browse.BrowseListener;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.api.download.SaveLocationException;
-import org.limewire.core.api.friend.feature.FeatureEvent;
-import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.impl.CoreGlueModule;
 import org.limewire.core.impl.search.QueryReplyListenerList;
-import org.limewire.core.impl.search.RemoteFileDescAdapter;
-import org.limewire.core.impl.xmpp.XMPPRemoteFileDescDeserializer;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendConnection;
+import org.limewire.friend.api.FriendConnectionConfiguration;
+import org.limewire.friend.api.FriendConnectionFactory;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.Network;
+import org.limewire.friend.api.RosterEvent;
+import org.limewire.friend.api.feature.AddressFeature;
+import org.limewire.friend.api.feature.FeatureEvent;
 import org.limewire.gnutella.tests.LimeTestCase;
-import org.limewire.io.IpPort;
 import org.limewire.io.UnresolvedIpPort;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.xmpp.api.client.Presence;
-import org.limewire.xmpp.api.client.RosterEvent;
-import org.limewire.xmpp.api.client.User;
-import org.limewire.xmpp.api.client.XMPPAddress;
-import org.limewire.xmpp.api.client.XMPPConnection;
-import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
-import org.limewire.xmpp.api.client.XMPPService;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -51,7 +48,6 @@ import com.google.inject.Module;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 import com.limegroup.gnutella.LimeWireCoreModule;
-import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.SearchServices;
 
 /**
@@ -69,9 +65,9 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
     private static final String PASSWORD_1 = "limebuddy123";
     private static final String SERVICE = "gmail.com";
 
-    private XMPPConnection conn;
+    private FriendConnection conn;
     private ServiceRegistry registry;
-    protected XMPPService service;
+    protected FriendConnectionFactory friendConnectionFactory;
     protected Injector injector;
 
     public FriendBrowseDownloadRUDPTest(String name) {
@@ -83,18 +79,18 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
     protected void setUp() throws Exception {
         injector = createInjector(getModules());
         registry = injector.getInstance(ServiceRegistry.class);
+        friendConnectionFactory = injector.getInstance(FriendConnectionFactory.class);
         registry.initialize();                                                                                
         registry.start();
-        service = injector.getInstance(XMPPService.class);
-        XMPPConnectionConfiguration config = getDefaultXmppConnectionConfig(USERNAME_1, PASSWORD_1, SERVICE);
+        FriendConnectionConfiguration config = getDefaultXmppConnectionConfig(USERNAME_1, PASSWORD_1, SERVICE);
 
-        ListeningFuture<XMPPConnection> loginTask = service.login(config);
+        ListeningFuture<FriendConnection> loginTask = friendConnectionFactory.login(config);
         conn = loginTask.get(SECONDS_TO_WAIT, TimeUnit.SECONDS);
     }
 
     @Override
     public void tearDown() throws Exception {
-        service.logout();
+        conn.logout();
         registry.stop();
     }
 
@@ -102,9 +98,9 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
         return Guice.createInjector(Stage.PRODUCTION, modules);
     }
 
-    private XMPPConnectionConfiguration getDefaultXmppConnectionConfig(final String userName, final String passwd,
+    private FriendConnectionConfiguration getDefaultXmppConnectionConfig(final String userName, final String passwd,
                                                                        final String serviceName) {
-        return new XMPPConnectionConfiguration() {
+        return new FriendConnectionConfiguration() {
             @Override public boolean isDebugEnabled() { return true; }
             @Override public String getUserInputLocalID() { return userName; }
             @Override public String getPassword() { return passwd; }
@@ -115,6 +111,15 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
             @Override public String getCanonicalizedLocalID() { return getUserInputLocalID(); }
             @Override public String getNetworkName() { return getServiceName(); }
             @Override public List<UnresolvedIpPort> getDefaultServers() { return UnresolvedIpPort.EMPTY_LIST;}
+            @Override public Type getType() { return Network.Type.XMPP;}
+            @Override public Icon getIcon() { return null;}
+            @Override
+            public Object getAttribute(String key) {
+                return null;
+            }
+            @Override
+            public void setAttribute(String key, Object property) {
+            }
         };
     }
 
@@ -132,9 +137,9 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
     public void testBrowseDownloadFromFriendBehindFirewall() throws Exception {
         waitForFeature(AddressFeature.ID, FRIEND);
         
-        Collection<Presence> presences = conn.getUser(FRIEND).getPresences().values();
+        Collection<FriendPresence> presences = conn.getFriend(FRIEND).getPresences().values();
         assertEquals(1, presences.size());
-        Presence presence = presences.iterator().next();
+        FriendPresence presence = presences.iterator().next();
 
 
         SearchServices searchServices = injector.getInstance(SearchServices.class);
@@ -142,7 +147,7 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
 
         CoreBrowse coreBrowse = new CoreBrowse(presence, searchServices, queryReplyListenerList);
 
-        BrowseStatistics browser = new BrowseStatistics(presence);
+        BrowseResultsCollector browser = new BrowseResultsCollector();
         coreBrowse.start(browser);
 
         Map<String, SearchResult> browseResults = waitForBrowse(browser);
@@ -168,7 +173,7 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
         try {
             dlItem = downloader.addDownload(null, toDownload);
             waitForDownloadCompletion(dlItem);
-        } catch (SaveLocationException e) {
+        } catch (DownloadException e) {
             e.printStackTrace();
             fail("Failed to save the file: " + e.getMessage());
         }
@@ -178,7 +183,7 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
 
     }
 
-    private Map<String, SearchResult> waitForBrowse(BrowseStatistics browse) throws Exception {
+    private Map<String, SearchResult> waitForBrowse(BrowseResultsCollector browse) throws Exception {
         return browse.waitForBrowseToFinish();
     }
 
@@ -232,10 +237,11 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
 
 
         // check for the feature in case it already came in prior to listener being added
-        User user = conn.getUser(friendId);
-        if (user != null && !user.getPresences().isEmpty()) {
+        Friend friend = conn.getFriend(friendId);
+
+        if (friend != null && !friend.getPresences().isEmpty()) {
             // friend already signed in
-            Presence presence = conn.getUser(friendId).getPresences().values().iterator().next();
+            FriendPresence presence = conn.getFriend(friendId).getPresences().values().iterator().next();
             if (presence.getFeature(featureUri) != null) {
                 return;
             }
@@ -246,43 +252,17 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
                    latch.await(featureWaitTimeout, TimeUnit.SECONDS));
     }
 
-    private class BrowseStatistics implements BrowseListener {
+    private class BrowseResultsCollector implements BrowseListener {
 
-        private final Map<String, SearchResult> searchResults;
-        private final CountDownLatch latch;
-        private final XMPPRemoteFileDescDeserializer searchResultToXmppAdapter;
-        private final Presence presence;
-
-        BrowseStatistics(Presence presence) {
-            this.presence = presence;
-            this.searchResultToXmppAdapter = injector.getInstance(XMPPRemoteFileDescDeserializer.class);
-            this.searchResults = new ConcurrentHashMap<String, SearchResult>();
-            this.latch = new CountDownLatch(1);
-        }
+        private final Map<String, SearchResult> searchResults = new ConcurrentHashMap<String, SearchResult>();
+        private final CountDownLatch latch = new CountDownLatch(1);
 
         public void handleBrowseResult(SearchResult searchResult) {
-            SearchResult adaptedSearchResultWithXmppAddress = convertToXmppCompatibleSearchResult(searchResult);
-            searchResults.put(searchResult.getFileName(), adaptedSearchResultWithXmppAddress);
+            searchResults.put(searchResult.getFileName(), searchResult);
         }
 
         public void browseFinished(boolean success) {
             latch.countDown();
-        }
-
-        /**
-         * This method (hack) is necessary because it is not currently possible to perform a
-         * friend browse, and use the results of the browse ({@link SearchResult} objects) for
-         * downloading, because the FriendPresence contained in such a SearchResult is a GnutellaPresence
-         */
-        private SearchResult convertToXmppCompatibleSearchResult(SearchResult gnutellaOnlySearchResult) {
-            RemoteFileDescAdapter rfdAdapter = (RemoteFileDescAdapter)gnutellaOnlySearchResult;
-            RemoteFileDesc oldRfd = rfdAdapter.getRfd();
-            XMPPAddress xmppAddress = new XMPPAddress(presence.getJID());
-            RemoteFileDesc newRfd = searchResultToXmppAdapter.promoteRemoteFileDescAndExchangeAddress(oldRfd, xmppAddress);
-            Set<IpPort> ipPort = new HashSet<IpPort>();
-            ipPort.addAll(rfdAdapter.getAlts());
-
-            return new RemoteFileDescAdapter(newRfd, ipPort);
         }
 
         public Map<String, SearchResult> waitForBrowseToFinish() throws InterruptedException {

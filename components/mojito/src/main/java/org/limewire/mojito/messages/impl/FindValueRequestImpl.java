@@ -35,7 +35,7 @@ import org.limewire.mojito.routing.Version;
 
 
 /**
- * An implementation of FindValueRequest
+ * An implementation of FindValueRequest.
  */
 public class FindValueRequestImpl extends AbstractLookupRequest
         implements FindValueRequest {

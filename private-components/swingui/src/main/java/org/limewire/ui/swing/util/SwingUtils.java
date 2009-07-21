@@ -2,9 +2,10 @@ package org.limewire.ui.swing.util;
 
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.UndeclaredThrowableException;
 
 import javax.swing.SwingUtilities;
+
+import org.limewire.util.ExceptionUtils;
 
 
 public class SwingUtils {
@@ -22,14 +23,7 @@ public class SwingUtils {
             try {
                 EventQueue.invokeAndWait(runnable);
             } catch (InvocationTargetException ite) {
-                Throwable t = ite.getTargetException();
-                if(t instanceof Error) {
-                    throw (Error)t;
-                } else if(t instanceof RuntimeException) {
-                    throw (RuntimeException)t;
-                } else {
-                    throw new UndeclaredThrowableException(t);
-                }
+                ExceptionUtils.rethrow(ite.getCause());
             } catch(InterruptedException ignored) {
                 throw new RuntimeException(ignored);
             }

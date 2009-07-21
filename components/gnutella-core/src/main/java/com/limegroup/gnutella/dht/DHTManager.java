@@ -59,14 +59,14 @@ public interface DHTManager extends ConnectionLifecycleListener,
         /**
          * The PASSIVE_LEAF mode is very similar to PASSIVE mode with
          * two major differences:
-         * <p>
+         * <pre>
          * 1) A passive leaf has a fixed size LRU Map as its RouteTable.
          *    That means it has almost no knowledge of the global DHT
          *    RouteTable and depends entirely on an another peer (Ultrapeer)
          *    that feeds it continuously with fresh contacts.
-         * <p>   
+         * 
          * 2) A passive leaf node does not perform any Kademlia maintenance
-         *    operations!
+         *    operations!</pre>
          */
         PASSIVE_LEAF(0x03, new byte[]{ 'L', 'D', 'H', 'T' });
         
@@ -83,14 +83,14 @@ public interface DHTManager extends ConnectionLifecycleListener,
         }
         
         /**
-         * Returns the mode as byte
+         * Returns the mode as byte.
          */
         public byte byteValue() {
             return (byte)(mode & 0xFF);
         }
         
         /**
-         * Returns the VM capability name
+         * Returns the VM capability name.
          */
         public byte[] getCapabilityName() {
             byte[] copy = new byte[capabilityName.length];
@@ -125,12 +125,12 @@ public interface DHTManager extends ConnectionLifecycleListener,
     }
     
     /**
-     * Sets whether or not the DHT is enabled
+     * Sets whether or not the DHT is enabled.
      */
     public void setEnabled(boolean enabled);
     
     /**
-     * Returns whether or not the DHT is enabled
+     * Returns whether or not the DHT is enabled.
      */
     public boolean isEnabled();
     
@@ -145,7 +145,7 @@ public interface DHTManager extends ConnectionLifecycleListener,
     public void start(DHTMode mode);
 
     /**
-     * Stops the DHT Node
+     * Stops the DHT Node.
      */
     public void stop();
     
@@ -162,27 +162,27 @@ public interface DHTManager extends ConnectionLifecycleListener,
     public void addPassiveDHTNode(SocketAddress hostAddress);
     
     /**
-     * Notifies the DHT controller that our external Address has changed
+     * Notifies the DHT controller that our external Address has changed.
      */
     public void addressChanged();
     
     /**
-     * Returns maxNodes number of active Node's IP:Ports
+     * Returns maxNodes number of active Node's IP:Ports.
      */
     public List<IpPort> getActiveDHTNodes(int maxNodes);
 
     /**
-     * Returns the mode of the DHT
+     * Returns the mode of the DHT.
      */
     public DHTMode getDHTMode();
     
     /**
-     * Returns whether this Node is running
+     * Returns whether this Node is running.
      */
     public boolean isRunning();
     
     /**
-     * Returns whether this Node is bootstrapped
+     * Returns whether this Node is bootstrapped.
      */
     public boolean isBootstrapped();
     
@@ -192,22 +192,22 @@ public interface DHTManager extends ConnectionLifecycleListener,
     public boolean isMemberOfDHT();
     
     /**
-     * Returns whether this Node is waiting for Nodes or not
+     * Returns whether this Node is waiting for Nodes or not.
      */
     public boolean isWaitingForNodes();
     
     /**
-     * Returns the MojitoDHT instance (null if Node is running in inactive mode!)
+     * Returns the MojitoDHT instance (null if Node is running in inactive mode!).
      */
     public MojitoDHT getMojitoDHT();
     
     /**
-     * Returns the Vendor code of this Node
+     * Returns the Vendor code of this Node.
      */
     public Vendor getVendor();
     
     /**
-     * Returns the Vendor code of this Node
+     * Returns the Vendor code of this Node.
      */
     public Version getVersion();
     

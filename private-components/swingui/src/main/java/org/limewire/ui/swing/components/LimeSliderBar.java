@@ -39,7 +39,7 @@ public class LimeSliderBar extends JSlider implements MouseListener {
     /**
      * Sets a painter for painting the progress portion.  This painter
      *  should also include the drag nob if it is desired.
-     *  
+     * <p>
      * Both background and foreground painter must be set to have an effect.
      */
     public void setForegroundPainter(AbstractPainter<JSlider> painter) {
@@ -49,7 +49,7 @@ public class LimeSliderBar extends JSlider implements MouseListener {
     /**
      * Sets the painter that will be used to draw the components background
      *  and border.
-     *
+     * <p>
      * Both background and foreground painter must be set to have an effect.
      */
     public void setBackgroundPainter(AbstractPainter<JComponent> painter) {

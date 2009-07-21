@@ -37,4 +37,9 @@ public class MockSpamManagerImpl implements SpamManager {
     public void adjustSpamFilters() {
         
     }
+
+    @Override
+    public void addToBlackList(String ipAddress) {
+        
+    }
 }

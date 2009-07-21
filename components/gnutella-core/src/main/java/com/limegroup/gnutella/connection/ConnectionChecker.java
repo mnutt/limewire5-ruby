@@ -74,7 +74,7 @@ public class ConnectionChecker {
     }
 
     /**
-     * Checks for a live internet connection.
+     * Checks for a live Internet connection.
      */
     public synchronized void run(ConnectionCheckerListener connectionCheckerListener) {
         // Add some randomization.
@@ -132,7 +132,7 @@ public class ConnectionChecker {
     }
 
     /**
-     * Terminates all attempts to open new sockets
+     * Terminates all attempts to open new sockets.
      */
     void trySP2Workaround() {
         connectionServices.disconnect();
@@ -153,7 +153,7 @@ public class ConnectionChecker {
 
     /**
      * Determines whether or not we have connected to an external host,
-     * verifying that we have an internet connection.
+     * verifying that we have an Internet connection.
      * 
      * @return <tt>true</tt> if we have created a successful connection,
      *         otherwise <tt>false</tt>

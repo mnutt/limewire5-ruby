@@ -1,6 +1,6 @@
 package org.limewire.ui.swing.search.model;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +76,7 @@ public class AudioMetaDataSimilarResultsDetector extends AbstractNameSimilarResu
 
     private Map<FilePropertyKey, String> getMetadata(SearchResult result) {
         String name = result.getProperty(FilePropertyKey.NAME).toString();
-        Map<FilePropertyKey, String> metadataCopy = new HashMap<FilePropertyKey, String>();
+        Map<FilePropertyKey, String> metadataCopy = new EnumMap<FilePropertyKey, String>(FilePropertyKey.class);
         copyProperty(result, metadataCopy, FilePropertyKey.TITLE);
         copyProperty(result, metadataCopy, FilePropertyKey.ALBUM);
         copyProperty(result, metadataCopy, FilePropertyKey.AUTHOR);

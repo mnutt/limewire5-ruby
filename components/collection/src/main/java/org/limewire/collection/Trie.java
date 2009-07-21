@@ -67,7 +67,7 @@ public interface Trie<K, V> extends SortedMap<K, V> {
     /**
      * Returns the value for the entry whose key is closest in a bitwise
      * XOR metric to the given key.  This is NOT lexicographic closeness.
-     * For example, given the keys:<br>
+     * For example, given the keys:<p>
      *  D = 1000100 <br>
      *  H = 1001000 <br> 
      *  L = 1001100 <br>
@@ -84,9 +84,9 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * entry is found, the Trie will call select on that entry and continue
      * calling select for each entry (traversing in order of XOR closeness,
      * NOT lexicographically) until the cursor returns 
-     * <code>Cursor.SelectStatus.EXIT</code>.<br>
+     * <code>Cursor.SelectStatus.EXIT</code>.<p>
      * The cursor can return <code>Cursor.SelectStatus.CONTINUE</code> to 
-     * continue traversing.<br>
+     * continue traversing.<p>
      * <code>Cursor.SelectStatus.REMOVE_AND_EXIT</code> is used to remove the current element
      * and stop traversing.
      * <p>
@@ -100,10 +100,10 @@ public interface Trie<K, V> extends SortedMap<K, V> {
     /**
      * Traverses the Trie in lexicographical order. <code>Cursor.select</code> 
      * will be called on each entry.<p>
-     * The traversal will stop when the cursor returns <code>Cursor.SelectStatus.EXIT</code>.<br>
-     * <code>Cursor.SelectStatus.CONTINUE</code> is used to continue traversing.<br>
+     * The traversal will stop when the cursor returns <code>Cursor.SelectStatus.EXIT</code>.<p>
+     * <code>Cursor.SelectStatus.CONTINUE</code> is used to continue traversing.<p>
      * <code>Cursor.SelectStatus.REMOVE</code> is used to remove the element that was 
-     * selected and continue traversing.<br>
+     * selected and continue traversing.<p>
      * <code>Cursor.SelectStatus.REMOVE_AND_EXIT</code> is used to remove the current element
      * and stop traversing.
      *   
@@ -127,7 +127,7 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * <tr><td>REMOVE_AND_EXIT</td><td>Remove the entry and stop iterating</td></tr>
      * <tr><td>REMOVE</td><td>Remove the entry and continue iterating</td></tr>
      * </table>
-
+     * <p>
      * Note: {@link Trie#select(Object, org.limewire.collection.Trie.Cursor)} does
      * not support <code>REMOVE</code>.
      *

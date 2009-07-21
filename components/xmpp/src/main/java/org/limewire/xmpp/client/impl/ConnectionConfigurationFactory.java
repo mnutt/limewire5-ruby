@@ -1,7 +1,7 @@
 package org.limewire.xmpp.client.impl;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
+import org.limewire.friend.api.FriendConnectionConfiguration;
 
 /**
  * Creates ConnectionConfigurations for XMPPConnectionConfigurations.  Typically backed by a collection
@@ -10,7 +10,7 @@ import org.limewire.xmpp.api.client.XMPPConnectionConfiguration;
 public interface ConnectionConfigurationFactory {
 
     /**
-     * Used to track state between multiple calls to hasMore and getConnectionConfiguration
+     * Used to track state between multiple calls to hasMore and getConnectionConfiguration.
      */
     class RequestContext {
         private int numRequests;
@@ -25,20 +25,17 @@ public interface ConnectionConfigurationFactory {
     }
 
     /**
-     * @param connectionConfiguration
      * @param requestContext; callers should increment the requests after each call to 
      * getConnectionConfiguration 
-     * @return whether there are remaining ConnectionConfigurations that can be retrived
+     * @return whether there are remaining ConnectionConfigurations that can be retrieved
      */
-    boolean hasMore(XMPPConnectionConfiguration connectionConfiguration, RequestContext requestContext);
+    boolean hasMore(FriendConnectionConfiguration connectionConfiguration, RequestContext requestContext);
     
     /**
-     * lookups up ConnectionConfiguration for the given XMPPConnectionConfiguration
-     * @param connectionConfiguration
-     * @param requestContext
+     * Lookups up ConnectionConfiguration for the given XMPPConnectionConfiguration.
      * @return a ConnectionConfiguration; never null
      * @throws IllegalStateException is hasMore returns false
      */
-    ConnectionConfiguration getConnectionConfiguration(XMPPConnectionConfiguration connectionConfiguration,
+    ConnectionConfiguration getConnectionConfiguration(FriendConnectionConfiguration connectionConfiguration,
                                                        RequestContext requestContext);
 }

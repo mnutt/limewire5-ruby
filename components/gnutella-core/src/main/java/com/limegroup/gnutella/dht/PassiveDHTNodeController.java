@@ -56,7 +56,7 @@ public class PassiveDHTNodeController extends AbstractDHTController {
     private static final File FILE = new File(CommonUtils.getUserSettingsDir(), "passive.mojito");
     
     /**
-     * A RouteTable for passive Nodes
+     * A RouteTable for passive Nodes.
      */
     private PassiveDHTNodeRouteTable routeTable;
     

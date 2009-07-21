@@ -3,7 +3,7 @@ package com.limegroup.gnutella.util;
 import java.util.List;
 
 /**
- * Encapsulates code dealing with FEC
+ * Encapsulates code dealing with FEC.
  */
 public interface FECUtils {
     /**

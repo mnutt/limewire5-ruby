@@ -13,31 +13,31 @@ import java.awt.image.Kernel;
 public class PainterUtils {
    
     
-    public static Color TRASPARENT = new Color(0,0,0,0);
-    public static Insets BLANK_INSETS = new Insets(0,0,0,0);
+    public static final Color TRASPARENT = new Color(0,0,0,0);
+    public static final Insets BLANK_INSETS = new Insets(0,0,0,0);
     
     /**
-     * Draws a string to a graphics with antialiasing
+     * Draws a string to a graphics with anti-aliasing
      */
     public static void drawSmoothString(Graphics g, String s, int x, int y) {
         
         Graphics2D g2 = (Graphics2D) g;
         
-        // Get original antialiasing value for reset
+        // Get original anti-aliasing value for reset
         Object origAntiAliasHint = g2.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
 
-        // Turn on antailiasing
+        // Turn on anti-aliasing
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); 
         
         // Draw the string
         g2.drawString(s, x, y);
 
-        // Reset antialiasing propery
+        // Reset anti-aliasing property
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, origAntiAliasHint);
     }
 
     /**
-     * Produces a new lightened colour value by a given intensity from a base colour 
+     * Produces a new lightened colour value by a given intensity from a base colour.
      */
     public static Color lighten(Color orig, int intensity) {
         try {
@@ -56,7 +56,7 @@ public class PainterUtils {
     }
 
     /** 
-     * Creates a new softening filter based on a softening factor
+     * Creates a new softening filter based on a softening factor.
      */
     public static ConvolveOp createSoftenFilter(float factor) {
  
@@ -78,7 +78,7 @@ public class PainterUtils {
      * Simplifies a paint to a colour.  If the paint is already a colour
      * then simply cast.  If it is a gradient then return the second point.
      * If unknown then return transparent. 
-     * 
+     * <p>
      * Note: In future may consider returning null, however right now
      *        transparent allows us to leverage null colours possibly
      *        from empty props.

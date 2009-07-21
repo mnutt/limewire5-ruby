@@ -41,7 +41,7 @@ import org.limewire.util.Base32;
 
 
 /**
- * Miscellaneous utilities for Cryptography
+ * Miscellaneous utilities for Cryptography.
  */
 public final class CryptoUtils {
     
@@ -59,7 +59,7 @@ public final class CryptoUtils {
     private CryptoUtils() {}
     
     /**
-     * Loads a PublicKey from the given File 
+     * Loads a PublicKey from the given File.
      */
     public static PublicKey loadPublicKey(File file) 
             throws IOException, SignatureException, InvalidKeyException {
@@ -106,7 +106,7 @@ public final class CryptoUtils {
     }
     
     /**
-     * Creates a new KeyPair
+     * Creates a new KeyPair.
      */
     /*public static KeyPair createKeyPair() {
         try {
@@ -119,7 +119,7 @@ public final class CryptoUtils {
     }*/
     
     /**
-     * Turns a X509 encoded key into a PublicKey object
+     * Turns a X509 encoded key into a PublicKey object.
      */
     public static PublicKey createPublicKey(byte[] x509EncodedKey) {
         try {
@@ -135,7 +135,7 @@ public final class CryptoUtils {
     
     /**
      * Creates a Signature with the given PrivateKey that can be used 
-     * for signing Data
+     * for signing Data.
      */
     /*public static Signature createSignSignature(PrivateKey privateKey) {
         try {
@@ -151,7 +151,7 @@ public final class CryptoUtils {
     
     /**
      * Creates a Signature with the given PublicKey that can be used
-     * for verifying Data
+     * for verifying Data.
      */
     /*public static Signature createVerifySignature(PublicKey publicKey) {
         try {
@@ -166,7 +166,7 @@ public final class CryptoUtils {
     }*/
     
     /**
-     * Signs the given array of byte-arrays with the given PrivateKey
+     * Signs the given array of byte-arrays with the given PrivateKey.
      */
     public static synchronized byte[] sign(PrivateKey privateKey, byte[]... data)
             throws SignatureException, InvalidKeyException {
@@ -189,7 +189,7 @@ public final class CryptoUtils {
     }
 
     /**
-     * Verifies given signature is correct
+     * Verifies given signature is correct.
      */
     public static synchronized boolean verify(PublicKey publicKey, byte[] signature, byte[]... data) 
             throws SignatureException, InvalidKeyException {

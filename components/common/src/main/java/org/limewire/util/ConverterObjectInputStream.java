@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  * <tr>
  * <td><b>Old Name</b></td>
  * <td><b>New Name</b></td>
- * </tr>
+ * </tr><tr>
  * <td>com.limegroup.gnutella.util.FileComparator</td>
  * <td>org.limewire.collection.FileComparator</td>
  * </tr>
@@ -45,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
  * <tr>
  * <td>com.limegroup.gnutella.util.Comparators$CaseInsensitiveStringComparator</td>
  * <td> org.limewire.collection.Comparators$CaseInsensitiveStringComparator</td>
- * </tr>
+ * </tr><tr>
  * <td>com.limegroup.gnutella.util.StringComparator</td>
  * <td> org.limewire.collection.StringComparator</td>
  * </tr>

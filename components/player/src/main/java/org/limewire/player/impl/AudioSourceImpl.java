@@ -8,12 +8,12 @@ import java.net.URL;
 import org.limewire.player.api.AudioSource;
 
 /**
- *  A wrapper for the source of an audio file that is currently playing
+ *  A wrapper for the source of an audio file that is currently playing.
  */
 public class AudioSourceImpl implements AudioSource {
     
     /**
-     * current audio source that is loaded in the music player
+     * current audio source that is loaded in the music player.
      */
     private final File file;
     

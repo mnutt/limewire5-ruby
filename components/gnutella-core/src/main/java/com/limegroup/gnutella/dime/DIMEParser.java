@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Parser for creating DIMERecords from input.
- *
+ * <p>
  * See: http://www.gotdotnet.com/team/xml_wsspecs/dime/dime.htm
  * (or http://www.perfectxml.com/DIME.asp )
  * for information about DIME.
@@ -60,7 +60,7 @@ public class DIMEParser implements Iterator<DIMERecord> {
     
     /**
      * Return a list of all possible records we can still read from the stream.
-     *
+     * <p>
      * If all records are already read, returns an empty list.
      */
     public List<DIMERecord> getRecords() throws IOException {

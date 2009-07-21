@@ -70,7 +70,7 @@ public class StoreManager extends AbstractManager<StoreResult> {
     }
     
     /**
-     * A store specific implementation of DHTFuture
+     * A store specific implementation of DHTFuture.
      */
     private class StoreFuture extends DHTFutureTask<StoreResult> {
         

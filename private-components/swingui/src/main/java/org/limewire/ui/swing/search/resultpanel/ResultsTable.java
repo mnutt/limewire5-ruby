@@ -10,11 +10,10 @@ import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.table.ColumnStateHandler;
 import org.limewire.ui.swing.table.MouseableTable;
 import org.limewire.ui.swing.table.TableColumnSelector;
-import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 /**
  * Table used to display search results.  ResultsTable is an extension of 
@@ -32,7 +31,7 @@ public class ResultsTable<E extends VisualSearchResult> extends MouseableTable {
 
     private EventList<E> eventList;
     private ResultsTableFormat<E> tableFormat;
-    private EventTableModel<E> tableModel;
+    private DefaultEventTableModel<E> tableModel;
     private ColumnStateHandler columnStateHandler;
     private MousePopupListener mousePopupListener;
 
@@ -50,7 +49,7 @@ public class ResultsTable<E extends VisualSearchResult> extends MouseableTable {
      * Returns the EventTableModel used by the table.  The returned value may
      * be null if the table has been disposed.
      */
-    public EventTableModel<E> getEventTableModel() {
+    public DefaultEventTableModel<E> getEventTableModel() {
         return tableModel;
     }
     
@@ -77,7 +76,7 @@ public class ResultsTable<E extends VisualSearchResult> extends MouseableTable {
         this.tableFormat = tableFormat;
         
         // Create new table model.
-        tableModel = GlazedListsSwingFactory.eventTableModel(eventList, tableFormat);
+        tableModel = new DefaultEventTableModel<E>(eventList, tableFormat);
         setModel(tableModel);
         
         // Install new listeners.
@@ -152,7 +151,7 @@ public class ResultsTable<E extends VisualSearchResult> extends MouseableTable {
     public void applySavedColumnSettings(){
         if (columnStateHandler != null) {
             columnStateHandler.setupColumnWidths();
-            columnStateHandler.setupColumnVisibility();
+            columnStateHandler.setupColumnVisibility(false);
             columnStateHandler.setupColumnOrder();
         }
     }

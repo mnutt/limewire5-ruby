@@ -3,9 +3,8 @@ package org.limewire.core.impl.support;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
-import org.limewire.core.api.library.FileList;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.library.RemoteLibraryManager;
+import org.limewire.core.api.library.SearchResultList;
 import org.limewire.net.SocketsManager;
 import org.limewire.nio.ByteBufferCache;
 import org.limewire.nio.NIODispatcher;
@@ -24,9 +23,8 @@ import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.connection.ConnectionCheckerManager;
 import com.limegroup.gnutella.downloader.DiskController;
 import com.limegroup.gnutella.library.CreationTimeCache;
-import com.limegroup.gnutella.library.FileManager;
-import com.limegroup.gnutella.library.GnutellaFileList;
-import com.limegroup.gnutella.library.ManagedFileList;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.simpp.SimppManager;
 import com.limegroup.gnutella.uploader.UploadSlotManager;
 
@@ -48,7 +46,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final NIODispatcher dispatcher = context.mock(NIODispatcher.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(dispatcher, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(dispatcher).getNumPendingTimeouts();
@@ -68,7 +66,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final DownloadManager downloadManager = context.mock(DownloadManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, downloadManager, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(downloadManager).getNumWaitingDownloads();
@@ -91,7 +89,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final Statistics statistics = context.mock(Statistics.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, statistics, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(statistics).getUptime();
@@ -111,7 +109,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final ConnectionManager connectionManager = context.mock(ConnectionManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, connectionManager, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(connectionManager).getNumInitializedClientConnections();
@@ -140,7 +138,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final ContentManager contentManager = context.mock(ContentManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, contentManager, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(contentManager).getCacheSize();
@@ -160,7 +158,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final CreationTimeCache creationTimeCache = context.mock(CreationTimeCache.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, creationTimeCache, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(creationTimeCache).getSize();
@@ -180,7 +178,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final DiskController diskController = context.mock(DiskController.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, diskController,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(diskController).getSizeOfByteCache();
@@ -206,7 +204,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final ByteBufferCache byteBufferCache = context.mock(ByteBufferCache.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, byteBufferCache, null, null, null, null, null, null, null, null, null, null, null, null);
+                null, byteBufferCache, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(byteBufferCache).getHeapCacheSize();
@@ -226,7 +224,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final SocketsManager socketsManager = context.mock(SocketsManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                socketsManager, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                socketsManager, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(socketsManager).getNumWaitingSockets();
@@ -246,7 +244,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final UDPService udpService = context.mock(UDPService.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, udpService, null, null, null, null, null, null, null, null, null, null, null);
+                null, null, udpService, null, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(udpService).lastReportedPort();
@@ -296,7 +294,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final Acceptor acceptor = context.mock(Acceptor.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, acceptor, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, acceptor, null, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             one(acceptor).acceptedIncoming();
@@ -320,7 +318,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final DownloadServices downloadServices = context.mock(DownloadServices.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, downloadServices, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, downloadServices, null, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(downloadServices).getNumActiveDownloads();
@@ -338,7 +336,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final UploadServices uploadServices = context.mock(UploadServices.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, uploadServices, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, uploadServices, null, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(uploadServices).getNumUploads();
@@ -359,7 +357,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final ConnectionCheckerManager connectionCheckerManager = context.mock(ConnectionCheckerManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, null, connectionCheckerManager, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, connectionCheckerManager, null, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(connectionCheckerManager).getNumWorkarounds();
@@ -379,7 +377,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final NIODispatcher nioDispatcher = context.mock(NIODispatcher.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, nioDispatcher, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, nioDispatcher, null, null, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(nioDispatcher).getSelectStats();
@@ -394,23 +392,16 @@ public class LimeSessionInfoTest extends BaseTestCase {
     public void testFileManagerDeligates() {
         final Mockery context = new Mockery();
         
-        final FileManager fileManager = context.mock(FileManager.class);
+        final Library library = context.mock(Library.class);
+        final FileView gnutella = context.mock(FileView.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, fileManager, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, library, null, null, null, null, null, gnutella);
 
         context.checking(new Expectations() {{
-            
-            GnutellaFileList gnutellaFileList = context.mock(GnutellaFileList.class);
-            ManagedFileList managedFileList = context.mock(ManagedFileList.class);
-            allowing(fileManager).getGnutellaFileList();
-            will(returnValue(gnutellaFileList));
-            allowing(fileManager).getManagedFileList();
-            will(returnValue(managedFileList));
-            
-            allowing(gnutellaFileList).size();
+            allowing(gnutella).size();
             will(returnValue(1110));
-            allowing(managedFileList).size();
+            allowing(library).size();
             will(returnValue(1111));
         }});
         
@@ -420,17 +411,16 @@ public class LimeSessionInfoTest extends BaseTestCase {
         context.assertIsSatisfied();
     }
     
-    @SuppressWarnings("unchecked")
     public void testGetAllFriendsFileListSize() {
         final Mockery context = new Mockery();
         
         final RemoteLibraryManager remoteLibraryManager = context.mock(RemoteLibraryManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null, remoteLibraryManager);
+                null, null, null, null, null, null, null, null, null, null, null, null, null, remoteLibraryManager, null);
 
         context.checking(new Expectations() {{
-            FileList<RemoteFileItem> allFriendsList = context.mock(FileList.class);            
+            SearchResultList allFriendsList = context.mock(SearchResultList.class);            
             allowing(remoteLibraryManager).getAllFriendsFileList();
             will(returnValue(allFriendsList));
             allowing(allFriendsList).size();
@@ -448,7 +438,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final SimppManager simppManager = context.mock(SimppManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, simppManager, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, simppManager, null, null, null, null, null);
 
         context.checking(new Expectations() {{
             allowing(simppManager).getVersion();
@@ -466,7 +456,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final UploadSlotManager uploadSlotManager = context.mock(UploadSlotManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, uploadSlotManager, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, uploadSlotManager, null, null, null, null);
 
         context.checking(new Expectations() {{
             // None
@@ -487,7 +477,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final ConnectionServices connectionServices = context.mock(ConnectionServices.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, connectionServices, null, null);
+                null, null, null, null, null, null, null, null, null, null, null, connectionServices, null, null, null);
 
         context.checking(new Expectations() {{
             one(connectionServices).isConnected();
@@ -526,7 +516,7 @@ public class LimeSessionInfoTest extends BaseTestCase {
         final LifecycleManager lifecycleManager = context.mock(LifecycleManager.class);
         
         LimeSessionInfo sessionInfo = new LimeSessionInfo(null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, lifecycleManager, null);
+                null, null, null, null, null, null, null, null, null, null, null, null, lifecycleManager, null, null);
 
         context.checking(new Expectations() {{
             one(lifecycleManager).isLoaded();

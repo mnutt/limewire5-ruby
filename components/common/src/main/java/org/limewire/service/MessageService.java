@@ -105,7 +105,7 @@ public class MessageService {
      * Shows a locale-specific formatted error to the user using the specified key to
      * look up the message in the resource bundles.
      * 
-     * @param messageKey the key for looking up the message to display in the
+     * @param errorKey the key for looking up the message to display in the
      *  resource bundles
      */
     public static void showFormattedError(String errorKey, Object... args) {
@@ -117,7 +117,7 @@ public class MessageService {
      * look up the message in the resource bundles if the Switch
      * indicates to do so.
      * 
-     * @param messageKey the key for looking up the message to display in the
+     * @param errorKey the key for looking up the message to display in the
      *  resource bundles
      */
     public static void showFormattedError(String errorKey, Switch ignore, Object... args) {

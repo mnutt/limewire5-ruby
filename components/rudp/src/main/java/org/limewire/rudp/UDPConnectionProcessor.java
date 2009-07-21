@@ -27,26 +27,26 @@ public class UDPConnectionProcessor {
 
     private static final Log LOG = LogFactory.getLog(UDPConnectionProcessor.class);
 
-    /** Define the chunk size used for data bytes */
+    /** Define the chunk size used for data bytes. */
     public static final int   DATA_CHUNK_SIZE         = 512;
 
     /** Define the maximum chunk size read for data bytes
-        before we will blow out the connection */
+        before we will blow out the connection. */
     public  static final int   MAX_DATA_SIZE           = 4096;
     
-    /** Define the size of the data window */
+    /** Define the size of the data window. */
     public static final int  DATA_WINDOW_SIZE        = 20;
 
-    /** Define the maximum accepted write ahead packet */
+    /** Define the maximum accepted write ahead packet. */
     private static final int  DATA_WRITE_AHEAD_MAX    = DATA_WINDOW_SIZE + 5;
 
-    /** The maximum number of times to try and send a data message */
+    /** The maximum number of times to try and send a data message. */
     private static final int  MAX_SEND_TRIES          = 8;
 
-	/** Define the wait time between SYN messages */
+	/** Define the wait time between SYN messages. */
 	private static final long SYN_WAIT_TIME           = 400;
 
-    /** Define the maximum wait time to connect */
+    /** Define the maximum wait time to connect. */
     private static final long MAX_CONNECT_WAIT_TIME   = 20*1000;
     
     /** Define the maximum time that we'll allow a connection to remain
@@ -57,28 +57,28 @@ public class UDPConnectionProcessor {
         keep the connection alive (and firewalls open).  */
 	private static final long KEEPALIVE_WAIT_TIME     = (3*1000 - 500);
 
-    /** Define the default time to check for an ack to a data message */
+    /** Define the default time to check for an ack to a data message. */
     private static final long DEFAULT_RTO_WAIT_TIME   = 400;
 
     /** Define the maximum time that a connection will stay open without 
 		a message being received */
     private static final long MAX_MESSAGE_WAIT_TIME   = 20 * 1000;
 
-    /** Define the minimum wait time between ack timeout events */
+    /** Define the minimum wait time between ack timeout events. */
     private static final long MIN_ACK_WAIT_TIME       = 5;
 
-    /** Define the size of a small send window for increasing wait time */
+    /** Define the size of a small send window for increasing wait time .*/
             static final long SMALL_SEND_WINDOW       = 2;
 
     /** Ensure that writing takes a break every 4 writes so other 
-        synchronized activity can take place */
+        synchronized activity can take place. */
     private static final long MAX_WRITE_WITHOUT_SLEEP = 4;
 
     /** Delay the write wakeup event a little so that it isn't constantly
         firing - This should achieve part of nagles algorithm.  */
     private static final long WRITE_WAKEUP_DELAY_TIME = 10;
 
-    /** Delay the write events by one second if there is nothing to do */
+    /** Delay the write events by one second if there is nothing to do. */
     private static final long NOTHING_TO_DO_DELAY     = 1000;
 
     /** Time to wait after a close before everything is totally shutdown. */
@@ -99,50 +99,50 @@ public class UDPConnectionProcessor {
     /** The address we're connected to. */
     private InetSocketAddress _connectedTo;
     
-    /** The limit on space for data to be written out */
+    /** The limit on space for data to be written out. */
     private volatile int      _chunkLimit;
 
     /** The receivers windowSpace defining amount of data that receiver can
-        accept */
+        accept. */
     private volatile int      _receiverWindowSpace;    
     
     /** Whether or not we've received an ack to our syn. */
     private boolean           _receivedSynAck;
 
-    /** The Window for sending and acking data */
+    /** The Window for sending and acking data. */
 	private DataWindow        _sendWindow;
 
-    /** The WriteRegulator controls the amount of waiting time between writes */
+    /** The WriteRegulator controls the amount of waiting time between writes. */
     private WriteRegulator    _writeRegulator;
 
-    /** The Window for receiving data */
+    /** The Window for receiving data. */
     private DataWindow        _receiveWindow;
 
     /** The connection id of this end of the connection. Used for routing. */
     private byte              _myConnectionID;
     
-    /** The connectionID of the other end of the connection.  Used for routing */
+    /** The connectionID of the other end of the connection.  Used for routing. */
 	private volatile byte     _theirConnectionID;
 
     /** The status of the connection */
 	private ConnectionState   _connectionState;
 
-    /** Scheduled event for keeping connection alive  */
+    /** Scheduled event for keeping connection alive.  */
     private UDPTimerEvent     _keepaliveEvent;
 
-    /** Scheduled event for writing data appropriately over time  */
+    /** Scheduled event for writing data appropriately over time.  */
     private UDPTimerEvent     _writeDataEvent;
 
-    /** Scheduled event for cleaning up at end of connection life  */
+    /** Scheduled event for cleaning up at end of connection life.  */
     private UDPTimerEvent     _closedCleanupEvent;
 
-    /** Flag that the writeEvent is shutdown waiting for space to write */
+    /** Flag that the writeEvent is shutdown waiting for space to write. */
 	private boolean           _waitingForDataSpace;
 
-    /** Flag that the writeEvent is shutdown waiting for data to write */
+    /** Flag that the writeEvent is shutdown waiting for data to write. */
 	private volatile boolean  _waitingForDataAvailable;
 
-    /** Flag saying that a Fin packet has been acked on shutdown */
+    /** Flag saying that a Fin packet has been acked on shutdown. */
     private boolean           _waitingForFinAck;
     
     /** The time we started connecting. */
@@ -151,13 +151,13 @@ public class UDPConnectionProcessor {
     /** Scheduled event for connecting. */
     private UDPTimerEvent     _connectEvent;
 
-    /** Scheduled event for ensuring that data is acked or resent */
+    /** Scheduled event for ensuring that data is acked or resent. */
     private UDPTimerEvent     _ackTimeoutEvent;
 
-    /** Adhoc event for waking up the writing of data */
+    /** Adhoc event for waking up the writing of data. */
     private UDPTimerEvent     _safeWriteWakeup;
 
-    /** The current sequence number of messages originated here */
+    /** The current sequence number of messages originated here. */
     private long              _sequenceNumber;
 
     /** The sequence number of a pending fin message */
@@ -165,45 +165,45 @@ public class UDPConnectionProcessor {
 
 	/** Transformer for mapping 2 byte sequenceNumbers of incoming ACK 
         messages to 8 byte longs of essentially infinite size - note Acks 
-        echo our seqNo */
+        echo our seqNo. */
 	private SequenceNumberExtender _localExtender;
 
     /** Transformer for mapping 2 byte sequenceNumbers of incoming messages to
-        8 byte longs of essentially infinite size */
+        8 byte longs of essentially infinite size. */
     private SequenceNumberExtender _extender;
 
-    /** The last time that a message was sent to other host */
+    /** The last time that a message was sent to other host. */
     private long              _lastSendTime;
 
-    /** The last time that data was sent to other host */
+    /** The last time that data was sent to other host. */
     private long              _lastDataSendTime;
 
-    /** The last time that a message was received from the other host */
+    /** The last time that a message was received from the other host. */
 	private long              _lastReceivedTime;
     
     /** The last time we received a non-keepalive message. */
     private long              _lastDataOrAckTime;
 
-    /** The number of resends to take into account when scheduling ack wait */
+    /** The number of resends to take into account when scheduling ack wait. */
     private int               _ackResendCount;
 
-    /** Skip a Data Write if this flag is true */
+    /** Skip a Data Write if this flag is true. */
     private boolean           _skipADataWrite;
 
-    /** Keep track of the reason for shutting down */
+    /** Keep track of the reason for shutting down. */
     private byte              _closeReasonCode;
 
     ////////////////////////////////////////////
     // Some settings related to skipping acks
     ///////////////////////////////////////////
     
-    /** Whether to skip any acks at all */
+    /** Whether to skip any acks at all. */
     private final boolean _skipAcks;
     
-    /** How long each measuring period is */
+    /** How long each measuring period is. */
     private final int _period;
     
-    /** How many periods to keep track of */
+    /** How many periods to keep track of. */
     private final int _periodHistory;
     
     /** 
@@ -212,28 +212,28 @@ public class UDPConnectionProcessor {
      */
     private final float _deviation;
     
-    /** Do not skip more than this many acks in a row */
+    /** Do not skip more than this many acks in a row. */
     private final int _maxSkipAck;
     
-    /** how many data packets we got each second */
+    /** how many data packets we got each second. */
     private final int [] _periods;
     
-    /** index within that array, points to the last period */
+    /** index within that array, points to the last period. */
     private int _currentPeriodId;
     
-    /** How many data packets we received this period */
+    /** How many data packets we received this period. */
     private int _packetsThisPeriod;
     
-    /** whether we have enough data */
+    /** whether we have enough data. */
     private boolean _enoughData;
     
-    /** when the current second started */
+    /** when the current second started. */
     private long _lastPeriod;
     
-    /** how many acks we skipped in a row vs. total */
+    /** how many acks we skipped in a row vs. total. */
     private int _skippedAcks, _skippedAcksTotal;
     
-    /** how many packets we got in total */
+    /** how many packets we got in total.*/
     private int _totalDataPackets;
    
     /** The context containing various aspects required for RUDP. */
@@ -245,7 +245,7 @@ public class UDPConnectionProcessor {
 
         /** Creates a new unconnected UDPConnectionProcessor. 
      * @param role defines the role it plays in the communication, either 
-     * requestor or acceptor 
+     * requestor or acceptor. 
      */
     protected UDPConnectionProcessor(UDPSocketChannel channel,
                                      RUDPContext context,
@@ -271,7 +271,7 @@ public class UDPConnectionProcessor {
 
         _scheduler         = UDPScheduler.instance();
 
-        // Precreate the receive window for responce reporting
+        // Precreate the receive window for response reporting
         _receiveWindow   = new DataWindow(DATA_WINDOW_SIZE, 1);
 
         // All incoming seqNo and windowStarts get extended
@@ -293,10 +293,8 @@ public class UDPConnectionProcessor {
     }
     
     /**
-     * Attempts to connect to the given ip/port.
+     * Attempts to connect to the given IP/port.
      * 
-     * @param ip
-     * @param port
      * @throws IOException
      */
     protected void connect(InetSocketAddress addr) throws IOException {
@@ -379,9 +377,8 @@ public class UDPConnectionProcessor {
     }
     
     /**
-     * Closes the connection
+     * Closes the connection.
      * 
-     * @param complete
      * @throws IOException
      */
     protected synchronized void close() throws IOException {
@@ -411,25 +408,25 @@ public class UDPConnectionProcessor {
         // Store the old state.
         ConnectionState oldState = _connectionState;
 
-		// Register that the connection is closed
+        // Register that the connection is closed
         setConnectionState(ConnectionState.FIN);
 
         // Track incoming ACKS for an ack of FinMessage
         _waitingForFinAck = true;  
 
-		// Tell the receiver that we are shutting down
+        // Tell the receiver that we are shutting down
         if(oldState != ConnectionState.PRECONNECT) {
             safeSendFin();
 
             // Register for a full cleanup after a slight delay
             if (_closedCleanupEvent==null) {
-            	_closedCleanupEvent = new ClosedConnectionCleanupTimerEvent(
-            			System.currentTimeMillis() + SHUTDOWN_DELAY_TIME,this);
-            	LOG.debug("registering a closedCleanupEvent");
-            	_scheduler.register(_closedCleanupEvent);
+                _closedCleanupEvent = new ClosedConnectionCleanupTimerEvent(
+                        System.currentTimeMillis() + SHUTDOWN_DELAY_TIME,this);
+                LOG.debug("registering a closedCleanupEvent");
+                _scheduler.register(_closedCleanupEvent);
             }
         }
-	}
+    }
 
     private synchronized void finalClose() {
 
@@ -521,13 +518,13 @@ public class UDPConnectionProcessor {
      *  Activate writing if we were waiting for space
      */
     private synchronized void writeSpaceActivation() {
-		if ( _waitingForDataSpace ) {
-			_waitingForDataSpace = false;
+        if ( _waitingForDataSpace ) {
+            _waitingForDataSpace = false;
 
-			// Schedule immediately
-			scheduleWriteDataEvent(0);
-		}
-	}
+            // Schedule immediately
+            scheduleWriteDataEvent(0);
+        }
+    }
 
     /**
      *  Activate writing if we were waiting for data to write
@@ -586,7 +583,7 @@ public class UDPConnectionProcessor {
     }
 
     /**
-     *  Suppress ack timeout events for now
+     *  Suppress ack timeout events for now.
      */
     private synchronized void unscheduleAckTimeoutEvent() {
         // Nothing required if not initialized
@@ -599,7 +596,7 @@ public class UDPConnectionProcessor {
     }
 
     /**
-     *  Determine if an ackTimeout should be rescheduled  
+     *  Determine if an ackTimeout should be rescheduled.  
      */
     private synchronized boolean isAckTimeoutUpdateRequired() {
         // If ack timeout not yet created then yes.
@@ -611,7 +608,7 @@ public class UDPConnectionProcessor {
     }
 
     /**
-     *  Test whether the connection is in connecting mode
+     *  Test whether the connection is in connecting mode.
      */
     protected synchronized boolean isConnected() {
         return (_connectionState == ConnectionState.CONNECTED && 
@@ -619,14 +616,14 @@ public class UDPConnectionProcessor {
     }
 
     /**
-     *  Test whether the connection is closed
+     *  Test whether the connection is closed.
      */
     protected synchronized boolean isClosed() {
         return (_connectionState == ConnectionState.FIN);
     }
 
     /**
-     *  Test whether the connection is not fully setup
+     *  Test whether the connection is not fully setup.
      */
     protected synchronized boolean isConnecting() {
         // It is important to check for either CONNECTING_STATE
@@ -636,21 +633,21 @@ public class UDPConnectionProcessor {
         // can happen in any order, and only when both happen
         // do we consider ourselves connected.
         
-	    return !isClosed() && 
+        return !isClosed() && 
             (_connectionState == ConnectionState.CONNECTING ||
                     (_connectionState != ConnectionState.PRECONNECT &&
                      _theirConnectionID == UDPMultiplexor.UNASSIGNED_SLOT)
             );
-	}
+    }
 
     /**
      *  Return the room for new local incoming data in chunks. This should 
-	 *  remain equal to the space available in the sender and receiver 
-	 *  data window.
+     *  remain equal to the space available in the sender and receiver 
+     *  data window.
      */
     protected int getChunkLimit() {
-		return Math.min(_chunkLimit, _receiverWindowSpace);
-	}
+        return Math.min(_chunkLimit, _receiverWindowSpace);
+    }
 
     /**
      *  Convenience method for sending keepalive message since we might fire 
@@ -673,15 +670,15 @@ public class UDPConnectionProcessor {
 
     /**
      *  Convenience method for sending data.  
-	 */
+     */
     private synchronized void sendData(ByteBuffer chunk) {
         try {
             assert chunk.position() == 0;
             DataMessage dm = _context.getMessageFactory().createDataMessage(_theirConnectionID, _sequenceNumber, chunk); 
             send(dm);
-			DataRecord drec   = _sendWindow.addData(dm);  
+            DataRecord drec   = _sendWindow.addData(dm);  
             drec.sentTime     = _lastSendTime;
-			drec.sends++;
+            drec.sends++;
 
             if( LOG.isDebugEnabled() && 
                (_lastSendTime - _lastDataSendTime) > 2000)  {
@@ -695,7 +692,7 @@ public class UDPConnectionProcessor {
             // Update the chunk limit for fast (nonlocking) access
             _chunkLimit = _sendWindow.getWindowSpace();
 
-			_sequenceNumber++;
+            _sequenceNumber++;
 
             // If Acking check needs to be woken up then do it
             if ( isAckTimeoutUpdateRequired()) 
@@ -762,7 +759,7 @@ public class UDPConnectionProcessor {
 
 
     /**
-     *  Send a message on to the UDPService
+     *  Send a message on to the UDPService.
      */
     private synchronized void safeSend(RUDPMessage msg) {
         try {
@@ -776,7 +773,7 @@ public class UDPConnectionProcessor {
 
 
     /**
-     *  Send a message on to the UDPService
+     *  Send a message on to the UDPService.
      */
 	private synchronized void send(RUDPMessage msg) 
       throws IllegalArgumentException {
@@ -791,7 +788,7 @@ public class UDPConnectionProcessor {
             	LOG.debug("", ex);
             }
         }
-		_context.getUDPService().send(msg, _connectedTo);  
+        _context.getUDPService().send(msg, _connectedTo);  
 	}
 
     /**
@@ -802,8 +799,8 @@ public class UDPConnectionProcessor {
         DataRecord drec = _sendWindow.getOldestUnackedBlock();
         if ( drec != null ) {
             int rto         = _sendWindow.getRTO();
-			if (rto == 0) 
-				rto = (int) DEFAULT_RTO_WAIT_TIME;
+            if (rto == 0) 
+                rto = (int) DEFAULT_RTO_WAIT_TIME;
             long waitTime    = drec.sentTime + rto;
 
             // If there was a resend then base the wait off of current time
@@ -812,7 +809,7 @@ public class UDPConnectionProcessor {
                _ackResendCount = 0;
             }
 
-            // Enforce a mimimum waitTime from now
+            // Enforce a minimum waitTime from now
             long minTime = System.currentTimeMillis() + MIN_ACK_WAIT_TIME;
             waitTime = Math.max(waitTime, minTime);
 
@@ -858,10 +855,10 @@ public class UDPConnectionProcessor {
 
                 // Check if the next drec is acked
                 if(_sendWindow.countHigherAckBlocks() >0){
-                	expRTO*=0.75;
-                	if (LOG.isDebugEnabled())
-                		LOG.debug(" higher acked blocks, adjusting exponential backoff is now "+
-                    		expRTO);
+                    expRTO*=0.75;
+                    if (LOG.isDebugEnabled())
+                        LOG.debug(" higher acked blocks, adjusting exponential backoff is now "+
+                            expRTO);
                 }
 
                 // The assumption is that this record has not been acked
@@ -870,22 +867,21 @@ public class UDPConnectionProcessor {
                 	break resend;
                 
 
-				// If too many sends then abort connection
-				if ( drec.sends > MAX_SEND_TRIES+1 ) {
+                // If too many sends then abort connection
+                if ( drec.sends > MAX_SEND_TRIES+1 ) {
                     if(LOG.isDebugEnabled())  
                         LOG.debug("Tried too many send on:"+
                           drec.msg.getSequenceNumber());
-					closeAndCleanup(FinMessage.REASON_TOO_MANY_RESENDS);
-					return;
-				}
+                    closeAndCleanup(FinMessage.REASON_TOO_MANY_RESENDS);
+                    return;
+                }
 
                 int currentWait = (int)(currTime - drec.sentTime);
 
                 // If it looks like we waited too long then speculatively resend
                 // Case 1: We waited 150% of RTO and next packet had been acked
                 // Case 2: We waited 200% of RTO 
-                if ( currentWait  > expRTO)
-					 {
+                if ( currentWait  > expRTO) {
                     if(LOG.isDebugEnabled())  
                         LOG.debug("Soft resending message:"+
                           drec.msg.getSequenceNumber());
@@ -900,7 +896,7 @@ public class UDPConnectionProcessor {
                     drec.sends++;
                     numResent++;
                 } else 
-                	LOG.debug(" not resending message ");
+                    LOG.debug(" not resending message ");
                 
             }
             
@@ -917,10 +913,10 @@ public class UDPConnectionProcessor {
      */
     private synchronized void closeAndCleanup(byte reasonCode) {
         _closeReasonCode = reasonCode;
-		try {
+        try {
            close();
-		} catch (IOException ioe) {}
-	}
+        } catch (IOException ioe) {}
+    }
 
 
     // ------------------  Connection Handling Logic -------------------
@@ -967,8 +963,6 @@ public class UDPConnectionProcessor {
      * Handles an incoming SYN message. All initial and/or duplicate SYNs are acked.
      * We set theirConnectionID once we see the first SYN. If a subsequent SYN has a different ID,
      * that SYN is ignored.
-     * 
-     * @param smsg
      */
     private void handleSynMessage(SynMessage smsg) {
         // Extend the msgs sequenceNumber to 8 bytes based on past state
@@ -995,21 +989,19 @@ public class UDPConnectionProcessor {
     
     /**
      * Handles an ACK message.
-     * 
+     * <p>
      * If we're connecting, the first received ACK will advance the state
      * to CONNECTED_STATE.  Duplicate ACKs while connecting will be ignored.
      * (Even though the state is moved to CONNECTED_STATE, we may not be 
      *  be isConnected() until we also receive a SYN from them, informing
      *  us of their connection id.)
-     * 
+     * <p>
      * ACKs received in response to a FIN are tracked so that another FIN may
      * be sent if the first was not acked (allowing the remote side to see that
      * the connection was shutdown).
-     * 
+     * <p>
      * ACKs received while connected update the appropriate window & regulator
      * structures.
-     * 
-     * @param amsg
      */
     private void handleAckMessage(AckMessage amsg) {
         // Extend the msgs sequenceNumber to 8 bytes based on past state
@@ -1067,21 +1059,19 @@ public class UDPConnectionProcessor {
     
     /**
      * Handles a DataMessage.
-     * 
+     * <p>
      * This will close the connection if the data size is too large.
-     * 
+     * <p>
      * If the sequence of the msg is below our start window
      * (meaning we've already gobbled up this data), then the msg is
      * ignored (but may be acked).
-     * 
+     * <p>
      * If the msg fits in our window space, we'll add to the incoming
      * DataWindow.
-     * 
-     * An ack may be sent out to signify that we succesfully received
+     * <p>
+     * An ack may be sent out to signify that we successfully received
      * the message.  
      * 
-     * @param dmsg
-     * @return
      */
     private void handleDataMessage(DataMessage dmsg) {
         
@@ -1171,12 +1161,10 @@ public class UDPConnectionProcessor {
     
     /**
      * Handles a KeepAliveMessage.
-     * 
+     * <p>
      * If we're closed, a Fin message is sent in reply.
      * All sent messages up to the keep alive's window-start are acked,
      * and the window space for the remote side is updated.
-     * 
-     * @param kmsg
      */
     private void handleKeepAliveMessage(KeepAliveMessage kmsg) {
         // No need to extend seqNo on KeepAliveMessage since it is zero
@@ -1229,10 +1217,8 @@ public class UDPConnectionProcessor {
     
     /**
      * Handles a Fin message.
-     * 
+     * <p>
      * This will close the connection.
-     * 
-     * @param msg
      */
     private void handleFinMessage(FinMessage msg) {
         // Extend the msgs sequenceNumber to 8 bytes based on past state
@@ -1309,10 +1295,10 @@ public class UDPConnectionProcessor {
                       System.currentTimeMillis() + NOTHING_TO_DO_DELAY);
                     _waitingForDataSpace = true;
 
-            		if(LOG.isDebugEnabled())  
-                		LOG.debug("Shutdown SendData cL:"+_chunkLimit+
-						  " rWS:"+ _receiverWindowSpace);
-            		return;
+                    if(LOG.isDebugEnabled())  
+                        LOG.debug("Shutdown SendData cL:"+_chunkLimit+
+                                " rWS:"+ _receiverWindowSpace);
+                    return;
                 }
             }
 
@@ -1324,8 +1310,8 @@ public class UDPConnectionProcessor {
                     scheduleWriteDataEvent(
                       System.currentTimeMillis() + NOTHING_TO_DO_DELAY);
                     _waitingForDataAvailable = true;
-            		if(LOG.isDebugEnabled())  
-                		LOG.debug("Shutdown SendData no pending");
+                    if(LOG.isDebugEnabled())  
+                        LOG.debug("Shutdown SendData no pending");
                     return;
                 }
             }
@@ -1373,9 +1359,9 @@ public class UDPConnectionProcessor {
      */
     static class KeepAliveTimerEvent extends UDPTimerEvent {
         
-    	public KeepAliveTimerEvent(long time,UDPConnectionProcessor proc) {
-    		super(time,proc);
-    	}
+        public KeepAliveTimerEvent(long time,UDPConnectionProcessor proc) {
+            super(time,proc);
+        }
 
         @Override
         protected void doActualEvent(UDPConnectionProcessor udpCon) {
@@ -1431,16 +1417,16 @@ public class UDPConnectionProcessor {
                 LOG.debug("data timeout :"+ System.currentTimeMillis());
             long time = System.currentTimeMillis();
 
-			// Make sure that some messages are received within timeframe
-			if ( udpCon.isConnected() && 
-				 udpCon._lastReceivedTime + MAX_MESSAGE_WAIT_TIME < time ) {
-				// If no incoming messages for very long time then 
-				// close connection
+            // Make sure that some messages are received within timeframe
+            if ( udpCon.isConnected() && 
+                    udpCon._lastReceivedTime + MAX_MESSAGE_WAIT_TIME < time ) {
+                // If no incoming messages for very long time then 
+                // close connection
                 udpCon.closeAndCleanup(FinMessage.REASON_TIMEOUT);
-				return;
-			}
+                return;
+            }
 
-			// If still connected then handle then try to write some data
+            // If still connected then handle then try to write some data
             if ( udpCon.isConnected() ) {
                 udpCon.writeData();
             }
@@ -1460,8 +1446,7 @@ public class UDPConnectionProcessor {
 
         @Override
         protected void doActualEvent(UDPConnectionProcessor udpCon) {
-        	
-        	
+
             if(LOG.isDebugEnabled())  
                 LOG.debug("ack timeout: "+ System.currentTimeMillis());
             if ( udpCon.isConnected() ) {
@@ -1473,7 +1458,7 @@ public class UDPConnectionProcessor {
     }
 
     /** 
-     *  This is an event that wakes up writing with a given delay
+     *  This is an event that wakes up writing with a given delay.
      */
     static class SafeWriteWakeupTimerEvent extends UDPTimerEvent {
 
@@ -1524,7 +1509,7 @@ public class UDPConnectionProcessor {
 
         @Override
         protected void doActualEvent(UDPConnectionProcessor udpCon) {
-        	
+
             if(LOG.isDebugEnabled())  
                 LOG.debug("Closed connection timeout: "+ 
                   System.currentTimeMillis());

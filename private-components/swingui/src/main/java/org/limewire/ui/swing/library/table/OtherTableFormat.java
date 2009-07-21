@@ -13,30 +13,36 @@ import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 /**
- * Table format for the Other Table when it is in My Library
+ * Table format for the Other Table when it is in My Library.
  */
-public class OtherTableFormat<T extends LocalFileItem> extends AbstractMyLibraryFormat<T> {
-    static final int ACTION_INDEX = 0;
-    static final int NAME_INDEX = 1;
-    static final int TYPE_INDEX = 2;
-    static final int SIZE_INDEX = 3;
-    static final int HIT_INDEX = 4;
-    static final int UPLOADS_INDEX = 5;
-    static final int UPLOAD_ATTEMPTS_INDEX = 6;
-    static final int PATH_INDEX = 7;
-    private IconManager iconManager;
+public class OtherTableFormat<T extends LocalFileItem> extends AbstractLibraryFormat<T> {
+
+    static final int NAME_INDEX = 0;
+    static final int TYPE_INDEX = 1;
+    static final int SIZE_INDEX = 2;
+    static final int HIT_INDEX = 3;
+    static final int UPLOADS_INDEX = 4;
+    static final int UPLOAD_ATTEMPTS_INDEX = 5;
+    static final int PATH_INDEX = 6;
+    static final int ACTION_INDEX = 7;
     
-    public OtherTableFormat(IconManager iconManager) {
+    private Provider<IconManager> iconManager;
+    
+    @Inject
+    public OtherTableFormat(Provider<IconManager> iconManager) {
         super(ACTION_INDEX, "LIBRARY_OTHER_TALBE", NAME_INDEX, true, new ColumnStateInfo[] {
-                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_OTHER_ACTION", I18n.tr("Sharing"), 61, true, false),
-                new ColumnStateInfo(NAME_INDEX, "LIBRARY_OTHER_NAME", I18n.tr("Name"), 493, true, true), 
-                new ColumnStateInfo(TYPE_INDEX, "LIBRARY_OTHER_TYPE", I18n.tr("Type"), 180, true, true),     
+                new ColumnStateInfo(NAME_INDEX, "LIBRARY_OTHER_NAME", I18n.tr("Name"), 480, true, true), 
+                new ColumnStateInfo(TYPE_INDEX, "LIBRARY_OTHER_TYPE", I18n.tr("Type"), 230, true, true),     
                 new ColumnStateInfo(SIZE_INDEX, "LIBRARY_OTHER_SIZE", I18n.tr("Size"), 60, false, true),
                 new ColumnStateInfo(HIT_INDEX, "LIBRARY_OTHER_HITS", I18n.tr("Hits"), 100, false, true), 
                 new ColumnStateInfo(UPLOADS_INDEX, "LIBRARY_OTHER_UPLOADS", I18n.tr("Uploads"), 100, false, true), 
                 new ColumnStateInfo(UPLOAD_ATTEMPTS_INDEX, "LIBRARY_OTHER_UPLOAD_ATTEMPTS", I18n.tr("Upload attempts"), 200, false, true),
                 new ColumnStateInfo(PATH_INDEX, "LIBRARY_OTHER_PATH", I18n.tr("Location"), 200, false, true),
+                new ColumnStateInfo(ACTION_INDEX, "LIBRARY_OTHER_ACTION", I18n.tr(" "), 22, 22, true, false)
         });
         this.iconManager = iconManager;
     }
@@ -48,7 +54,7 @@ public class OtherTableFormat<T extends LocalFileItem> extends AbstractMyLibrary
         case TYPE_INDEX: 
             // Use icon manager to return MIME description.
             return (iconManager != null) ?
-                iconManager.getMIMEDescription(baseObject) : 
+                iconManager.get().getMIMEDescription(baseObject) : 
                 baseObject.getProperty(FilePropertyKey.DESCRIPTION);
         case SIZE_INDEX: return baseObject.getSize();
         case HIT_INDEX: return baseObject.getNumHits();

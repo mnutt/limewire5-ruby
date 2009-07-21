@@ -10,7 +10,7 @@ public class PanelDisplayedEvent extends AbstractEDTEvent {
     
     /**
      * 
-     * @param panel The Component displayed
+     * @param panel the Component displayed
      */
     public PanelDisplayedEvent(Component displayedPanel) {
         this.displayedPanel = displayedPanel;

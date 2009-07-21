@@ -17,6 +17,7 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * This class specifies the content of a table that contains
@@ -30,10 +31,10 @@ public class AllTableFormat extends ResultsTableFormat<VisualSearchResult> {
     public static final int SIZE_INDEX = 4;
     static final int IS_SPAM_INDEX = 5;
     
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     
     @Inject
-    public AllTableFormat(IconManager iconManager) {
+    public AllTableFormat(Provider<IconManager> iconManager) {
         super("CLASSIC_SEARCH_ALL_TABLE", NAME_INDEX, FROM_INDEX, IS_SPAM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_ALL_FROM", I18n.tr("From"), 88, true, true), 
                 new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_ALL_NAME", I18n.tr("Name"), 467, true, true),     
@@ -63,7 +64,7 @@ public class AllTableFormat extends ResultsTableFormat<VisualSearchResult> {
             case NAME_INDEX: return vsr;
             case TYPE_INDEX: 
                 if( vsr.getCategory() == Category.DOCUMENT || vsr.getCategory() == Category.PROGRAM || vsr.getCategory() == Category.OTHER) {
-                    String mime = iconManager.getMIMEDescription(vsr.getFileExtension());
+                    String mime = iconManager.get().getMIMEDescription(vsr.getFileExtension());
                     if(mime != null)
                         return I18n.tr(vsr.getCategory().getSingularName()) + " (" + mime + ")";
                     else

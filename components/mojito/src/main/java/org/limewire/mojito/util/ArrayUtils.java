@@ -23,7 +23,7 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
- * Miscellaneous utilities for Arrays
+ * Miscellaneous utilities for Arrays.
  */
 public final class ArrayUtils {
     
@@ -42,7 +42,7 @@ public final class ArrayUtils {
     private ArrayUtils() {}
     
     /**
-     * Returns data as a HEX String
+     * Returns data as a HEX String.
      */
     public static String toHexString(byte[] data) {
         return toHexString(data, 0, data.length, -1);
@@ -50,21 +50,21 @@ public final class ArrayUtils {
     
     /**
      * Returns data as a HEX String and inserts new lines
-     * every wrapAtColumn
+     * every wrapAtColumn.
      */
     public static String toHexString(byte[] data, int wrapAtColumn) {
         return toHexString(data, 0, data.length, wrapAtColumn);
     }
     
     /**
-     * Returns data as a hex encoded String
+     * Returns data as a hex encoded String.
      */
     public static String toHexString(byte[] data, int offset, int length) {
         return toHexString(data, offset, length, -1);
     }
     
     /**
-     * Returns data as a hex encoded String
+     * Returns data as a hex encoded String.
      */
     public static String toHexString(byte[] data, int offset, int length, int wrapAtColumn) {
         int end = offset+length;
@@ -89,7 +89,7 @@ public final class ArrayUtils {
     }
     
     /**
-     * Returns data as BIN String
+     * Returns data as BIN String.
      */
     public static String toBinString(byte[] data) {
         return toBinString(data, 0, data.length, -1);
@@ -97,21 +97,21 @@ public final class ArrayUtils {
     
     /**
      * Returns data as BIN String and inserts new lines
-     * every wrapAtColumn
+     * every wrapAtColumn.
      */
     public static String toBinString(byte[] data, int wrapAtColumn) {
         return toBinString(data, 0, data.length, wrapAtColumn);
     }
     
     /**
-     * Returns data as a binary encoded String
+     * Returns data as a binary encoded String.
      */
     public static String toBinString(byte[] data, int offset, int length) {
         return toBinString(data, offset, length, -1);
     }
     
     /**
-     * Returns data as a binary encoded String
+     * Returns data as a binary encoded String.
      */
     public static String toBinString(byte[] data, int offset, int length, int wrapAtColumn) {
         int end = offset+length;
@@ -140,7 +140,7 @@ public final class ArrayUtils {
     }
     
     /**
-     * Converts a HEX String to a byte value
+     * Converts a HEX String to a byte value.
      */
     public static byte[] parseHexString(String data) {
         if (data.length() % 2 != 0) {
@@ -186,7 +186,7 @@ public final class ArrayUtils {
     
     /**
      * A helper method to convert a 4 character ASCII String
-     * into an Interger
+     * into an integer.
      */
     public static int toInteger(String ascii) {
         if (ascii == null) {
@@ -207,7 +207,7 @@ public final class ArrayUtils {
     
     /**
      * A helper method to convert each of vendorId's 4 bytes
-     * into an ASCII character and to return them as String
+     * into an ASCII character and to return them as String.
      */
     public static String toString(int num) {
         try {

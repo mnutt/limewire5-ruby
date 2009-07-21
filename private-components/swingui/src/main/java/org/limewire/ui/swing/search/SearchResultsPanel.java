@@ -8,10 +8,9 @@ import java.awt.GradientPaint;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.util.List;
-import java.util.Map;
 
-import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,26 +27,33 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 import org.limewire.core.api.search.SearchCategory;
+import org.limewire.core.api.search.browse.BrowseStatus;
 import org.limewire.core.api.search.sponsored.SponsoredResult;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.components.Disposable;
-import org.limewire.ui.swing.components.FancyTab;
-import org.limewire.ui.swing.components.FancyTabList;
 import org.limewire.ui.swing.components.HeaderBar;
 import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
+import org.limewire.ui.swing.filter.AdvancedFilterPanel;
+import org.limewire.ui.swing.filter.AdvancedFilterPanelFactory;
+import org.limewire.ui.swing.filter.AdvancedFilterPanel.CategoryListener;
+import org.limewire.ui.swing.friends.refresh.AllFriendsRefreshManager;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
+import org.limewire.ui.swing.search.model.VisualSearchResult;
 import org.limewire.ui.swing.search.resultpanel.BaseResultPanel.ListViewTable;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.table.TableCellHeaderRenderer;
+import org.limewire.ui.swing.util.CategoryIconManager;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
+import ca.odell.glazedlists.event.ListEvent;
+import ca.odell.glazedlists.event.ListEventListener;
+
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * This is the top-level container for the search results display.  
@@ -60,12 +66,14 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
     /** Decorator used to set the appearance of the header bar. */
     private final HeaderBarDecorator headerBarDecorator;
     
-    /**
-     * This is the subpanel that appears in the upper-left corner
-     * of each search results tab.  It displays the numbers of results
-     * found for each file type.
-     */
-    private final SearchTabItems searchTabItems;
+    /** Icon manager for categories. */
+    private final CategoryIconManager categoryIconManager;
+    
+    /** Label that displays the search title. */
+    private final JLabel searchTitleLabel = new JLabel();
+    
+    /** Panel containing filter components. */
+    private final AdvancedFilterPanel<VisualSearchResult> filterPanel;
     
     /**
      * This is the subpanel that displays the actual search results.
@@ -98,43 +106,59 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
     /** Listener for changes in the view type. */
     private final SettingListener viewTypeListener;
     
+    /** Listener for updates to the result count. */
+    private final ListEventListener<VisualSearchResult> resultCountListener;
+    
     /** Search results data model. */
     private final SearchResultsModel searchResultsModel;
     
     @Resource private Color tabHighlightTopGradientColor;
     @Resource private Color tabHighlightBottomGradientColor;
-    @Resource private Color tabSelectionTopGradientColor;
-    @Resource private Color tabSelectionBottomGradientColor;
-    @Resource private Color tabSelectionTextColor;
-    @Resource private Color tabSelectionBorderTopGradientColor;;
-    @Resource private Color tabSelectionBorderBottomGradientColor;;
 
     private boolean lifeCycleComplete = true;
 
     private boolean fullyConnected = true;
 
+    private BrowseStatus browseStatus = null;
+    
+    /** Shows status of failed browses and refresh button.
+     */
+    private BrowseStatusPanel browseStatusPanel;
+    
+    /** Title when browsing friends; null for search results. */
+    private String browseTitle;
+
+    private final BrowseFailedMessagePanel browseFailedPanel;
+
     /**
      * Constructs a SearchResultsPanel with the specified components.
      */
-    @AssistedInject
+    @Inject
     public SearchResultsPanel(
             @Assisted SearchResultsModel searchResultsModel,
             ResultsContainerFactory containerFactory,
             SortAndFilterPanelFactory sortAndFilterFactory,
-            SearchTabItemsFactory searchTabItemsFactory,
+            AdvancedFilterPanelFactory<VisualSearchResult> filterPanelFactory,
             SponsoredResultsPanel sponsoredResultsPanel,
-            HeaderBarDecorator headerBarDecorator) {        
+            HeaderBarDecorator headerBarDecorator,
+            CategoryIconManager categoryIconManager, 
+            BrowseFailedMessagePanelFactory browseFailedMessagePanelFactory,
+            AllFriendsRefreshManager allFriendsRefreshManager) {
 
         GuiUtils.assignResources(this);
         
         this.searchResultsModel = searchResultsModel;
         this.headerBarDecorator = headerBarDecorator; 
+        this.categoryIconManager = categoryIconManager;
         
         this.sponsoredResultsPanel = sponsoredResultsPanel;
         this.sponsoredResultsPanel.setVisible(false);
+        this.browseFailedPanel = browseFailedMessagePanelFactory.create(searchResultsModel);
         
         // Create sort and filter components.
-        this.sortAndFilterPanel = sortAndFilterFactory.create(searchResultsModel);
+        sortAndFilterPanel = sortAndFilterFactory.create(searchResultsModel);
+        
+        filterPanel = filterPanelFactory.create(searchResultsModel, searchResultsModel.getSearchType());
         
         scrollPane = new JScrollPane();
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -142,7 +166,7 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
         configureEnclosingScrollPane();
         
         // Create results container with tables.
-        this.resultsContainer = containerFactory.create(searchResultsModel);
+        resultsContainer = containerFactory.create(searchResultsModel);
         
         viewTypeListener = new SettingListener() {
             int oldSearchViewTypeId = SwingUiSettings.SEARCH_VIEW_TYPE_ID.getValue();
@@ -163,32 +187,43 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
             } 
         };
         SwingUiSettings.SEARCH_VIEW_TYPE_ID.addSettingListener(viewTypeListener);
-
-        SearchTabItems.SearchTabListener listener =
-            new SearchTabItems.SearchTabListener() {
+        
+        // Initialize header label.
+        updateTitle();
+        
+        // Install listener to update header label.
+        resultCountListener = new ListEventListener<VisualSearchResult>() {
             @Override
-            public void categorySelected(SearchCategory category) {
-                sortAndFilterPanel.clearFilterBox();
-                sortAndFilterPanel.setSearchCategory(category);
-                resultsContainer.showCategory(category);
-                syncScrollPieces();
+            public void listChanged(ListEvent<VisualSearchResult> listChanges) {
+                updateTitle();
             }
         };
+        searchResultsModel.getUnfilteredList().addListEventListener(resultCountListener);
+        searchResultsModel.getFilteredList().addListEventListener(resultCountListener);
         
-        searchTabItems = searchTabItemsFactory.create(
-                searchResultsModel.getSearchCategory(), 
-                searchResultsModel.getObservableSearchResults());
-        searchTabItems.addSearchTabListener(listener);
-
-        for (Map.Entry<SearchCategory, Action> entry : searchTabItems.getResultCountActions()) {
-            resultsContainer.synchronizeResultCount(
-                entry.getKey(), entry.getValue());
-        }
+        // Configure sort panel and results container.
+        sortAndFilterPanel.setSearchCategory(searchResultsModel.getSearchCategory());
+        resultsContainer.showCategory(searchResultsModel.getSearchCategory());
+        syncScrollPieces();
+        
+        // Configure advanced filters.
+        filterPanel.setSearchCategory(searchResultsModel.getSearchCategory());
+        filterPanel.addCategoryListener(new CategoryListener() {
+            @Override
+            public void categorySelected(SearchCategory displayCategory) {
+                sortAndFilterPanel.setSearchCategory(displayCategory);
+                resultsContainer.showCategory(displayCategory);
+                syncScrollPieces();
+                updateTitle();
+            }
+        });
 
         messageLabel = new JLabel();
         messagePanel = new JPanel();
         messagePanel.add(messageLabel);
         messagePanel.setVisible(false);
+        
+        browseStatusPanel = new BrowseStatusPanel(searchResultsModel, allFriendsRefreshManager);
         
         classicSearchReminderPanel = new ClassicSearchWarningPanel();
         layoutComponents();
@@ -201,9 +236,21 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
     @Override
     public void dispose() {
         SwingUiSettings.SEARCH_VIEW_TYPE_ID.removeSettingListener(viewTypeListener);
+        searchResultsModel.getFilteredList().removeListEventListener(resultCountListener);
+        searchResultsModel.getUnfilteredList().removeListEventListener(resultCountListener);
         sortAndFilterPanel.dispose();
+        filterPanel.dispose();
         classicSearchReminderPanel.dispose();
+        browseFailedPanel.dispose();
         searchResultsModel.dispose();
+        browseStatusPanel.dispose();
+    }
+    
+    /**
+     * @return the SearchResultsModel of the SearchResultsPanel.
+     */
+    public SearchResultsModel getModel(){
+        return searchResultsModel;
     }
 
     /**
@@ -232,6 +279,100 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
         if (!sponsoredResultsPanel.isVisible()) {
             sponsoredResultsPanel.setVisible(true);
             syncColumnHeader();
+        }
+    }
+    
+    /**
+     * Sets the browse title in the container.  When not null, the browse title
+     * is displayed at the top of the panel.  When null, the container displays 
+     * the search title from the data model.
+     */
+    public void setBrowseTitle(String title) {
+        browseTitle = title;
+        updateTitle();
+    }
+    
+    /**
+     * Updates the title icon and text in the container.  For search results, 
+     * the title includes the category name, search title, and result counts. 
+     */
+    private void updateTitle() {
+        // Get result counts.
+        int total = searchResultsModel.getUnfilteredList().size();
+        int actual = searchResultsModel.getFilteredList().size();
+        
+        if (browseTitle != null) {
+            // Set browse title.
+            searchTitleLabel.setText((actual == total) ?
+                    // {0}: browse title, {1}: total count
+                    I18n.tr("Browse {0} ({1})", browseTitle, total) :
+                    // {0}: browse title, {1}: actual count, {2}: total count 
+                    I18n.tr("Browse {0} - Showing {1} of {2}", browseTitle, actual, total));
+            
+        } else {
+            // Get search category and title.
+            SearchCategory displayCategory = searchResultsModel.getSelectedCategory();
+            String title = searchResultsModel.getSearchTitle();
+            
+            // Set title icon based on category.
+            Icon icon = (displayCategory == SearchCategory.ALL) ? null :
+                categoryIconManager.getIcon(displayCategory.getCategory());
+            searchTitleLabel.setIcon(icon);
+
+            // Set title text.
+            switch (displayCategory) {
+            case ALL:
+                searchTitleLabel.setText((actual == total) ?
+                        // {0}: search title, {1}: total count
+                        I18n.tr("All results for {0} ({1})", title, total) :
+                        // {0}: search title, {1}: actual count, {2}: total count 
+                        I18n.tr("All results for {0} - Showing {1} of {2}", title, actual, total));
+                break;
+            case AUDIO:
+                searchTitleLabel.setText((actual == total) ?
+                        // {0}: search title, {1}: total count
+                        I18n.tr("Audio results for {0} ({1})", title, total) :
+                        // {0}: search title, {1}: actual count, {2}: total count 
+                        I18n.tr("Audio results for {0} - Showing {1} of {2}", title, actual, total));
+                break;
+            case VIDEO:
+                searchTitleLabel.setText((actual == total) ?
+                        // {0}: search title, {1}: total count
+                        I18n.tr("Video results for {0} ({1})", title, total) :
+                        // {0}: search title, {1}: actual count, {2}: total count 
+                        I18n.tr("Video results for {0} - Showing {1} of {2}", title, actual, total));
+                break;
+            case IMAGE:
+                searchTitleLabel.setText((actual == total) ?
+                        // {0}: search title, {1}: total count
+                        I18n.tr("Image results for {0} ({1})", title, total) :
+                        // {0}: search title, {1}: actual count, {2}: total count 
+                        I18n.tr("Image results for {0} - Showing {1} of {2}", title, actual, total));
+                break;
+            case DOCUMENT:
+                searchTitleLabel.setText((actual == total) ?
+                        // {0}: search title, {1}: total count
+                        I18n.tr("Document results for {0} ({1})", title, total) :
+                        // {0}: search title, {1}: actual count, {2}: total count 
+                        I18n.tr("Document results for {0} - Showing {1} of {2}", title, actual, total));
+                break;
+            case PROGRAM:
+                searchTitleLabel.setText((actual == total) ?
+                        // {0}: search title, {1}: total count
+                        I18n.tr("Program results for {0} ({1})", title, total) :
+                        // {0}: search title, {1}: actual count, {2}: total count 
+                        I18n.tr("Program results for {0} - Showing {1} of {2}", title, actual, total));
+                break;
+            case OTHER:
+                searchTitleLabel.setText((actual == total) ?
+                        // {0}: search title, {1}: total count
+                        I18n.tr("Other results for {0} ({1})", title, total) :
+                        // {0}: search title, {1}: actual count, {2}: total count 
+                        I18n.tr("Other results for {0} - Showing {1} of {2}", title, actual, total));
+                break;
+            default:
+                throw new IllegalStateException("Invalid search category " + displayCategory);
+            }
         }
     }
     
@@ -276,6 +417,13 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
         }
         
         scrollPane.validate();
+        
+        // Resize and repaint table header.  This eliminates visual issues due
+        // to a change in the table format, which can result in an incorrect
+        // header height or header flickering when a category is selected.
+        if (resultHeader instanceof JTableHeader) {
+            ((JTableHeader) resultHeader).resizeAndRepaint();
+        }
     }
     
     /**
@@ -283,8 +431,9 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
      * the constructor.  
      */
     private void layoutComponents() {
-        MigLayout layout = new MigLayout("hidemode 2, insets 0 0 0 0, gap 0!", 
-        		                "[grow]", "[][][][grow]");
+        MigLayout layout = new MigLayout("hidemode 2, insets 0 0 0 0, gap 0!, novisualpadding", 
+                                "[][grow]",       // col constraints
+                                "[][][][grow]");  // row constraints
         
         setLayout(layout);
         setMinimumSize(new Dimension(getPreferredSize().width, 33));
@@ -296,29 +445,28 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
         tabHighlight.setInsets(new Insets(0,0,1,0));
         tabHighlight.setBorderPaint(null);
         
-        FancyTabList searchTab = searchTabItems.getSearchTab();
-        
-        searchTab.setUnderlineEnabled(false);
-        searchTab.setHighlightPainter(tabHighlight);
-        
-        searchTab.setSelectionPainter(createTabSelectionPainter());
-        searchTab.setTabTextSelectedColor(tabSelectionTextColor);
-        
-        HeaderBar header = new HeaderBar(searchTab);
+        HeaderBar header = new HeaderBar(searchTitleLabel);
+        header.setLayout(new MigLayout("insets 0, gap 0!, novisualpadding, alignx 100%, aligny 50%"));
+        header.add(browseStatusPanel, "alignx 0%, growx, pushx");
         headerBarDecorator.decorateBasic(header);
         
         sortAndFilterPanel.layoutComponents(header);
-        add(header, "growx, wrap");
-        add(classicSearchReminderPanel, "growx, wrap");
-        add(messagePanel, "growx, wrap");
-        add(scrollPane, "grow, wrap");
+        
+        add(header                    , "spanx 2, growx, growy, wrap");
+        add(classicSearchReminderPanel, "spanx 2, growx, wrap");
+        add(messagePanel              , "spanx 2, growx, wrap");
+        add(filterPanel, "grow");
+        add(scrollPane , "hidemode 3, grow");
+        add(browseFailedPanel , "hidemode 3, grow");
 
         scrollablePanel.setScrollableTracksViewportHeight(false);
-        scrollablePanel.setLayout(new MigLayout("hidemode 3, gap 0, insets 0", "[]", "[grow][]"));
-        
-        scrollablePanel.add(resultsContainer, "grow, push, alignx left, aligny top");
-        scrollablePanel.add(sponsoredResultsPanel, "aligny top, alignx right, wmin " + sponsoredResultsPanel.getPreferredSize().width + ", pad 8 8 8 0");
+
+        scrollablePanel.setLayout(new BorderLayout());
+        scrollablePanel.add(resultsContainer, BorderLayout.CENTER);
+        scrollablePanel.add(sponsoredResultsPanel, BorderLayout.EAST);
         scrollPane.setViewportView(scrollablePanel);
+
+        
         syncScrollPieces();
     }
 
@@ -344,7 +492,7 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
         @Override
         public Dimension getPreferredSize() {
             if(scrollable == null) {
-                return super.getPreferredScrollableViewportSize();
+                return super.getPreferredSize();
             } else {
                 int width = super.getPreferredSize().width;
                 int height = ((JComponent)scrollable).getPreferredSize().height;
@@ -411,10 +559,15 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
 
     /**
      * Sets an indicator to determine whether the application is fully 
-     * connected to the P2P network, and updates the user message.
+     * connected to the P2P Network, and updates the user message.
      */
     public void setFullyConnected(boolean fullyConnected) {
         this.fullyConnected = fullyConnected;
+        updateMessages();        
+    }
+    
+    public void setBrowseStatus(BrowseStatus browseStatus){
+        this.browseStatus = browseStatus;
         updateMessages();        
     }
     
@@ -422,37 +575,25 @@ public class SearchResultsPanel extends JXPanel implements SponsoredResultsView,
      * Updates the user message based on the current state of the application. 
      */
     private void updateMessages() {
+        browseStatusPanel.setBrowseStatus(browseStatus);
+        
         if (!lifeCycleComplete) {
             messageLabel.setText(I18n.tr("LimeWire will start your search right after it finishes loading."));
             messagePanel.setVisible(true);
+            browseFailedPanel.setVisible(false);
         } else if (!fullyConnected) {
             messageLabel.setText(I18n.tr("You might not receive many results until LimeWire finishes loading..."));
             messagePanel.setVisible(true);
+            browseFailedPanel.setVisible(false);            
+        } else if (browseStatus != null && !browseStatus.getState().isOK()) {
+            browseFailedPanel.update(browseStatus.getState(), browseStatus.getBrowseSearch(), browseStatus.getFailedFriends());
+            browseFailedPanel.setVisible(true);
         } else {
             messagePanel.setVisible(false);
+            browseFailedPanel.setVisible(false);
         }
-    }
-    
-    /**
-     * Creates a Painter used to render the selected category tab.
-     */
-    private AbstractPainter<FancyTab> createTabSelectionPainter() {
-        RectanglePainter<FancyTab> painter = new RectanglePainter<FancyTab>();
-        
-        painter.setFillPaint(new GradientPaint(0, 0, tabSelectionTopGradientColor, 
-                0, 1, tabSelectionBottomGradientColor));
-        painter.setBorderPaint(new GradientPaint(0, 0, tabSelectionBorderTopGradientColor, 
-                0, 1, tabSelectionBorderBottomGradientColor));
-        
-        painter.setRoundHeight(10);
-        painter.setRoundWidth(10);
-        painter.setRounded(true);
-        painter.setPaintStretched(true);
-        painter.setInsets(new Insets(6,0,7,0));
-                
-        painter.setAntialiasing(true);
-        painter.setCacheable(true);
-        
-        return painter;
+
+        filterPanel.setVisible(!browseFailedPanel.isVisible());
+        scrollPane.setVisible(!browseFailedPanel.isVisible());
     }
 }

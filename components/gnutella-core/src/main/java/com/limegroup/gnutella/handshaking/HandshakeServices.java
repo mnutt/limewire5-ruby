@@ -28,10 +28,10 @@ public interface HandshakeServices {
      * Returns a collection of IpPorts, preferencing hosts with open slots.
      * If isUltrapeer is true, this preferences hosts with open ultrapeer slots,
      * otherwise it preferences hosts with open leaf slots.
-     *
+     * <p>
      * Preferences via locale, also.
      * 
-     * @param num How many hosts to try to get
+     * @param num how many hosts to try to get
      */
     public Collection<IpPort> getAvailableHosts(boolean isUltrapeer,
             String locale, int num);

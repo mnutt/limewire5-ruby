@@ -8,7 +8,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.endpoint.RemoteHost;
-import org.limewire.core.api.friend.FriendPresence;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
@@ -19,6 +18,7 @@ import org.limewire.core.impl.friend.MockFriend;
 import org.limewire.core.impl.friend.MockFriendPresence;
 import org.limewire.core.impl.search.sponsored.MockSponsoredResult;
 import org.limewire.io.GUID;
+import org.limewire.friend.api.FriendPresence;
 
 
 public class MockSearch implements Search {

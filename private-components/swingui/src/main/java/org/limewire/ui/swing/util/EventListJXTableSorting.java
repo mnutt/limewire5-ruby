@@ -9,18 +9,18 @@ import java.util.List;
 import java.util.Set;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.FilterPipeline;
 import org.jdesktop.swingx.decorator.SortController;
 import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.limewire.ui.swing.table.GlazedJXTable;
 
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.impl.sort.TableColumnComparator;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 /**
  * This is essentially a copy of glazedLists.EventListJXTableSorting class. The 
@@ -42,14 +42,13 @@ public class EventListJXTableSorting {
 
     /** the sorted list behind the table being sorted */
     private final SortedList sortedList;
-    private final JXTable table;
+    private final GlazedJXTable table;
 
     /** adapters between SortedList and JXTable */
     private final SortController sortController;
-    private final EventListFilterPipeline filterPipeline;
 
     /** the original filter pipeline, used in {@link #uninstall} only */
-    private final FilterPipeline originalFilterPipeline;
+    private final SortController originalSortController;
     
     /** Format for table sorts on event list. */
     private final EventListTableSortFormat tableSortFormat;
@@ -59,16 +58,15 @@ public class EventListJXTableSorting {
      * changes the table's filter pipeline. Therefore we use this private
      * constructor and call through it from the {@link #install} method.
      */
-    private EventListJXTableSorting(JXTable table, SortedList sortedList,
+    private EventListJXTableSorting(GlazedJXTable table, SortedList sortedList,
             EventListTableSortFormat tableSortFormat) {
         this.table = table;
         this.sortedList = sortedList;
         this.tableSortFormat = tableSortFormat;
-        this.originalFilterPipeline = table.getFilters();
+        this.originalSortController = table.getSortController();
 
         this.sortController = new EventListSortController();
-        this.filterPipeline = new EventListFilterPipeline();
-        table.setFilters(filterPipeline);
+        table.setSortController(sortController);
         
         // Apply default sort keys.
         if (tableSortFormat != null) {
@@ -81,7 +79,7 @@ public class EventListJXTableSorting {
      * Install this {@link EventListJXTableSorting} to provide the sorting
      * behaviour for the specified {@link JXTable}.
      */
-    public static EventListJXTableSorting install(JXTable table, SortedList sortedList) {
+    public static EventListJXTableSorting install(GlazedJXTable table, SortedList sortedList) {
         return new EventListJXTableSorting(table, sortedList, null);
     }
 
@@ -90,7 +88,7 @@ public class EventListJXTableSorting {
      * behaviour for the specified {@link JXTable}.  A non-null value for
      * <code>tableSortFormat</code> provides support for secondary sort columns.
      */
-    public static EventListJXTableSorting install(JXTable table, SortedList sortedList, 
+    public static EventListJXTableSorting install(GlazedJXTable table, SortedList sortedList, 
             EventListTableSortFormat tableSortFormat) {
         return new EventListJXTableSorting(table, sortedList, tableSortFormat);
     }
@@ -99,22 +97,7 @@ public class EventListJXTableSorting {
      * Remove this {@link EventListJXTableSorting} from the {@link JXTable}.
      */
     public void uninstall() {
-        table.setFilters(originalFilterPipeline);
-    }
-
-    /**
-     * Unfortunately, the only way to provide a {@link SortController} for a
-     * {@link JXTable} is to extend {@link FilterPipeline}. This is a significant
-     * weakness in the SwingX API, and unfortunately they do not have the
-     * resources to improve it for us. Perhaps sometime in the future we can
-     * provide a patch to SwingX that makes installing a {@link SortController}
-     * more elegant.
-     */
-    private class EventListFilterPipeline extends FilterPipeline {
-        @Override
-        public SortController getSortController() {
-            return sortController;
-        }
+        table.setSortController(originalSortController);
     }
 
     /**
@@ -284,7 +267,7 @@ public class EventListJXTableSorting {
          */
         @SuppressWarnings("unchecked")
         private Comparator getComparator(int modelIndex) {
-            EventTableModel tableModel = (EventTableModel)table.getModel();
+            DefaultEventTableModel tableModel = (DefaultEventTableModel)table.getModel();
             TableFormat tableFormat = tableModel.getTableFormat();
             // TODO: local changes compared to GlazedLists implementation
             // If the tableFormat is an AdvancedTableFormat, use the table column comparators

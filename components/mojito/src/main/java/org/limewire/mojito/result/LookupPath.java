@@ -33,23 +33,23 @@ import org.limewire.security.SecurityToken;
 public interface LookupPath {
     
     /**
-     * Returns the lookup ID
+     * Returns the lookup ID.
      */
     public KUID getLookupID();
     
     /**
      * Returns the lookup path sorted from nearest to 
-     * the furthest Contact on the path
+     * the furthest Contact on the path.
      */
     public Collection<? extends Contact> getPath();
     
     /**
-     * Returns SecurityToken for the given Contact
+     * Returns SecurityToken for the given Contact.
      */
     public SecurityToken getSecurityToken(Contact node);
     
     /**
-     * Returns the lookup path as a Collection of Contact & SecurityToken entries
+     * Returns the lookup path as a Collection of Contact & SecurityToken entries.
      */
     public Collection<? extends Entry<? extends Contact, ? extends SecurityToken>> getEntryPath();
 }

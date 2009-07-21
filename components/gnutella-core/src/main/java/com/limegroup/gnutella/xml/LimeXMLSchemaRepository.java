@@ -19,7 +19,7 @@ import com.google.inject.Singleton;
 
 /**
  * Stores and provides access to various XML schemas that me might have.
- * Singleton class
+ * Singleton class.
  * 
  * @author asingla
  */
@@ -27,11 +27,11 @@ import com.google.inject.Singleton;
 public class LimeXMLSchemaRepository {
 
     /**
-     * Mapping from URI (string) to an instance of XMLSchema
+     * Mapping from URI (string) to an instance of XMLSchema.
      */
     private Map<String, LimeXMLSchema> _uriSchemaMap = new HashMap<String, LimeXMLSchema>();
 
-    /** Creates new LimeXMLSchemaRepository */
+    /** Creates new LimeXMLSchemaRepository. */
     @Inject
     LimeXMLSchemaRepository(LimeXMLProperties limeXMLProperties) {
         URL[] schemaUrls = limeXMLProperties.getAllXmlSchemaUrls();
@@ -48,7 +48,7 @@ public class LimeXMLSchemaRepository {
     }
 
     /**
-     * Returns the schema corresponding to the given URI
+     * Returns the schema corresponding to the given URI.
      * 
      * @param uri The URI which identifies the schema to be returned.
      * @return The schema corresponding to the given uri. If no mapping exists,
@@ -61,16 +61,16 @@ public class LimeXMLSchemaRepository {
     }
 
     /**
-     * Returns all availble schemas.
+     * Returns all available schemas.
      */
     public Collection<LimeXMLSchema> getAvailableSchemas() {
         return Collections.unmodifiableCollection(_uriSchemaMap.values());
     }
 
     /**
-     * Returns the URIs scooresponding to the schemas that we have
+     * Returns the URIs corresponding to the schemas that we have.
      * 
-     * @return sorted array of URIs scooresponding to the schemas that we have
+     * @return sorted array of URIs corresponding to the schemas that we have
      */
     public String[] getAvailableSchemaURIs() {
         String[] schemaURIs;

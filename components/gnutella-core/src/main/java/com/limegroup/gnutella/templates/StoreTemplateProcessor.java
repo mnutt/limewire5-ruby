@@ -7,13 +7,13 @@ import java.util.Map;
  * A generic Template Processor. Given a template, and a mapping of template values to substitution
  * values, attempts to fill the template with the substituted values. If the template is not 
  * valid, an IllegalTemplateException will be thrown. Otherwise a successful template will be
- * created
+ * created.
  */
 public abstract class StoreTemplateProcessor {
 
     /**
      * Substitutable values, currently on artist, album, track title, and track number are
-     * substitutable
+     * substitutable.
      */
     public final static String ARTIST_LABEL = "artist";
     public final static String ALBUM_LABEL = "album";
@@ -21,7 +21,7 @@ public abstract class StoreTemplateProcessor {
     public final static String TRACK_LABEL = "track";
     
     /**
-     * States of the substitution
+     * States of the substitution.
      */
     protected static enum States {
         LOOKING_FOR_START_DELIM,
@@ -30,7 +30,7 @@ public abstract class StoreTemplateProcessor {
     
     /**
      * Substitutable values must be wrapped in a START_DELIM value END_DELIM
-	 * ex. <artist>
+     * ex. <artist>
      */
     protected final static char START_DELIM = '<';
     protected final static char END_DELIM = '>';
@@ -76,7 +76,7 @@ public abstract class StoreTemplateProcessor {
     }
     
     /*
-     * Illegal Arguement Descriptions
+     * Illegal Argument Descriptions
      * TODO: need to add a translator for each of these, currently no code in the UI cares about the actual
      *       message so no rush to get this done currently
      */

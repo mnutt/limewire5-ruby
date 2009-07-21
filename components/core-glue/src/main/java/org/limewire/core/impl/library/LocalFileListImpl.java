@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.limewire.core.impl.library;
 
 import java.awt.EventQueue;
@@ -15,17 +12,21 @@ import org.limewire.concurrent.ListeningFutureDelegator;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.library.LocalFileItem;
 import org.limewire.core.api.library.LocalFileList;
-import org.limewire.core.impl.URNImpl;
+import org.limewire.filter.Filter;
 import org.limewire.listener.EventListener;
+import org.limewire.logging.Log;
+import org.limewire.logging.LogFactory;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
 
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileList;
-import com.limegroup.gnutella.library.FileListChangedEvent;
+import com.limegroup.gnutella.library.FileViewChangeEvent;
 
 abstract class LocalFileListImpl implements LocalFileList {
+    
+    private static final Log LOG = LogFactory.getLog(LocalFileListImpl.class);
     
     protected final EventList<LocalFileItem> baseList;
     protected final TransformedList<LocalFileItem, LocalFileItem> threadSafeList;
@@ -42,45 +43,45 @@ abstract class LocalFileListImpl implements LocalFileList {
 
     }
     
-    /** Returns the FileList this should act on. */
-    protected abstract FileList getCoreFileList();
+    /** Returns the FileCollection this should mutate. */
+    protected abstract FileCollection getCoreCollection();
     
     @Override
     public ListeningFuture<LocalFileItem> addFile(File file) {
-        return new Wrapper((getCoreFileList().add(file)));
+        return new Wrapper((getCoreCollection().add(file)));
     }
 
     @Override
     public void removeFile(File file) {
-        getCoreFileList().remove(file);
+        getCoreCollection().remove(file);
     }
     
     @Override
     public ListeningFuture<List<ListeningFuture<LocalFileItem>>> addFolder(File folder) {
-        return new ListWrapper((getCoreFileList().addFolder(folder)));
+        return new ListWrapper((getCoreCollection().addFolder(folder, null)));
     }
 
     @Override
     public boolean contains(File file) {
-        return getCoreFileList().contains(file);
+        return getCoreCollection().contains(file);
     }
     
     @Override
     public boolean contains(URN urn) {
-        if(urn instanceof URNImpl) {
-            return containsCoreUrn(((URNImpl)urn).getUrn());
+        if(urn instanceof com.limegroup.gnutella.URN) {
+            return containsCoreUrn((com.limegroup.gnutella.URN)urn);
         } else {
             return false;
         }
     }
     
     @Override
-    public List<FileDesc> getFileDescsByURN(URN urn) {
-        return getCoreFileList().getFileDescsMatching(((URNImpl)urn).getUrn());
+    public List<FileDesc> getFileDescsByURN(com.limegroup.gnutella.URN urn) {
+        return getCoreCollection().getFileDescsMatching(urn);
     }
     
     protected boolean containsCoreUrn(com.limegroup.gnutella.URN urn) {
-        return !getCoreFileList().getFileDescsMatching(urn).isEmpty();
+        return !getCoreCollection().getFileDescsMatching(urn).isEmpty();
     }
 
     @Override
@@ -142,6 +143,26 @@ abstract class LocalFileListImpl implements LocalFileList {
         threadSafeList.addAll(fileItems);
     }
     
+    /** Notification that meta information has changed in the filedesc. */
+    protected void updateFileDesc(FileDesc fd) {
+        LocalFileItem item = (LocalFileItem)fd.getClientProperty(FILE_ITEM_PROPERTY);
+        if(item != null) {
+            threadSafeList.getReadWriteLock().writeLock().lock();
+            try {
+                int idx = threadSafeList.indexOf(item);
+                if(idx > 0) {
+                    threadSafeList.set(idx, item);
+                } else {
+                    LOG.warnf("Attempted to update FD w/ LocalFileItem that is not in list anymore. Item {0}", item);
+                }
+            } finally {
+                threadSafeList.getReadWriteLock().writeLock().unlock();
+            }
+        } else {
+            LOG.warnf("Attempted to update FD without LocalFileItem, FD {0}", fd);
+        }
+    }
+    
     protected void changeFileDesc(FileDesc old, FileDesc now) {
         removeFileDesc(old);
         addFileDesc(now);
@@ -156,32 +177,27 @@ abstract class LocalFileListImpl implements LocalFileList {
         threadSafeList.clear();
     }
     
-    /** Notification that a collection share has changed. */
-    protected abstract void collectionUpdate(FileListChangedEvent.Type type, boolean shared);
-   
     /** Constructs a new EventListener for list change events. */
-    protected EventListener<FileListChangedEvent> newEventListener() {
-        return new EventListener<FileListChangedEvent>() {
+    protected EventListener<FileViewChangeEvent> newEventListener() {
+        return new EventListener<FileViewChangeEvent>() {
             @Override
-            public void handleEvent(FileListChangedEvent event) {
+            public void handleEvent(FileViewChangeEvent event) {              
                 switch(event.getType()) {
-                case ADDED:
+                case FILE_META_CHANGED:
+                    updateFileDesc(event.getFileDesc());
+                    break;
+                case FILE_ADDED:
                     addFileDesc(event.getFileDesc());
                     break;
-                case CHANGED:
+                case FILE_CHANGED:
                     changeFileDesc(event.getOldValue(), event.getFileDesc());
                     break;
-                case REMOVED:
+                case FILE_REMOVED:
                     removeFileDesc(event.getFileDesc());
                     break;
-                case CLEAR:
+                case FILES_CLEARED:
                     clearFileDescs();
                     break;     
-                case AUDIO_COLLECTION:
-                case VIDEO_COLLECTION:
-                case IMAGE_COLLECTION:
-                    collectionUpdate(event.getType(), event.isShared());
-                    break;
                 }
             }
         };
@@ -226,10 +242,41 @@ abstract class LocalFileListImpl implements LocalFileList {
     
     @Override
     public LocalFileItem getFileItem(File file) {
-      FileDesc fileDesc = getCoreFileList().getFileDesc(file);
+      FileDesc fileDesc = getCoreCollection().getFileDesc(file);
       if(fileDesc != null) {
           return (LocalFileItem)fileDesc.getClientProperty(FILE_ITEM_PROPERTY);
       }
       return null;
+    }
+    
+    @Override
+    public boolean isFileAddable(File file) {
+       return getCoreCollection().isFileAddable(file);
+    }
+    
+    @Override
+    public void removeFiles(Filter<LocalFileItem> filter) {
+        List<LocalFileItem> files = new ArrayList<LocalFileItem>();
+        
+        getModel().getReadWriteLock().readLock().lock();
+        try {
+            for (LocalFileItem localFileItem : getModel()) {
+                if (filter.allow(localFileItem)) {
+                    files.add(localFileItem);
+                }
+            }
+        } finally {
+            getModel().getReadWriteLock().readLock().unlock();
+        }
+        
+        for (LocalFileItem localFileItem : files) {
+            removeFile(localFileItem.getFile());
+        }
+    }
+    
+
+    @Override
+    public void clear() {
+       getCoreCollection().clear();
     }
 }

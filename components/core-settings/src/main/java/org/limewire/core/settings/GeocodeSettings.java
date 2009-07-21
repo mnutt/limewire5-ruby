@@ -6,7 +6,7 @@ import org.limewire.setting.PropertiesSetting;
 import org.limewire.setting.StringSetting;
 
 /**
- * Settings for geo coding the client
+ * Settings for geo coding the client.
  */
 public class GeocodeSettings extends LimeProps {
     

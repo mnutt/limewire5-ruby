@@ -37,49 +37,49 @@ import org.limewire.mojito.result.PingResult;
 public interface RouteTable extends Serializable {
     
     /**
-     * Selection mode for the RouteTable's select() operation
+     * Selection mode for the RouteTable's select() operation.
      */
     public static enum SelectMode {
         /**
-         * Selects all Contacts
+         * Selects all Contacts.
          */
         ALL,
         
         /**
-         * Selects only alive Contacts
+         * Selects only alive Contacts.
          */
         ALIVE,
         
         /**
-         * Selects only alive and the local Contacts
+         * Selects only alive and the local Contacts.
          */
         ALIVE_WITH_LOCAL;
     }
     
     /**
-     * Rebuild mode for the RouteTable's purge() operation
+     * Rebuild mode for the RouteTable's purge() operation.
      */
     public static enum PurgeMode {
         /**
-         * Drops all Contacts in the replacement cache
+         * Drops all Contacts in the replacement cache.
          */
         DROP_CACHE,
         
         /**
          * Deletes all non-alive Contacts from the active
          * RouteTable and fill up the new slots with alive
-         * Contacts from the replacement cache
+         * Contacts from the replacement cache.
          */
         PURGE_CONTACTS,
         
         /**
          * Merges all Buckets by essentially rebuilding the
-         * entire RouteTable
+         * entire RouteTable.
          */
         MERGE_BUCKETS,
         
         /**
-         * Marks all Contacts as unknown
+         * Marks all Contacts as unknown.
          */
         STATE_TO_UNKNOWN,
     }
@@ -125,28 +125,28 @@ public interface RouteTable extends Serializable {
     public void handleFailure(KUID nodeId, SocketAddress address);
     
     /**
-     * Returns all Contacts as List
+     * Returns all Contacts as List.
      */
     public Collection<Contact> getContacts();
     
     /**
-     * Returns Contacts that are actively used for routing
+     * Returns Contacts that are actively used for routing.
      */
     public Collection<Contact> getActiveContacts();
     
     /**
-     * Returns cached Contacts that are in the replacement cache
+     * Returns cached Contacts that are in the replacement cache.
      */
     public Collection<Contact> getCachedContacts();
     
     /**
      * Returns a Bucket that is nearest (XOR distance) 
-     * to the given KUID
+     * to the given KUID.
      */
     public Bucket getBucket(KUID nodeId);
     
     /**
-     * Returns all Buckets as an Collection
+     * Returns all Buckets as an Collection.
      */
     public Collection<Bucket> getBuckets();
     
@@ -159,56 +159,56 @@ public interface RouteTable extends Serializable {
     public Collection<KUID> getRefreshIDs(boolean bootstrapping);
     
     /**
-     * Clears all elements from the RoutingTable
+     * Clears all elements from the RoutingTable.
      */
     public void clear();
     
     /**
      * Purges all Contacts from the RouteTable whose time stamp 
-     * is older than the given time and merges all Buckets
+     * is older than the given time and merges all Buckets.
      */
     public void purge(long elapsedTimeSinceLastContact);
     
     /**
-     * Purges/Rebuilds the RouteTable based on the given Modes
+     * Purges/Rebuilds the RouteTable based on the given Modes.
      */
     public void purge(PurgeMode first, PurgeMode... rest);
     
     /**
-     * Returns the number of live and cached Contacts in the Route Table
+     * Returns the number of live and cached Contacts in the Route Table.
      */
     public int size();
     
     /**
      * Returns whether or not the given Contact is the local
-     * Node
+     * Node.
      */
     public boolean isLocalNode(Contact node);
     
     /**
-     * Returns the local Node
+     * Returns the local Node.
      */
     public Contact getLocalNode();
     
     /**
-     * Sets the RouteTable PingCallback
+     * Sets the RouteTable PingCallback.
      */
     public void setContactPinger(ContactPinger pinger);
     
     /**
-     * Sets the executor on which to notify for route table events
+     * Sets the executor on which to notify for route table events.
      */
     public void setNotifier(DHTExecutorService executor);
     
     /**
-     * Adds a RouteTableListener
+     * Adds a RouteTableListener.
      * 
      * @param l the RouteTableListener to add
      */
     public void addRouteTableListener(RouteTableListener l);
     
     /**
-     * Removes a RouteTableListener
+     * Removes a RouteTableListener.
      * 
      * @param l the RouteTableListener to remove
      */
@@ -225,12 +225,12 @@ public interface RouteTable extends Serializable {
     }
     
     /**
-     * The interface to receive RouteTable events
+     * The interface to receive RouteTable events.
      */
     public static interface RouteTableListener {
         
         /**
-         * Invoked when an event occurs
+         * Invoked when an event occurs.
          * 
          * @param event the event that occurred
          */
@@ -243,32 +243,32 @@ public interface RouteTable extends Serializable {
     public static class RouteTableEvent {
         
         /**
-         * The types of events that may occur
+         * The types of events that may occur.
          */
         public static enum EventType {
             
-            /** A Contact was added to the RouteTable */
+            /** A Contact was added to the RouteTable. */
             ADD_ACTIVE_CONTACT,
             
-            /** A Contact was added to the replacement cache */
+            /** A Contact was added to the replacement cache. */
             ADD_CACHED_CONTACT,
             
-            /** A Contact was replaced */
+            /** A Contact was replaced. */
             REPLACE_CONTACT,
             
-            /** A Contact was updated */
+            /** A Contact was updated. */
             UPDATE_CONTACT,
             
-            /** A Contact was removed */
+            /** A Contact was removed. */
             REMOVE_CONTACT,
             
-            /** A Contact was contacted to check if it's alive */
+            /** A Contact was contacted to check if it's alive. */
             CONTACT_CHECK,
             
-            /** A Bucket was split */
+            /** A Bucket was split. */
             SPLIT_BUCKET,
             
-            /** The RouteTable was cleared */
+            /** The RouteTable was cleared.*/
             CLEAR;
         }
         
@@ -301,14 +301,14 @@ public interface RouteTable extends Serializable {
         }
         
         /**
-         * Returns the RouteTable which triggered the Event
+         * Returns the RouteTable which triggered the Event.
          */
         public RouteTable getRouteTable() {
             return routeTable;
         }
         
         /**
-         * The Bucket where an Event occurred
+         * The Bucket where an Event occurred.
          */
         public Bucket getBucket() {
             return bucket;
@@ -316,7 +316,7 @@ public interface RouteTable extends Serializable {
         
         /**
          * Returns the new left hand Bucket if this is
-         * a SPLIT_BUCKET event and null otherwise
+         * a SPLIT_BUCKET event and null otherwise.
          */
         public Bucket getLeftBucket() {
             return left;
@@ -324,7 +324,7 @@ public interface RouteTable extends Serializable {
         
         /**
          * Returns the new right hand Bucket if this is
-         * a SPLIT_BUCKET event and null otherwise
+         * a SPLIT_BUCKET event and null otherwise.
          */
         public Bucket getRightBucket() {
             return right;
@@ -339,21 +339,21 @@ public interface RouteTable extends Serializable {
         }
         
         /**
-         * Returns the Contact that was added to the RouteTable
+         * Returns the Contact that was added to the RouteTable.
          */
         public Contact getContact() {
             return node;
         }
         
         /**
-         * Returns the type of the Event
+         * Returns the type of the Event.
          */
         public EventType getEventType() {
             return type;
         }
         
         /**
-         * Returns the time when this Event occurred
+         * Returns the time when this Event occurred.
          */
         public long getTimeStamp() {
             return timeStamp;

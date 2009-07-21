@@ -7,12 +7,12 @@ import org.limewire.util.NameValue;
 
 
 /**
- * Stores information pertaining to fields (elements) in xml documents
+ * Stores information pertaining to fields (elements) in xml documents.
  */
 public class SchemaFieldInfo
 {
     /**
-     * Type of the field (eg Integer, String, complex etc)
+     * Type of the field (eg Integer, String, complex etc).
      */
     private String _type;
     
@@ -28,7 +28,7 @@ public class SchemaFieldInfo
     private boolean _hidden = false;
     
     /**
-     * Whether the field should be completely hidden (including from searches.)
+     * Whether the field should be completely hidden (including from searches).
      */
     private boolean _invisible = false;
     
@@ -44,12 +44,12 @@ public class SchemaFieldInfo
     
     /**
      * List (of NameValue) to store enumerated values, if associated with this
-     *field
+     *field.
      */
     private List<NameValue<String>> _enumerationList = null;
     
     /**
-     * Canonicalized field name for which it stores the info
+     * Canonicalized field name for which it stores the info.
      */
     private String _canonicalizedFieldName = null;
     
@@ -58,13 +58,13 @@ public class SchemaFieldInfo
     public static final int OPTIONS = 2;
     
     /**
-     * type of the field to display
+     * type of the field to display.
      */
     private int _fieldType = TEXTFIELD;
     
     /**
      * Creates a new instance of FieldInfo and initializes internal fields
-     * with the passed values
+     * with the passed values.
      * @param type The tye of the field (eg Integer, String, complex etc)
      */
     public SchemaFieldInfo(String type)
@@ -83,11 +83,11 @@ public class SchemaFieldInfo
     }
 
     /**
-     * Adds the passed value to the list of enumeration values
+     * Adds the passed value to the list of enumeration values.
      */
     void addEnumerationNameValue(String name, String value)
     {
-        //create a new list, if doesnt exist
+        //create a new list, if doesn't exist
         if(_enumerationList == null)
             _enumerationList = new LinkedList<NameValue<String>>();
         
@@ -99,7 +99,7 @@ public class SchemaFieldInfo
     }
     
     /**
-     * returns the type of the field to display
+     * Returns the type of the field to display.
      */
     public int getFieldType()
     {
@@ -164,22 +164,22 @@ public class SchemaFieldInfo
     }
     
     /**
-     * Sets the default visibliity.
+     * Sets the default visibility.
      */
     void setDefaultVisibility(boolean viz) {
         this._visibility = viz;
     }
     
     /**
-     * Gets the default visibliity.
+     * Gets the default visibility.
      */
     public boolean getDefaultVisibility() {
         return _visibility;
     }
     
      /**
-     * sets the canonicalized field name for which this object stores the
-     * information
+     * Sets the canonicalized field name for which this object stores the
+     * information.
      */
     void setCanonicalizedFieldName(String canonicalizedFieldName)
     {
@@ -187,8 +187,8 @@ public class SchemaFieldInfo
     }
     
     /**
-     * returns the canonicalized field name for which this object stores the
-     * information
+     * Returns the canonicalized field name for which this object stores the
+     * information.
      */
     public String getCanonicalizedFieldName()
     {
@@ -197,7 +197,7 @@ public class SchemaFieldInfo
     
     /**
      * Returns the List (of NameValue) to store enumerated values, 
-     * if associated with this field
+     * if associated with this field.
      */
     public List<NameValue<String>> getEnumerationList()
     {

@@ -73,9 +73,9 @@ public class HashFunction {
      * keywords.
      *
      * @param x the string to hash
-     * @param bits the number of bits to use in the resulting answer
      * @param start the start offset of the substring to hash
      * @param end just PAST the end of the substring to hash
+     * @param bits the number of bits to use in the resulting answer
      * @return the hash value 
      */   
     public static int hash(String x, int start, int end, byte bits) {

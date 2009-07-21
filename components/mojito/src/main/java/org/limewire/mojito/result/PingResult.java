@@ -26,29 +26,29 @@ import org.limewire.mojito.routing.Contact;
 
 
 /**
- * PingResult(s) are fired for successful pings
+ * PingResult(s) are fired for successful pings.
  */
 public class PingResult implements Result {
     
-    /** The remote Contact */
+    /** The remote Contact. */
     private final Contact node;
     
-    /** My external address */
+    /** My external address. */
     private final SocketAddress externalAddress;
     
-    /** The estimated DHT size */
+    /** The estimated DHT size. */
     private final BigInteger estimatedSize;
     
-    /** the Round Trip Time (RTT) */
+    /** the Round Trip Time (RTT). */
     private final long time;
     
     /**
-     * Constructs a new PingEvent
+     * Constructs a new PingEvent.
      * 
-     * @param node The remote Contact
-     * @param externalAddress My external address
-     * @param estimatedSize The estimated DHT size
-     * @param time The Round Trip Time (RTT)
+     * @param node the remote Contact
+     * @param externalAddress my external address
+     * @param estimatedSize the estimated DHT size
+     * @param time the Round Trip Time (RTT)
      */
     public PingResult(Contact node, SocketAddress externalAddress, 
             BigInteger estimatedSize, long time) {
@@ -59,28 +59,28 @@ public class PingResult implements Result {
     }
     
     /**
-     * Returns the remote Node's Contact info
+     * Returns the remote Node's Contact info.
      */
     public Contact getContact() {
         return node;
     }
     
     /**
-     * Returns the external address
+     * Returns the external address.
      */
     public SocketAddress getExternalAddress() {
         return externalAddress;
     }
     
     /**
-     * Returns the estimated DHT size
+     * Returns the estimated DHT size.
      */
     public BigInteger getEstimatedSize() {
         return estimatedSize;
     }
     
     /**
-     * Returns the Round Trip Time (RTT)
+     * Returns the Round Trip Time (RTT).
      */
     public long getTime() {
         return time;

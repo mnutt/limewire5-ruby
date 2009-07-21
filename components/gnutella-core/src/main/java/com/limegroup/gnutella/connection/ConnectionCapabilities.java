@@ -151,7 +151,7 @@ public interface ConnectionCapabilities {
     public String getUserAgent();
 
     /**
-     * Returns whether or not the remote host is a LimeWire (or derivative)
+     * Returns whether or not the remote host is a LimeWire (or derivative).
      */
     public boolean isLimeWire();
 

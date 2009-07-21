@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 import org.limewire.concurrent.ExecutorsHelper;
 
 /**
- * A default implementation of DHTExecutorService
+ * A default implementation of DHTExecutorService.
  */
 public class DefaultDHTExecutorService implements DHTExecutorService {
     
@@ -92,7 +92,7 @@ public class DefaultDHTExecutorService implements DHTExecutorService {
     }
     
     /**
-     * Initializes Context's scheduled Executor
+     * Initializes Context's scheduled Executor.
      */
     private void initScheduledExecutor() {
         ThreadFactory factory = new ThreadFactory() {
@@ -108,7 +108,7 @@ public class DefaultDHTExecutorService implements DHTExecutorService {
     }
     
     /**
-     * Initializes Context's (regular) Executor
+     * Initializes Context's (regular) Executor.
      */
     private void initCachedExecutor() {
         ThreadFactory factory = new ThreadFactory() {

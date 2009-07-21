@@ -13,7 +13,6 @@ import org.limewire.core.api.search.SearchCategory;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.action.MnemonicMenu;
 import org.limewire.ui.swing.advanced.AdvancedToolsPanel;
-import org.limewire.ui.swing.downloads.MainDownloadPanel;
 import org.limewire.ui.swing.event.OptionsDisplayEvent;
 import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.NavItem;
@@ -21,48 +20,37 @@ import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.search.DefaultSearchInfo;
 import org.limewire.ui.swing.search.SearchCategoryUtils;
 import org.limewire.ui.swing.search.SearchHandler;
-import org.limewire.ui.swing.search.advanced.AdvancedSearchPanel;
-import org.limewire.ui.swing.upload.UploadPanel;
+import org.limewire.ui.swing.search.SearchNavItem;
+import org.limewire.ui.swing.search.SearchNavigator;
+import org.limewire.ui.swing.upload.UploadMediator;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
  * The Tools menu in the main menubar.
  */
-@Singleton
-public class ToolsMenu extends MnemonicMenu {
+class ToolsMenu extends MnemonicMenu {
 
     /** Currently displayed Advanced Tools content panel. */
     private AdvancedToolsPanel advancedTools;
     
     @Inject
-    public ToolsMenu(final Provider<AdvancedToolsPanel> advancedProvider,
-            final Navigator navigator,
-            SearchHandler searchHandler, final LibraryManager libraryManager, final Provider<UploadPanel> uploadPanelProvider) {
+    public ToolsMenu(final Provider<AdvancedToolsPanel> advancedProvider, 
+            final Navigator navigator, final UploadMediator uploadMediator,
+            final SearchHandler searchHandler, final LibraryManager libraryManager, final SearchNavigator searchNavigator) {
         super(I18n.tr("&Tools"));
 
-        add(new AbstractAction(I18n.tr("&Downloads")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                NavItem navItem = navigator
-                        .getNavItem(NavCategory.DOWNLOAD, MainDownloadPanel.NAME);
-                navItem.select();
-            }
-        });
-        
         add(new AbstractAction(I18n.tr("&Uploads")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-                NavItem navItem = navigator.getNavItem(NavCategory.UPLOAD, UploadPanel.NAME);
+                NavItem navItem = navigator.getNavItem(NavCategory.UPLOAD, UploadMediator.NAME);
                 if (navItem == null) {
-                    navItem = navigator.createNavItem(NavCategory.UPLOAD, UploadPanel.NAME, uploadPanelProvider.get());
+                    navItem = navigator.createNavItem(NavCategory.UPLOAD, UploadMediator.NAME, uploadMediator);
                 }
-                
                 navItem.select();
             }
         });
@@ -71,10 +59,8 @@ public class ToolsMenu extends MnemonicMenu {
         add(new AbstractAction(I18n.tr("Advanced &Search")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                NavItem navItem = navigator.getNavItem(NavCategory.LIMEWIRE, AdvancedSearchPanel.NAME);
-                if (navItem != null) {
-                    navItem.select();
-                }
+                SearchNavItem item = searchNavigator.addAdvancedSearch();
+                item.select();
             }
         });
         

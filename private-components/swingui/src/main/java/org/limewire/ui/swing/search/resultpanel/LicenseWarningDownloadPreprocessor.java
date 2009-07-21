@@ -38,11 +38,12 @@ public class LicenseWarningDownloadPreprocessor implements DownloadPreprocessor 
 
             String licenseWarning = I18n.tr("LimeWire is unable to find a license for this file. " +
                     "Download it anyway?\n\nLimeWire cannot monitor or control " +
-                    "the content of the P2P network, so please respect your local copyright laws.");
+                    "the content of the P2P Network, so please respect your local copyright laws.");
 
             JPanel thePanel = new JPanel(new BorderLayout(0, 15));
             thePanel.setOpaque(false);
             JCheckBox option = new JCheckBox(I18n.tr("Do not warn me again"));
+            option.setOpaque(false);
             JComponent lbl = new MultiLineLabel(licenseWarning, 400);
             thePanel.add(lbl, BorderLayout.NORTH);
             thePanel.add(option, BorderLayout.WEST);
@@ -54,7 +55,7 @@ public class LicenseWarningDownloadPreprocessor implements DownloadPreprocessor 
                 }
             });
 
-            if (FocusJOptionPane.showConfirmDialog(null, thePanel, I18n.tr("Message"),
+            if (FocusJOptionPane.showConfirmDialog(null, thePanel, I18n.tr("Warning"),
                     JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                 // User pressed "No". Ensure that we always show the license warning
                 if (QuestionsHandler.SKIP_FIRST_DOWNLOAD_WARNING.getValue() == SKIP_WARNING_VALUE) {

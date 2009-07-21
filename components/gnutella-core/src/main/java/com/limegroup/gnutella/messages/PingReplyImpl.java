@@ -1,6 +1,5 @@
 package com.limegroup.gnutella.messages;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -30,9 +29,10 @@ import org.limewire.util.StringUtils;
 
 import com.limegroup.gnutella.ExtendedEndpoint;
 import com.limegroup.gnutella.dht.DHTManager.DHTMode;
+import com.limegroup.gnutella.util.Utilities;
 
 /**
- * A ping reply message, aka, "pong".  This implementation provides a way
+ * A ping reply message, AKA, "pong".  This implementation provides a way
  * to "mark" pongs as being from supernodes.
  */
 public class PingReplyImpl extends AbstractMessage implements IpPort, Connectable, PingReply {
@@ -43,12 +43,12 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
     private final List<IpPort> PACKED_IP_PORTS;
     
     /**
-     * The list of extra DHT ip/ports contained in this reply.
+     * The list of extra DHT IP/ports contained in this reply.
      */
     private final List<IpPort> PACKED_DHT_IP_PORTS;
     
     /**
-     * The list of extra ip/ports contained in this reply.
+     * The list of extra IP/ports contained in this reply.
      */
     private final List<IpPort> PACKED_UDP_HOST_CACHES;
 
@@ -68,7 +68,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
      */
     private final int FREE_LEAF_SLOTS;
 
-    /** All the data.  We extract the port, ip address, number of files,
+    /** All the data.  We extract the port, IP address, number of files,
      *  and number of kilobytes lazily. */
     private final byte[] PAYLOAD;
 
@@ -82,12 +82,12 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
     private final int PORT;
     
     /**
-     * The address this pong claims to be my external address
+     * The address this pong claims to be my external address.
      */
     private final InetAddress MY_IP;
     
     /**
-     * The port this pong claims to be my external port
+     * The port this pong claims to be my external port.
      */
     private final int MY_PORT;
 
@@ -137,7 +137,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
     private final int DHT_VERSION;
     
     /**
-     * Contant for the DHT mode (active/passive/none)
+     * Constant for the DHT mode (active/passive/none)
      */
     private final DHTMode DHT_MODE;
     
@@ -153,12 +153,12 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
    
 
     /**
-     * Constant for the locale
+     * Constant for the locale.
      */
     private String CLIENT_LOCALE;
     
     /**
-     * the number of free preferenced slots 
+     * The number of free preferenced slots 
      */
     private int FREE_LOCALE_SLOTS;
 
@@ -272,7 +272,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
                     byte[] data = ggep.getBytes(GGEPKeys.GGEP_HEADER_IPPORT);
 
                     byte [] myip = new byte[4];
-                    // only copy the addr if the data is atleast 6
+                    // only copy the addr if the data is at least 6
                     // bytes (ip + port).  that way isValidAddress
                     // will fail & we don't need to recheck the length
                     // when getting the port.
@@ -480,7 +480,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
     }
 
     /**
-     * Returns the ip field in standard dotted decimal format, e.g.,
+     * Returns the IP field in standard dotted decimal format, e.g.,
      * "127.0.0.1".  The most significant byte is written first.
      */
     public String getAddress() { 
@@ -488,7 +488,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
     }
 
     /**
-     * Returns the ip address bytes (MSB first)
+     * Returns the IP address bytes (MSB first).
      */
     public byte[] getIPBytes() {
         byte[] ip=new byte[4];
@@ -642,15 +642,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
         long kb = getKbytes();
         if (kb < 8)
             return false;
-        return isPowerOf2(ByteUtils.long2int(kb));
-    }
-
-    // TODO: Perhaps move to a generic math utils collection!!??
-    public static boolean isPowerOf2(int x) {  //package access for testability
-        if (x<=0)
-            return false;
-        else
-            return (x&(x - 1)) == 0;
+        return Utilities.isPowerOf2(ByteUtils.long2int(kb));
     }
 
     // overrides Object.toString
@@ -693,7 +685,7 @@ public class PingReplyImpl extends AbstractMessage implements IpPort, Connectabl
     }
     
     /**
-     * access the client_locale
+     * Access the client_locale.
      */
     public String getClientLocale() {
         return CLIENT_LOCALE;

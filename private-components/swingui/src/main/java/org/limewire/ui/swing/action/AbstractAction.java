@@ -8,9 +8,9 @@ import org.limewire.ui.swing.util.SwingUtils;
 /**
  * Abstract class that allows the name of the action to have an ampersand to 
  * mark the mnemonic of the action in its name.
- * 
+ * <p>
  * A call to {@link #putValue(String, Object) putValue(Action.Name, "Hello &World")}
- * will set the name of the action to "Hello World" and its menomonic to 'W'.
+ * will set the name of the action to "Hello World" and its mnemonic to 'W'.
  */
 public abstract class AbstractAction extends javax.swing.AbstractAction {
     

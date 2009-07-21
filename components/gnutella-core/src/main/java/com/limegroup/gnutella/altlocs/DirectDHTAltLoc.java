@@ -8,7 +8,7 @@ import org.limewire.io.NetworkInstanceUtils;
 import com.limegroup.gnutella.URN;
 
 /**
- * An AltLoc that was found through the DHT
+ * An AltLoc that was found through the DHT.
  */
 public class DirectDHTAltLoc extends DirectAltLoc {
 
@@ -26,14 +26,14 @@ public class DirectDHTAltLoc extends DirectAltLoc {
     }
     
     /**
-     * Returns the File size or -1 if it's unknown
+     * Returns the File size or -1 if it's unknown.
      */
     public long getFileSize() {
         return fileSize;
     }
     
     /**
-     * Returns the TigerTree root hash or null if it's unknown
+     * Returns the TigerTree root hash or null if it's unknown.
      */
     public byte[] getRootHash() {
         return ttroot;

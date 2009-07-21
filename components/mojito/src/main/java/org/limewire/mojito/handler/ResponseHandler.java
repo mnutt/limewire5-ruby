@@ -38,12 +38,12 @@ public interface ResponseHandler {
     public long getTimeout();
     
     /**
-     * Returns whether or not this handler has been cancelled
+     * Returns whether or not this handler has been cancelled.
      */
     public boolean isCancelled();
     
     /**
-     * Called to handle a response
+     * Called to handle a response.
      * 
      * @param message the response message
      * @param time the round trip time
@@ -52,7 +52,7 @@ public interface ResponseHandler {
     public void handleResponse(ResponseMessage message, long time) throws IOException;
     
     /**
-     * Called after the timeout time has elapsed and no response has arrived
+     * Called after the timeout time has elapsed and no response has arrived.
      * 
      * @param nodeId the Node ID of the Contact (can be null)
      * @param dst the address where we sent the request
@@ -63,7 +63,7 @@ public interface ResponseHandler {
     public void handleTimeout(KUID nodeId, SocketAddress dst, RequestMessage message, long time) throws IOException;
     
     /**
-     * Called if an error occurred in handleResponse() or handleTimeout()
+     * Called if an error occurred in handleResponse() or handleTimeout().
      * 
      * @param nodeId the Node ID of the Contact (can be null)
      * @param dst the address of the Contact

@@ -23,7 +23,7 @@ public interface Throttle {
     public void release(int amount);
     
     /**
-     * Sets the rate of the throttle.
+     * Sets the rate of the throttle in bytes / second.
      */
     public void setRate(float rate);
     

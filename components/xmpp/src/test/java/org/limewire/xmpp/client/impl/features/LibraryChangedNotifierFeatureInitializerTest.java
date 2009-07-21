@@ -6,10 +6,11 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
-import org.limewire.core.api.friend.FriendPresence;
-import org.limewire.core.api.friend.feature.Feature;
-import org.limewire.core.api.friend.feature.FeatureRegistry;
-import org.limewire.core.api.friend.feature.features.LibraryChangedNotifierFeature;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.feature.Feature;
+import org.limewire.friend.api.feature.FeatureRegistry;
+import org.limewire.friend.api.feature.LibraryChangedNotifierFeature;
+import org.limewire.friend.impl.feature.LibraryChangedNotifierFeatureInitializer;
 import org.limewire.util.BaseTestCase;
 
 public class LibraryChangedNotifierFeatureInitializerTest extends BaseTestCase {
@@ -29,9 +30,9 @@ public class LibraryChangedNotifierFeatureInitializerTest extends BaseTestCase {
     
     public void testRegister() {
         final FeatureRegistry featureRegistry = context.mock(FeatureRegistry.class);
-        final LibraryChangedNotifierFeatureInitializer initializer = new LibraryChangedNotifierFeatureInitializer(null);
+        final LibraryChangedNotifierFeatureInitializer initializer = new LibraryChangedNotifierFeatureInitializer();
         context.checking(new Expectations() {{
-            one(featureRegistry).add(LibraryChangedNotifierFeature.ID, initializer);
+            one(featureRegistry).registerPublicInitializer(LibraryChangedNotifierFeature.ID, initializer);
         }});
         initializer.register(featureRegistry);
         context.assertIsSatisfied();
@@ -40,8 +41,6 @@ public class LibraryChangedNotifierFeatureInitializerTest extends BaseTestCase {
     public void testInitializeFeature() {
         final AtomicReference<LibraryChangedNotifierFeature> feature = new AtomicReference<LibraryChangedNotifierFeature>();
         context.checking(new Expectations() {{
-            one(friendPresence).getPresenceId();
-            will(returnValue("me@you.com/hahah"));
             one(friendPresence).addFeature(with(any(Feature.class)));
             will(new CustomAction("get hold of feature") {
                 @Override
@@ -51,7 +50,7 @@ public class LibraryChangedNotifierFeatureInitializerTest extends BaseTestCase {
                 }
             });
         }});
-        LibraryChangedNotifierFeatureInitializer initializer = new LibraryChangedNotifierFeatureInitializer(null);
+        LibraryChangedNotifierFeatureInitializer initializer = new LibraryChangedNotifierFeatureInitializer();
         initializer.initializeFeature(friendPresence);
         context.assertIsSatisfied();
     }

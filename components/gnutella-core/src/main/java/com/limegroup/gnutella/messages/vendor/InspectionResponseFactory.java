@@ -1,7 +1,7 @@
 package com.limegroup.gnutella.messages.vendor;
 
 /**
- * Factory for inspection responses
+ * Factory for inspection responses.
  */
 public interface InspectionResponseFactory {
     /**

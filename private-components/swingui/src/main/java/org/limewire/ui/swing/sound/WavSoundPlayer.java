@@ -16,10 +16,11 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 
 public class WavSoundPlayer implements Runnable {
+    private static final Log LOG = LogFactory.getLog(WavSoundPlayer.class);
+    
     private final String filename;
     private final Position curPosition;
 
-    private final Log LOG = LogFactory.getLog(getClass());
     private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
  
     enum Position {

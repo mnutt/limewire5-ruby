@@ -50,7 +50,7 @@
 	</target>
 	
 	<target name="test-package" depends="compile">
-	    <do.test-package package="${package}"/>
+	    <do.test-package/>
 	</target>
 	
 	<target name="test-all" depends="compile">
@@ -87,7 +87,7 @@
     
     <macrodef name="do.setup-properties" description="Sets up common properties every macro uses.">
         <sequential>
-            <ivy:configure file="${limewire.ivy.home}/ivysettings.xml" override="true"/>
+            <ivy:configure file="${limewire.ivy.settings.file}" override="true"/>
         
             <property name="initialized.${component}" value="true"/>
             
@@ -150,12 +150,16 @@
                       location="${limewire.components.this.home}/dist"/>
             <property name="dist.limewire.components.this.javadoc"
             		  location="${dist.limewire.components.this.home}/javadoc"/>
+            <property name="dist.limewire.components.this.src.jar.dir"
+                      location="${dist.limewire.components.this.home}/main"/>
             <property name="dist.limewire.components.this.src.jar"
-            		  location="${dist.limewire.components.this.home}/${component}.jar"/>
+            		  location="${dist.limewire.components.this.src.jar.dir}/${component}.jar"/>
             <!--<property name="dist.limewire.components.this.api.jar"
                       location="${dist.limewire.components.this.home}/${component}-api.jar"/> -->
+            <property name="dist.limewire.components.this.test-common.jar.dir"
+                      location="${dist.limewire.components.this.home}/test/"/>
             <property name="dist.limewire.components.this.test-common.jar"
-                      location="${dist.limewire.components.this.home}/${component}-test-common.jar"/>
+                      location="${dist.limewire.components.this.test-common.jar.dir}/${component}-test-common.jar"/>
             
             <!-- whether or not to write tests to file instead of stdout. -->
             <property name="tests.writetofileonly" value="false"/>
@@ -329,13 +333,12 @@
 	</macrodef>
 	
 	<macrodef name="do.test-package" description="Runs all tests in a single package.">
-	    <attribute name="package"/>
 	    <attribute name="path" default="${default.code.path}"/>
 	    <attribute name="forkmode" default="once"/>
 	    <sequential>
 	        <do.clean-testData     />
 	        <do.tests-init         />
-			<do.run-tests-batchunit unit="@{path}/@{package}/*Test.class"
+			<do.run-tests-batchunit unit="@{path}/*Test.class"
 			    					forkmode="@{forkmode}"
 			/>
 	    </sequential>
@@ -350,6 +353,7 @@
 	        <do.tests-init         />
 	        <do.run-tests-batchunit unit="@{filter}"
 	            					forkmode="@{forkmode}"
+	        						exclude="${junit.excludes}"
 	        >
 	        	<testPathLocations>
 	        	   <testLocations/>
@@ -386,8 +390,10 @@
         <sequential>
             <ivy:publish resolver="local"
                          overwrite="true"
-                         forcedeliver="true"                         
-                         artifactspattern="${dist.limewire.components.this.home}/[artifact].[ext]"/>
+                         forcedeliver="true">
+                <artifacts pattern="${dist.limewire.components.this.test-common.jar.dir}/[artifact].[ext]"/>
+                <artifacts pattern="${dist.limewire.components.this.src.jar.dir}/[artifact].[ext]"/>
+            </ivy:publish>
         </sequential>
     </macrodef>
     
@@ -446,7 +452,8 @@
 	    </sequential>
     </macrodef>
 	
-	<macrodef name="do.run-tests-batchunit">		
+	<macrodef name="do.run-tests-batchunit">
+		<attribute name="exclude" default=""/>
 	    <attribute name="unit"/>
 	    <attribute name="haltOnFailure"     default="false"/>
 	    <attribute name="haltOnError"	    default="false"/>
@@ -464,6 +471,7 @@
 	        	   timeout="1200000"
 	    	>
 	            <sysproperty key="java.library.path"      		 value="${@{nativePathRefId}}"/>
+	        	<sysproperty key="jna.library.path"              value="${@{nativePathRefId}}"/>
 	    		<sysproperty key="junit.test.method"      		 value="${method}"/>
 	    		<sysproperty key="junit.test.times"        		 value="${times}"/>
 	    	    <sysproperty key="junit.test.hidetestname"		 value="${hidetestname}"/>
@@ -479,6 +487,7 @@
 	    		<batchtest todir="${tests.limewire.components.this.xml}">
 	    			<fileset dir="${build.limewire.components.this.tests}">
 	    			    <include name="@{unit}"/>
+	    				<exclude name="@{exclude}"/>
 	    		    </fileset>
 	    		    <testPathLocations/>
 	    		</batchtest>
@@ -512,6 +521,8 @@
     <macrodef name="do.dist-init" description="Initializes directories for distribution.">    	
     	<sequential>
     	    <mkdir dir="${dist.limewire.components.this.home}"/>
+    	    <mkdir dir="${dist.limewire.components.this.src.jar.dir}"/>
+    	    <mkdir dir="${dist.limewire.components.this.test-common.jar.dir}"/>
     	</sequential>
     </macrodef>
 	

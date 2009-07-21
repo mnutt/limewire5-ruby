@@ -10,7 +10,7 @@ import java.io.ObjectOutputStream;
 import junit.framework.Test;
 
 /**
- * Unit tests for MediaType
+ * Unit tests for <code>MediaType</code>.
  */
 public class MediaTypeTest extends BaseTestCase {
     

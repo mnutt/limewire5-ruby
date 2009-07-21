@@ -42,7 +42,7 @@ public class DatabaseUtils {
     private DatabaseUtils() {}
     
     /**
-     * Returns the expiration time of the given DHTValue
+     * Returns the expiration time of the given DHTValue.
      */
     public static long getExpirationTime(RouteTable routeTable, DHTValueEntity entity) {
         KUID primaryKey = entity.getPrimaryKey();
@@ -76,22 +76,16 @@ public class DatabaseUtils {
     }
     
     /**
-     * Returns whether or not the given DHTValue has expired
+     * Returns whether or not the given DHTValue has expired.
      */
     public static boolean isExpired(RouteTable routeTable, DHTValueEntity entity) {
         return System.currentTimeMillis() >= getExpirationTime(routeTable, entity);
     }
     
-    /**
-     * 
-     */
     public static boolean isPublishingRequired(Storable storable) {
         return isPublishingRequired(storable.getPublishTime(), storable.getLocationCount());
     }
     
-    /**
-     * 
-     */
     public static boolean isPublishingRequired(long publishingTime, int locationCount) {
         if (publishingTime <= 0L || locationCount <= 0) {
             return true;

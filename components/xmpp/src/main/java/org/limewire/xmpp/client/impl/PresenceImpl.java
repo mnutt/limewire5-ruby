@@ -1,24 +1,17 @@
 package org.limewire.xmpp.client.impl;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.feature.Feature;
-import org.limewire.core.api.friend.feature.FeatureEvent;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.feature.FeatureEvent;
+import org.limewire.friend.impl.AbstractFriend;
+import org.limewire.friend.impl.AbstractFriendPresence;
 import org.limewire.listener.EventBroadcaster;
-import org.limewire.xmpp.api.client.Presence;
-import org.limewire.xmpp.api.client.User;
 
-class PresenceImpl implements Presence {
+class PresenceImpl extends AbstractFriendPresence implements FriendPresence {
 
-    private final User user;
-    private final Map<URI, Feature> features;
-    private final EventBroadcaster<FeatureEvent> featureBroadcaster;
+    private final AbstractFriend friend;
     private final String jid;
     
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
@@ -30,10 +23,9 @@ class PresenceImpl implements Presence {
     
 
     PresenceImpl(org.jivesoftware.smack.packet.Presence presence,
-                 User user, EventBroadcaster<FeatureEvent> featureSupport) {
-        this.user = user;
-        this.features = new ConcurrentHashMap<URI, Feature>();
-        this.featureBroadcaster = featureSupport;
+                 AbstractFriend friend, EventBroadcaster<FeatureEvent> featureBroadcaster) {
+        super(featureBroadcaster);
+        this.friend = friend;
         this.jid = presence.getFrom();
         update(presence);
     }
@@ -51,7 +43,7 @@ class PresenceImpl implements Presence {
     }
 
     @Override
-    public String getJID() {
+    public String getPresenceId() {
         return jid;
     }
 
@@ -97,55 +89,11 @@ class PresenceImpl implements Presence {
 
     @Override
     public String toString() {
-        return getJID() + " for " + user.toString();
+        return getPresenceId() + " for " + friend.toString();
     }
 
     @Override
-    public User getUser() {
-        return user;
-    }
-
-    @Override
-    public Collection<Feature> getFeatures() {
-        return features.values();
-    }
-
-    @Override
-    public Feature getFeature(URI id) {
-        return features.get(id);
-    }
-
-    @Override
-    public boolean hasFeatures(URI... id) {
-        for(URI uri : id) {
-            if(getFeature(uri) == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public Friend getFriend() {
-        return user;
-    }
-
-    @Override
-    public String getPresenceId() {
-        return getJID();
-    }
-
-    @Override
-    public void addFeature(Feature feature) {
-        features.put(feature.getID(), feature);
-        featureBroadcaster.broadcast(new FeatureEvent(this, FeatureEvent.Type.ADDED, feature));
-    }
-
-    @Override
-    public void removeFeature(URI id) {
-        Feature feature = features.remove(id);
-        if(feature != null) {
-            featureBroadcaster.broadcast(new FeatureEvent(this, FeatureEvent.Type.REMOVED, feature));
-        }
+    public AbstractFriend getFriend() {
+        return friend;
     }
 }

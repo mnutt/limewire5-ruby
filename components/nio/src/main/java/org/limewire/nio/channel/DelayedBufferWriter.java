@@ -22,7 +22,7 @@ public class DelayedBufferWriter implements ChannelWriter, InterestWritableByteC
 
     private static final Log LOG = LogFactory.getLog(DelayedBufferWriter.class);
 
-    /** The default delay time to use before forcing a flush */
+    /** The default delay time to use before forcing a flush. */
     private final static int DEFAULT_DELAY = 200;
    
     /** The channel to write to & interest on. */    
@@ -36,7 +36,7 @@ public class DelayedBufferWriter implements ChannelWriter, InterestWritableByteC
      */
     private final ByteBuffer buf;
     
-    /** The delay time to use before forcing a flush */
+    /** The delay time to use before forcing a flush. */
     private final long delay;
     
     private final Periodic interester;
@@ -50,36 +50,35 @@ public class DelayedBufferWriter implements ChannelWriter, InterestWritableByteC
     	this(size, DEFAULT_DELAY);
     }
     
-    /** Constructs a new <code>DelayedBufferWriter</code> whose buffer is the
-     * given size and delay. */
+    /**
+     * Constructs a new <code>DelayedBufferWriter</code> whose buffer is the
+     * given size and delay.
+     */
     public DelayedBufferWriter(int size, long delay) {
-    	this(size, delay, NIODispatcher.instance().getScheduledExecutorService());
+        this(size, delay, NIODispatcher.instance().getScheduledExecutorService());
     }
-    
+
     DelayedBufferWriter(int size, long delay, ScheduledExecutorService scheduler) {
-    	buf = ByteBuffer.allocate(size);
-    	this.delay = TimeUnit.MILLISECONDS.toNanos(delay);
-    	this.interester = new Periodic(
-    			new Interester(),
-    			scheduler);
+        buf = ByteBuffer.allocate(size);
+        this.delay = TimeUnit.MILLISECONDS.toNanos(delay);
+        this.interester = new Periodic(new Interester(), scheduler);
     }
 
     /**
-     * Used by an observer to interest themselves in when something can
-     * write to this.
+     * Used by an observer to interest themselves in when something can write to
+     * this.
      */
     public synchronized void interestWrite(WriteObserver observer, boolean status) {
-    	if (status) {
-    		this.observer = observer;
-    		interester.unschedule();
-    		LOG.debug("cancelling scheduled flush");
-    	}
-    	else 
-    		this.observer = null;
-    	
+        if (status) {
+            this.observer = observer;
+            interester.unschedule();
+            LOG.debug("cancelling scheduled flush");
+        } else
+            this.observer = null;
+
         InterestWritableByteChannel source = sink;
-        if(source != null)
-            source.interestWrite(this, true); 
+        if (source != null)
+            source.interestWrite(this, true);
     }
 
     /** Closes the underlying channel. */
@@ -107,7 +106,7 @@ public class DelayedBufferWriter implements ChannelWriter, InterestWritableByteC
     }
     
 
-    /** Unused, Unsupported */
+    /** Unused, Unsupported. */
     public void handleIOException(IOException iox) {
         throw new RuntimeException("Unsupported", iox);
     }
@@ -167,25 +166,27 @@ public class DelayedBufferWriter implements ChannelWriter, InterestWritableByteC
             lastFlushTime = now;
         if (now - lastFlushTime > delay) 
             flush(now);
-                 
-        synchronized(this) {
-        	// It is possible that between the above check for 
-        	// interested.handleWrite & here, we got pre-empted 
-        	// and another thread turned on interest.
-        	upper = observer;
-        	if (upper == null) {
-        		sink.interestWrite(this,false);
-        		
-        		// If still no data after that, we've written everything we want -- exit.
-        		if (!hasBufferedData()) 
-        			return false;
-        		else {
-        			// otherwise schedule a flushing event.
-        			interester.rescheduleIfLater(TimeUnit.NANOSECONDS.toMillis(lastFlushTime + delay - now));
-        		}
-        	}
-        } 
-        
+
+        synchronized (this) {
+            // It is possible that between the above check for
+            // interested.handleWrite & here, we got pre-empted
+            // and another thread turned on interest.
+            upper = observer;
+            if (upper == null) {
+                sink.interestWrite(this, false);
+
+                // If still no data after that, we've written everything we want
+                // -- exit.
+                if (!hasBufferedData())
+                    return false;
+                else {
+                    // otherwise schedule a flushing event.
+                    interester.rescheduleIfLater(TimeUnit.NANOSECONDS.toMillis(lastFlushTime
+                            + delay - now));
+                }
+            }
+        }
+
         return true;
     }
     
@@ -223,24 +224,21 @@ public class DelayedBufferWriter implements ChannelWriter, InterestWritableByteC
     }
     
     private boolean hasBufferedData() {
-    	return buf.position() > 0;
+        return buf.position() > 0;
     }
-    
+
     private class Interester implements Runnable {
-    	public void run() {
-    		DelayedBufferWriter me = DelayedBufferWriter.this;
-    		synchronized(me) {
-    			InterestWritableByteChannel below = me.sink;
-    			WriteObserver above = observer;
-    			if (below != null && 
-    					below.isOpen() && 
-    					above == null && 
-    					buf.position() > 0) {
-    				LOG.debug("forcing a flush");
-    				below.interestWrite(me, true);
-    			}
-    		}
-    	}
+        public void run() {
+            DelayedBufferWriter me = DelayedBufferWriter.this;
+            synchronized (me) {
+                InterestWritableByteChannel below = me.sink;
+                WriteObserver above = observer;
+                if (below != null && below.isOpen() && above == null && buf.position() > 0) {
+                    LOG.debug("forcing a flush");
+                    below.interestWrite(me, true);
+                }
+            }
+        }
     }
 
     public boolean hasBufferedOutput() {

@@ -53,8 +53,8 @@ public final class NoGnutellaOkException extends IOException {
                                   HandshakeResponse.SLOTS_FULL);
 
     /**
-     * reject exception for the case when a connection is rejected 
-     * due to unmatching locales
+     * Reject exception for the case when a connection is rejected 
+     * due to unmatching locales.
      */
     public static final NoGnutellaOkException CLIENT_REJECT_LOCALE =
         new NoGnutellaOkException(false,
@@ -116,13 +116,13 @@ public final class NoGnutellaOkException extends IOException {
         this.wasMe=wasMe;
         this.code=code;
     }
-	
-	/**
-	 * Constructor for codeless exception.
-	 */
-	private NoGnutellaOkException(boolean wasMe, String message) {
-		this(wasMe, -1, message);
-	}
+
+    /**
+     * Constructor for codeless exception.
+     */
+    private NoGnutellaOkException(boolean wasMe, String message) {
+        this(wasMe, -1, message);
+    }
     
     /** 
      * Returns true if the exception was caused by something this host

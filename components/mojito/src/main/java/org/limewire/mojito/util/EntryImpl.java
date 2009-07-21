@@ -22,7 +22,7 @@ package org.limewire.mojito.util;
 import java.util.Map;
 
 /**
- * An implementation of Map.Entry
+ * An implementation of Map.Entry.
  */
 public class EntryImpl<K,V> implements Map.Entry<K,V> {
     
@@ -43,21 +43,21 @@ public class EntryImpl<K,V> implements Map.Entry<K,V> {
     }
 
     /**
-     * Returns whether or not this instance is immuatble
+     * Returns whether or not this instance is immutable.
      */
     public boolean isImmutable() {
         return immutable;
     }
     
     /**
-     * Returns the key
+     * Returns the key.
      */
     public K getKey() {
         return key;
     }
 
     /**
-     * Returns the value
+     * Returns the value.
      */
     public V getValue() {
         return value;
@@ -66,7 +66,7 @@ public class EntryImpl<K,V> implements Map.Entry<K,V> {
     /**
      * Sets the value and returns the previous value.
      * Throws an UnsupportedOperationException if this instance
-     * is immuatble
+     * is immutable.
      */
     public V setValue(V value) {
         if (immutable) {

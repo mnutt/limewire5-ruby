@@ -57,7 +57,7 @@ public class MessageParserBinderImpl implements MessageParserBinder {
     }
     
     /**
-     * An abstract class for Gnutella Message parsers
+     * An abstract class for Gnutella Message parsers.
      */
     public static abstract class GnutellaMessageParser implements MessageParser {
         

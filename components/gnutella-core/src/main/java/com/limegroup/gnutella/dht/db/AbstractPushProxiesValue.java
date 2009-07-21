@@ -22,12 +22,12 @@ import com.limegroup.gnutella.uploader.HTTPHeaderUtils;
 public abstract class AbstractPushProxiesValue implements PushProxiesValue {
 
     /**
-     * DHTValueType for Push Proxies
+     * DHTValueType for Push Proxies.
      */
     public static final DHTValueType PUSH_PROXIES = DHTValueType.valueOf("Gnutella Push Proxy", "PROX");
     
     /**
-     * Version of PushProxiesDHTValue
+     * Version of PushProxiesDHTValue.
      */
     public static final Version VERSION = Version.valueOf(0);
         

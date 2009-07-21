@@ -1,10 +1,13 @@
 package org.limewire.core.impl.spam;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.api.spam.SpamManager;
 import org.limewire.core.impl.search.RemoteFileDescAdapter;
+import org.limewire.core.settings.FilterSettings;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -59,5 +62,14 @@ public class SpamManagerImpl implements SpamManager {
     @Override
     public void adjustSpamFilters() {
         spamServices.adjustSpamFilters();        
+    }
+    
+    @Override
+    public void addToBlackList(String ipAddress) {
+        List<String> blackList = new ArrayList<String>(Arrays.asList(FilterSettings.BLACK_LISTED_IP_ADDRESSES.get()));
+        blackList.add(ipAddress);
+        FilterSettings.USE_NETWORK_FILTER.setValue(true);
+        FilterSettings.BLACK_LISTED_IP_ADDRESSES.set(blackList.toArray(new String[blackList.size()]));
+        reloadIPFilter();
     }
 }

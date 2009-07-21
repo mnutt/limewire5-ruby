@@ -489,7 +489,7 @@ public class NetworkManagerImpl implements NetworkManager {
     
     private void fireAddressChange(Address newAddress) {
         LOG.debugf("firing new address: {0}", newAddress);
-        listeners.broadcast(new AddressEvent(newAddress, Address.EventType.ADDRESS_CHANGED));
+        listeners.broadcast(new AddressEvent(newAddress, AddressEvent.Type.ADDRESS_CHANGED));
     }
     
     private static class SSLSettings extends LimeProps {

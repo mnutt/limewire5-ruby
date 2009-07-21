@@ -6,10 +6,10 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -23,13 +23,16 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.core.api.Category;
+import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.FriendAutoCompleterFactory;
 import org.limewire.core.api.properties.PropertyDictionary;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.ui.swing.action.AbstractAction;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.HeaderBar;
 import org.limewire.ui.swing.components.decorators.ButtonDecorator;
 import org.limewire.ui.swing.components.decorators.HeaderBarDecorator;
+import org.limewire.ui.swing.search.KeywordAssistedSearchBuilder;
 import org.limewire.ui.swing.search.SearchInfo;
 import org.limewire.ui.swing.search.UiSearchListener;
 import org.limewire.ui.swing.util.FontUtils;
@@ -40,47 +43,35 @@ import org.limewire.ui.swing.util.ResizeUtils;
 import com.google.inject.Inject;
 
 /** The container for advanced searching. */
-public class AdvancedSearchPanel extends JXPanel {
-    
-    public static final String NAME = "ADVANCED_SEARCH";
-    
-    private final List<UiSearchListener> uiSearchListeners = new ArrayList<UiSearchListener>();
+public class AdvancedSearchPanel extends JXPanel implements Disposable {
+        
+    private final FriendAutoCompleterFactory friendAutoCompleterFactory;
+    private final KeywordAssistedSearchBuilder advancedSearchBuilder;
     private final PropertyDictionary propertyDictionary;
     private final ButtonDecorator buttonDecorator;
     
+    private final Action searchAction = new SearchAction();
+    
+    /* CoW so that listeners can modify the list of listeners. */ 
+    private final List<UiSearchListener> uiSearchListeners = new CopyOnWriteArrayList<UiSearchListener>();
     private Map<Category, AdvancedPanel> advancedPanels = new HashMap<Category, AdvancedPanel>();
     
-    private final Action searchAction = new AbstractAction(I18n.tr("Search")) {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if(visibleComponent != null) {
-                SearchInfo info = visibleComponent.getSearchInfo();
-                if(info != null) {
-                    for(UiSearchListener uiSearchListener : uiSearchListeners) {
-                        uiSearchListener.searchTriggered(info);
-                    }
-                }
-            }
-        }
-    };
-    
     private AdvancedPanel visibleComponent = null;
-    private final FriendAutoCompleterFactory friendAutoCompleterFactory;
-
     private final JPanel selectorPanel;
     private final JPanel inputPanel;
-    
+   
     @Resource private Font headingFont;
 
     private final JXButton searchButton = new JXButton(searchAction);
     
     @Inject
     public AdvancedSearchPanel(PropertyDictionary propertyDictionary, FriendAutoCompleterFactory friendAutoCompleterFactory,
-            HeaderBarDecorator headerDecorator, ButtonDecorator buttonDecorator) {
+            HeaderBarDecorator headerDecorator, ButtonDecorator buttonDecorator, KeywordAssistedSearchBuilder advancedSearchBuilder) {
         
         this.propertyDictionary = propertyDictionary;
         this.friendAutoCompleterFactory = friendAutoCompleterFactory;
         this.buttonDecorator = buttonDecorator;
+        this.advancedSearchBuilder = advancedSearchBuilder;
         
         GuiUtils.assignResources(this);
         
@@ -108,27 +99,37 @@ public class AdvancedSearchPanel extends JXPanel {
         buttonDecorator.decorateGreenFullButton(searchButton);
         searchButton.setFont(headingFont);
         searchButton.setVisible(false);
-        inputPanel.add(searchButton, "gapbefore push, gapright 5, gaptop 5");
+        JPanel searchButtonPanel = new JPanel(new MigLayout("insets 0, gap 0, fill"));
+        searchButtonPanel.add(searchButton, "dock east");
+        inputPanel.add(searchButtonPanel, "dock south, gapbefore push, gapright 5, gaptop 5");
         add(inputPanel, "gapleft 45, gaptop 4");
     }
+
     
     /**
 	 * Creates the correct AdvancedPanel based on the category 
 	 * selected.
 	 */
     private AdvancedPanel createAdvancedPanel(Category category) {
-        if(category == Category.AUDIO)
-            return new AdvancedAudioPanel(propertyDictionary, friendAutoCompleterFactory);
-        else if(category == Category.VIDEO)
-            return new AdvancedVideoPanel(propertyDictionary, friendAutoCompleterFactory);
-        else if(category == Category.DOCUMENT)
-            return new AdvancedDocumentPanel(friendAutoCompleterFactory);
-        else if(category == Category.IMAGE)
-            return new AdvancedImagePanel(friendAutoCompleterFactory);
-        else if(category == Category.PROGRAM)
-            return new AdvancedProgramPanel(friendAutoCompleterFactory);
+        Action enterKeyAction = new AbstractAction("pressed") { 
+            public void actionPerformed(ActionEvent e) {
+                searchButton.doClick();
+            }
+        };
+        AdvancedPanel panel = null;
+        if(category == Category.AUDIO) {
+            panel =  new AdvancedAudioPanel(propertyDictionary, friendAutoCompleterFactory, enterKeyAction);
+        } else if(category == Category.VIDEO) {
+            panel = new AdvancedVideoPanel(propertyDictionary, friendAutoCompleterFactory, enterKeyAction);
+        } else if(category == Category.DOCUMENT) {
+            panel = new AdvancedDocumentPanel(friendAutoCompleterFactory, enterKeyAction);
+        } else if(category == Category.IMAGE) {
+            panel = new AdvancedImagePanel(friendAutoCompleterFactory, enterKeyAction);
+        } else if(category == Category.PROGRAM) {
+            panel = new AdvancedProgramPanel(friendAutoCompleterFactory, enterKeyAction);
+        }
         
-        return null;
+        return panel;
     }
 
     private void addCategory(final SearchCategory category) {
@@ -152,7 +153,6 @@ public class AdvancedSearchPanel extends JXPanel {
                         advancedPanels.put(category.getCategory(), component);
                         
                         ResizeUtils.forceWidth(component, 300);
-                        component.setVisible(false);
                         inputPanel.add(component);
                     }
                     
@@ -184,4 +184,36 @@ public class AdvancedSearchPanel extends JXPanel {
         uiSearchListeners.add(uiSearchListener);
     }
 
+    /**
+     * Action that creates a search and notifies all listeners.
+     */
+    private class SearchAction extends AbstractAction {
+        
+        public SearchAction() {
+            super(I18n.tr("Search"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(visibleComponent != null) {
+                
+                Map<FilePropertyKey,String> searchData = visibleComponent.getSearchData();
+                
+                if(searchData != null) {
+                    
+                    SearchInfo info = advancedSearchBuilder.createAdvancedSearch(searchData,
+                            visibleComponent.getSearchCategory());
+                    
+                    for(UiSearchListener uiSearchListener : uiSearchListeners) {
+                        uiSearchListener.searchTriggered(info);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void dispose() {
+        uiSearchListeners.clear();
+    }
 }

@@ -81,7 +81,7 @@ public class EvictorManager {
     }
     
     /**
-     * A helper method that delegates to a dedicated {@link Evictor}
+     * A helper method that delegates to a dedicated {@link Evictor}.
      */
     public boolean isExpired(RouteTable routeTable, DHTValueEntity entity) {
         DHTValueType valueType = entity.getValue().getValueType();

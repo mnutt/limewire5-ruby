@@ -15,4 +15,9 @@ public interface SpamManager {
     public void reloadIPFilter();
     
     public void adjustSpamFilters();
+    
+    /**
+     * Blacklists the given ipAddress.
+     */
+    public void addToBlackList(String ipAddress);
 }

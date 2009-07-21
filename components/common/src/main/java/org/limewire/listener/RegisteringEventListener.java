@@ -10,10 +10,10 @@ public interface RegisteringEventListener<E> extends EventListener<E> {
     /**
      * An injection time method that allows an <code>EventListener</code>
      * to register with its corresponding <code>ListenSupport</code>.
+     * <p>
      * NOTE: implementors must annotate themselves with the
      * <code>@Inject</code> annotation; the <code>interface</code>
      * level annotation only serves as documentation.
-     * @param listenerSupport
      */
     @Inject
     public void register(ListenerSupport<E> listenerSupport);

@@ -47,7 +47,7 @@ import com.google.inject.Inject;
 
 
 /**
- * Miscellaneous untilities for Contacts
+ * Miscellaneous utilities for Contacts.
  */
 public final class ContactUtils {
 
@@ -120,7 +120,7 @@ public final class ContactUtils {
     private ContactUtils() {}
     
     /**
-     * Returns the nodeId and address as a formatted String
+     * Returns the nodeId and address as a formatted String.
      */
     public static String toString(KUID nodeId, SocketAddress address) {
         if (nodeId != null) {
@@ -138,14 +138,14 @@ public final class ContactUtils {
     
     /**
      * Returns true if the given Contact's address is any of
-     * localhost's addresses
+     * localhost's addresses.
      */
     public static boolean isLocalAddress(Contact node) {
         return NetworkUtils.isLocalAddress(node.getContactAddress());
     }
     
     /**
-     * Returns true if the given Contacts have both a localhost address
+     * Returns true if the given Contacts have both a localhost address.
      */
     public static boolean areLocalContacts(Contact existing, Contact node) {
         // Huh? The addresses are not equal but both belong
@@ -162,15 +162,15 @@ public final class ContactUtils {
     }
     
     /**
-     * Returns true if the Contact has a valid SocketAddress
+     * Returns true if the Contact has a valid SocketAddress.
      */
     public static boolean isValidSocketAddress(Contact node) {
         return NetworkUtils.isValidSocketAddress(node.getContactAddress());
     }
     
     /**
-     * Returns true if the given InetAddress is a private address
-     * 
+     * Returns true if the given InetAddress is a private address.
+     * <p>
      * NOTE: ContactUtils.isPrivateAddress() is checking internally
      * if NetworkSettings.LOCAL_IS_PRIVATE is true! If you're planning 
      * to run the DHT on a Local Area Network (LAN) you want to set 
@@ -181,8 +181,8 @@ public final class ContactUtils {
     }
     
     /**
-     * Returns true if the given SocketAddress is a private address
-     * 
+     * Returns true if the given SocketAddress is a private address.
+     * <p>
      * NOTE: ContactUtils.isPrivateAddress() is checking internally
      * if NetworkSettings.LOCAL_IS_PRIVATE is true! If you're planning 
      * to run the DHT on a Local Area Network (LAN) you want to set 
@@ -193,8 +193,8 @@ public final class ContactUtils {
     }
     
     /**
-     * Returns true if the Contact has a private SocketAddress
-     * 
+     * Returns true if the Contact has a private SocketAddress.
+     * <p>
      * NOTE: ContactUtils.isPrivateAddress() is checking internally
      * if NetworkSettings.LOCAL_IS_PRIVATE is true! If you're planning 
      * to run the DHT on a Local Area Network (LAN) you want to set 
@@ -206,7 +206,7 @@ public final class ContactUtils {
     
     /**
      * Returns true if the given Contact's contact address is
-     * an IPv4 address
+     * an IPv4 address.
      */
     public static boolean isIPv4Address(Contact node) {
         InetAddress addr = ((InetSocketAddress)node.getContactAddress()).getAddress();
@@ -215,7 +215,7 @@ public final class ContactUtils {
     
     /**
      * Returns true if the given Contact's contact address is
-     * an IPv4-compatible IPv6 address
+     * an IPv4-compatible IPv6 address.
      */
     public static boolean isIPv4CompatibleAddress(Contact node) {
         InetAddress addr = ((InetSocketAddress)node.getContactAddress()).getAddress();
@@ -239,7 +239,7 @@ public final class ContactUtils {
     
     /**
      * Returns true if the given Contact's contact address is
-     * a private IPv4-compatible IPv6 address
+     * a private IPv4-compatible IPv6 address.
      */
     public static boolean isPrivateIPv4CompatibleAddress(Contact node) {
         InetAddress addr = ((InetSocketAddress)node.getContactAddress()).getAddress();
@@ -247,7 +247,7 @@ public final class ContactUtils {
     }
     
     /**
-     * Returns true if both Contacts have the same Node ID
+     * Returns true if both Contacts have the same Node ID.
      */
     public static boolean isSameNodeID(Contact node1, Contact node2) {
         return node1.getNodeID().equals(node2.getNodeID());
@@ -267,7 +267,7 @@ public final class ContactUtils {
     
     /**
      * Returns true if the given Contact has the same Node ID or the
-     * same IP Address as the local Node
+     * same IP Address as the local Node.
      */
     public static boolean isLocalContact(Context context, Contact node) {
         
@@ -297,7 +297,7 @@ public final class ContactUtils {
     }
     
     /**
-     * Returns true if both Contacts have an IPv4 or IPv6 address
+     * Returns true if both Contacts have an IPv4 or IPv6 address.
      */
     public static boolean isSameAddressSpace(Contact a, Contact b) {
         return NetworkUtils.isSameAddressSpace(
@@ -307,7 +307,7 @@ public final class ContactUtils {
 
     /**
      * Takes the given Contact and returns a version of it that
-     * can be used to test for Node ID collisions
+     * can be used to test for Node ID collisions.
      */
     public static Contact createCollisionPingSender(Contact localNode) {
         if (!(localNode instanceof LocalContact)) {
@@ -331,7 +331,7 @@ public final class ContactUtils {
     }
 
     /**
-     * Returns true if the given Contact is a collsion ping sender
+     * Returns true if the given Contact is a collision ping sender.
      */
     public static boolean isCollisionPingSender(KUID localNodeId, Contact sender) {
         // The sender must be firewalled!
@@ -374,7 +374,7 @@ public final class ContactUtils {
     }
 
     /**
-     * Sorts the Contacts from most recently seen to least recently seen
+     * Sorts the Contacts from most recently seen to least recently seen.
      */
     public static <T extends Contact> List<T> sort(Collection<T> nodes) {
         List<T> list = CollectionUtils.toList(nodes);
@@ -385,8 +385,8 @@ public final class ContactUtils {
     /**
      * Sorts the contacts from most recently seen to
      * least recently seen based on their timestamp and last failed time.
-     * 
-     * Used when loading the routing table if our nodeID has changed
+     * <p>
+     * Used when loading the routing table if our nodeID has changed.
      */
     public static <T extends Contact> List<T> sortAliveToFailed(Collection<T> nodes) {
         List<T> list = CollectionUtils.toList(nodes);

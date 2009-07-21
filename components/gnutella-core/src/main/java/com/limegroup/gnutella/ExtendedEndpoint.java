@@ -123,14 +123,25 @@ public class ExtendedEndpoint extends Endpoint {
      */
     public ExtendedEndpoint(String host, int port) { 
         super(host, port);
-        this.dailyUptime=-1;
-        this.timeRecorded=now();
+        dailyUptime = -1;
+        timeRecorded = now();
     }
     
     public ExtendedEndpoint(InetAddress addr, int port) { 
         super(addr, port);
-        this.dailyUptime=-1;
-        this.timeRecorded=now();
+        dailyUptime = -1;
+        timeRecorded = now();
+    }
+    
+    /**
+     * Creates a new ExtendedEndpoint without extended uptime information.
+     * If strict is true, this does a DNS lookup against the name, failing
+     * if the lookup couldn't complete.
+     */
+    public ExtendedEndpoint(String host, int port, boolean strict) {
+        super(host, port, strict);
+        dailyUptime = -1;
+        timeRecorded = now();
     }
     
     /**
@@ -304,14 +315,14 @@ public class ExtendedEndpoint extends Endpoint {
     private void recordConnectionAttempt(Buffer<Long> buf, long now) {
         if (buf.isEmpty()) {
             //a) No attempts; just add it.
-            buf.addFirst(new Long(now));
+            buf.addFirst(Long.valueOf(now));
         } else if (now - buf.first().longValue() >= WINDOW_TIME) {
             //b) Attempt more than WINDOW_TIME milliseconds ago.  Add.
-            buf.addFirst(new Long(now));
+            buf.addFirst(Long.valueOf(now));
         } else {
             //c) Attempt within WINDOW_TIME.  Coalesce.
             buf.removeFirst();
-            buf.addFirst(new Long(now));
+            buf.addFirst(Long.valueOf(now));
         }
     }
 

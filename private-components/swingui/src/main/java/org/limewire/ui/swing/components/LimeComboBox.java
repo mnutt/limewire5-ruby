@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
@@ -57,7 +58,7 @@ public class LimeComboBox extends JXButton {
     private final List<MenuCreationListener> menuCreationListeners
         = new ArrayList<MenuCreationListener>();
     
-    /** True if you've supplied a custom menu via {@link #overrideMenu(JPopupMenu)} */
+    /** True if you've supplied a custom menu via {@link #overrideMenu(JPopupMenu)}. */
     private boolean customMenu = false;
     
     /** True if the menu has been updated since the last addition of an action. */
@@ -77,6 +78,9 @@ public class LimeComboBox extends JXButton {
     
     /** True if clicking will always force visibility. */
     private boolean clickForcesVisible = false;
+    
+    /** Position to place the popup from the bottom left corner **/
+    private Point popupPosition = new Point(1,-1);
     
     /** Constructs an empty unskinned combo box. */
     public LimeComboBox() {
@@ -101,11 +105,19 @@ public class LimeComboBox extends JXButton {
     public void overrideMenu(JPopupMenu menu) {
         this.menu = menu;
         customMenu = true;
-        initMenu();
+        initMenu(true);
     }
     
+    /** Sets the combobox to always display the given popupmenu. */
+    public void overrideMenuNoRestyle(JPopupMenu menu) {
+        this.menu = menu;
+        customMenu = true;
+        initMenu(false);
+    }
+
+    
     /**
-     * A helper method for painting elements of overridden menus in the default style
+     * A helper method for painting elements of overridden menus in the default style.
      */
     public JComponent decorateMenuComponent(JComponent item) {
         item.setFont(getFont());
@@ -128,8 +140,8 @@ public class LimeComboBox extends JXButton {
     /**
      * Adds the given actions to the combobox.  The actions will
      * be rendered as items that can be chosen.
-     * 
-     * This method has no effect if the popupmenu is overriden. 
+     * <p>
+     * This method has no effect if the popupmenu is overridden. 
      */
     public void addActions(List<Action> newActions) {
         if (newActions == null) {
@@ -152,13 +164,19 @@ public class LimeComboBox extends JXButton {
      * menu, any modifications made to this menu will be lost.
      */
     public JPopupMenu getPopupMenu() {
+        if(menu == null)
+            createPopupMenu();
         return menu;
+    }
+    
+    public void setPopupPosition(Point p) {
+        popupPosition = p;
     }
     
     /** 
      * Adds a single action to the combobox.
-     *
-     * This method has no effect if the popupmenu is overriden.
+     *<p>
+     * This method has no effect if the popupmenu is overridden.
      */
     public void addAction(Action action) {
         actions.add(Objects.nonNull(action, "action"));
@@ -174,8 +192,8 @@ public class LimeComboBox extends JXButton {
 
     /** 
      * Removes all actions & any selected action.
-     * 
-     * This method has no effect if the popupmenu is overriden.
+     * <p>
+     * This method has no effect if the popupmenu is overridden.
      */
     public void removeAllActions() {
         menuDirty = true;
@@ -185,8 +203,8 @@ public class LimeComboBox extends JXButton {
     
     /**
      * Removes the specific action.  If it was the selected one, selection is lost. 
-     *  
-     * This method has no effect if the popupmenu is overriden.
+     *  <p>
+     * This method has no effect if the popupmenu is overridden.
      */
     public void removeAction(Action action) {
         menuDirty = true;
@@ -205,8 +223,8 @@ public class LimeComboBox extends JXButton {
 
     /** 
      * Selects the specific action.
-     * 
-     * This method has no effect if the popupmenu is overriden, unless
+     * <p>
+     * This method has no effect if the popupmenu is overridden, unless
      * the menu has been pre-seeded with actions that correspond to the
      * popup menu.
      */
@@ -214,13 +232,14 @@ public class LimeComboBox extends JXButton {
         // Make sure the selected action is in the list
         if (actions.contains(action)) {
             selectedAction = action;
+            repaint();
         }        
     }
     
     /**
      * Returns the selected action.
-     * 
-     * This method has no effect if the popupmenu is overriden.
+     * <p>
+     * This method has no effect if the popupmenu is overridden.
      */
     public Action getSelectedAction() {
         return selectedAction;
@@ -243,7 +262,7 @@ public class LimeComboBox extends JXButton {
     }
 
     /** Manually triggers a resize of the component. 
-      *
+      * <p>
       *  Should be avoided but can be used after drastic changes to font size/border after
       *  the component is layed out.
       */
@@ -267,8 +286,8 @@ public class LimeComboBox extends JXButton {
 
     /**
      * Adds a listener to be notified when the selection changes.
-     * 
-     * This method has no effect if the popupmenu is overriden.
+     * <p>
+     * This method has no effect if the popupmenu is overridden.
      */
     public void addSelectionListener(SelectionListener listener) {
         selectionListeners.add(listener);
@@ -276,8 +295,8 @@ public class LimeComboBox extends JXButton {
     
     /**
      * Adds a listener to be notified when the popup menu is rebuilt.
-     * 
-     * This method has no effect if the popupmenu is overriden. 
+     * <p>
+     * This method has no effect if the popupmenu is overridden. 
      */
     public void addMenuCreationListener(MenuCreationListener listener) {
         menuCreationListeners.add(listener);
@@ -290,7 +309,7 @@ public class LimeComboBox extends JXButton {
             public boolean isSelected() { return delegate.isSelected(); }
             public boolean isEnabled() { return delegate.isEnabled(); }
             public boolean isPressed() {
-                return delegate.isPressed() || menu != null && menu.isVisible(); 
+                return delegate.isPressed() || (menu != null && menu.isVisible()); 
             }
             public boolean isRollover() { return delegate.isRollover(); }
             public void setArmed(boolean b) { delegate.setArmed(b); }
@@ -382,7 +401,7 @@ public class LimeComboBox extends JXButton {
                         menu.setVisible(false);
                     } else {
                         menu.revalidate();
-                        menu.show((Component) e.getSource(), 1, getHeight()-1);
+                        menu.show((Component) e.getSource(), popupPosition.x, getHeight()+popupPosition.y);
                     }
                 }
             }
@@ -391,7 +410,7 @@ public class LimeComboBox extends JXButton {
 
     private void createPopupMenu() {
         menu = new JPopupMenu();        
-        initMenu();
+        initMenu(true);
     }
        
     private void updateMenu() {
@@ -411,7 +430,7 @@ public class LimeComboBox extends JXButton {
                 selectedAction = action;
                 selectedComponent = (JComponent)label.getParent();
                 selectedLabel = label;
-			    fireChangeEvent(action);
+                fireChangeEvent(action);
                 repaint();
                 menu.setVisible(false);
             }
@@ -515,9 +534,11 @@ public class LimeComboBox extends JXButton {
         }
     }
     
-    private void initMenu() {        
-        decorateMenuComponent(menu);
-        menu.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
+    private void initMenu(boolean style) {    
+        if (style) {
+            decorateMenuComponent(menu);
+            menu.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
+        }
         
         menu.addPopupMenuListener(new PopupMenuListener() {
             @Override

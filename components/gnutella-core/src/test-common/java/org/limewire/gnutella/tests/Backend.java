@@ -27,7 +27,10 @@ import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.LimeWireCoreModule;
 import com.limegroup.gnutella.NetworkManager;
+import com.limegroup.gnutella.library.FileCollection;
+import com.limegroup.gnutella.library.FileCollectionManager;
 import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.GnutellaFiles;
 
 /**
  * Utility class that constructs a LimeWire backend for testing
@@ -335,9 +338,9 @@ public class Backend extends org.limewire.gnutella.tests.LimeTestCase {
     }
     
     @Inject private ConnectionServices connectionServices;
-    @Inject private FileManager fileManager;
     @Inject private LifecycleManager lifecycleManager;
     @Inject private NetworkManager networkManager;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
 
     /**
      * Constructs and launches a new <tt>Backend</tt>.
@@ -361,14 +364,9 @@ public class Backend extends org.limewire.gnutella.tests.LimeTestCase {
 
             preSetUp();
             setStandardSettings(port);
-            Guice.createInjector(Stage.PRODUCTION, new LimeWireCoreModule(ActivityCallbackStub.class), new AbstractModule() {
-                @Override
-                protected void configure() {
-                    requestInjection(Backend.this);
-                }
-            });
+            Guice.createInjector(Stage.PRODUCTION, new LimeWireCoreModule(ActivityCallbackStub.class), LimeTestUtils.createModule(this));
             lifecycleManager.start();
-            populateSharedDirectory(fileManager);
+            populateSharedDirectory(gnutellaFileCollection);
             if (!reject)
                 connectionServices.connect();
 
@@ -426,7 +424,7 @@ public class Backend extends org.limewire.gnutella.tests.LimeTestCase {
     /**
      * Creates a temporary shared directory for testing purposes.
      */
-    private void populateSharedDirectory(FileManager fileManager) {
+    private void populateSharedDirectory(FileCollection gnutellaFileCollection) {
         File coreDir = LimeTestUtils.getDirectoryWithLotsOfFiles();
         File[] files = coreDir.listFiles();
 
@@ -434,7 +432,7 @@ public class Backend extends org.limewire.gnutella.tests.LimeTestCase {
             for (int i = 0; i < files.length; i++) {
                 if (!files[i].isFile())
                     continue;
-                fileManager.getGnutellaFileList().add(files[i]);
+                gnutellaFileCollection.add(files[i]);
             }
         }
     }

@@ -1,7 +1,7 @@
 package org.limewire.core.api.callback;
 
 import org.limewire.core.api.download.DownloadAction;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.magnet.MagnetLink;
 
 /**
@@ -11,10 +11,10 @@ import org.limewire.core.api.magnet.MagnetLink;
 public interface GuiCallback {
 
     /**
-     * Attempts to handle the supplied SaveLocationException with the supplied
+     * Attempts to handle the supplied DownloadException with the supplied
      * download action.
      */
-    void handleSaveLocationException(DownloadAction downLoadAction, SaveLocationException sle,
+    void handleDownloadException(DownloadAction downLoadAction, DownloadException e,
             boolean supportsNewSaveDir);
 
     /**

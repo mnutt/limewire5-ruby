@@ -58,7 +58,7 @@ public class InflaterReader implements ChannelReader, InterestReadableByteChanne
         this.channel = channel;
     }
     
-    /** Gets the read channel */
+    /** Gets the read channel. */
     public InterestReadableByteChannel getReadChannel() {
         return channel;
     }
@@ -102,10 +102,10 @@ public class InflaterReader implements ChannelReader, InterestReadableByteChanne
             // if we couldn't inflate anything...
             if(inflated == 0) {
                 // if this inflater is done or needs a dictionary, we're screwed. (case b above)
-        		if (inflater.finished() || inflater.needsDictionary()) {
+                if (inflater.finished() || inflater.needsDictionary()) {
                     read = -1;
                     break;
-        		}
+                }
             
                 // if the buffer needs input, add it.
                 if(inflater.needsInput()) {

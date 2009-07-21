@@ -26,7 +26,7 @@ import com.limegroup.gnutella.downloader.TestFile;
  */
 final class SimpleWebServer {
 
-    private final Log LOG = LogFactory.getLog(SimpleWebServer.class);
+    private static final Log LOG = LogFactory.getLog(SimpleWebServer.class);
 
     private final int port;
     private final long length;

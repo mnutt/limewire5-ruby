@@ -19,7 +19,7 @@ public interface ServerAuthScheme {
      */
     boolean isComplete();
     /**
-     * Parses the credentials from the http request and returns them
+     * Parses the credentials from the HTTP request and returns them.
      * @return null if credentials could not be parsed
      */
     Credentials authenticate(HttpRequest request);

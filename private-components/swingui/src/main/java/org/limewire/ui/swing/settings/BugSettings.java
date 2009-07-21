@@ -11,7 +11,7 @@ import org.limewire.util.CommonUtils;
 
 
 /**
- * Settings to deal with bugs
+ * Settings to deal with bugs.
  */ 
 public class BugSettings extends LimeProps {
 
@@ -21,10 +21,10 @@ public class BugSettings extends LimeProps {
      * Setting for whether or not to show bugs before they are reported.
      */
     public static final BooleanSetting SHOW_BUGS =
-		FACTORY.createBooleanSetting("SHOW_BUGS", true);
-		
+        FACTORY.createBooleanSetting("SHOW_BUGS", true);
+
     /**
-     * Setting for whether or not to report bugs
+     * Setting for whether or not to report bugs.
      */
     public static final BooleanSetting REPORT_BUGS =
         FACTORY.createBooleanSetting("REPORT_BUGS", true);
@@ -64,7 +64,7 @@ public class BugSettings extends LimeProps {
     public static final StringSetting LAST_ACCEPTABLE_VERSION =
         FACTORY.createRemoteStringSetting("LAST_ACCEPTABLE_BUG_VERSION", "4.9.0", "lastBugVersion");
     
-    /** Setting for whether or not deadlock bugs should be sent. Only used in old code. New code checks the ReportBugs Only*/
+    /** Setting for whether or not deadlock bugs should be sent. Only used in old code. New code checks the ReportBugs Only.*/
     public static final BooleanSetting SEND_DEADLOCK_BUGS =
         FACTORY.createBooleanSetting("SEND_DEADLOCK_BUGS", true);
     

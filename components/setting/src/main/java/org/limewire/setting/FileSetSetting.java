@@ -25,86 +25,86 @@ public class FileSetSetting extends AbstractSetting<Set<? extends File>> {
     
     private Set<File> value;
 
-	/**
-	 * Creates a new <tt>FileSetSetting</tt> instance with the specified
-	 * key and default value.
-	 *
-	 * @param key the constant key to use for the setting
-	 * @param defaultValue the default value to use for the setting
-	 */
-	FileSetSetting(Properties defaultProps, Properties props, String key, File[] defaultValue) {
+    /**
+     * Creates a new <tt>FileSetSetting</tt> instance with the specified
+     * key and default value.
+     *
+     * @param key the constant key to use for the setting
+     * @param defaultValue the default value to use for the setting
+     */
+    FileSetSetting(Properties defaultProps, Properties props, String key, File[] defaultValue) {
         super(defaultProps, props, key, decode(new HashSet<File>(Arrays.asList(defaultValue))));
         setPrivate(true);
-	}
-
-	/**
-	 * Returns the value of this setting.
-	 * 
-	 * @return the value of this setting
-	 */
-	public Set<File> get() {
-        return value;
-	}
-	
-	/** Gets the value as an array. */
-	public synchronized File[] getValueAsArray() {
-	    return value.toArray(new File[value.size()]);
     }
 
-	/**
-	 * Mutator for this setting.
-	 *
-	 * @param value the value to store
-	 */
-	public void set(Set<? extends File> value) {
-	    setValueInternal(decode(value));
-	}
+    /**
+     * Returns the value of this setting.
+     * 
+     * @return the value of this setting
+     */
+    public Set<File> get() {
+        return value;
+    }
+    
+    /** Gets the value as an array. */
+    public synchronized File[] getValueAsArray() {
+        return value.toArray(new File[value.size()]);
+    }
 
-	/**
-	 * Mutator for this setting.
-	 * @param file file to add to the array.
-	 */
-	public synchronized void add(File file) {
-	    value.add(file);
-	    set(value);
-	}
+    /**
+     * Mutator for this setting.
+     *
+     * @param value the value to store
+     */
+    public void set(Set<? extends File> value) {
+        setValueInternal(decode(value));
+    }
+
+    /**
+     * Mutator for this setting.
+     * @param file file to add to the array.
+     */
+    public synchronized void add(File file) {
+        value.add(file);
+        set(value);
+    }
     
-	/**
-	 * Mutator for this setting.
-	 *
-	 * @param file Remove file from the array, if it exists.
-	 * @return false when the array does not contain the file or when the
-	 * file is <code>null</code> 
-	 */
-	public synchronized boolean remove(File file) {
-	    if(value.remove(file)) {
-	        set(value);
-	        return true;
-	    } else {
-	        return false;
-	    }
-	}
+    /**
+     * Mutator for this setting.
+     *
+     * @param file remove file from the array, if it exists.
+     * @return false when the array does not contain the file or when the
+     * file is <code>null</code> 
+     */
+    public synchronized boolean remove(File file) {
+        if(value.remove(file)) {
+            set(value);
+            return true;
+        } else {
+            return false;
+        }
+    }
     
-	/** Returns true if the given file is contained in this array. */
-	public synchronized boolean contains(File file) {
-	    return value.contains(file);
-	}
-	
-	/** Returns the length of the array. */
-	public synchronized int length() {
-	    return value.size();
-	}
-	
-    /** Load value from property string value
+    /** Returns true if the given file is contained in this array. */
+    public synchronized boolean contains(File file) {
+        return value.contains(file);
+    }
+    
+    /** Returns the length of the array. */
+    public synchronized int length() {
+        return value.size();
+    }
+    
+    /** Load value from property string value.
      * @param sValue property string value
      *
      */
     @Override
     protected synchronized void loadValue(String sValue) {
-		value = encode(sValue);
+        value = encode(sValue);
     }
     
-    /** Splits the string into a Set    */
+    /** Splits the string into a Set.    */
     private static Set<File> encode(String src) {
         if (src == null || src.length()==0)
             return new HashSet<File>();
@@ -133,20 +133,20 @@ public class FileSetSetting extends AbstractSetting<Set<? extends File>> {
         return buffer.toString();
     }
 
-	/** Removes non-existent members.	 */
-	public synchronized void clean() {
-	    for(Iterator<File> i = value.iterator(); i.hasNext(); ) {
-	        File next = i.next();
-	        if(!next.exists())
-	            i.remove();
+    /** Removes non-existent members. */
+    public synchronized void clean() {
+        for(Iterator<File> i = value.iterator(); i.hasNext(); ) {
+            File next = i.next();
+            if(!next.exists())
+                i.remove();
         }
         
-	    set(value);
+        set(value);
     }
-	
-	/** Removes all members **/
-	public synchronized void clear() {
-	    value.clear();
-	    set(value);
-	}
+    
+    /** Removes all members. **/
+    public synchronized void clear() {
+        value.clear();
+        set(value);
+    }
 }

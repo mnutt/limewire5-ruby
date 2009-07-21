@@ -3,7 +3,7 @@ package org.limewire.core.impl.connection;
 import java.util.Properties;
 
 import org.limewire.core.api.connection.ConnectionItem;
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.FriendPresence;
 
 /**
  * Mock implementation of a ConnectionItem.

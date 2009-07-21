@@ -49,7 +49,7 @@ import org.jdesktop.swingx.plaf.basic.BasicHyperlinkUI;
 
 /**
  * A temporary copy of BasicHyperlinkUI with the faulty underlining code removed and some
- *  warnings cleaned up
+ *  warnings cleaned up.
  */
 public class CustomHyperlinkUI extends BasicButtonUI {
 
@@ -194,9 +194,9 @@ public class CustomHyperlinkUI extends BasicButtonUI {
     /**
      * Method which renders the text of the current button if html.
      * <p>
-     * @param g Graphics context
-     * @param b Current button to render
-     * @param textRect Bounding rectangle to render the text.
+     * @param g graphics context
+     * @param b current button to render
+     * @param textRect bounding rectangle to render the text.
      * @param text String to render
      * @param v the View to use.
      */
@@ -314,7 +314,7 @@ public class CustomHyperlinkUI extends BasicButtonUI {
 //    }
 
     /**
-     * C&p'ed from BasicGraphicsUtils (getPreferredButtonSize).
+     * Copied from BasicGraphicsUtils (getPreferredButtonSize).
      * 
      * @param b the button to analyse.
      * @return the union of the text and icon rectangle of the AbstractButton
@@ -438,7 +438,7 @@ public class CustomHyperlinkUI extends BasicButtonUI {
         private static StyleSheet defaultStyles;
 
         /**
-         * Overriden to return our own slimmed down style sheet.
+         * Overridden to return our own slimmed down style sheet.
          */
         @Override
         public StyleSheet getStyleSheet() {

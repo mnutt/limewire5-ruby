@@ -6,12 +6,12 @@ import org.limewire.service.MessageService;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
 /**
- * Provides methods to display notifications for common settings problems
+ * Provides methods to display notifications for common settings problems.
  */
 public class SettingsWarningManager {
 
     /**
-     * Warn about temporary directories
+     * Warn about temporary directories.
      */
     public static void checkTemporaryDirectoryUsage() {
         if (LimeWireUtils.isTemporaryDirectoryInUse()) {
@@ -22,7 +22,7 @@ public class SettingsWarningManager {
     }
 
     /**
-     * Warn about load/save problems
+     * Warn about load/save problems.
      */
     public static void checkSettingsLoadSaveFailure() {
         if (LimeWireUtils.hasSettingsLoadSaveFailures()) {

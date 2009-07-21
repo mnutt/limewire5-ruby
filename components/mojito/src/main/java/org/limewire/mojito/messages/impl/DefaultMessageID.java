@@ -39,7 +39,7 @@ import org.limewire.security.SecurityToken;
 /**
  * An 128bit, pseudo random implementation of MessageID with support
  * for tagging.
- * 
+ * <p>
  * This class is immutable!
  */
 public class DefaultMessageID implements MessageID, Comparable<DefaultMessageID> {
@@ -82,7 +82,7 @@ public class DefaultMessageID implements MessageID, Comparable<DefaultMessageID>
     }
 
     /**
-     * Creates a MessageID from the given InputStream
+     * Creates a MessageID from the given InputStream.
      */
     public static DefaultMessageID createWithInputStream(InputStream in, MACCalculatorRepositoryManager manager) throws IOException {
         byte[] messageId = new byte[LENGTH];
@@ -101,7 +101,7 @@ public class DefaultMessageID implements MessageID, Comparable<DefaultMessageID>
     }
     
     /**
-     * Creates and returns a MessageID from the given byte Array
+     * Creates and returns a MessageID from the given byte Array.
      */
     public static DefaultMessageID createWithBytes(byte[] messageId) {
         byte[] copy = new byte[messageId.length];
@@ -127,7 +127,7 @@ public class DefaultMessageID implements MessageID, Comparable<DefaultMessageID>
 
     /**
      * Creates and returns a MessageID from the given
-     * hex encoded String
+     * hex encoded String.
      */
     public static DefaultMessageID createWithHexString(String messageId) {
         return new DefaultMessageID(ArrayUtils.parseHexString(messageId), null);
@@ -167,7 +167,7 @@ public class DefaultMessageID implements MessageID, Comparable<DefaultMessageID>
     }
     
     /**
-     * Extracts and returns the AddressSecurityToken from the GUID
+     * Extracts and returns the AddressSecurityToken from the GUID.
      * @throws InvalidSecurityTokenException 
      */
     private SecurityToken getSecurityToken() throws InvalidSecurityTokenException {
@@ -233,14 +233,14 @@ public class DefaultMessageID implements MessageID, Comparable<DefaultMessageID>
     }
     
     /**
-     * Returns this MessageID as a hex String
+     * Returns this MessageID as a hex String.
      */
     public String toHexString() {
         return ArrayUtils.toHexString(messageId);
     }
 
     /**
-     * Returns this MessageID as a binary String
+     * Returns this MessageID as a binary String.
      */
     public String toBinString() {
         return ArrayUtils.toBinString(messageId);

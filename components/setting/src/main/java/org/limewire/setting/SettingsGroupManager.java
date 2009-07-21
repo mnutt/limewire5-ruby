@@ -19,29 +19,29 @@ import org.limewire.setting.evt.SettingsGroupManagerEvent.EventType;
 public final class SettingsGroupManager {
     
     /**
-     * The singleton instance of SettingsHandler
+     * The singleton instance of SettingsHandler.
      */
     private static final SettingsGroupManager INSTANCE = new SettingsGroupManager();
     
     /**
-     * Returns the singleton instance of the SettingsHandler
+     * Returns the singleton instance of the SettingsHandler.
      */
     public static SettingsGroupManager instance() {
         return INSTANCE;
     }
     
     /**
-     * A list of Settings this SettingsHandler is managing
+     * A list of Settings this SettingsHandler is managing.
      */
     private final Collection<SettingsGroup> PROPS = Collections.synchronizedList(new ArrayList<SettingsGroup>());
 
     /**
-     * A list of {@link SettingsGroupManagerListener}s
+     * A list of {@link SettingsGroupManagerListener}s.
      */
     private Collection<SettingsGroupManagerListener> listeners;
     
     /**
-     * The Executor for the Events
+     * The Executor for the Events.
      */
     private final Executor executor = ExecutorsHelper.newFixedSizeThreadPool(1, "SettingsHandlerEventDispatcher");
     
@@ -49,7 +49,7 @@ public final class SettingsGroupManager {
     private SettingsGroupManager() {}
     
     /**
-     * Registers a {@link SettingsGroupManagerListener}
+     * Registers a {@link SettingsGroupManagerListener}.
      */
     public void addSettingsHandlerListener(SettingsGroupManagerListener l) {
         if (l == null) {
@@ -65,7 +65,7 @@ public final class SettingsGroupManager {
     }
     
     /**
-     * Removes a {@link SettingsGroupManagerListener}
+     * Removes a {@link SettingsGroupManagerListener}.
      */
     public void removeSettingsHandlerListener(SettingsGroupManagerListener l) {
         if (l == null) {
@@ -84,7 +84,7 @@ public final class SettingsGroupManager {
     }
     
     /**
-     * Returns all {@link SettingsGroupManagerListener}s or null if there are none
+     * Returns all {@link SettingsGroupManagerListener}s or null if there are none.
      */
     public SettingsGroupManagerListener[] getSettingsHandlerListeners() {
         synchronized (this) {
@@ -116,7 +116,7 @@ public final class SettingsGroupManager {
     }
 
     /**
-     * Returns all {@link SettingsGroup}s that are currently registered
+     * Returns all {@link SettingsGroup}s that are currently registered.
      */
     public SettingsGroup[] getSettingsGroups() {
         return PROPS.toArray(new SettingsGroup[PROPS.size()]);
@@ -185,14 +185,14 @@ public final class SettingsGroupManager {
     }
     
     /**
-     * Fires a SettingsHandlerEvent
+     * Fires a SettingsHandlerEvent.
      */
     protected void fireSettingsHandlerEvent(EventType type, SettingsGroup group) {
         fireSettingsHandlerEvent(new SettingsGroupManagerEvent(type, this, group));
     }
     
     /**
-     * Fires a SettingsHandlerEvent
+     * Fires a SettingsHandlerEvent.
      */
     protected void fireSettingsHandlerEvent(final SettingsGroupManagerEvent evt) {
         if (evt == null) {
@@ -214,7 +214,7 @@ public final class SettingsGroupManager {
     }
     
     /**
-     * Fires a event on the Executor Thread
+     * Fires a event on the Executor Thread.
      */
     protected void execute(Runnable evt) {
         executor.execute(evt);

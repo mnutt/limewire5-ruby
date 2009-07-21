@@ -1,4 +1,3 @@
-/.cvsignore/1.4/Mon Mar 23 14:54:57 2009//
 /build.xml/1.42/Mon Mar 23 14:54:57 2009//
 D/collection////
 D/common////
@@ -27,3 +26,4 @@ D/swarm////
 D/test-util////
 D/xmpp////
 D/xmpp-api////
+/.cvsignore/1.5/Mon Jul 20 19:51:48 2009//

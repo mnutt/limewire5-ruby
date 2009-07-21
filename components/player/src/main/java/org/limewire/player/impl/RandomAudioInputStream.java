@@ -11,12 +11,12 @@ import java.io.RandomAccessFile;
 public class RandomAudioInputStream extends InputStream {
 
     /**
-     * The file the inputstream reads from
+     * The file the input stream reads from.
      */
     private final RandomAccessFile file;
 
     /**
-     * The current byte location in the file
+     * The current byte location in the file.
      */
     private long fileBytePosition;
 
@@ -55,7 +55,7 @@ public class RandomAudioInputStream extends InputStream {
     /**
      * Skip uses the RandomAccessFile seek. Note that unlike normal
      * seek on an inputStream, the value passed in here is the location
-     * from the begining of the file, not the current location in the stream.
+     * from the beginning of the file, not the current location in the stream.
      */
     @Override
     public long skip(long bytesToSkip) throws IOException { 

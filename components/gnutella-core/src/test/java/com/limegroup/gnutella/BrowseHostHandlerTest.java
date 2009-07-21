@@ -19,9 +19,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.protocol.SimpleNHttpRequestHandler;
 import org.apache.http.protocol.HttpContext;
-import org.limewire.core.api.friend.feature.features.AddressFeature;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.NetworkSettings;
+import org.limewire.friend.api.feature.AddressFeature;
 import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.Address;
@@ -41,9 +41,12 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.limegroup.gnutella.filters.IPFilter;
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.search.SearchResultHandler;
 import com.limegroup.gnutella.xml.LimeXMLDocumentHelper;
@@ -52,14 +55,15 @@ public class BrowseHostHandlerTest extends LimeTestCase {
 
     private final int PORT = 6668;
 
-    private FileManager fileManager;
+    @Inject private Library library;
+    @Inject @GnutellaFiles private FileView gnutellaFileView;
+    @Inject private BrowseHostHandlerManager browseHostHandlerManager;
+    @Inject private SocketsManager socketsManager;
+    @Inject private Injector injector;
+    @Inject @GnutellaFiles private FileCollection gnutellaFileCollection;
 
     private BrowseHostHandler browseHostHandler;
-
-    private SocketsManager socketsManager;
-
     private QueryReplyHandler queryReplyHandler;
-    private Injector injector;
 
     public BrowseHostHandlerTest(String name) {
         super(name);
@@ -83,11 +87,10 @@ public class BrowseHostHandlerTest extends LimeTestCase {
             protected void configure() {
                 bind(ForMeReplyHandler.class).to(QueryReplyHandler.class);
             }
-        });
+        }, LimeTestUtils.createModule(this));
 
-        fileManager = injector.getInstance(FileManager.class);
 
-        FileManagerTestUtils.waitForLoad(fileManager, 5000);
+        FileManagerTestUtils.waitForLoad(library, 5000);
         
         File dir = LimeTestUtils.getDirectoryWithLotsOfFiles();
         File[] testFiles = dir.listFiles(new FileFilter() {
@@ -96,17 +99,16 @@ public class BrowseHostHandlerTest extends LimeTestCase {
             }
         });
         for(File file : testFiles) {
-            assertNotNull(fileManager.getGnutellaFileList().add(file).get(1, TimeUnit.SECONDS));
+            assertNotNull(gnutellaFileCollection.add(file).get(1, TimeUnit.SECONDS));
         }
         
         File testMp3 = TestUtils.getResourceFile("com/limegroup/gnutella/resources/berkeley.mp3");
-        assertNotNull(fileManager.getGnutellaFileList().add(testMp3).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(testMp3).get(1, TimeUnit.SECONDS));
         
         assertGreaterThan("Not enough files to test against", 50, testFiles.length);
-        assertGreaterThan(0, fileManager.getGnutellaFileList().size());
+        assertGreaterThan(0, gnutellaFileCollection.size());
 
-        browseHostHandler = injector.getInstance(BrowseHostHandlerManager.class).createBrowseHostHandler(new GUID(), new GUID());
-        socketsManager = injector.getInstance(SocketsManager.class);
+        browseHostHandler = browseHostHandlerManager.createBrowseHostHandler(new GUID(), new GUID());
         queryReplyHandler = (QueryReplyHandler) injector.getInstance(Key.get(ReplyHandler.class, Names.named("forMeReplyHandler")));
     }
 
@@ -162,17 +164,17 @@ public class BrowseHostHandlerTest extends LimeTestCase {
             }
         }
 
-        assertEquals(fileManager.getGnutellaFileList().size(), files.size());
+        assertEquals(gnutellaFileView.size(), files.size());
 
-        fileManager.getGnutellaFileList().getReadLock().lock();
+        gnutellaFileView.getReadLock().lock();
         try {
-            for(FileDesc result : fileManager.getGnutellaFileList()) {
+            for(FileDesc result : gnutellaFileView) {
                 boolean contained = files.remove(result.getFileName());
                 assertTrue("File is missing in browse response: "
                     + result.getFileName(), contained);
             }
         } finally {
-            fileManager.getGnutellaFileList().getReadLock().unlock();
+            gnutellaFileView.getReadLock().unlock();
         }
         assertTrue("Browse returned more results than shared: " + files,
                 files.isEmpty());
@@ -202,12 +204,12 @@ public class BrowseHostHandlerTest extends LimeTestCase {
         }
 
         assertTrue(mp3Found);
-        assertEquals(fileManager.getGnutellaFileList().size(), files.size());
+        assertEquals(gnutellaFileView.size(), files.size());
 
-        fileManager.getGnutellaFileList().getReadLock().lock();
+        gnutellaFileView.getReadLock().lock();
         boolean limeXmlFound = false;
         try {
-            for(FileDesc result : fileManager.getGnutellaFileList()) {
+            for(FileDesc result : gnutellaFileView) {
                 boolean contained = files.remove(result.getFileName());
                 assertTrue("File is missing in browse response: "
                     + result.getFileName(), contained);
@@ -218,7 +220,7 @@ public class BrowseHostHandlerTest extends LimeTestCase {
             
             assertTrue(limeXmlFound);
         } finally {
-            fileManager.getGnutellaFileList().getReadLock().unlock();
+            gnutellaFileView.getReadLock().unlock();
         }
         assertTrue("Browse returned more results than shared: " + files,
                 files.isEmpty());
@@ -280,8 +282,8 @@ public class BrowseHostHandlerTest extends LimeTestCase {
     }
     
     public void testGetPathForNonAnonymousFriend() {
-        assertEquals("/friend/browse/me%40you.com/", browseHostHandler.getPath(new MockFriendPresence(new MockFriend("me@you.com", false))));
-        assertEquals("/friend/browse/Hello+There/", browseHostHandler.getPath(new MockFriendPresence(new MockFriend("Hello There", false))));
+        assertEquals("/friend/browse/me%40you.com/", browseHostHandler.getPath(new MockFriendPresence(new MockFriend("me@you.com", false), null)));
+        assertEquals("/friend/browse/Hello+There/", browseHostHandler.getPath(new MockFriendPresence(new MockFriend("Hello There", false), null)));
     }
 
     @Singleton

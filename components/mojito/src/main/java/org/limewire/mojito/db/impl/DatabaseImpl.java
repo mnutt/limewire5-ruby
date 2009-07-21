@@ -82,18 +82,18 @@ public class DatabaseImpl implements Database {
     private final Map<KUID, DHTValueEntityBag> database = new HashMap<KUID, DHTValueEntityBag>();
     
     /**
-     * The DatabaseSecurityConstraint handle
+     * The DatabaseSecurityConstraint handle.
      */
     private volatile DatabaseSecurityConstraint securityConstraint 
         = new DefaultDatabaseSecurityConstraint();
     
     /**
-     * A Map of masked IP address to number of values
+     * A Map of masked IP address to number of values.
      */
     private final IntHashMap<AtomicInteger> valuesPerNetwork = new IntHashMap<AtomicInteger>();
     
     /**
-     * A Map of IP address to number of values
+     * A Map of IP address to number of values.
      */
     private final IntHashMap<AtomicInteger> valuesPerAddress = new IntHashMap<AtomicInteger>();
     
@@ -153,7 +153,7 @@ public class DatabaseImpl implements Database {
     
     /**
      * Adds the given <code>DHTValue</code> to the Database succeeded.
-     * @return true if adding the <code>DHTValueEntity</code succeeded
+     * @return true if adding the <code>DHTValueEntity</code> succeeded
      */
     public synchronized boolean add(DHTValueEntity entity) {
         KUID primaryKey = entity.getPrimaryKey();
@@ -384,7 +384,7 @@ public class DatabaseImpl implements Database {
     }
     
     /**
-     * For internal use only
+     * For internal use only.
      */
     public synchronized DHTValueEntityBag getBag(KUID valueId) {
         return database.get(valueId);

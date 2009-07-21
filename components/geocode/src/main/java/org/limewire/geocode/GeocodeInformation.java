@@ -30,7 +30,7 @@ public final class GeocodeInformation {
     private final static Map<String, Property> STRINGS2PROPERTIES = new HashMap<String, Property>();
 
     /**
-     * The various values
+     * The various values.
      * 
      */
     public enum Property {
@@ -71,7 +71,7 @@ public final class GeocodeInformation {
         City("City"),
 
         /**
-         * ountry-specific postal code -- e.g. <code>10004</code>.
+         * Country-specific postal code -- e.g. <code>10004</code>.
          */
         PostalCode("PostalCode"),
 
@@ -86,9 +86,9 @@ public final class GeocodeInformation {
         Longitude("Longitude"),
 
         /**
-         * Dseignated market area code (<a
+         * Designated market area code (<a
          * href="http://en.wikipedia.org/wiki/Media_market">wikipedia</a>) --
-         * <code>e.g.</code>501</code>.
+         * e.g.<code>501</code>.
          */
         DmaCode("DmaCode"),
 
@@ -108,13 +108,6 @@ public final class GeocodeInformation {
             return s;
         }
     }
-
-    /**
-     * Returns the String value for {@link Property} or <code>null</code>.
-     * 
-     * @param p key value
-     * @return the String value for {@link Property} or <code>null</code>
-     */
 
     static {
         // We have to make reference to one so they resolve, in case we're

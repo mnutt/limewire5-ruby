@@ -7,17 +7,19 @@ import org.limewire.setting.PasswordSetting;
 import org.limewire.setting.StringArraySetting;
 import org.limewire.setting.StringSetting;
 import org.limewire.util.OSUtils;
+import org.limewire.inspection.InspectablePrimitive;
 
 /**
- * Settings for Digital Audio Access Protocol (DAAP)
+ * Settings for Digital Audio Access Protocol (DAAP).
  */
 public class DaapSettings extends LimeProps {
     
     private DaapSettings() {}
     
     /**
-     * Whether or not DAAP should be enabled
+     * Whether or not DAAP should be enabled.
      */
+    @InspectablePrimitive("share with itunes")
     public static BooleanSetting DAAP_ENABLED =
 	    FACTORY.createBooleanSetting("DAAP_ENABLED", true);
 	
@@ -42,31 +44,31 @@ public class DaapSettings extends LimeProps {
      * The name of the Library.
      */
     public static StringSetting DAAP_LIBRARY_NAME =
-	    (StringSetting)FACTORY.createStringSetting("DAAP_LIBRARY_NAME",
-	            getPossessiveUserName() + " LimeWire Tunes").
-	    setPrivate(true);
-	
+        (StringSetting)FACTORY.createStringSetting("DAAP_LIBRARY_NAME",
+                getPossessiveUserName() + " LimeWire Tunes").
+                setPrivate(true);
+
     /**
      * The maximum number of simultaneous connections. Note: There
      * is an audio stream per connection (i.e. there are actually 
-     * DAAP_MAX_CONNECTIONS*2)
+     * DAAP_MAX_CONNECTIONS*2).
      */
     public static IntSetting DAAP_MAX_CONNECTIONS =
         FACTORY.createIntSetting("DAAP_MAX_CONNECTIONS", 5);
         
     /**
-     * The port where the DaapServer is running
+     * The port where the DaapServer is running.
      */
     public static IntSetting DAAP_PORT =
-	    FACTORY.createIntSetting("DAAP_PORT", 5214);
-	
+        FACTORY.createIntSetting("DAAP_PORT", 5214);
+
     /**
      * The fully qualified service type name <code>_daap._tcp.local.</code>.
      * You shouldn't change this value as iTunes won't see our DaapServer.
      */
     public static StringSetting DAAP_TYPE_NAME =
-	FACTORY.createStringSetting("DAAP_TYPE_NAME", "_daap._tcp.local.");
-	
+        FACTORY.createStringSetting("DAAP_TYPE_NAME", "_daap._tcp.local.");
+
     /**
      * The name of the Service. I recommend to set this value to the
      * same as <code>DAAP_LIBRARY_NAME</code>.<p>
@@ -74,46 +76,46 @@ public class DaapSettings extends LimeProps {
      * name <code>DAAP_SERVICE_NAME.getValue() + "." + 
      * DAAP_TYPE_NAME.getValue()</code>
      */
-	public static StringSetting DAAP_SERVICE_NAME =
-		(StringSetting)FACTORY.createStringSetting("DAAP_SERVICE_NAME",
-		    getPossessiveUserName() + " LimeWire Tunes").
-		setPrivate(true);
-	
+    public static StringSetting DAAP_SERVICE_NAME =
+        (StringSetting)FACTORY.createStringSetting("DAAP_SERVICE_NAME",
+                getPossessiveUserName() + " LimeWire Tunes").
+                setPrivate(true);
+
     /**
-     * This isn't important
+     * This isn't important.
      */
     public static IntSetting DAAP_WEIGHT 
         = FACTORY.createIntSetting("DAAP_WEIGHT", 0);
     
     /**
-     * This isn't important
+     * This isn't important.
      */
     public static IntSetting DAAP_PRIORITY 
         = FACTORY.createIntSetting("DAAP_PRIORITY", 0);
-	
+
     /**
-     * Whether or not an username is required 
+     * Whether or not an username is required.
      */
     public static BooleanSetting DAAP_REQUIRES_USERNAME =
         FACTORY.createBooleanSetting("DAAP_REQUIRES_USERNAME", false);
     
     /**
-     * Whether or not password protection is enabled
+     * Whether or not password protection is enabled.
      */
     public static BooleanSetting DAAP_REQUIRES_PASSWORD =
-	    FACTORY.createBooleanSetting("DAAP_REQUIRES_PASSWORD", false);
+        FACTORY.createBooleanSetting("DAAP_REQUIRES_PASSWORD", false);
     
     /**
-     * The DAAP password
+     * The DAAP password.
      */
     public static StringSetting DAAP_USERNAME =
         FACTORY.createStringSetting("DAAP_USERNAME", "");
     
     /**
-     * The DAAP password
+     * The DAAP password.
      */
     public static PasswordSetting DAAP_PASSWORD =
-	    FACTORY.createPasswordSettingMD5("DAAP_PASSWORD", "");
+        FACTORY.createPasswordSettingMD5("DAAP_PASSWORD", "");
     
     /**
      * With default JVM settings we start to run out of memory

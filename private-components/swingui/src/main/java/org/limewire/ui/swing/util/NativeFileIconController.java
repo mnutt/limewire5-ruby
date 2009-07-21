@@ -179,8 +179,9 @@ public class NativeFileIconController implements FileIconController {
     }
      
     /**
-     * Returns the icon assocated with the extension.
-     * TODO: Implement better.
+     * Returns the icon associated with the extension.
+     */ 
+     /* TODO: Implement better.
      */
     public Icon getIconForExtension(String ext) {
         ext = ext.trim().toLowerCase();
@@ -268,8 +269,8 @@ public class NativeFileIconController implements FileIconController {
      * The NPE catching is required because of poorly built methods in
      * javax.swing.filechooser.FileSystemView that print true
      * exceptions to System.err and return null, instead of
-     * letting the exception propogate.
-     * 
+     * letting the exception propagate.
+     * <p>
      * The ULE catching is required because of strange Swing errors
      * that can't find the native code to:
      *  sun.awt.shell.Win32ShellFolder2.getFileSystemPath(I)Ljava/lang/String;     * 
@@ -380,7 +381,12 @@ public class NativeFileIconController implements FileIconController {
             
             // Similarly, with the My Documents folder, the icon is only valid if it's
             // retrieved as the child from the root.
-            if(OSUtils.isWindows() && roots.length == 1) {
+            // Do not execute this code on windows 7. The default logic works fine. 
+            // On windows 7 this breaks because View.getRoots only returns one root,
+            // the path to the Desktop folder.
+            // We bypass this code on Windows Vista.  It fails because the 
+            // Documents folder no longer has a desktop icon on Vista.
+            if(OSUtils.isWindows() && !OSUtils.isWindowsVista() && !OSUtils.isWindows7() && roots.length == 1) {
                 String path = SystemUtils.getSpecialPath(SpecialLocations.DOCUMENTS);
                 if(path != null) {
                     File documents = new File(path);

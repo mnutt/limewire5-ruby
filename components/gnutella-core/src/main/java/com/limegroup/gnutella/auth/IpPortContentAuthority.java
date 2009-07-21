@@ -24,8 +24,7 @@ public class IpPortContentAuthority implements ContentAuthority {
 
     private final UDPService udpService;
 
-    /** Constructs the authority with the given IpPort. 
-     * @param service */
+    /** Constructs the authority with the given IpPort. */
     IpPortContentAuthority(IpPort host, UDPService udpService) {
         this.authority = host;
         this.udpService = udpService;
@@ -36,7 +35,6 @@ public class IpPortContentAuthority implements ContentAuthority {
     /**
      * Constructs the authority with the given host/port.
      * You must call initialize prior to sending a message.
-     * @param udpService 
      */
     IpPortContentAuthority(String host, int port, UDPService udpService) {
         this.host = host;
@@ -50,7 +48,7 @@ public class IpPortContentAuthority implements ContentAuthority {
         udpService.send(m, authority);
     }
 
-    /** Constructs the authority from the host/port if necessary */
+    /** Constructs the authority from the host/port if necessary. */
     public boolean initialize() {
         if (authority == null) {
             try {

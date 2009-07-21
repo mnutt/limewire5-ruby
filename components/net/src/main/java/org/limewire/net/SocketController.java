@@ -17,17 +17,17 @@ public interface SocketController {
 
     /** 
      * Enqueue's this socket for wanting a connection.
-     * @param factory The factory which will create the socket.
-     * @param remoteAddress The address the socket will connect to.
-     * @param localAddress The local address this should be to.  (null allowed)
-     * @param timeout The amount of time to wait before timing out the connection.
-     * @param observer The ConnectObserver to notify about success or failure.
+     * @param factory the factory which will create the socket.
+     * @param remoteAddress the address the socket will connect to.
+     * @param localAddress the local address this should be to.  (null allowed)
+     * @param timeout the amount of time to wait before timing out the connection.
+     * @param observer the ConnectObserver to notify about success or failure.
      */ 
     Socket connect(NBSocketFactory factory, InetSocketAddress remoteAddress, InetSocketAddress localAddress, int timeout, ConnectObserver observer) throws IOException;
     
     /**
      * Dequeues any connections enqueued by the given ConnectObserver.
-     * Returns true if a connection was succesfully dequeued.
+     * Returns true if a connection was successfully dequeued.
      */
     boolean removeConnectObserver(ConnectObserver observer);
     

@@ -46,40 +46,40 @@ public class RemoteContact implements Contact {
 
     private static final Log LOG = LogFactory.getLog(RemoteContact.class);
     
-    /** This Contact's Node ID */
+    /** This Contact's Node ID. */
     private final KUID nodeId;
     
-    /** The Vendor code of this Contact */
+    /** The Vendor code of this Contact. */
     private final Vendor vendor;
     
-    /** The Version of this Contact */
+    /** The Version of this Contact. */
     private final Version version;
     
-    /** The instance ID of this Contact */
+    /** The instance ID of this Contact. */
     private final int instanceId;
     
-    /** The IP:Port of the Contact as reported in the IP Packet */
+    /** The IP:Port of the Contact as reported in the IP Packet. */
     private transient volatile SocketAddress sourceAddress;
     
-    /** The IP:Port of the Contact as reported in the DHTMessage */
+    /** The IP:Port of the Contact as reported in the DHTMessage. */
     private volatile SocketAddress contactAddress;
     
-    /** The Round Trip Time (RTT) */
+    /** The Round Trip Time (RTT). */
     private transient long rtt = -1L;
     
-    /** The time of the last successful contact */
+    /** The time of the last successful contact. */
     private volatile long timeStamp = 0L;
     
-    /** The time of the last unsuccessful contact  */
+    /** The time of the last unsuccessful contact.  */
     private volatile long lastFailedTime = 0L;
     
-    /** The number of errors that have occurred */
+    /** The number of errors that have occurred. */
     private volatile int failures = 0;
     
-    /** The current state of the Node */
+    /** The current state of the Node. */
     private transient volatile State state = State.UNKNOWN;
     
-    /** Whether or not this Node is firewalled */
+    /** Whether or not this Node is firewalled. */
     private volatile int flags = DEFAULT_FLAG;
     
     public RemoteContact(SocketAddress sourceAddress, Vendor vendor, Version version, 
@@ -312,14 +312,14 @@ public class RemoteContact implements Contact {
     }
     
     /**
-     * Returns the state of this Contact
+     * Returns the state of this Contact.
      */
     public State getState() {
         return state;
     }
     
     /**
-     * Sets the state of this Contact
+     * Sets the state of this Contact.
      */
     public void setState(State state) {
         if (state == null) {

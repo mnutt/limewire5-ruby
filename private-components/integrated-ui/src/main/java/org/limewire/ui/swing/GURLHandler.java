@@ -7,8 +7,8 @@ import org.limewire.service.ErrorService;
 import com.limegroup.gnutella.browser.ExternalControl;
 
 /**
- * JNI based GetURL AppleEvent handler for Mac OS X
- * Do not move this class without rebuilding the native lib
+ * JNI based GetURL AppleEvent handler for Mac OS X.
+ * Do not move this class without rebuilding the native lib.
  */
 public final class GURLHandler {
     
@@ -34,28 +34,25 @@ public final class GURLHandler {
         return instance;
     }
         
-    /** Called by the native code */
+    /** Called by the native code. */
     @SuppressWarnings("unused")
     private void callback(final String url) {
-		if ( enabled && externalControl.isInitialized() ) {
-			Runnable runner = new Runnable() {
-				public void run() {
+        if ( enabled && externalControl.isInitialized() ) {
+            Runnable runner = new Runnable() {
+                public void run() {
                     try {
                         externalControl.handleMagnetRequest(url);
                     } catch(Throwable t) {
                         ErrorService.error(t);
                     }
-				} 
-			};
-			SwingUtilities.invokeLater(runner);
-		} else {
+                } 
+            };
+            SwingUtilities.invokeLater(runner);
+        } else {
             this.url = url;
-		}
+        }
     }
     
-    /**
-     * 
-     */
     public void enable(ExternalControl externalControl) {
         this.externalControl = externalControl;
         externalControl.enqueueControlRequest(url);
@@ -65,7 +62,7 @@ public final class GURLHandler {
     
     /** Registers the GetURL AppleEvent handler. */
     public void register() {
-		if (!registered) {
+        if (!registered) {
             if (InstallEventHandler() == 0) {
                 registered = true;
             }
@@ -73,7 +70,7 @@ public final class GURLHandler {
     }
     
     /** We're nice guys and remove the GetURL AppleEvent handler although
-    this never happens */
+    this never happens. */
     @Override
     protected void finalize() throws Throwable {
         if (registered) {

@@ -42,7 +42,7 @@ import org.limewire.mojito.util.ContactUtils;
 
 /**
  * This class pings a given number of hosts in parallel 
- * and returns the first successfull ping.
+ * and returns the first successful ping.
  */
 public class PingResponseHandler extends AbstractResponseHandler<PingResult> {
     
@@ -234,17 +234,17 @@ public class PingResponseHandler extends AbstractResponseHandler<PingResult> {
     /**
      * The PingIterator interfaces allows PingResponseHandler to
      * send ping requests to any type of contacts like SocketAddress
-     * or an actual Contact
+     * or an actual Contact.
      */
     public static interface PingIterator {
         
         /**
-         * Returns true if there are more elements to ping
+         * Returns true if there are more elements to ping.
          */
         public boolean hasNext();
         
         /**
-         * Sends a ping to the next element
+         * Sends a ping to the next element.
          */
         public boolean pingNext(Context context, 
                 PingResponseHandler responseHandler) throws IOException;

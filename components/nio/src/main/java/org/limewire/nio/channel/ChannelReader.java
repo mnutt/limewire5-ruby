@@ -6,7 +6,7 @@ package org.limewire.nio.channel;
  */
 public interface ChannelReader {
     
-    /** Set the source channel */
+    /** Set the source channel. */
     void setReadChannel(InterestReadableByteChannel newChannel);
     
     /** Gets the source channel. */

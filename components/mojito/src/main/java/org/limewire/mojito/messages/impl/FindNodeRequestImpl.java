@@ -32,7 +32,7 @@ import org.limewire.mojito.routing.Version;
 
 
 /**
- * An implementation of FindNodeRequest
+ * An implementation of FindNodeRequest.
  */
 public class FindNodeRequestImpl extends AbstractLookupRequest
         implements FindNodeRequest {

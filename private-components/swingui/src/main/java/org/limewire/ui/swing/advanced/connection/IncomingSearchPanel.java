@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 
+import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.monitor.IncomingSearchManager;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.ui.swing.search.DefaultSearchInfo;
@@ -22,7 +23,8 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.swing.EventListModel;
+import ca.odell.glazedlists.impl.swing.SwingThreadProxyEventList;
+import ca.odell.glazedlists.swing.DefaultEventListModel;
 
 import com.google.inject.Inject;
 
@@ -33,6 +35,8 @@ public class IncomingSearchPanel extends JPanel {
     
     /** Manager instance for incoming search data. */
     private IncomingSearchManager incomingManager;
+    /** The swing-thread wrapped event list, to dispose of later. */
+    private SwingThreadProxyEventList<String> swingThreadList;
     
     /** Handler instance for outgoing searches. */
     private SearchHandler searchHandler;
@@ -90,14 +94,15 @@ public class IncomingSearchPanel extends JPanel {
      * Initializes the data models in the container.
      */
     public void initData() {
-        if (!(incomingList.getModel() instanceof EventListModel)) {
+        if (!(incomingList.getModel() instanceof DefaultEventListModel)) {
             // Get list of incoming search queries.
             EventList<String> incomingSearchList = incomingManager.getIncomingSearchList();
-
+            swingThreadList = GlazedListsFactory.swingThreadProxyEventList(incomingSearchList);
+                
             // Set the list model.  EventListModel automatically wraps the 
             // actual list in a Swing list to ensure that all events are fired 
             // on the UI thread.
-            incomingList.setModel(new EventListModel<String>(incomingSearchList));
+            incomingList.setModel(new DefaultEventListModel<String>(swingThreadList));
         }
     }
     
@@ -107,8 +112,13 @@ public class IncomingSearchPanel extends JPanel {
     public void clearData() {
         // Get list model and dispose resources.
         ListModel listModel = incomingList.getModel();
-        if (listModel instanceof EventListModel) {
-            ((EventListModel) listModel).dispose();
+        if (listModel instanceof DefaultEventListModel) {
+            ((DefaultEventListModel) listModel).dispose();
+        }
+        
+        if(swingThreadList != null) {
+            swingThreadList.dispose();
+            swingThreadList = null;
         }
         
         // Set default model to remove old reference.

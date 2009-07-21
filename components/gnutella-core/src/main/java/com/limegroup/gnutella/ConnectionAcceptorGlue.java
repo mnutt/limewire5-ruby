@@ -8,7 +8,6 @@ import org.limewire.net.ConnectionDispatcher;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.limegroup.bittorrent.TorrentManager;
 import com.limegroup.gnutella.browser.ControlRequestAcceptor;
 import com.limegroup.gnutella.browser.LocalHTTPAcceptor;
 import com.limegroup.gnutella.downloader.PushDownloadManager;
@@ -23,7 +22,6 @@ class ConnectionAcceptorGlue {
     private final LocalHTTPAcceptor localHttpAcceptor;
     private final HTTPAcceptor externalHttpAcceptor;
     private final PushDownloadManager pushDownloadManager;
-    private final TorrentManager torrentManager;
     private final ControlRequestAcceptor controlRequestAcceptor;
     private final LWSManager lwsManager;
 
@@ -34,14 +32,12 @@ class ConnectionAcceptorGlue {
             HTTPAcceptor externalHttpAcceptor,
             LocalHTTPAcceptor localHttpAcceptor,
             PushDownloadManager pushDownloadManager,
-            TorrentManager torrentManager,
             ControlRequestAcceptor controlRequestAcceptor,
             LWSManager lwsManager) {
         this.externalDispatcher = externalDispatcher;
         this.localDispatcher = localDispatcher;
         this.externalHttpAcceptor = externalHttpAcceptor;
         this.pushDownloadManager = pushDownloadManager;
-        this.torrentManager = torrentManager;
         this.localHttpAcceptor = localHttpAcceptor;
         this.controlRequestAcceptor = controlRequestAcceptor;
         this.lwsManager = lwsManager;
@@ -66,7 +62,6 @@ class ConnectionAcceptorGlue {
                 externalDispatcher.addConnectionAcceptor(externalHttpAcceptor, false,
                         externalHttpAcceptor.getHttpMethods());
                 externalDispatcher.addConnectionAcceptor(pushDownloadManager, false, "GIV");
-                torrentManager.initialize(externalDispatcher);
                 localDispatcher.addConnectionAcceptor(localHttpAcceptor, true, localHttpAcceptor
                         .getHttpMethods());
                 localDispatcher.addConnectionAcceptor(controlRequestAcceptor,

@@ -29,7 +29,7 @@ public class CompositeQueue implements MessageQueue {
 
 
     /**
-     * The producer's queues, one priority per mesage type. 
+     * The producer's queues, one priority per message type. 
      *  INVARIANT: _queues.length==PRIORITIES
      */
     private MessageQueue[] _queues = new MessageQueue[PRIORITIES];
@@ -69,7 +69,7 @@ public class CompositeQueue implements MessageQueue {
     private int _dropped = 0;
     
     /**
-     * A larger queue size than the standard to accomodate higher priority 
+     * A larger queue size than the standard to accommodate higher priority 
      *  messages, such as queries and query hits.
      */
     private static final int BIG_QUEUE_SIZE = 100;
@@ -79,10 +79,10 @@ public class CompositeQueue implements MessageQueue {
      * much memory on lower priority messages. */
     private static final int QUEUE_SIZE = 1;
     
-    /** The max time to keep reply messages and pushes in the queues, in milliseconds */
+    /** The max time to keep reply messages and pushes in the queues, in milliseconds. */
     private static final int BIG_QUEUE_TIME=10*1000;
     
-    /** The max time to keep queries, pings, and pongs in the queues, in milliseconds */
+    /** The max time to keep queries, pings, and pongs in the queues, in milliseconds. */
     public static final int QUEUE_TIME=5*1000;
     
     /** The number of different priority levels. */
@@ -101,7 +101,7 @@ public class CompositeQueue implements MessageQueue {
     private static final int PRIORITY_PING_REPLY=5;
     private static final int PRIORITY_PING=6;
     private static final int PRIORITY_OTHER=7;    
-    private static final int PRIORITY_OUR_QUERY=8 ; // seperate for re-originated leaf-queries.
+    private static final int PRIORITY_OUR_QUERY=8 ; // Separate for re-originated leaf-queries.
     
     /**
      * Constructs a new queue with the default sizes.
@@ -147,7 +147,9 @@ public class CompositeQueue implements MessageQueue {
 
     /** 
      * Returns the send priority for the given message, with higher number for
-     * higher priorities.  TODO: this method will eventually be moved to
+     * higher priorities.  
+     */
+    /* TODO: this method will eventually be moved to
      * MessageRouter and account for number of reply bytes.
      */
     private int calculatePriority(Message m) {

@@ -36,7 +36,7 @@ class KeyStoreProviderImpl implements KeyStoreProvider {
     private volatile File keyStoreLocation;
     private volatile char[] keyStorePassword;
 
-    private final Log LOG = LogFactory.getLog(KeyStoreProviderImpl.class);
+    private static final Log LOG = LogFactory.getLog(KeyStoreProviderImpl.class);
 
     @Inject
     KeyStoreProviderImpl(Provider<HttpClient> httpClient) {

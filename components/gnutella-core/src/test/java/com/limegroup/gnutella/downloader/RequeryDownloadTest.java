@@ -41,7 +41,6 @@ import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.DownloadManagerImpl;
 import com.limegroup.gnutella.Downloader;
-import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.ForMeReplyHandler;
 import com.limegroup.gnutella.GuidMapManager;
 import com.limegroup.gnutella.HostCatcher;
@@ -63,12 +62,13 @@ import com.limegroup.gnutella.UDPReplyHandlerCache;
 import com.limegroup.gnutella.UDPService;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.UploadManager;
+import com.limegroup.gnutella.Downloader.DownloadState;
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.connection.RoutedConnectionFactory;
 import com.limegroup.gnutella.dht.DHTManager;
 import com.limegroup.gnutella.filters.URNFilter;
 import com.limegroup.gnutella.guess.OnDemandUnicaster;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileViewManager;
 import com.limegroup.gnutella.library.SharedFilesKeywordIndex;
 import com.limegroup.gnutella.messagehandlers.InspectionRequestHandler;
 import com.limegroup.gnutella.messagehandlers.LimeACKHandler;
@@ -337,7 +337,7 @@ public class RequeryDownloadTest extends LimeTestCase {
                 HeadPongFactory headPongFactory, PingReplyFactory pingReplyFactory,
                 ConnectionManager connectionManager, @Named("forMeReplyHandler")
                 ReplyHandler forMeReplyHandler, QueryUnicaster queryUnicaster,
-                FileManager fileManager, ContentManager contentManager,
+                FileViewManager fileManager, ContentManager contentManager,
                 DHTManager dhtManager, UploadManager uploadManager,
                 DownloadManager downloadManager, UDPService udpService,
                 SearchResultHandler searchResultHandler,

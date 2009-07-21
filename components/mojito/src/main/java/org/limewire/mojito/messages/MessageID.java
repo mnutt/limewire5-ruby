@@ -30,7 +30,7 @@ import java.net.SocketAddress;
 public interface MessageID extends Serializable {
 
     /**
-     * Returns true if tagging is supported
+     * Returns true if tagging is supported.
      */
     public boolean isTaggingSupported();
     
@@ -42,24 +42,24 @@ public interface MessageID extends Serializable {
     public boolean isFor(SocketAddress dst);
     
     /**
-     * Writes this MessageID to the OutputStream
+     * Writes this MessageID to the OutputStream.
      */
     public void write(OutputStream os) throws IOException;
 
     /**
-     * Returns the length of the MessageID in bytes
+     * Returns the length of the MessageID in bytes.
      */
     public int getLength();
     
     /**
      * Returns the raw bytes of the MessageID. The
      * returned byte[] array is a copy and modifications
-     * are not reflected to the MessageID
+     * are not reflected to the MessageID.
      */
     public byte[] getBytes();
 
     /**
-     * Returns the raw bytes of the current MessageID from the specified interval
+     * Returns the raw bytes of the current MessageID from the specified interval.
      */
     public byte[] getBytes(int srcPos, byte[] dest, int destPos, int length);
 }

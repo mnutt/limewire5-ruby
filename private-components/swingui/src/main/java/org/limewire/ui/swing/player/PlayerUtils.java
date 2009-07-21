@@ -3,24 +3,29 @@ package org.limewire.ui.swing.player;
 import java.io.File;
 import java.util.Locale;
 
-import org.limewire.player.api.AudioPlayer;
-import org.limewire.player.api.AudioSource;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 
 import com.google.inject.Inject;
-//TODO:  this is not the best way to handle player access but it gets it working for now.
+import com.google.inject.Provider;
+
+/**
+ * Utility methods to access the audio player.  PlayerUtils accesses the player
+ * using an instance of PlayerMediator.  The UI may also work with the 
+ * PlayerMediator directly, which maintains a playlist and various play modes
+ * like shuffle.
+ */
 public class PlayerUtils {
+
     @Inject
-    private static AudioPlayer player;
+    private static Provider<PlayerMediator> playerProvider;
 
     private static void play(File audioFile){
-        player.loadSong(audioFile);
-        player.playSong();
+        playerProvider.get().play(audioFile);
     }
     
     public static boolean isPlaying(File audioFile){
-        return player.isPlaying(audioFile);
+        return playerProvider.get().isPlaying(audioFile);
     }
     
     public static boolean isPlayableFile(File file) {
@@ -29,16 +34,15 @@ public class PlayerUtils {
     }
 
     public static void pause() {
-        player.pause();
+        playerProvider.get().pause();
     }
     
     public static void stop() {
-        player.stop();
+        playerProvider.get().stop();
     }
     
     /**Plays file internally if playable.  Launches native player otherwise.
      * 
-     * @param file
      * @return true if file is played internally, false if played in native player
      */
     public static boolean playOrLaunch(File file) {
@@ -57,7 +61,6 @@ public class PlayerUtils {
      *         nothing is playing or if the audio source is not a file.
      */
     public static File getCurrentSongFile(){
-        AudioSource source = player.getCurrentSong();
-        return source == null? null : source.getFile();
+        return playerProvider.get().getCurrentSongFile();
     }
 }

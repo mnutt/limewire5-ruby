@@ -8,7 +8,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.limegroup.gnutella.ResponseFactory;
 import com.limegroup.gnutella.messages.OutgoingQueryReplyFactory;
-import com.limegroup.gnutella.uploader.authentication.HttpRequestFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.HttpRequestFileViewProvider;
 
 @Singleton
 public class BrowseRequestHandlerFactory {
@@ -29,7 +29,7 @@ public class BrowseRequestHandlerFactory {
         this.tracker = tracker;
     }
     
-    public BrowseRequestHandler createBrowseRequestHandler(HttpRequestFileListProvider browseRequestFileListProvider,
+    public BrowseRequestHandler createBrowseRequestHandler(HttpRequestFileViewProvider browseRequestFileListProvider,
                                                            boolean requiresAuthentication) {
         if(!requiresAuthentication) {
             return new BrowseRequestHandler(sessionManager, responseFactory, outgoingQueryReplyFactory,
@@ -42,7 +42,7 @@ public class BrowseRequestHandlerFactory {
     
     @RequiresAuthentication 
     class ProtectedBrowseRequestHandler extends BrowseRequestHandler {
-        ProtectedBrowseRequestHandler(HTTPUploadSessionManager sessionManager, Provider<ResponseFactory> responseFactory, OutgoingQueryReplyFactory outgoingQueryReplyFactory, HttpRequestFileListProvider browseRequestFileListProvider) {
+        ProtectedBrowseRequestHandler(HTTPUploadSessionManager sessionManager, Provider<ResponseFactory> responseFactory, OutgoingQueryReplyFactory outgoingQueryReplyFactory, HttpRequestFileViewProvider browseRequestFileListProvider) {
             super(sessionManager, responseFactory, outgoingQueryReplyFactory, browseRequestFileListProvider, tracker);
         }
     }

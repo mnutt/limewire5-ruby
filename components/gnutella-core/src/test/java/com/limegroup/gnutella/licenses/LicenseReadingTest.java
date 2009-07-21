@@ -13,7 +13,7 @@ import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.NameValue;
 import org.limewire.util.TestUtils;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.limegroup.gnutella.metadata.MetaDataFactory;
 import com.limegroup.gnutella.metadata.audio.AudioMetaData;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
@@ -21,8 +21,9 @@ import com.limegroup.gnutella.xml.LimeXMLDocumentFactory;
 
 public final class LicenseReadingTest extends LimeTestCase {
 
-	private LimeXMLDocumentFactory limeXMLDocumentFactory;
-	private MetaDataFactory metaDataFactory;
+	@Inject private LimeXMLDocumentFactory limeXMLDocumentFactory;
+	@Inject private MetaDataFactory metaDataFactory;
+	@Inject private LicenseFactory licenseFactory;
 
     public LicenseReadingTest(String name) {
 		super(name);
@@ -41,9 +42,7 @@ public final class LicenseReadingTest extends LimeTestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-		Injector injector = LimeTestUtils.createInjector();
-		limeXMLDocumentFactory = injector.getInstance(LimeXMLDocumentFactory.class);
-		metaDataFactory = injector.getInstance(MetaDataFactory.class);
+		LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
 	}
 	
 	public void testReadID3AndXML() throws Exception {
@@ -94,7 +93,7 @@ public final class LicenseReadingTest extends LimeTestCase {
         }
         assertTrue(licenseTypeFound);
         
-        License l = doc.getLicense();
+        License l = licenseFactory.create(doc.getLicenseString());
         assertNotNull(l);
         assertEquals(CCLicense.class, l.getClass());
         assertFalse(l.isVerified());
@@ -178,7 +177,7 @@ public final class LicenseReadingTest extends LimeTestCase {
         }
         assertTrue(licenseTypeFound);
         
-        License l = doc.getLicense();
+        License l = licenseFactory.create(doc.getLicenseString());
         assertNotNull(l);
         assertEquals(WeedLicense.class, l.getClass());
         assertFalse(l.isVerified());

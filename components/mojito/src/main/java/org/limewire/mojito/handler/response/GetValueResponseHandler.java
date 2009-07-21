@@ -46,7 +46,7 @@ import org.limewire.security.SecurityToken;
 
 
 /**
- * The GetValueResponseHandler retrieves DHTValues from a remote Node
+ * The GetValueResponseHandler retrieves DHTValues from a remote Node.
  */
 public class GetValueResponseHandler extends AbstractResponseHandler<FindValueResult> {
         

@@ -29,18 +29,17 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTable;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.ui.swing.table.AbstractTableFormat;
-import org.limewire.ui.swing.util.GlazedListsSwingFactory;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 import com.google.inject.Inject;
 
 /**
- * Network Interface Option View
+ * Network Interface Option View.
  */
 public class NetworkInterfaceOptionPanel extends OptionPanel {
 
@@ -58,6 +57,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
     @Inject
     public NetworkInterfaceOptionPanel() {
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
+        setOpaque(false);
         
         add(getNetworkPanel(), "pushx, growx");
     }
@@ -66,16 +66,20 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createTitledBorder(""));
         p.setLayout(new MigLayout("gapy 10"));
+        p.setOpaque(false);
         
         limewireChooseRadioButton = new JRadioButton(I18n.tr("Let LimeWire choose my network interface (Recommended)"));
         meChooseRadioButton = new JRadioButton(I18n.tr("Let me choose a specific network interface"));
+        
+        limewireChooseRadioButton.setOpaque(false);
+        meChooseRadioButton.setOpaque(false);
         
         buttonGroup = new ButtonGroup();
         buttonGroup.add(limewireChooseRadioButton);
         buttonGroup.add(meChooseRadioButton);
         
         eventList = GlazedLists.threadSafeList(new BasicEventList<NetworkItem>());
-        table = new NetworkTable(GlazedListsSwingFactory.eventTableModel(eventList, new NetworkTableFormat()));
+        table = new NetworkTable(new DefaultEventTableModel<NetworkItem>(eventList, new NetworkTableFormat()));
         scrollPane = new JScrollPane(table);
         scrollPane.setVisible(false);
         
@@ -169,7 +173,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
     
     private class NetworkTable extends JXTable {
         
-        public NetworkTable(EventTableModel<NetworkItem> model) {
+        public NetworkTable(DefaultEventTableModel<NetworkItem> model) {
             super(model);
             setShowGrid(false, false);
             setColumnSelectionAllowed(false);
@@ -260,8 +264,12 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 
-            NetworkItem item = (NetworkItem) value;
-            this.setSelected(item.isSelected);
+            if(value instanceof NetworkItem) {
+                NetworkItem item = (NetworkItem) value;
+                this.setSelected(item.isSelected);
+            } else {
+                this.setSelected(false);
+            }
             
             if(isSelected) 
                 setBackground(table.getSelectionBackground());

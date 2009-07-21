@@ -109,7 +109,7 @@ public class BusyLeafQRTUpdateTest extends LimeTestCase {
     private class QRPUpdaterStub extends QRPUpdater {
 
         public QRPUpdaterStub() {
-            super(null, null, null);
+            super(null, null, null, null);
         }
 
         @Override

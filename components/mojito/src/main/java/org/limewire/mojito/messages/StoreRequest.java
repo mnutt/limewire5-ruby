@@ -26,7 +26,7 @@ import org.limewire.security.SecurityToken;
 
 
 /**
- * An interface for StoreRequest implementations
+ * An interface for StoreRequest implementations.
  */
 public interface StoreRequest extends RequestMessage {
 
@@ -38,7 +38,7 @@ public interface StoreRequest extends RequestMessage {
 
     /**
      * A Collection of DHTValue(s) we're supposed to
-     * store at our Node
+     * store at our Node.
      */
     public Collection<? extends DHTValueEntity> getDHTValueEntities();
 }

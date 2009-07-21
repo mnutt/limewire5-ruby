@@ -80,7 +80,7 @@ public interface RUDPMessage {
 
     /**
      *  Extend the sequence number of incoming messages with the full 8 bytes
-     *  of state
+     *  of state.
      */
     public void extendSequenceNumber(long seqNo);
 

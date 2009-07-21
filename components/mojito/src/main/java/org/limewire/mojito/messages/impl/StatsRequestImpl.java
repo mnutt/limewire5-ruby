@@ -34,7 +34,7 @@ import org.limewire.mojito.routing.Version;
 
 
 /**
- * An implementation of StatsRequest
+ * An implementation of StatsRequest.
  */
 public class StatsRequestImpl extends AbstractRequestMessage
         implements StatsRequest {

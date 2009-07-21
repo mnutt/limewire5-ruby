@@ -11,17 +11,16 @@ import org.limewire.io.Address;
 public interface AddressFactory {
     /**
      * Registers an AddressSerializer with this AddressFactory.
-     * @param serializer
      */
     public void registerSerializer(AddressSerializer serializer);
 
     /**
-     * @param addressClass cannot be null
+     * @param address cannot be null
      * @return the AddressSerializer for a particular class
      * @throws IllegalArgumentException if an AddressSerializer does not
-     * exist for the specified class
+     * exist for the specified address
      */
-    public AddressSerializer getSerializer(Class <? extends Address> addressClass) throws IllegalArgumentException;
+    public AddressSerializer getSerializer(Address address) throws IllegalArgumentException;
     /**
      * Looks up serializer by {@link AddressSerializer#getAddressType()}. 
      * @return null if no serializer is registered for that type
@@ -33,15 +32,13 @@ public interface AddressFactory {
      * @param type the type of message contained in the byte array.  Will match
      * AddressSerializer.getType() for the AddressSerialzer for the Address contained
      * in the byte []
-     * @param serializedAddress
      * @return a non-null Address
      * @throws IOException if there is an error deserializing the Address
      */
     public Address deserialize(String type, byte [] serializedAddress) throws IOException;
 
     /**
-     * turns a user-input String into an Address
-     * @param address
+     * Turns a user-input String into an Address.
      * @return  an address representing the String parameter; never null
      * @throws IOException if the input cannot be converted into an Address
      */

@@ -2,17 +2,13 @@ package org.limewire.ui.swing.options;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.text.NumberFormat;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
-import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -26,7 +22,7 @@ import org.limewire.ui.swing.util.I18n;
 import com.google.inject.Inject;
 
 /**
- * Connections Option View
+ * Connections Option View.
  */
 public class ConnectionsOptionPanel extends OptionPanel {
 
@@ -110,9 +106,8 @@ public class ConnectionsOptionPanel extends OptionPanel {
             buttonGroup.add(dialupButton);
             
             add(new JLabel(I18n.tr("Set your connection speed")), "push");
-            add(broadBandButton, "wrap");
-
-            add(dialupButton, "skip 1");
+            add(broadBandButton);
+            add(dialupButton);
         }
         
         @Override
@@ -146,14 +141,11 @@ public class ConnectionsOptionPanel extends OptionPanel {
     private class DownloadsPanel extends OptionPanel {
 
         private static final int MIN_DOWNLOADS = 1;
-        private static final int MAX_DOWNLOADS = 10;
-        private static final int MIN_SLIDER = 5;
-        private static final int MAX_SLIDER = 100;
+        private static final int MAX_DOWNLOADS = 999;
         
         private JSpinner maxDownloadSpinner;
         private JCheckBox limitBandWidthCheckBox;
-        private JSlider bandWidthSlider;
-        private JLabel bandWidthLabel;
+        private BandWidthSlider bandWidthSlider;
         
         public DownloadsPanel() {
             super(I18n.tr("Downloads"));
@@ -161,22 +153,17 @@ public class ConnectionsOptionPanel extends OptionPanel {
             maxDownloadSpinner = new JSpinner(new SpinnerNumberModel(MIN_DOWNLOADS, MIN_DOWNLOADS, MAX_DOWNLOADS, 1));
             limitBandWidthCheckBox = new JCheckBox(I18n.tr("Limit your download bandwidth"));
             limitBandWidthCheckBox.setContentAreaFilled(false);
-            bandWidthLabel = new JLabel();
-            bandWidthLabel.setVisible(false);
-            bandWidthSlider = new JSlider(MIN_SLIDER, MAX_SLIDER);
+
+            bandWidthSlider = new BandWidthSlider();
             bandWidthSlider.setVisible(false);
-            bandWidthSlider.setMajorTickSpacing(10);
-            bandWidthSlider.addChangeListener(new ThrottleChangeListener(bandWidthSlider, bandWidthLabel));
-            
-            limitBandWidthCheckBox.addItemListener(new CheckBoxListener(bandWidthSlider, limitBandWidthCheckBox, bandWidthLabel));
+            limitBandWidthCheckBox.addItemListener(new CheckBoxListener(bandWidthSlider, limitBandWidthCheckBox));
             
             add(new JLabel(I18n.tr("Don't allow more than")), "split");
             add(maxDownloadSpinner, "split");
             add(new JLabel(I18n.tr("downloads at once")), "wrap");
             
             add(limitBandWidthCheckBox, "aligny 50%, split");
-            add(bandWidthSlider, "aligny 50%");
-            add(bandWidthLabel, "aligny 50%");
+            add(bandWidthSlider, "aligny 50%, wrap");
         }
         
         @Override
@@ -185,7 +172,7 @@ public class ConnectionsOptionPanel extends OptionPanel {
             if(limitBandWidthCheckBox.isSelected()) {
                 DownloadSettings.DOWNLOAD_SPEED.setValue(bandWidthSlider.getValue());
             } else {
-                DownloadSettings.DOWNLOAD_SPEED.setValue(MAX_SLIDER);
+                DownloadSettings.DOWNLOAD_SPEED.setValue(BandWidthSlider.MAX_SLIDER);
             }
             return false;
         }
@@ -211,39 +198,31 @@ public class ConnectionsOptionPanel extends OptionPanel {
 
         private static final int MIN_UPLOADS = 0;
         private static final int MAX_UPLOADS = 50;
-        private static final int MIN_SLIDER = 25;
-        private static final int MAX_SLIDER = 100;
         
         private JSpinner maxUploadSpinner;
         private JCheckBox uploadBandwidthCheckBox;
         private JCheckBox clearUploadCheckBox;
-        private JSlider bandWidthSlider;
-        private JLabel bandWidthLabel;
+        private BandWidthSlider bandWidthSlider;
         
         public UploadsPanel() {
             super(I18n.tr("Uploads"));
-            
+
             maxUploadSpinner = new JSpinner(new SpinnerNumberModel(MIN_UPLOADS, MIN_UPLOADS, MAX_UPLOADS, 1));
             uploadBandwidthCheckBox = new JCheckBox(I18n.tr("Limit your upload bandwidth"));
             uploadBandwidthCheckBox.setContentAreaFilled(false);
             clearUploadCheckBox = new JCheckBox(I18n.tr("Clear uploads from list when finished"));
             clearUploadCheckBox.setContentAreaFilled(false);
-            bandWidthLabel = new JLabel();
-            bandWidthLabel.setVisible(false);
-            bandWidthSlider = new JSlider(MIN_SLIDER, MAX_SLIDER);
-            bandWidthSlider.setVisible(false);
-            bandWidthSlider.setMajorTickSpacing(10);
-            bandWidthSlider.addChangeListener(new ThrottleChangeListener(bandWidthSlider, bandWidthLabel));
             
-            uploadBandwidthCheckBox.addItemListener(new CheckBoxListener(bandWidthSlider, uploadBandwidthCheckBox, bandWidthLabel));
+            bandWidthSlider = new BandWidthSlider();
+            bandWidthSlider.setVisible(false);
+            uploadBandwidthCheckBox.addItemListener(new CheckBoxListener(bandWidthSlider, uploadBandwidthCheckBox));
             
             add(new JLabel(I18n.tr("Don't allow more than")), "split");
             add(maxUploadSpinner, "split");
             add(new JLabel(I18n.tr("uploads at once")), "wrap");
             
             add(uploadBandwidthCheckBox, "aligny 50%, split");
-            add(bandWidthSlider, "aligny 50%, split");
-            add(bandWidthLabel, "aligny 50%, wrap");
+            add(bandWidthSlider, "aligny 50%, wrap");
             
             add(clearUploadCheckBox, "split");
         }
@@ -256,7 +235,7 @@ public class ConnectionsOptionPanel extends OptionPanel {
             if(uploadBandwidthCheckBox.isSelected()) {
                 UploadSettings.UPLOAD_SPEED.setValue(bandWidthSlider.getValue());
             } else {
-                UploadSettings.UPLOAD_SPEED.setValue(MAX_SLIDER);
+                UploadSettings.UPLOAD_SPEED.setValue(BandWidthSlider.MAX_SLIDER);
             }
             return false;
         }
@@ -283,51 +262,17 @@ public class ConnectionsOptionPanel extends OptionPanel {
     
     private class CheckBoxListener implements ItemListener {
 
-        private JSlider slider;
+        private BandWidthSlider slider;
         private JCheckBox checkBox;
-        private JLabel label;
         
-        public CheckBoxListener(JSlider slider, JCheckBox checkBox, JLabel label) {
+        public CheckBoxListener(BandWidthSlider slider, JCheckBox checkBox) {
             this.slider = slider;
             this.checkBox = checkBox;
-            this.label = label;
         }
         
         @Override
         public void itemStateChanged(ItemEvent e) {
             slider.setVisible(checkBox.isSelected());
-            label.setVisible(checkBox.isSelected());
-        }
-    }
-    
-    /**
-     * Changes the label for the download throttling slider based on the
-     * slider's current value.
-     */
-    private class ThrottleChangeListener implements ChangeListener {
-
-        private JSlider slider;
-        private JLabel label;
-        
-        public ThrottleChangeListener(JSlider slider, JLabel label) {
-            this.slider = slider;
-            this.label = label;
-        }
-        
-        @Override
-        public void stateChanged(ChangeEvent e) {
-            float value = slider.getValue();
-            String labelText = "";
-            if(value == 100)
-                labelText = I18n.tr("Unlimited");
-            else {
-                Float f = new Float
-                (((slider.getValue()/100.0)) *  ConnectionSettings.CONNECTION_SPEED.getValue()/8.f);
-                NumberFormat formatter = NumberFormat.getInstance();
-                formatter.setMaximumFractionDigits(2);
-                labelText = String.valueOf(formatter.format(f)) + " KB/s";
-            }
-            label.setText(labelText);
         }
     }
 }

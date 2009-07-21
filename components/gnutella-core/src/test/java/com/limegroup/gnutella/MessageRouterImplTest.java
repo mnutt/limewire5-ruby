@@ -76,7 +76,9 @@ import com.limegroup.gnutella.handshaking.NoGnutellaOkException;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.library.FileDescChangeEvent;
 import com.limegroup.gnutella.library.FileDescStub;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileView;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.IncompleteFiles;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.PingReply;
@@ -1131,10 +1133,12 @@ public final class MessageRouterImplTest extends LimeTestCase {
             Arrays.asList(MY_KEYWORDS);
         
         @Inject
-        public TestQRPUpdater(FileManager fileManager, 
+        public TestQRPUpdater( 
                 @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
-                ListenerSupport<FileDescChangeEvent> fileDescListenerSupport) {
-            super(fileManager, backgroundExecutor, fileDescListenerSupport);
+                ListenerSupport<FileDescChangeEvent> fileDescListenerSupport, 
+                @GnutellaFiles FileView gnutellaFileView,
+                @IncompleteFiles FileView incompleteFileView) {
+            super(backgroundExecutor, fileDescListenerSupport, gnutellaFileView, incompleteFileView);
         }
         
         @Override

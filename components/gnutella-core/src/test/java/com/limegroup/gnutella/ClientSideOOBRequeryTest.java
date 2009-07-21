@@ -27,6 +27,7 @@ import org.limewire.security.MACCalculatorRepositoryManager;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
@@ -37,7 +38,6 @@ import com.limegroup.gnutella.downloader.TestUploader;
 import com.limegroup.gnutella.guess.GUESSEndpoint;
 import com.limegroup.gnutella.guess.OnDemandUnicaster;
 import com.limegroup.gnutella.helpers.UrnHelper;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.PingReply;
@@ -70,35 +70,33 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
 
     private NetworkManagerStub networkManagerStub;
 
-    private FileManager fileManager;
+    @Inject private MessagesSupportedVendorMessage messagesSupportedVendorMessage;
 
-    private MessagesSupportedVendorMessage messagesSupportedVendorMessage;
+    @Inject private SearchServices searchServices;
 
-    private SearchServices searchServices;
+    @Inject private ResponseFactory responseFactory;
 
-    private ResponseFactory responseFactory;
+    @Inject private QueryReplyFactory queryReplyFactory;
 
-    private QueryReplyFactory queryReplyFactory;
+    @Inject private ReplyNumberVendorMessageFactory replyNumberVendorMessageFactory;
 
-    private ReplyNumberVendorMessageFactory replyNumberVendorMessageFactory;
+    @Inject private QueryRequestFactory queryRequestFactory;
 
-    private QueryRequestFactory queryRequestFactory;
+    @Inject  private DownloadServices downloadServices;
 
-    private DownloadServices downloadServices;
+    @Inject private MessageRouter messageRouter;
 
-    private MessageRouter messageRouter;
+    @Inject private MessageFactory messageFactory;
 
-    private MessageFactory messageFactory;
+    @Inject private PingReplyFactory pingReplyFactory;
 
-    private PingReplyFactory pingReplyFactory;
+    @Inject  private OnDemandUnicaster onDemandUnicaster;
 
-    private OnDemandUnicaster onDemandUnicaster;
+    @Inject  private MACCalculatorRepositoryManager macManager;
     
-    private MACCalculatorRepositoryManager macManager;
+    @Inject  private RemoteFileDescFactory remoteFileDescFactory;
     
-    private RemoteFileDescFactory remoteFileDescFactory;
-
-    private PushEndpointFactory pushEndpointFactory;
+    @Inject private PushEndpointFactory pushEndpointFactory;
 
     public ClientSideOOBRequeryTest(String name) {
         super(name);
@@ -124,22 +122,7 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, MyCallback.class, new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
         super.setUp(injector);
         
-        fileManager = injector.getInstance(FileManager.class);
-        messagesSupportedVendorMessage = injector.getInstance(MessagesSupportedVendorMessage.class);
-        searchServices = injector.getInstance(SearchServices.class);
-        responseFactory = injector.getInstance(ResponseFactory.class);
-        queryReplyFactory = injector.getInstance(QueryReplyFactory.class);
-        replyNumberVendorMessageFactory = injector.getInstance(ReplyNumberVendorMessageFactory.class);
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        downloadServices = injector.getInstance(DownloadServices.class);
-        messageRouter = injector.getInstance(MessageRouter.class);
-        messageFactory = injector.getInstance(MessageFactory.class);
-        pingReplyFactory = injector.getInstance(PingReplyFactory.class);
-        onDemandUnicaster = injector.getInstance(OnDemandUnicaster.class);
         callback = (MyCallback) injector.getInstance(ActivityCallback.class);
-        macManager = injector.getInstance(MACCalculatorRepositoryManager.class);
-        remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
-        pushEndpointFactory = injector.getInstance(PushEndpointFactory.class);
         
         networkManagerStub.setAcceptedIncomingConnection(true);
         networkManagerStub.setCanReceiveSolicited(true);
@@ -148,7 +131,7 @@ public class ClientSideOOBRequeryTest extends ClientSideTestCase {
         networkManagerStub.setPort(SERVER_PORT);
         
         File file = TestUtils.getResourceFile("com/limegroup/gnutella/metadata/metadata.mp3");
-        assertNotNull(fileManager.getGnutellaFileList().add(file).get(1, TimeUnit.SECONDS));
+        assertNotNull(gnutellaFileCollection.add(file).get(1, TimeUnit.SECONDS));
                 
         UDP_ACCESS = new DatagramSocket[10];
         for (int i = 0; i < UDP_ACCESS.length; i++)

@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
 /**
  *  Predicate parser that parses a string encoded in Reverse Polish Notation
  *  and evaluates it to true or false. 
- *  
+ *  <p>
  *  An optional StringLookup object can be provided the different terms
  *  are looked up for values.
  */
 public class RPNParser {
     
-    /** Map from recognized operands to their implementations */
+    /** Map from recognized operands to their implementations. */
     private static final Map<String, Predicate> predicateByOperand;
     private static final Set<String> experimentalPredicates;
     static {
@@ -71,7 +71,6 @@ public class RPNParser {
     }
     
     /**
-     * @param rule an expression in Reverse Polish Notation
      * @return true or false.
      * @throws IllegalArgumentException if either the input or
      * the values returned by the lookups are not valid.
@@ -85,8 +84,6 @@ public class RPNParser {
     }
     
     /**
-     * @param rule an expression in Reverse Polish Notation
-     * @param expOk if its ok to use predicates considered experimental.
      * @return true or false.
      * @throws IllegalArgumentException if either the input or
      * the values returned by the lookups are not valid.
@@ -111,7 +108,7 @@ public class RPNParser {
     }
     
     /**
-     *  evaluates an operand based on the contents of the stack
+     *  Evaluates an operand based on the contents of the stack
      *  and pushes either "True" or "False" on the stack.  
      */
     private void evaluateOp(String operand) {
@@ -144,7 +141,7 @@ public class RPNParser {
     }
     
     /**
-     * predicate for the == operation.
+     * Predicate for the == operation.
      */
     static class EqualsPredicate extends Predicate {
         @Override
@@ -156,7 +153,7 @@ public class RPNParser {
     }
     
     /**
-     * predicate for the || operation.
+     * Predicate for the || operation.
      */
     static class ORPredicate extends Predicate {
         @Override
@@ -168,7 +165,7 @@ public class RPNParser {
     }
     
     /**
-     * predicate for the && operation.
+     * Predicate for the && operation.
      */
     static class ANDPredicate extends Predicate {
         @Override
@@ -180,7 +177,7 @@ public class RPNParser {
     }
     
     /**
-     * predicate for the ! operation.  
+     * Predicate for the ! operation.  
      */
     static class NOTPredicate extends Predicate {
         @Override
@@ -196,7 +193,7 @@ public class RPNParser {
     }
     
     /**
-     * predicate for the > operation.
+     * Predicate for the > operation.
      */
     static class GreaterPredicate extends Predicate {
         @Override
@@ -208,7 +205,7 @@ public class RPNParser {
     }
     
     /**
-     * predicate for the < operation.
+     * Predicate for the < operation.
      */
     static class LessPredicate extends Predicate {
         @Override
@@ -232,7 +229,7 @@ public class RPNParser {
     }
 
     /**
-     * Predicate for matching a pattern
+     * Predicate for matching a pattern.
      */
     static class MatchesPredicate extends Predicate {
         @Override

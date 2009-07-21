@@ -6,7 +6,7 @@ import junit.framework.Test;
 import org.limewire.util.BaseTestCase;
 
 /**
- * Unit tests for ApproximateMatcher
+ * Unit tests for ApproximateMatcher.
  */
 public class ApproximateMatcherTest extends BaseTestCase {
 

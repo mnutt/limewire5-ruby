@@ -8,27 +8,29 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
 
+import org.limewire.core.api.library.FileProcessingEvent;
 import org.limewire.core.api.library.LibraryFileList;
 import org.limewire.core.api.library.LibraryState;
 import org.limewire.core.api.library.LocalFileItem;
+import org.limewire.listener.EventListener;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
 
 import ca.odell.glazedlists.BasicEventList;
 
+import com.limegroup.gnutella.library.FileCollection;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
-import com.limegroup.gnutella.library.ManagedFileList;
-import com.limegroup.gnutella.library.FileListChangedEvent.Type;
+import com.limegroup.gnutella.library.Library;
 
 class LibraryFileListImpl extends LocalFileListImpl implements LibraryFileList {
-    private final ManagedFileList managedList;
+    private final Library managedList;
     private final PropertyChangeSupport changeSupport = new SwingSafePropertyChangeSupport(this);
     private volatile LibraryState libraryState = LibraryState.LOADING;
     
-    LibraryFileListImpl(ManagedFileList managedList, CoreLocalFileItemFactory coreLocalFileItemFactory) {
+    LibraryFileListImpl(Library managedList, CoreLocalFileItemFactory coreLocalFileItemFactory) {
         super(new BasicEventList<LocalFileItem>(), coreLocalFileItemFactory);
         this.managedList = managedList;
-        this.managedList.addFileListListener(newEventListener());
+        this.managedList.addListener(newEventListener());
         this.managedList.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -46,7 +48,7 @@ class LibraryFileListImpl extends LocalFileListImpl implements LibraryFileList {
     }
     
     @Override
-    protected ManagedFileList getCoreFileList() {
+    protected FileCollection getCoreCollection() {
         return managedList;
     }
     
@@ -75,8 +77,19 @@ class LibraryFileListImpl extends LocalFileListImpl implements LibraryFileList {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
     }
+
+    @Override
+    public void addFileProcessingListener(EventListener<FileProcessingEvent> listener) {
+       managedList.addFileProcessingListener(listener);
+    }
+
+    @Override
+    public void removeFileProcessingListener(EventListener<FileProcessingEvent> listener) {
+        managedList.removeFileProcessingListener(listener);
+    }
     
     @Override
-    protected void collectionUpdate(Type type, boolean shared) {
+    public void cancelPendingTasks() {
+        managedList.cancelPendingTasks();
     }
 }

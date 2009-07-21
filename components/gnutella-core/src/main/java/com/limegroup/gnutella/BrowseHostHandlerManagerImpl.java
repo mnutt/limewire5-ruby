@@ -15,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpException;
 import org.apache.http.params.HttpParams;
 import org.limewire.concurrent.ThreadExecutor;
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.FriendPresence;
 import org.limewire.io.GUID;
 import org.limewire.lifecycle.Service;
 import org.limewire.net.SocketsManager;

@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,21 +21,21 @@ import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.api.download.SaveLocationException;
-import org.limewire.core.api.library.RemoteFileItem;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.magnet.MagnetLink;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.api.spam.SpamManager;
 import org.limewire.core.impl.download.listener.ItunesDownloadListenerFactory;
 import org.limewire.core.impl.download.listener.RecentDownloadListener;
-import org.limewire.core.impl.download.listener.TorrentDownloadListener;
-import org.limewire.core.impl.library.CoreRemoteFileItem;
+import org.limewire.core.impl.download.listener.TorrentDownloadListenerFactory;
 import org.limewire.core.impl.magnet.MagnetLinkImpl;
 import org.limewire.core.impl.search.CoreSearch;
 import org.limewire.core.impl.search.MediaTypeConverter;
 import org.limewire.core.impl.search.RemoteFileDescAdapter;
 import org.limewire.core.settings.SharingSettings;
+import org.limewire.friend.api.FriendManager;
+import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
 import org.limewire.io.IpPortSet;
@@ -51,7 +52,6 @@ import ca.odell.glazedlists.impl.ThreadSafeList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.RemoteFileDesc;
@@ -65,9 +65,11 @@ public class CoreDownloadListManager implements DownloadListManager {
 	private EventList<DownloadItem> swingThreadDownloadItems;
 	private final DownloadManager downloadManager;
 	private final RemoteFileDescFactory remoteFileDescFactory;
-    private final ActivityCallback activityCallback;
     private final SpamManager spamManager;
     private final ItunesDownloadListenerFactory itunesDownloadListenerFactory;
+    private final FriendManager friendManager;
+    private final TorrentDownloadListenerFactory torrentDownloadListenerFactory;
+    
     private final PropertyChangeSupport changeSupport = new SwingSafePropertyChangeSupport(this);
     /**the base list - all removing and adding must be done from here.*/
     private final ThreadSafeList<DownloadItem> threadSafeDownloadItems;
@@ -78,13 +80,16 @@ public class CoreDownloadListManager implements DownloadListManager {
 	
 	@Inject
 	public CoreDownloadListManager(DownloadManager downloadManager,
-            RemoteFileDescFactory remoteFileDescFactory, ActivityCallback activityCallback, SpamManager spamManager, ItunesDownloadListenerFactory itunesDownloadListenerFactory) {
+            RemoteFileDescFactory remoteFileDescFactory, SpamManager spamManager, 
+            ItunesDownloadListenerFactory itunesDownloadListenerFactory, FriendManager friendManager, 
+            TorrentDownloadListenerFactory torrentDownloadListenerFactory) {
 	    
 	    this.downloadManager = downloadManager;
 	    this.remoteFileDescFactory = remoteFileDescFactory;
-	    this.activityCallback = activityCallback;
         this.spamManager = spamManager;
         this.itunesDownloadListenerFactory = itunesDownloadListenerFactory;
+        this.friendManager = friendManager;
+        this.torrentDownloadListenerFactory = torrentDownloadListenerFactory;
         
         threadSafeDownloadItems = GlazedListsFactory.threadSafeList(new BasicEventList<DownloadItem>());
 	    ObservableElementList.Connector<DownloadItem> downloadConnector = GlazedLists.beanConnector(DownloadItem.class);
@@ -141,14 +146,14 @@ public class CoreDownloadListManager implements DownloadListManager {
 	}
 
 	@Override
-	public DownloadItem addDownload(Search search, List<? extends SearchResult> searchResults) throws SaveLocationException {
+	public DownloadItem addDownload(Search search, List<? extends SearchResult> searchResults) throws DownloadException {
 	   return addDownload(search, searchResults, null, false);
 	}
 	
 
     @Override
     public DownloadItem addDownload(Search search, List<? extends SearchResult> searchResults,
-            File saveFile, boolean overwrite) throws SaveLocationException {
+            File saveFile, boolean overwrite) throws DownloadException {
         // Train the spam filter even if the results weren't rated as spam
         spamManager.handleUserMarkedGood(searchResults);
         
@@ -168,7 +173,7 @@ public class CoreDownloadListManager implements DownloadListManager {
 	
 	private DownloadItem createDownloader(RemoteFileDesc[] files, List<RemoteFileDesc> alts,
                                           GUID queryGuid, File saveFile, boolean overwrite, Category category)
-            throws SaveLocationException {
+            throws DownloadException {
         
         File saveDir = null;
         String fileName = null;
@@ -198,17 +203,6 @@ public class CoreDownloadListManager implements DownloadListManager {
         return (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
     }
 
-    @Override
-    public DownloadItem addDownload(RemoteFileItem fileItem) throws SaveLocationException {
-        return addDownload(fileItem, null, false);
-    }
-    
-    @Override
-    public DownloadItem addDownload(RemoteFileItem fileItem, File saveFile, boolean overwrite) throws SaveLocationException {
-        return createDownloader(new RemoteFileDesc[] { ((CoreRemoteFileItem) fileItem).getRfd() },
-                RemoteFileDesc.EMPTY_LIST, null, saveFile, overwrite, fileItem.getCategory());    
-    }
-
 	private RemoteFileDesc[] createRfdsAndAltsFromSearchResults(
             List<? extends SearchResult> searchResults, List<RemoteFileDesc> altList) {
 	    RemoteFileDesc[] rfds = new RemoteFileDesc[searchResults.size()];
@@ -227,7 +221,12 @@ public class CoreDownloadListManager implements DownloadListManager {
             RemoteFileDesc next = rfds[i];
             if(next.getSHA1Urn() != null)
                 sha1RFD = next;
-            alts.remove(next.getAddress()); // Removes an alt that matches the IpPort of the RFD
+            Address address = next.getAddress();
+            // response alts are always only ip ports and no kind of other address
+            // so it suffices to compare ip port instances of rfd addresses with the alt set
+            // since other address types won't match anyways
+            if (address instanceof IpPort) 
+                alts.remove(address); // Removes an alt that matches the IpPort of the RFD
         }
 
         // If no SHA1 rfd, just use the first.
@@ -284,9 +283,13 @@ public class CoreDownloadListManager implements DownloadListManager {
 
         @Override
         public void downloadAdded(Downloader downloader) {
-            DownloadItem item = new CoreDownloadItem(downloader, queueTimeCalculator);
+            //Save the starting time if it hasn't been set
+            if(downloader.getAttribute(DownloadItem.DOWNLOAD_START_DATE)== null){
+                downloader.setAttribute(DownloadItem.DOWNLOAD_START_DATE, new Date(), true);
+            }
+            DownloadItem item = new CoreDownloadItem(downloader, queueTimeCalculator, friendManager);
             downloader.setAttribute(DownloadItem.DOWNLOAD_ITEM, item, false);
-            downloader.addListener(new TorrentDownloadListener(downloadManager, activityCallback, list, downloader));
+            downloader.addListener(torrentDownloadListenerFactory.createListener(downloader, list));
             downloader.addListener(new RecentDownloadListener(downloader));
             downloader.addListener(itunesDownloadListenerFactory.createListener(downloader));
             threadSafeDownloadItems.add(item);
@@ -325,14 +328,14 @@ public class CoreDownloadListManager implements DownloadListManager {
 
 
     @Override
-    public DownloadItem addTorrentDownload(URI uri, boolean overwrite) throws SaveLocationException {
+    public DownloadItem addTorrentDownload(URI uri, boolean overwrite) throws DownloadException {
         Downloader downloader =  downloadManager.downloadTorrent(uri, overwrite);
         DownloadItem downloadItem = (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
         return downloadItem;
     }
     
     @Override
-    public DownloadItem addDownload(MagnetLink magnet, File saveFile, boolean overwrite) throws SaveLocationException {
+    public DownloadItem addDownload(MagnetLink magnet, File saveFile, boolean overwrite) throws DownloadException {
         File saveDir = null;
         String fileName = null;
         
@@ -351,9 +354,9 @@ public class CoreDownloadListManager implements DownloadListManager {
     }
 
     @Override
-    public DownloadItem addTorrentDownload(File file, boolean overwrite)
-            throws SaveLocationException {
-        Downloader downloader = downloadManager.downloadTorrent(file, overwrite);
+    public DownloadItem addTorrentDownload(File file, File saveDirectory, boolean overwrite)
+            throws DownloadException {
+        Downloader downloader = downloadManager.downloadTorrent(file, saveDirectory, overwrite);
 		return (DownloadItem)downloader.getAttribute(DownloadItem.DOWNLOAD_ITEM);
     }
 

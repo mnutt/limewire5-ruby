@@ -6,52 +6,39 @@ import java.util.Random;
 import org.limewire.core.api.Application;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.action.MnemonicMenu;
+import org.limewire.ui.swing.action.UrlAction;
 import org.limewire.ui.swing.event.AboutDisplayEvent;
-import org.limewire.ui.swing.mainframe.StorePanel;
+import org.limewire.ui.swing.home.HomeMediator;
+import org.limewire.ui.swing.nav.NavCategory;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.tray.Notification;
 import org.limewire.ui.swing.tray.TrayNotifier;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.IconManager;
-import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 class HelpMenu extends MnemonicMenu {
 
     @Inject
-    public HelpMenu(Application application, final IconManager iconManager,
-            final TrayNotifier trayNotifier, final Navigator navigator, 
-            final StorePanel storePanel) {
+    public HelpMenu(Application application, final TrayNotifier trayNotifier, final Navigator navigator, final HomeMediator homeMediator) {
         super(I18n.tr("&Help"));
 
-        add(new AbstractAction(I18n.tr("&Using LimeWire")) {
+        add(new AbstractAction(I18n.tr("&Home Screen")) {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                NativeLaunchUtils.openURL("http://www.limewire.com/client_redirect/?page=support");
-            }
+           public void actionPerformed(ActionEvent e) {
+                navigator.getNavItem(NavCategory.LIMEWIRE, HomeMediator.NAME).select();
+                homeMediator.getComponent().loadDefaultUrl();
+           }
         });
-
-         add(new AbstractAction(I18n.tr("&FAQ")) {
-             @Override
-            public void actionPerformed(ActionEvent e) {
-                NativeLaunchUtils
-                        .openURL("http://www.limewire.com/client_redirect/?page=faq");
-            }
-        });
+        
+        add(new UrlAction(I18n.tr("&Using LimeWire"), "http://www.limewire.com/client_redirect/?page=support"));
+        
+        add(new UrlAction(I18n.tr("&FAQ"), "http://www.limewire.com/client_redirect/?page=faq"));
         
         if(!application.isProVersion()) {
             addSeparator();
-            add(new AbstractAction(I18n.tr("Get personalized &tech support")) {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    NativeLaunchUtils
-                    .openURL("http://www.limewire.com/client_redirect/?page=gopro");
-                }
-            });
+            add(new UrlAction(I18n.tr("Get Personalized &Tech Support"),"http://www.limewire.com/client_redirect/?page=gopro"));
         }
         
         if (!OSUtils.isMacOSX()) {

@@ -25,7 +25,7 @@ import org.limewire.security.SecurityToken.TokenData;
 import org.limewire.setting.BooleanSetting;
 
 /**
- * Various Mojito security Settings
+ * Various Mojito security Settings.
  */
 public class SecuritySettings extends MojitoProps {
 

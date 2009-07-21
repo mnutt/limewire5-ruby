@@ -24,7 +24,7 @@ public abstract class AbstractIPFilter implements IPFilter {
     private static final Log LOG = LogFactory.getLog(AbstractIPFilter.class);
     
     /**
-     * marker object for ips which are allowed.
+     * Marker object for IPs which are allowed.
      */
     private static final IP ALLOWED = new IP(new byte[4]);
     
@@ -107,7 +107,7 @@ public abstract class AbstractIPFilter implements IPFilter {
     
     /**
      * Checks to see if a given host is banned.
-     * @param host the host's IP in byte form.
+     * @param host the host's IP in byte form
      */
     public boolean allow(byte[] host) {
         return allow(getIP(host));

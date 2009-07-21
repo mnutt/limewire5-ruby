@@ -3,81 +3,90 @@ package org.limewire.ui.swing.options;
 import static org.limewire.ui.swing.util.I18n.tr;
 
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.jdesktop.application.Resource;
+import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
+import org.limewire.ui.swing.action.UrlAction;
 import org.limewire.ui.swing.components.HyperlinkButton;
-import org.limewire.ui.swing.friends.settings.XMPPAccountConfiguration;
-import org.limewire.ui.swing.friends.settings.XMPPAccountConfigurationManager;
+import org.limewire.ui.swing.components.LanguageComboBox;
+import org.limewire.ui.swing.friends.settings.FriendAccountConfiguration;
+import org.limewire.ui.swing.friends.settings.FriendAccountConfigurationManager;
+import org.limewire.ui.swing.search.resultpanel.LicenseWarningDownloadPreprocessor;
+import org.limewire.ui.swing.settings.QuestionsHandler;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LanguageUtils;
-import org.limewire.ui.swing.util.NativeLaunchUtils;
 import org.limewire.ui.swing.util.SwingUtils;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Misc Option View
+ * Misc Option View.
  */
 public class MiscOptionPanel extends OptionPanel {
 
+    // backwards compatibility
+    private static final int SKIP_WARNING_VALUE = LicenseWarningDownloadPreprocessor.SKIP_WARNING_VALUE;
+    private static final int SHOW_WARNING_VALUE = LicenseWarningDownloadPreprocessor.SHOW_WARNING_VALUE;
+    
     private static final String TRANSLATE_URL = "http://wiki.limewire.org/index.php?title=Translate";
     
-    private final XMPPAccountConfigurationManager accountManager;
+    private final Provider<FriendAccountConfigurationManager> accountManager;
 
     private NotificationsPanel notificationsPanel;
     private FriendsChatPanel friendsChatPanel;
     
-    //Language components, does not exist in its own subcomponent
-    @Resource private Font font;
-    @Resource private Font linkFont;
-    
     private Locale currentLanguage;
     private JLabel comboLabel;
-    private JComboBox languageDropDown;
-    private HyperlinkButton translateButton;
+    private final JComboBox languageDropDown;
+    private final HyperlinkButton translateButton;
+    private final JCheckBox shareUsageDataCheckBox;
 
     @Inject
-    public MiscOptionPanel(XMPPAccountConfigurationManager accountManager) {
+
+    public MiscOptionPanel(Provider<FriendAccountConfigurationManager> accountManager) {
         this.accountManager = accountManager;
         
         GuiUtils.assignResources(this);
 
-        setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
+        setLayout(new MigLayout("nogrid, insets 15 15 15 15, fillx, gap 4"));
 
         comboLabel = new JLabel(I18n.tr("Language:"));
-        languageDropDown = new JComboBox();
-        createLanguageComboBox();
+        languageDropDown = new LanguageComboBox();
         
-        translateButton = new HyperlinkButton(new TranslateLinkAction());
-        translateButton.setFont(linkFont);
+        translateButton = new HyperlinkButton(new UrlAction(I18n.tr("Help translate LimeWire!"), TRANSLATE_URL));
         
-        add(comboLabel, "split, gapbottom 5");
-        add(languageDropDown, "gapbottom 5");
-        add(translateButton, "gapbottom 5, wrap");
+        add(comboLabel);
+        add(languageDropDown);
+        add(translateButton, "wrap");
         
-        add(getNotificationsPanel(), "pushx, growx");
-        add(getFriendChatPanel(), "pushx, growx");
+        add(getNotificationsPanel(), "growx, wrap");
+        add(getFriendChatPanel(), "growx, wrap");
+
+        shareUsageDataCheckBox = new JCheckBox((I18n.tr("Help improve LimeWire by sending us anonymous usage data")));
+        shareUsageDataCheckBox.setOpaque(false);
+        add(shareUsageDataCheckBox);
+        add(new LearnMoreButton("http://www.limewire.com/client_redirect/?page=anonymousDataCollection"), "wrap");
     }
 
     private OptionPanel getNotificationsPanel() {
@@ -93,24 +102,18 @@ public class MiscOptionPanel extends OptionPanel {
         }
         return friendsChatPanel;
     }
-    
-    private void createLanguageComboBox() {
-        languageDropDown.setRenderer(new LocaleRenderer());
-        languageDropDown.setFont(font);
-        
-        Locale[] locales = LanguageUtils.getLocales(font);
-        languageDropDown.setModel(new DefaultComboBoxModel(locales));
-    }
 
     @Override
     boolean applyOptions() {
+        ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.setValue(shareUsageDataCheckBox.isSelected());
+        
         Locale selectedLocale = (Locale) languageDropDown.getSelectedItem();
         
         boolean restart = getNotificationsPanel().applyOptions();
         restart |= getFriendChatPanel().applyOptions();
         
         // if the language changed, always notify about a required restart
-        if(!selectedLocale.equals(currentLanguage)) {
+        if(selectedLocale != null && !currentLanguage.equals(selectedLocale)) {
             currentLanguage = selectedLocale;
             LanguageUtils.setLocale(selectedLocale);
             restart = true;
@@ -123,48 +126,51 @@ public class MiscOptionPanel extends OptionPanel {
         Locale selectedLocale = (Locale) languageDropDown.getSelectedItem();
         
         return getNotificationsPanel().hasChanged() || getFriendChatPanel().hasChanged() ||
-                selectedLocale != currentLanguage;
+                selectedLocale != currentLanguage ||
+                ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue() 
+                    != shareUsageDataCheckBox.isSelected();
     }
 
     @Override
     public void initOptions() {
+        shareUsageDataCheckBox.setSelected(ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue());
         getNotificationsPanel().initOptions();
         getFriendChatPanel().initOptions();
-        
         currentLanguage = LanguageUtils.getCurrentLocale();
+        // if language got corrupted somehow, resave it
+        // this shouldn't be possible but somehow currentLanguage can be 
+        // null on OSX.
+        if(currentLanguage == null) {
+            LanguageUtils.setLocale(Locale.ENGLISH);
+            currentLanguage = Locale.ENGLISH;
+        }
         languageDropDown.setSelectedItem(currentLanguage);
     }
 
-    /**
-     * Action to open Translate link in default browser.
-     */
-    private class TranslateLinkAction extends AbstractAction {
-        
-        public TranslateLinkAction() {
-            super(I18n.tr("Help translate LimeWire!"));
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            NativeLaunchUtils.openURL(TRANSLATE_URL);
-        }
-    }
-    
     private class NotificationsPanel extends OptionPanel {
 
         private JCheckBox showNotificationsCheckBox;
         private JCheckBox playNotificationsCheckBox;
+        private JButton resetWarningsButton;
 
         public NotificationsPanel() {
-            super(tr("Notifications"));
+            super(tr("Notifications and Warnings"));
 
             showNotificationsCheckBox = new JCheckBox(tr("Show popup system notifications"));
             showNotificationsCheckBox.setContentAreaFilled(false);
             playNotificationsCheckBox = new JCheckBox(tr("Play notification sounds"));
             playNotificationsCheckBox.setContentAreaFilled(false);
-
+            resetWarningsButton = new JButton(new AbstractAction(I18n.tr("Reset")){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    resetWarnings();
+                }
+            });
+            
             add(showNotificationsCheckBox, "wrap");
             add(playNotificationsCheckBox, "wrap");
+            add(new JLabel(I18n.tr("Reset warning messages")));
+            add(resetWarningsButton, "wrap");
         }
 
         @Override
@@ -211,8 +217,11 @@ public class MiscOptionPanel extends OptionPanel {
             });
 
             serviceComboBox = new JComboBox();
-            for(String label : accountManager.getLabels())
-                serviceComboBox.addItem(label);
+            for(String label : accountManager.get().getLabels()) {
+                if(!label.equals("Facebook")) {
+                    serviceComboBox.addItem(label);
+                }
+            }
             serviceComboBox.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -225,19 +234,24 @@ public class MiscOptionPanel extends OptionPanel {
             usernameField = new JTextField(18);
             passwordField = new JPasswordField(18);
 
-            add(autoLoginCheckBox, "split, wrap");
+            add(autoLoginCheckBox, "wrap");
+            
+            JPanel servicePanel = new JPanel(new MigLayout("insets 0, fill"));
+            servicePanel.setOpaque(false);
+            
+            servicePanel.add(new JLabel(tr("Using:")), "gapleft 25");
+            servicePanel.add(serviceComboBox, "wrap");
 
-            add(new JLabel(tr("Using")), "gapleft 25, split");
-            add(serviceComboBox, "wrap");
+            servicePanel.add(serviceLabel, "gapleft 25, hidemode 3");
+            servicePanel.add(serviceField, "hidemode 3, wrap");
 
-            add(serviceLabel, "gapleft 25, hidemode 3, split");
-            add(serviceField, "hidemode 3, wrap");
+            servicePanel.add(new JLabel(tr("Username:")), "gapleft 25");
+            servicePanel.add(usernameField, "wrap");
 
-            add(new JLabel(tr("Username:")), "gapleft 25, split");
-            add(usernameField, "wrap");
-
-            add(new JLabel(tr("Password:")), "gapleft 25, split");
-            add(passwordField);
+            servicePanel.add(new JLabel(tr("Password:")), "gapleft 25");
+            servicePanel.add(passwordField, "wrap");
+            
+            add(servicePanel);
         }
 
         private void populateInputs() {
@@ -249,8 +263,8 @@ public class MiscOptionPanel extends OptionPanel {
                 serviceLabel.setVisible(false);
                 serviceField.setVisible(false);
             }
-            XMPPAccountConfiguration config = accountManager.getConfig(label);
-            if(config == accountManager.getAutoLoginConfig()) {
+            FriendAccountConfiguration config = accountManager.get().getConfig(label);
+            if(config == accountManager.get().getAutoLoginConfig()) {
                 serviceField.setText(config.getServiceName());
                 usernameField.setText(config.getUserInputLocalID());
                 passwordField.setText(config.getPassword());
@@ -270,7 +284,7 @@ public class MiscOptionPanel extends OptionPanel {
                 serviceField.setText("");
                 usernameField.setText("");
                 passwordField.setText("");
-                accountManager.setAutoLoginConfig(null);
+                accountManager.get().setAutoLoginConfig(null);
             }
         }
 
@@ -285,7 +299,7 @@ public class MiscOptionPanel extends OptionPanel {
                         return false;
                     }            
                     String label = (String)serviceComboBox.getSelectedItem();
-                    XMPPAccountConfiguration config = accountManager.getConfig(label);
+                    FriendAccountConfiguration config = accountManager.get().getConfig(label);
                     if(label.equals("Jabber")) {
                         String service = serviceField.getText().trim();
                         if(service.equals(""))
@@ -294,9 +308,9 @@ public class MiscOptionPanel extends OptionPanel {
                     }
                     config.setUsername(user);
                     config.setPassword(password);
-                    accountManager.setAutoLoginConfig(config);
+                    accountManager.get().setAutoLoginConfig(config);
                 } else {
-                    accountManager.setAutoLoginConfig(null);
+                    accountManager.get().setAutoLoginConfig(null);
                 }
             }
             return false;
@@ -304,7 +318,8 @@ public class MiscOptionPanel extends OptionPanel {
 
         @Override
         boolean hasChanged() {
-            XMPPAccountConfiguration auto = accountManager.getAutoLoginConfig();
+            FriendAccountConfiguration auto = accountManager.get().getAutoLoginConfig();
+
             if(auto == null) {
                 return autoLoginCheckBox.isSelected();
             } else {
@@ -328,7 +343,7 @@ public class MiscOptionPanel extends OptionPanel {
 
         @Override
         public void initOptions() {
-            XMPPAccountConfiguration auto = accountManager.getAutoLoginConfig();
+            FriendAccountConfiguration auto = accountManager.get().getAutoLoginConfig();
             if(auto == null) {
                 serviceComboBox.setSelectedItem("Gmail");
                 setComponentsEnabled(false);
@@ -358,7 +373,7 @@ public class MiscOptionPanel extends OptionPanel {
                 int index, boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-            XMPPAccountConfiguration config = accountManager.getConfig(value.toString());
+            FriendAccountConfiguration config = accountManager.get().getConfig(value.toString());
             if(config != null) {
                 setIcon(config.getIcon());
             } else {
@@ -368,19 +383,16 @@ public class MiscOptionPanel extends OptionPanel {
         }
     }
     
-    private static class LocaleRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean hasFocus) {
-            super.getListCellRendererComponent(list, value, index, isSelected, hasFocus);
-            
-            if (value instanceof Locale) {
-                Locale locale = (Locale) value;
-                setText(locale.getDisplayName(locale));
-            } else {
-                setIcon(null);
-            }
-            
-            return this;
-        }
+    
+    
+    private static void resetWarnings() {
+        int skipWarningSettingValue = getLicenseSettingValueFromCheckboxValue(true);
+        QuestionsHandler.SKIP_FIRST_DOWNLOAD_WARNING.setValue(skipWarningSettingValue);
+        QuestionsHandler.WARN_TORRENT_SEED_MORE.setValue(true);
+        QuestionsHandler.CONFIRM_BLOCK_HOST.setValue(true);
+    }
+    
+    private static int getLicenseSettingValueFromCheckboxValue(boolean isSelected) {
+        return isSelected ? SHOW_WARNING_VALUE : SKIP_WARNING_VALUE;
     }
 }

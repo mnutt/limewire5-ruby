@@ -60,7 +60,7 @@ public class LimeAudioFormat {
 
     /**
      * Property values that are loaded into the properties map if we can't 
-     * parse the data using TAudioFileFormat
+     * parse the data using TAudioFileFormat.
      */
     public static final String AUDIO_LENGTH_BYTES = "audio.length.bytes";
 
@@ -79,39 +79,39 @@ public class LimeAudioFormat {
     public static final String AUDIO_CHANNELS = "audio.channels";
 
     /**
-     * Stream for reading from the audioSource
+     * Stream for reading from the audioSource.
      */
     private  AudioInputStream audioInputStream;
 
     /**
-     * Stream for writing audio data to sound card from
+     * Stream for writing audio data to sound card from.
      */
     private SourceDataLine sourceDataLine;
 
     /**
      * Stream for reading in encodedFormat. After decoding the inputStream, its
      * no longer possible to use stream.available() to give us the correct
-     * current location so we save a reference of the encodedStream
+     * current location so we save a reference of the encodedStream.
      */
     private AudioInputStream encodedAudioInputStream;
 
     /**
-     * Audio source currently reading from (url, file, input stream)
+     * Audio source currently reading from (url, file, input stream).
      */
     private AudioSource audioSource;
 
     /**
-     * Properties of the current audio source
+     * Properties of the current audio source.
      */
     private Map<String, Object> properties;
 
     /**
-     * Total length of the current song in bytes
+     * Total length of the current song in bytes.
      */
     private long totalLength;
 
     /**
-     * Control for the gain on the sourceDataLine
+     * Control for the gain on the sourceDataLine.
      */
     private FloatControl gainControl;
 
@@ -164,15 +164,15 @@ public class LimeAudioFormat {
      * InputStreams, the length is expressed in frames not bytes and the 
      * AudioFormat contains specifications for how the input stream is encoded 
      * such as number of bytes per frame, sample rate, # of channels, etc.. 
-     *  
-     *  NOTE: The audioInputStream returned here is not guarenteed to
+     * <p>
+     *  NOTE: The audioInputStream returned here is not guaranteed to
      *  write to the sound card. Most audio sources, even .wav  files already 
      *  in PCM format, need to be decoded to a proper format that the 
      *  sourceDataLine can understand prior to reading from.
      * 
-     * @param source - audio source to read from, either a file, url or 
+     * @param source audio source to read from, either a file, url or 
      *      inputStream
-     * @param skip - number of frames from the begining of the file to skip
+     * @param skip number of frames from the beginning of the file to skip
      * @return AudioInputStream - based on <code>source</code> creates an input 
      *      stream containing audioFormat properties about the encoding of the
      *      stream
@@ -181,7 +181,7 @@ public class LimeAudioFormat {
             long skip) throws UnsupportedAudioFileException, IOException, NullPointerException {
         AudioInputStream stream; 
         if (source.getFile() != null) {
-            // skip doesn't guarentee to return to skip the exact number of frames
+            // skip doesn't guarantee to return to skip the exact number of frames
             // requested, don't try and skip to close to the EOF to avoid overflow
             if( skip < 0 || skip > source.getFile().length() - 10000 )
                 skip = 0;
@@ -212,17 +212,17 @@ public class LimeAudioFormat {
      * correctly by the sound card. To write to the soundcard we open a source 
      * data line to read data from the input stream. The sourceDataLine expects 
      * data to be in a specific audio format regardless of how the data is encoded. 
-     * 
+     * <p>
      * To ensure that all supported formats are decoded properly, the original 
      * audioInputStream is decoded into a new audioInputStream. The java AudioSystem
      * uses a bit of reflection to create a new AudioInputStream which can decode 
      * a given audioInputStream into a PCM formatted stream. 
      * 
      * 
-     * @param audioInputStream - encoded inputStream to read from which contains 
+     * @param audioInputStream encoded inputStream to read from which contains 
      *          specific audioFormat properties such as a number of channels, 
      *          encoding method, sample rate, etc..
-     * @return AudioInputStream - a decoded audioInputStream in PCM format
+     * @return AudioInputStream a decoded audioInputStream in PCM format
      */
     public static AudioInputStream createDecodedAudioInputStream(
             AudioInputStream audioInputStream) {
@@ -261,12 +261,12 @@ public class LimeAudioFormat {
      * From the Mixer, all the input streams are combined and written to the sound card. 
      * SourceDataLines wrap a given audioInputStream and ensures that
      * all inputs to the mixer are in the same format.
-     * 
+     * <p>
      * Each audioInputStream contains an audioFormat( ie. # of channels, frame size, sample
      * rate, etc.). A SourceDataLine is created based on the audioFormat's properties. 
      * 
-     * @param audioInputStream - the decoded audio input stream that is being read from
-     * @return SourceDataLine - a properlly formated data line to write to based on the 
+     * @param audioInputStreamthe decoded audio input stream that is being read from
+     * @return SourceDataLine a properly formated data line to write to based on the 
      *              audio format of the audioInputStream
      */
     private SourceDataLine createSourceDataLine(AudioInputStream audioInputStream)
@@ -280,12 +280,12 @@ public class LimeAudioFormat {
      * From the Mixer, all the input streams are combined and written to the sound card. 
      * SourceDataLines wrap a given audioInputStream and ensures that
      * all inputs to the mixer are in the same format.
-     * 
+     * <p>
      * Each audioInputStream contains an audioFormat( ie. # of channels, frame size, sample
      * rate, etc.). A SourceDataLine is created based on the audioFormat's properties. 
      * 
-     * @param audioInputStream - the decoded audio input stream that is being read from
-     * @return SourceDataLine - a properlly formated data line to write to based on the 
+     * @param audioInputStream the decoded audio input stream that is being read from
+     * @return SourceDataLine a properly formated data line to write to based on the 
      *              audio format of the audioInputStream
      */
     private SourceDataLine createSourceDataLine(
@@ -326,7 +326,7 @@ public class LimeAudioFormat {
      * This information is often useful to the application that initiated the song. This information
      * is extracted in case another class wishes to use it. 
      * 
-     * @param source - the audio source that the audioInputStream is created from for reading
+     * @param source the audio source that the audioInputStream is created from for reading
      * @return a Map<String,Object> containing properties about the audio source
      */
     private static Map<String, Object> createProperties(AudioSource source)
@@ -399,7 +399,7 @@ public class LimeAudioFormat {
     }
 
     /**
-     * @return the sourcedataline for writing to
+     * @return the SourceDataLine for writing to
      */
     public SourceDataLine getSourceDataLine() {
         return sourceDataLine;
@@ -440,7 +440,7 @@ public class LimeAudioFormat {
        
     /**
      * Prior to writing to a new or stopped sourceDataLine, the dataLine needs to
-     * be opened
+     * be opened.
      */
     public void startSourceDataLine(){
         if( sourceDataLine != null && !sourceDataLine.isRunning())
@@ -449,7 +449,7 @@ public class LimeAudioFormat {
     
     /**
      * Stops the current sourceDataLine from writing. This should be called when the 
-     * stream has been paused with intent to reopen it
+     * stream has been paused with intent to reopen it.
      */
     public void stopSourceDataLine(){
         if( sourceDataLine != null && sourceDataLine.isRunning()){
@@ -468,8 +468,8 @@ public class LimeAudioFormat {
     /**
      * Seeks to a current position in the song.
      * 
-     * @param position - position from the begining of the file to seek to
-     * @return - the number of bytes actually skipped
+     * @param position position from the beginning of the file to seek to
+     * @return the number of bytes actually skipped
      */
     public long seek(long position) {
         //TODO: modify javazoom mp3 decoder to support RandomAccessFiles at the bit level
@@ -478,7 +478,7 @@ public class LimeAudioFormat {
     }
     
     /**
-     *  Closes all the open streams. This is a convienance method for when the 
+     *  Closes all the open streams. This is a convenience method for when the 
      *  the song is done being read from. 
      */
     public void closeStreams() {
@@ -543,8 +543,8 @@ public class LimeAudioFormat {
     /**
      * Sets the gain(volume) for the outputline
      * 
-     * @param gain - [0.0 <-> 1.0]
-     * @throws IOException - thrown when the soundcard does not support this
+     * @param gain [0.0 <-> 1.0]
+     * @throws IOException thrown when the soundcard does not support this
      *         operation
      */
     public void setGain(double fGain) throws IOException {

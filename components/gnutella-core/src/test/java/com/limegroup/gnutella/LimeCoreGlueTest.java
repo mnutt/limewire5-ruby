@@ -47,13 +47,15 @@ public class LimeCoreGlueTest extends BaseTestCase {
                              "com.limegroup.gnutella.util.LimeWireUtils", 
                              "org.limewire.util.CommonUtils", 
                              "org.limewire.util.OSUtils",
+                             "org.limewire.util.OSUtils$OSInspecter",
                              "org.limewire.util.FileUtils",
                              "com.limegroup.gnutella.util.Portable",
                              "com.limegroup.gnutella.util.PortableImpl",
                              "org.limewire.lifecycle.Service",
                              "org.limewire.logging.LogFactory",
                              "org.limewire.logging.Log",
-                             "org.limewire.logging.LogImpl"}));
+                             "org.limewire.logging.LogImpl",
+                             "org.limewire.inspection.Inspectable"}));
         
         if(OSUtils.isWindows() || OSUtils.isMacOSX()) {
             expected.add("org.limewire.util.SystemUtils");

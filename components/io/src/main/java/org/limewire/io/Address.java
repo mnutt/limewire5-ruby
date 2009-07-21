@@ -9,13 +9,10 @@ package org.limewire.io;
  * It could also be a jabber id, if jabber messages are used as a signaling
  * channel, for example, to execute reverse connections or firewall transfers.
  * 
- * Addresses should fulfill provide  meaningful {@link #equals(Object)} and
+ * Addresses should provide meaningful {@link #equals(Object)} and
  * {@link #hashCode()} implementations.
  */
 public interface Address {
-    enum EventType {
-        ADDRESS_CHANGED
-    }
     
     String getAddressDescription();
     

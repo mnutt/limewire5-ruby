@@ -57,11 +57,6 @@ public interface GnutellaConnectionManager {
      * Returns the list of connections.
      */
     public EventList<ConnectionItem> getConnectionList();
-
-    /**
-     * Scans the specified connection host for shared files.  
-     */
-    public void browseHost(ConnectionItem item);
     
     /**
      * Removes the specified connection from the list.

@@ -73,7 +73,7 @@ public class LimeDaapServerNIO extends DaapServerNIO {
     }
     
     /**
-     * Binds this server to the SocketAddress supplied by DaapConfig
+     * Binds this server to the SocketAddress supplied by DaapConfig.
      * 
      * @throws IOException
      */    
@@ -212,7 +212,7 @@ public class LimeDaapServerNIO extends DaapServerNIO {
     }
     
     /**
-     * An observer for daap connections, to process reading & writing.
+     * An observer for DAAP connections, to process reading & writing.
      */
     private class DaapController implements ChannelReadObserver, ChannelWriter {
         private DaapConnectionNIO conn;

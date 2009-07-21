@@ -6,7 +6,7 @@ import java.io.OutputStream;
 public interface HashTreeWriteHandler {
 
     /**
-     * method for writing a HashTree to an OutputStream
+     * Method for writing a HashTree to an OutputStream.
      * 
      * @param os
      *            the <tt>OutputStream</tt> to write to.

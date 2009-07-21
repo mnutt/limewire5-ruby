@@ -30,14 +30,16 @@ import org.limewire.io.LocalSocketAddressProviderStub;
 import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.Acceptor;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.RequestCache;
+import com.limegroup.gnutella.library.FileCollectionManager;
 import com.limegroup.gnutella.library.FileDesc;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
-import com.limegroup.gnutella.library.FriendFileList;
+import com.limegroup.gnutella.library.Library;
+import com.limegroup.gnutella.library.SharedFileCollection;
 
 
 /**
@@ -49,14 +51,15 @@ public class FriendUploadTest extends LimeTestCase {
 
     private static final String FRIEND_ID = "me@you.com";
     
-    private Injector injector;
-    private Acceptor acceptor;
+    @Inject private Injector injector;
+    @Inject private Acceptor acceptor;
     private int port;
-    private FileManager fileManager;
+    @Inject private FileCollectionManager fileManager;
 
     private String relativeFileNameUrl;
 
-    private LimeHttpClient client;
+    @Inject private LimeHttpClient client;
+    @Inject private Library library;
 
     private FileDesc fileDesc;
 
@@ -69,17 +72,15 @@ public class FriendUploadTest extends LimeTestCase {
     @Override
     protected void setUp() throws Exception {
         context = new Mockery();
-        injector = CoreGlueTestUtils.createInjectorAndStart(TestUtils.bind(LocalSocketAddressProvider.class).to(LocalSocketAddressProviderStub.class));
-        acceptor = injector.getInstance(Acceptor.class);
+        CoreGlueTestUtils.createInjectorAndStart(TestUtils.bind(LocalSocketAddressProvider.class).to(LocalSocketAddressProviderStub.class), LimeTestUtils.createModule(this));
         port = acceptor.getPort(false);
-        client = injector.getInstance(LimeHttpClient.class);
-        fileManager = injector.getInstance(FileManager.class);
-        FileManagerTestUtils.waitForLoad(fileManager, 4 * 1000);
+        FileManagerTestUtils.waitForLoad(library, 4 * 1000);
         loadFiles();
     }
     
     private void loadFiles() throws Exception {
-        FriendFileList friendFileList = fileManager.getOrCreateFriendFileList(FRIEND_ID);
+        SharedFileCollection friendFileList = fileManager.createNewCollection("test collection");
+        friendFileList.addFriend(FRIEND_ID);
         File testFile = TestUtils.getResourceInPackage(FILE_NAME, getClass());
         fileDesc = friendFileList.add(testFile).get();
         relativeFileNameUrl = LimeTestUtils.getRelativeRequest(fileDesc.getSHA1Urn());

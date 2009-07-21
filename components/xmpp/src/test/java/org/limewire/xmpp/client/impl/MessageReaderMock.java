@@ -2,8 +2,8 @@ package org.limewire.xmpp.client.impl;
 
 import java.util.ArrayList;
 
-import org.limewire.xmpp.api.client.MessageReader;
-import org.limewire.xmpp.api.client.ChatState;
+import org.limewire.friend.api.ChatState;
+import org.limewire.friend.api.MessageReader;
 
 class MessageReaderMock implements MessageReader {
     ArrayList<String> messages = new ArrayList<String>();
@@ -16,5 +16,10 @@ class MessageReaderMock implements MessageReader {
     @Override
     public void newChatState(ChatState chatState) {
         // TODO update the UI
+    }
+    
+    @Override
+    public void error(String errorMessage) {
+        // todo: indicate error message
     }
 }

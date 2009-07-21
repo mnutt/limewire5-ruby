@@ -26,4 +26,11 @@ public class MultiSimilarResultDetector implements SimilarResultsDetector {
             similarResultsDetector.removeSpamItem(result, newParent);
         }
     }
+
+    @Override
+    public void clear() {
+        for (SimilarResultsDetector similarResultsDetector : similarResultsDetectors) {
+            similarResultsDetector.clear();
+        }
+    }
 }

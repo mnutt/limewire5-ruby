@@ -35,12 +35,12 @@ public interface DHTTask<T> {
     public long getWaitOnLockTimeout();
     
     /**
-     * Starts the DHTTask
+     * Starts the DHTTask.
      */
     public void start(OnewayExchanger<T, ExecutionException> exchanger);
     
     /**
-     * Cancels the DHTTask
+     * Cancels the DHTTask.
      */
     public void cancel();
 }

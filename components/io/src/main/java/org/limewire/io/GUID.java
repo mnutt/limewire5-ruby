@@ -62,7 +62,7 @@ import org.limewire.util.ByteUtils;
  * manner.  You need to have some indication external to the guid (i.e. for
  * queries the minSpeed field might have a bit set to indicate this).  Also,
  * this reduces the amount of guids per IP to 2^48 - plenty since IP and port
- * comboes are themselves unique.
+ * combos are themselves unique.
  *  
  */
 public class GUID implements Comparable<GUID> {
@@ -71,7 +71,7 @@ public class GUID implements Comparable<GUID> {
     /** Used to generated new GUID's. */
     private static Random rand=new Random();
 
-    /** The contents of the GUID.  INVARIANT: bytes.length==SZ */
+    /** The contents of the GUID.  INVARIANT: bytes.length==SZ. */
     private byte[] bytes;
 
     /**
@@ -102,11 +102,11 @@ public class GUID implements Comparable<GUID> {
     }
 
     /** See the class header description for more details.
-     * @param first The first index of the first two bytes involved in the
+     * @param first the first index of the first two bytes involved in the
      * marking.
-     * @param second The first index of the second two bytes involved in the
+     * @param second the first index of the second two bytes involved in the
      * marking.
-     * @param markPoint The first index of the two bytes where to put the 
+     * @param markPoint the first index of the two bytes where to put the 
      * marking.
      */
     private static void tagGuid(byte[] guid,
@@ -147,11 +147,11 @@ public class GUID implements Comparable<GUID> {
     }
     
     /**
-     * encodes the current time in seconds in the guid.  This takes away
+     * Encodes the current time in seconds in the guid.  This takes away
      * 3 bytes of entropy because it overwrites byte 16.  
      * If used together with address encoding, we're
      * left with 4 bytes of entropy (~ 4 billion)
-     * (4 ip, 2 port, 4 timestamp, 2 lime mark)
+     * (4 ip, 2 port, 4 timestamp, 2 lime mark).
      */
     public static void timeStampGuid(byte [] guid) {
         int now = (int)(System.currentTimeMillis() / 1000); // good for another 30 years
@@ -171,7 +171,7 @@ public class GUID implements Comparable<GUID> {
          (guid[15] & 0xFF) ) * 1000l; // round off last second
     }
 
-    /** Create a guid with an ip and port encoded within.
+    /** Create a guid with an IP and port encoded within.
      *  @exception IllegalArgumentException thrown if ip.length != 4 or if the
      *  port is not a valid value.
      */
@@ -288,7 +288,7 @@ public class GUID implements Comparable<GUID> {
      *  This does NOT mean that it's a new GUID as well; the caller
      *  will probably want to check that. 
      *
-     *  @param version The version of RequeryGUID you want to test for.  0 for
+     *  @param version the version of RequeryGUID you want to test for.  0 for
      *  requeries up to 2.2.4, 1 for requeries between 2.2.4 and all 2.3s, and 2
      *  for current requeries....
      */
@@ -301,7 +301,7 @@ public class GUID implements Comparable<GUID> {
             return checkMatching(bytes, 0, 11, 13);
     }    
     
-    /** @return true if the input ip and port match the one encoded in the guid.
+    /** @return true if the input IP and port match the one encoded in the guid.
      *  @exception IllegalArgumentException thrown if ip.length != 4 or if the
      *  port is not a valid value.     
      */
@@ -326,13 +326,13 @@ public class GUID implements Comparable<GUID> {
                 (guidBytes[14] == portBytes[1]));
     }
 
-    /** Gets bytes 0-4 as a dotted ip address.
+    /** Gets bytes 0-4 as a dotted IP address.
      */
     public static String getIP(byte[] guidBytes) {
         return NetworkUtils.ip2string(guidBytes);
     }
 
-    /** Gets bytes 0-4 as a dotted ip address.
+    /** Gets bytes 0-4 as a dotted IP address.
      */
     public static boolean matchesIP(byte[] ipBytes, byte[] guidBytes) {
         if (ipBytes.length != 4)
@@ -354,9 +354,9 @@ public class GUID implements Comparable<GUID> {
      */
     public int compareTo(GUID o) {
         if (this == o)
-			return 0;
+            return 0;
         else
-			return compare(this.bytes(), o.bytes());
+            return compare(this.bytes(), o.bytes());
     }
     
     public static final Comparator<GUID> GUID_COMPARATOR = new GUIDComparator();
@@ -490,7 +490,6 @@ public class GUID implements Comparable<GUID> {
          * other TimedGUIDs from HashMaps.  This shouldn't be
          * used as an expiring GUID.
          *  
-         * @param guid
          */
         public TimedGUID(GUID guid) {
             _guid = guid;
@@ -499,8 +498,8 @@ public class GUID implements Comparable<GUID> {
         }
 
         /**
-         * @param guid The GUID to 'time'.
-         * @param maxLife The max lifetime of this GUID.
+         * @param guid the GUID to 'time'.
+         * @param maxLife the max lifetime of this GUID.
          */
         public TimedGUID(GUID guid, long maxLife) {
             _guid = guid;

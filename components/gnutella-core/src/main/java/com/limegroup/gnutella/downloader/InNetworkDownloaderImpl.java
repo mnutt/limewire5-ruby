@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.limewire.concurrent.ListeningExecutorService;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.io.InvalidDataException;
 import org.limewire.net.SocketsManager;
@@ -27,7 +27,9 @@ import com.limegroup.gnutella.downloader.serial.InNetworkDownloadMemento;
 import com.limegroup.gnutella.downloader.serial.InNetworkDownloadMementoImpl;
 import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.guess.OnDemandUnicaster;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.FileCollection;
+import com.limegroup.gnutella.library.GnutellaFiles;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.LibraryUtils;
 import com.limegroup.gnutella.library.UrnCache;
 import com.limegroup.gnutella.malware.DangerousFileChecker;
@@ -52,7 +54,7 @@ class InNetworkDownloaderImpl extends ManagedDownloaderImpl implements InNetwork
     @Inject
     InNetworkDownloaderImpl(SaveLocationManager saveLocationManager,
             DownloadManager downloadManager,
-            FileManager fileManager,
+            @GnutellaFiles FileCollection gnutellaFileCollection,
             IncompleteFileManager incompleteFileManager,
             DownloadCallback downloadCallback,
             NetworkManager networkManager,
@@ -77,8 +79,9 @@ class InNetworkDownloaderImpl extends ManagedDownloaderImpl implements InNetwork
             SocketsManager socketsManager, 
             @Named("downloadStateProcessingQueue") ListeningExecutorService downloadStateProcessingQueue,
             DangerousFileChecker dangerousFileChecker,
-            SpamManager spamManager) throws SaveLocationException {
-        super(saveLocationManager, downloadManager, fileManager,
+            SpamManager spamManager,
+            Library library) throws DownloadException {
+        super(saveLocationManager, downloadManager, gnutellaFileCollection,
                 incompleteFileManager, downloadCallback, networkManager,
                 alternateLocationFactory, requeryManagerFactory,
                 queryRequestFactory, onDemandUnicaster, downloadWorkerFactory,
@@ -87,7 +90,7 @@ class InNetworkDownloaderImpl extends ManagedDownloaderImpl implements InNetwork
                 backgroundExecutor, messageRouter, tigerTreeCache,
                 applicationServices, remoteFileDescFactory, pushListProvider,
                 socketsManager, downloadStateProcessingQueue,
-                dangerousFileChecker, spamManager);
+                dangerousFileChecker, spamManager, library);
     }
     
     /* (non-Javadoc)
@@ -220,5 +223,12 @@ class InNetworkDownloaderImpl extends ManagedDownloaderImpl implements InNetwork
         setTigerTreeRoot(imem.getTigerTreeRoot());
         setStartTime(imem.getStartTime());
         setDownloadAttempts(imem.getDownloadAttempts());
+    }
+    
+    @Override
+    public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
+            throws DownloadException {
+        //overriding to track down cause of https://www.limewire.org/jira/browse/LWC-3697 remove when fixed
+        super.setSaveFile(saveDirectory, fileName, overwrite);
     }
 }

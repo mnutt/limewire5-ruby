@@ -30,9 +30,9 @@ public interface DHTValueFactory<T extends DHTValue> {
     /**
      * Creates a <code>DHTValue</code>.
      * 
-     * @param type The type of the value
-     * @param version The version of the value
-     * @param value The actual value
+     * @param type the type of the value
+     * @param version the version of the value
+     * @param value the actual value
      */
     public T createDHTValue(DHTValueType type, 
             Version version, byte[] value) throws DHTValueException;

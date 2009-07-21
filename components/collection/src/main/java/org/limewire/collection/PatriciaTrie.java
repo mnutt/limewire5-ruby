@@ -47,7 +47,7 @@ import java.util.SortedMap;
  * for more information.
  * <p>
  * Any methods here that take an <code>Object</code> may throw a 
- * <code>ClassCastException<code> if the method is expecting an instance of K 
+ * <code>ClassCastException</code> if the method is expecting an instance of K 
  * (and it isn't K).
  * 
  * <pre>
@@ -123,13 +123,13 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
         incrementModCount();
     }
     
-    /** Returns true if the Trie is empty */
+    /** Returns true if the Trie is empty. */
     @Override
     public boolean isEmpty() {
         return size == 0;
     }
     
-    /** Returns the number items in the Trie */
+    /** Returns the number items in the Trie. */
     @Override
     public int size() {
         return size;
@@ -279,7 +279,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * Returns the entry associated with the specified key in the
      * PatriciaTrie.  Returns null if the map contains no mapping
      * for this key.
-     * 
+     * <p>
      * This may throw ClassCastException if the object is not of type K.
      */
     TrieEntry<K,V> getEntry(Object k) {
@@ -310,7 +310,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * Returns the nearest entry for a given key.  This is useful
      * for finding knowing if a given key exists (and finding the value
      * for it), or for inserting the key.
-     * 
+     * <p>
      * The actual get implementation. This is very similar to
      * selectR but with the exception that it might return the
      * root Entry even if it's empty.
@@ -427,13 +427,13 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     /**
      * Returns a view of this Trie of all elements that are
      * prefixed by the given key.
-     * 
+     * <p>
      * In a fixed-keysize Trie, this is essentially a 'get' operation.
-     * 
+     * <p>
      * For example, if the trie contains 'Lime', 'LimeWire', 
      * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
      * a lookup of 'Lime' would return 'Lime', 'LimeRadio', and 'LimeWire'.
-     * 
+     * <p>
      * The view that this returns is optimized to have a very efficient
      * Iterator. The firstKey, lastKey & size methods must iterate
      * over all possible values in order to determine the results. This
@@ -443,8 +443,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * remove method must also relocate the subtree that contains the
      * prefixes if the entry holding the subtree is removed or changes.
      * Changing the subtree takes O(K) time.
-     * 
-     * @param key
      */
     public SortedMap<K, V> getPrefixedBy(K key) {
         return getPrefixedByBits(key, 0, keyAnalyzer.length(key));
@@ -453,15 +451,15 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     /**
      * Returns a view of this Trie of all elements that are
      * prefixed by the length of the key.
-     * 
+     * <p>
      * Fixed-keysize Tries will not support this operation
      * (because all keys will be the same length).
-     * 
+     * <p>
      * For example, if the trie contains 'Lime', 'LimeWire', 
      * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
      * a lookup of 'LimePlastics' with a length of 4 would
      * return 'Lime', 'LimeRadio', and 'LimeWire'.
-     * 
+     * <p>
      * The view that this returns is optimized to have a very efficient
      * Iterator.  The firstKey, lastKey & size methods must iterate
      * over all possible values in order to determine the results.  This
@@ -472,8 +470,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * prefixes if the entry holding the subtree is removed or changes.
      * Changing the subtree takes O(K) time.
      *  
-     * @param key
-     * @param length
      */
     public SortedMap<K, V> getPrefixedBy(K key, int length) {
         return getPrefixedByBits(key, 0, length * keyAnalyzer.bitsPerElement());
@@ -482,15 +478,15 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     /**
      * Returns a view of this Trie of all elements that are prefixed
      * by the key, starting at the given offset and for the given length.
-     * 
+     * <p>
      * Fixed-keysize Tries will not support this operation
      * (because all keys are the same length).
-     *
+     * <p>
      * For example, if the trie contains 'Lime', 'LimeWire', 
      * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
      * a lookup of 'The Lime Plastics' with an offset of 4 and a 
      * length of 4 would return 'Lime', 'LimeRadio', and 'LimeWire'.
-     * 
+     * <p>
      * The view that this returns is optimized to have a very efficient
      * Iterator.  The firstKey, lastKey & size methods must iterate
      * over all possible values in order to determine the results.  This
@@ -500,10 +496,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * remove method must also relocate the subtree that contains the
      * prefixes if the entry holding the subtree is removed or changes.
      * Changing the subtree takes O(K) time.
-     * 
-     * @param key
-     * @param offset
-     * @param length
      */
     public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
         return getPrefixedByBits(key, offset * keyAnalyzer.bitsPerElement(), length * keyAnalyzer.bitsPerElement());
@@ -512,13 +504,13 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     /**
      * Returns a view of this Trie of all elements that are prefixed
      * by the number of bits in the given Key.
-     * 
+     * <p>
      * Fixed-keysize Tries can support this operation as a way to do
      * lookups of partial keys.  That is, if the Trie is storing IP
      * addresses, you can lookup all addresses that begin with
      * '192.168' by providing the key '192.168.X.X' and a length of 16
      * would return all addresses that begin with '192.168'.
-     * 
+     * <p>
      * The view that this returns is optimized to have a very efficient
      * Iterator.  The firstKey, lastKey & size methods must iterate
      * over all possible values in order to determine the results.  This
@@ -528,9 +520,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * remove method must also relocate the subtree that contains the
      * prefixes if the entry holding the subtree is removed or changes.
      * Changing the subtree takes O(K) time.
-     * 
-     * @param key
-     * @param bitLength
      */
     public SortedMap<K, V> getPrefixedByBits(K key, int bitLength) {
         return getPrefixedByBits(key, 0, bitLength);
@@ -540,7 +529,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * Returns a view of this map, with entries containing only those that
      * are prefixed by a value whose bits matches the bits between 'offset'
      * and 'length' in the given key.
-     * 
+     * <p>
      * The view that this returns is optimized to have a very efficient
      * Iterator.  The firstKey, lastKey & size methods must iterate
      * over all possible values in order to determine the results.  This
@@ -550,10 +539,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * remove method must also relocate the subtree that contains the
      * prefixes if the entry holding the subtree is removed or changes.
      * Changing the subtree takes O(K) time.
-     * 
-     * @param key
-     * @param offset
-     * @param length
      */
     private SortedMap<K, V> getPrefixedByBits(K key, int offset, int length) {
         int offsetLength = offset + length;
@@ -569,7 +554,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     
     /**
      * Returns true if this trie contains the specified Key
-     * 
+     * <p>
      * This may throw ClassCastException if the object is not
      * of type K.
      */
@@ -596,7 +581,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     
     /**
      * Removes a Key from the Trie if one exists
-     * 
+     * <p>
      * This may throw ClassCastException if the object is not of type K.
      * 
      * @param k the Key to delete
@@ -629,7 +614,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     
     /**
      * Removes a single entry from the Trie.
-     * 
+     * <p>
      * If we found a Key (Entry h) then figure out if it's
      * an internal (hard to remove) or external Entry (easy 
      * to remove)
@@ -649,7 +634,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     
     /**
      * Removes an external entry from the Trie.
-     * 
+     * <p>
      * If it's an external Entry then just remove it.
      * This is very easy and straight forward.
      */
@@ -680,7 +665,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     
     /**
      * Removes an internal entry from the Trie.
-     * 
+     * <p>
      * If it's an internal Entry then "good luck" with understanding
      * this code. The Idea is essentially that Entry p takes Entry h's
      * place in the trie which requires some re-wiring.
@@ -761,6 +746,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * Returns the node lexicographically before the given node (or null if none).
      * 
      * This follows four simple branches:
+     * <pre>
      *  - If the uplink that returned us was a right uplink:
      *      - If predecessor's left is a valid uplink from predecessor, return it.
      *      - Else, follow the right path from the predecessor's left.
@@ -773,8 +759,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      *              - If it is root & root !isEmpty, return root.
      *          - If node.parent.left is not uplink from node.parent:
      *              - Follow right path for first right child from node.parent.left   
-     * 
-     * @param start
+     * </pre>
      */
     private TrieEntry<K, V> previousEntry(TrieEntry<K, V> start) {
         if(start.predecessor == null)
@@ -822,7 +807,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     /**
      * Returns the entry lexicographically after the given entry.
      * If the given entry is null, returns the first node.
-     * 
+     * <p>
      * This will traverse only within the subtree.  If the given node
      * is not within the subtree, this will have undefined results.
      */
@@ -838,9 +823,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      * Scans for the next node, starting at the specified point, and using 'previous'
      * as a hint that the last node we returned was 'previous' (so we know not to return
      * it again).  If 'tree' is non-null, this will limit the search to the given tree.
-     * 
+     * <p>
      * The basic premise is that each iteration can follow the following steps:
-     * 
+     * <pre>
      * 1) Scan all the way to the left.
      *   a) If we already started from this node last time, proceed to Step 2.
      *   b) If a valid uplink is found, use it.
@@ -866,6 +851,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      *    already found & returned the end of the Trie, so exit.
      *    
      * 7) Do Step 1 on the parent's right child.
+     * </pre>
      */
     private TrieEntry<K, V> nextEntryImpl(TrieEntry<K, V> start, TrieEntry<K, V> previous, TrieEntry<K, V> tree) {
         TrieEntry<K, V> current = start;
@@ -1112,7 +1098,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
         
         /** 
          * Replaces the old key and value with the new ones.
-         * Returns the old vlaue.
+         * Returns the old value.
          */
         private V setKeyValue(K key, V value) {
             this.key = key;
@@ -1207,13 +1193,13 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
      */
     public static interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
         
-        /** Returned by bitIndex if key's bits are all 0 */
+        /** Returned by bitIndex if key's bits are all 0. */
         public static final int NULL_BIT_KEY = -1;
         
         /** 
          * Returned by bitIndex if key and found key are
          * equal. This is a very very specific case and
-         * shouldn't happen on a regular basis
+         * shouldn't happen on a regular basis.
          */
         public static final int EQUAL_BIT_KEY = -2;
         
@@ -1222,7 +1208,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
          */
         public int length(K key);
         
-        /** Returns whether or not a bit is set */
+        /** Returns whether or not a bit is set. */
         public boolean isBitSet(K key, int keyLength, int bitIndex);
         
         /**
@@ -1854,7 +1840,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V> implements Trie<K, V>,
     
     /**
      * Finds the subtree that contains the prefix.
-     * 
+     * <p>
      * This is very similar to getR but with the difference that
      * we stop the lookup if h.bitIndex > keyLength.
      */

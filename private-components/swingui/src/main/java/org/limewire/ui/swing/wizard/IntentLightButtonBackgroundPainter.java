@@ -8,7 +8,7 @@ import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.util.PainterUtils;
 
 /**
- * Resourceless button class for the intent screen
+ * Resourceless button class for the intent screen.
   */
 public class IntentLightButtonBackgroundPainter extends ButtonBackgroundPainter {
 

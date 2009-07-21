@@ -9,7 +9,7 @@ import org.limewire.io.AddressConnectingLoggingCategory;
 public interface AddressResolver {
 
     /**
-     * Logging category name for AddressResolver's to use
+     * Logging category name for AddressResolver's to use.
      */
     public static final String LOGGING_CATEGORY = AddressConnectingLoggingCategory.CATEGORY;
 

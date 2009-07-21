@@ -390,8 +390,8 @@ public class IntervalSet implements Iterable<Range>, Serializable{
     }
 
     /**
-     * encodes the current interval set as defined in
-     * http://www.limewire.org/wiki/index.php?title=HashTreeRangeEncoding
+     * Encodes the current interval set as defined in
+     * http://www.limewire.org/wiki/index.php?title=HashTreeRangeEncoding.
      */
     public Collection<Integer> encode(long maxSize) {
         long numLeafs = getNumLeafs(maxSize);
@@ -446,8 +446,8 @@ public class IntervalSet implements Iterable<Range>, Serializable{
     }
     
     /**
-     * decodes an interval set encoded with:
-     * http://www.limewire.org/wiki/index.php?title=HashTreeRangeEncoding
+     * Decodes an interval set encoded with:
+     * http://www.limewire.org/wiki/index.php?title=HashTreeRangeEncoding.
      * 
      * @param maxSize the size of the file
      * @param id integers from the encoding
@@ -592,7 +592,7 @@ public class IntervalSet implements Iterable<Range>, Serializable{
         return intervals.toString();
     }
     
-    /** Compares two <code>IntervalSet</code>s */
+    /** Compares two <code>IntervalSet</code>s. */
     @Override
     public boolean equals(Object o) {
         if(o == this) {

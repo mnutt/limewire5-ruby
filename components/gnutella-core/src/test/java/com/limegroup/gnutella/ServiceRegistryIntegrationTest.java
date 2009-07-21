@@ -60,7 +60,6 @@ public class ServiceRegistryIntegrationTest extends LimeTestCase {
         "Mojito DHT", "DHTManagerImpl", 
         "Peer Locator", "HostCatcher", 
         "Static Messages", "StaticMessages", 
-        "Session Statistics", "Statistics", 
         "Message Routing", "StandardMessageRouter", 
         "Core Glue", "LimeCoreGlue", 
         "RUDP Message Routing", "LimeRUDPMessageHandler", 
@@ -68,13 +67,11 @@ public class ServiceRegistryIntegrationTest extends LimeTestCase {
         "HTTP Request Listening", "HTTPAcceptor", 
         "Magnet Processor", "LocalHTTPAcceptor", 
         "Connection Dispatching", "", 
-        "DHT Peer Locator", "DHTPeerLocatorImpl", 
         "OOB Throughput Measurer", "OutOfBandThroughputMeasurer", 
         "Stale Connection Management", "ConnectionWatchdog", 
         "Spam Management", "RatingTable",  
         "Download Upgrade Task", "", 
         "LimeWire Store Integration", "LWSIntegrationServicesImpl", 
-        "DHT Peer Publisher", "DHTPeerPublisherImpl", 
         "Local Socket Listener", "LocalAcceptor", 
         "Various Core Services", "",
         "QRP Updater", "QRPUpdater",
@@ -91,6 +88,8 @@ public class ServiceRegistryIntegrationTest extends LimeTestCase {
         "ForMeReplyHandler.Clear Push Requests", "ScheduledService",
         "DiskContrller.CacheCleaner", "ScheduledService",
         "urncache persister", "ScheduledService",
+        "TorrentManager", "LazyTorrentManager",
+        "Settings Saver", "SettingsSaverService",
         
         };
         

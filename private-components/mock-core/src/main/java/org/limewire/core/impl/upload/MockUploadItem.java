@@ -7,6 +7,7 @@ import java.io.File;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
+import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.core.api.upload.UploadErrorState;
 import org.limewire.core.api.upload.UploadItem;
 import org.limewire.core.api.upload.UploadState;
@@ -74,15 +75,10 @@ public class MockUploadItem implements UploadItem {
     public Category getCategory(){
         return category;
     }
-
-    @Override
-    public String getHost() {
-        return "Carmine";
-    }
     
     @Override
     public String toString(){
-        return "CoreUploadItem: " + getFileName() + ", " + getState() + ", " + getHost();
+        return "CoreUploadItem: " + getFileName() + ", " + getState();
     }
 
     @Override
@@ -122,7 +118,7 @@ public class MockUploadItem implements UploadItem {
         return new URN() {
             @Override
             public int compareTo(URN o) {
-                return 0;
+                return toString().compareTo(o.toString());
             }
         };
     }
@@ -147,4 +143,8 @@ public class MockUploadItem implements UploadItem {
         return BrowseType.FRIEND;
     }
 
+    @Override
+    public RemoteHost getRemoteHost() {
+        return null;
+    }
 }

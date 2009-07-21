@@ -21,7 +21,7 @@ import org.limewire.ui.swing.util.I18n;
 import com.google.inject.Inject;
 
 /**
- * Proxy Option View
+ * Proxy Option View.
  */
 public class ProxyOptionPanel extends OptionPanel {
     
@@ -49,6 +49,7 @@ public class ProxyOptionPanel extends OptionPanel {
     public ProxyOptionPanel() {
         super();
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
+        setOpaque(false);
         
         add(getProxyPanel(), "pushx, growx");
     }
@@ -57,6 +58,7 @@ public class ProxyOptionPanel extends OptionPanel {
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createTitledBorder(""));
         p.setLayout(new MigLayout("gapy 10"));
+        p.setOpaque(false);
         
         noProxyRadioButton = new JRadioButton(I18n.tr("No Proxy"));
         noProxyRadioButton.addItemListener(new ProxyButtonListener());
@@ -66,6 +68,11 @@ public class ProxyOptionPanel extends OptionPanel {
         socksV5RadioButton.addItemListener(new ProxyButtonListener());
         httpRadioButton = new JRadioButton(I18n.tr("HTTP"));
         httpRadioButton.addItemListener(new ProxyButtonListener());
+        
+        noProxyRadioButton.setOpaque(false);
+        socksV4RadionButton.setOpaque(false);
+        socksV5RadioButton.setOpaque(false);
+        httpRadioButton.setOpaque(false);
         
         buttonGroup = new ButtonGroup();
         buttonGroup.add(noProxyRadioButton);

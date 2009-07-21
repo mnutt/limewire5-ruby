@@ -2,9 +2,14 @@ package org.limewire.ui.swing.friends;
 
 import java.util.Map;
 
-import org.limewire.core.api.friend.Friend;
-import org.limewire.core.api.friend.Network;
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.IncomingChatListener;
+import org.limewire.friend.api.MessageReader;
+import org.limewire.friend.api.MessageWriter;
+import org.limewire.friend.api.Network;
+import org.limewire.friend.api.PresenceEvent;
+import org.limewire.listener.EventListener;
 
 public class MockFriend implements Friend {
     
@@ -62,16 +67,61 @@ public class MockFriend implements Friend {
             public String getNetworkName() {
                 return "";
             }
-        };
-    }
 
-    @Override
-    public Map<String, FriendPresence> getFriendPresences() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+            @Override
+            public Type getType() {
+                return Network.Type.XMPP;
+            }
+        };
     }
 
     @Override
     public String getFirstName() {
         return name;
+    }
+
+    @Override
+    public void addPresenceListener(EventListener<PresenceEvent> presenceListener) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }                                                                                      
+
+    @Override
+    public MessageWriter createChat(MessageReader reader) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setChatListenerIfNecessary(IncomingChatListener listener) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void removeChatListener() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public FriendPresence getActivePresence() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean hasActivePresence() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean isSignedIn() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Map<String, FriendPresence> getPresences() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean isSubscribed() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

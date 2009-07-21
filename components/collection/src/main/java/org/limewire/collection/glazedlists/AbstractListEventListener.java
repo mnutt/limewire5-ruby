@@ -12,7 +12,7 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  * An abstract ListEventListener for use with glazed lists when you really need
  * the deleted object. Use this class sparingly, as it will cache the contents
  * of the list.
- * 
+ * <p>
  * To use, subclass {@link AbstractListEventListener} and {@link #install(EventList)}
  * it on the list you want to listen to.
  */

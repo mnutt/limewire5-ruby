@@ -12,8 +12,8 @@ import org.apache.http.params.HttpParams;
 import com.google.inject.Inject;
 
 /**
- * a <code>SocketFactory</code> that can be given 
- * a <code>Socket</code> to use
+ * A <code>SocketFactory</code> that can be given 
+ * a <code>Socket</code> to use.
  */
 public class SocketWrapperProtocolSocketFactory implements SocketFactory {
 

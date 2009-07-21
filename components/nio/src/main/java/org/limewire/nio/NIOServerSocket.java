@@ -35,7 +35,7 @@ public class NIOServerSocket extends ServerSocket implements AcceptChannelObserv
     
     /** Channel backing this NIOServerSocket. */
     private final ServerSocketChannel channel;
-    /** Socket associate of the channel */
+    /** Socket associate of the channel. */
     private final ServerSocket socket;
     /** AcceptObserver that will be retrieving the sockets. */
     private final AcceptObserver observer;
@@ -116,7 +116,7 @@ public class NIOServerSocket extends ServerSocket implements AcceptChannelObserv
     
     /**
      * Initializes the connection.
-     * Currently this sets the channel to blocking and setReuseAddress to true
+     * Currently this sets the channel to blocking and setReuseAddress to true.
      */
     private void init() throws IOException {
         channel.configureBlocking(false);

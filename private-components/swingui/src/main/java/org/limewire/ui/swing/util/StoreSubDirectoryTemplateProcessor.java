@@ -8,7 +8,7 @@ import java.util.Map;
  * Some examples would be:
  * <ul>
  * <li></li>
- * <li><artist>/<album></li>
+ * <li><xmp><artist>/<album></xmp></li>
  * </ul>
  */
 public class StoreSubDirectoryTemplateProcessor extends StoreTemplateProcessor {
@@ -18,8 +18,8 @@ public class StoreSubDirectoryTemplateProcessor extends StoreTemplateProcessor {
      * <code>outDir</code> as the base directory.  Some sample templates are
      * <ul>
      * <li></li>
-     * <li><artist></li>
-     * <li><artist>/<album></li>
+     * <li><xmp><artist></xmp></li>
+     * <li><xmp><artist>/<album></xmp></li>
      * </ul>
      * Valid values for the keys of <code>substitutions</code> are
      * <ul>

@@ -1,36 +1,49 @@
 package org.limewire.ui.swing.library;
 
+import java.awt.Rectangle;
+import java.io.File;
+import java.util.List;
+
 import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.core.api.library.RemoteFileItem;
-import org.limewire.ui.swing.library.image.LibraryImageSubPanelFactory;
-import org.limewire.ui.swing.library.image.LibraryImageSubPanelFactoryImpl;
-import org.limewire.ui.swing.library.nav.LimeWireUiLibraryNavModule;
-import org.limewire.ui.swing.library.table.LibraryTableFactory;
-import org.limewire.ui.swing.library.table.LibraryTableFactoryImpl;
-import org.limewire.ui.swing.library.table.ShareTableRendererEditor;
-import org.limewire.ui.swing.library.table.ShareTableRendererEditorFactory;
-import org.limewire.ui.swing.library.table.menu.actions.SharingActionFactory;
-import org.limewire.ui.swing.library.table.menu.actions.SharingActionFactoryImpl;
-import org.limewire.ui.swing.properties.PropertiesFactory;
+import org.limewire.core.api.library.LocalFileList;
+import org.limewire.listener.EventListenerList;
+import org.limewire.ui.swing.library.navigator.LibraryNavItem;
+import org.limewire.ui.swing.library.navigator.LibraryNavigatorPanel;
+import org.limewire.ui.swing.library.sharing.LibrarySharingEvent;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
+import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
-import com.google.inject.assistedinject.FactoryProvider;
 
 public class LimeWireUiLibraryModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        install(new LimeWireUiLibraryNavModule());
-        
-        bind(LibraryTableFactory.class).to(LibraryTableFactoryImpl.class);
-        bind(SharingActionFactory.class).to(SharingActionFactoryImpl.class);
-        bind(LibraryImageSubPanelFactory.class).to(LibraryImageSubPanelFactoryImpl.class);
-        
-        bind(new TypeLiteral<PropertiesFactory<LocalFileItem>>(){}).to(LocalFileItemPropertiesFactory.class);
-        bind(new TypeLiteral<PropertiesFactory<RemoteFileItem>>(){}).to(RemoteFileItemPropertiesFactory.class);
-        
-        bind(ShareTableRendererEditorFactory.class).toProvider(
-                FactoryProvider.newFactory(ShareTableRendererEditorFactory.class, ShareTableRendererEditor.class));
+        // Bind listener support for LibrarySharingEvent.
+        EventListenerList<LibrarySharingEvent> listenerList = new EventListenerList<LibrarySharingEvent>();
+        bind(new TypeLiteral<EventListenerList<LibrarySharingEvent>>(){}).toInstance(listenerList);
     }
+    
+    @Provides @LibrarySelected LocalFileList selectedLFL(Provider<LibraryNavigatorPanel> navigator) {
+        LibraryNavItem item = navigator.get().getSelectedNavItem();
+        if (item != null) {
+            return item.getLocalFileList();
+        } else {
+            return null;
+        }
+    }
+    
+    @Provides @LibrarySelected List<File> selectedFiles(Provider<LibraryPanel> libraryPanel) {
+        return libraryPanel.get().getSelectedFiles();
+    }
+    
+    @Provides @LibrarySelected List<LocalFileItem> selectedFileItems(Provider<LibraryPanel> libraryPanel) {
+        return libraryPanel.get().getSelectedItems();
+    }
+    
+    @Provides @LibraryTableRect Rectangle tableRect(Provider<LibraryPanel> libraryPanel) {
+        return libraryPanel.get().getTableListRect();
+    }
+
 }

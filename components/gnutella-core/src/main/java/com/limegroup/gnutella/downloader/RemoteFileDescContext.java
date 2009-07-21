@@ -35,22 +35,22 @@ public class RemoteFileDescContext {
 
     /**
      * The last known queue status of the remote host
-     * negative values mean free slots
+     * negative values mean free slots.
      */
     private int queueStatus = Integer.MAX_VALUE;
 
     /**
-     * The earliest time to retry this host in milliseconds since 01-01-1970
+     * The earliest time to retry this host in milliseconds since 01-01-1970.
      */
     private volatile long earliestRetryTime;
     
     /**
-     * The time at which this host was head pinged, or 0 if not applicable
+     * The time at which this host was head pinged, or 0 if not applicable.
      */
     private volatile long pingTime = 0;
     
     /**
-     * The time at which this host returned a head pong, or 0 if not applicable
+     * The time at which this host returned a head pong, or 0 if not applicable.
      */
     private volatile long pongTime = 0;
 
@@ -102,7 +102,7 @@ public class RemoteFileDescContext {
     }
 
     /**
-     * Returns true if this is a partial source
+     * Returns true if this is a partial source.
      */
     public boolean isPartialSource() {
         return availableRanges != null;
@@ -138,14 +138,14 @@ public class RemoteFileDescContext {
     }
     
     /**
-     * Records the time at which the most recent head ping was sent
+     * Records the time at which the most recent head ping was sent.
      */
     public void recordPingTime(long now) {
         pingTime = now;
     }
     
     /**
-     * Records the time at which the most recent head pong was received
+     * Records the time at which the most recent head pong was received.
      */
     public void recordPongTime(long now) {
         pongTime = now;
@@ -153,7 +153,7 @@ public class RemoteFileDescContext {
     
     /**
      * Returns the round-trip time if a pong has been received for the
-     * most recent head ping, otherwise returns Long.MAX_VALUE
+     * most recent head ping, otherwise returns Long.MAX_VALUE.
      */
     public long getRoundTripTime() {
         if(pongTime > pingTime)

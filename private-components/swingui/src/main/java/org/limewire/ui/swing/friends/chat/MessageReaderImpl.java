@@ -1,7 +1,7 @@
 package org.limewire.ui.swing.friends.chat;
 
-import org.limewire.xmpp.api.client.MessageReader;
-import org.limewire.xmpp.api.client.ChatState;
+import org.limewire.friend.api.ChatState;
+import org.limewire.friend.api.MessageReader;
 
 class MessageReaderImpl implements MessageReader {
     private final ChatFriend chatFriend;
@@ -13,7 +13,7 @@ class MessageReaderImpl implements MessageReader {
     @Override
     public void readMessage(final String message) {
         if (message != null) {
-            final Message msg = newMessage(message, Message.Type.Received);
+            final Message msg = newMessage(message, Message.Type.RECEIVED);
             new MessageReceivedEvent(msg).publish();
         }
     }
@@ -25,5 +25,12 @@ class MessageReaderImpl implements MessageReader {
     @Override
     public void newChatState(ChatState chatState) {
         new ChatStateEvent(chatFriend, chatState).publish();
+    }
+    
+    @Override
+    public void error(String errorMessage) {
+        ErrorMessage errMsg = new ErrorMessage(chatFriend.getID(), 
+            errorMessage, Message.Type.SERVER);
+        new MessageReceivedEvent(errMsg).publish();
     }
 }

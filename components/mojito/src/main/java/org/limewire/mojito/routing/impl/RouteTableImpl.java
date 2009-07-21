@@ -66,22 +66,22 @@ public class RouteTableImpl implements RouteTable {
     private static final Log LOG = LogFactory.getLog(RouteTableImpl.class);
     
     /**
-     * Trie of Buckets and the Buckets are a Trie of Contacts
+     * Trie of Buckets and the Buckets are a Trie of Contacts.
      */
     private final PatriciaTrie<KUID, Bucket> bucketTrie;
     
     /**
-     * A counter for consecutive failures
+     * A counter for consecutive failures.
      */
     private int consecutiveFailures = 0;
     
     /**
-     * A reference to the ContactPinger
+     * A reference to the ContactPinger.
      */
     private transient ContactPinger pinger;
     
     /**
-     * The local Node
+     * The local Node.
      */
     private Contact localNode;
     
@@ -92,13 +92,13 @@ public class RouteTableImpl implements RouteTable {
         = new CopyOnWriteArrayList<RouteTableListener>();
     
     /** 
-     * Executor where to offload notifications to RouteTableListeners
+     * Executor where to offload notifications to RouteTableListeners.
      */
     private transient volatile DHTExecutorService notifier;
     
     /**
      * Create a new RouteTable and generates a new random Node ID
-     * for the local Node
+     * for the local Node.
      */
     public RouteTableImpl() {
         this(KUID.createRandomID());
@@ -106,7 +106,7 @@ public class RouteTableImpl implements RouteTable {
     
     /**
      * Create a new RouteTable and uses the given Node ID
-     * for the local Node
+     * for the local Node.
      */
     public RouteTableImpl(byte[] nodeId) {
         this(KUID.createWithBytes(nodeId));
@@ -114,7 +114,7 @@ public class RouteTableImpl implements RouteTable {
     
     /**
      * Create a new RouteTable and uses the given Node ID
-     * for the local Node
+     * for the local Node.
      */
     public RouteTableImpl(String nodeId) {
         this(KUID.createWithHexString(nodeId));
@@ -122,7 +122,7 @@ public class RouteTableImpl implements RouteTable {
     
     /**
      * Create a new RouteTable and uses the given Node ID
-     * for the local Node
+     * for the local Node.
      */
     public RouteTableImpl(KUID nodeId) {
         localNode = ContactFactory.createLocalContact(Vendor.UNKNOWN, Version.ZERO, nodeId, 0, false);
@@ -131,7 +131,7 @@ public class RouteTableImpl implements RouteTable {
     }
     
     /**
-     * Initializes the RouteTable
+     * Initializes the RouteTable.
      */
     private void init() {
         KUID bucketId = KUID.MINIMUM;
@@ -186,7 +186,7 @@ public class RouteTableImpl implements RouteTable {
     }
     
     /**
-     * Removes a RouteTableListener
+     * Removes a RouteTableListener.
      * 
      * @param l the RouteTableListener instance to remove
      */
@@ -428,7 +428,7 @@ public class RouteTableImpl implements RouteTable {
     }
     
     /**
-     * Adds the given Contact to the Bucket's replacement Cache
+     * Adds the given Contact to the Bucket's replacement Cache.
      */
     protected synchronized void addContactToBucketCache(Bucket bucket, Contact node) {
         
@@ -609,8 +609,8 @@ public class RouteTableImpl implements RouteTable {
                         assert (removed == true);
                         
                         if (isOkayToAdd(bucket, mrs)) {
-                        	removed = bucket.removeActiveContact(nodeId);
-                        	assert (removed == true);
+                            removed = bucket.removeActiveContact(nodeId);
+                            assert (removed == true);
                             assert (bucket.isActiveFull() == false);
                             
                             bucket.addActiveContact(mrs);
@@ -666,7 +666,7 @@ public class RouteTableImpl implements RouteTable {
     }
     
     /**
-     * Removes the given Contact from the RouteTable
+     * Removes the given Contact from the RouteTable.
      */
     protected synchronized boolean remove(Contact node) {
         return remove(node.getNodeID());
@@ -674,7 +674,7 @@ public class RouteTableImpl implements RouteTable {
     
     /**
      * Removes the given KUID (Contact with that KUID) 
-     * from the RouteTable
+     * from the RouteTable.
      */
     protected synchronized boolean remove(KUID nodeId) {
         return bucketTrie.select(nodeId).remove(nodeId);
@@ -715,7 +715,7 @@ public class RouteTableImpl implements RouteTable {
     }
     
     /**
-     * Returns 'count' number of Contacts that are nearest (xor distance)
+     * Returns 'count' number of Contacts that are nearest (XOR distance)
      * to the given KUID.
      */
     public synchronized Collection<Contact> select(KUID nodeId, int count) {
@@ -889,7 +889,7 @@ public class RouteTableImpl implements RouteTable {
     }
     
     /**
-     * Touches the given Bucket (i.e. updates its timeStamp)
+     * Touches the given Bucket (i.e. updates its timeStamp).
      */
     private void touchBucket(Bucket bucket) {
         if(LOG.isTraceEnabled()) {
@@ -900,7 +900,7 @@ public class RouteTableImpl implements RouteTable {
     }
     
     /**
-     * Pings the least recently seen active Contact in the given Bucket
+     * Pings the least recently seen active Contact in the given Bucket.
      */
     private void pingLeastRecentlySeenNode(Bucket bucket) {
         Contact lrs = bucket.getLeastRecentlySeenActiveContact();
@@ -911,7 +911,7 @@ public class RouteTableImpl implements RouteTable {
     
     /**
      * Pings the given Contact and adds the given DHTEventListener to
-     * the DHTFuture if it's not null
+     * the DHTFuture if it's not null.
      */
     private void ping(Contact node, DHTFutureListener<PingResult> listener) {
         ContactPinger pinger = this.pinger;

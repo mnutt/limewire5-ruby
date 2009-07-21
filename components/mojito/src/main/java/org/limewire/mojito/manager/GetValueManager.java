@@ -40,7 +40,7 @@ public class GetValueManager extends AbstractManager<FindValueResult> {
     }
     
     /**
-     * Tries to get one or more values from the remote Node
+     * Tries to get one or more values from the remote Node.
      */
     public DHTFuture<FindValueResult> get(EntityKey entityKey) {
         
@@ -52,7 +52,7 @@ public class GetValueManager extends AbstractManager<FindValueResult> {
     }
     
     /**
-     * A "get value" specific implementation of DHTFuture
+     * A "get value" specific implementation of DHTFuture.
      */
     private class GetValueFuture extends DHTFutureTask<FindValueResult> {
 

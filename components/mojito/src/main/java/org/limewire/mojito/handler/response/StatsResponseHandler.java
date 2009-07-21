@@ -35,7 +35,7 @@ import org.limewire.mojito.result.StatsResult;
 
 
 /**
- * The StatsResponseHandler handles responses for Stats requests
+ * The StatsResponseHandler handles responses for Stats requests.
  */
 public class StatsResponseHandler extends AbstractResponseHandler<StatsResult> {
 

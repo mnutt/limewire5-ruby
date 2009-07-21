@@ -47,6 +47,7 @@ import org.limewire.mojito.routing.Vendor;
 import org.limewire.mojito.routing.Version;
 import org.limewire.mojito.settings.ContextSettings;
 import org.limewire.mojito.settings.KademliaSettings;
+import org.limewire.mojito.statistics.DHTStats;
 import org.limewire.statistic.StatsUtils;
 import org.limewire.util.ByteUtils;
 import org.limewire.util.DebugRunnable;
@@ -62,7 +63,7 @@ import com.limegroup.gnutella.util.ClassCNetworks;
  * This DHT manager starts either an active or a passive DHT controller.
  * It also handles switching from one mode to the other.
  * <p>
- * This class offloads blocking operations to a threadpool
+ * This class offloads blocking operations to a thread pool
  * so that it never blocks on critical threads such as MessageDispatcher.
  */
 @Singleton
@@ -71,17 +72,17 @@ public class DHTManagerImpl implements DHTManager, Service {
     private static final Log LOG = LogFactory.getLog(DHTManagerImpl.class);
     
     /**
-     * The Vendor code of this DHT Node
+     * The Vendor code of this DHT Node.
      */
     private final Vendor vendor = ContextSettings.getVendor();
     
     /**
-     * The Version of this DHT Node
+     * The Version of this DHT Node.
      */
     private final Version version = ContextSettings.getVersion();
     
     /**
-     * The DHTController instance
+     * The DHTController instance.
      */
     private DHTController controller = new NullDHTController();
     
@@ -758,9 +759,15 @@ public class DHTManagerImpl implements DHTManager, Service {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 Writer w = new OutputStreamWriter(baos, Charset.forName("UTF-8"));
                 try {
-                    getMojitoDHT().getDHTStats().dump(w, false);
-                    w.flush();
-                    return baos.toByteArray();
+                    MojitoDHT dht = getMojitoDHT();
+                    if(dht != null) {
+                        DHTStats stats = dht.getDHTStats();
+                        stats.dump(w, false);
+                        w.flush();
+                        return baos.toByteArray();
+                    } else {
+                        return null;
+                    }
                 } catch (IOException impossible) {
                     return impossible.getMessage();
                 }
@@ -844,7 +851,7 @@ public class DHTManagerImpl implements DHTManager, Service {
     
     /**
      * Returns the masked contact address of the given Contact as an
-     * unsigned int
+     * unsigned int.
      */
     private static double getUnsignedMaskedAddress(Contact node) {
         InetSocketAddress addr = (InetSocketAddress)node.getContactAddress();

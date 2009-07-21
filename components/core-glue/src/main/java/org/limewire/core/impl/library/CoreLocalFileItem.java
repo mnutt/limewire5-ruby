@@ -1,24 +1,22 @@
 package org.limewire.core.impl.library;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.core.impl.URNImpl;
+import org.limewire.core.impl.InvalidURN;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
+import org.limewire.friend.api.FileMetaData;
+import org.limewire.friend.impl.FileMetaDataImpl;
 import org.limewire.util.FileUtils;
-import org.limewire.xmpp.api.client.FileMetaData;
+import org.limewire.util.Objects;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.FileDetails;
 import com.limegroup.gnutella.URN;
@@ -26,57 +24,31 @@ import com.limegroup.gnutella.library.CreationTimeCache;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.IncompleteFileDesc;
 import com.limegroup.gnutella.library.LocalFileDetailsFactory;
-import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 class CoreLocalFileItem implements LocalFileItem , Comparable {
 
     private final Category category;
-
-    private Map<FilePropertyKey, Object> propertiesMap;  // TODO this is a shallow copy of LimeXMLDocument.fieldToValue
-
     private final FileDesc fileDesc;
-
-    private final LimeXMLDocument doc;
-
     private final LocalFileDetailsFactory detailsFactory;
-
     private final CreationTimeCache creationTimeCache;
 
-    @AssistedInject
+    @Inject
     public CoreLocalFileItem(@Assisted FileDesc fileDesc, LocalFileDetailsFactory detailsFactory,
             CreationTimeCache creationTimeCache) {
         this.fileDesc = fileDesc;
-        this.doc = fileDesc.getXMLDocument();
         this.detailsFactory = detailsFactory;
         this.creationTimeCache = creationTimeCache;
         this.category = CategoryConverter.categoryForFile(fileDesc.getFile());
     }
 
-    /**
-     * Lazily builds the properties map for this local file item.
-     */
-    private Map<FilePropertyKey, Object> getPropertiesMap() {
-        synchronized (this) {
-            if(propertiesMap == null) {
-                reloadProperties();
-            }
-            return propertiesMap;
-        }
-    }
-
-    @Override
-    public int getFriendShareCount() {
-        return fileDesc.getShareListCount();
-    }
-
-    @Override
-    public boolean isSharedWithGnutella() {
-        return fileDesc.isSharedWithGnutella();
-    }
-
     @Override
     public long getCreationTime() {
-        return creationTimeCache.getCreationTimeAsLong(fileDesc.getSHA1Urn());
+        URN sha1 = fileDesc.getSHA1Urn();
+        if(sha1 != null) {
+            return creationTimeCache.getCreationTimeAsLong(sha1);
+        } else {
+            return -1;
+        }
     }
 
     @Override
@@ -120,8 +92,20 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
     }
 
     @Override
-    public Object getProperty(FilePropertyKey key) {
-        return getPropertiesMap().get(key);
+    public Object getProperty(FilePropertyKey property) {
+        switch(property) {
+        case LOCATION:
+            return getFile().getParent();
+        case NAME:
+            return getName();
+        case DATE_CREATED:
+            long ct = getCreationTime();
+            return ct == -1 ? null : ct;
+        case FILE_SIZE:
+            return getSize();            
+        default:
+            return FilePropertyKeyPopulator.get(category, property, fileDesc.getXMLDocument());
+        }
     }
 
     @Override
@@ -138,99 +122,18 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
     @Override
     public FileMetaData toMetadata() {
         FileMetaDataImpl fileMetaData = new FileMetaDataImpl();
-        fileMetaData.setCreateTime(new Date(creationTimeCache.getCreationTimeAsLong(fileDesc.getSHA1Urn())));
+        fileMetaData.setCreateTime(new Date(getCreationTime()));
         fileMetaData.setDescription(""); // TODO
         fileMetaData.setId(fileDesc.getSHA1Urn().toString());
         fileMetaData.setIndex(fileDesc.getIndex());
         fileMetaData.setName(fileDesc.getFileName());
         fileMetaData.setSize(fileDesc.getFileSize());
-        fileMetaData.setURNs(fileDesc.getUrns());
+        Set<String> urns = new HashSet<String>();
+        for(URN urn : fileDesc.getUrns()) {
+            urns.add(urn.toString());
+        }
+        fileMetaData.setURNs(urns);
         return fileMetaData;
-    }
-
-    private static class FileMetaDataImpl implements FileMetaData {
-        private enum Element {
-            id, name, size, description, index, metadata, urns, createTime
-        }
-
-        private final Map<Element, String> data = new HashMap<Element, String>();
-
-        public String getId() {
-            return data.get(Element.id);
-        }
-
-        public void setId(String id) {
-            data.put(Element.id, id);
-        }
-
-        public String getName() {
-            return data.get(Element.name);
-        }
-
-        public void setName(String name) {
-            data.put(Element.name, name);
-        }
-
-        public long getSize() {
-            return Long.valueOf(data.get(Element.size));
-        }
-
-        public void setSize(long size) {
-            data.put(Element.size, Long.toString(size));
-        }
-
-        public String getDescription() {
-            return data.get(Element.description);
-        }
-
-        public void setDescription(String description) {
-            data.put(Element.description, description);
-        }
-
-        public long getIndex() {
-            return Long.valueOf(data.get(Element.index));
-        }
-
-        public void setIndex(long index) {
-            data.put(Element.index, Long.toString(index));
-        }
-
-        public Set<String> getUrns() {
-            StringTokenizer st = new StringTokenizer(data.get(Element.urns), " ");
-            Set<String> set = new HashSet<String>();
-            while (st.hasMoreElements()) {
-                set.add(st.nextToken());
-            }
-            return set;
-        }
-
-        public void setURNs(Set<URN> urns) {
-            String urnsString = "";
-            for (URN urn : urns) {
-                urnsString += urn + " ";
-            }
-            data.put(Element.urns, urnsString);
-        }
-
-        public Date getCreateTime() {
-            return new Date(Long.valueOf(data.get(Element.createTime)));
-        }
-
-        public void setCreateTime(Date date) {
-            data.put(Element.createTime, Long.toString(date.getTime()));
-        }
-
-        public String toXML() {
-            // TODO StringBuilder instead of concats
-            String fileMetadata = "<file>";
-            for (Element element : data.keySet()) {
-                fileMetadata += "<" + element.toString() + ">";
-                fileMetadata += data.get(element);
-                fileMetadata += "</" + element.toString() + ">";
-            }
-            fileMetadata += "</file>";
-            return fileMetadata;
-        }
     }
 
     public FileDetails getFileDetails() {
@@ -274,23 +177,22 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
 
     @Override
     public boolean isShareable() {
-        return !fileDesc.isStoreFile() && !isIncomplete();
+        return !InvalidURN.instance.equals(getUrn()) && !fileDesc.isStoreFile() && !isIncomplete();
     }
     
     @Override
     public org.limewire.core.api.URN getUrn() {
         URN urn = fileDesc.getSHA1Urn();
-        return new URNImpl(urn);
+        if(urn != null) {
+            return urn;
+        } else {
+            return InvalidURN.instance;
+        }
     }
 
     @Override
     public boolean isIncomplete() {
         return fileDesc instanceof IncompleteFileDesc;
-    }
-
-    @Override
-    public void setProperty(FilePropertyKey key, Object value) {
-        getPropertiesMap().put(key, value);
     }
 
     public FileDesc getFileDesc() {
@@ -302,21 +204,12 @@ class CoreLocalFileItem implements LocalFileItem , Comparable {
         if (getClass() != obj.getClass()) {
             return -1;
         }
-        return getFileName().toLowerCase().compareTo(((CoreLocalFileItem) obj).getFileName().toLowerCase());
+        return Objects.compareToNullIgnoreCase(getFileName(), ((CoreLocalFileItem) obj).getFileName(), true);
     }
-    
-    /**
-     * Reloads the properties map to whatever values are stored in the
-     * LimeXmlDocs for this file.
-     */
-    public void reloadProperties() {
-        synchronized (this) {
-            Map<FilePropertyKey, Object> reloadedMap = Collections.synchronizedMap(new HashMap<FilePropertyKey, Object>());
-            FilePropertyKeyPopulator.populateProperties(fileDesc.getFileName(), fileDesc.getFileSize(), 
-                    getCreationTime(), reloadedMap, doc);
-            reloadedMap.put(FilePropertyKey.LOCATION, getFile().getParent());
-            propertiesMap = reloadedMap;
-        }
+
+    @Override
+    public boolean isLoaded() {
+        return !InvalidURN.instance.equals(getUrn());
     }
     
 }

@@ -29,7 +29,7 @@ import org.limewire.mojito.util.CollectionUtils;
 
 
 /**
- * The StoreResult is fired when a STORE request has finished
+ * The StoreResult is fired when a STORE request has finished.
  */
 public class StoreResult implements Result {
     
@@ -46,14 +46,14 @@ public class StoreResult implements Result {
     
     /**
      * Returns a Collection Nodes where the DHTValue(s) were
-     * stored
+     * stored.
      */
     public Collection<? extends Contact> getLocations() {
         return locations.keySet();
     }
     
     /**
-     * Returns a Collection of DHTValue(s) that were stored
+     * Returns a Collection of DHTValue(s) that were stored.
      */
     public Collection<? extends DHTValueEntity> getValues() {
         return values;

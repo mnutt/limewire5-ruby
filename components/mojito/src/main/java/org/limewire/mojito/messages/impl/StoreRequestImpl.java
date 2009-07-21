@@ -35,7 +35,7 @@ import org.limewire.security.SecurityToken;
 
 
 /**
- * An implementation of StoreRequest
+ * An implementation of StoreRequest.
  */
 public class StoreRequestImpl extends AbstractRequestMessage implements StoreRequest {
 

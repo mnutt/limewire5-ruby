@@ -42,7 +42,7 @@ public class AltLocTracker {
     private static final int MAX_PUSH_LOCATIONS = 5;
 
     /**
-     * the version of the FWT protocol the remote supports. Non-firewalled hosts
+     * The version of the FWT protocol the remote supports. Non-firewalled hosts
      * should not send this feature. INVARIANT: if this is greater than 0,
      * wantsFalts is set.
      */

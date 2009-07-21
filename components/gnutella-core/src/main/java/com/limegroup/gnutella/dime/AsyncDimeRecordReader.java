@@ -35,7 +35,6 @@ public class AsyncDimeRecordReader extends ReadState {
      * Returns the next record if it can be constructed or null if it isn't
      * processed yet.
      * 
-     * @return
      * @throws IOException
      */
     public DIMERecord getRecord() throws DIMEException {
@@ -79,13 +78,7 @@ public class AsyncDimeRecordReader extends ReadState {
      * Data will be transferred from 'buffer' into 'current' and then
      * read from 'channel' into 'current'.
      * 
-     * An IOException will be thrown if more data needs to be read but the last read returned -1.
-     * 
-     * @param prior
-     * @param current
-     * @param rc
-     * @param buffer
-     * @throws IOException
+     * @throws IOException if more data needs to be read but the last read returned -1
      * @return true if current still has space to read
      */
     private boolean fill(ByteBuffer current, ReadableByteChannel rc, ByteBuffer buffer) throws IOException {        
@@ -102,7 +95,7 @@ public class AsyncDimeRecordReader extends ReadState {
     }
     
     /**
-     * Validates the header bytes & constructs options, id, type & data.
+     * Validates the header bytes & constructs options, id, type and data.
      * @throws IOException
      */
     private void createOtherStructures() throws DIMEException {

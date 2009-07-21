@@ -19,10 +19,6 @@ import java.util.Map;
  * to get a histogram list approach to the data; each data segment includes the 
  * counts of data. For example, [1,4,5,3,1] has five segments with
  * one data value in the first segment and five data values in the third segment.
- *<p>
- *See the Lime Wire Wiki for sample code using the 
- *<a href="http://www.limewire.org/wiki/index.php?title=Org.limewire.statistic">org.limewire.statistic</a>
- *package.
  */
 public class StatsUtils {
     private StatsUtils() {}
@@ -110,13 +106,13 @@ public class StatsUtils {
     
     
     /**
-     * the a specified quartile of a list of Integers. It uses
+     * The a specified quartile of a list of Integers. It uses
      * type 6 of the quantile() function in R as explained in the
      * R help: 
-     * 
+     * <p>
      * "Type 6: p(k) = k / (n + 1). Thus p(k) = E[F(x[k])]. 
      * This is used by Minitab and by SPSS."
-     * 
+     * <p>
      *  The return value is a long of the double value multiplied by Integer.MAX_VALUE
      *  so that as much precision is possible while transferring over network.
      */
@@ -188,9 +184,6 @@ public class StatsUtils {
      * average, quartiles one and three, and second, third and fourth <a href=
      * "http://en.wikipedia.org/wiki/Central_moment">central moments</a>.
      * <p>
-     *See the Lime Wire Wiki for sample code using the 
-     *<a href="http://www.limewire.org/wiki/index.php?title=Org.limewire.statistic">org.limewire.statistic</a>
-     *package.
      * 
      * <table cellpadding="5">
      * <tr>
@@ -283,10 +276,6 @@ public class StatsUtils {
     
     /**
      * Extension of <code>Stats</code> using the double primitive.
-     * <p>
-     * See the Lime Wire Wiki for sample code using the 
-     * <a href="http://www.limewire.org/wiki/index.php?title=Org.limewire.statistic">org.limewire.statistic</a>
-     * package.
      */
     public static class DoubleStats extends Stats {
         DoubleStats() {}
@@ -440,14 +429,14 @@ public class StatsUtils {
     
     /**
      * Calculates the Shapiro-Wilk W test and its significance level.
-     * 
+     * <p>
      * Ported from original FORTRAN 77 code from the journal Applied Statistics published by the Royal Statistical Society
      * and distributed by Carnegie Mellon University at http://lib.stat.cmu.edu/apstat/.
-     * 
+     * <p>
      * To help facilitate debugging and maintenance, this port has been changed as little as feasible from the original
      * FORTRAN 77 code, to allow comparisons with the original. Variable names have been left alone when possible (except
      * for capitalizing constants), and the logic flow (though translated and indented) is essentially unchanged.
-     * 
+     * <p>
      * The original FORTRAN source for these routines has been released by the Royal Statistical Society for free public
      * distribution, and this Java implementation is released to the public domain.
      */
@@ -479,27 +468,24 @@ public class StatsUtils {
 
         /**
          * ALGORITHM AS R94 APPL. STATIST. (1995) VOL.44, NO.4
-         * 
+         * <p>
          * Calculates Shapiro-Wilk normality test and P-value for sample sizes 3 <= n <= 5000 . Handles censored or
          * uncensored data. Corrects AS 181, which was found to be inaccurate for n > 50.
-         * 
+         * <p>
          * NOTE: Semi-strange porting kludge alert. FORTRAN allows subroutine arguments to be modified by the called routine
          * (passed by reference, not value), and the original code for this routine makes use of that feature to return
          * multiple results. To avoid changing the code any more than necessary, I've used Java arrays to simulate this
          * pass-by-reference feature. Specifically, in the original code w, pw, and ifault are output results, not input
-         * parameters. Pass in double[1] arrays for w and pw, and an int[1] array for ifault, and extract the computed
+         * parameters. Pass in double[1] arrays for w and pw, and extract the computed
          * values from the [0] element on return. The argument init is both input and output; use a boolean[1] array and
          * initialize [0] to false before the first call. The routine will update the value to true to record that
          * initialization has been performed, to speed up subsequent calls on the same data set. Note that although the
          * contents of a[] will be computed by the routine on the first call, the caller must still allocate the array space
          * and pass the unfilled array in to the subroutine. The routine will set the contents but not allocate the space.
-         * 
+         * <p>
          * As described above with the constants, the data arrays x[] and a[] are referenced with a base element of 1 (like
          * FORTRAN) instead of 0 (like Java) to avoid screwing up the algorithm. To pass in 100 data points, declare x[101]
          * and fill elements x[1] through x[100] with data. x[0] will be ignored.
-         * 
-         * You might want to eliminate the ifault parameter completely, and throw Java exceptions instead. I didn't want to
-         * change the code that much.
          * 
          * @param init
          *            Input & output; pass in boolean[1], initialize to false before first call, routine will set to true
@@ -517,8 +503,6 @@ public class StatsUtils {
          *            Output; pass in double[1], will contain result in w[0] on return
          * @param pw
          *            Output; pass in double[1], will contain result in pw[0] on return
-         * @param ifault
-         *            Output; pass in int[1], will contain error code (0 == good) in ifault[0] on return
          */
         private static void swilk(boolean[] init, double[] x, int n, int n1, int n2, double[] a, double[] w, double[] pw,
                 int[] ifault) {
@@ -729,12 +713,10 @@ public class StatsUtils {
 
         /**
          * ALGORITHM AS 241 APPL. STATIST. (1988) VOL. 37, NO. 3, 477-484.
-         * 
+         * <p>
          * Produces the normal deviate Z corresponding to a given lower tail area of P; Z is accurate to about 1 part in
          * 10**7.
          * 
-         * @param p
-         * @return
          */
         private static double ppnd(double p) {
             double q = p - 0.5;
@@ -766,13 +748,8 @@ public class StatsUtils {
 
         /**
          * Algorithm AS 181.2 Appl. Statist. (1982) Vol. 31, No. 2
-         * 
+         * <p>
          * Calculates the algebraic polynomial of order nord-1 with array of coefficients c. Zero order coefficient is c[1]
-         * 
-         * @param c
-         * @param nord
-         * @param x
-         * @return
          */
         private static double poly(double[] c, int nord, double x) {
             double poly = c[1];
@@ -801,13 +778,9 @@ public class StatsUtils {
 
         /**
          * Algorithm AS66 Applied Statistics (1973) vol.22, no.3
-         * 
+         * <p>
          * Evaluates the tail area of the standardised normal curve from x to infinity if upper is true or from minus
          * infinity to x if upper is false.
-         * 
-         * @param x
-         * @param upper
-         * @return
          */
         private static double alnorm(double x, boolean upper) {
             boolean up = upper;

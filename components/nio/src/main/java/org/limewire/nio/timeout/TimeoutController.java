@@ -83,7 +83,7 @@ public class TimeoutController {
         
         /**
          * Makes items that expire sooner considered 'larger' so the max BinaryHeap is
-         * sorted correctly
+         * sorted correctly.
          */
         public int compareTo(Timeout b) {
             return expireTime > b.expireTime ? 1 : expireTime < b.expireTime ? -1 : 0;

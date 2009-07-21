@@ -119,7 +119,7 @@ public class FindNodeResponseHandler
     
     /**
      * Returns a Collection of Contacts that did collide with the
-     * local Node ID
+     * local Node ID.
      */
     public Collection<Contact> getCollisions() {
         return collisions;
@@ -139,7 +139,7 @@ public class FindNodeResponseHandler
     @Override
     protected LookupRequest createLookupRequest(Contact node) {
         return context.getMessageHelper().createFindNodeRequest(
-        		node.getContactAddress(), lookupId);
+                node.getContactAddress(), lookupId);
     }
 
     @Override

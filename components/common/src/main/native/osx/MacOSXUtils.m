@@ -32,7 +32,7 @@ JNIEXPORT void JNICALL OS_NATIVE(SetLoginStatusNative)
 	NSMutableArray *loginItems;
 	NSDictionary *appDict;
 	NSEnumerator *appEnum;
-	NSString *agentAppPath = @"/Applications/LimeWire/LimeWire.app";
+	NSString *agentAppPath = @"/Applications/LimeWire.app";
 	
 	// Make a mutable copy (why a copy?)
 	loginItems = (NSMutableArray *)CFPreferencesCopyValue((CFStringRef)@"AutoLaunchedApplicationDictionary", 

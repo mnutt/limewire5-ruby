@@ -37,7 +37,7 @@ public interface PingReplyFactory {
     
     /**
      * Creates a new PingReply for this host with the specified
-     * GUID, TTL, return address, local port and local ip.
+     * GUID, TTL, return address, local port and local IP.
      */
     public PingReply create(byte[] guid, byte ttl, int localPort,
             byte[] localIp, IpPort addr);
@@ -53,7 +53,7 @@ public interface PingReplyFactory {
     
    /**
      * Creates a new PingReply for this host with the specified
-     * GUID, TTL, local port, local ip return address & packed hosts. Either collection 
+     * GUID, TTL, local port, local IP return address & packed hosts. Either collection 
      * of hosts can be null!
      */
     public PingReply create(byte[] guid, byte ttl, int localPort,
@@ -210,7 +210,7 @@ public interface PingReplyFactory {
             boolean isGuessCapable, String locale, int slots);
 
     /**
-     * creates a new PingReply with the specified locale
+     * Creates a new PingReply with the specified locale.
      *
      * @param guid the sixteen byte message GUID
      * @param ttl the message TTL to use

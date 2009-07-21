@@ -1,22 +1,15 @@
 package org.limewire.ui.swing.options;
 
-import java.awt.Dimension;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.limewire.core.api.daap.DaapManager;
-import org.limewire.core.settings.DaapSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.LabelTextField;
@@ -28,30 +21,24 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Files Option View
+ * Files Option View.
  */
 public class FilesOptionPanel extends OptionPanel {
     
-    private final ManageSaveFoldersOptionPanelFactory manageFoldersOptionPanelFactory;
     private final ManageFileExtensionsOptionPanel manageFileExtensionsOptionPanel;
-    private final DaapManager daapManager;
-    private final IconManager iconManager;
+    private final Provider<IconManager> iconManager;
     
     private ManageExtensionsPanel manageExtensionsPanel;
-    private SaveFoldersPanel saveFoldersPanel;
     private LimeWireStorePanel limeWireStorePanel;
-    private ITunesPanel iTunesPanel;
     
     @Inject
-    FilesOptionPanel(ManageSaveFoldersOptionPanelFactory manageFoldersOptionPanelFactory, 
-            ManageFileExtensionsOptionPanel manageFileExtensionsOptionPanel, DaapManager daapManager,
-            IconManager iconManager) { 
+    FilesOptionPanel(ManageFileExtensionsOptionPanel manageFileExtensionsOptionPanel,
+            Provider<IconManager> iconManager) { 
         
-        this.manageFoldersOptionPanelFactory = manageFoldersOptionPanelFactory;
         this.manageFileExtensionsOptionPanel = manageFileExtensionsOptionPanel;
-        this.daapManager = daapManager;
         this.iconManager = iconManager;
         
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
@@ -59,9 +46,7 @@ public class FilesOptionPanel extends OptionPanel {
         setOpaque(false);
         
         add(getManageExtensionsPanel(), "pushx, growx");
-        add(getSaveOptionPanel(), "pushx, growx");
         add(getLimeWireStorePanel(), "pushx, growx");
-        add(getITunesPanel(), "pushx, growx");
     }
     
     private OptionPanel getManageExtensionsPanel() {
@@ -71,13 +56,6 @@ public class FilesOptionPanel extends OptionPanel {
         return manageExtensionsPanel;
     }
     
-    private OptionPanel getSaveOptionPanel() {
-        if(saveFoldersPanel == null) {
-            saveFoldersPanel = new SaveFoldersPanel();
-        }
-        return saveFoldersPanel;
-    }
-    
     private OptionPanel getLimeWireStorePanel() {
         if(limeWireStorePanel == null) {
             limeWireStorePanel = new LimeWireStorePanel();
@@ -85,19 +63,10 @@ public class FilesOptionPanel extends OptionPanel {
         return limeWireStorePanel;
     } 
     
-    private OptionPanel getITunesPanel() {
-        if(iTunesPanel == null) {
-            iTunesPanel = new ITunesPanel();
-        }
-        return iTunesPanel;
-    }
-
     @Override
     boolean applyOptions() {
         boolean restart = getManageExtensionsPanel().applyOptions();
-        restart |= getSaveOptionPanel().applyOptions();
         restart |= getLimeWireStorePanel().applyOptions();
-        restart |= getITunesPanel().applyOptions();
 
         return restart;
     }
@@ -105,17 +74,14 @@ public class FilesOptionPanel extends OptionPanel {
     @Override
     boolean hasChanged() {
         return getManageExtensionsPanel().hasChanged() || 
-                getSaveOptionPanel().hasChanged() ||
-                getLimeWireStorePanel().hasChanged() ||
-                getITunesPanel().hasChanged();
+                getLimeWireStorePanel().hasChanged();
+
     }
 
     @Override
     public void initOptions() {
         getManageExtensionsPanel().initOptions();
-        getSaveOptionPanel().initOptions();
         getLimeWireStorePanel().initOptions();
-        getITunesPanel().initOptions();
     }
     
     private class ManageExtensionsPanel extends OptionPanel {
@@ -152,40 +118,6 @@ public class FilesOptionPanel extends OptionPanel {
         }
     }
     
-    private class SaveFoldersPanel extends OptionPanel {
-
-        private ManageSaveFoldersOptionPanel saveFolderPanel;
-        private JButton configureButton;
-        
-        public SaveFoldersPanel() {
-            super(I18n.tr("Download Folders"));
-            
-            saveFolderPanel = manageFoldersOptionPanelFactory.create(new OKDialogAction(), new CancelDialogAction());
-            saveFolderPanel.setSize(new Dimension(400,500));
-            
-            configureButton = new JButton(new DialogDisplayAction(FilesOptionPanel.this, saveFolderPanel, 
-                    I18n.tr("Download Folders"),I18n.tr("Configure..."),I18n.tr("Configure where different categories are downloaded")));
-            
-            add(new JLabel(I18n.tr("Choose where specific categories are downloaded")), "push");
-            add(configureButton);
-        }
-        
-        @Override
-        boolean applyOptions() {
-            return saveFolderPanel.applyOptions();
-        }
-
-        @Override
-        boolean hasChanged() {
-            return saveFolderPanel.hasChanged();
-        }
-
-        @Override
-        public void initOptions() {
-            saveFolderPanel.initOptions();
-        }
-    }
-    
     private class LimeWireStorePanel extends OptionPanel {
 
         private String currentSaveDirectory;
@@ -199,8 +131,7 @@ public class FilesOptionPanel extends OptionPanel {
             super(I18n.tr("LimeWire Store"));
             
             storeOptionPanel = new LWSFileNamingOptionPanel(new OKDialogAction(), new CancelDialogAction());
-            storeOptionPanel.setPreferredSize(new Dimension(350, 140));
-            
+
             storePathTextField = new LabelTextField(iconManager);
             storePathTextField.setEditable(false);
             
@@ -269,131 +200,6 @@ public class FilesOptionPanel extends OptionPanel {
                 currentSaveDirectory = "";
                 storePathTextField.setText("");
             }
-        }
-    }
-    
-    private class ITunesPanel extends OptionPanel {
-
-        private JCheckBox shareWithITunesCheckBox;
-        private JCheckBox requirePassWordCheckBox;
-        private JPasswordField passwordField;
-        
-        public ITunesPanel() {
-            super(I18n.tr("iTunes"));
-            
-            shareWithITunesCheckBox = new JCheckBox(I18n.tr("Share the audio section of My Library on my local network using iTunes"));
-            shareWithITunesCheckBox.setContentAreaFilled(false);
-            shareWithITunesCheckBox.addItemListener(new ItemListener(){
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    setPasswordVisible(shareWithITunesCheckBox.isSelected());
-                }
-            });
-            requirePassWordCheckBox = new JCheckBox(I18n.tr("Require password"));
-            requirePassWordCheckBox.setContentAreaFilled(false);
-            requirePassWordCheckBox.addItemListener(new ItemListener(){
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    passwordField.setEnabled(requirePassWordCheckBox.isSelected());
-                }
-            });
-            passwordField = new JPasswordField(30);
-            passwordField.setEnabled(false);
-            
-            add(shareWithITunesCheckBox, "split, wrap");
-            
-            add(requirePassWordCheckBox, "gapleft 25, split");
-            add(passwordField);
-            
-            setPasswordVisible(false);
-        }
-        
-        @Override
-        boolean applyOptions() {
-            final boolean prevEnabled = DaapSettings.DAAP_ENABLED.getValue();
-           
-            final boolean prevRequiresPassword = DaapSettings.DAAP_REQUIRES_PASSWORD.getValue();
-            final String prevPassword = DaapSettings.DAAP_PASSWORD.get();
-            
-            final boolean requiresPassword = requirePassWordCheckBox.isSelected();
-            String password = new String(passwordField.getPassword());
-            
-            if (password.equals("") && requiresPassword) { 
-                FocusJOptionPane.showMessageDialog(FilesOptionPanel.this, 
-                        I18n.tr("Daap Password cannot be null, iTunes settings not saved"),
-                        I18n.tr("iTunes Error"),
-                        JOptionPane.ERROR_MESSAGE);
-                
-                initOptions();
-                return false;
-            }
-            
-            //enable daap setting
-            DaapSettings.DAAP_ENABLED.setValue(shareWithITunesCheckBox.isSelected());
-            
-            //save password value
-            if (!DaapSettings.DAAP_PASSWORD.equals(password)) {
-                DaapSettings.DAAP_PASSWORD.set(password);
-            }           
-  
-            try {               
-                if (requiresPassword != prevRequiresPassword || (requiresPassword && !password.equals(prevPassword))) {
-                    DaapSettings.DAAP_REQUIRES_PASSWORD.setValue(requiresPassword);
-    
-                    // A password is required now or password has changed, 
-                    // disconnect all users...
-                    if (requiresPassword) { 
-                        daapManager.disconnectAll();
-                    }
-                    daapManager.updateService();
-    
-                }
-                
-                if (shareWithITunesCheckBox.isSelected()) {              
-                    if (!prevEnabled) 
-                        daapManager.restart();
-                } else if (prevEnabled) {
-                    daapManager.stop();
-                }
-                
-            } catch (IOException err) {               
-                DaapSettings.DAAP_ENABLED.setValue(prevEnabled);
-                DaapSettings.DAAP_REQUIRES_PASSWORD.setValue(prevRequiresPassword);
-                DaapSettings.DAAP_PASSWORD.set(prevPassword);
-
-                daapManager.stop();
-                initOptions();
-
-                FocusJOptionPane.showMessageDialog(FilesOptionPanel.this, 
-                        I18n.tr("Could not restart the Daap connection"),
-                        I18n.tr("Daap Error"),
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            return false;
-        }
-
-        @Override
-        boolean hasChanged() {
-            return  DaapSettings.DAAP_ENABLED.getValue() != shareWithITunesCheckBox.isSelected() ||
-                    DaapSettings.DAAP_REQUIRES_PASSWORD.getValue() != requirePassWordCheckBox.isSelected() ||
-                    DaapSettings.DAAP_PASSWORD.get() != requirePassWordCheckBox.getText();
-        }
-
-        @Override
-        public void initOptions() {
-            shareWithITunesCheckBox.setSelected(DaapSettings.DAAP_ENABLED.getValue());
-
-            requirePassWordCheckBox.setSelected(DaapSettings.DAAP_REQUIRES_PASSWORD.getValue());
-            if(requirePassWordCheckBox.isSelected()) {
-                passwordField.setText(DaapSettings.DAAP_PASSWORD.get());
-            }
-            
-            setPasswordVisible(shareWithITunesCheckBox.isSelected());
-        }
-        
-        private void setPasswordVisible(boolean value) {
-            requirePassWordCheckBox.setVisible(value);
-            passwordField.setVisible(value);
         }
     }
 }

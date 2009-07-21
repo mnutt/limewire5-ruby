@@ -6,7 +6,7 @@ import org.apache.http.protocol.HttpRequestHandler;
 /**
  * This is the main part of this component and allows us to attach our
  * authentication scheme and export and interface so they we can attach
- * instances of {@link HttpRequestHandler} to http acceptors.
+ * instances of {@link HttpRequestHandler} to HTTP acceptors.
  */
 public interface LWSDispatcher extends NHttpRequestHandler {
     
@@ -42,7 +42,7 @@ public interface LWSDispatcher extends NHttpRequestHandler {
     void notifyConnectionListeners(boolean isConnected);
     
     /**
-     * Reset all keys to <code>null</code> and deauthenticates.
+     * Reset all keys to <code>null</code> and de-authenticates.
      */
     void deauthenticate();
   

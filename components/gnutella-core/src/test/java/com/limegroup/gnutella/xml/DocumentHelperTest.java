@@ -144,20 +144,17 @@ public class DocumentHelperTest extends LimeTestCase {
         "<audios xsi:noNamespaceSchemaLocation=\"http://www.limewire.com/schemas/audio.xsd\">"+
         "<audio genre=\"Rock\" identifier=\"def1.txt\" bitrate=\"190\" action=\"test.com\" index=\"0\"/></audios>";
         assertEquals("test.com", limeXMLDocumentHelper.getDocuments(action, 1).get(0)[0].getAction());
-        assertFalse(limeXMLDocumentHelper.getDocuments(action, 1).get(0)[0].actionDetailRequested());
         
         // test action detail
         action = "<?xml version=\"1.0\"?>"+
         "<audios xsi:noNamespaceSchemaLocation=\"http://www.limewire.com/schemas/audio.xsd\">"+
         "<audio genre=\"Rock\" identifier=\"def1.txt\" bitrate=\"190\" action=\"test.com\" addActionDetail=\"False\" index=\"0\"/></audios>";
         assertEquals("test.com", limeXMLDocumentHelper.getDocuments(action, 1).get(0)[0].getAction());
-        assertFalse(limeXMLDocumentHelper.getDocuments(action, 1).get(0)[0].actionDetailRequested());
         
         action = "<?xml version=\"1.0\"?>"+
         "<audios xsi:noNamespaceSchemaLocation=\"http://www.limewire.com/schemas/audio.xsd\">"+
         "<audio genre=\"Rock\" identifier=\"def1.txt\" bitrate=\"190\" action=\"test.com\" addActionDetail=\"True\" index=\"0\"/></audios>";
         assertEquals("test.com", limeXMLDocumentHelper.getDocuments(action, 1).get(0)[0].getAction());
-        assertTrue(limeXMLDocumentHelper.getDocuments(action, 1).get(0)[0].actionDetailRequested());
     }
     
 }

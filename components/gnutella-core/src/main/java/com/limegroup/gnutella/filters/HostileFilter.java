@@ -62,11 +62,6 @@ public class HostileFilter extends  AbstractIPFilter {
     }
     
     @Override
-    public int logMinDistanceTo(IP ip) {
-        return hostileHosts.logMinDistanceTo(ip);
-    }
-    
-    @Override
     protected boolean allowImpl(IP ip) {
         return !hostileHosts.contains(ip);
     }

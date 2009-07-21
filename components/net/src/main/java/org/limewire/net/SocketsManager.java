@@ -35,14 +35,13 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
     }
 
     /**
-     * Creates a new <code>Socket<code>. Does NOT bind or connnect the <code>Socket</code>
-     * 
+     * Creates a new <code>Socket</code>. Does NOT bind or connect the <code>Socket</code>.
+     * <p>
      * The creation will use the specified connection type.
      * For example, to make a plain socket, use ConnectType.PLAIN.
      * To connect with a TLS Socket, use ConnectType.TLS.
      * 
      * @param type the type of <code>Socket</code> to create
-     * @return
      * @throws IOException
      */
     public Socket create(ConnectType type) throws IOException;
@@ -51,7 +50,7 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
      * Connects and returns a socket to the given host, with a timeout.
      * The timeout only applies to network conditions.  More time might be spent
      * waiting for an available slot to connect with.
-     * 
+     * <p>
      * The connection will be attempted with the specified connection type.
      * For example, to make a plain socket, use ConnectType.PLAIN.
      * To connect with a TLS Socket, use ConnectType.TLS.
@@ -74,7 +73,7 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
      * Connects and returns a socket to the given host, with a timeout.
      * The timeout only applies to network conditions.  More time might be spent
      * waiting for an available slot to connect with.
-     * 
+     * <p>
      * The connection will be attempted with the specified connection type.
      * For example, to make a plain socket, use ConnectType.PLAIN.
      * To connect with a TLS Socket, use ConnectType.TLS.
@@ -113,7 +112,7 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
      * Connects and returns a socket to the given host, with a timeout.
      * The timeout only applies to network conditions.  More time might be spent
      * waiting for an available slot to connect with.
-     * 
+     * <p>
      * The connection will be attempted with the specified connection type.
      * For example, to make a plain socket, use ConnectType.PLAIN.
      * To connect with a TLS Socket, use ConnectType.TLS.
@@ -134,14 +133,14 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
      * Sets up a socket for connecting.
      * This method may either block or return immediately, depending on if
      * if observer is null or not.
-     *
+     * <p>
      * If observer is non-null, this returns immediately.  This may either return
      * a connected or unconnected Socket, depending on if a connection was able to
      * be established immediately.  The ConnectObserver will always be notified of
      * success via handleConnect(Socket), and failure via shutdown().  If the connection
      * was established immediately, it is possible that handleConnect(Socket) is called
      * before this method returns.
-     *
+     * <p>
      * If observer is null, this method blocks until a connection can be established. 
      * If no connection can be established, an IOException is thrown.
      *
@@ -160,17 +159,17 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
      * Sets up a socket for connecting.
      * This method may either block or return immediately, depending on if
      * if observer is null or not.
-     *
+     * <p>
      * If observer is non-null, this returns immediately.  This may either return
      * a connected or unconnected Socket, depending on if a connection was able to
      * be established immediately.  The ConnectObserver will always be notified of
      * success via handleConnect(Socket), and failure via shutdown().  If the connection
      * was established immediately, it is possible that handleConnect(Socket) is called
      * before this method returns.
-     *
+     * <p>
      * If observer is null, this method blocks until a connection can be established. 
      * If no connection can be established, an IOException is thrown.
-     * 
+     * <p>
      * The ConnectType determines the kind of connection that is attempted.
      * For example, ConnectType.PLAIN will create a plaintext socket, whereas
      * ConnectType.TLS will create a TLS socket.
@@ -191,8 +190,6 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
      * Asynchronously connects to <code>address</code> resolving the address if 
      * possible/necessary and notifying <code>observer</code> of the success or
      * failure.
-     * 
-     * @param timeout timeout in milliseconds
      * 
      * @return the observer for fluent access
      */
@@ -228,11 +225,11 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
     /**
      * Registers an {@link AddressConnector} to handle connects for certain types
      * of address.
-     * 
+     * <p>
      * When {@link #connect(Address, int, ConnectObserver)} is called the sockets
      * manager will iterate over all registered {@link AddressConnector address connectors}
      * and see which one can connect to the given address. 
-     *
+     * <p>
      * See {@link AddressConnector}.
      */
     public void registerConnector(AddressConnector connector);
@@ -240,11 +237,11 @@ public interface SocketsManager extends ListenerSupport<ConnectivityChangeEvent>
     /**
      * Registers an {@link AddressResolver} to handle address resolution for
      * certain types of addresses. 
-     * 
+     * <p>
      * When {@link #resolve(Address, int, AddressResolutionObserver)} is called the sockets
      * manager will iterate over all registered {@link AddressResolver address resolvers}
      * and see which one can resolve the given address. 
-     *
+     * <p>
      * See {@link AddressResolver}.
      */
     public void registerResolver(AddressResolver resolver);

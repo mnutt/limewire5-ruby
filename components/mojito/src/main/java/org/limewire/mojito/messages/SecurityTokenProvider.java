@@ -22,12 +22,12 @@ package org.limewire.mojito.messages;
 import org.limewire.security.SecurityToken;
 
 /**
- * Messages that provide a SecurityToken may implement this interface
+ * Messages that provide a SecurityToken may implement this interface.
  */
 public interface SecurityTokenProvider {
     
     /**
-     * Returns the SecurityToken
+     * Returns the SecurityToken.
      */
     public SecurityToken getSecurityToken();
 }

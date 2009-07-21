@@ -69,7 +69,7 @@ public class IntervalEncoder {
     /**
      * adds the byte array to the appropriate ggep value if there is enough space 
      * @param dataSize the size of each entry
-     * @param available how much space we have availble
+     * @param available how much space we have available
      * @return how much space is left after adding
      */
     private static int addIfSpace(byte [] toAdd, GGEP ggep, int dataSize, int available) {

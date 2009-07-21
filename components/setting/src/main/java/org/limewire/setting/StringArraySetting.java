@@ -23,42 +23,40 @@ public class StringArraySetting extends AbstractSetting<String[]> {
     
     private String[] value;
 
-	/**
-	 * Creates a new <tt>StringArraySetting</tt> instance with the specified
-	 * key and default value.
-	 * @param key the constant key to use for the setting
-	 * @param defaultValue the default value to use for the setting
-	 */
-	StringArraySetting(Properties defaultProps, Properties props, String key, 
+    /**
+     * Creates a new <tt>StringArraySetting</tt> instance with the specified
+     * key and default value.
+     * @param key the constant key to use for the setting
+     * @param defaultValue the default value to use for the setting
+     */
+    StringArraySetting(Properties defaultProps, Properties props, String key, 
                                                        String[] defaultValue) {
-		super(defaultProps, props, key, encode(defaultValue));
-	}
+        super(defaultProps, props, key, encode(defaultValue));
+    }
         
-	/**
-	 * Returns the value of this setting.
-	 * 
-	 * @return the value of this setting
-	 */
-	public String[] get() {
+    /**
+     * @return the value of this setting
+     */
+    public String[] get() {
         return value;
-	}
+    }
 
-	/**
-	 * Mutator for this setting.
-	 *
-	 * @param value the value to store
-	 */
-	public void set(String[] value) {
-	    setValueInternal(encode(value));
-	}
+    /**
+     * Mutator for this setting.
+     *
+     * @param value the value to store
+     */
+    public void set(String[] value) {
+        setValueInternal(encode(value));
+    }
     
-    /** Load value from property string value
+    /** Load value from property string value.
      * @param sValue property string value
      *
      */
     @Override
     protected void loadValue(String sValue) {
-		value = decode(sValue);
+        value = decode(sValue);
     }
     
     /**
@@ -74,7 +72,7 @@ public class StringArraySetting extends AbstractSetting<String[]> {
     }
     
     /**
-     * Separates each field of the array by a semicolon
+     * Separates each field of the array by a semicolon.
      */
     public static String encode(String[] src) {
         

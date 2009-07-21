@@ -47,7 +47,7 @@ public class GGEP {
     /** 
      * The collection of key/value pairs.  Rep. rationale: arrays of bytes are
      * convenient for values since they're easy to convert to numbers or
-     * strings.  But strings are conventient for keys since they define hashCode
+     * strings.  But strings are convenient for keys since they define hashCode
      * and equals.
      */
     private final Map<String, Object> _props = new TreeMap<String, Object>();
@@ -55,11 +55,11 @@ public class GGEP {
     /** True if COBS encoding is required. */
     private final boolean useCOBS;
 
-	/**
-	 * Cached hash code value to avoid calculating the hash code from the
-	 * map each time.
-	 */
-	private volatile int hashCode = 0;
+    /**
+     * Cached hash code value to avoid calculating the hash code from the
+     * map each time.
+     */
+    private volatile int hashCode = 0;
 
 
     //////////////////// Encoding/Decoding (Map <==> byte[]) ///////////////////
@@ -97,9 +97,9 @@ public class GGEP {
     /**
      *  Constructs a GGEP instance based on the GGEP block beginning at
      *  messageBytes[beginOffset].
-     *  @param messageBytes The bytes of the message.
-     *  @param beginOffset  The begin index of the GGEP prefix.
-     *  @param endOffset If you want to get the offset where the GGEP block
+     *  @param messageBytes the bytes of the message.
+     *  @param beginOffset  the begin index of the GGEP prefix.
+     *  @param endOffset if you want to get the offset where the GGEP block
      *  ends (more precisely, one above the ending index), then send me a
      *  int[1].  I'll put the endOffset in endOffset[0].  If you don't care, 
      *  null will do....
@@ -277,8 +277,8 @@ public class GGEP {
     }
 
     /** Writes this GGEP instance as a properly formatted GGEP Block.
-     *  @param out This GGEP instance is written to out.
-     *  @exception IOException Thrown if had error writing to out.
+     *  @param out this GGEP instance is written to out.
+     *  @exception IOException thrown if had error writing to out.
      */
     public void write(OutputStream out) throws IOException {
         if (getHeaders().size() > 0) {
@@ -313,7 +313,7 @@ public class GGEP {
     }
     
     /**
-     * Returns the GGEP as a byte array
+     * Returns the GGEP as a byte array.
      * @return an empty array if GGEP is empty
      */
     public byte[] toByteArray() {
@@ -379,7 +379,7 @@ public class GGEP {
     /**
      * Returns the amount of overhead that will be added 
      * when the following key/value pair is written.
-     * 
+     * <p>
      * This does *NOT* work for non-ASCII headers, or compressed data.
      */
     public int getHeaderOverhead(String key) {
@@ -399,7 +399,8 @@ public class GGEP {
     
     /**
      * Adds all the specified key/value pairs.
-     * TODO: Allow a value to be compressed.
+     */
+     /* TODO: Allow a value to be compressed.
      */
     public void putAll(List<? extends NameValue<?>> fields) throws IllegalArgumentException {
         for(NameValue<?> next : fields) {
@@ -459,7 +460,7 @@ public class GGEP {
 
     /** 
      * Adds a key with string value, using the default character encoding.
-     * 
+     * <p>
      * Enforcing a default encoding (UTF-8) because each machine can have its
      * own default encoding
      * 
@@ -474,8 +475,8 @@ public class GGEP {
     }
     
     /**
-     * keeping private access modifier until necessary to 
-     * treat GGEP value Strings as encoded in different character sets
+     * Keeping private access modifier until necessary to 
+     * treat GGEP value Strings as encoded in different character sets.
      */
     private void put(String key, String value, String charSetName)
     throws IllegalArgumentException { 
@@ -483,7 +484,7 @@ public class GGEP {
             put(key, value==null ? null : value.getBytes(charSetName));
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("Unsupported character set for " +
-            		"String encoding", e);
+                    "String encoding", e);
         }
     }
 
@@ -507,7 +508,7 @@ public class GGEP {
      *  1 and 15, inclusive
      * @param value the GGEP extension data, which should be an unsigned long
      * @exception IllegalArgumentException key is of an illegal length
-     *          of ir value is negative
+     *          of if value is negative
      */
     public void put(String key, long value) throws IllegalArgumentException {
         if (value < 0) // long2minLeb doesn't work on negative values
@@ -555,20 +556,20 @@ public class GGEP {
     }
     
     /**
-     * keeping private access modifier until necessary to 
-     * treat GGEP value Strings as encoded in different character sets
+     * Keeping private access modifier until necessary to 
+     * treat GGEP value Strings as encoded in different character sets.
      */
     private String getString(String key, String encoding) throws BadGGEPPropertyException, IllegalArgumentException {
         try {
             return new String(getBytes(key), encoding);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("Cannot get GGEP key value as " +
-            		"String due to unsupported encoding", e);
+                    "String due to unsupported encoding", e);
         }
     }
 
     /**
-     * Returns the value for a key, as an integer
+     * Returns the value for a key, as an integer.
      * @param key the name of the GGEP extension
      * @return the GGEP extension data associated with the key
      * @exception BadGGEPPropertyException extension not found, was corrupt,
@@ -700,22 +701,22 @@ public class GGEP {
         return true;
     }
                 
-	// overrides Object.hashCode to be consistent with equals
-	@Override
+    // overrides Object.hashCode to be consistent with equals
+    @Override
     public int hashCode() {
-		if(hashCode == 0) {
-			hashCode = 37 * _props.hashCode();
-		}
-		return hashCode;
-	}
-	
+        if(hashCode == 0) {
+            hashCode = 37 * _props.hashCode();
+        }
+        return hashCode;
+    }
+    
     /* COBS implementation....
-	 * For implementation details, please see:
-	 *  http://www.acm.org/sigcomm/sigcomm97/papers/p062.pdf 
-	 */
-	
-	/** Decode a COBS-encoded byte array.  The non-allowable byte value is 0.
-     *  PRE: src is not null.
+     * For implementation details, please see:
+     *  http://www.acm.org/sigcomm/sigcomm97/papers/p062.pdf 
+     */
+
+    /** Decode a COBS-encoded byte array.  The non-allowable byte value is 0.<p>
+     *  PRE: src is not null.<p>
      *  POST: the return array will be a cobs decoded version of src.  namely,
      *  cobsDecode(cobsEncode(src)) ==  src.  
      *  @return the original COBS decoded string
@@ -748,8 +749,8 @@ public class GGEP {
         return (byte) 0x01;
     }
 
-    /** Encode a byte array with COBS.  The non-allowable byte value is 0.
-     *  PRE: src is not null.
+    /** Encode a byte array with COBS.  The non-allowable byte value is 0.<p>
+     *  PRE: src is not null.<p>
      *  POST: the return array will be a cobs encoded version of src.  namely,
      *  cobsDecode(cobsEncode(src)) ==  src.
      *  @return a COBS encoded version of src.
@@ -789,15 +790,15 @@ public class GGEP {
     }
 
     /**
-	 * Marker class that wraps a byte[] value, if that value
-	 * is going to require compression upon write.
-	 */
-	private static class NeedsCompression {
-	    final byte[] data;
-	    NeedsCompression(byte[] data) {
-	        this.data = data;
-	    }
-	}
+     * Marker class that wraps a byte[] value, if that value
+     * is going to require compression upon write.
+     */
+    private static class NeedsCompression {
+        final byte[] data;
+        NeedsCompression(byte[] data) {
+            this.data = data;
+        }
+    }
 }
 
 

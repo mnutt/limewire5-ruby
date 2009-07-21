@@ -6,27 +6,27 @@ import com.limegroup.gnutella.xml.LimeXMLReplyCollection.MetaDataState;
 
 /**
  *  A utility class that writes modified LimeXMLDocuments as Meta-data to 
- *  an audio or video file
+ *  an audio or video file.
  */
 public class MetaDataWriter {
 
     /**
-     * File we're writing to
+     * File we're writing to.
      */
     private final String fileName;
     
     /**
-     * The editor that we're using
+     * The editor that we're using.
      */
     private final MetaWriter editor;
     
     /**
-     * The audiodata to be written to the file
+     * The audio data to be written to the file.
      */
     private final AudioMetaData audioData;
     
     /**
-     * LimeXMLDocument that populated the MetaData
+     * LimeXMLDocument that populated the MetaData.
      */
     protected LimeXMLDocument correctDocument= null;
     
@@ -45,8 +45,7 @@ public class MetaDataWriter {
     }
     
     /**
-     * performs the actual write of the metadata to disk
-     * @param filename the file that should be annotated
+     * Performs the actual write of the metadata to disk.
      * @return status code as defined in LimeWireXMLReplyCollection
      */
     public MetaDataState commitMetaData(){
@@ -54,7 +53,7 @@ public class MetaDataWriter {
     }
     
     /**
-     * Populates the editor with the values from xmldocument
+     * Populates the editor with the values from xmldocument.
      */
     public void populate(LimeXMLDocument doc) {
         if( editor == null )

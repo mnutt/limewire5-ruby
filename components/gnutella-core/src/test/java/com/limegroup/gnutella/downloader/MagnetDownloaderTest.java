@@ -16,8 +16,7 @@ import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.dht.db.PushEndpointService;
-import com.limegroup.gnutella.library.FileManager;
-import com.limegroup.gnutella.library.FileManagerStub;
+import com.limegroup.gnutella.library.LibraryStubModule;
 import com.limegroup.gnutella.stubs.ConnectionManagerStub;
 import com.limegroup.gnutella.stubs.MessageRouterStub;
 
@@ -62,13 +61,12 @@ public class MagnetDownloaderTest extends LimeTestCase {
         Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
            @Override
             protected void configure() {
-               bind(FileManager.class).to(FileManagerStub.class);
                bind(MessageRouter.class).to(MessageRouterStub.class);
                bind(ConnectionManager.class).to(ConnectionManagerStub.class);
                bind(LocalSocketAddressProvider.class).toInstance(localSocketAddressProviderStub);
                bind(PushEndpointService.class).annotatedWith(Names.named("pushEndpointManager")).toInstance(pushEndpointService);
             } 
-        });
+        }, new LibraryStubModule());
         
         ConnectionManagerStub connectionManager = (ConnectionManagerStub)injector.getInstance(ConnectionManager.class);
         connectionManager.setConnected(true);

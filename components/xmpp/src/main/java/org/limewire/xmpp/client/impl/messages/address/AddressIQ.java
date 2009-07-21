@@ -68,7 +68,7 @@ public class AddressIQ extends IQ {
         StringBuilder pushEndpoint = new StringBuilder("<address xmlns=\"jabber:iq:lw-address\">");        
         if(address != null) {
             try {
-                AddressSerializer addressSerializer = factory.getSerializer(address.getClass());
+                AddressSerializer addressSerializer = factory.getSerializer(address);
                 pushEndpoint.append("<" + addressSerializer.getAddressType());
                 pushEndpoint.append(" value=\"").append(StringUtils.toUTF8String(Base64.encodeBase64(addressSerializer.serialize(address)))).append("\"/>");
             } catch (IOException e) {

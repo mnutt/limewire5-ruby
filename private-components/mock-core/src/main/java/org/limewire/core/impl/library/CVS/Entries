@@ -1,12 +1,13 @@
-/FileListAdapter.java/1.16/Result of merge//
-/FriendFileListAdapter.java/1.4/Thu Jan 22 05:05:32 2009//
 /MockFriendAutoCompleterFactory.java/1.1/Wed Feb 25 18:19:38 2009//
 /MockFriendLibraryAutoCompleter.java/1.2/Thu Jan 22 05:05:32 2009//
-/MockLibraryManager.java/1.44/Mon Mar 23 14:55:28 2009//
-/MockLibraryModule.java/1.16/Mon Mar 23 14:55:28 2009//
-/MockLocalFileItem.java/1.19/Thu Jan 22 05:09:34 2009//
 /MockMagnetLinkFactoryImpl.java/1.1/Thu Jan 22 05:05:32 2009//
-/MockMetaDataManager.java/1.1/Thu Jan 22 05:05:32 2009//
-/RemoteFileListAdapter.java/1.1/Thu Jan 22 05:05:32 2009//
-/MockRemoteLibraryManager.java/1.6/Mon Apr  6 16:05:45 2009//
+/FileListAdapter.java/1.25/Result of merge+Mon Jul 20 19:53:00 2009//
+/FriendFileListAdapter.java/1.7/Mon Jul 20 19:53:00 2009//
+/MockCombinedShareList.java/1.1/Fri May 29 22:53:59 2009//
+/MockLibraryManager.java/1.55/Mon Jul 20 19:53:00 2009//
+/MockLibraryModule.java/1.18/Mon Jul 20 19:53:00 2009//
+/MockLocalFileItem.java/1.24/Mon Jul 20 19:53:00 2009//
+/MockMetaDataManager.java/1.2/Mon Jul 20 19:53:00 2009//
+/MockRemoteLibraryManager.java/1.9/Mon Jul 20 19:53:00 2009//
+/SearchResultListAdapter.java/1.2/Wed Jul  8 22:36:02 2009//
 D

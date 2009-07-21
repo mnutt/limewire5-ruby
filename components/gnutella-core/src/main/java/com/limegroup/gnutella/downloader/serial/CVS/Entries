@@ -9,7 +9,6 @@
 /DownloadSerializeSettings.java/1.2/Tue Jan 22 19:00:55 2008//
 /DownloadSerializeSettingsImpl.java/1.2/Tue Jan 22 19:00:55 2008//
 /DownloadSerializer.java/1.2/Tue Jan 22 19:00:55 2008//
-/DownloadSerializerImpl.java/1.3/Tue Aug  5 15:43:04 2008//
 /GnutellaDownloadMemento.java/1.2/Tue Jan 22 19:00:55 2008//
 /GnutellaDownloadMementoImpl.java/1.2/Tue Jan 22 19:00:55 2008//
 /InNetworkDownloadMemento.java/1.2/Tue Jan 22 19:00:55 2008//
@@ -17,7 +16,10 @@
 /MagnetDownloadMemento.java/1.2/Tue Jan 22 19:00:55 2008//
 /MagnetDownloadMementoImpl.java/1.2/Tue Jan 22 19:00:55 2008//
 /OldDownloadConverter.java/1.2/Tue Jan 22 19:00:55 2008//
-/RemoteHostMemento.java/1.8/Sun Feb  8 17:04:37 2009//
 /TorrentFileSystemMemento.java/1.1/Wed Jan 30 20:18:02 2008//
 /TorrentFileSystemMementoImpl.java/1.1/Wed Jan 30 20:18:02 2008//
 D/conversion////
+/DownloadSerializerImpl.java/1.5/Mon Jul 20 19:52:03 2009//
+/LibTorrentBTDownloadMemento.java/1.3/Wed Jul  8 18:06:19 2009//
+/LibTorrentBTDownloadMementoImpl.java/1.4/Mon Jul 13 19:32:34 2009//
+/RemoteHostMemento.java/1.10/Mon Jul 20 19:52:03 2009//

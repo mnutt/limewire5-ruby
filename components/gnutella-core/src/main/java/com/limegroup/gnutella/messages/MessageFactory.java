@@ -8,7 +8,7 @@ import com.limegroup.gnutella.messages.Message.Network;
 
 /**
  * A factory for creating Gnutella messages.
- * 
+ * <p>
  * MessageFactory delegates the parsing of specific messages to a MessageParser.
  * MessageParsers can be installed using
  * {@link #setParser(byte, com.limegroup.gnutella.messages.MessageFactory.MessageParser)}.
@@ -115,7 +115,7 @@ public interface MessageFactory {
 
 
     /**
-     * The interface for custom MessageParser(s)
+     * The interface for custom MessageParser(s).
      */
     public interface MessageParser {
         public Message parse(byte[] header, byte[] payload,

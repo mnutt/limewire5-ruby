@@ -34,11 +34,11 @@ import org.limewire.rudp.RUDPUtils;
 import org.limewire.rudp.messages.SynMessage;
 import org.limewire.util.Base32;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.helpers.UrnHelper;
-import com.limegroup.gnutella.library.FileManager;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.PushRequest;
@@ -65,17 +65,16 @@ public class ClientSideFirewalledTransferTest extends ClientSideTestCase {
      */
     private DatagramSocket UDP_ACCESS;
     private NetworkManagerStub networkManagerStub;
-    private FileManager fileManager;
-    private QueryRequestFactory queryRequestFactory;
-    private ConnectionManager connectionManager;
-    private ApplicationServices applicationServices;
-    private MessageFactory messageFactory;
-    private SearchServices searchServices;
-    private ResponseFactory responseFactory;
-    private QueryReplyFactory queryReplyFactory;
-    private MyActivityCallback callback;
-    private DownloadServices downloadServices;
-    private Injector injector;
+    @Inject private QueryRequestFactory queryRequestFactory;
+    @Inject private ConnectionManager connectionManager;
+    @Inject private ApplicationServices applicationServices;
+    @Inject private MessageFactory messageFactory;
+    @Inject private SearchServices searchServices;
+    @Inject private ResponseFactory responseFactory;
+    @Inject private QueryReplyFactory queryReplyFactory;
+    @Inject private MyActivityCallback callback;
+    @Inject private DownloadServices downloadServices;
+    @Inject private Injector injector;
 
     public ClientSideFirewalledTransferTest(String name) {
         super(name);
@@ -103,16 +102,7 @@ public class ClientSideFirewalledTransferTest extends ClientSideTestCase {
                 new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
         super.setUp(injector);
 
-        fileManager = injector.getInstance(FileManager.class);
-        queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
-        connectionManager = injector.getInstance(ConnectionManager.class);
-        applicationServices = injector.getInstance(ApplicationServices.class);
-        messageFactory = injector.getInstance(MessageFactory.class);
-        searchServices = injector.getInstance(SearchServices.class);
-        responseFactory = injector.getInstance(ResponseFactory.class);
-        queryReplyFactory = injector.getInstance(QueryReplyFactory.class);
         callback = (MyActivityCallback) injector.getInstance(ActivityCallback.class);
-        downloadServices = injector.getInstance(DownloadServices.class);
         
         //  NOTE: UDPService will not change state when a UDP ping or pong is received 
         //      from a conneected host.  Therefore, since UDPServiceTest should be testing
@@ -172,7 +162,7 @@ public class ClientSideFirewalledTransferTest extends ClientSideTestCase {
         drainUDP();
 
         // make sure leaf is sharing
-        assertEquals(2, fileManager.getGnutellaFileList().size());
+        assertEquals(2, gnutellaFileView.size());
 
         // send a query that should be answered
         QueryRequest query = queryRequestFactory.createQueryRequest(GUID.makeGuid(), (byte)2,

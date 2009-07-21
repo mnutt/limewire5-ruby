@@ -8,6 +8,7 @@ import org.jivesoftware.smack.packet.IQ;
 import org.limewire.io.Connectable;
 import org.limewire.io.GUID;
 import org.limewire.io.NetworkUtils;
+import org.limewire.net.ConnectBackRequest;
 import org.limewire.net.address.ConnectableSerializer;
 import org.limewire.util.Objects;
 import org.limewire.util.StringUtils;
@@ -18,21 +19,20 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * IQ to be send to request the other peer to open a connection back to this peer.
- * 
+ * <p>
  * The connection can be of two types:
- * 
+ * <pre>
  * 1) a regular TCP connection, in this case {@link #getSupportedFWTVersion()} is 0
  * 2) a reliable udp connection, in this case {@link #getSupportedFWTVersion()} conveys 
  *    the supported protocol version
- * In both cases a valid address for connecting needs to be provided
+ * In both cases a valid address for connecting needs to be provided.
+ * </pre>
  */
 public class ConnectBackRequestIQ extends IQ {
 
     // private final Log LOG = LogFactory.getLog(ConnectRequestIQ.class);
     
-    private final Connectable address;
-    private final int supportedfwtVersion;
-    private final GUID clientGuid;
+    private final ConnectBackRequest request;
     
     public static final String ELEMENT_NAME = "connect-back-request";
     
@@ -90,24 +90,11 @@ public class ConnectBackRequestIQ extends IQ {
        if (guid == null || fwtVersion == -1 || connectable == null) {
            throw new InvalidIQException(MessageFormat.format("incomplete connect request, {0}, {1}, {2}", guid, fwtVersion, connectable));
        }
-       clientGuid = guid;
-       supportedfwtVersion = fwtVersion;
-       address = connectable;
+       request = new ConnectBackRequest(connectable, guid, fwtVersion);
     }
     
-    /**
-     * 
-     * @param address needs to be a valid address, otherwise will throw {@link IllegalArgumentException}
-     * @param clientGuid
-     * @param supportedFWTVersion 0 if fwt is not supported
-     */
-    public ConnectBackRequestIQ(Connectable address, GUID clientGuid, int supportedFWTVersion) {
-        this.address = address;
-        this.clientGuid = Objects.nonNull(clientGuid, "clientGuid");
-        this.supportedfwtVersion = supportedFWTVersion;
-        if (!NetworkUtils.isValidIpPort(address)) {
-            throw new IllegalArgumentException("invalid address: " + address);
-        }
+    public ConnectBackRequestIQ(ConnectBackRequest request) {
+        this.request = Objects.nonNull(request, "request");
     }
 
     @Override
@@ -116,25 +103,17 @@ public class ConnectBackRequestIQ extends IQ {
         String message = "<{0} xmlns=\"{1}\" client-guid=\"{2}\" supported-fwt-version=\"{3}\"><address type=\"{4}\" value=\"{5}\"/></{6}>";
         try {
             return MessageFormat.format(message, ELEMENT_NAME, NAME_SPACE,
-                    clientGuid.toHexString(),
-                    String.valueOf(supportedfwtVersion), serializer.getAddressType(),
-                    StringUtils.getUTF8String(Base64.encodeBase64(serializer.serialize(address))),
+                    request.getClientGuid().toHexString(),
+                    String.valueOf(request.getSupportedFWTVersion()), serializer.getAddressType(),
+                    StringUtils.getUTF8String(Base64.encodeBase64(serializer.serialize(request.getAddress()))),
                     ELEMENT_NAME);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } 
     }
     
-    public Connectable getAddress() {
-        return address;
-    }
-
-    public int getSupportedFWTVersion() {
-        return supportedfwtVersion;
-    }
-
-    public GUID getClientGuid() {
-        return clientGuid;
+    public ConnectBackRequest getConnectBackRequest() {
+        return request;
     }
     
     @Override

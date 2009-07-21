@@ -3,27 +3,38 @@ package org.limewire.core.impl.download;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
+import org.limewire.concurrent.ManagedThread;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.api.download.SaveLocationException;
-import org.limewire.core.impl.URNImpl;
+import org.limewire.core.api.download.DownloadException;
+import org.limewire.core.api.endpoint.RemoteHost;
+import org.limewire.core.impl.RemoteHostRFD;
+import org.limewire.core.impl.friend.GnutellaPresence;
 import org.limewire.core.impl.util.FilePropertyKeyPopulator;
+import org.limewire.friend.api.FriendManager;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.impl.address.FriendAddress;
 import org.limewire.io.Address;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
+import org.limewire.util.FileUtils;
 
+import com.limegroup.bittorrent.BTDownloader;
 import com.limegroup.gnutella.CategoryConverter;
 import com.limegroup.gnutella.Downloader;
 import com.limegroup.gnutella.InsufficientDataException;
+import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.downloader.DownloadStateEvent;
+import com.limegroup.gnutella.downloader.StoreDownloader;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 class CoreDownloadItem implements DownloadItem {
@@ -33,8 +44,6 @@ class CoreDownloadItem implements DownloadItem {
     private volatile int hashCode = 0;
     private volatile long cachedSize;
     private volatile boolean cancelled = false;
-    
-    private Map<FilePropertyKey, Object> propertiesMap;  // TODO this is a shallow copy of LimeXMLDocument.fieldToValue
 
     /**
      * size in bytes. FINISHING state is only shown for files greater than this
@@ -44,10 +53,12 @@ class CoreDownloadItem implements DownloadItem {
     private final long finishingThreshold = 0;
 
     private final QueueTimeCalculator queueTimeCalculator;
-
-    public CoreDownloadItem(Downloader downloader, QueueTimeCalculator queueTimeCalculator) {
+    private final FriendManager friendManager;
+    
+    public CoreDownloadItem(Downloader downloader, QueueTimeCalculator queueTimeCalculator, FriendManager friendManager) {
         this.downloader = downloader;
         this.queueTimeCalculator = queueTimeCalculator;
+        this.friendManager = friendManager;
         
         downloader.addListener(new EventListener<DownloadStateEvent>() {
             @Override
@@ -86,9 +97,15 @@ class CoreDownloadItem implements DownloadItem {
     public void cancel() {
         cancelled = true;
         support.firePropertyChange("state", null, getState());
-        downloader.stop();
-        downloader.deleteIncompleteFiles();
-        //TODO there is a race condition with the delete action, the stop does not happen right away. should revisit how this will be handled.
+        new ManagedThread(new Runnable() {
+            @Override
+            public void run() {
+                downloader.stop();
+                downloader.deleteIncompleteFiles();
+            }
+        }, "CoreDownloadItem.cancel").start();
+        // TODO there is a race condition with the delete action, the stop does
+        // not happen right away. should revisit how this will be handled.
     }
 
     @Override
@@ -115,6 +132,39 @@ class CoreDownloadItem implements DownloadItem {
     @Override
     public List<Address> getSources() {
         return downloader.getSourcesAsAddresses();
+    }
+
+    @Override
+    public Collection<RemoteHost> getRemoteHosts() {
+        List<RemoteFileDesc> remoteFiles = downloader.getRemoteFileDescs();
+        
+        if(remoteFiles.size() > 0) {
+            List<RemoteHost> remoteHosts = new ArrayList<RemoteHost>(remoteFiles.size());
+            for(RemoteFileDesc rfd : remoteFiles) {
+                remoteHosts.add(new RemoteHostRFD(rfd, getFriendPresence(rfd)));
+                
+            }
+            return remoteHosts;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+    
+    /**
+	 * Returns a FriendPresence for this RemoteFileDesc. If this is
+	 * from a friend returns an associated LW FriendPresnce otherwise
+     * returns a generic GnutellaPresence.
+	 */
+    private FriendPresence getFriendPresence(RemoteFileDesc rfd) {
+        FriendPresence friendPresence = null;
+        
+        if(rfd.getAddress() instanceof FriendAddress) {
+            friendPresence = friendManager.getMostRelevantFriendPresence(((FriendAddress)rfd.getAddress()).getId());
+        } 
+        if(friendPresence == null) {
+            friendPresence = new GnutellaPresence.GnutellaPresenceWithGuid(rfd.getAddress(), rfd.getClientGUID());
+        }
+        return friendPresence;
     }
 
     @Override
@@ -207,7 +257,7 @@ class CoreDownloadItem implements DownloadItem {
             }
 
         case DOWNLOADING:
-        case FETCHING://"FETCHING" is downloading .torrent file
+        case FETCHING:// "FETCHING" is downloading .torrent file
             return DownloadState.DOWNLOADING;
 
         
@@ -287,7 +337,7 @@ class CoreDownloadItem implements DownloadItem {
     }
     
     @Override
-    public boolean isSearchAgainEnabled() {
+    public boolean isTryAgainEnabled() {
         return downloader.getState() == com.limegroup.gnutella.Downloader.DownloadState.WAITING_FOR_USER;
     }
 
@@ -333,10 +383,7 @@ class CoreDownloadItem implements DownloadItem {
     @Override
     public URN getUrn() {
         com.limegroup.gnutella.URN urn = downloader.getSha1Urn();
-        if(urn != null) {
-            return new URNImpl(urn);
-        }
-        return null;
+        return urn;
     }
 
     @Override
@@ -345,7 +392,7 @@ class CoreDownloadItem implements DownloadItem {
     }
     
     @Override
-    public void setSaveFile(File saveFile, boolean overwrite) throws SaveLocationException {
+    public void setSaveFile(File saveFile, boolean overwrite) throws DownloadException {
         File saveDir = null;
         String fileName = null;
 
@@ -353,6 +400,7 @@ class CoreDownloadItem implements DownloadItem {
         if (saveFile != null) {
             if (saveFile.isDirectory()) {
                 saveDir = saveFile;
+                fileName = getFileName();
             } else {
                 saveDir = saveFile.getParentFile();
                 fileName = saveFile.getName();
@@ -362,10 +410,35 @@ class CoreDownloadItem implements DownloadItem {
         // Update save directory and file name.
         downloader.setSaveFile(saveDir, fileName, overwrite);
     }
+    
+    @Override
+    public File getSaveFile(){
+        return downloader.getSaveFile();
+    }
 
     @Override
-    public Object getProperty(FilePropertyKey key) {
-        return getPropertiesMap().get(key);
+    public Object getProperty(FilePropertyKey property) {
+        switch(property) {
+        case NAME:
+            return FileUtils.getFilenameNoExtension(getFileName());
+        case DATE_CREATED:
+            File file = downloader.getFile();
+            long ct = -1;
+            if(file != null) {
+                ct = file.lastModified();
+            }
+            return ct == -1 ? null : ct;
+        case FILE_SIZE:
+            return getTotalSize();            
+        default:
+            LimeXMLDocument doc = (LimeXMLDocument)downloader.getAttribute("LimeXMLDocument");
+            if(doc != null) {
+                Category category = CategoryConverter.categoryForFile(getSaveFile());
+                return FilePropertyKeyPopulator.get(category, property, doc);
+            } else {
+                return null;
+            }
+        }
     }
 
     @Override
@@ -378,33 +451,34 @@ class CoreDownloadItem implements DownloadItem {
             return null;
         }
     }
-    
-    /**
-     * Lazily builds the properties map for this local file item.
-     */
-    private Map<FilePropertyKey, Object> getPropertiesMap() {
-        synchronized (this) {
-            if(propertiesMap == null) {
-                reloadProperties();
-            }
-            return propertiesMap;
-        }
+
+    @Override
+    public Date getStartDate() {
+        return (Date)downloader.getAttribute(DownloadItem.DOWNLOAD_START_DATE);
     }
-    
-    /**
-     * Reloads the properties map to whatever values are stored in the
-     * LimeXmlDocs for this file.
-     */
-    public void reloadProperties() {
-        synchronized (this) {
-            Map<FilePropertyKey, Object> reloadedMap = Collections
-                    .synchronizedMap(new HashMap<FilePropertyKey, Object>());
-            //"LimeXMLDocument" attribute is set in ManagedDownloaderImpl
-            LimeXMLDocument doc = (LimeXMLDocument)downloader.getAttribute("LimeXMLDocument");
-            if (doc != null) {
-                FilePropertyKeyPopulator.populateProperties(getFileName(), getTotalSize(), downloader.getFile().lastModified(), reloadedMap, doc);
-            }
-            propertiesMap = reloadedMap;
+
+
+    @Override
+    public boolean isStoreDownload() {
+        return downloader instanceof StoreDownloader;
+    }
+
+
+    @Override
+    public boolean isRelocatable() {
+        return downloader.isRelocatable();
+    }
+
+
+    @Override
+    public Collection<File> getCompleteFiles() {
+        List<File> files = new ArrayList<File>();
+        if(downloader instanceof BTDownloader) {
+            BTDownloader btDownloader = (BTDownloader)downloader;
+            files.addAll(btDownloader.getCompleteFiles());
+        } else {
+            files.add(downloader.getSaveFile());
         }
+        return files;
     }
 }

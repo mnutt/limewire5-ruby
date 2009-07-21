@@ -2,7 +2,6 @@ package org.limewire.ui.swing.options;
 
 import static org.limewire.ui.swing.util.I18n.tr;
 
-import java.awt.Font;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -10,7 +9,6 @@ import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.jdesktop.application.Resource;
 import org.limewire.http.mongrel.MongrelManager;
 import org.limewire.http.mongrel.MongrelGlue;
 import org.limewire.ui.swing.settings.SwingUiSettings;
@@ -29,9 +27,6 @@ public class RemoteOptionPanel extends OptionPanel {
     private ServicePanel servicePanel;
     
     private MongrelManager mongrelManager;
-    
-    //Language components, does not exist in its own subcomponent
-    @Resource private Font font;
 
     @Inject
     public RemoteOptionPanel(MongrelGlue mongrelGlue) {
@@ -77,7 +72,6 @@ public class RemoteOptionPanel extends OptionPanel {
             startOnLaunchCheckBox.setContentAreaFilled(false);
             
             JLabel statusLabel = new JLabel(I18n.tr("Service status:"));
-            JLabel status = new JLabel(I18n.tr(mongrelManager.getStatus()));
             
             JButton startButton = new JButton(I18n.tr("Start Remote"));
             startButton.addActionListener(new StartRemoteAction(mongrelManager));

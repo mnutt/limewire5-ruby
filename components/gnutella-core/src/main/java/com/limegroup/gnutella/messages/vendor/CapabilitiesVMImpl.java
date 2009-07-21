@@ -111,8 +111,8 @@ public class CapabilitiesVMImpl extends AbstractVendorMessage implements Capabil
     }
 
 
-    /** @return 1 or higher if capability queries are supported.  the version
-     *  number gives some indication about what exactly is a supported.  if no
+    /** @return 1 or higher if capability queries are supported.  The version
+     *  number gives some indication about what exactly is a supported.  If no
      *  support, returns -1.
      */
     public int supportsFeatureQueries() {
@@ -120,7 +120,7 @@ public class CapabilitiesVMImpl extends AbstractVendorMessage implements Capabil
     }
     
 
-    /** @return true if 'what is new' capability query feature is supported.
+    /** @return true if 'what is new' capability query feature is supported
      */
     public boolean supportsWhatIsNew() {
         return FeatureSearchData.supportsWhatIsNew(
@@ -142,21 +142,21 @@ public class CapabilitiesVMImpl extends AbstractVendorMessage implements Capabil
     }
     
     /**
-     * Returns the current DHT version if this node is an ACTIVE DHT node
+     * Returns the current DHT version if this node is an ACTIVE DHT node.
      */
     public int isActiveDHTNode() {
         return supportsCapability(DHTMode.ACTIVE.getCapabilityName());
     }
     
     /**
-     * Returns the current DHT version if this node is an PASSIVE DHT node
+     * Returns the current DHT version if this node is an PASSIVE DHT node.
      */
     public int isPassiveDHTNode() {
         return supportsCapability(DHTMode.PASSIVE.getCapabilityName());
     }
 
     /**
-     * Returns the current DHT version if this node is an PASSIVE_LEAF DHT node
+     * Returns the current DHT version if this node is an PASSIVE_LEAF DHT node.
      */
     public int isPassiveLeafNode() {
         return supportsCapability(DHTMode.PASSIVE_LEAF.getCapabilityName());

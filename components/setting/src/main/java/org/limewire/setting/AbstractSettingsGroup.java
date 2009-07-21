@@ -8,12 +8,12 @@ import org.limewire.setting.evt.SettingsGroupListener;
 import org.limewire.setting.evt.SettingsGroupEvent.EventType;
 
 /**
- * An abstract implementation of SettingsGroup
+ * An abstract implementation of SettingsGroup.
  */
 public abstract class AbstractSettingsGroup implements SettingsGroup {
     
     /**
-     * List of {@link SettingsGroupListener}s
+     * List of {@link SettingsGroupListener}s.
      */
     private Collection<SettingsGroupListener> listeners;
     
@@ -57,7 +57,7 @@ public abstract class AbstractSettingsGroup implements SettingsGroup {
     }
 
     /**
-     * Returns all {@link SettingsGroupListener}s or null if there are none
+     * Returns all {@link SettingsGroupListener}s or null if there are none.
      */
     public SettingsGroupListener[] getSettingsGroupListeners() {
         synchronized (this) {
@@ -87,14 +87,14 @@ public abstract class AbstractSettingsGroup implements SettingsGroup {
     }
     
     /**
-     * Fires a SettingsEvent
+     * Fires a SettingsEvent.
      */
     protected void fireSettingsEvent(EventType type) {
         fireSettingsEvent(new SettingsGroupEvent(type, this));
     }
     
     /**
-     * Fires a SettingsEvent
+     * Fires a SettingsEvent.
      */
     protected void fireSettingsEvent(final SettingsGroupEvent evt) {
         if (evt == null) {

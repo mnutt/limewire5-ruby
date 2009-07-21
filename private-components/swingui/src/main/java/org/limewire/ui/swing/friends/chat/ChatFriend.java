@@ -2,21 +2,17 @@ package org.limewire.ui.swing.friends.chat;
 
 import java.beans.PropertyChangeListener;
 
-import org.limewire.xmpp.api.client.MessageReader;
-import org.limewire.xmpp.api.client.MessageWriter;
-import org.limewire.xmpp.api.client.User;
-import org.limewire.xmpp.api.client.Presence.Mode;
+import org.limewire.friend.api.Friend;
+import org.limewire.friend.api.FriendPresence;
+import org.limewire.friend.api.MessageReader;
+import org.limewire.friend.api.MessageWriter;
 
-/**
- * @author Mario Aquino, Object Computing, Inc.
- *
- */
 public interface ChatFriend {
 
     /**
      * @return User object used by this chat friend
      */
-    User getUser();
+    Friend getFriend();
 
     /**
      * @return the user id corresponding to this chat friend.  This is typically the id
@@ -37,7 +33,7 @@ public interface ChatFriend {
     /**
      * @return the presence status ("available", "away", etc)
      */
-    Mode getMode();
+    FriendPresence.Mode getMode();
 
     /**
      * @return true if this chat has been marked as started, but has
@@ -54,7 +50,7 @@ public interface ChatFriend {
     boolean isActiveConversation();
 
     /**
-     * Sets the active status of the current chat
+     * Sets the active status of the current chat.
      *
      * @param active true to set the conversation as active
      */
@@ -71,19 +67,19 @@ public interface ChatFriend {
     boolean isSignedIn();
 
     /**
-     * If not yet started, marks the current chat as started
+     * If not yet started, marks the current chat as started.
      */
     void startChat();
 
     /**
-     * If chat is currently started, marks the chat as stopped
+     * If chat is currently started, marks the chat as stopped.
      */
     void stopChat();
 
     /**
      * Gets the time at which the chat started.
      * For example, normally a chat can be considered started upon the first sign
-     * of communication between the current connection and this chat user
+     * of communication between the current connection and this chat user.
      *
      * @return start chat time in milliseconds
      */
@@ -98,7 +94,7 @@ public interface ChatFriend {
 
     /**
      * Set whether or not this chat user has received messages that have yet to be displayed
-     * in the chat window
+     * in the chat window.
      *
      * @param hasMessages true if this chat user has received messages not yet displayed
      */
@@ -108,10 +104,10 @@ public interface ChatFriend {
      * Creates and wires together the necessary objects for
      * sending and receiving messages.
      *
-     * @param reader The chat impl calls into the {@link MessageReader} upon
+     * @param reader the chat implementation calls into the {@link MessageReader} upon
      *        receiving messages and updates in chat state
-     * @return messageWriter {@link MessageWriter} impl on which methods are called to send messages
-     * and update chat state.
+     * @return messageWriter {@link MessageWriter} implementation on which 
+     * methods are called to send messages and update chat state.
      */
     MessageWriter createChat(MessageReader reader);
 
@@ -120,7 +116,7 @@ public interface ChatFriend {
     void removePropertyChangeListener(PropertyChangeListener listener);
 
     /**
-     * updates the state of this chatFriend based on its underlying attributes, for instance 
+     * Updates the state of this chatFriend based on its underlying attributes, for instance 
      * the mode and status of the current active presence
      */
     void update();

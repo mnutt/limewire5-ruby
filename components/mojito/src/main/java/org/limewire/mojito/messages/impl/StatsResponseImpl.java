@@ -37,7 +37,7 @@ import org.limewire.mojito.routing.Version;
 
 
 /**
- * An implementation of StatsResponse
+ * An implementation of StatsResponse.
  */
 public class StatsResponseImpl extends AbstractResponseMessage
         implements StatsResponse {

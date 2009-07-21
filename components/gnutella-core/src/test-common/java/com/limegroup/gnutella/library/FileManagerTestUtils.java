@@ -12,9 +12,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -22,11 +20,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.limewire.collection.CollectionUtils;
-import org.limewire.core.api.Category;
 import org.limewire.util.FileUtils;
 import org.limewire.util.TestUtils;
 
 import com.limegroup.gnutella.URN;
+import com.limegroup.gnutella.library.FileViewChangeFailedException.Reason;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 
 public class FileManagerTestUtils {    
@@ -44,79 +42,68 @@ public class FileManagerTestUtils {
         return URN.createSHA1Urn(f);
     }
 
-    public static void assertAddFails(String reason, FileList fileList, File... files) throws Exception {
+    public static void assertAddFails(Reason reason, FileCollection fileList, File... files) throws Exception {
         for (File file : files) {
             try {
                 FileDesc fd = fileList.add(file).get(5, TimeUnit.SECONDS);
                 fail("added: " + fd);
             } catch (ExecutionException expected) {
-                assertInstanceof(FileListChangeFailedException.class, expected.getCause());
-                FileListChangeFailedException cause = (FileListChangeFailedException) expected.getCause();
-                assertEquals(FileListChangedEvent.Type.ADD_FAILED, cause.getEvent().getType());
-                assertEquals(file, cause.getEvent().getFile());
-                assertEquals(reason, cause.getReason().toString());
+                assertInstanceof(FileViewChangeFailedException.class, expected.getCause());
+                FileViewChangeFailedException cause = (FileViewChangeFailedException) expected.getCause();
+                assertEquals(FileViewChangeEvent.Type.FILE_ADD_FAILED, cause.getType());
+                assertEquals(file, cause.getFile());
+                assertEquals(reason, cause.getReason());
             }
         }
     }
+    
+    public static void assertAdds(FileCollection fileList, File file, LimeXMLDocument xml) throws Exception {
+        assertNotNull(fileList.add(file, Collections.singletonList(xml)).get(1, TimeUnit.SECONDS));
+        assertEquals(xml, fileList.getFileDesc(file).getXMLDocument());
+    }
 
-    public static void assertAdds(FileList fileList, File... files) throws Exception {
+    public static void assertAdds(FileCollection fileList, File... files) throws Exception {
         for (File file : files) {
             assertNotNull(fileList.add(file).get(1, TimeUnit.SECONDS));
         }
     }
     
-    public static void assertAddsForSession(GnutellaFileList fileList, File... files) throws Exception {
-        for (File file : files) {
-            assertNotNull(fileList.addForSession(file).get(1, TimeUnit.SECONDS));
-        }
-    }
-    
-    public static void assertFileRenames(ManagedFileList fileList, File old, File newFile) throws Exception {
+    public static void assertFileRenames(Library fileList, File old, File newFile) throws Exception {
         assertNotNull(fileList.fileRenamed(old, newFile).get(1, TimeUnit.SECONDS));
     }
     
-    public static void assertFileRenameFails(String reason, ManagedFileList fileList, File old, File newFile) throws Exception {
-        FileDesc oldFd = fileList.getFileDesc(old);
+    public static void assertFileRenameFails(FileViewChangeFailedException.Reason reason, Library fileList, File old, File newFile) throws Exception {
         Future<FileDesc> future = fileList.fileRenamed(old, newFile);
 
         try {
             future.get(1, TimeUnit.SECONDS);
             fail("renamed!");
         } catch (ExecutionException expected) {
-            assertInstanceof(FileListChangeFailedException.class, expected.getCause());
-            FileListChangeFailedException cause = (FileListChangeFailedException) expected.getCause();
-            assertEquals(FileListChangedEvent.Type.CHANGE_FAILED, cause.getEvent().getType());
-            assertEquals(old, cause.getEvent().getOldFile());
-            assertEquals(newFile, cause.getEvent().getFile());
-            assertEquals(oldFd, cause.getEvent().getOldValue());
-            assertEquals(reason, cause.getReason().toString());
+            assertInstanceof(FileViewChangeFailedException.class, expected.getCause());
+            FileViewChangeFailedException cause = (FileViewChangeFailedException) expected.getCause();
+            assertEquals(FileViewChangeEvent.Type.FILE_CHANGE_FAILED, cause.getType());
+            assertEquals(old, cause.getFile());
+            assertEquals(reason, cause.getReason());
         }
     }
     
-    public static void assertFileChanges(ManagedFileList fileList, File file) throws Exception {
+    public static void assertFileChanges(Library fileList, File file) throws Exception {
         assertNotNull(fileList.fileChanged(file, LimeXMLDocument.EMPTY_LIST).get(1, TimeUnit.SECONDS));
     }
     
-    public static void assertFileChangedFails(String reason, ManagedFileList fileList, File file) throws Exception {
-        FileDesc oldFd = fileList.getFileDesc(file);
+    public static void assertFileChangedFails(FileViewChangeFailedException.Reason reason, Library fileList, File file) throws Exception {
         Future<FileDesc> future = fileList.fileChanged(file, LimeXMLDocument.EMPTY_LIST);
         
         try {
             future.get(1, TimeUnit.SECONDS);
             fail("renamed!");
         } catch (ExecutionException expected) {
-            assertInstanceof(FileListChangeFailedException.class, expected.getCause());
-            FileListChangeFailedException cause = (FileListChangeFailedException) expected.getCause();
-            assertEquals(FileListChangedEvent.Type.CHANGE_FAILED, cause.getEvent().getType());
-            assertEquals(file, cause.getEvent().getOldFile());
-            assertEquals(file, cause.getEvent().getFile());
-            assertEquals(oldFd, cause.getEvent().getOldValue());
-            assertEquals(reason, cause.getReason().toString());
+            assertInstanceof(FileViewChangeFailedException.class, expected.getCause());
+            FileViewChangeFailedException cause = (FileViewChangeFailedException) expected.getCause();
+            assertEquals(FileViewChangeEvent.Type.FILE_CHANGE_FAILED, cause.getType());
+            assertEquals(file, cause.getFile());
+            assertEquals(reason, cause.getReason());
         }
-    }
-    
-    public static List<FileDesc> assertSetManagedDirectories(ManagedFileList fileList, Collection<File> dirs, Collection<File> excludeDirs) throws Exception {
-        return assertFutureListFinishes(fileList.setManagedOptions(dirs, excludeDirs, EnumSet.allOf(Category.class)), 5, TimeUnit.SECONDS);
     }
     
     public static void assertContainsFiles(Iterable<FileDesc> iterable, File... expectedFiles) {
@@ -137,29 +124,25 @@ public class FileManagerTestUtils {
         assertTrue("contained unexpected files: " + files, files.size() == 0);
     }
     
-    public static List<FileDesc> assertAddsFolder(FileList fileList, File folder) throws Exception {
-        return assertFutureListFinishes(fileList.addFolder(folder), 5, TimeUnit.SECONDS);
+    public static List<FileDesc> assertAddsFolder(FileCollection fileList, File folder) throws Exception {
+        return assertFutureListFinishes(fileList.addFolder(folder, null), 5, TimeUnit.SECONDS);
     }
     
-    public static List<FileDesc> assertChangeExtensions(ManagedFileList fileList, String... extensions) throws Exception {
-        return assertFutureListFinishes(fileList.setManagedExtensions(Arrays.asList(extensions)), 5, TimeUnit.SECONDS);
-    }
-
     /**
      * Begins a load on FileManager and waits for the FileManager to finishing loading before 
      * continuing. Also can specify a timeout which will throw an exception if FileManager hasn't 
      * completed in a certain amount of time.
      */
-    public static List<FileDesc> waitForLoad(FileManager fileManager, int timeout) throws Exception {
-        return assertLoads(fileManager.getManagedFileList(), timeout, TimeUnit.MILLISECONDS);
+    public static List<FileDesc> waitForLoad(Library library, int timeout) throws Exception {
+        return assertLoads(library, timeout, TimeUnit.MILLISECONDS);
     }
     
-    public static List<FileDesc> assertLoads(ManagedFileList managedList) throws Exception {
+    public static List<FileDesc> assertLoads(Library managedList) throws Exception {
         return assertLoads(managedList, 5, TimeUnit.SECONDS);
     }
 
-    public static List<FileDesc> assertLoads(ManagedFileList managedList, long timeout, TimeUnit unit) throws Exception {
-        Future<? extends List<? extends Future<FileDesc>>> loadFuture = ((ManagedFileListImpl) managedList).loadManagedFiles();
+    public static List<FileDesc> assertLoads(Library managedList, long timeout, TimeUnit unit) throws Exception {
+        Future<? extends List<? extends Future<FileDesc>>> loadFuture = ((LibraryImpl) managedList).loadManagedFiles();
         return assertFutureListFinishes(loadFuture, timeout, unit);
     }
     

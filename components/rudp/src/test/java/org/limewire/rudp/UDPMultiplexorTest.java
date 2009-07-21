@@ -8,16 +8,19 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
-import junit.framework.Test;
-
+import org.limewire.listener.AsynchronousMulticasterImpl;
+import org.limewire.listener.EventListenerList;
 import org.limewire.nio.observer.TransportListener;
 import org.limewire.rudp.messages.RUDPMessage;
 import org.limewire.rudp.messages.SynMessage;
 import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.rudp.messages.impl.DefaultMessageFactory;
 import org.limewire.util.BaseTestCase;
-import org.limewire.listener.EventListenerList;
+import org.limewire.concurrent.ExecutorsHelper;
+
+import junit.framework.Test;
 
 public class UDPMultiplexorTest extends BaseTestCase {
 
@@ -37,7 +40,8 @@ public class UDPMultiplexorTest extends BaseTestCase {
     
     private static StubListener listener = new StubListener();
     private static RUDPContext context = new DefaultRUDPContext(listener);
-    private static UDPSelectorProvider provider = new UDPSelectorProvider(context, new EventListenerList<UDPSocketChannelConnectionEvent>());
+    private static Executor executor = ExecutorsHelper.newProcessingQueue("TestEventThread");
+    private static UDPSelectorProvider provider = new UDPSelectorProvider(context, new AsynchronousMulticasterImpl<UDPSocketChannelConnectionEvent>(executor));
     
     
     public void testRegister() throws Exception {

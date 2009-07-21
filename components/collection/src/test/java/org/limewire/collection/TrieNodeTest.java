@@ -21,7 +21,7 @@ public class TrieNodeTest extends BaseTestCase {
     }  
 
     /**
-     * Individual test functions
+     * Individual test functions.
      * All named: public void testXXX()
      */
 

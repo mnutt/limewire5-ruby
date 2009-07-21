@@ -29,11 +29,11 @@ public class UDPMultiplexor extends AbstractSelector {
 
     private static final Log LOG = LogFactory.getLog(UDPMultiplexor.class);
 
-	/** The 0 slot is for incoming new connections so it is not assigned */
-	public static final byte UNASSIGNED_SLOT   = 0;
+    /** The 0 slot is for incoming new connections so it is not assigned. */
+    public static final byte UNASSIGNED_SLOT   = 0;
 
-	/** Keep track of the assigned connections */
-	private volatile UDPSocketChannel[] _channels;
+    /** Keep track of the assigned connections. */
+    private volatile UDPSocketChannel[] _channels;
     
     /** A list of overflowed channels when registering. */
     private final List<SelectableChannel> channelsToRemove = new LinkedList<SelectableChannel>();
@@ -41,13 +41,13 @@ public class UDPMultiplexor extends AbstractSelector {
     /** A set of the currently connected keys. */
     private Set<SelectionKey> selectedKeys = new HashSet<SelectionKey>(256);
 
-	/** Keep track of the last assigned connection id so that we can use a 
-		circular assignment algorithm.  This should cut down on message
-		collisions after the connection is shut down. */
-	private int _lastConnectionID;
-	
-    /** The RUDPContext that contains the TransportListener */
-	private final RUDPContext context;
+    /** Keep track of the last assigned connection id so that we can use a 
+        circular assignment algorithm.  This should cut down on message
+        collisions after the connection is shut down. */
+    private int _lastConnectionID;
+    
+    /** The RUDPContext that contains the TransportListener. */
+    private final RUDPContext context;
 
     /**
      *  Initialize the UDPMultiplexor.
@@ -55,8 +55,8 @@ public class UDPMultiplexor extends AbstractSelector {
     UDPMultiplexor(SelectorProvider provider, RUDPContext context) {
         super(provider);
         this.context = context;
-		_channels       = new UDPSocketChannel[256];
-		_lastConnectionID  = 0;
+        _channels       = new UDPSocketChannel[256];
+        _lastConnectionID  = 0;
     }
     
     /**
@@ -78,47 +78,47 @@ public class UDPMultiplexor extends AbstractSelector {
 
     /**
      *  Route a message to the {@link UDPConnectionProcessor} identified via the message's
-	 *  connection ID.
-	 *  Notifies the provided listener (if any) if the channel is ready to produce events.
+     *  connection ID.
+     *  Notifies the provided listener (if any) if the channel is ready to produce events.
      */
-	public void routeMessage(RUDPMessage msg, InetSocketAddress addr) {
+    public void routeMessage(RUDPMessage msg, InetSocketAddress addr) {
         UDPSocketChannel[] array = _channels;
-		int connID = msg.getConnectionID() & 0xff;
-		UDPSocketChannel channel = null;
-		// If connID equals 0 and SynMessage then associate with a connection
+        int connID = msg.getConnectionID() & 0xff;
+        UDPSocketChannel channel = null;
+        // If connID equals 0 and SynMessage then associate with a connection
         // that appears to want it (connecting and with knowledge of it).
-		if ( connID == 0 && msg instanceof SynMessage ) {
-		    LOG.debugf("route sym: {0}", msg);
-			for (int i = 1; i < array.length; i++) {
+        if ( connID == 0 && msg instanceof SynMessage ) {
+            LOG.debugf("route sym: {0}", msg);
+            for (int i = 1; i < array.length; i++) {
                 channel = array[i];
                 if(channel == null)
                     continue;
                 
                 LOG.debugf("non-empty index: {0}, addr: {1}", i, channel.getRemoteSocketAddress());
                 
-				if ( channel.isConnectionPending() && channel.isForMe(addr, (SynMessage)msg)) {
-				    LOG.debugf("found index: {0}, sender id: {1}", i, ((SynMessage)msg).getSenderConnectionID());
+                if ( channel.isConnectionPending() && channel.isForMe(addr, (SynMessage)msg)) {
+                    LOG.debugf("found index: {0}, sender id: {1}", i, ((SynMessage)msg).getSenderConnectionID());
                     channel.getProcessor().handleMessage(msg);
-					break;
-				} 
-			}
-			// Note: eventually these messages should find a match
-			// so it is safe to throw away premature ones
+                    break;
+                } 
+            }
+            // Note: eventually these messages should find a match
+            // so it is safe to throw away premature ones
 
-		} else if(array[connID] != null) {  // If valid connID then send on to connection
+        } else if(array[connID] != null) {  // If valid connID then send on to connection
             channel = array[connID];
             if (msg instanceof SynMessage) {
                 LOG.debugf("already assigned syn: {0}", msg);
             }
-			if (channel.getRemoteSocketAddress().equals(addr) )
+            if (channel.getRemoteSocketAddress().equals(addr) )
                 channel.getProcessor().handleMessage(msg);
-		} else {
-		    LOG.debugf("message for non-existing connection: {0}", msg);
-		}
-		
-		if (channel != null && channel.getProcessor().readyOps() != 0)
+        } else {
+            LOG.debugf("message for non-existing connection: {0}", msg);
+        }
+        
+        if (channel != null && channel.getProcessor().readyOps() != 0)
             context.getTransportListener().eventPending();
-	}
+    }
 
     @Override
     protected void implCloseSelector() throws IOException {

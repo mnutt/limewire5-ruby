@@ -32,7 +32,7 @@ import org.limewire.security.SecurityToken;
 
 
 /**
- * The FindValueResult is fired when a FIND_VALUE lookup finishes
+ * The FindValueResult is fired when a FIND_VALUE lookup finishes.
  */
 public class FindValueResult extends LookupResult {
     
@@ -64,7 +64,7 @@ public class FindValueResult extends LookupResult {
     }
     
     /**
-     * Returns the lookup key that was used to get this value
+     * Returns the lookup key that was used to get this value.
      */
     public EntityKey getLookupKey() {
         return lookupKey;
@@ -95,35 +95,35 @@ public class FindValueResult extends LookupResult {
     }
 
     /**
-     * Returns the values that were found
+     * Returns the values that were found.
      */
     public Collection<? extends DHTValueEntity> getEntities() {
         return entities;
     }
     
     /**
-     * Returns the EntityKeys that were found
+     * Returns the EntityKeys that were found.
      */
     public Collection<? extends EntityKey> getEntityKeys() {
         return entityKeys;
     }
 
     /**
-     * Returns the amount of time it took to find the DHTValue(s)
+     * Returns the amount of time it took to find the DHTValue(s).
      */
     public long getTime() {
         return time;
     }
     
     /**
-     * Returns the number of hops it took to find the DHTValue(s)
+     * Returns the number of hops it took to find the DHTValue(s).
      */
     public int getHop() {
         return hop;
     }
     
     /**
-     * Returns true if the lookup was successful
+     * Returns true if the lookup was successful.
      */
     public boolean isSuccess() {
         return !entities.isEmpty() || !entityKeys.isEmpty();

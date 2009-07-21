@@ -52,10 +52,10 @@ public class StringTrie<V> {
      * labels on the edges from the root to that node.  Then the abstraction
      * function is:<p>
      *
-     * <blockquote>
+     * <xmp>
      *    { <KEY(N), N.getValue() | N is a child of root
-     *                              and N.getValue() != null}
-     * </blockquote>
+     *                              and N.getValue() != null }
+     * </xmp>
      *
      * An earlier version used character labels on edges.  This made
      * implementation simpler but used more memory because one node would be
@@ -353,7 +353,7 @@ public class StringTrie<V> {
     }
 
     /**
-     * Returns all values (entire Trie)
+     * Returns all values (entire Trie).
      */
     public Iterator<V> getIterator() {
         return new ValueIterator(root);
@@ -599,7 +599,7 @@ final class TrieNode<E> {
      * N = children.size().<br>
      * The standard Java binary search methods could not be used because they
      * only return exact matches.  Also, they require allocating a dummy Trie.
-     *
+     *<xmp>
      * Example1: Search non exact c == '_' in {[0] => 'a...', [1] => 'c...'};
      *           start loop with low = 0, high = 1;
      *           middle = 0, cmiddle == 'a', c < cmiddle, high = 0 (low == 0);
@@ -624,6 +624,7 @@ final class TrieNode<E> {
      *           middle = 0, cmiddle == 'a', cmiddle < c, low = 1 (high == 1);
      *           middle = 1, cmiddle == 'c', cmiddle < c, low = 2 (high == 1);
      *           end loop; return high == 1 (no match, insert at 2).
+     *</xmp>
      */
     private int search(char c, boolean exact) {
         // This code is stolen from IntSet.search.

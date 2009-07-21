@@ -13,11 +13,13 @@ import org.jdesktop.application.Resource;
 import org.limewire.ui.swing.util.GuiUtils;
 
 /**
- * Label that understands html text and allows users to add a {@link HyperlinkListener}.
- * 
+ * Label that understands HTML text and allows users to add a {@link HyperlinkListener}.
+ * <p>
  * A default 
  */
 public class HTMLLabel extends JEditorPane {
+    
+    public static final Color TRANSPARENT_COLOR = new Color(0, 0, 0, 0);
     
     private StyleSheet fontStyle = null;
     
@@ -31,7 +33,6 @@ public class HTMLLabel extends JEditorPane {
 
     private Color htmlFontColor;
     
-    private static final Color TRANSPARENT_COLOR = new Color(0, 0, 0, 0);
     
     @Resource
     private Color linkColor = Color.BLUE;
@@ -68,7 +69,7 @@ public class HTMLLabel extends JEditorPane {
     
     /**
      * Enable or disable a listener that opens hyper links that point to 
-     * full urls natively. Enabled by default.
+     * full URLs natively. Enabled by default.
      */
     public void setOpenUrlsNatively(boolean enable) {
         if (enable) {
@@ -89,7 +90,7 @@ public class HTMLLabel extends JEditorPane {
     }
     
     /**
-     * @return the font used for rendering the html text, or null if none
+     * @return the font used for rendering the HTML text, or null if none
      * has been set
      */
     public Font getHtmlFont() {
@@ -97,7 +98,7 @@ public class HTMLLabel extends JEditorPane {
     }
     
     /**
-     * Sets the font for rendering the html text.
+     * Sets the font for rendering the HTML text.
      * @param font must not be null 
      */
     public void setHtmlFont(Font font) {
@@ -111,7 +112,7 @@ public class HTMLLabel extends JEditorPane {
     }
     
     /**
-     * Sets the foreground color of the html text.
+     * Sets the foreground color of the HTML text.
      * @param color must not be null
      */
     public void setHtmlForeground(Color color) {
@@ -132,7 +133,7 @@ public class HTMLLabel extends JEditorPane {
     }
 
     /**
-     * @return the foreground color used for rendering html text, null if none
+     * @return the foreground color used for rendering HTML text, null if none
      * is set
      */
     public Color getHtmlForeground() {

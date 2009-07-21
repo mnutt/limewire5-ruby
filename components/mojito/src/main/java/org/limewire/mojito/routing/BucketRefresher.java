@@ -60,7 +60,7 @@ public class BucketRefresher implements Runnable {
     }
     
     /**
-     * Starts the BucketRefresher
+     * Starts the BucketRefresher.
      */
     public void start() {
         synchronized (refreshTask) {
@@ -79,7 +79,7 @@ public class BucketRefresher implements Runnable {
     }
     
     /**
-     * Stops the BucketRefresher
+     * Stops the BucketRefresher.
      */
     public void stop() {
         synchronized (refreshTask) {
@@ -169,9 +169,9 @@ public class BucketRefresher implements Runnable {
     
     /**
      * The RefreshTask iterates one-by-one through a List of KUIDs
-     * and does a lookup for the ID. Everytime a lookup finishes it
+     * and does a lookup for the ID. Every time a lookup finishes it
      * starts a new lookup for the next ID until all KUIDs have been
-     * looked up
+     * looked up.
      */
     private class RefreshTask implements DHTFutureListener<FindNodeResult> {
         
@@ -188,7 +188,7 @@ public class BucketRefresher implements Runnable {
         }
         
         /**
-         * Stops the RefreshTask
+         * Stops the RefreshTask.
          */
         public synchronized void stop() {
             if (future != null) {
@@ -200,7 +200,7 @@ public class BucketRefresher implements Runnable {
         }
         
         /**
-         * Starts the refresh
+         * Starts the refresh.
          */
         public synchronized boolean refresh() {
             Collection<KUID> list = context.getRouteTable().getRefreshIDs(false);
@@ -214,7 +214,7 @@ public class BucketRefresher implements Runnable {
         }
         
         /**
-         * Lookup the next KUID
+         * Lookup the next KUID.
          */
         private synchronized boolean next() {
             if (isDone()) {

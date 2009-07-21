@@ -18,7 +18,7 @@ import com.limegroup.gnutella.altlocs.DownloaderGuidAlternateLocationFinder;
 import com.limegroup.gnutella.dht.DHTManager;
 import com.limegroup.gnutella.dht.db.PushProxiesPublisher;
 import com.limegroup.gnutella.downloader.IncompleteFileManager;
-import com.limegroup.gnutella.library.FileManager;
+import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.LibraryUtils;
 import com.limegroup.gnutella.licenses.LicenseFactory;
 import com.limegroup.gnutella.simpp.SimppListener;
@@ -30,7 +30,7 @@ import com.limegroup.gnutella.xml.SchemaReplyCollectionMapper;
 @Singleton
 class CoreRandomGlue {
 
-    private final FileManager fileManager;
+    private final Library library;
     private final ConnectionManager connectionManager;
     private final DHTManager dhtManager;
     private final PushProxiesPublisher pushProxiesPublisher;
@@ -44,7 +44,7 @@ class CoreRandomGlue {
     private final AltLocManager altLocManager;
     
     @Inject
-    CoreRandomGlue(FileManager fileManager,
+    CoreRandomGlue(Library library,
             ConnectionManager connectionManager, DHTManager dhtManager,
             PushProxiesPublisher pushProxiesPublisher,
             ConnectionServices connectionServices,
@@ -56,7 +56,7 @@ class CoreRandomGlue {
             HashTreeCache hashTreeCache,
             SchemaReplyCollectionMapper schemaMapper,
             AltLocManager altLocManager) {
-        this.fileManager = fileManager;
+        this.library = library;
         this.connectionManager = connectionManager;
         this.dhtManager = dhtManager;
         this.pushProxiesPublisher = pushProxiesPublisher;
@@ -75,7 +75,7 @@ class CoreRandomGlue {
         registry.register(new Service() {            
             public void initialize() {
                 //TODO: find a better way to do this
-                fileManager.getManagedFileList().addFileListListener(altLocManager);
+                library.addListener(altLocManager);
                 
                 connectionManager.addEventListener(dhtManager);
                 dhtManager.addEventListener(pushProxiesPublisher);
@@ -117,7 +117,7 @@ class CoreRandomGlue {
                 }
             }
             public void stop() {
-                hashTreeCache.persistCache(fileManager, downloadManager);
+                hashTreeCache.persistCache(library, downloadManager);
                 licenseFactory.persistCache();
                 
                 cleanupPreviewFiles();                
@@ -128,7 +128,7 @@ class CoreRandomGlue {
     
     
     private void cleanupTorrentMetadataFiles() {
-        if(!fileManager.getManagedFileList().isLoadFinished()) {
+        if(!library.isLoadFinished()) {
             return;
         }
         
@@ -147,7 +147,7 @@ class CoreRandomGlue {
         File tFile;
         for(int i = 0; i < file_list.length; i++) {
             tFile = file_list[i];
-            if(fileManager.getGnutellaFileList().getFileDesc(tFile) != null && 
+            if(library.getFileDesc(tFile) != null && 
                     tFile.lastModified() < purgeLimit) {
                 tFile.delete();
             }

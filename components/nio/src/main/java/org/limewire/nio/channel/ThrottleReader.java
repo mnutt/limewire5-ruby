@@ -92,30 +92,31 @@ public class ThrottleReader implements InterestReadableByteChannel, ChannelReade
             
         
         int totalRead = 0;
-        if(available > 0) {
-        	int priorLimit = buffer.limit();
-        	if(buffer.remaining() > available) {
-        		//LOG.debug("Limting amount remaining to read from " + buffer.remaining() + " to " + available);
-        		buffer.limit(buffer.position() + available);
-        	}
+        if (available > 0) {
+            int priorLimit = buffer.limit();
+            if (buffer.remaining() > available) {
+                // LOG.debug("Limting amount remaining to read from " +
+                // buffer.remaining() + " to " + available);
+                buffer.limit(buffer.position() + available);
+            }
 
-        	try {
-        		totalRead = channel.read(buffer);
-        	} finally {
-        		buffer.limit(priorLimit);
-        	}
+            try {
+                totalRead = channel.read(buffer);
+            } finally {
+                buffer.limit(priorLimit);
+            }
 
-        	if (totalRead > 0)
-        		available -= totalRead;
+            if (totalRead > 0)
+                available -= totalRead;
         } else {
-            // Humur the underlying channel -- it may need
+            // Humor the underlying channel -- it may need
             // to read data internally.
             // Important to set totalRead because it may be -1, 
-            // which we have to propogate outwards for EOF detection.
+            // which we have to propagate outwards for EOF detection.
             totalRead = channel.read(BufferUtils.getEmptyBuffer());
-        	channel.interestRead(false);
-        	if(lastInterestState)
-        		throttle.interest(throttleListener);
+            channel.interestRead(false);
+            if(lastInterestState)
+                throttle.interest(throttleListener);
         }
         //LOG.debug("Read: " + totalRead  + ", leaving: " + available + " left.");
         

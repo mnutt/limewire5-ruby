@@ -2,6 +2,7 @@ package com.limegroup.gnutella.metadata.audio.writer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -29,7 +30,7 @@ public class AudioDataEditor implements MetaWriter {
     /**
      * The 7 most common meta-data audio tags can all be written using
      * this same interface. This should be overridden by a given class 
-     * which wishes to write additional tags
+     * which wishes to write additional tags.
 
      * @throws FieldDataInvalidException - exception when there's a problem committing 
      *  a given tag field
@@ -49,7 +50,7 @@ public class AudioDataEditor implements MetaWriter {
      * @return true if the audio subtype was chosen properly for the file type
      */
     protected boolean isValidFileType(String fileName) {
-        String fileExtension = FileUtils.getFileExtension(fileName);
+        String fileExtension = FileUtils.getFileExtension(fileName).toLowerCase(Locale.US);
         for(String extension : getSupportedExtensions()) {
             if(fileExtension.equals(extension))
                 return true;
@@ -59,7 +60,7 @@ public class AudioDataEditor implements MetaWriter {
     
     /**
      * Given the audio file, return the tag from the file. If the Tag
-     * doesn't already exist, return a valid tag for that audio type
+     * doesn't already exist, return a valid tag for that audio type.
      */
     protected Tag createTag(AudioFile audioFile, AudioMetaData audioData) {
         return audioFile.getTagOrCreateAndSetDefault();
@@ -75,7 +76,7 @@ public class AudioDataEditor implements MetaWriter {
      * Performs the actual writing of the updated meta data to disk. 
      * This always writes the data to disk, it assumes that prior checks were
      * done to ensure unnecessary disk IO does not occur when no changes have
-     * been made
+     * been made.
      * @return LimeXMLReplyCollection.NORMAL if write was successful or 
      *      a different value if write wasn't successful.
      */

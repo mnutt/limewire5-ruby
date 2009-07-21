@@ -13,9 +13,8 @@ import org.limewire.core.api.URN;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.api.download.SaveLocationException;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.DownloadItem.ErrorState;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.magnet.MagnetLink;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchResult;
@@ -120,30 +119,19 @@ public class MockDownloadListManager implements DownloadListManager {
     }
 
     @Override
-    public DownloadItem addDownload(RemoteFileItem fileItem) throws SaveLocationException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public DownloadItem addTorrentDownload(URI uri, boolean overwrite) throws SaveLocationException {
+    public DownloadItem addTorrentDownload(URI uri, boolean overwrite) throws DownloadException {
         return null;
     }
 
     @Override
     public DownloadItem addDownload(Search search, List<? extends SearchResult> coreSearchResults,
-            File saveFile, boolean overwrite) throws SaveLocationException {
+            File saveFile, boolean overwrite) throws DownloadException {
        return addDownload(search, coreSearchResults);
     }
 
     @Override
-    public DownloadItem addDownload(RemoteFileItem file, File saveFile, boolean overwrite) {
-        return null;
-    }
-
-    @Override
-    public DownloadItem addTorrentDownload(File file, boolean overwrite)
-            throws SaveLocationException {
+    public DownloadItem addTorrentDownload(File file, File saveDirectory, boolean overwrite)
+            throws DownloadException {
         return null;
     }
 
@@ -154,7 +142,7 @@ public class MockDownloadListManager implements DownloadListManager {
 
     @Override
     public DownloadItem addDownload(MagnetLink magnet, File saveFile, boolean overwrite)
-            throws SaveLocationException {
+            throws DownloadException {
         return null;
     }
     

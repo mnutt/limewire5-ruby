@@ -29,8 +29,6 @@ public interface IOState {
     /**
      * Returns the amount of data that has been processed by this <code>IOState</code>.
      * This operation is optional; it should return -1 if unsupported.
-     * 
-     * @return
      */
     long getAmountProcessed();
 }

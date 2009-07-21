@@ -6,8 +6,8 @@ import java.util.Collection;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
-import org.limewire.core.api.library.RemoteFileItem;
 import org.limewire.core.api.search.SearchDetails;
+import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.impl.search.FriendSearchListener;
 import org.limewire.util.BaseTestCase;
 
@@ -31,7 +31,7 @@ public class FriendSearcherTest extends BaseTestCase {
         final SearchDetails searchDetails = context.mock(SearchDetails.class);
         final FriendSearchListener friendSearchListener = context.mock(FriendSearchListener.class);
 
-        final Collection<RemoteFileItem> results = new ArrayList<RemoteFileItem>();
+        final Collection<SearchResult> results = new ArrayList<SearchResult>();
 
         context.checking(new Expectations() {
             {

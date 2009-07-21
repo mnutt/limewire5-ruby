@@ -6,11 +6,11 @@ import java.net.Socket;
 public interface PushedSocketHandler {
 
     /**
-     * Accept the newly-connected push socket
+     * Accept the newly-connected push socket.
      * The given file, index & clientGUID were identified during the push.
      * 
      * @return true if the handler accepted the socket
      */
-	public boolean acceptPushedSocket(String file, int index, byte[] clientGUID, Socket socket);
+    public boolean acceptPushedSocket(String file, int index, byte[] clientGUID, Socket socket);
 
 }

@@ -4,43 +4,43 @@ import org.limewire.setting.SettingsGroup;
 import org.limewire.setting.SettingsGroupManager;
 
 /**
- * SettingsHandlerEvent are fired when a {@link SettingsGroupManager} instance changed 
+ * SettingsHandlerEvent are fired when a {@link SettingsGroupManager} instance changed.
  */
 public class SettingsGroupManagerEvent {
     
     /**
-     * Various types of events that may occur
+     * Various types of events that may occur.
      */
     public static enum EventType {
         
         /**
-         * Fired when Settings were added to the handler
+         * Fired when Settings were added to the handler.
          */
         SETTINGS_GROUP_ADDED,
         
         /**
-         * Fired when Settings were removed from the handler
+         * Fired when Settings were removed from the handler.
          */
         SETTINGS_GROUP_REMOVED,
         
         /**
-         * Fired when all Settings were reloaded
+         * Fired when all Settings were reloaded.
          */
         RELOAD,
         
         /**
-         * Fired when all Settings were saved
+         * Fired when all Settings were saved.
          */
         SAVE,
         
         /**
          * Fired when all Settings were revered back to
-         * the default values
+         * the default values.
          */
         REVERT_TO_DEFAULT,
         
         /**
-         * Fired when the should save flag was changed
+         * Fired when the should save flag was changed.
          */
         SHOULD_SAVE
     }
@@ -52,11 +52,11 @@ public class SettingsGroupManagerEvent {
     private final SettingsGroup group;
     
     /**
-     * Constructs a SettingsHandlerEvent
+     * Constructs a SettingsHandlerEvent.
      * 
-     * @param type The type of the event
-     * @param manager The handler that triggered this event
-     * @param group The SettingsGroup instance that was added or removed (null in other cases)
+     * @param type the type of the event
+     * @param manager the handler that triggered this event
+     * @param group the SettingsGroup instance that was added or removed (null in other cases)
      */
     public SettingsGroupManagerEvent(EventType type, SettingsGroupManager manager, SettingsGroup group) {
         if (type == null) {
@@ -73,14 +73,14 @@ public class SettingsGroupManagerEvent {
     }
     
     /**
-     * Returns the type of the event
+     * Returns the type of the event.
      */
     public EventType getEventType() {
         return type;
     }
     
     /**
-     * Returns the SettingsHandler instance that triggered this event
+     * Returns the SettingsHandler instance that triggered this event.
      */
     public SettingsGroupManager getSettingsManager() {
         return manager;
@@ -88,7 +88,7 @@ public class SettingsGroupManagerEvent {
     
     /**
      * The SettingsGroup instance that was added or removed. It's null in
-     * all other cases
+     * all other cases.
      */
     public SettingsGroup getSettingsGroup() {
         return group;

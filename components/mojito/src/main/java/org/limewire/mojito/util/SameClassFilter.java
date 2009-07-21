@@ -52,7 +52,7 @@ public class SameClassFilter {
     /**
      * Returns true if the given Contact is from the
      * same Class C Network as the sender or an another
-     * Contact
+     * Contact.
      */
     public boolean isSameNetwork(Contact node) {
         return !add(node);

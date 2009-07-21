@@ -11,7 +11,7 @@ import org.limewire.util.BaseTestCase;
 
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.http.HTTPConstants;
-import com.limegroup.gnutella.uploader.authentication.HttpRequestFileListProvider;
+import com.limegroup.gnutella.uploader.authentication.HttpRequestFileViewProvider;
 
 public class FileRequestParserTest extends BaseTestCase {
 
@@ -34,13 +34,13 @@ public class FileRequestParserTest extends BaseTestCase {
     }
 
     public void testParseValidFriendRequest() throws Exception {
-        final HttpRequestFileListProvider fileListProvider = context
-                .mock(HttpRequestFileListProvider.class);
+        final HttpRequestFileViewProvider fileListProvider = context
+                .mock(HttpRequestFileViewProvider.class);
         final BasicHttpContext httpContext = new BasicHttpContext();
 
         context.checking(new Expectations() {
             {
-                one(fileListProvider).getFileLists("me@me.com", httpContext);
+                one(fileListProvider).getFileViews("me@me.com", httpContext);
                 will(returnValue(Collections.emptyList()));
             }
         });

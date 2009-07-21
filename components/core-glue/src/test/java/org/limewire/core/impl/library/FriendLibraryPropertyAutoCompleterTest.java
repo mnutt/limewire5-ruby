@@ -14,7 +14,7 @@ import org.limewire.util.BaseTestCase;
 
 /**
  * Test set for FriendLibraryPropertyAutoCompleter, an AutoCompleter based on dataset
- *  contained in a FriendLibraries instance;
+ *  contained in a FriendLibraries instance.
  */
 public class FriendLibraryPropertyAutoCompleterTest extends BaseTestCase {
 

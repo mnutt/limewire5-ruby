@@ -163,10 +163,6 @@ public class OnDemandUnicaster {
     /**
      * Determines if the given host was sent a direct UDP URN query
      * in the last 30 seconds.
-     * 
-     * @param guid
-     * @param host
-     * @return
      */
     public boolean isHostQueriedForGUID(GUID guid, IpPort host) {
         synchronized(_queriedHosts) {
@@ -216,12 +212,13 @@ public class OnDemandUnicaster {
         }
     }
 
-    /** @return true if the Query Key data structure was cleared.
-     *  @param lastQueryKeyClearTime The last time query keys were cleared.
-     *  @param queryKeyClearInterval how often you like query keys to be
-     *  cleared.
-     *  This method has been disaggregated from the Expirer class for ease of
-     *  testing.
+    /**
+     * This method has been disaggregated from the Expirer class for ease of
+     * testing.
+     * @return true if the Query Key data structure was cleared.
+     * @param lastQueryKeyClearTime The last time query keys were cleared.
+     * @param queryKeyClearInterval how often you like query keys to be
+     * cleared.
      */ 
     private boolean clearDataStructures(long lastQueryKeyClearTime,
                                                long queryKeyClearInterval) {
@@ -290,7 +287,7 @@ public class OnDemandUnicaster {
         }
     }
     
-    /** inspectable for the class C distribution of the queried addresses */
+    /** Inspectable for the class C distribution of the queried addresses. */
     @SuppressWarnings("unused")
     @InspectionPoint("Unicaster class C stats")
     private final Inspectable classCQueried = new Inspectable() {

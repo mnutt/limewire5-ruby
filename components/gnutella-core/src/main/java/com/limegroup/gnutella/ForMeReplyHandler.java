@@ -189,7 +189,7 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
     
     /** Passes the QueryReply off to where it should go. */
     private void routeQueryReplyInternal(QueryReply reply, Address address) {
-        searchResultHandler.get().handleQueryReply(reply);
+        searchResultHandler.get().handleQueryReply(reply, address);
         downloadManager.get().handleQueryReply(reply, address);
     }
 	

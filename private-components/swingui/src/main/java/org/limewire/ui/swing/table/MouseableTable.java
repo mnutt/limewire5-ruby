@@ -3,7 +3,6 @@ package org.limewire.ui.swing.table;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
@@ -33,49 +32,47 @@ import org.limewire.ui.swing.util.PropertyUtils;
 
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
 import ca.odell.glazedlists.gui.TableFormat;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 public class MouseableTable extends StripedJXTable {
 
-	private TablePopupHandler popupHandler;
+    private TablePopupHandler popupHandler;
 
-	private TableDoubleClickHandler rowDoubleClickHandler;
-	
-	private TableColumnDoubleClickHandler columnDoubleClickHandler;
-	
-	private TableColors colors = newTableColors();
-	
-	private boolean stripesPainted = false;
-	
-	private TableCellHeaderRenderer defaultRenderer;
-	
-	protected MouseMotionListener mouseOverEditorListener;
-	
-	public MouseableTable() {
-		initialize();
-	}
-	
-	protected TableColors newTableColors() {
+    private TableDoubleClickHandler rowDoubleClickHandler;
+
+    private TableColumnDoubleClickHandler columnDoubleClickHandler;
+
+    private TableColors colors = newTableColors();
+
+    private TableCellHeaderRenderer defaultRenderer;
+
+    protected MouseMotionListener mouseOverEditorListener;
+
+    public MouseableTable() {
+        initialize();
+    }
+
+    protected TableColors newTableColors() {
         return new TableColors();
     }
-	
-	public TableColors getTableColors() {
-	    return colors;
-	}
-	
-	public MouseableTable(TableModel model) {
-		super(model);
-		initialize();
-	}
 
-	public void setPopupHandler(TablePopupHandler popupHandler) {
-		this.popupHandler = popupHandler;
-	}
-	
-	public void setDoubleClickHandler(TableDoubleClickHandler tableDoubleClickHandler) {
-		this.rowDoubleClickHandler = tableDoubleClickHandler;
-	}
-	
+    public TableColors getTableColors() {
+        return colors;
+    }
+
+    public MouseableTable(TableModel model) {
+        super(model);
+        initialize();
+    }
+
+    public void setPopupHandler(TablePopupHandler popupHandler) {
+        this.popupHandler = popupHandler;
+    }
+
+    public void setDoubleClickHandler(TableDoubleClickHandler tableDoubleClickHandler) {
+        this.rowDoubleClickHandler = tableDoubleClickHandler;
+    }
+
 	public void setColumnDoubleClickHandler(TableColumnDoubleClickHandler columnDoubleClickHandler) {
         this.columnDoubleClickHandler = columnDoubleClickHandler;
     }
@@ -85,23 +82,33 @@ public class MouseableTable extends StripedJXTable {
         int row = rowAtPoint(event.getPoint());
         int col = columnAtPoint(event.getPoint());
         if (row > -1 && col > -1) {
-            Object value = getValueAt(row, col);
-            JComponent renderer = getRendererComponent(row, col, value);
-
-            if (value != null && isClipped(renderer, col)) {
-                String toolTip = renderer.getToolTipText();
-
-                if (toolTip != null) {
-                    return toolTip;
-                } else if (renderer instanceof JLabel) {
-                    // works for DefaultTableCellRenderer
-                    return ((JLabel) renderer).getText();
-                }
-
-                return PropertyUtils.getToolTipText(value);
-            }
+            return getToolTipText(row, col);
         }
 
+        return null;
+    }
+
+    /**
+     * Returns the tooltip text for the item at the given row and column.
+     * The default implementation only shows the tooltip text if the text is clipped. 
+     */
+    protected String getToolTipText(int row, int col) {
+        Object value = getValueAt(row, col);
+        JComponent renderer = getRendererComponent(row, col, value);
+
+        if (value != null && isClipped(renderer, col)) {
+            String toolTip = renderer.getToolTipText();
+
+            if (toolTip != null) {
+                return toolTip;
+            } else if (renderer instanceof JLabel) {
+                // works for DefaultTableCellRenderer
+                return ((JLabel) renderer).getText();
+            }
+
+            return PropertyUtils.getToolTipText(value);
+        }
+        
         return null;
     }
 
@@ -121,28 +128,26 @@ public class MouseableTable extends StripedJXTable {
         TableCellRenderer tcr = getCellRenderer(row, col);
         return (JComponent) tcr.getTableCellRendererComponent(this, value, false, false, row, col);
     }
-	      
+      
 
-	
-	protected void initialize() {	
-		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);        
-		setCellSelectionEnabled(false);
-		setRowSelectionAllowed(true);
-	    setTableHeaderRenderer();
-	    setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-	    setFont(colors.getTableFont());
-		// See http://sites.google.com/site/glazedlists/documentation/swingx		
-		getSelectionMapper().setEnabled(false); // Breaks horribly with glazedlists
-		
-		//HighlightPredicate.EVEN and HighlightPredicate.ODD are zero based
-		setHighlighters(colors.getEvenHighlighter(), 
-		                colors.getOddHighlighter(),
-		                new ColorHighlighter(new MenuHighlightPredicate(this), colors.menuRowColor,  colors.menuRowForeground, colors.menuRowColor, colors.menuRowForeground));
-		
-		setGridColor(colors.getGridColor());
-		
-		//so that mouseovers will work within table		
-		mouseOverEditorListener = new MouseMotionAdapter() {
+
+    protected void initialize() {	
+        setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);        
+        setCellSelectionEnabled(false);
+        setRowSelectionAllowed(true);
+        setTableHeaderRenderer();
+        setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        setFont(colors.getTableFont());
+
+        //HighlightPredicate.EVEN and HighlightPredicate.ODD are zero based
+        setHighlighters(colors.getEvenHighlighter(), 
+                colors.getOddHighlighter(),
+                new ColorHighlighter(new MenuHighlightPredicate(this), colors.menuRowColor,  colors.menuRowForeground, colors.menuRowColor, colors.menuRowForeground));
+
+        setGridColor(colors.getGridColor());
+
+        //so that mouseovers will work within table		
+        mouseOverEditorListener = new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
                 // Get the table cell that the mouse is over.
@@ -159,21 +164,21 @@ public class MouseableTable extends StripedJXTable {
             }
         };
         
-		addMouseMotionListener(mouseOverEditorListener);
-		
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {//adding this to editor messes up popups
+        addMouseMotionListener(mouseOverEditorListener);
 
-				int col = columnAtPoint(e.getPoint());
-				int row = rowAtPoint(e.getPoint());
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {//adding this to editor messes up popups
 
-				if (row >= 0 && col >= 0) {
-					if (rowDoubleClickHandler != null || columnDoubleClickHandler != null) {
-						Component component = e.getComponent();
-						//launch file on double click unless the click is on a button
-						if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)
-								&& !(component.getComponentAt(e.getPoint()) instanceof JButton)) {
+                int col = columnAtPoint(e.getPoint());
+                int row = rowAtPoint(e.getPoint());
+
+                if (row >= 0 && col >= 0) {
+                    if (rowDoubleClickHandler != null || columnDoubleClickHandler != null) {
+                        Component component = e.getComponent();
+                        //launch file on double click unless the click is on a button
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)
+                                && !(component.getComponentAt(e.getPoint()) instanceof JButton)) {
                             if (rowDoubleClickHandler != null) {
                                 rowDoubleClickHandler.handleDoubleClick(row);
                             }
@@ -181,34 +186,32 @@ public class MouseableTable extends StripedJXTable {
                                 columnDoubleClickHandler.handleDoubleClick(col);
                             }
                         }
-					}
-					
-					if (isCellEditable(row, col)) { // TODO include check for isEditing()
-                        TableCellEditor editor = getCellEditor(row, col);
-                        if (editor != null) {
-                            // force update editor colors
-                            prepareEditor(editor, row, col);
-                            // editor.repaint() takes about a second to show
-                            // sometimes
-                            repaint();
-                        }                        
                     }
-				}
-			}
-			
+                }
+            }
+            
 
-			@Override
-			public void mouseExited(MouseEvent e) {
-			    maybeCancelEditing();
-			}
-			
-			@Override
+            @Override
+            public void mouseExited(MouseEvent e) {
+                maybeCancelEditing();
+            }
+
+            @Override
             public void mouseReleased(MouseEvent e) {
                 maybeShowPopup(e);
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
+                int col = columnAtPoint(e.getPoint());
+                int row = rowAtPoint(e.getPoint());
+                if (isEditing() && isCellEditable(row, col)) { 
+                    TableCellEditor editor = getCellEditor(row, col);
+                    if (editor != null) {
+                        // force update editor colors
+                        prepareEditor(editor, row, col);
+                    }                        
+                }
                 maybeShowPopup(e);
             }
 
@@ -227,20 +230,20 @@ public class MouseableTable extends StripedJXTable {
                 }
             }
 
-		});
-	}
-	
+        });
+    }
+
     //Don't set the cell value when editing is cancelled
-	@Override
+    @Override
     public void editingStopped(ChangeEvent e) {
         TableCellEditor editor = getCellEditor();
         if (editor != null) {          
             removeEditor();
         }
     }
-	
-	public void setStripeHighlighterEnabled(boolean striped){
-	    if (striped) {
+
+    public void setStripeHighlighterEnabled(boolean striped){
+        if (striped) {
             // HighlightPredicate.EVEN and HighlightPredicate.ODD are zero based
             setHighlighters(
                     colors.getEvenHighlighter(),
@@ -252,13 +255,13 @@ public class MouseableTable extends StripedJXTable {
                             colors.evenForeground, colors.evenColor,
                             colors.evenForeground),
                     new ColorHighlighter(HighlightPredicate.ODD, colors.evenColor,
-                            colors.evenForeground, colors.evenForeground,
+                            colors.evenForeground, colors.evenColor,
                             colors.evenForeground),
                     new ColorHighlighter(new MenuHighlightPredicate(this), colors.menuRowColor,
                             colors.menuRowForeground, colors.menuRowColor, colors.menuRowForeground));
 
         }
-	}
+    }
 
     // gets rid of default editor color so that editors are colored by highlighters and selection color is shown
     @Override
@@ -285,9 +288,9 @@ public class MouseableTable extends StripedJXTable {
     }
     
     /**
-	 * Fills in the top right corner if a scrollbar appears
-     * with an empty table header
- 	 */
+     * Fills in the top right corner if a scrollbar appears
+     * with an empty table header.
+     */
     @Override
     protected void configureEnclosingScrollPane() {
         super.configureEnclosingScrollPane();
@@ -314,7 +317,7 @@ public class MouseableTable extends StripedJXTable {
             }
         }
     }
-	          
+          
     /**
      * @return whether or not a popup menu is showing on the row
      */
@@ -330,37 +333,37 @@ public class MouseableTable extends StripedJXTable {
         if (row >= getRowCount() || col >= getColumnCount() || row < 0 || col < 0) {
             return false;
         }
-    	return getColumnModel().getColumn(col).getCellEditor() != null;
+        return getColumnModel().getColumn(col).getCellEditor() != null;
     }
 
-	/**
-	 * Does this row have a popup menu showing?
-	 */
-	private static class MenuHighlightPredicate implements HighlightPredicate {
+    /**
+     * Does this row have a popup menu showing?
+     */
+    private static class MenuHighlightPredicate implements HighlightPredicate {
 
-		private MouseableTable table;
+        private MouseableTable table;
 
-		public MenuHighlightPredicate(MouseableTable table) {
-			this.table = table;
-		}
+        public MenuHighlightPredicate(MouseableTable table) {
+            this.table = table;
+        }
 
-		public boolean isHighlighted(Component renderer,
-				ComponentAdapter adapter) {
-			if (!adapter.getComponent().isEnabled())
-				return false;
+        public boolean isHighlighted(Component renderer,
+                ComponentAdapter adapter) {
+            if (!adapter.getComponent().isEnabled())
+                return false;
 
-			return table.isMenuShowing(adapter.row);
-		}
-	}
-	
-	@Override
+            return table.isMenuShowing(adapter.row);
+        }
+    }
+
+    @Override
     public void setDefaultEditor(Class clazz, TableCellEditor editor) {
-        boolean usesEventTableModel = getModel() instanceof EventTableModel;
+        boolean usesEventTableModel = getModel() instanceof DefaultEventTableModel;
         boolean usesAdvancedTableFormat = false;
         TableFormat tableFormat = null;
 
         if (usesEventTableModel) {
-            tableFormat = ((EventTableModel) getModel()).getTableFormat();
+            tableFormat = ((DefaultEventTableModel)getModel()).getTableFormat();
             usesAdvancedTableFormat =
                 tableFormat instanceof AdvancedTableFormat;
         }
@@ -380,12 +383,12 @@ public class MouseableTable extends StripedJXTable {
 
     @Override
     public void setDefaultRenderer(Class clazz, TableCellRenderer renderer) {
-        boolean usesEventTableModel = getModel() instanceof EventTableModel;
+        boolean usesEventTableModel = getModel() instanceof DefaultEventTableModel;
         boolean usesAdvancedTableFormat = false;
         TableFormat tableFormat = null;
 
         if (usesEventTableModel) {
-            tableFormat = ((EventTableModel) getModel()).getTableFormat();
+            tableFormat = ((DefaultEventTableModel)getModel()).getTableFormat();
             usesAdvancedTableFormat =
                 tableFormat instanceof AdvancedTableFormat;
         }
@@ -423,23 +426,6 @@ public class MouseableTable extends StripedJXTable {
         return visibleRect.intersects(cellRect);
     }
     
-    public void setStripesPainted(boolean painted){
-        stripesPainted = painted;
-    }
-    /**
-     * The parent paints all the real rows then the remaining space is calculated
-     * and appropriately painted with grid lines and background colors. These 
-     * rows are not selectable.
-     */
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        if (stripesPainted) {
-            super.paintEmptyRows(g);
-        }
-    }
-
-
     //clears mouseover color
     private void maybeCancelEditing() {
         Point mousePosition = getMousePosition();

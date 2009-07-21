@@ -106,7 +106,7 @@ public class IOUtils {
                    StringUtils.contains(msg, "permission denied") ) {
                     detailType = DetailErrorType.NO_PRIVS;
                 }
-                // If characterset is faulty...
+                // If character set is faulty...
                 else if(StringUtils.contains(msg, "invalid argument")) {
                     detailType = DetailErrorType.BAD_CHARS;
                 }
@@ -139,12 +139,12 @@ public class IOUtils {
      * the HTTP version must all be separated by a single space.
      * Note that only one extra character is read from the stream in the case of
      * success (the white space character after the word).
-     *
-     * Note: Doesn't handle multibyte words correctly, each byte as it comes in
+     * <p>
+     * Note: Doesn't handle multi-byte words correctly, each byte as it comes in
      * will be treated as one character.
      *
-     * @param in The input stream from where to read the word
-     * @param maxSize The maximum size of the word.
+     * @param in the input stream from where to read the word
+     * @param maxSize the maximum size of the word.
      * @return the first word (i.e., no whitespace) of specified maximum size
      * @exception IOException if the word of specified maxSize couldn't be read,
      * either due to stream errors, or timeouts
@@ -217,15 +217,15 @@ public class IOUtils {
     }
     
     public static long ensureSkip(InputStream in, long length) throws IOException {
-    	long skipped = 0;
-    	while(skipped < length) {
-    		long current = in.skip(length - skipped);
-    	    if(current == -1 || current == 0)
-    	        throw new EOFException("eof");
-    	    else
-    	        skipped += current;
-    	}
-    	return skipped;
+        long skipped = 0;
+        while(skipped < length) {
+            long current = in.skip(length - skipped);
+            if(current == -1 || current == 0)
+                throw new EOFException("eof");
+            else
+                skipped += current;
+        }
+        return skipped;
     }
 
     /**
@@ -263,7 +263,7 @@ public class IOUtils {
     }
     
     /**
-     * A utility method to close Sockets
+     * A utility method to close Sockets.
      */
     public static void close(Socket s) {
         if(s != null) {
@@ -282,7 +282,7 @@ public class IOUtils {
     }
     
     /**
-     * A utility method to close ServerSockets
+     * A utility method to close ServerSockets.
      */
     public static void close(ServerSocket s) {
         if(s != null) {

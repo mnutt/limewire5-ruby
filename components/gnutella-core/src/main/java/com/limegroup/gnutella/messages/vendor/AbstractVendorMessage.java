@@ -47,10 +47,10 @@ public abstract class AbstractVendorMessage extends AbstractMessage implements V
      * Each Vendor Message class delegates to this constructor (or the one
      * also taking a network parameter) to construct new locally generated
      * VMs.
-     *  @param vendorIDBytes The Vendor ID of this message (bytes).  
-     *  @param selector The selector of the message.
-     *  @param version  The version of this message.
-     *  @param payload  The payload (not including vendorIDBytes, selector, and
+     *  @param vendorIDBytes the Vendor ID of this message (bytes).  
+     *  @param selector the selector of the message.
+     *  @param version  the version of this message.
+     *  @param payload  the payload (not including vendorIDBytes, selector, and
      *  version.
      *  @exception NullPointerException Thrown if payload or vendorIDBytes are
      *  null.
@@ -65,13 +65,13 @@ public abstract class AbstractVendorMessage extends AbstractMessage implements V
      * Each Vendor Message class delegates to this constructor (or the one that
      * doesn't take the network parameter) to construct new locally generated
      * VMs.
-     *  @param vendorIDBytes The Vendor ID of this message (bytes).  
-     *  @param selector The selector of the message.
-     *  @param version  The version of this message.
-     *  @param payload  The payload (not including vendorIDBytes, selector, and
+     *  @param vendorIDBytes the Vendor ID of this message (bytes).  
+     *  @param selector the selector of the message.
+     *  @param version  the version of this message.
+     *  @param payload  the payload (not including vendorIDBytes, selector, and
      *  version.
-     *  @param network The network this VM is to be written on.
-     *  @exception NullPointerException Thrown if payload or vendorIDBytes are
+     *  @param network the network this VM is to be written on.
+     *  @exception NullPointerException thrown if payload or vendorIDBytes are
      *  null.
      */
     protected AbstractVendorMessage(byte[] vendorIDBytes, int selector, int version, 
@@ -149,8 +149,10 @@ public abstract class AbstractVendorMessage extends AbstractMessage implements V
 
     /** Allows subclasses to make changes gain access to the payload.  They 
      *  can:
+     *  <pre>
      *  1) change the contents
      *  2) parse the contents.
+     *  </pre>
      *  In general, 1) is discouraged, 2) is necessary.  Subclasses CANNOT
      *  re-init the payload.
      */

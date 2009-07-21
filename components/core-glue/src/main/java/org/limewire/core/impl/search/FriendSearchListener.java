@@ -2,8 +2,8 @@ package org.limewire.core.impl.search;
 
 import java.util.Collection;
 
-import org.limewire.core.api.library.RemoteFileItem;
+import org.limewire.core.api.search.SearchResult;
 
 public interface FriendSearchListener {
-    public void handleFriendResults(Collection<RemoteFileItem> results);
+    public void handleFriendResults(Collection<SearchResult> results);
 }

@@ -13,15 +13,15 @@ import org.limewire.setting.evt.SettingsGroupEvent.EventType;
 public class BasicSettingsGroup extends AbstractSettingsGroup {
     
     /**
-     * properties file
+     * Properties file.
      */
     private final File PROPS_FILE;
     
-	/**
-	 * Constant for the <tt>SettingsFactory</tt> that subclasses can use
-	 * to create new settings which will be stored in the properties file.
-	 */
-	private final SettingsFactory FACTORY;
+    /**
+     * Constant for the <tt>SettingsFactory</tt> that subclasses can use
+     * to create new settings which will be stored in the properties file.
+     */
+    private final SettingsFactory FACTORY;
     
     /**
      * Basic constructor that creates the FACTORY and PROPS_FILE.
@@ -43,7 +43,7 @@ public class BasicSettingsGroup extends AbstractSettingsGroup {
 	}
     
     /**
-     * Returns the <tt>File</tt> instance that stores all properties
+     * Returns the <tt>File</tt> instance that stores all properties.
      */
     public File getPropertiesFile() {
         return PROPS_FILE;
@@ -57,7 +57,7 @@ public class BasicSettingsGroup extends AbstractSettingsGroup {
     }
     
     /**
-     * reload settings from both the property and configuration files
+     * Reload settings from both the property and configuration files.
      */
     public void reload() {
         FACTORY.reload();
@@ -65,7 +65,7 @@ public class BasicSettingsGroup extends AbstractSettingsGroup {
     }
     
     /**
-     * Save property settings to the property file
+     * Save property settings to the property file.
      */
     public boolean save() {
         if (getShouldSave()) {

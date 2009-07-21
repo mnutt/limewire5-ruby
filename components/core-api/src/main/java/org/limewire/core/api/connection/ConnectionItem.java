@@ -2,7 +2,7 @@ package org.limewire.core.api.connection;
 
 import java.util.Properties;
 
-import org.limewire.core.api.friend.FriendPresence;
+import org.limewire.friend.api.FriendPresence;
 
 /**
  * Defines a current Gnutella connection.

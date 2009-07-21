@@ -78,7 +78,7 @@ public class FixedSizeExpiringSet<T> implements Set<T>, Collection<T> {
     }
 
     /**
-     * Constructor for the FixedSizeExpiringSet
+     * Constructor for the FixedSizeExpiringSet.
      *
      * @param size the max size of the set
      * @param expireTime the time to keep an entry
@@ -186,7 +186,7 @@ public class FixedSizeExpiringSet<T> implements Set<T>, Collection<T> {
         return false;
     }
 
-    /**
+    /*
      * (non-Javadoc)
      * 
      * @see java.util.Collection#containsAll

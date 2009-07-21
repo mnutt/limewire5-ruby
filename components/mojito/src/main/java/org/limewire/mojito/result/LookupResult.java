@@ -22,7 +22,7 @@ package org.limewire.mojito.result;
 import org.limewire.mojito.KUID;
 
 /**
- * An abstract base class for FIND_NODE and FIND_VALUE lookup results
+ * An abstract base class for FIND_NODE and FIND_VALUE lookup results.
  */
 public abstract class LookupResult implements Result, LookupPath {
     

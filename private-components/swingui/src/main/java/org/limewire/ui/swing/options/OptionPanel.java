@@ -1,7 +1,11 @@
 package org.limewire.ui.swing.options;
 
+import java.awt.Color;
+import java.awt.Font;
+
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -12,12 +16,14 @@ import net.miginfocom.swing.MigLayout;
 public abstract class OptionPanel extends JPanel {
 
     public OptionPanel() {
-
     }
 
     public OptionPanel(String title) {
-        setBorder(BorderFactory.createTitledBorder(title));
-        setLayout(new MigLayout("gapy 10"));
+        setBorder(BorderFactory.createTitledBorder(null, title, 
+                TitledBorder.DEFAULT_JUSTIFICATION, 
+                TitledBorder.DEFAULT_POSITION, 
+                new Font("Dialog", Font.BOLD, 12), new Color(0x313131)));
+        setLayout(new MigLayout("nogrid, insets 4, fill"));
         setOpaque(false);
     }
 

@@ -18,7 +18,7 @@ public interface PromotionSearcher {
      * 
      * Will return silently if {@link #isEnabled()} returns false
      * 
-     * @param userLocation The current location of the user (best guess). If
+     * @param userLocation the current location of the user (best guess). If
      *        null, no location restrictions will be applied. If missing
      *        latitude/longitude, no radius restrictions will be applied. If
      *        missing territory, no territory restrictions will be applied.

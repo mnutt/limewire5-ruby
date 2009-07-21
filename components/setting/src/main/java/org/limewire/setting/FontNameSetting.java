@@ -25,9 +25,6 @@ public final class FontNameSetting extends AbstractSetting<String> {
         super(defaultProps, props, key, defaultStr);
         _fontName = defaultStr;
     }
-    /**
-      * @param fontName
-      */
     public void set(String fontName) {
         setValueInternal(fontName);
     }

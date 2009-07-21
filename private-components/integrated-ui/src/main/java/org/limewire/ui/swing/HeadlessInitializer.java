@@ -1,6 +1,7 @@
 package org.limewire.ui.swing;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -19,6 +20,7 @@ import org.limewire.ui.swing.components.MultiLineLabel;
 import org.limewire.ui.swing.event.ExceptionPublishingSwingEventService;
 import org.limewire.ui.swing.mainframe.AppFrame;
 import org.limewire.ui.swing.settings.StartupSettings;
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.LocaleUtils;
 import org.limewire.ui.swing.util.MacOSXUtils;
@@ -37,6 +39,7 @@ import com.limegroup.gnutella.ActiveLimeWireCheck;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.LimeCoreGlue;
 import com.limegroup.gnutella.UPnPManager;
+import com.limegroup.gnutella.ActiveLimeWireCheck.ActiveLimeWireException;
 import com.limegroup.gnutella.LimeCoreGlue.InstallFailedException;
 import com.limegroup.gnutella.browser.ExternalControl;
 import com.limegroup.gnutella.util.LimeWireUtils;
@@ -211,12 +214,46 @@ public final class HeadlessInitializer {
         }
         
         // Exit if another LimeWire is already running...
-        ActiveLimeWireCheck activeLimeWireCheck = new ActiveLimeWireCheck(args, StartupSettings.ALLOW_MULTIPLE_INSTANCES.getValue());
-        stopwatch.resetAndLog("Create ActiveLimeWireCheck");
-        if (activeLimeWireCheck.checkForActiveLimeWire()) {
-            System.exit(0);
+        if(!StartupSettings.ALLOW_MULTIPLE_INSTANCES.getValue()) {
+            ActiveLimeWireCheck activeCheck = ActiveLimeWireCheck.instance();
+            stopwatch.resetAndLog("Create ActiveLimeWireCheck");
+            try {
+                if(activeCheck.checkForActiveLimeWire(args))
+                    System.exit(0);
+            } catch(ActiveLimeWireException e) {
+                LOG.debug(e);
+                stopwatch.resetAndLog("Warn user about running instance");
+                GuiUtils.hideAndDisposeAllWindows();
+                if(!warnAlreadyRunning())
+                    System.exit(0);
+            }
+            stopwatch.resetAndLog("Run ActiveLimeWireCheck");
         }
-        stopwatch.resetAndLog("Run ActiveLimeWireCheck");
+    }
+    
+    /**
+     * Warns the user that another instance of LimeWire appears to be
+     * running and that it should be shut down before proceeding.
+     * 
+     * @return true if the user chooses to proceed.
+     */
+    private boolean warnAlreadyRunning() {
+        final AtomicInteger response =
+            new AtomicInteger(JOptionPane.CANCEL_OPTION);
+        final String message = I18n.tr("Another instance of LimeWire " +
+                "appears to be running. Please completely shut down all " +
+                "other instances of LimeWire before continuing. If this " +
+                "problem persists, please restart your computer.");
+        SwingUtils.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                response.set(JOptionPane.showConfirmDialog(null,
+                        new MultiLineLabel(message, 300),
+                        I18n.tr("LimeWire is already running"),
+                        JOptionPane.OK_CANCEL_OPTION));
+            }
+        });
+        return response.get() == JOptionPane.OK_OPTION;
     }
     
     /** Wires together LimeWire. */
