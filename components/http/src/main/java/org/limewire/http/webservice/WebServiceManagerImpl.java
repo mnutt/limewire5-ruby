@@ -1,17 +1,38 @@
 package org.limewire.http.webservice;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
+import org.cometd.Bayeux;
+import org.cometd.Channel;
+import org.cometd.Client;
+import org.cometd.Message;
 import org.jruby.rack.rails.RailsServletContextListener;
+import org.limewire.core.api.search.Search;
+import org.limewire.core.api.search.SearchDetails;
+import org.limewire.core.api.search.SearchFactory;
+import org.limewire.core.api.search.SearchListener;
+import org.limewire.core.api.search.SearchManager;
+import org.limewire.core.api.search.SearchResult;
+import org.limewire.core.api.search.sponsored.SponsoredResult;
+import org.limewire.core.impl.search.SearchManagerImpl.Details;
+import org.limewire.core.impl.search.SearchManagerImpl.SearchWithResults;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.io.GUID;
 import org.limewire.io.NetworkUtils;
+import org.limewire.listener.EventListener;
+import org.mortbay.cometd.AbstractBayeux;
+import org.mortbay.cometd.BayeuxService;
+import org.mortbay.cometd.continuation.ContinuationCometdServlet;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.log.Log;
 import org.mortbay.thread.QueuedThreadPool;
 
 import com.google.inject.Inject;
@@ -32,14 +53,15 @@ class WebServiceManagerImpl implements WebServiceManager {
     private int _port = 4422;
     private String status = "stopped";
     private Injector injector;
+    private SearchManager searchManager;
     
     @Inject
     public WebServiceManagerImpl(Provider<UPnPManager> upnpManager, 
-            NetworkManager networkManager, Injector injector) {
+            NetworkManager networkManager, Injector injector, SearchManager searchManager) {
         this.upnpManager = upnpManager;
         this.networkManager = networkManager;
         this.injector = injector;
-        
+        this.searchManager = searchManager;
     }
     
     @Override
@@ -99,6 +121,10 @@ class WebServiceManagerImpl implements WebServiceManager {
         context.setResourceBase(railsRoot);
         context.addEventListener(new RailsServletContextListener());
         
+        ContinuationCometdServlet cometdServlet = new ContinuationCometdServlet();
+        ServletHolder cometdServletHolder = setupCometdServletHolder(cometdServlet);
+        context.addServlet(cometdServletHolder, "/comet/*");
+        
         HashMap<String, String> options = new HashMap<String, String>();
         options.put("rails.root", ".");
         options.put("public.root", "public");
@@ -118,6 +144,91 @@ class WebServiceManagerImpl implements WebServiceManager {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
+        AbstractBayeux bayeux = cometdServlet.getBayeux();
+        new Monitor(bayeux);
+        new CometSearchService(bayeux, this.searchManager);
+    }
+    
+    public static class Monitor extends BayeuxService
+    {
+        public Monitor(Bayeux bayeux)
+        {
+            super(bayeux,"monitor");
+            subscribe("/meta/subscribe","monitorSubscribe");
+            subscribe("/meta/unsubscribe","monitorUnsubscribe");
+            subscribe("/meta/*","monitorMeta");
+            // subscribe("/**","monitorVerbose");
+        }
+        
+        public void monitorSubscribe(Client client, Message message)
+        {
+            Log.info("Subscribe from "+client+" for "+message.get(Bayeux.SUBSCRIPTION_FIELD));
+        }
+        
+        public void monitorUnsubscribe(Client client, Message message)
+        {
+            Log.info("Unsubscribe from "+client+" for "+message.get(Bayeux.SUBSCRIPTION_FIELD));
+        }
+        
+        public void monitorMeta(Client client, Message message)
+        {
+            if (Log.isDebugEnabled())
+                Log.debug(message.toString());
+        }
+        
+        /*
+        public void monitorVerbose(Client client, Message message)
+        {
+            System.err.println(message);
+            try 
+            {
+                Thread.sleep(5000);
+            }
+            catch(Exception e)
+            {
+                Log.warn(e);
+            }
+        }
+        */
+    }
+    
+    public static class CometSearchService extends BayeuxService {
+        private SearchManager searchManager;
+        
+        public CometSearchService(Bayeux bayeux, SearchManager searchManager) {
+            super(bayeux, "search");
+            System.out.println("Setting up search...");
+            subscribe("/search", "searchResults");
+            this.searchManager = searchManager;
+        }
+        
+        public Object searchResults(Client client, Object data) {
+            System.out.println("ECHO from "+client+" "+data);
+
+            try {
+                GUID guid = new GUID(data.toString());
+                SearchListener listener = new CometSearchListener(getBayeux().getChannel("/search", false), getClient());
+                SearchWithResults search = this.searchManager.getSearchByGuid(guid);
+                search.getSearch().addSearchListener(listener);
+                return "getting results for " + data;
+            } catch(Exception e) {
+                Log.warn(e);
+                return "bad results for " + data;
+            }
+
+        }
+    }
+    
+    private static ServletHolder setupCometdServletHolder(ContinuationCometdServlet cometdServlet) {
+        ServletHolder cometdHolder = new ServletHolder(cometdServlet);
+        cometdHolder.setInitParameter("timeout", "120000");
+        cometdHolder.setInitParameter("interval", "0");
+        cometdHolder.setInitParameter("maxInterval", "10000");
+        cometdHolder.setInitParameter("multiFrameInterval", "2000");
+        cometdHolder.setInitParameter("difectDeliver", "true");
+        cometdHolder.setInitParameter("logLevel", "10");
+        return cometdHolder;
     }
     
     public void mapPort() {
