@@ -83,7 +83,10 @@
 	<classpathentry kind="lib" path="lib/jars/jcraft.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jetty-6.1.16.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jetty-util-6.1.16.jar"/>
+	<classpathentry kind="lib" path="lib/jars/jetty-util5-6.1.16.jar"/>
 	<classpathentry kind="lib" path="lib/jars/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/jars/cometd-server-6.1.16.jar"/>
+	<classpathentry kind="lib" path="lib/jars/cometd-api-1.0.beta7.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jdic.jar"/>
 	<classpathentry kind="lib" path="lib/jars/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/jars/osx/MRJAdapter.jar"/>
