@@ -131,6 +131,10 @@ class SearchManagerImpl implements SearchManager {
             return this.search.getQueryGuid();
         }
         
+        public Search getSearch() {
+            return this.search;
+        }
+        
         public List<SearchResult> getSearchResults() {
             return this.listener.searchResults;
         }
