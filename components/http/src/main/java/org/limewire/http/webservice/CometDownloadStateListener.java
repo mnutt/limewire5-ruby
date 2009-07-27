@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.cometd.Channel;
 import org.cometd.Client;
+import org.limewire.core.api.FilePropertyKey;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.listener.EventListener;
@@ -33,6 +34,9 @@ public class CometDownloadStateListener implements EventListener<DownloadStateEv
         response.put("percent_complete", item.getPercentComplete());
         response.put("download_speed", item.getDownloadSpeed());
         response.put("sources", item.getSources());
+        response.put("artist", item.getProperty(FilePropertyKey.AUTHOR));
+        response.put("album", item.getProperty(FilePropertyKey.ALBUM));
+        response.put("duration", item.getProperty(FilePropertyKey.LENGTH));
         response.put("remaining_time", item.getRemainingDownloadTime());
         response.put("file_name", item.getFileName());
         response.put("total_size", item.getTotalSize());
