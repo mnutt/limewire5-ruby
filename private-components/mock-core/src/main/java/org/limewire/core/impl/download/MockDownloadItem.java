@@ -62,6 +62,10 @@ public class MockDownloadItem implements DownloadItem {
 	public void removePropertyChangeListener(PropertyChangeListener listener){
 		support.removePropertyChangeListener(listener);
 	}
+	
+    public PropertyChangeListener[] getPropertyChangeListeners() {
+        return support.getPropertyChangeListeners();
+    }
 
 	public String getTitle() {
 		return title;

@@ -183,4 +183,9 @@ public interface DownloadItem extends PropertiableFile {
      * Returns a list of the completed download files for this DownloadItem. 
      */
     public Collection<File> getCompleteFiles();
+
+    /**
+     * Returns all of the property listeners for this DownloadItem
+     */
+    PropertyChangeListener[] getPropertyChangeListeners();
 }

@@ -92,6 +92,11 @@ class CoreDownloadItem implements DownloadItem {
     public void removePropertyChangeListener(PropertyChangeListener listener){
         support.removePropertyChangeListener(listener);
     }
+    
+    @Override
+    public PropertyChangeListener[] getPropertyChangeListeners() {
+        return support.getPropertyChangeListeners();
+    }
 
     @Override
     public void cancel() {
