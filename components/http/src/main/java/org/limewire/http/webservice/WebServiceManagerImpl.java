@@ -14,6 +14,9 @@ import org.mortbay.cometd.AbstractBayeux;
 import org.mortbay.cometd.continuation.ContinuationCometdServlet;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.jetty.handler.HandlerCollection;
+import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
@@ -117,6 +120,10 @@ class WebServiceManagerImpl implements WebServiceManager {
         ContinuationCometdServlet cometdServlet = new ContinuationCometdServlet();
         ServletHolder cometdServletHolder = setupCometdServletHolder(cometdServlet);
         context.addServlet(cometdServletHolder, "/comet/*");
+        
+        PartialDownloadStreamServlet partialDownloadStreamServlet = new PartialDownloadStreamServlet(this.downloadManager);
+        ServletHolder streamServletHolder = new ServletHolder(partialDownloadStreamServlet);
+        context.addServlet(streamServletHolder, "/stream/*");
         
         HashMap<String, String> options = new HashMap<String, String>();
         options.put("rails.root", ".");
