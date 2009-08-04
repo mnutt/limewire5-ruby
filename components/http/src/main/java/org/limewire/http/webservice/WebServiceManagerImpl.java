@@ -1,9 +1,13 @@
 package org.limewire.http.webservice;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 
-import org.jruby.rack.rails.RailsServletContextListener;
+import org.jruby.rack.RackServletContextListener;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.search.SearchManager;
 import org.limewire.core.settings.ConnectionSettings;
@@ -74,21 +78,21 @@ class WebServiceManagerImpl implements WebServiceManager {
             // Try to port forward incoming traffic to our server via UPnP
             mapPort();
 
-            String railsRoot = findRailsPath();
-            if(railsRoot != null) {
-                loadWebService(railsRoot);
+            String limeRemotePath = findLimeRemotePath();
+            if(limeRemotePath != null) {
+                loadWebService(limeRemotePath);
                 setStatus("started");
             } else {
-                System.out.println("Could not find rails root");
+                System.out.println("Could not find lime remote path");
             }
         }
     }
     
-    private String findRailsPath() {
+    private String findLimeRemotePath() {
         String usablePath = null;
         String[] loadPaths = {
                 "../../../../..",
-                "./rails"
+                "./remote"
         };
 
         // Look through the paths to find one 
@@ -101,7 +105,7 @@ class WebServiceManagerImpl implements WebServiceManager {
         return usablePath;
     }
     
-    public void loadWebService(String railsRoot) {
+    public void loadWebService(String limeRemotePath) {
         System.out.println("Jetty starting.");
 
         Server server = new Server(4422);
@@ -114,8 +118,9 @@ class WebServiceManagerImpl implements WebServiceManager {
         
         Context context = new Context(null, "/", Context.NO_SESSIONS);
         context.addFilter("org.jruby.rack.RackFilter", "/*", Handler.DEFAULT);
-        context.setResourceBase(railsRoot);
-        context.addEventListener(new RailsServletContextListener());
+        context.setResourceBase(limeRemotePath);
+        System.out.println("limeRemotePath: " + limeRemotePath);
+        context.addEventListener(new RackServletContextListener());
         
         ContinuationCometdServlet cometdServlet = new ContinuationCometdServlet();
         ServletHolder cometdServletHolder = setupCometdServletHolder(cometdServlet);
@@ -125,8 +130,24 @@ class WebServiceManagerImpl implements WebServiceManager {
         ServletHolder streamServletHolder = new ServletHolder(partialDownloadStreamServlet);
         context.addServlet(streamServletHolder, "/stream/*");
         
+        String rackup = "";
+        
+        try {
+            String path = "./remote/app.rb";
+            BufferedReader buff =  new BufferedReader(new FileReader(path));
+            String s;
+            while((s = buff.readLine()) != null) {
+                rackup += s + "\n";
+            }
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        
         HashMap<String, String> options = new HashMap<String, String>();
-        options.put("rails.root", ".");
+        //options.put("rails.root", ".");
+        options.put("rackup", rackup);
         options.put("public.root", "public");
         options.put("environment", "development");
         options.put("org.mortbay.jetty.servlet.Default.relativeResourceBase", "/public");
