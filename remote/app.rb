@@ -3,13 +3,13 @@ $: << File.join(root, 'vendor/sinatra/lib')
 
 require 'sinatra'
 set :environment, 'development'
-set :root,        root
+set :root, root
 disable :run
 
 run Sinatra::Application
 
 ###
-###  End rack schtuff
+### End rack schtuff
 ###
 
 get '/' do
