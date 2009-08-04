@@ -131,9 +131,8 @@ class WebServiceManagerImpl implements WebServiceManager {
         context.addServlet(streamServletHolder, "/stream/*");
         
         String rackup = "";
-        
         try {
-            String path = "./remote/app.rb";
+            String path = "./remote/config.ru";
             BufferedReader buff =  new BufferedReader(new FileReader(path));
             String s;
             while((s = buff.readLine()) != null) {
