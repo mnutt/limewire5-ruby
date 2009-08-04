@@ -1,11 +1,8 @@
 package org.limewire.http.webservice;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -14,34 +11,91 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.limewire.core.api.download.DownloadItem;
+import org.limewire.core.api.library.LibraryManager;
+import org.limewire.core.api.search.SearchManager;
 import org.limewire.core.impl.download.CoreDownloadListManager;
-import org.mortbay.jetty.Request;
+import org.limewire.core.impl.search.SearchManagerImpl.SearchWithResults;
+import org.limewire.io.GUID;
 
 import com.limegroup.gnutella.URN;
 
 public class PartialDownloadStreamServlet extends HttpServlet {
     private CoreDownloadListManager downloadManager;
+    private LibraryManager libraryManager;
+    private SearchManager searchManager;
 
-    public PartialDownloadStreamServlet(CoreDownloadListManager downloadManager) {
+    public PartialDownloadStreamServlet(CoreDownloadListManager downloadManager, SearchManager searchManager, LibraryManager libraryManager) {
         this.downloadManager = downloadManager;
+        this.libraryManager = libraryManager;
+        this.searchManager = searchManager;
     }
     
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) 
       throws ServletException, IOException {
-        httpServletResponse.setContentType("audio/mpeg");
+        URN urn = URN.createSHA1Urn("urn:sha1:"+httpServletRequest.getParameter("urn"));
+        GUID guid = new GUID(httpServletRequest.getParameter("guid"));
+        
+        SearchWithResults searchWithResults = searchManager.getSearchByGuid(guid);
+        
+        if(libraryManager.getLibraryManagedList().contains(urn)) {
+            
+            // File is already in the library; just use that
+            File libraryFile = libraryManager.getLibraryManagedList().getFileDescsByURN(urn).get(0).getFile();
+            
+            // Send library file to client
+            this.streamFile(libraryFile, null, httpServletResponse, (int) libraryFile.length());
+            
+        } else {
+            
+            // First try to retrieve the in-progress download
+            DownloadItem download = downloadManager.getDownloadItem(urn);
+            
+            // If there wasn't an in-progress download, see if we can start one
+            if(download == null) {
+                if(searchWithResults != null) {
+                    // File hasn't been downloaded yet, initiate download
+                    download = downloadManager.addDownload(searchWithResults.getSearch(), searchWithResults.getSearchResultsFromUrn(urn));
+                } else {
+                    // Nothing found, bail
+                    System.out.println("No file found from library, download, or search result!");
+                    httpServletResponse.getOutputStream().close();
+                    return;
+                }
+            }
+            // Wait until we have some data
+            waitForDownload(download);
+            
+            // Send data to client
+            this.streamFile(null, download, httpServletResponse, (int) download.getTotalSize());
+        }
+        
+        httpServletResponse.getOutputStream().close();
+    }
+    
+    private void waitForDownload(DownloadItem downloadItem) {
+        int tries = 20;
+        while(downloadItem.getLaunchableFile() == null && tries > 0) {
+            System.out.println("Stream not ready yet, sleeping 500ms");
+            try { Thread.sleep(500); } catch (InterruptedException e) {}
+            tries--;
+        }
+    }
+    
+    private void streamFile(File file, DownloadItem downloadItem, HttpServletResponse response, int totalSize) throws IOException {
+        response.setContentLength(totalSize);
+        response.setContentType("audio/mpeg");
+        response.flushBuffer();
+        System.out.println("Total size is " + totalSize);
+        
+        ServletOutputStream outputStream = response.getOutputStream();
         
         int offset = 0;
-        String urn = httpServletRequest.getParameter("urn");
-        DownloadItem download = downloadManager.getDownloadItem(URN.createSHA1Urn("urn:sha1:"+urn));
-        ServletOutputStream outputStream = httpServletResponse.getOutputStream();
-        
-        httpServletResponse.setContentLength((int) download.getTotalSize());
-        httpServletResponse.flushBuffer();
-        System.out.println("Total size is " + download.getTotalSize());
-
-        while(offset < download.getTotalSize()) {
-            File partial = download.getLaunchableFile();
+        while(offset < totalSize) {
+            File partial = file;
+            if(downloadItem != null) {
+                partial = downloadItem.getLaunchableFile();
+            }
             
             if(partial.length() - offset < 1024) {
                 try {
@@ -69,7 +123,5 @@ public class PartialDownloadStreamServlet extends HttpServlet {
                 System.out.println("Read "+partial.length()+" bytes, next time starting at" + offset + ".");
             }
         }
-
-        outputStream.close();
     }
 }
