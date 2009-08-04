@@ -9,7 +9,7 @@ disable :run
 app = lambda do |env|
   Sinatra::Application.reset!
 
-  eval(File.read(File.join(root, 'app.rb')))
+  load File.join(root, 'app.rb')
 
   Sinatra::Application.call(env)
 end

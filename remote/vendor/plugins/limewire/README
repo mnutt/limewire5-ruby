@@ -1,0 +1,12 @@
+Limewire
+========
+
+This ruby library wraps LimeWire's java API.
+
+Example
+=======
+
+Examples coming soon.
+
+
+Copyright (c) 2009 Michael Nutt and Derek Haas, released under the MIT license

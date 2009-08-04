@@ -130,23 +130,9 @@ class WebServiceManagerImpl implements WebServiceManager {
         ServletHolder streamServletHolder = new ServletHolder(partialDownloadStreamServlet);
         context.addServlet(streamServletHolder, "/stream/*");
         
-        String rackup = "";
-        try {
-            String path = "./remote/config.ru";
-            BufferedReader buff =  new BufferedReader(new FileReader(path));
-            String s;
-            while((s = buff.readLine()) != null) {
-                rackup += s + "\n";
-            }
-        } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        
         HashMap<String, String> options = new HashMap<String, String>();
         //options.put("rails.root", ".");
-        options.put("rackup", rackup);
+        options.put("rackup", this.rackConfig());
         options.put("public.root", "public");
         options.put("environment", "development");
         options.put("org.mortbay.jetty.servlet.Default.relativeResourceBase", "/public");
@@ -180,6 +166,25 @@ class WebServiceManagerImpl implements WebServiceManager {
         cometdHolder.setInitParameter("difectDeliver", "true");
         cometdHolder.setInitParameter("logLevel", "10");
         return cometdHolder;
+    }
+    
+    protected String rackConfig() {
+        String path = "./remote/config.ru";
+            
+        String rackup = "";
+        try {
+            BufferedReader buff = new BufferedReader(new FileReader(path));
+            String s;
+            while((s = buff.readLine()) != null) {
+                rackup += s + "\n";
+            }
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        
+        return rackup;
     }
     
     public void mapPort() {

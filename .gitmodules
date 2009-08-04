@@ -7,3 +7,9 @@
 [submodule "rails"]
 	path = rails
 	url = git@github.com:mnutt/limewire-remote.git
+[submodule "remote/vendor/sinatra"]
+	path = remote/vendor/sinatra
+	url = git://github.com/sinatra/sinatra.git
+[submodule "remote/vendor/gems/json"]
+	path = remote/vendor/gems/json
+	url = git://github.com/genki/json.git
