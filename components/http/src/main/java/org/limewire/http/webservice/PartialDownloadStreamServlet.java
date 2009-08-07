@@ -40,7 +40,7 @@ public class PartialDownloadStreamServlet extends HttpServlet {
         SearchWithResults searchWithResults = searchManager.getSearchByGuid(guid);
         
         if(libraryManager.getLibraryManagedList().contains(urn)) {
-
+            
             // File is already in the library; just use that
             File libraryFile = libraryManager.getLibraryManagedList().getFileDescsByURN(urn).get(0).getFile();
             
