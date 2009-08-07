@@ -16,6 +16,7 @@ import org.limewire.core.api.search.SearchManager;
 import org.limewire.core.impl.download.CoreDownloadListManager;
 import org.limewire.core.impl.search.SearchManagerImpl.SearchWithResults;
 import org.limewire.io.GUID;
+import org.mortbay.jetty.MimeTypes;
 
 import com.limegroup.gnutella.URN;
 
@@ -84,7 +85,26 @@ public class PartialDownloadStreamServlet extends HttpServlet {
     
     private void streamFile(File file, DownloadItem downloadItem, HttpServletResponse response, int totalSize) throws IOException {
         response.setContentLength(totalSize);
-        response.setContentType("audio/mpeg");
+        
+        String contentType = "application/octet-stream";
+        String ext = "";
+        if(file != null) {
+            ext = file.toString().substring(file.toString().lastIndexOf('.')+1, file.toString().length()).toLowerCase();
+        } else {
+            String filename = downloadItem.getFileName();
+            ext = filename.toString().substring(filename.lastIndexOf('.')+1, filename.length()).toLowerCase();
+        }
+        System.out.println(ext);
+        if(ext != "") {
+            if(ext.equals("mp4") || ext.equals("flv") || ext.equals("mov") || ext.equals("m4a") || 
+                    ext.equals("mp4v") || ext.equals("3gp") || ext.equals("3g2")) {
+                contentType = "video/"+ext;
+            } else {
+                contentType = "audio/mpeg";
+            }
+        }
+        
+        response.setContentType(contentType);
         response.flushBuffer();
         System.out.println("Total size is " + totalSize);
         
@@ -120,7 +140,7 @@ public class PartialDownloadStreamServlet extends HttpServlet {
             
                 // Next time, start from where we left off
                 offset = (int) partial.length();
-                System.out.println("Read "+partial.length()+" bytes, next time starting at" + offset + ".");
+                System.out.println("Read "+partial.length()+" bytes, next time starting at " + offset + " bytes.");
             }
         }
     }
