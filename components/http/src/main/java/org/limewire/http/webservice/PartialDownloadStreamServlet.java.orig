@@ -1,8 +1,11 @@
 package org.limewire.http.webservice;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -11,36 +14,35 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.limewire.core.api.download.DownloadItem;
-import org.limewire.core.api.library.LibraryManager;
-import org.limewire.core.api.search.SearchManager;
 import org.limewire.core.impl.download.CoreDownloadListManager;
+<<<<<<< HEAD:components/http/src/main/java/org/limewire/http/webservice/PartialDownloadStreamServlet.java
 import org.limewire.core.impl.search.SearchManagerImpl.SearchWithResults;
 import org.limewire.io.GUID;
 import org.mortbay.jetty.MimeTypes;
+=======
+import org.mortbay.jetty.Request;
+>>>>>>> 1f105736c4685e75ff830b6369e8d9db77878df8:components/http/src/main/java/org/limewire/http/webservice/PartialDownloadStreamServlet.java
 
 import com.limegroup.gnutella.URN;
 
 public class PartialDownloadStreamServlet extends HttpServlet {
     private CoreDownloadListManager downloadManager;
-    private LibraryManager libraryManager;
-    private SearchManager searchManager;
 
-    public PartialDownloadStreamServlet(CoreDownloadListManager downloadManager, SearchManager searchManager, LibraryManager libraryManager) {
+    public PartialDownloadStreamServlet(CoreDownloadListManager downloadManager) {
         this.downloadManager = downloadManager;
-        this.libraryManager = libraryManager;
-        this.searchManager = searchManager;
     }
     
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) 
       throws ServletException, IOException {
+<<<<<<< HEAD:components/http/src/main/java/org/limewire/http/webservice/PartialDownloadStreamServlet.java
         URN urn = URN.createSHA1Urn("urn:sha1:"+httpServletRequest.getParameter("urn"));
         GUID guid = new GUID(httpServletRequest.getParameter("guid"));
         
         SearchWithResults searchWithResults = searchManager.getSearchByGuid(guid);
         
         if(libraryManager.getLibraryManagedList().contains(urn)) {
-
+            
             // File is already in the library; just use that
             File libraryFile = libraryManager.getLibraryManagedList().getFileDescsByURN(urn).get(0).getFile();
             
@@ -109,13 +111,21 @@ public class PartialDownloadStreamServlet extends HttpServlet {
         System.out.println("Total size is " + totalSize);
         
         ServletOutputStream outputStream = response.getOutputStream();
+=======
+        httpServletResponse.setContentType("audio/mpeg");
+>>>>>>> 1f105736c4685e75ff830b6369e8d9db77878df8:components/http/src/main/java/org/limewire/http/webservice/PartialDownloadStreamServlet.java
         
         int offset = 0;
-        while(offset < totalSize) {
-            File partial = file;
-            if(downloadItem != null) {
-                partial = downloadItem.getLaunchableFile();
-            }
+        String urn = httpServletRequest.getParameter("urn");
+        DownloadItem download = downloadManager.getDownloadItem(URN.createSHA1Urn("urn:sha1:"+urn));
+        ServletOutputStream outputStream = httpServletResponse.getOutputStream();
+        
+        httpServletResponse.setContentLength((int) download.getTotalSize());
+        httpServletResponse.flushBuffer();
+        System.out.println("Total size is " + download.getTotalSize());
+
+        while(offset < download.getTotalSize()) {
+            File partial = download.getLaunchableFile();
             
             if(partial.length() - offset < 1024) {
                 try {
@@ -143,5 +153,7 @@ public class PartialDownloadStreamServlet extends HttpServlet {
                 System.out.println("Read "+partial.length()+" bytes, next time starting at " + offset + " bytes.");
             }
         }
+
+        outputStream.close();
     }
 }

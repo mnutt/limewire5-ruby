@@ -7,10 +7,8 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.limegroup.gnutella.URN;
 
 import org.limewire.core.api.FilePropertyKey;
-import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
@@ -152,14 +150,5 @@ class SearchManagerImpl implements SearchManager {
         public String getQueryString() {
             return this.search.getQuery();
         }
-
-        public List<? extends SearchResult> getSearchResultsFromUrn(URN urn) {
-            List<SearchResult> urnResults = new ArrayList<SearchResult>();
-            for(SearchResult result : this.listener.searchResults) {
-               if(result.getUrn().toString().equals(urn.toString())) { urnResults.add(result); } 
-            }
-            return urnResults;
-        }
     }
-
 }
