@@ -16,7 +16,6 @@ import org.limewire.core.api.search.SearchManager;
 import org.limewire.core.impl.download.CoreDownloadListManager;
 import org.limewire.core.impl.search.SearchManagerImpl.SearchWithResults;
 import org.limewire.io.GUID;
-import org.mortbay.jetty.MimeTypes;
 
 import com.limegroup.gnutella.URN;
 

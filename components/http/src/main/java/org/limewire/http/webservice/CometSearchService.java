@@ -8,7 +8,6 @@ import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.search.SearchListener;
 import org.limewire.core.api.search.SearchManager;
 import org.limewire.core.impl.search.SearchManagerImpl.SearchWithResults;
-import org.limewire.io.GUID;
 import org.mortbay.cometd.BayeuxService;
 import org.mortbay.log.Log;
 

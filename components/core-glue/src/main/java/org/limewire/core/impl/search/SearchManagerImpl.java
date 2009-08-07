@@ -10,7 +10,6 @@ import com.google.inject.Singleton;
 import com.limegroup.gnutella.URN;
 
 import org.limewire.core.api.FilePropertyKey;
-import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
