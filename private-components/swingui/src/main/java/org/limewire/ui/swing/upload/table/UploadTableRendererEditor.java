@@ -255,9 +255,9 @@ public class UploadTableRendererEditor extends TableRendererEditor {
                 long fileSize = item.getFileSize() == 0 ? 1 : item.getFileSize();
                 String ratio = formatter.format(item.getTotalAmountUploaded()/(double)fileSize);
                 if(numConnections == 1) {
-                    return I18n.tr("Connected to {0} P2P users, uploading at {1} - Ratio ({2})", numConnections, GuiUtils.rate2speed(item.getUploadSpeed()), ratio);
+                    return I18n.tr("Connected to {0} P2P user, uploading at {1} - Ratio {2}", numConnections, GuiUtils.rate2speed(item.getUploadSpeed()), ratio);
                 } else {
-                    return I18n.tr("Connected to {0} P2P user, uploading at {1} - Ratio ({2})", numConnections, GuiUtils.rate2speed(item.getUploadSpeed()), ratio);
+                    return I18n.tr("Connected to {0} P2P users, uploading at {1} - Ratio {2}", numConnections, GuiUtils.rate2speed(item.getUploadSpeed()), ratio);
                 }
             } else {
                 return I18n.tr("Uploading - {0} of {1}({2})", GuiUtils.toUnitbytes(item.getTotalAmountUploaded()), 

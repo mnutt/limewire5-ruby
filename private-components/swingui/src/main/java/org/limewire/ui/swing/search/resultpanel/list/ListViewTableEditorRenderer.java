@@ -142,8 +142,8 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     private IconButton similarButton = new IconButton();
     private IconButton propertiesButton = new IconButton();
     private JEditorPane heading = new JEditorPane();
-    private JLabel subheadingLabel = new NoDancingHtmlLabel();
-    private JLabel metadataLabel = new NoDancingHtmlLabel();
+    private JLabel subheadingLabel = new TransparentCellTableRenderer();
+    private JLabel metadataLabel = new TransparentCellTableRenderer();
     private JLabel downloadSourceCount = new TransparentCellTableRenderer();
     private JXPanel editorComponent;
 
@@ -447,6 +447,8 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             html = html.replace(HTML, "").replace(CLOSING_HTML_TAG, "");
             html = HTML + pm.getKey() + ":" + html + CLOSING_HTML_TAG;
             metadataLabel.setText(html);
+            //prevent our little friend from dancing up and down on mouse over
+            metadataLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, metadataLabel.getPreferredSize().height));
         }
     }    
 
@@ -485,9 +487,13 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
 
         subheadingLabel.setForeground(subHeadingLabelColor);
         subheadingLabel.setFont(subHeadingFont);
+        subheadingLabel.setText(I18n.tr("This is sample text."));
+        subheadingLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, subheadingLabel.getPreferredSize().height));
 
         metadataLabel.setForeground(metadataLabelColor);
         metadataLabel.setFont(metadataFont);
+        //prevents strange movement on mouseover
+        metadataLabel.setVerticalAlignment(JLabel.TOP);
 
         downloadSourceCount.setForeground(downloadSourceCountColor);
         downloadSourceCount.setFont(downloadSourceCountFont);
@@ -601,7 +607,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             
             // Update the selection.  We also prepare the editor to apply
             // the selection colors to the current editor component.
-            if (editRow > -1) {
+            if (editRow > -1 && editRow < table.getRowCount()) {
                 table.changeSelection(editRow, editCol, e.isControlDown(), e.isShiftDown());
                 table.prepareEditor(ListViewTableEditorRenderer.this, editRow, editCol);
             }
@@ -627,27 +633,6 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             matcher.reset(text);
             text = matcher.replaceAll(EMPTY_STRING);
             return fontMetrics.stringWidth(text);
-        }
-    }
-    
-    /**
-     * A label that does not appear to dance up and down when displaying HTML in a table.
-     * 
-     * The text inside JLabels wraps when displaying HTML that doesn't fit on one line. Only the first line is displayed but
-     * when the label is used in a table renderer or editor, it has weird mouse over behavior where the lines dance up and down.  
-     * NoDancingHtmlLabel prevents this behavior.
-     */
-    private static class NoDancingHtmlLabel extends TransparentCellTableRenderer {
-        public NoDancingHtmlLabel(){
-            //prevents strange movement on mouseover
-            setVerticalAlignment(JLabel.TOP);
-        }
-        
-        @Override
-        public void setText(String text){
-            super.setText(text);
-            //prevent our little friend from dancing up and down on mouse over
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
         }
     }
  

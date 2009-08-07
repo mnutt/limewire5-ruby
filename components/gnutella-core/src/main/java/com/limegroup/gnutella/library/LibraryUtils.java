@@ -127,11 +127,12 @@ public class LibraryUtils {
                     "Program Files", "Windows", "WINNT", "Users", "Local Settings",
                     "Application Data", "Temp", "Temporary Internet Files" };
         } else if (OSUtils.isMacOSX()) {
-            sensitive = new String[] { "Users", "System", "System Folder", "Previous Systems",
+            sensitive = new String[] { "Users",
+                    userHomeShortDir + File.separator + "Documents", "System", "System Folder", "Previous Systems",
                     "private", "Volumes", "Desktop", "Applications", "Applications (Mac OS 9)",
                     "Network" };
         } else if (OSUtils.isPOSIX()) {
-            sensitive = new String[] { "bin", "boot", "dev", "etc", "home", "mnt", "opt", "proc",
+            sensitive = new String[] { "bin", userHomeShortDir + File.separator + "Documents", "boot", "dev", "etc", "home", "mnt", "opt", "proc",
                     "root", "sbin", "usr", "var" };
         } else {
             sensitive = new String[0];

@@ -1028,6 +1028,10 @@ class LibraryImpl implements Library, FileCollection {
         if (LibraryUtils.isFolderBanned(folder)) {
             return false;
         }
+        
+        if(LibraryUtils.isSensitiveDirectory(folder)) {
+            return false;
+        }
 
         return true;
     }

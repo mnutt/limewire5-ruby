@@ -36,6 +36,7 @@ public class RemoteHostMenuFactory {
         uniqueHosts.addAll(allHosts);
         
         JMenu browse = new JMenu(I18n.tr("Browse Files"));
+
         //hiding browse all users until memory issues are cleared up
 //        if(uniqueHosts.size() > 1){
 //            browse.add(new AbstractAction("All Users") {

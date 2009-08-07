@@ -43,7 +43,7 @@ public class SharingSettings extends LimeProps {
 
     public static final String DEFAULT_LWS_FILENAME_TEMPLATE = "<artist> - <album> - <track> - <title>";
 
-    public static final String DEFAULT_LWS_FOLDER_TEMPLATE = "<artist>\\<album>";
+    public static final String DEFAULT_LWS_FOLDER_TEMPLATE = "<artist>" + File.separatorChar + "<album>";
 
     /**
      * Whether or not we're going to add an alternate for ourselves to our

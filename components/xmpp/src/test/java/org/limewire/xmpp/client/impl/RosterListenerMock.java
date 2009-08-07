@@ -93,16 +93,11 @@ public class RosterListenerMock implements EventListener<RosterEvent> {
     }
 
     private synchronized void replace(ArrayList<FriendPresence> presences, FriendPresence presence) {
-        FriendPresence oldPresence = null;
         for(FriendPresence p : presences) {
             if(p.getPresenceId().equals(presence.getPresenceId())) {
-                oldPresence = p;
-                break;
+                presences.remove(p);
+                presences.add(presence);
             }
-        }
-        if (oldPresence != null) {
-            presences.remove(oldPresence);
-            presences.add(presence);    
         }
     }
 

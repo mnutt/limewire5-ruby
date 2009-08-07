@@ -69,9 +69,10 @@ public class SetupWizard {
         if (!InstallSettings.AUTO_SHARING_OPTION.getValue()) {
             return true;
         }
-        if (!InstallSettings.ANONYMOUS_DATA_COLLECTION.getValue()) {
-            return true;
-        }
+        // TODO reenable once we support usage data collection
+//        if (!InstallSettings.ANONYMOUS_DATA_COLLECTION.getValue()) {
+//            return true;
+//        }
         if (!InstallSettings.FILTER_OPTION.getValue()) {
             return true;
         }

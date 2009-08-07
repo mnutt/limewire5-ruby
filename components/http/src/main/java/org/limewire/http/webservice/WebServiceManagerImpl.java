@@ -121,7 +121,7 @@ class WebServiceManagerImpl implements WebServiceManager {
         ServletHolder cometdServletHolder = setupCometdServletHolder(cometdServlet);
         context.addServlet(cometdServletHolder, "/comet/*");
         
-        PartialDownloadStreamServlet partialDownloadStreamServlet = new PartialDownloadStreamServlet(this.downloadManager);
+        PartialDownloadStreamServlet partialDownloadStreamServlet = new PartialDownloadStreamServlet(this.downloadManager, this.searchManager, this.libraryManager);
         ServletHolder streamServletHolder = new ServletHolder(partialDownloadStreamServlet);
         context.addServlet(streamServletHolder, "/stream/*");
         

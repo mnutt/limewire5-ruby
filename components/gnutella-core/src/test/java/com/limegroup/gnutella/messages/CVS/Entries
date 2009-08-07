@@ -1,13 +1,13 @@
-/GGEPParserTest.java/1.8/Thu Mar 20 16:05:53 2008//
-/HUGEExtensionTest.java/1.4/Thu Mar 20 16:05:53 2008//
-/StubSecureMessageCallback.java/1.4/Mon Jan  8 19:05:28 2007//
 D/vendor////
-/IntervalEncoderTest.java/1.12/Mon Apr  6 16:05:34 2009//
-/MessageFactoryTest.java/1.4/Mon Apr  6 16:05:34 2009//
-/MessageTest.java/1.18/Mon Apr  6 16:05:34 2009//
-/MiscTests.java/1.14/Mon Apr  6 16:05:34 2009//
-/PingRequestTest.java/1.40/Mon Apr  6 16:05:34 2009//
-/PushRequestTest.java/1.26/Mon Apr  6 16:05:34 2009//
-/QueryRequestTest.java/1.60/Mon Apr  6 16:05:34 2009//
-/PingReplyTest.java/1.66/Mon Jul 20 19:52:10 2009//
-/QueryReplyTest.java/1.100/Mon Jul 20 19:52:10 2009//
+/GGEPParserTest.java/1.8/Thu Mar 20 16:05:53 2008//Tprod-5-2-13-java16
+/HUGEExtensionTest.java/1.4/Thu Mar 20 16:05:53 2008//Tprod-5-2-13-java16
+/IntervalEncoderTest.java/1.12/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
+/MessageFactoryTest.java/1.4/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
+/MessageTest.java/1.18/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
+/MiscTests.java/1.14/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
+/PingReplyTest.java/1.66/Mon Jul 20 19:52:10 2009//Tprod-5-2-13-java16
+/PingRequestTest.java/1.40/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
+/PushRequestTest.java/1.26/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
+/QueryReplyTest.java/1.100/Mon Jul 20 19:52:10 2009//Tprod-5-2-13-java16
+/QueryRequestTest.java/1.60/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
+/StubSecureMessageCallback.java/1.4/Mon Jan  8 19:05:28 2007//Tprod-5-2-13-java16

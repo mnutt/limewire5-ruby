@@ -45,7 +45,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     
     /** Default file extensions. */
     private final String DEFAULT_MANAGED_EXTENSIONS_STRING =
-        "xml;txt;pdf;ps;rtf;tex;mp3;mp4;wav;wax;au;aif;aiff;"+
+        "xml;txt;ps;rtf;tex;mp3;mp4;wav;wax;au;aif;aiff;"+
         "ra;ram;mp2v;mlv;mpa;mpv2;mid;midi;rmi;aifc;snd;flac;fla;flv;"+
         "mpg;mpeg;qt;mov;avi;mpe;swf;dcr;gif;jpg;jpeg;jpe;png;tif;tiff;bmp;"+
         "zip;gz;gzip;hqx;tar;tgz;z;rmj;lqt;rar;ace;sit;smi;img;ogg;rm;"+

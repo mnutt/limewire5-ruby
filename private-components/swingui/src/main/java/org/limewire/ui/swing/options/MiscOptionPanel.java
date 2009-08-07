@@ -21,7 +21,6 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.UrlAction;
@@ -60,7 +59,8 @@ public class MiscOptionPanel extends OptionPanel {
     private JLabel comboLabel;
     private final JComboBox languageDropDown;
     private final HyperlinkButton translateButton;
-    private final JCheckBox shareUsageDataCheckBox;
+    // TODO: re-enable this code once the setting does something
+    // private final JCheckBox shareUsageDataCheckBox;
 
     @Inject
 
@@ -83,10 +83,13 @@ public class MiscOptionPanel extends OptionPanel {
         add(getNotificationsPanel(), "growx, wrap");
         add(getFriendChatPanel(), "growx, wrap");
 
+        // TODO: re-enable this code once the setting does something
+        /*
         shareUsageDataCheckBox = new JCheckBox((I18n.tr("Help improve LimeWire by sending us anonymous usage data")));
         shareUsageDataCheckBox.setOpaque(false);
         add(shareUsageDataCheckBox);
         add(new LearnMoreButton("http://www.limewire.com/client_redirect/?page=anonymousDataCollection"), "wrap");
+        */
     }
 
     private OptionPanel getNotificationsPanel() {
@@ -105,7 +108,8 @@ public class MiscOptionPanel extends OptionPanel {
 
     @Override
     boolean applyOptions() {
-        ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.setValue(shareUsageDataCheckBox.isSelected());
+        // TODO: re-enable this code once the setting does something
+        // ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.setValue(shareUsageDataCheckBox.isSelected());
         
         Locale selectedLocale = (Locale) languageDropDown.getSelectedItem();
         
@@ -124,16 +128,22 @@ public class MiscOptionPanel extends OptionPanel {
     @Override
     boolean hasChanged() {
         Locale selectedLocale = (Locale) languageDropDown.getSelectedItem();
-        
+        return getNotificationsPanel().hasChanged() ||
+            getFriendChatPanel().hasChanged() ||
+            selectedLocale != currentLanguage;
+        // TODO: re-enable this code once the setting does something
+        /*
         return getNotificationsPanel().hasChanged() || getFriendChatPanel().hasChanged() ||
                 selectedLocale != currentLanguage ||
                 ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue() 
                     != shareUsageDataCheckBox.isSelected();
+        */
     }
 
     @Override
     public void initOptions() {
-        shareUsageDataCheckBox.setSelected(ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue());
+        // TODO: re-enable this code once the setting does something
+        // shareUsageDataCheckBox.setSelected(ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue());
         getNotificationsPanel().initOptions();
         getFriendChatPanel().initOptions();
         currentLanguage = LanguageUtils.getCurrentLocale();
