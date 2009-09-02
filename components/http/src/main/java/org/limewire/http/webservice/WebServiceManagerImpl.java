@@ -18,6 +18,7 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.servlet.ProxyServlet;
 import org.mortbay.thread.QueuedThreadPool;
 
 import com.google.inject.Inject;
@@ -114,6 +115,10 @@ class WebServiceManagerImpl implements WebServiceManager {
         context.setResourceBase(railsRoot);
         context.addEventListener(new RailsServletContextListener());
         
+        ProxyServlet.Transparent proxyServlet = new ProxyServlet.Transparent("", "ayce-test.ath.cx", 80);
+        ServletHolder proxyServletHolder = setupProxyServletHolder(proxyServlet);
+        context.addServlet(proxyServletHolder, "/ayce/*");
+        
         ContinuationCometdServlet cometdServlet = new ContinuationCometdServlet();
         ServletHolder cometdServletHolder = setupCometdServletHolder(cometdServlet);
         context.addServlet(cometdServletHolder, "/comet/*");
@@ -157,6 +162,17 @@ class WebServiceManagerImpl implements WebServiceManager {
         cometdHolder.setInitParameter("difectDeliver", "true");
         cometdHolder.setInitParameter("logLevel", "10");
         return cometdHolder;
+    }
+    
+    private static ServletHolder setupProxyServletHolder(ProxyServlet proxyServlet) {
+        ServletHolder proxyHolder = new ServletHolder(proxyServlet);
+        proxyHolder.setInitParameter("timeout", "120000");
+        proxyHolder.setInitParameter("interval", "0");
+        proxyHolder.setInitParameter("maxInterval", "10000");
+        proxyHolder.setInitParameter("multiFrameInterval", "2000");
+        proxyHolder.setInitParameter("difectDeliver", "true");
+        proxyHolder.setInitParameter("logLevel", "10");
+        return proxyHolder;
     }
     
     public void mapPort() {
