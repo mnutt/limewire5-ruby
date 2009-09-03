@@ -146,10 +146,10 @@
 			<pathelement location="jmdns.jar"/>
 			<pathelement location="jna-3.1.0.jar"/>
 
-			<pathelement location="jetty-6.1.16.jar"/>
-			<pathelement location="jetty-util-6.1.16.jar"/>
-			<pathelement location="jetty-util5-6.1.16.jar"/>
-			<pathelement location="servlet-api-2.5.jar"/>
+			<pathelement location="jetty-6.1.20.jar"/>
+			<pathelement location="jetty-util-6.1.20.jar"/>
+			<pathelement location="jetty-util5-6.1.20.jar"/>
+			<pathelement location="servlet-api-2.5-20081211.jar"/>
 
 			<pathelement location="jruby-complete-1.2.0.jar"/>
 			<pathelement location="jruby-rack-0.9.4.jar"/>
