@@ -69,27 +69,10 @@ public class UDPPingerImpl implements UDPPinger {
         this.pingRequestFactory = pingRequestFactory;
     }
 
-    public void rank(Collection<? extends IpPort> hosts) {
-        rank(hosts, null, null, null);
-    }
-    
-    public void rank(Collection<? extends IpPort> hosts, Message message) {
-        rank(hosts, null, null, message);
-    }
-    
     public void rank(Collection<? extends IpPort> hosts, Cancellable canceller) {
         rank(hosts, null, canceller, null);
     }
     
-    public void rank(Collection<? extends IpPort> hosts, MessageListener listener) {
-        rank(hosts, listener, null, null);
-    }
-    
-    public void rank(Collection<? extends IpPort> hosts, MessageListener listener,
-                            Cancellable canceller) {
-        rank(hosts, listener, canceller, null);
-    }
-
     public void rank(final Collection<? extends IpPort> hosts,
                             final MessageListener listener,
                             Cancellable canceller,

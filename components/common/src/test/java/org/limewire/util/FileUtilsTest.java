@@ -96,23 +96,23 @@ public final class FileUtilsTest extends BaseTestCase {
         f.createNewFile();
         f.deleteOnExit();
 
-        File[] fa = FileUtils.getFilesRecursive(emptyDir, null);
+        File[] fa = FileUtils.getFilesRecursive(emptyDir);
         assertEquals("directory should have no files, only a subdir", 0, fa.length);
 
-        fa = FileUtils.getFilesRecursive(emptyNameDir, null);
+        fa = FileUtils.getFilesRecursive(emptyNameDir);
         assertEquals("directory should have 1 hidden file", 1, fa.length);
 
         fa = FileUtils.getFilesRecursive(emptyNameDir, new String[] { "emptyname" });
         assertEquals("directory should have no file matching extension \"emptyname\"", 0, fa.length);
 
-        fa = FileUtils.getFilesRecursive(emptyExtensionDir, null);
+        fa = FileUtils.getFilesRecursive(emptyExtensionDir);
         assertEquals("directory should have one file", 1, fa.length);
 
         fa = FileUtils.getFilesRecursive(emptyExtensionDir, new String[] { "" });
         assertEquals("directory should have no file matching empty extension", 0, fa.length);
 
         // test if files in subdirectories are found too
-        fa = FileUtils.getFilesRecursive(recursiveDir, null);
+        fa = FileUtils.getFilesRecursive(recursiveDir);
         assertEquals("wrong number of files found", 2, fa.length);
 
         // test if files in subdirectories are found with filter

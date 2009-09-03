@@ -7,39 +7,55 @@ import javax.swing.Action;
 import org.limewire.friend.api.FriendConnection;
 import org.limewire.friend.api.FriendConnectionEvent;
 import org.limewire.listener.EventBean;
-import org.limewire.listener.EventListener;
 import org.limewire.listener.EventUtils;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.action.MnemonicMenu;
-import org.limewire.ui.swing.friends.chat.ChatFrame;
+import org.limewire.ui.swing.friends.chat.ChatMediator;
 import org.limewire.ui.swing.friends.login.AutoLoginService;
 import org.limewire.ui.swing.friends.login.LoginPopupPanel;
 import org.limewire.ui.swing.util.I18n;
-import org.limewire.ui.swing.util.VisibilityType;
-import org.limewire.ui.swing.util.VisibleComponent;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 class ViewMenu extends MnemonicMenu {
-    private final Provider<LoginPopupPanel> friendsSignInPanel;
+    
+    private static final String visibleText = I18n.tr("Hide &Chat Window");
+    private static final String notVisibleText = I18n.tr("Show &Chat Window");
+    
+    private final Provider<LoginPopupPanel> friendsSignInPanelProvider;
     private final Provider<AutoLoginService> autoLoginServiceProvider;
     private final EventBean<FriendConnectionEvent> friendConnectionEventBean;
     
+    private final Provider<ShowHideDownloadTrayAction> showHideDownloadTrayActionProvider;
+    private final Provider<ChatMediator> chatFrameProvider;
+    
     @Inject
-    public ViewMenu(final ChatFrame chatFrame, Provider<LoginPopupPanel> friendsSignInPanel, 
+    public ViewMenu(Provider<LoginPopupPanel> friendsSignInPanel, 
             Provider<AutoLoginService> autoLoginServiceProvider,
-            EventBean<FriendConnectionEvent> friendConnectionEventBean, ShowHideDownloadTrayAction showHideDownloadTrayAction) {
+            EventBean<FriendConnectionEvent> friendConnectionEventBean,
+            Provider<ShowHideDownloadTrayAction> showHideDownloadTrayAction,
+            Provider<ChatMediator> chatFrameProvider) {
+        
         super(I18n.tr("&View"));
-        this.friendsSignInPanel = friendsSignInPanel;
+        
+        this.friendsSignInPanelProvider = friendsSignInPanel;
         this.autoLoginServiceProvider = autoLoginServiceProvider;
         this.friendConnectionEventBean = friendConnectionEventBean;
-        add(buildShowHideChatWindowAction(chatFrame, I18n.tr("Hide &Chat Window"), I18n.tr("Show &Chat Window")));
-        add(showHideDownloadTrayAction);
+        
+        this.showHideDownloadTrayActionProvider = showHideDownloadTrayAction;
+        this.chatFrameProvider = chatFrameProvider;
     }
+    
+    @Override
+    public void createMenuItems() {
+        add(buildShowHideChatWindowAction(chatFrameProvider));
+        add(showHideDownloadTrayActionProvider.get());
+    }
+    
     /**
      * @return if there is a connection that is either logged in, logging in or
-     * aut login service provider is attempting to log in.
+     * a login service provider is attempting to log in.
      */
     private boolean hasActiveConnection() {
         if (autoLoginServiceProvider.get().isAttemptingLogin()) {
@@ -57,50 +73,23 @@ class ViewMenu extends MnemonicMenu {
         return friendConnection != null && friendConnection.isLoggingIn();
     }
 
-    private Action buildShowHideChatWindowAction(final ChatFrame component, final String visibleName,
-            final String notVisibleName) {
-        final Action action = new AbstractAction() {
+    private Action buildShowHideChatWindowAction(final Provider<ChatMediator> chatFrameProvider) {
+        
+        Action action = new AbstractAction(chatFrameProvider.get().isVisible() ? visibleText : notVisibleText) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!component.isVisible() && !hasActiveConnection()) {
-                        friendsSignInPanel.get().setVisible(true);
+                if(!chatFrameProvider.get().isVisible() && !hasActiveConnection()) {
+                        friendsSignInPanelProvider.get().setVisible(true);
                 } else {
                     // TODO: nothing happens if we are logging in, seems strange.
                     if (!autoLoginServiceProvider.get().isAttemptingLogin() && !isLoggingIn()) {
-                        component.toggleVisibility();
+                        chatFrameProvider.get().setVisible(!chatFrameProvider.get().isVisible());
                     }
                 }
                 
             }
         };
-
-        addVisibilityListener(component, action, visibleName, notVisibleName);
-        setInitialText(component, action, visibleName, notVisibleName);
-
+        
         return action;
-    }
-
-    private void addVisibilityListener(VisibleComponent component, final Action action,
-            final String visibleName, final String notVisibleName) {
-        EventListener<VisibilityType> listener = new EventListener<VisibilityType>() {
-            @Override
-            public void handleEvent(VisibilityType visibilityType) {
-                if (visibilityType == VisibilityType.VISIBLE) {
-                    action.putValue(Action.NAME, visibleName);
-                } else {
-                    action.putValue(Action.NAME, notVisibleName);
-                }
-            }
-        };
-        component.addVisibilityListener(listener);
-    }
-
-    private void setInitialText(VisibleComponent component, final Action action,
-            final String visibleName, final String notVisibleName) {
-        if (component.isVisible()) {
-            action.putValue(Action.NAME, visibleName);
-        } else {
-            action.putValue(Action.NAME, notVisibleName);
-        }
     }
 }

@@ -1,6 +1,7 @@
 package org.limewire.libtorrent;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,17 +16,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.limewire.bittorrent.Torrent;
 import org.limewire.bittorrent.TorrentException;
+import org.limewire.bittorrent.TorrentFileEntry;
+import org.limewire.bittorrent.TorrentInfo;
 import org.limewire.bittorrent.TorrentManager;
-import org.limewire.bittorrent.TorrentSettings;
+import org.limewire.bittorrent.TorrentManagerSettings;
+import org.limewire.bittorrent.TorrentPeer;
 import org.limewire.bittorrent.TorrentSettingsAnnotation;
+import org.limewire.bittorrent.TorrentStatus;
 import org.limewire.inject.LazySingleton;
+import org.limewire.inspection.DataCategory;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.libtorrent.callback.AlertCallback;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -43,7 +48,7 @@ public class TorrentManagerImpl implements TorrentManager {
 
     private final Map<String, Torrent> torrents;
 
-    private final AtomicReference<TorrentSettings> torrentSettings = new AtomicReference<TorrentSettings>(
+    private final AtomicReference<TorrentManagerSettings> torrentSettings = new AtomicReference<TorrentManagerSettings>(
             null);
 
     /**
@@ -73,7 +78,7 @@ public class TorrentManagerImpl implements TorrentManager {
     @SuppressWarnings("unused")
     @InspectableContainer
     private class LazyInspectableContainer {
-        @InspectionPoint("torrent manager")
+        @InspectionPoint(value = "torrent manager", category = DataCategory.USAGE)
         private final Inspectable inspectable = new Inspectable() {
             @Override
             public Object inspect() {
@@ -107,7 +112,7 @@ public class TorrentManagerImpl implements TorrentManager {
     @Inject
     public TorrentManagerImpl(LibTorrentWrapper torrentWrapper,
             @Named("fastExecutor") ScheduledExecutorService fastExecutor,
-            @TorrentSettingsAnnotation TorrentSettings torrentSettings) {
+            @TorrentSettingsAnnotation TorrentManagerSettings torrentSettings) {
         this.fastExecutor = fastExecutor;
         this.libTorrent = torrentWrapper;
         this.torrents = new ConcurrentHashMap<String, Torrent>();
@@ -143,22 +148,17 @@ public class TorrentManagerImpl implements TorrentManager {
         String trackerURI = torrent.getTrackerURL();
         String fastResumePath = fastResumefile != null ? fastResumefile.getAbsolutePath() : null;
         String torrentPath = torrentFile != null ? torrentFile.getAbsolutePath() : null;
+        String saveDirectory = torrent.getTorrentDataFile().getParentFile().getAbsolutePath();
 
         lock.writeLock().lock();
         try {
-            libTorrent.add_torrent(torrent.getSha1(), trackerURI, torrentPath, torrent
-                    .getIncompleteDownloadPath(), fastResumePath);
+            libTorrent.add_torrent(torrent.getSha1(), trackerURI, torrentPath, saveDirectory,
+                    fastResumePath);
             updateStatus(torrent);
             torrents.put(torrent.getSha1(), torrent);
         } finally {
             lock.writeLock().unlock();
         }
-    }
-
-    @Override
-    public List<String> getPeers(Torrent torrent) {
-        validateLibrary();
-        return libTorrent.get_peers(torrent.getSha1());
     }
 
     @Override
@@ -227,8 +227,22 @@ public class TorrentManagerImpl implements TorrentManager {
         try {
             LibTorrentStatus torrentStatus = getStatus(torrent);
             torrent.updateStatus(torrentStatus);
+            addMetaData(torrent);
         } finally {
             lock.readLock().unlock();
+        }
+    }
+
+    private void addMetaData(Torrent torrent) {
+        if (!torrent.hasMetaData()) {
+            // TODO add more data to the torrentInfo object
+            // use torrent_handle hasMetadata to get a real idea when the
+            // metadata is available.
+            List<TorrentFileEntry> fileEntries = torrent.getTorrentFileEntries();
+            if (fileEntries.size() > 0) {
+                TorrentInfo torrentInfo = new TorrentInfo(fileEntries);
+                torrent.setTorrentInfo(torrentInfo);
+            }
         }
     }
 
@@ -246,18 +260,15 @@ public class TorrentManagerImpl implements TorrentManager {
     }
 
     @Override
-    public String getServiceName() {
-        return "TorrentManager";
-    }
-
-    @Override
     public void initialize() {
         if (torrentSettings.get().isTorrentsEnabled()) {
             lock.writeLock().lock();
             try {
                 libTorrent.initialize(torrentSettings.get());
                 if (libTorrent.isLoaded()) {
-                    updateSettings(torrentSettings.get());
+                    setTorrentManagerSettings(torrentSettings.get());
+                    libTorrent.start_upnp();
+                    libTorrent.start_natpmp();
                 }
             } finally {
                 lock.writeLock().unlock();
@@ -270,21 +281,14 @@ public class TorrentManagerImpl implements TorrentManager {
         if (isValid()) {
             lock.writeLock().lock();
             try {
-                torrentFuture = fastExecutor.scheduleAtFixedRate(new EventPoller(), 1000, 500,
+                torrentFuture = fastExecutor.scheduleWithFixedDelay(new EventPoller(), 1000, 500,
                         TimeUnit.MILLISECONDS);
 
-                if (!OSUtils.isMacOSX()) {
-                    // TODO disabling for now on the mac, on osx there is an
-                    // error
-                    // calling the alert callback, need toi investigate.
-                    // but disabling for now so that it does not crash the jvm.
-
-                    if (PERIODICALLY_SAVE_FAST_RESUME_DATA) {
-                        alertFuture = fastExecutor.scheduleAtFixedRate(new AlertPoller(), 1000,
-                                500, TimeUnit.MILLISECONDS);
-                        resumeFileFuture = fastExecutor.scheduleAtFixedRate(
-                                new ResumeDataScheduler(), 10000, 10000, TimeUnit.MILLISECONDS);
-                    }
+                if (PERIODICALLY_SAVE_FAST_RESUME_DATA) {
+                    alertFuture = fastExecutor.scheduleWithFixedDelay(new AlertPoller(), 1000, 500,
+                            TimeUnit.MILLISECONDS);
+                    resumeFileFuture = fastExecutor.scheduleWithFixedDelay(
+                            new ResumeDataScheduler(), 10000, 10000, TimeUnit.MILLISECONDS);
                 }
 
             } finally {
@@ -309,13 +313,7 @@ public class TorrentManagerImpl implements TorrentManager {
             }
 
             if (isValid()) {
-                if (!OSUtils.isMacOSX()) {
-                    // TODO disabling for now on the mac, on osx there is an
-                    // error
-                    // calling the alert callback, need to investigate.
-                    // but disabling for now so that it does not crash the jvm.
-                    libTorrent.freeze_and_save_all_fast_resume_data(new BasicAlertCallback());
-                }
+                libTorrent.freeze_and_save_all_fast_resume_data(new BasicAlertCallback());
                 libTorrent.abort_torrents();
             }
             torrents.clear();
@@ -416,7 +414,7 @@ public class TorrentManagerImpl implements TorrentManager {
                 String sha1 = torrentIterator.next();
                 Torrent torrent = torrents.get(sha1);
 
-                if (torrent != null && !torrent.isFinished()) {
+                if (torrent != null && torrent.hasMetaData()) {
                     libTorrent.signal_fast_resume_data_request(sha1);
                 }
             } finally {
@@ -440,14 +438,68 @@ public class TorrentManagerImpl implements TorrentManager {
     }
 
     @Override
-    public void updateSettings(TorrentSettings settings) {
+    public void setTorrentManagerSettings(TorrentManagerSettings settings) {
         validateLibrary();
         torrentSettings.set(settings);
         libTorrent.update_settings(settings);
     }
 
     @Override
-    public TorrentSettings getTorrentSettings() {
+    public TorrentManagerSettings getTorrentManagerSettings() {
         return torrentSettings.get();
+    }
+
+    @Override
+    public float getTotalDownloadRate() {
+        float rate = 0;
+        for (Torrent torrent : torrents.values()) {
+            TorrentStatus torrentStatus = torrent.getStatus();
+            if (torrentStatus != null) {
+                rate += torrentStatus.getDownloadRate();
+            }
+        }
+        return rate;
+    }
+
+    @Override
+    public float getTotalUploadRate() {
+        float rate = 0;
+        for (Torrent torrent : torrents.values()) {
+            TorrentStatus torrentStatus = torrent.getStatus();
+            if (torrentStatus != null) {
+                rate += torrentStatus.getUploadRate();
+            }
+        }
+        return rate;
+    }
+
+    @Override
+    public List<TorrentFileEntry> getTorrentFileEntries(Torrent torrent) {
+        validateLibrary();
+        TorrentFileEntry[] files = libTorrent.get_files(torrent.getSha1());
+        return Arrays.asList(files);
+    }
+
+    @Override
+    public List<TorrentPeer> getTorrentPeers(Torrent torrent) {
+        validateLibrary();
+        TorrentPeer[] peers = libTorrent.get_peers(torrent.getSha1());
+        return Arrays.asList(peers);
+    }
+
+    @Override
+    public void setAutoManaged(Torrent torrent, boolean autoManaged) {
+        libTorrent.set_auto_managed_torrent(torrent.getSha1(), autoManaged);
+    }
+
+    @Override
+    public void setTorrenFileEntryPriority(Torrent torrent, TorrentFileEntry torrentFileEntry,
+            int priority) {
+        libTorrent.set_file_priority(torrent.getSha1(), torrentFileEntry.getIndex(), priority);
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return isValid();
     }
 }

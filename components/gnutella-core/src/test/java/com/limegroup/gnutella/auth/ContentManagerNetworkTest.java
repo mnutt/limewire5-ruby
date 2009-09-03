@@ -53,7 +53,7 @@ public class ContentManagerNetworkTest extends LimeTestCase {
     
     @Override
     public void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector();
+        injector = LimeTestUtils.createInjectorNonEagerly();
         
         messageRouter = injector.getInstance(MessageRouter.class);
         acceptor      = injector.getInstance(Acceptor.class);

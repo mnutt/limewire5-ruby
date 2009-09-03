@@ -149,7 +149,6 @@
 	<classpathentry kind="lib" path="lib/jars/google-collect-1.0-rc2.jar" sourcepath="lib/sources/google-collect-src-1.0-rc2.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/jars/mime-util.jar" sourcepath="lib/sources/mime-util-src.jar"/>
-	<classpathentry kind="lib" path="lib/jars/guice-assistedinject-snapshot20090512.jar" sourcepath="lib/sources/guice-assistedinject-snapshot20090512-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/httpclient-4.0-beta2.jar" sourcepath="lib/sources/httpcomponents-client-4.0-beta2-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/httpcore-4.0.jar" sourcepath="lib/sources/httpcomponents-core-4.0-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/httpcore-nio-4.0.jar" sourcepath="lib/sources/httpcomponents-core-4.0-src.zip"/>
@@ -158,8 +157,6 @@
 	<classpathentry kind="lib" path="lib/jars/swing-worker-1.2.jar" sourcepath="lib/sources/swing-worker-src-1.2.zip"/>
 	<classpathentry kind="lib" path="lib/jars/hsqldb-1.8.0.10.jar" sourcepath="lib/sources/hsqldb-1.8.0.10-src.zip"/>
 	<classpathentry kind="lib" path="lib/jars/jna-3.1.0.jar" sourcepath="lib/sources/jna-3.1.0-src.zip"/>
-	<classpathentry kind="lib" path="lib/jars/guice-2.0-snapshot-20090610.jar" sourcepath="lib/sources/guice-2.0-snapshot-20090610-src.jar"/>
-	<classpathentry kind="lib" path="lib/jars/tests/inspTool-0.3.jar"/>
 	<classpathentry kind="lib" path="lib/jars/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jars/commons-lang-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jaxb-api-2.1.jar"/>
@@ -171,5 +168,8 @@
 	<classpathentry kind="lib" path="lib/jars/fb-java-api-schema-2.1.1.jar" sourcepath="lib/sources/facebook-java-api-2.1.1-src.jar"/>
 	<classpathentry kind="lib" path="lib/jars/glazedlists-snapshot20090628_java15.jar" sourcepath="lib/sources/glazedlists-snapshot20090628-source_java15.zip"/>
 	<classpathentry kind="lib" path="lib/jars/swingx-1.0.jar" sourcepath="lib/sources/swingx-1.0-src.zip"/>
+	<classpathentry kind="lib" path="lib/jars/guice-2.0-snapshot20090814.jar"/>
+	<classpathentry kind="lib" path="lib/jars/guice-assistedinject-snapshot20090814.jar"/>
+	<classpathentry kind="lib" path="lib/jars/tests/inspTool-0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

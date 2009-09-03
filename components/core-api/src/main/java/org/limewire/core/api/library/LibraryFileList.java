@@ -1,6 +1,7 @@
 package org.limewire.core.api.library;
 
 import java.beans.PropertyChangeListener;
+import java.io.File;
 
 import org.limewire.listener.EventListener;
 
@@ -9,6 +10,9 @@ public interface LibraryFileList extends LocalFileList {
 
     /** Returns the current state of the library. */
     LibraryState getState();
+ 
+    /** Notifies LibraryFileList that the file has been renamed. */
+    void fileRenamed(File oldFile, File newFile);
     
     void addPropertyChangeListener(PropertyChangeListener listener);
 

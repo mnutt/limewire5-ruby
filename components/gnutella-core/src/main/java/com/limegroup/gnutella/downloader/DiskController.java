@@ -13,14 +13,14 @@ import org.limewire.collection.ByteArrayCache;
 import org.limewire.collection.PowerOf2ByteArrayCache;
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.concurrent.ManagedThread;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.ServiceScheduler;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /** Manages writing / reading from / to disk. */
-@Singleton
+@EagerSingleton
 public class DiskController {
     
     private static final Log LOG = LogFactory.getLog(DiskController.class);

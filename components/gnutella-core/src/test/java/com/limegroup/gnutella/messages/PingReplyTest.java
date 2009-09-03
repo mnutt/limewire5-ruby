@@ -84,7 +84,7 @@ public class PingReplyTest extends LimeTestCase {
         networkManagerStub.setIncomingTLSEnabled(true);
         networkManagerStub.setOutgoingTLSEnabled(true);
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(networkManagerStub);

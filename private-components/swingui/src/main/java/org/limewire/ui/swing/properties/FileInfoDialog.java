@@ -2,11 +2,16 @@ package org.limewire.ui.swing.properties;
 
 import static org.limewire.ui.swing.util.I18n.tr;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -14,9 +19,15 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
+import org.limewire.bittorrent.Torrent;
+import org.limewire.core.api.download.DownloadItem;
+import org.limewire.core.api.download.DownloadPropertyKey;
+import org.limewire.core.api.download.DownloadItem.DownloadItemType;
 import org.limewire.core.api.library.PropertiableFile;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.LimeJDialog;
+import org.limewire.ui.swing.properties.FileInfoTabPanel.FileInfoTabListener;
+import org.limewire.ui.swing.properties.FileInfoTabPanel.Tabs;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 
@@ -44,23 +55,38 @@ public class FileInfoDialog extends LimeJDialog {
     
     @Resource private Color backgroundColor;
 
-    private final FileInfoPanel fileInfoPanel;
+    private final FileInfoTabPanel tabPanel;
+    private final JPanel cardPanel;
+    private final Map<Tabs, FileInfoPanel> cards;
     private JButton okButton;
     
     @Inject
-    public FileInfoDialog(@Assisted PropertiableFile propertiableFile, @Assisted FileInfoType type,
-                        FileInfoPanelFactory factory) {
+    public FileInfoDialog(@Assisted final PropertiableFile propertiableFile, @Assisted final FileInfoType type,
+                        FileInfoTabPanel fileInfoTabPanel,
+                        final FileInfoPanelFactory fileInfoFactory) {
         super(GuiUtils.getMainFrame());
+        
+        tabPanel = fileInfoTabPanel;
+        cardPanel = new JPanel(new BorderLayout());
+        cardPanel.setPreferredSize(new Dimension(400,600));
+        cards = new HashMap<Tabs, FileInfoPanel>();
+        
         GuiUtils.assignResources(this);
         
-        this.fileInfoPanel = factory.createFileInfoPanel(propertiableFile, type);
+        cardPanel.setOpaque(false);
+        createTabs(propertiableFile, type);
+        cards.put(Tabs.GENERAL, fileInfoFactory.createGeneralPanel(type, propertiableFile));
+        cardPanel.add(cards.get(Tabs.GENERAL).getComponent());
         
         setTitle(I18n.tr("{0}   Properties", propertiableFile.getFileName()));
         
-        setLayout(new MigLayout("gap 0, insets 0, fill, wrap"));
+        setLayout(new MigLayout("gap 0, insets 0, fill"));
         getContentPane().setBackground(backgroundColor);
 
-        add(fileInfoPanel, "north");
+        
+        add(fileInfoFactory.createOverviewPanel(type, propertiableFile).getComponent(), "growx, wrap");
+        add(tabPanel.getComponent(), "growx, wrap");
+        add(cardPanel, "grow");
         createFooter();
     
         setPreferredSize(new Dimension(500,565));
@@ -76,7 +102,9 @@ public class FileInfoDialog extends LimeJDialog {
             @Override
             public void componentHidden(ComponentEvent e) {
                 //unregister any listeners used and dispose of dialog when made invisible
-                FileInfoDialog.this.fileInfoPanel.unregisterListeners();    
+                for(FileInfoPanel panel : cards.values()) {
+                    panel.unregisterListeners();
+                }
                 FileInfoDialog.this.dispose();
             }
 
@@ -90,10 +118,58 @@ public class FileInfoDialog extends LimeJDialog {
                     okButton.requestFocusInWindow();
             }
         });
+        
+        tabPanel.addSearchTabListener(new FileInfoTabListener(){
+            @Override
+            public void tabSelected(Tabs tab) {
+                if(!cards.containsKey(tab)) {
+                    if(tab == Tabs.GENERAL) {
+                        cards.put(tab, fileInfoFactory.createGeneralPanel(type, propertiableFile));
+                    } else if(tab == Tabs.SHARING) {
+                        cards.put(tab, fileInfoFactory.createSharingPanel(type, propertiableFile));
+                    } else if(tab == Tabs.TRANSFERS) {
+                        cards.put(tab, fileInfoFactory.createTransferPanel(type, propertiableFile));
+                    } else if(tab == Tabs.BITTORENT) {
+                        if(propertiableFile instanceof DownloadItem && ((DownloadItem)propertiableFile).getDownloadProperty(DownloadPropertyKey.TORRENT) != null) {
+                            Torrent torrent = (Torrent)((DownloadItem)propertiableFile).getDownloadProperty(DownloadPropertyKey.TORRENT);
+                            cards.put(tab, fileInfoFactory.createBittorentPanel(torrent));
+                        } else {
+                            throw new IllegalStateException("No DownloadItem or Torrent found for BITTORENT tab.");
+                        }
+                    } else {
+                        throw new IllegalStateException("Unknown state:" + tab);
+                    }
+                }
+                cardPanel.removeAll();
+                cardPanel.add(cards.get(tab).getComponent());
+                FileInfoDialog.this.validate();
+                FileInfoDialog.this.repaint();
+            }
+        });
 
         setVisible(true);
     }
+    
+    private void createTabs(PropertiableFile propertiableFile, final FileInfoType type) {
+        List<Tabs> tabs = new ArrayList<Tabs>();
+        // general tab is always shown
+        tabs.add(Tabs.GENERAL);
+        switch(type) {
+        case LOCAL_FILE:
+            tabs.add(Tabs.SHARING);
+            break;
+        case DOWNLOADING_FILE:
+            if(propertiableFile instanceof DownloadItem && ((DownloadItem)propertiableFile).getDownloadItemType() == DownloadItemType.BITTORRENT)
+                tabs.add(Tabs.BITTORENT);
+            tabs.add(Tabs.TRANSFERS);
+            break;
+        case REMOTE_FILE:
+            break;
+        }
+        tabPanel.setTabs(tabs);
+    }
 
+    
     /**
      * Adds a footer with the cancel/ok button to close the dialog.
      */
@@ -118,7 +194,9 @@ public class FileInfoDialog extends LimeJDialog {
         @Override
         public void actionPerformed(ActionEvent e) {
             setVisible(false);
-            fileInfoPanel.commit();
+            for(FileInfoPanel panel : cards.values()) {
+                panel.save();
+            }
         }
     }
 

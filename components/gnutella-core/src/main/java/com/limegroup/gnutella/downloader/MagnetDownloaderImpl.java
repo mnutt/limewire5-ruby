@@ -1,6 +1,5 @@
 package com.limegroup.gnutella.downloader;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -314,12 +313,5 @@ class MagnetDownloaderImpl extends ManagedDownloaderImpl implements MagnetDownlo
     @Override
     protected DownloadMemento createMemento() {
         return new MagnetDownloadMementoImpl();
-    }
-    
-    @Override
-    public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
-            throws DownloadException {
-        //overriding to track down cause of https://www.limewire.org/jira/browse/LWC-3697 remove when fixed
-        super.setSaveFile(saveDirectory, fileName, overwrite);
     }
 }

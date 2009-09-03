@@ -44,7 +44,7 @@ public class ConnectionTest extends LimeTestCase {
 
     @Override
     public void setUp() throws Exception {
-        routedConnectionFactory = LimeTestUtils.createInjector().getInstance(RoutedConnectionFactory.class);
+        routedConnectionFactory = LimeTestUtils.createInjectorNonEagerly().getInstance(RoutedConnectionFactory.class);
         
         ACCEPTOR = new ConnectionAcceptor();
         ACCEPTOR.start();
@@ -151,7 +151,7 @@ public class ConnectionTest extends LimeTestCase {
                             return;
                         }
                         
-                        Injector injector = LimeTestUtils.createInjector();
+                        Injector injector = LimeTestUtils.createInjectorNonEagerly();
                         BlockingConnectionFactory connectionFactory = injector.getInstance(BlockingConnectionFactory.class);
                         HandshakeResponderFactory handshakeResponderFactory = injector.getInstance(HandshakeResponderFactory.class);
                         final BlockingConnection con = connectionFactory.createConnection(socket);

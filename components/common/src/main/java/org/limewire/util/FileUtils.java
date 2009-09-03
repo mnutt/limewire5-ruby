@@ -494,7 +494,7 @@ public class FileUtils {
      *         according to the filter.
      * 
      */
-    public static File[] getFilesRecursive(File directory, String[] filter) {
+    public static File[] getFilesRecursive(File directory, String... filter) {
         List<File> dirs = new ArrayList<File>();
         // the return array of files...
         List<File> retFileArray = new ArrayList<File>();
@@ -514,7 +514,7 @@ public class FileUtils {
                     dirs.add(currFile);
                 else if (currFile.isFile()) { // we have a 'file'....
                     boolean shouldAdd = false;
-                    if (filter == null)
+                    if (filter == null || filter.length == 0)
                         shouldAdd = true;
                     else {
                         String ext = FileUtils.getFileExtension(currFile);
@@ -672,11 +672,11 @@ public class FileUtils {
             return true;
         Set<File> unique = new HashSet<File>();
         unique.add(a);
-        unique.addAll(Arrays.asList(getFilesRecursive(a, null)));
+        unique.addAll(Arrays.asList(getFilesRecursive(a)));
 
         if (unique.contains(b))
             return true;
-        for (File recursive : getFilesRecursive(b, null)) {
+        for (File recursive : getFilesRecursive(b)) {
             if (unique.contains(recursive))
                 return true;
         }
@@ -693,7 +693,7 @@ public class FileUtils {
         if (!f.isDirectory())
             return f.length();
         long ret = 0;
-        for (File file : getFilesRecursive(f, null))
+        for (File file : getFilesRecursive(f))
             ret += file.length();
         return ret;
     }

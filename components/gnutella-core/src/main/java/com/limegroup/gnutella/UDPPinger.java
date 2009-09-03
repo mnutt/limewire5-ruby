@@ -10,34 +10,10 @@ import com.limegroup.gnutella.messages.Message;
 public interface UDPPinger {
 
     /**
-     * Ranks the specified Collection of hosts.
-     */
-    public void rank(Collection<? extends IpPort> hosts);
-
-    /**
-     * Ranks the specified Collection of hosts with the given message.
-     */
-    public void rank(Collection<? extends IpPort> hosts, Message message);
-
-    /**
      * Ranks the specified Collection of hosts with the given
      * Canceller.
      */
     public void rank(Collection<? extends IpPort> hosts, Cancellable canceller);
-
-    /**
-     * Ranks the specified collection of hosts with the given 
-     * MessageListener.
-     */
-    public void rank(Collection<? extends IpPort> hosts,
-            MessageListener listener);
-
-    /**
-     * Ranks the specified collection of hosts with the given
-     * MessageListener & Cancellable.
-     */
-    public void rank(Collection<? extends IpPort> hosts,
-            MessageListener listener, Cancellable canceller);
 
     /**
      * Ranks the specified <tt>Collection</tt> of hosts with the given

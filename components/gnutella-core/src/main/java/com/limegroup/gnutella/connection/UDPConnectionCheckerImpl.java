@@ -60,7 +60,7 @@ public class UDPConnectionCheckerImpl implements UDPConnectionChecker {
         return !checker.received;
     }
 
-    private class UDPChecker implements MessageListener, Cancellable {
+    private static class UDPChecker implements MessageListener, Cancellable {
         volatile boolean received;
 
         public boolean isCancelled() {

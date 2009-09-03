@@ -8,6 +8,7 @@ import org.limewire.setting.FloatSetting;
 import org.limewire.setting.IntSetting;
 import org.limewire.setting.ProbabilisticBooleanSetting;
 import org.limewire.setting.StringArraySetting;
+import org.limewire.inspection.InspectablePrimitive;
 
 /**
  * Settings for downloads.
@@ -25,6 +26,7 @@ public class DownloadSettings extends LimeProps {
      * The maximum number of downstream bytes per second ever passed by this
      * node.
      */
+    @InspectablePrimitive("downstream bandwidth max")
     public static final IntSetting MAX_DOWNLOAD_BYTES_PER_SEC = FACTORY.createExpirableIntSetting(
             "MAX_DOWNLOAD_BYTES_PER_SEC", 0);
 

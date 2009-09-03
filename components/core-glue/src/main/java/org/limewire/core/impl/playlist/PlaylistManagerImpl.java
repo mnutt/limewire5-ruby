@@ -6,17 +6,17 @@ import java.util.List;
 
 import org.limewire.core.api.playlist.Playlist;
 import org.limewire.core.api.playlist.PlaylistManager;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.listener.EventListener;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.library.FileViewChangeEvent;
 import com.limegroup.gnutella.library.Library;
 
 /**
  * Live implementation of PlaylistManager. 
  */
-@Singleton
+@EagerSingleton
 class PlaylistManagerImpl implements PlaylistManager {
     
     private final Library managedList;

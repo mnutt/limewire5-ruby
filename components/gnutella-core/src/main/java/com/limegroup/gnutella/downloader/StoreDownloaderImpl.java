@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.limewire.concurrent.ListeningExecutorService;
-import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.net.SocketsManager;
@@ -196,9 +195,18 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
         if (!FileUtils.setWriteable(realOutputDir)) {
             return defaultSaveFile;
         }
-        return new File(realOutputDir, getLWSFileName(defaultSaveFile, subs));
-    }
+        String fileName = getLWSFileName(defaultSaveFile, subs);
 
+        try {
+            File f = new File(realOutputDir, CommonUtils.convertFileName(realOutputDir, fileName));
+            return f;
+        } catch(IOException e) {
+            
+        }
+        // if the custom file name had problems, revert back to the default name
+        return defaultSaveFile;
+    }
+    
     @Override
     public boolean isRelocatable() {
         return super.isRelocatable() || getState() == DownloadState.SAVING;
@@ -348,12 +356,5 @@ class StoreDownloaderImpl extends ManagedDownloaderImpl implements StoreDownload
     @Override
     protected boolean shouldPublishIFD() {
         return false;
-    }
-    
-    @Override
-    public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
-            throws DownloadException {
-        //overriding to track down cause of https://www.limewire.org/jira/browse/LWC-3697 remove when fixed
-        super.setSaveFile(saveDirectory, fileName, overwrite);
     }
 }

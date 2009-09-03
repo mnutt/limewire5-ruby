@@ -16,6 +16,7 @@ import org.apache.http.HttpException;
 import org.apache.http.params.HttpParams;
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.friend.api.FriendPresence;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.GUID;
 import org.limewire.lifecycle.Service;
 import org.limewire.net.SocketsManager;
@@ -23,12 +24,11 @@ import org.limewire.service.ErrorService;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.downloader.PushedSocketHandlerRegistry;
 import com.limegroup.gnutella.messages.MessageFactory;
 
-@Singleton
+@EagerSingleton
 class BrowseHostHandlerManagerImpl implements BrowseHostHandlerManager, Service {
 
     private static final Log LOG = LogFactory.getLog(BrowseHostHandlerManagerImpl.class);

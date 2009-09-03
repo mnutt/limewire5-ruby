@@ -3,14 +3,16 @@ package org.limewire.ui.swing.player;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Properties;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LocalFileItem;
-import org.limewire.inject.LazySingleton;
+import org.limewire.inspection.Inspectable;
+import org.limewire.inspection.InspectionHistogram;
+import org.limewire.inspection.InspectionPoint;
 import org.limewire.player.api.AudioPlayer;
 import org.limewire.player.api.AudioPlayerEvent;
 import org.limewire.player.api.AudioPlayerListener;
@@ -20,22 +22,20 @@ import org.limewire.ui.swing.library.LibraryMediator;
 import org.limewire.ui.swing.library.LibraryPanel;
 import org.limewire.ui.swing.library.navigator.LibraryNavItem;
 import org.limewire.ui.swing.library.navigator.LibraryNavItem.NavType;
-import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.settings.MediaPlayerSettings;
-import org.limewire.inspection.Inspectable;
-import org.limewire.inspection.InspectionPoint;
-import org.limewire.inspection.InspectionHistogram;
+import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.EventList;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 /**
  * Mediator that controls the interaction between the player view, the current
  * playlist, and the audio player.
  */
-@LazySingleton
+@Singleton
 public class PlayerMediator {
 
     public static final String AUDIO_LENGTH_BYTES = "audio.length.bytes";

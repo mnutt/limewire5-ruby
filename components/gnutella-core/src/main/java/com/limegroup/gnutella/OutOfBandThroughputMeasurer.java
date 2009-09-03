@@ -5,14 +5,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.statistics.OutOfBandStatistics;
 
-@Singleton
+@EagerSingleton
 public class OutOfBandThroughputMeasurer implements Service {
     
     private static final Log LOG = LogFactory.getLog(OutOfBandThroughputMeasurer.class);

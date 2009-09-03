@@ -177,7 +177,7 @@ public class TEAMACCalculatorTest extends BaseTestCase {
         }
     }
     
-    private class TEAVectorTester extends TEAMACCalculator {
+    private static class TEAVectorTester extends TEAMACCalculator {
         /** Set up a tester with given TEA encryption keys */
         public TEAVectorTester(int k0, int k1, int k2, int k3, 
                 int preRotate, int postRotate) {

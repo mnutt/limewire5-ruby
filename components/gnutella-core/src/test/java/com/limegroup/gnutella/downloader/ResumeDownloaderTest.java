@@ -55,7 +55,7 @@ public class ResumeDownloaderTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector();
+        injector = LimeTestUtils.createInjectorNonEagerly();
         
         hash = TestFile.hash();
         rfd = newRFD(name, size, hash);
@@ -128,7 +128,7 @@ public class ResumeDownloaderTest extends LimeTestCase {
         downloader.stop();
         
         // Verify that in a new instance of LW, things are still right.
-        Injector newInjector = LimeTestUtils.createInjector();
+        Injector newInjector = LimeTestUtils.createInjectorNonEagerly();
         DownloadManagerImpl newDM = (DownloadManagerImpl)newInjector.getInstance(DownloadManager.class);
         CoreDownloader newDownloader = newDM.prepareMemento(memento);
         newDownloader.initialize();

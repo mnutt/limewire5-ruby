@@ -36,7 +36,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.Acceptor;
 import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.LifecycleManager;
@@ -60,7 +59,7 @@ public class PushDownloadManagerTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(DownloaderStub.class).asEagerSingleton();

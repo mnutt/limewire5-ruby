@@ -14,6 +14,6 @@ public class LimeWireUiMainframeModule extends AbstractModule {
     protected void configure() {
         bind(SearchNavigator.class).to(TopPanel.class);
         bind(JLayeredPane.class).annotatedWith(GlobalLayeredPane.class).toInstance(new JLayeredPane());
-        bind(DocumentWarningController.class);
+        bind(DocumentWarningController.class).asEagerSingleton();
     }
 }

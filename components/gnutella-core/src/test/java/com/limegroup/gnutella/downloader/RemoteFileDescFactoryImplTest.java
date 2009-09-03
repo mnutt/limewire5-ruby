@@ -29,7 +29,7 @@ public class RemoteFileDescFactoryImplTest extends BaseTestCase {
     @Override
     protected void setUp() throws Exception {
         context = new Mockery();
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
     }
     

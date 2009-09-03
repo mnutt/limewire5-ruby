@@ -166,6 +166,11 @@ public interface Uploader extends BandwidthTracker, Connectable {
      */
     public int getNumUploadConnections();
     
+    /**
+     * Returns the seed ratio for torrent uploaders. Other uploaders will return -1 indicating the seed ratio is not supported. 
+     */
+    public float getSeedRatio();
+    
 
 }
 

@@ -18,6 +18,7 @@ import org.limewire.collection.FixedsizeForgetfulHashMap;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.UploadSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
@@ -31,7 +32,6 @@ import org.limewire.service.ErrorService;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.filters.IPFilter;
@@ -50,7 +50,7 @@ import com.limegroup.gnutella.xml.LimeXMLUtils;
  * This is the class that goes in the route table when a request is
  * sent whose reply is for me.
  */
-@Singleton
+@EagerSingleton
 public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
     
     private static final Log LOG = LogFactory.getLog(ForMeReplyHandler.class);
@@ -74,6 +74,7 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
     private final ConnectionServices connectionServices;
     private final LimeXMLDocumentHelper limeXMLDocumentHelper;
     private final Provider<IPFilter> ipFilterProvider;
+    private final SpamServices spamServices;
 
     @Inject
     ForMeReplyHandler(NetworkManager networkManager,
@@ -85,7 +86,8 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
             ApplicationServices applicationServices,
             ConnectionServices connectionServices,
             LimeXMLDocumentHelper limeXMLDocumentHelper,
-            Provider<IPFilter> ipFilterProvider) {
+            Provider<IPFilter> ipFilterProvider,
+            SpamServices spamServices) {
         this.networkManager = networkManager;
         this.secureMessageVerifier = secureMessageVerifier;
         this.connectionManager = connectionManager;
@@ -96,6 +98,7 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
         this.connectionServices = connectionServices;
         this.limeXMLDocumentHelper = limeXMLDocumentHelper;
         this.ipFilterProvider = ipFilterProvider;
+        this.spamServices = spamServices;
     }
     
     @Inject
@@ -167,7 +170,7 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
         }
 
         // check for unwanted results after xml has been constructed
-        if(handler != null && handler.isPersonalSpam(reply)) {
+        if(spamServices.isPersonalSpam(reply)) {
             LOG.trace("Dropping spam reply");
             return;
         }
@@ -269,7 +272,7 @@ public class ForMeReplyHandler implements ReplyHandler, SecureMessageCallback {
 	    }
 	    
         //Ignore push request from banned hosts.
-        if (handler.isPersonalSpam(pushRequest)) {
+        if (spamServices.isPersonalSpam(pushRequest)) {
             LOG.debug("discarded as personal spam");
             return;
         }

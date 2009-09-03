@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.limewire.util.UnboxUtils;
 
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.downloader.DownloaderType;
@@ -48,12 +45,6 @@ public class LibTorrentBTDownloadMementoImpl implements LibTorrentBTDownloadMeme
         return (String) serialObjects.get("name");
     }
 
-    @Override
-    public long getContentLength() {
-        Long l = (Long) serialObjects.get("contentLength");
-        return UnboxUtils.toLong(l, -1);
-    }
-
     public File getIncompleteFile() {
         return (File)serialObjects.get("incompleteFile");
     }
@@ -75,12 +66,6 @@ public class LibTorrentBTDownloadMementoImpl implements LibTorrentBTDownloadMeme
     @Override
     public String getTrackerURL() {
         return (String) serialObjects.get("trackerURL");
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<String> getPaths() {
-        return (List<String>) serialObjects.get("paths");
     }
 
     @Override
@@ -114,11 +99,6 @@ public class LibTorrentBTDownloadMementoImpl implements LibTorrentBTDownloadMeme
     }
 
     @Override
-    public void setContentLength(long contentLength) {
-        serialObjects.put("contentLength", contentLength);
-    }
-
-    @Override
     public void setIncompleteFile(File incompleteFile) {
         serialObjects.put("incompleteFile", incompleteFile);
     }
@@ -127,11 +107,6 @@ public class LibTorrentBTDownloadMementoImpl implements LibTorrentBTDownloadMeme
     public void setSha1Urn(URN sha1Urn) {
         String sha1URNString = sha1Urn != null ? sha1Urn.toString() : null;
         serialObjects.put("sha1Urn", sha1URNString);
-    }
-
-    @Override
-    public void setPaths(List<String> paths) {
-        serialObjects.put("paths", paths);
     }
 
     @Override

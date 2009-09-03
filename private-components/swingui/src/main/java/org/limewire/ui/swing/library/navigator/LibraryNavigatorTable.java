@@ -271,7 +271,7 @@ public class LibraryNavigatorTable extends GlazedJXTable {
      * always appear first and second in the table. The other items appear as they are
      * loaded.
      */
-    private class LibraryNavItemComparator implements Comparator<LibraryNavItem> {
+    private static class LibraryNavItemComparator implements Comparator<LibraryNavItem> {
 
         @Override
         public int compare(LibraryNavItem nav1, LibraryNavItem nav2) {

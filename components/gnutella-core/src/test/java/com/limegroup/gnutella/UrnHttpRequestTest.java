@@ -24,7 +24,6 @@ import org.limewire.util.FileUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.http.HTTPHeaderName;
 import com.limegroup.gnutella.http.HttpTestUtils;
 import com.limegroup.gnutella.library.FileCollection;
@@ -73,7 +72,7 @@ public final class UrnHttpRequestTest extends LimeTestCase {
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
 
         // initialize services
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
+        Injector injector = LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
 
         uploadManager = (HTTPUploadManager) injector.getInstance(UploadManager.class);
         lifeCycleManager.start();

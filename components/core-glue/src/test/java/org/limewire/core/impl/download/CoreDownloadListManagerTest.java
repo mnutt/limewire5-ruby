@@ -89,7 +89,7 @@ public class CoreDownloadListManagerTest extends BaseTestCase {
         final ServiceScheduler scheduler = context.mock(ServiceScheduler.class);
         context.checking(new Expectations() {
             {
-                one(scheduler).scheduleAtFixedRate(with(any(String.class)),
+                one(scheduler).scheduleWithFixedDelay(with(any(String.class)),
                         with(any(Runnable.class)), with(any(long.class)), with(any(long.class)),
                         with(any(TimeUnit.class)), with(same(backgroundExecutor)));
             }

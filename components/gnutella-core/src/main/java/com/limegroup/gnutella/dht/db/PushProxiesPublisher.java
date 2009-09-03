@@ -202,7 +202,7 @@ public class PushProxiesPublisher implements DHTEventListener {
             }
             long interval = DHTSettings.PUSH_PROXY_STABLE_PUBLISHING_INTERVAL.getValue();
             long initialDelay = (long)(Math.random() * interval);
-            publishingFuture = backgroundExecutor.scheduleAtFixedRate(new PublishingRunnable(), initialDelay, interval, TimeUnit.MILLISECONDS);
+            publishingFuture = backgroundExecutor.scheduleWithFixedDelay(new PublishingRunnable(), initialDelay, interval, TimeUnit.MILLISECONDS);
         } else if (event.getType() == Type.STOPPED) {
             LOG.debug("stopping push proxy publishing");
             if (publishingFuture != null) {

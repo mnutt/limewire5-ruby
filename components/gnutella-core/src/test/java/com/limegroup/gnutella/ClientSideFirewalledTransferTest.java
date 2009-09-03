@@ -37,7 +37,6 @@ import org.limewire.util.Base32;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
@@ -98,7 +97,7 @@ public class ClientSideFirewalledTransferTest extends ClientSideTestCase {
         UDP_ACCESS = new DatagramSocket(9000);
         UDP_ACCESS.setSoTimeout(TIMEOUT*2);
         networkManagerStub = new NetworkManagerStub();
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, MyActivityCallback.class,
+        injector = LimeTestUtils.createInjector(MyActivityCallback.class,
                 new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
         super.setUp(injector);
 

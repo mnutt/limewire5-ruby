@@ -8,14 +8,14 @@ import org.limewire.friend.api.FriendPresenceEvent;
 import org.limewire.friend.api.MutableFriendManager;
 import org.limewire.friend.api.PresenceEvent;
 import org.limewire.friend.api.RosterEvent;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 class FriendListListeners {
     
     private final PresenceListener presenceListener = new PresenceListener();

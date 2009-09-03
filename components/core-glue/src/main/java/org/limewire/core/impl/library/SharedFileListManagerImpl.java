@@ -12,6 +12,7 @@ import org.limewire.core.api.library.SharedFileList;
 import org.limewire.core.api.library.SharedFileListManager;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.filter.Filter;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
@@ -20,7 +21,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.library.FileCollectionManager;
 import com.limegroup.gnutella.library.FileView;
 import com.limegroup.gnutella.library.FileViewChangeEvent;
@@ -28,7 +28,7 @@ import com.limegroup.gnutella.library.SharedFileCollection;
 import com.limegroup.gnutella.library.SharedFileCollectionChangeEvent;
 import com.limegroup.gnutella.library.SharedFiles;
 
-@Singleton
+@EagerSingleton
 class SharedFileListManagerImpl implements SharedFileListManager {
     
 //    private static final Log LOG = LogFactory.getLog(ShareListManagerImpl.class);

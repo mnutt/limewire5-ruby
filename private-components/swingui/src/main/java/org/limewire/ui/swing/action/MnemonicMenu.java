@@ -12,7 +12,7 @@ import org.limewire.ui.swing.util.GuiUtils;
  * Allows the text of the menu to have an ampersand to 
  * mark the mnemonic of its name.
  */
-public class MnemonicMenu extends javax.swing.JMenu {
+public abstract class MnemonicMenu extends javax.swing.JMenu {
     
     public MnemonicMenu(String text) {
         super(text);
@@ -46,4 +46,6 @@ public class MnemonicMenu extends javax.swing.JMenu {
         JMenuItem itemReturned = super.add(item);
         return itemReturned;
     }
+    
+    public abstract void createMenuItems();
 }

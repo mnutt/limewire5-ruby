@@ -60,7 +60,7 @@ public class ActivityCallbackStub implements ActivityCallback {
         corruptChecked = true;
         dloader.discardCorruptDownload(delCorrupt);
     }
-    public void dangerousDownloadDeleted(String filename) { }
+    public void warnUser(String filename, String message) { }
     public void browseHostFailed(GUID guid) {}
 	public void restoreApplication() {}
 	public void showDownloads() {}
@@ -87,6 +87,11 @@ public class ActivityCallbackStub implements ActivityCallback {
 
     @Override
     public boolean promptTorrentUploadCancel(Torrent torrent) {
+        return true;
+    }
+    
+    @Override
+    public boolean promptTorrentFilePriorities(Torrent torrent) {
         return true;
     }
 }

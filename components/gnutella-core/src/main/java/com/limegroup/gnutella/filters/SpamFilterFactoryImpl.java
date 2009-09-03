@@ -1,6 +1,6 @@
 package com.limegroup.gnutella.filters;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.limewire.core.settings.FilterSettings;
 
@@ -10,61 +10,41 @@ import com.google.inject.Singleton;
 
 @Singleton
 class SpamFilterFactoryImpl implements SpamFilterFactory {
-    
-    private final Provider<MutableGUIDFilter> mutableGUIDFilter;
+
     private final Provider<HostileFilter> hostileFilter;
     private final Provider<LocalIPFilter> ipFilter;
     private final Provider<URNFilter> urnFilter;
 
     @Inject
-    public SpamFilterFactoryImpl(Provider<MutableGUIDFilter> mutableGUIDFilter, 
-            Provider<HostileFilter> hostileFilter,
+    public SpamFilterFactoryImpl(Provider<HostileFilter> hostileFilter,
             Provider<LocalIPFilter> ipFilter,
             Provider<URNFilter> urnFilter) {
-        this.mutableGUIDFilter = mutableGUIDFilter;
         this.hostileFilter = hostileFilter;
         this.ipFilter = ipFilter;
         this.urnFilter = urnFilter;
     }
-    
+
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.filters.SpamFilterFactory#createPersonalFilter()
      */
     public SpamFilter createPersonalFilter() {
-        
-        Vector<SpamFilter> buf=new Vector<SpamFilter>();
 
-        //1. IP-based techniques.
+        ArrayList<SpamFilter> buf = new ArrayList<SpamFilter>();
+
+        //1. Hostile and locally blacklisted IP addresses.
         LocalIPFilter ipFilter = this.ipFilter.get();
         if(ipFilter.hasBlacklistedHosts())
             buf.add(ipFilter);
 
-        //2. Keyword-based techniques.
-        String[] badWords = FilterSettings.BANNED_WORDS.get();
-        String[] badExtensions = FilterSettings.BANNED_EXTENSIONS.get();
-        
-        boolean filterAdult = FilterSettings.FILTER_ADULT.getValue();
-        
-        if (badWords.length!=0 || badExtensions.length!=0 || filterAdult) {
-            KeywordFilter kf=new KeywordFilter();
-            for (String badWord : badWords)
-                kf.disallow(badWord);
-            for (String badExt : badExtensions)
-                kf.disallow(badExt);
-            if (filterAdult)
-                kf.disallowAdult();
+        //2. Queries matching banned keywords (responses are handled by the
+        //   ResponseFilter pipeline to avoid dropping messages with a mixture
+        //   of matching and non-matching responses).
+        buf.add(new KeywordFilter());
 
-            buf.add(kf);
-        }
+        //3. Spammy replies. (TODO: do these still exist?)
+        buf.add(new SpamReplyFilter());
 
-        //3. Spammy Replies
-        SpamReplyFilter spf=new SpamReplyFilter();
-        buf.add(spf);
-        
-        //4. Mutable GUID-based filters.
-        buf.add(mutableGUIDFilter.get());
-        
-        //5. URN filters
+        //4. URN filter.
         if(FilterSettings.FILTER_URNS.getValue())
             buf.add(urnFilter.get());
 
@@ -76,13 +56,13 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
      */
     public SpamFilter createRouteFilter() {
         //Assemble spam filters. Order matters a little bit.
-        
-        Vector<SpamFilter>  buf=new Vector<SpamFilter> ();
 
-        //1. Eliminate old LimeWire requeries.
-        buf.add(new RequeryFilter());        
+        ArrayList<SpamFilter> buf = new ArrayList<SpamFilter>();
 
-        //1b. Eliminate runaway Qtrax queries.
+        //1. Eliminate old LimeWire requeries. (TODO: do these still exist?)
+        buf.add(new RequeryFilter());
+
+        //1b. Eliminate runaway Qtrax queries. (TODO: do these still exist?)
         buf.add(new GUIDFilter());
 
         //2. Duplicate-based techniques.
@@ -96,7 +76,7 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
         //4. Queries containing hash urns.
         if (FilterSettings.FILTER_HASH_QUERIES.getValue())
             buf.add(new HashFilter());
-        
+
         //5. Hostile IP addresses.
         buf.add(hostileFilter.get());
 
@@ -105,9 +85,9 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
 
     /**
      * Returns a composite filter of the given filters.
-     * @param filters a Vector of SpamFilter.
+     * @param filters a ArrayList of SpamFilter.
      */
-    private static SpamFilter compose(Vector<? extends SpamFilter>  filters) {
+    private static SpamFilter compose(ArrayList<? extends SpamFilter> filters) {
         //As a minor optimization, we avoid a few method calls in
         //special cases.
         if (filters.size()==0)
@@ -115,10 +95,8 @@ class SpamFilterFactoryImpl implements SpamFilterFactory {
         else if (filters.size()==1)
             return filters.get(0);
         else {
-            SpamFilter[] delegates=new SpamFilter[filters.size()];
-            filters.copyInto(delegates);
-            return new CompositeFilter(delegates);
+            SpamFilter[] delegates = new SpamFilter[filters.size()];
+            return new CompositeFilter(filters.toArray(delegates));
         }
     }
-
 }

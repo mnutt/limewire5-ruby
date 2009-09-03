@@ -75,7 +75,7 @@ public class PushEndpointTest extends BaseTestCase {
         tls5 = new ConnectableImpl("1.2.3.8", 1235, true);
         tls6 = new ConnectableImpl("1.2.3.9", 1235, true);
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(ScheduledExecutorService.class).annotatedWith(Names.named("backgroundExecutor")).toInstance(new ScheduledExecutorServiceStub());

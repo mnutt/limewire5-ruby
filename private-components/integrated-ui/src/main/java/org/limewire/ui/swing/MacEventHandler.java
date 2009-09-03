@@ -4,16 +4,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
+
 import net.roydesign.event.ApplicationEvent;
 import net.roydesign.mac.MRJAdapter;
 
+import org.jdesktop.application.Application;
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.lifecycle.LifeCycleManager;
-import org.limewire.ui.swing.event.AboutDisplayEvent;
-import org.limewire.ui.swing.event.ExitApplicationEvent;
-import org.limewire.ui.swing.event.OptionsDisplayEvent;
-import org.limewire.ui.swing.event.RestoreViewEvent;
+import org.limewire.ui.swing.mainframe.AboutAction;
+import org.limewire.ui.swing.mainframe.OptionsAction;
+import org.limewire.ui.swing.menu.ExitAction;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
 
 import com.google.inject.Inject;
@@ -46,21 +49,13 @@ public class MacEventHandler {
     @Inject private volatile DownloadManager downloadManager = null;
     @Inject private volatile LifeCycleManager lifecycleManager = null;
     @Inject private volatile ActivityCallback activityCallback = null;
+    @Inject private volatile AboutAction aboutAction = null;
+    @Inject private volatile OptionsAction optionsAction = null;
+    @Inject private volatile ExitAction exitAction = null;
 
     /** Creates a new instance of MacEventHandler */
-    private MacEventHandler() {
-
-        MRJAdapter.addAboutListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                new AboutDisplayEvent().publish();
-            }
-        });
-
-        MRJAdapter.addQuitApplicationListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                handleQuit();
-            }
-        });
+    @Inject
+    public MacEventHandler() {
 
         MRJAdapter.addOpenDocumentListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -71,7 +66,11 @@ public class MacEventHandler {
 
         MRJAdapter.addReopenApplicationListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                handleReopen();
+                ActionMap map = Application.getInstance().getContext().getActionManager().getActionMap();
+                Action action = map.get("restoreView");
+                if (action != null) {
+                    action.actionPerformed(evt);
+                }
             }
         });
     }
@@ -91,16 +90,11 @@ public class MacEventHandler {
     public void enablePreferences() {
         MRJAdapter.setPreferencesEnabled(true);
 
-        MRJAdapter.addPreferencesListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                new OptionsDisplayEvent().publish();
-            }
-        });
-    }
+        MRJAdapter.addPreferencesListener(optionsAction);
+        
+        MRJAdapter.addAboutListener(aboutAction);
 
-    private void handleQuit() {
-        new ExitApplicationEvent(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Shutdown"))
-                .publish();
+        MRJAdapter.addQuitApplicationListener(exitAction);
     }
 
     /**
@@ -144,9 +138,5 @@ public class MacEventHandler {
         } else {
             NativeLaunchUtils.safeLaunchFile(file);
         }
-    }
-
-    private void handleReopen() {
-        new RestoreViewEvent().publish();
     }
 }

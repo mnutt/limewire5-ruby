@@ -38,7 +38,7 @@ public class HttpIOReactorTest extends BaseTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         
         acceptor = injector.getInstance(Acceptor.class);
         acceptor.start();

@@ -5,6 +5,7 @@ import org.limewire.friend.api.FriendPresence;
 import org.limewire.friend.api.feature.AddressFeature;
 import org.limewire.friend.api.feature.AuthTokenFeature;
 import org.limewire.friend.api.feature.FeatureEvent;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.listener.BlockingEvent;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
@@ -12,13 +13,12 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Listens for new presences and for them to have features so they become
  * browsable and can be added to {@link RemoteLibraryManager}.
  */
-@Singleton
+@EagerSingleton
 class FriendPresenceLibraryAdder {
     
     private static final Log LOG = LogFactory.getLog(FriendPresenceLibraryAdder.class);

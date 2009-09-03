@@ -56,7 +56,7 @@ public abstract class RouteTableGraph implements RouteTableListener {
         routeTable.removeRouteTableListener(this);
     }
 
-    public class RootableSparseTree extends SparseTree {
+    public static class RootableSparseTree extends SparseTree {
         public RootableSparseTree(Vertex root) {
             super(root);
         }

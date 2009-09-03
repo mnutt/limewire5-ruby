@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.EventListener;
@@ -14,7 +15,6 @@ import org.limewire.listener.ListenerSupport;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileDescChangeEvent;
 import com.limegroup.gnutella.library.FileViewChangeEvent;
@@ -27,7 +27,7 @@ import com.limegroup.gnutella.library.LibraryStatusEvent;
  * 
  * @author Sumeet Thadani
  */
-@Singleton
+@EagerSingleton
 public class SchemaReplyCollectionMapper implements XmlController {
     
     private final Map<String, LimeXMLReplyCollection> mapper;

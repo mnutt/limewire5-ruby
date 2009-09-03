@@ -44,7 +44,7 @@
     	<!-- keywords listed explicitly because trl is not part of the gettext defaults -->
         <gettext-extract keysFile="limewire.pot"
              poDirectory="lib/messagebundles" keywords="-ktrc:1c,2
-          -ktrnc:1c,2,3 -ktr -kmarktr -ktrn:1,2 -ktrl -k">
+          -ktrnc:1c,2,3 -ktr -kmarktr -ktrn:1,2 -ktrl:2 -ktrln:2,3 -kmarktrn:1,2 -k">
           <fileset dir="components">
 	    <patternset id="non.test.sources">
 	      <include name="**/*.java"/>

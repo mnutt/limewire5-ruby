@@ -155,7 +155,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
             meChooseRadioButton.setEnabled(false);
     }
     
-    private class RadioListener implements ItemListener {
+    private static class RadioListener implements ItemListener {
 
         private JScrollPane scrollPane;
         private JRadioButton radioButton;
@@ -191,7 +191,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
         }
     }
     
-    private class NetworkTableFormat extends AbstractTableFormat<NetworkItem> {
+    private static class NetworkTableFormat extends AbstractTableFormat<NetworkItem> {
 
         private static final int CHECK_INDEX = 0;
         private static final int ADDRESS_INDEX = 1;
@@ -213,7 +213,7 @@ public class NetworkInterfaceOptionPanel extends OptionPanel {
         }   
     }
     
-    private class NetworkItem {       
+    private static class NetworkItem {       
         private boolean isSelected = false;
         private InetAddress address;
         private String displayName;

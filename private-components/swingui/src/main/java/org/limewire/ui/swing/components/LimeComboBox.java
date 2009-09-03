@@ -22,6 +22,7 @@ import javax.swing.ButtonModel;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
@@ -29,7 +30,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.jdesktop.swingx.JXButton;
-import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jdesktop.swingx.icon.EmptyIcon;
 import org.limewire.ui.swing.util.ResizeUtils;
@@ -81,6 +81,10 @@ public class LimeComboBox extends JXButton {
     
     /** Position to place the popup from the bottom left corner **/
     private Point popupPosition = new Point(1,-1);
+
+    private final MouseListener mouseListener;
+
+    private final ActionListener actionListener;
     
     /** Constructs an empty unskinned combo box. */
     public LimeComboBox() {
@@ -98,7 +102,61 @@ public class LimeComboBox extends JXButton {
         } else {
             selectedAction = null;
         }        
+        
         initModel();
+        
+        actionListener =  new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ActionLabel label = (ActionLabel)e.getSource();
+                Action action = label.getAction();
+                selectedAction = action;
+                selectedComponent = (JComponent)label.getParent();
+                selectedLabel = label;
+                fireChangeEvent(action);
+                repaint();
+                menu.setVisible(false);
+            }
+        };
+        
+        mouseListener = new MouseAdapter() {
+            
+            private final Color foreground = UIManager.getColor("MenuItem.foreground");
+            private final Color selectedForeground = UIManager.getColor("MenuItem.selectionForeground");
+            
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                paintNormal(e.getSource(), true);
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                paintNormal(e.getSource(), false);
+            }
+            
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                paintNormal(e.getSource(), true);
+            }
+            
+            private void paintNormal(Object source, boolean selected) {
+                 JComponent label = (JComponent)source;
+                 label.setForeground(selected ? selectedForeground : foreground );
+                 
+                 JComponent parent = (JComponent) label.getParent();
+                 parent.setOpaque(selected);
+                 parent.repaint();
+                
+                 // Remove highlight on the last selected component.
+                 if (selectedComponent != null && selectedComponent != parent) {
+                     selectedLabel.setForeground(foreground);
+                     selectedComponent.setOpaque(false);
+                     selectedComponent.repaint();
+                     selectedLabel = null;
+                     selectedComponent = null;
+                 }
+            }
+        };
     }
 
     /** Sets the combobox to always display the given popupmenu. */
@@ -127,6 +185,23 @@ public class LimeComboBox extends JXButton {
         return item;
     }
 
+    protected JComponent attachListeners(JComponent comp) {
+        comp.addMouseListener(mouseListener);
+        if (comp instanceof ActionLabel) {
+            ((ActionLabel)comp).addActionListener(actionListener);
+        }
+        return comp;
+    }
+    
+    protected JComponent wrapItemForSelection(JComponent comp) {
+        JPanel panel = new JPanel(new VerticalLayout());
+        panel.setBackground(UIManager.getColor("MenuItem.selectionBackground"));
+        panel.add(comp);
+        panel.setOpaque(false);
+        
+        return panel;
+    }
+    
     /**
      * A helper method for creating menu items painted in the default style of an 
      *  overridden menu.
@@ -422,61 +497,6 @@ public class LimeComboBox extends JXButton {
         // otherwise, reset up the menu.
         menuDirty = false;
         menu.removeAll();
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ActionLabel label = (ActionLabel)e.getSource();
-                Action action = label.getAction();
-                selectedAction = action;
-                selectedComponent = (JComponent)label.getParent();
-                selectedLabel = label;
-                fireChangeEvent(action);
-                repaint();
-                menu.setVisible(false);
-            }
-        };
-        
-        // This is a workaround for not using JMenuItem -- it mimicks the feel
-        // without requiring odd spacing.
-        MouseListener mouseListener = new MouseAdapter() {
-            
-            private final Color foreground = UIManager.getColor("MenuItem.foreground");
-            private final Color selectedForeground = UIManager.getColor("MenuItem.selectionForeground");
-            
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                paintNormal(e.getSource(), true);
-            }
-            
-            @Override
-            public void mouseExited(MouseEvent e) {
-                paintNormal(e.getSource(), false);
-            }
-            
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                paintNormal(e.getSource(), true);
-            }
-            
-            private void paintNormal(Object source, boolean selected) {
-                 ActionLabel label = (ActionLabel)source;
-                 label.setForeground(selected ? selectedForeground : foreground );
-                 
-                 JComponent parent = (JComponent) label.getParent();
-                 parent.setOpaque(selected);
-                 parent.repaint();
-                
-                 // Remove highlight on the last selected component.
-                 if (selectedComponent != null && selectedComponent != parent) {
-                     selectedLabel.setForeground(foreground);
-                     selectedComponent.setOpaque(false);
-                     selectedComponent.repaint();
-                     selectedLabel = null;
-                     selectedComponent = null;
-                 }
-            }
-        };
-        
         Icon emptyIcon = null; 
         for(Action action : actions) {
             if(action.getValue(Action.SMALL_ICON) != null) {
@@ -492,11 +512,10 @@ public class LimeComboBox extends JXButton {
             
             // We create the label ourselves (instead of using JMenuItem),
             // because JMenuItem adds lots of bulky insets.
-            JXPanel panel = new JXPanel(new VerticalLayout());
-            ActionLabel menuItem = new ActionLabel(action, false);
-            
-            panel.setBackground(UIManager.getColor("MenuItem.selectionBackground"));
-            
+
+            ActionLabel menuItem = new ActionLabel(action);
+            JComponent panel = wrapItemForSelection(menuItem);
+                        
             if (action != selectedAction) {
                 panel.setOpaque(false);
                 menuItem.setForeground(UIManager.getColor("MenuItem.foreground"));
@@ -510,11 +529,10 @@ public class LimeComboBox extends JXButton {
             if(menuItem.getIcon() == null) {
                 menuItem.setIcon(emptyIcon);
             }
-            menuItem.addMouseListener(mouseListener);
+            attachListeners(menuItem);
             decorateMenuComponent(menuItem);
             menuItem.setBorder(BorderFactory.createEmptyBorder(0, 6, 2, 6));
-            menuItem.addActionListener(actionListener);
-            panel.add(menuItem);
+
             menu.add(panel);
         }
         
@@ -560,7 +578,7 @@ public class LimeComboBox extends JXButton {
             }
         });
     }
-    
+
     /** A listener that's notified when the combobox rebuilds its JPopupMenu. */
     public static interface MenuCreationListener {
         public void menuCreated(LimeComboBox comboBox, JPopupMenu menu);

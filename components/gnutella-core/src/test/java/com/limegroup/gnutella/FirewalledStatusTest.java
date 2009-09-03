@@ -2,13 +2,12 @@ package com.limegroup.gnutella;
 
 import java.net.Socket;
 
+import junit.framework.Test;
+
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.gnutella.tests.LimeTestUtils;
 
-import junit.framework.Test;
-
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 
 /**
  * Checks whether (multi)leaves avoid forwarding messages to ultrapeers, do
@@ -34,7 +33,7 @@ public class FirewalledStatusTest extends ClientSideTestCase {
     
     @Override
     public void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        injector = LimeTestUtils.createInjector();
         super.setUp(injector);
         networkManager = injector.getInstance(NetworkManager.class);
     }

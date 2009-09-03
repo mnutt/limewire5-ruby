@@ -45,7 +45,7 @@ public final class AlternateLocationCollectionTest extends LimeTestCase {
 
 	@Override
     protected void setUp() {
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		alternateLocationFactory = injector.getInstance(AlternateLocationFactory.class);
 
 	    alternateLocationHelper = new AlternateLocationHelper(alternateLocationFactory);

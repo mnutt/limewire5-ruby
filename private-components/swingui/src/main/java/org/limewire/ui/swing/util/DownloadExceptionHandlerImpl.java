@@ -79,6 +79,12 @@ public class DownloadExceptionHandlerImpl implements DownloadExceptionHandler {
     private void handleException(final DownloadAction downLoadAction,
             final DownloadException e, final boolean supportNewSaveFileName) {
 
+        if (e.getErrorCode() == DownloadException.ErrorCode.DOWNLOAD_CANCELLED) {
+            //no error to handle.
+            downLoadAction.downloadCanceled(e);
+            return;
+        }
+        
         if (e.getErrorCode() == DownloadException.ErrorCode.FILE_ALREADY_DOWNLOADING) {
             // ignore, just return because we are already downloading this file
             downLoadAction.downloadCanceled(e);

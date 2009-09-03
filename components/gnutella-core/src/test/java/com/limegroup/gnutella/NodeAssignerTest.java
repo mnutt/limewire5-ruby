@@ -81,7 +81,7 @@ public class NodeAssignerTest extends LimeTestCase {
             }
             
         };
-        injector = LimeTestUtils.createInjector(new AbstractModule() {
+        injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(BandwidthTracker.class).annotatedWith(Names.named("uploadTracker")).toInstance(upTracker);

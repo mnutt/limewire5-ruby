@@ -34,7 +34,7 @@ public class LimeRUDPMessageFactoryTest extends BaseTestCase {
     
     // TODO move this somewhere else, integration test
     public void testContextUsesCorrectFactoryAndDelegate() {
-        RUDPMessageFactory f = LimeTestUtils.createInjector().getInstance(RUDPContext.class).getMessageFactory();
+        RUDPMessageFactory f = LimeTestUtils.createInjectorNonEagerly().getInstance(RUDPContext.class).getMessageFactory();
         assertEquals(LimeRUDPMessageFactory.class, f.getClass());
         assertEquals(DefaultMessageFactory.class, ((LimeRUDPMessageFactory)f).getDelegate().getClass());
     }

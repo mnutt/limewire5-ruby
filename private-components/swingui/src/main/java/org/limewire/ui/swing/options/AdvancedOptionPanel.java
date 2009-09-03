@@ -32,14 +32,11 @@ public class AdvancedOptionPanel extends OptionPanel {
         providerList.add(connectionsOptionPanel);
         providerList.add(systemOptionPanel);
         providerList.add(reallyAdvancedOptionPanel);
-
-        list[0] = filesOptionPanel.get();
-        list[0].initOptions();
         
         setLayout(new MigLayout("insets 12 12 8 12, fill"));
         
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab(I18n.tr("Files"), list[0]);
+        tabbedPane.addTab(I18n.tr("Files"), new JPanel());
         tabbedPane.addTab(I18n.tr("Transfers"), new JPanel());
         tabbedPane.addTab(I18n.tr("System"), new JPanel());
         tabbedPane.addTab(I18n.tr("Super Really Advanced"), new JPanel());
@@ -52,12 +49,7 @@ public class AdvancedOptionPanel extends OptionPanel {
         tabbedPane.addChangeListener(new ChangeListener(){
             @Override
             public void stateChanged(ChangeEvent e) {
-                int index = tabbedPane.getSelectedIndex();
-                if(list[index] == null) {
-                    list[index] = providerList.get(index).get();
-                    list[index].initOptions();
-                    tabbedPane.setComponentAt(index, list[index]);
-                }
+                createTab(tabbedPane.getSelectedIndex(), true);
             }
         });
     }
@@ -86,9 +78,23 @@ public class AdvancedOptionPanel extends OptionPanel {
 
     @Override
     public void initOptions() {
+        
+        createTab(0, false);
+        
         for(OptionPanel optionPanel : list) {
             if(optionPanel != null) {
                 optionPanel.initOptions();
+            }
+        }
+    }
+    
+    private void createTab(int index, boolean init) {
+        if(list[index] == null) {
+            list[index] = providerList.get(index).get();
+            tabbedPane.setComponentAt(index, list[index]);
+            
+            if (init) {
+                list[index].initOptions();
             }
         }
     }

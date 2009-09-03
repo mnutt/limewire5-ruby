@@ -3,6 +3,7 @@ package com.limegroup.gnutella.net.address;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.NetworkUtils;
@@ -19,7 +20,6 @@ import org.limewire.net.address.AddressResolver;
 import org.limewire.net.address.FirewalledAddress;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.NetworkManager;
 
 /**
@@ -27,7 +27,7 @@ import com.limegroup.gnutella.NetworkManager;
  * local network as this client and resolves to the local address. Otherwise marks the 
  * firewalled address as resolved.
  */
-@Singleton
+@EagerSingleton
 public class SameNATAddressResolver implements AddressResolver, RegisteringEventListener<AddressEvent> {
 
     private final static Log LOG = LogFactory.getLog(SameNATAddressResolver.class, LOGGING_CATEGORY);

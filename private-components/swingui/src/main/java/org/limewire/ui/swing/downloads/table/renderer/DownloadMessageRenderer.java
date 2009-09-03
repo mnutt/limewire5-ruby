@@ -9,6 +9,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.core.api.download.DownloadItem.DownloadItemType;
 import org.limewire.core.api.endpoint.RemoteHost;
 import org.limewire.friend.api.Friend;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -84,9 +85,13 @@ public class DownloadMessageRenderer extends DefaultTableCellRenderer {
         case TRYING_AGAIN:
             return getTryAgainMessage(item.getRemainingTimeInState());
         case STALLED:
-            return I18n.tr("Stalled - {0} of {1}", 
+        	 if(item.getDownloadItemType() == DownloadItemType.BITTORRENT) {
+                return I18n.tr("Error downloading torrent");
+             } else {
+             	return I18n.tr("Stalled - {0} of {1}", 
                     GuiUtils.toUnitbytes(item.getCurrentSize()),
                     GuiUtils.toUnitbytes(item.getTotalSize()));
+             }
         case ERROR:         
             return I18n.tr("Unable to download: ") + I18n.tr(item.getErrorState().getMessage());
         case PAUSED:

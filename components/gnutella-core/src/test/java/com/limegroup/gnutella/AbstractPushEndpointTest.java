@@ -82,7 +82,7 @@ public class AbstractPushEndpointTest extends BaseTestCase {
         tls6 = new ConnectableImpl("1.2.3.9", 1235, true);
         
 
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         HTTPHeaderUtils httpHeaderUtils = injector.getInstance(HTTPHeaderUtils.class);
         NetworkInstanceUtils networkInstanceUtils = injector.getInstance(NetworkInstanceUtils.class);
         Provider<IPFilter> hostilesFilter = injector.getProvider(Key.get(IPFilter.class, Names.named("hostileFilter")));

@@ -5,6 +5,9 @@ import com.google.inject.Provider;
 import com.google.inject.Scope;
 import com.google.inject.Scopes;
 
+/**
+ * Extensions to the default Guice Scoping.
+ */
 public class MoreScopes {
 
     /**
@@ -19,6 +22,21 @@ public class MoreScopes {
       @Override public String toString() {
         return "MoreScopes.LAZY_SINGLETON";
       }
+    };
+    
+    /**
+     * A singleton that will be eagerly loaded. A class with
+     * an EagerSingleton annotation will be created at startup.
+     */
+    public static final Scope EAGER_SINGLETON = new Scope() {
+        @Override
+        public <T> Provider<T> scope(Key<T> key, Provider<T> unscoped) {
+            return Scopes.SINGLETON.scope(key, unscoped);
+        }        
+        
+        @Override public String toString() {
+            return "MoreScopes.EAGER_SINGLETON";
+        }
     };
 
 }

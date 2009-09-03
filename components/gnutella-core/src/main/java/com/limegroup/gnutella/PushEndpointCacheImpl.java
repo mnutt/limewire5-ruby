@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Connectable;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
@@ -20,12 +21,11 @@ import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.lifecycle.ServiceScheduler;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.dht.db.SearchListener;
 import com.limegroup.gnutella.uploader.HTTPHeaderUtils;
 
-@Singleton
+@EagerSingleton
 class PushEndpointCacheImpl implements PushEndpointCache {
     
     private static final Log LOG = LogFactory.getLog(PushEndpointCacheImpl.class);

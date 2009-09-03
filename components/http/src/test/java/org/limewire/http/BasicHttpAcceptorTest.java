@@ -13,6 +13,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
+import org.limewire.http.auth.AuthenticationInterceptor;
 import org.limewire.http.auth.AuthenticationInterceptorImpl;
 import org.limewire.http.auth.AuthenticatorRegistryImpl;
 import org.limewire.http.handler.BasicMimeTypeProvider;
@@ -66,7 +68,7 @@ public class BasicHttpAcceptorTest extends BaseTestCase {
         acceptor = new SocketAcceptor(connectionDispatcher);
         acceptor.bind(PORT);
 
-        httpAcceptor = new BasicHttpAcceptor(BasicHttpAcceptor
+        httpAcceptor = new TestBasicHttpAcceptor(BasicHttpAcceptor
                 .createDefaultParams("agent", timeout),
                 new AuthenticationInterceptorImpl(new AuthenticatorRegistryImpl()),
                 methods);
@@ -190,4 +192,16 @@ public class BasicHttpAcceptorTest extends BaseTestCase {
         }
     }
 
+    /**
+     * non-abstract class for testing.
+     */
+    private static class TestBasicHttpAcceptor extends BasicHttpAcceptor {
+
+        public TestBasicHttpAcceptor(HttpParams params,
+                AuthenticationInterceptor authenticationInterceptor, String[] supportedMethods) {
+            super(params, authenticationInterceptor, supportedMethods);
+            
+        }
+        
+    }
 }

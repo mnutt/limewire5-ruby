@@ -297,7 +297,7 @@ public class SystemOptionPanel extends OptionPanel {
         }
     }
 
-    private class BugsPanel extends OptionPanel {
+    private static class BugsPanel extends OptionPanel {
 
         private JRadioButton showBugsBeforeSending;
         private JRadioButton alwaysSendBugs;

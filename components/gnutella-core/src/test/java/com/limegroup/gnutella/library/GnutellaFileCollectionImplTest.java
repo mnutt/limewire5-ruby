@@ -29,7 +29,6 @@ import org.limewire.lifecycle.ServiceRegistry;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.auth.StubContentResponseObserver;
@@ -57,7 +56,7 @@ public class GnutellaFileCollectionImplTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
+        LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
         injector.getInstance(ServiceRegistry.class).initialize();
     }
 

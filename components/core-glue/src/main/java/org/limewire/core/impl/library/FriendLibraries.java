@@ -26,6 +26,7 @@ import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.api.search.SearchCategory;
 import org.limewire.core.api.search.SearchDetails;
 import org.limewire.core.api.search.SearchResult;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 
@@ -34,9 +35,8 @@ import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 public class FriendLibraries {
     private static final Log LOG = LogFactory.getLog(FriendLibraries.class);
 

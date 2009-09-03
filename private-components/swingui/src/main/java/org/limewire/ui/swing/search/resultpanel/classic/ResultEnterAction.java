@@ -25,7 +25,8 @@ public class ResultEnterAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         for (VisualSearchResult result : selectedResults) {
-            if (result.getDownloadState() == BasicDownloadState.NOT_STARTED) {
+            if (result.getDownloadState() == BasicDownloadState.NOT_STARTED &&
+                    !result.isSpam()) {
                 downloadHandler.download(result);
             }
         }

@@ -6,14 +6,11 @@ import java.awt.Paint;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.AbstractPainter;
 
-import com.google.inject.Singleton;
-
 /**
  * Background painter a simple 3 state rounded button.
  *  When the mouse is not over the component is left
  *  unpainted 
  */
-@Singleton
 public class PopupButtonBackgroundPainter extends AbstractPainter<JXButton> {
     
     final private int arcWidth;

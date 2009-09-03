@@ -15,7 +15,6 @@ import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.library.FileDescStub;
 import com.limegroup.gnutella.library.GnutellaFileCollectionStub;
 import com.limegroup.gnutella.library.LibraryStubModule;
@@ -74,7 +73,7 @@ public class ServerSideHeadTest extends LimeTestCase {
     	addr2 = new InetSocketAddress(InetAddress.getLocalHost(), port2);
 
     	
-    	Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new LibraryStubModule());
+    	Injector injector = LimeTestUtils.createInjector(new LibraryStubModule());
     	
     	lifecycleManager = injector.getInstance(LifecycleManager.class);
         messageRouter = injector.getInstance(MessageRouter.class);

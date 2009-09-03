@@ -172,7 +172,7 @@ class LibraryNavTableEditor extends JPanel implements TableCellEditor {
     /**
 	 * Sets the max limit for a shared file list name.
 	 */
-    private class TextFieldLimit extends PlainDocument {
+    private static class TextFieldLimit extends PlainDocument {
         private int maxLength;
         
         TextFieldLimit(int maxLength) {

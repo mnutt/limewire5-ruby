@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
+import org.limewire.bittorrent.Torrent;
+
 import com.limegroup.gnutella.downloader.CoreDownloader;
 
 public interface BTDownloader extends CoreDownloader {
@@ -26,14 +28,21 @@ public interface BTDownloader extends CoreDownloader {
 
     /**
      * Registers the internal torrent with the torrent manager.
+     * 
      * @returns true if the torrent was registered, or false if an error
-     * occurred.
+     *          occurred.
      */
     boolean registerTorrentWithTorrentManager();
-    
+
     /**
-     * Returns a collection of files representing where the completed files will be from this downloader. 
+     * Returns a collection of files representing where the completed files will
+     * be from this downloader.
      */
     public Collection<File> getCompleteFiles();
+
+    /**
+     * Returns the Torrent for this BTDownloader.
+     */
+    Torrent getTorrent();
 
 }

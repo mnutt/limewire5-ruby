@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.Icon;
 
@@ -34,6 +36,7 @@ import org.limewire.friend.api.RosterEvent;
 import org.limewire.friend.api.feature.AddressFeature;
 import org.limewire.friend.api.feature.FeatureEvent;
 import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.io.UnresolvedIpPort;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.EventListener;
@@ -58,7 +61,7 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
 
     private static Log LOG = LogFactory.getLog(FriendBrowseDownloadRUDPTest.class);
     
-    private static final int SECONDS_TO_WAIT = 10;
+    private static final int SECONDS_TO_WAIT = 15;
     private static final String USERNAME_1 = "limenetworktest1@gmail.com";
     private static final String FRIEND = "limenetworktest2@gmail.com";
 
@@ -85,7 +88,13 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
         FriendConnectionConfiguration config = getDefaultXmppConnectionConfig(USERNAME_1, PASSWORD_1, SERVICE);
 
         ListeningFuture<FriendConnection> loginTask = friendConnectionFactory.login(config);
-        conn = loginTask.get(SECONDS_TO_WAIT, TimeUnit.SECONDS);
+        try {
+            conn = loginTask.get(SECONDS_TO_WAIT, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            fail("Login attempt timed out");    
+        } catch (ExecutionException e) {
+            fail("Error logging in", e.getCause());
+        }
     }
 
     @Override
@@ -95,7 +104,9 @@ public class FriendBrowseDownloadRUDPTest extends LimeTestCase {
     }
 
     private Injector createInjector(Module... modules) {
-        return Guice.createInjector(Stage.PRODUCTION, modules);
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, modules);
+        GuiceUtils.loadEagerSingletons(injector);
+        return injector;
     }
 
     private FriendConnectionConfiguration getDefaultXmppConnectionConfig(final String userName, final String passwd,

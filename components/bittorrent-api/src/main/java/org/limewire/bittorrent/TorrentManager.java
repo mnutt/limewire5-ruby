@@ -3,9 +3,7 @@ package org.limewire.bittorrent;
 import java.io.File;
 import java.util.List;
 
-import org.limewire.lifecycle.Service;
-
-public interface TorrentManager extends Service {
+public interface TorrentManager {
 
     /**
      * Removes torrent from control of the torrent manager. Also delegates a
@@ -27,12 +25,6 @@ public interface TorrentManager extends Service {
      * Delegates to clear any error state and restarts the torrent.
      */
     public void recoverTorrent(Torrent torrent);
-
-    /**
-     * Returns a list of ip addresses for the peers connected to the specified
-     * torrent.
-     */
-    public List<String> getPeers(Torrent torrent);
 
     /**
      * Moves the underlying storage of the torrent to the specified directory.
@@ -76,11 +68,63 @@ public interface TorrentManager extends Service {
     /**
      * Updates the torrent manager with any new setting values.
      */
-    void updateSettings(TorrentSettings settings);
+    void setTorrentManagerSettings(TorrentManagerSettings settings);
 
     /**
      * Returns the current TorrentSettings object set on the torrent session.
      */
-    public TorrentSettings getTorrentSettings();
+    public TorrentManagerSettings getTorrentManagerSettings();
 
+    /**
+     * Returns the total upload rate used by libtorrent. This includes payload
+     * and protocol overhead.
+     */
+    public float getTotalUploadRate();
+
+    /**
+     * Returns the total download rate used by libtorrent. This includes payload
+     * and protocol overhead.
+     */
+    public float getTotalDownloadRate();
+
+    /**
+     * Returns a list of torrent file entries for the given torrent.
+     */
+    public List<TorrentFileEntry> getTorrentFileEntries(Torrent torrent);
+
+    /**
+     * Returns a list of connected peers for the given torrent.
+     */
+    public List<TorrentPeer> getTorrentPeers(Torrent torrent);
+
+    /**
+     * Sets the automanaged flag to the given value for the torrent.
+     */
+    public void setAutoManaged(Torrent torrent, boolean autoManaged);
+
+    /**
+     * Starts the torrent manager, and its necessary worker threads.
+     */
+    public void start();
+
+    /**
+     * Shuts down the torrent manager, and any needed threads.
+     */
+    public void stop();
+
+    /**
+     * Initializes this torrent manager.
+     */
+    public void initialize();
+
+    /**
+     * Sets the given priority for the given TorrentFileEntry. 
+     */
+    public void setTorrenFileEntryPriority(Torrent torrent, TorrentFileEntry torrentFileEntry,
+            int priority);
+
+    /**
+     * Returns true if the torrent manager is initialized.
+     */
+    public boolean isInitialized();
 }

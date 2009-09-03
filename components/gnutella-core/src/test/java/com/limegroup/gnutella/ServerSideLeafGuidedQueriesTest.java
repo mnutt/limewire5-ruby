@@ -3,13 +3,12 @@ package com.limegroup.gnutella;
 import java.util.Iterator;
 import java.util.Random;
 
+import junit.framework.Test;
+
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 
-import junit.framework.Test;
-
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.Message;
@@ -97,7 +96,7 @@ public final class ServerSideLeafGuidedQueriesTest extends ServerSideTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        Injector injector = LimeTestUtils.createInjector();
         super.setUp(injector);
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
         responseFactory = injector.getInstance(ResponseFactory.class);

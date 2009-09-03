@@ -12,11 +12,13 @@ import org.limewire.friend.api.FriendPresence;
 import org.limewire.inject.LazySingleton;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.ui.swing.friends.chat.ChatFrame;
+import org.limewire.ui.swing.friends.chat.ChatMediator;
 import org.limewire.ui.swing.friends.refresh.AllFriendsRefreshManager;
 import org.limewire.ui.swing.nav.NavItemListener;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.util.I18n;
+import org.limewire.inspection.InspectablePrimitive;
+import org.limewire.inspection.DataCategory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -24,9 +26,15 @@ import com.google.inject.Provider;
 @LazySingleton
 class FriendPresenceActionsImpl implements FriendPresenceActions {
     private static final Log LOG = LogFactory.getLog(FriendPresenceActionsImpl.class);
+    @SuppressWarnings("unused")
+    @InspectablePrimitive(value = "browse all friends", category = DataCategory.USAGE)
+    private int numBrowseAll;
+    @SuppressWarnings("unused")
+    @InspectablePrimitive(value = "browse single friend", category = DataCategory.USAGE)
+    private int numBrowseFriend;
 
 
-    private final ChatFrame chatFrame;
+    private final Provider<ChatMediator> chatMediator;
 
     //Provider prevents circular dependency
     private final Provider<SearchNavigator> searchNavigator;
@@ -44,31 +52,25 @@ class FriendPresenceActionsImpl implements FriendPresenceActions {
 
 
     @Inject
-    public FriendPresenceActionsImpl(ChatFrame chatFrame,  
+    public FriendPresenceActionsImpl(Provider<ChatMediator> chatMediator,  
             BrowsePanelFactory browsePanelFactory, Provider<SearchNavigator> searchNavigator,
             Navigator navigator, Provider<BrowseSearchFactory> browseSearchFactory, AllFriendsRefreshManager allFriendsRefreshManager) {
-        this.chatFrame = chatFrame;
+        this.chatMediator = chatMediator;
         this.browsePanelFactory = browsePanelFactory;
         this.searchNavigator = searchNavigator;
         this.browseSearchFactory = browseSearchFactory;
         this.allFriendsRefreshManager = allFriendsRefreshManager;
     }
  
-
     @Override
     public void chatWith(Friend friend) {
         LOG.debugf("chatWith: {0}", friend);
-        chatFrame.setVisibility(true);
-        chatFrame.fireConversationStarted(friend.getId());
-
-        // TODO make sure the input box for chat gets focus, the code is
-        // calling requestFocusInWindow, but I think it is getting some
-        // weirdness because the search window is currently the active one, not
-        // the chat
+        chatMediator.get().startOrSelectConversation(friend.getId());
     }
     
     @Override
     public void viewFriendLibrary(Friend friend) {
+        numBrowseFriend++;
         assert(friend != null && !friend.isAnonymous());
         LOG.debugf("viewLibraryOf: {0}", friend);
         
@@ -100,6 +102,7 @@ class FriendPresenceActionsImpl implements FriendPresenceActions {
     
     @Override
     public void browseAllFriends(boolean forceRefresh) {
+        numBrowseAll++;
         if(navigateIfTabExists(ALL_FRIENDS_KEY)){
             if (forceRefresh) {
                 allFriendsRefreshManager.refresh();
@@ -190,7 +193,7 @@ class FriendPresenceActionsImpl implements FriendPresenceActions {
         }
 
         @Override
-        public void itemRemoved() {
+        public void itemRemoved(boolean wasSelected) {
             browseNavItemCache.remove(key);
             if (key == ALL_FRIENDS_KEY) {
                 allFriendsRefreshManager.clearBrowseSearch();

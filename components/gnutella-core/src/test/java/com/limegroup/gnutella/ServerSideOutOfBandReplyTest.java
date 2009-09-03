@@ -29,7 +29,6 @@ import org.limewire.util.PrivilegedAccessor;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messagehandlers.OOBSecurityToken;
 import com.limegroup.gnutella.messagehandlers.OOBSecurityToken.OOBTokenData;
@@ -137,7 +136,7 @@ public final class ServerSideOutOfBandReplyTest extends ServerSideTestCase {
     @Override
     protected void setUp() throws Exception {
         networkManagerStub = new NetworkManagerStub();
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
+        Injector injector = LimeTestUtils.createInjector(new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
         super.setUp(injector);
 
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);

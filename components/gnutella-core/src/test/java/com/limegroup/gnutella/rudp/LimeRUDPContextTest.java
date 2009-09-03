@@ -31,7 +31,7 @@ public class LimeRUDPContextTest extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector();
+        injector = LimeTestUtils.createInjectorNonEagerly();
 		messageFactory = injector.getInstance(MessageFactory.class);
     }
     

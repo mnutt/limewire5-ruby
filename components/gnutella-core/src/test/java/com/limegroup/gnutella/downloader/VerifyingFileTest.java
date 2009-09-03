@@ -53,7 +53,7 @@ public class VerifyingFileTest extends LimeTestCase {
 
     @Override
     public void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         tigerTreeFactory = (HashTreeFactoryImpl)injector.getInstance(HashTreeFactory.class);
 
         InputStream in = new FileInputStream(completeFile);

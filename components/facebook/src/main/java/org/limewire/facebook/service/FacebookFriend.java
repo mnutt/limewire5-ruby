@@ -3,6 +3,7 @@ package org.limewire.facebook.service;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -139,5 +140,15 @@ public class FacebookFriend extends AbstractFriend {
 
     public boolean hasLimeWireAppInstalled() {
         return hasLimeWireAppInstalled;
+    }
+    
+    public Locale getLocale() {
+        String locale = friend.optString("locale");
+        if (locale == null) {
+            return Locale.US;
+        } else {
+            int underscore = locale.indexOf('_');
+            return new Locale(locale.substring(0, underscore), locale.substring(underscore + 1, locale.length()));
+        }
     }
 }

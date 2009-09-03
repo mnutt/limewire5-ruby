@@ -449,7 +449,7 @@ public class AdvancedFilterPanel<E extends FilterableItem> extends JPanel implem
      */
     private class MoreFilterAction extends AbstractAction {
         private final String MORE = I18n.tr("more filters");
-        private final String LESS = I18n.tr("less filters");
+        private final String LESS = I18n.tr("fewer filters");
 
         public MoreFilterAction() {
             putValue(Action.NAME, MORE);

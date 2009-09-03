@@ -272,4 +272,10 @@ public class HTTPUploader extends AbstractUploader implements Uploader {
     public String getPresenceId() {
         return friendId;
     }
+
+    @Override
+    public float getSeedRatio() {
+        //not applicable
+        return -1;
+    }
 }

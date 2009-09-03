@@ -10,11 +10,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.collection.Comparators;
 import org.limewire.collection.IntHashMap;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.service.ErrorService;
 import org.limewire.util.ByteUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message.Network;
 
@@ -22,7 +22,7 @@ import com.limegroup.gnutella.messages.Message.Network;
  * Factory to turn binary input as read from Network to VendorMessage
  * Objects.
  */
-@Singleton
+@EagerSingleton
 public class VendorMessageFactoryImpl implements VendorMessageFactory {
     
     private static final Log LOG = LogFactory.getLog(VendorMessageFactoryImpl.class);

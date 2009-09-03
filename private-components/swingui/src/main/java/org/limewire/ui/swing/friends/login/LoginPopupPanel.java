@@ -39,6 +39,7 @@ public class LoginPopupPanel extends Panel implements Resizable {
     @Resource private Icon windowIcon;
     
     private final Provider<ServiceSelectionLoginPanel> serviceSelectionLoginPanelProvider;
+    private volatile ServiceSelectionLoginPanel serviceSelectionLoginPanel;
     
     private JXPanel frame = null;
     private JPanel contentPanel = null;
@@ -100,12 +101,14 @@ public class LoginPopupPanel extends Panel implements Resizable {
             restart();
         } else if (!visible && contentPanel != null){
             clearContentPanel();
+            serviceSelectionLoginPanel = null;
         }
         super.setVisible(visible);
     }
     
     public void start() {
-        contentPanel.add(serviceSelectionLoginPanelProvider.get(), BorderLayout.CENTER);
+        serviceSelectionLoginPanel = serviceSelectionLoginPanelProvider.get();
+        contentPanel.add(serviceSelectionLoginPanel, BorderLayout.CENTER);
      }
     
     public void restart() {
@@ -131,11 +134,17 @@ public class LoginPopupPanel extends Panel implements Resizable {
     }
 
     private void clearContentPanel() {
-        for ( Component component : contentPanel.getComponents() ) {
-            if (component instanceof Disposable) {
-                ((Disposable) component).dispose();
+        if(contentPanel != null) {
+            for ( Component component : contentPanel.getComponents() ) {
+                if (component instanceof Disposable) {
+                    ((Disposable) component).dispose();
+                }
             }
+            contentPanel.removeAll();
         }
-        contentPanel.removeAll();
+    }
+    
+    public ServiceSelectionLoginPanel getServiceSelectionLoginPanel() {
+        return serviceSelectionLoginPanel;
     }
 }

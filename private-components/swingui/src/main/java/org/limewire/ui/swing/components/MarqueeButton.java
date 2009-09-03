@@ -124,7 +124,7 @@ public class MarqueeButton extends JButton {
             repaint();
             
             if (position >= maxPosition){
-                timer.stop();
+                position = 0;
             }
         }       
     }

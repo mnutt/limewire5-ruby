@@ -36,7 +36,7 @@ public class AltLocUtilsTest extends BaseTestCase {
         
         localSocketAddressProvider = new LocalSocketAddressProviderStub();
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(LocalSocketAddressProvider.class).toInstance(localSocketAddressProvider);

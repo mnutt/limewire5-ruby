@@ -13,6 +13,9 @@ import org.limewire.ui.swing.util.I18n;
 
 public class CancelDialogAction extends AbstractAction {
     
+    public static final String NAME = I18n.tr("Cancel");
+    public static final String SHORT_DESCRIPTION = I18n.tr("Undo any changes made");
+    
     private OptionPanel optionPanel;
     
     public CancelDialogAction() {
@@ -22,8 +25,8 @@ public class CancelDialogAction extends AbstractAction {
     public CancelDialogAction(OptionPanel optionPanel) {
         this.optionPanel = optionPanel;
         
-        putValue(Action.NAME, I18n.tr("Cancel"));
-        putValue(Action.SHORT_DESCRIPTION, I18n.tr("Undo any changes made"));
+        putValue(Action.NAME, NAME);
+        putValue(Action.SHORT_DESCRIPTION, SHORT_DESCRIPTION);
     }
     
     public void setOptionPanel(OptionPanel optionPanel) {

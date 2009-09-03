@@ -57,7 +57,20 @@ public abstract class AbstractNumberSetting<T extends Number & Comparable<T>> ex
         value = normalizeValue(value);
         super.setValueInternal(value);
     }
+    
+    /**
+     * Returns the minimum value for this setting, may return null if no minimum is set. 
+     */
+   public T getMinValue() {
+       return MIN_VALUE;
+   }
 
+   /**
+    * Returns the minimum value for this setting, may return null if no maximum is set. 
+    */
+   public T getMaxValue() {
+       return MAX_VALUE;
+   }
 
     /**
      * Normalizes a value to an acceptable value for this setting.

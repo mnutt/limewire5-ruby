@@ -27,7 +27,7 @@ public class LimeACKVendorMessageTest extends BaseTestCase {
     
     @Override
     protected void setUp() throws Exception {
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		messageFactory = injector.getInstance(MessageFactory.class);
         token = new AddressSecurityToken(InetAddress.getLocalHost(), 5904, injector.getInstance(MACCalculatorRepositoryManager.class));
     }

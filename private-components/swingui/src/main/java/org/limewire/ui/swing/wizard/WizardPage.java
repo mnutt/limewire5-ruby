@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import org.limewire.ui.swing.components.HyperlinkButton;
 import org.limewire.ui.swing.components.MultiLineLabel;
+import org.limewire.ui.swing.components.ToggleExtenderListener;
 import org.limewire.ui.swing.options.LearnMoreButton;
 
 public abstract class WizardPage extends JPanel {
@@ -30,7 +31,7 @@ public abstract class WizardPage extends JPanel {
     
     protected JLabel createAndDecorateMultiLine(String text, JCheckBox checkBox) {
         JLabel label = new MultiLineLabel(text, 500);
-        label.addMouseListener(new SetupComponentDecorator.ToggleExtenderListener(checkBox));
+        label.addMouseListener(new ToggleExtenderListener(checkBox));
         decorator.decorateNormalText(label); 
         return label;
     }

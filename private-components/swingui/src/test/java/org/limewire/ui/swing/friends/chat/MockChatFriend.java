@@ -17,7 +17,6 @@ import org.limewire.listener.EventListener;
 class MockChatFriend implements ChatFriend {
     private String name, status;
     private Mode state;
-    private boolean activeConversation;
     private boolean receivingUnviewedMessages;
     
     public MockChatFriend(String name, String status, Mode state) {
@@ -163,16 +162,6 @@ class MockChatFriend implements ChatFriend {
     }
 
     @Override
-    public boolean isActiveConversation() {
-        return activeConversation;
-    }
-
-    @Override
-    public void setActiveConversation(boolean active) {
-        this.activeConversation = active;
-    }
-
-    @Override
     public boolean isSignedInToLimewire() {
         return false;
     }
@@ -183,17 +172,22 @@ class MockChatFriend implements ChatFriend {
     }
 
     @Override
-    public boolean hasReceivedUnviewedMessages() {
+    public boolean hasUnviewedMessages() {
         return receivingUnviewedMessages;
     }
 
     @Override
-    public void setReceivedUnviewedMessages(boolean hasMessages) {
+    public void setHasUnviewedMessages(boolean hasMessages) {
         this.receivingUnviewedMessages = hasMessages;
     }
 
     @Override
     public void update() {
         // do nothing
+    }
+
+    @Override
+    public boolean isFlashState() {
+        return false;
     }
 }

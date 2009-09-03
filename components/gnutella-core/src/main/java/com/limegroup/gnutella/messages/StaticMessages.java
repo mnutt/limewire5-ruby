@@ -7,18 +7,18 @@ import java.io.ObjectInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.core.settings.SearchSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.IOUtils;
 import org.limewire.lifecycle.Service;
 import org.limewire.util.Base32;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.simpp.SimppListener;
 import com.limegroup.gnutella.simpp.SimppManager;
 import com.limegroup.gnutella.util.Data;
 
-@Singleton
+@EagerSingleton
 public final class StaticMessages implements Service {
     
     private static final Log LOG = LogFactory.getLog(StaticMessages.class);

@@ -27,7 +27,6 @@ import org.limewire.util.PrivilegedAccessor;
 import com.google.inject.Injector;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.ReplyHandler;
-import com.limegroup.gnutella.UDPReplyHandlerCache;
 import com.limegroup.gnutella.UDPReplyHandlerFactory;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
@@ -44,7 +43,6 @@ public class RestrictedResponderTest extends BaseTestCase {
     private NetworkManager networkManager;
     private SimppManager simppManager;
     private UDPReplyHandlerFactory udpReplyHandlerFactory;
-    private UDPReplyHandlerCache udpReplyHandlerCache;
 
     public RestrictedResponderTest(String name) {
         super(name);
@@ -69,13 +67,12 @@ public class RestrictedResponderTest extends BaseTestCase {
                 return "1.2.3.4";
             }
         };
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 
 		pingRequestFactory = injector.getInstance(PingRequestFactory.class);
 		networkManager = injector.getInstance(NetworkManager.class);
 		simppManager = injector.getInstance(SimppManager.class);
 		udpReplyHandlerFactory = injector.getInstance(UDPReplyHandlerFactory.class);
-		udpReplyHandlerCache = injector.getInstance(UDPReplyHandlerCache.class);
     }
     
     public void testRestrictions() throws Exception {
@@ -246,7 +243,8 @@ public class RestrictedResponderTest extends BaseTestCase {
         InetSocketAddress addr;
         ReplyHandler handler;
         public TestResponder(SecureMessageVerifier verifier) {
-            super(ipSetting, verifier, versionSetting, networkManager, simppManager, udpReplyHandlerFactory, udpReplyHandlerCache, 
+            super(ipSetting, verifier, versionSetting, networkManager,
+                    simppManager, udpReplyHandlerFactory, 
                     new ImmediateExecutor(), new SimpleNetworkInstanceUtils());
         }
 

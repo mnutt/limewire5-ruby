@@ -17,18 +17,20 @@ public class I18n {
         return i18n.tr(text);
     }
 
+    private static org.xnap.commons.i18n.I18n getNonCachedI18n(Locale locale) {
+        return I18nFactory.getI18n(I18n.class, BASENAME, locale, I18nFactory.NO_CACHE);
+    }
+    
     /**
      * Returns the translation of a text in the given locale if available.
      * 
      * This allows you to look up a translation for a specific locale. Should be 
      * used with care since the whole hierarchy for the message bundle might be loaded.
-     * 
-     * @param text the text to translate
      * @param locale the locale to look up the translation for
+     * @param text the text to translate
      */
-    public static String trl(String text, Locale locale) {
-        org.xnap.commons.i18n.I18n i18n = I18nFactory.getI18n(I18n.class, BASENAME, locale, I18nFactory.NO_CACHE);
-        return i18n.tr(text);
+    public static String trl(Locale locale, String text) {
+        return getNonCachedI18n(locale).tr(text);
     }
 
     public static String tr(String text, Object... args) {
@@ -58,8 +60,23 @@ public class I18n {
     }
 
     public static String trn(String singularText, String pluralText, long number, Object...args) {
+        return trn(i18n, singularText, pluralText, number, args); 
+    }
+    
+    private static String trn(org.xnap.commons.i18n.I18n i18n, String singularText, String pluralText, long number, Object...args) {
         return i18n.trn(singularText.replace("'", "''"), pluralText.replace("'", "''"), number, args);
     }
 
-
+    /**
+     * Returns the translation of a text in the given locale if available.
+     * <p>
+     * This allows you to look up a translation for a specific locale. Should be 
+     * used with care since the whole hierarchy for the message bundle might be loaded.
+     * <p>
+     * Delegates to {@link #trn(String, String, long)} using different 
+     * {@link org.xnap.commons.i18n.I18n} instance.
+     */
+    public static String trln(Locale locale, String singularText, String pluralText, long number, Object... args) {
+        return trn(getNonCachedI18n(locale), singularText, pluralText, number, args);
+    }
 }

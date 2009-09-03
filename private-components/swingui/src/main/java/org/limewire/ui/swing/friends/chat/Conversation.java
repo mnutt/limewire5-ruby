@@ -12,7 +12,7 @@ import java.util.Map;
  * from within the EDT.
  *
  */
-public interface Conversation {
+interface Conversation {
 
     /**
      * Updates the display of all the messages.

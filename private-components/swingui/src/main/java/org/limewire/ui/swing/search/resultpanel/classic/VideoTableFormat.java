@@ -23,22 +23,24 @@ public class VideoTableFormat extends ResultsTableFormat<VisualSearchResult> {
     // Indices into ColumnStateInfo array. 
     static final int FROM_INDEX = 0;
     static final int NAME_INDEX = 1;
-    static final int EXTENSION_INDEX = 2;
-    public static final int LENGTH_INDEX = 3;
-    public static final int QUALITY_INDEX = 4;
-    public static final int SIZE_INDEX = 5;
-    static final int MISC_INDEX = 6;
-    static final int RATING_INDEX = 7;
-    static final int DIMENSION_INDEX = 8;
-    static final int YEAR_INDEX = 9;
-    static final int DESCRIPTION_INDEX = 10;
-    static final int GENRE_INDEX = 11;
-    static final int IS_SPAM_INDEX = 12;
+    static final int TITLE_INDEX = 2;
+    static final int EXTENSION_INDEX = 3;
+    public static final int LENGTH_INDEX = 4;
+    public static final int QUALITY_INDEX = 5;
+    public static final int SIZE_INDEX = 6;
+    static final int MISC_INDEX = 7;
+    static final int RATING_INDEX = 8;
+    static final int DIMENSION_INDEX = 9;
+    static final int YEAR_INDEX = 10;
+    static final int DESCRIPTION_INDEX = 11;
+    static final int GENRE_INDEX = 12;
+    static final int IS_SPAM_INDEX = 13;
     
     public VideoTableFormat() {
         super("CLASSIC_SEARCH_VIDEO_TABLE", NAME_INDEX, FROM_INDEX, IS_SPAM_INDEX, new ColumnStateInfo[] {
                 new ColumnStateInfo(FROM_INDEX, "CLASSIC_SEARCH_VIDEO_FROM", I18n.tr("From"), 88, true, true), 
-                new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_VIDEO_NAME", I18n.tr("Name"), 434, true, true),     
+                new ColumnStateInfo(NAME_INDEX, "CLASSIC_SEARCH_VIDEO_NAME", I18n.tr("Name"), 434, true, true), 
+                new ColumnStateInfo(TITLE_INDEX, "CLASSIC_SEARCH_VIDEO_TITLE", I18n.tr("Title"), 100, true, false),
                 new ColumnStateInfo(EXTENSION_INDEX, "CLASSIC_SEARCH_VIDEO_EXTENSION", I18n.tr("Extension"), 85, true, true), 
                 new ColumnStateInfo(LENGTH_INDEX, "CLASSIC_SEARCH_VIDEO_LENGTH", I18n.tr("Length"), 85, true, true), 
                 new ColumnStateInfo(QUALITY_INDEX, "CLASSIC_SEARCH_VIDEO_QUALITY", I18n.tr("Quality"), 85, true, true), 
@@ -78,6 +80,7 @@ public class VideoTableFormat extends ResultsTableFormat<VisualSearchResult> {
     public Object getColumnValue(VisualSearchResult vsr, int index) {
         switch(index) {
             case NAME_INDEX: return vsr;
+            case TITLE_INDEX: return vsr.getProperty(FilePropertyKey.TITLE);
             case EXTENSION_INDEX: return  vsr.getFileExtension();
             case LENGTH_INDEX: return vsr.getProperty(FilePropertyKey.LENGTH);
             case YEAR_INDEX: return vsr.getProperty(FilePropertyKey.YEAR);

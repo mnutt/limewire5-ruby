@@ -359,4 +359,9 @@ class CoreUploadItem implements UploadItem {
             }
         }
     }
+
+    @Override
+    public float getSeedRatio() {
+        return uploader.getSeedRatio();
+    }
 }

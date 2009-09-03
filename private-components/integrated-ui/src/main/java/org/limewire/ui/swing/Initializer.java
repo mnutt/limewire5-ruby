@@ -23,6 +23,7 @@ import org.jdesktop.application.Application;
 import org.limewire.core.impl.mozilla.LimeMozillaOverrides;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.SharingSettings;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.io.IOUtils;
 import org.limewire.net.FirewallService;
 import org.limewire.nio.NIODispatcher;
@@ -401,13 +402,14 @@ public final class Initializer {
     /** Wires together LimeWire. */
     private Injector createLimeWire() {
         stopwatch.reset();
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new LimeWireModule(), new AbstractModule() {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new LimeWireModule(), new AbstractModule() {
             @Override
             protected void configure() {
                 requestStaticInjection(AppFrame.class);
                 requestInjection(Initializer.this);
             }
         });
+        GuiceUtils.loadEagerSingletons(injector);
         stopwatch.resetAndLog("Create injector");
         return injector;
     }

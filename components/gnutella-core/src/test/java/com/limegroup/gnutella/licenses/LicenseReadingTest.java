@@ -42,7 +42,7 @@ public final class LicenseReadingTest extends LimeTestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-		LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
+		LimeTestUtils.createInjectorNonEagerly(LimeTestUtils.createModule(this));
 	}
 	
 	public void testReadID3AndXML() throws Exception {

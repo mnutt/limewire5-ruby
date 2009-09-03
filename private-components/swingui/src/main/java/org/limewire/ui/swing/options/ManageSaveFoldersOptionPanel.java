@@ -79,7 +79,7 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
 
         GuiUtils.assignResources(this);
 
-        setLayout(new MigLayout("gapy 10"));
+        setLayout(new MigLayout("fill, gapy 10"));
 
         audioTextField = new LabelTextField(iconManager);
         videoTextField = new LabelTextField(iconManager);
@@ -109,41 +109,35 @@ public class ManageSaveFoldersOptionPanel extends OptionPanel {
 
         add(new JLabel(I18n.tr("Choose where specific file types get saved")), "span, wrap");
 
-        add(new JLabel(I18n.tr("Audio"), categoryIconManager.getIcon(Category.AUDIO),
-                SwingConstants.RIGHT), "wrap");
+        add(new JLabel(I18n.tr("Audio"), categoryIconManager.getIcon(Category.AUDIO), SwingConstants.RIGHT), "span, wrap");
 
-        add(audioTextField, "gapleft 25, gap unrelated");
-        add(audioBrowseButton, "alignx right, wrap");
+        add(audioTextField, "growx");
+        add(audioBrowseButton, "gapleft 30, wrap");
 
-        add(new JLabel(I18n.tr("Video"), categoryIconManager.getIcon(Category.VIDEO),
-                SwingConstants.RIGHT), "wrap");
+        add(new JLabel(I18n.tr("Video"), categoryIconManager.getIcon(Category.VIDEO), SwingConstants.RIGHT), "span, wrap");
 
-        add(videoTextField, "gapleft 25, gap unrelated");
-        add(videoBrowseButton, "alignx right, wrap");
+        add(videoTextField, "growx");
+        add(videoBrowseButton, "gapleft 30, wrap");
 
-        add(new JLabel(I18n.tr("Images"), categoryIconManager.getIcon(Category.IMAGE),
-                SwingConstants.RIGHT), "wrap");
+        add(new JLabel(I18n.tr("Images"), categoryIconManager.getIcon(Category.IMAGE), SwingConstants.RIGHT), "span, wrap");
 
-        add(imageTextField, "gapleft 25, gap unrelated");
-        add(imageBrowseButton, "alignx right, wrap");
+        add(imageTextField, "growx");
+        add(imageBrowseButton, "gapleft 30, wrap");
 
-        add(new JLabel(I18n.tr("Documents"), categoryIconManager.getIcon(Category.DOCUMENT),
-                SwingConstants.RIGHT), "wrap");
+        add(new JLabel(I18n.tr("Documents"), categoryIconManager.getIcon(Category.DOCUMENT), SwingConstants.RIGHT), "span, wrap");
 
-        add(documentTextField, "gapleft 25, gap unrelated");
-        add(documentBrowseButton, "alignx right, wrap");
+        add(documentTextField, "growx");
+        add(documentBrowseButton, "gapleft 30, wrap");
 
-        add(new JLabel(I18n.tr("Programs"), categoryIconManager.getIcon(Category.PROGRAM),
-                SwingConstants.RIGHT), "wrap");
+        add(new JLabel(I18n.tr("Programs"), categoryIconManager.getIcon(Category.PROGRAM), SwingConstants.RIGHT), "span, wrap");
 
-        add(programTextField, "gapleft 25, gap unrelated");
-        add(programBrowseButton, "alignx right, wrap");
+        add(programTextField, "growx");
+        add(programBrowseButton, "gapleft 30, wrap");
 
-        add(new JLabel(I18n.tr("Other"), categoryIconManager.getIcon(Category.OTHER),
-                SwingConstants.RIGHT), "wrap");
+        add(new JLabel(I18n.tr("Other"), categoryIconManager.getIcon(Category.OTHER),  SwingConstants.RIGHT), "span, wrap");
 
-        add(otherTextField, "gapleft 25, gap unrelated");
-        add(otherBrowseButton, "alignx right, wrap");
+        add(otherTextField, "growx");
+        add(otherBrowseButton, "gapleft 30, wrap");
 
         add(defaultButton, "gaptop 10, push");
         add(okButton, "split 2, alignx right, gaptop 10");

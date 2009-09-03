@@ -43,7 +43,7 @@ public final class RemoteFileDescTest extends org.limewire.gnutella.tests.LimeTe
 
 	@Override
     protected void setUp() {
-	    Injector injector = LimeTestUtils.createInjector();
+	    Injector injector = LimeTestUtils.createInjectorNonEagerly();
 	    pushEndpointFactory = injector.getInstance(PushEndpointFactory.class);
 	    remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
 		TEST_GUID = GUID.makeGuid();

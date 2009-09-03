@@ -34,7 +34,6 @@ import org.limewire.util.StringUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.google.inject.name.Names;
 import com.limegroup.gnutella.BlockingConnectionUtils;
 import com.limegroup.gnutella.ConnectionManager;
@@ -110,7 +109,7 @@ public class InspectionTest extends ServerSideTestCase {
         keyPair = keyGen.generateKeyPair();
         final SecureMessageVerifier smv = new SecureMessageVerifierImpl(keyPair.getPublic(), "testSMV");
         
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(SecureMessageVerifier.class).annotatedWith(Names.named("inspection")).toInstance(smv);

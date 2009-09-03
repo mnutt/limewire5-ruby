@@ -63,7 +63,7 @@ public class ClientSideMixedOOBGuidanceTest extends ClientSideTestCase {
     @Override
     protected void setUp() throws Exception {
         networkManagerStub = new NetworkManagerStub();
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
+        Injector injector = LimeTestUtils.createInjector(new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
         super.setUp(injector);
         
         responseFactory = injector.getInstance(ResponseFactory.class);

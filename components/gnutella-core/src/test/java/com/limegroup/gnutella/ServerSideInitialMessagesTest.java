@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.limewire.gnutella.tests.LimeTestUtils;
-
 import junit.framework.Test;
 
-import com.google.inject.Stage;
+import org.limewire.gnutella.tests.LimeTestUtils;
+
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PingRequest;
@@ -49,7 +48,7 @@ public final class ServerSideInitialMessagesTest extends ServerSideTestCase {
     @Override
     public void setUp() throws Exception {
         _queue=new ArrayList(10);
-        super.setUp(LimeTestUtils.createInjector(Stage.PRODUCTION));
+        super.setUp(LimeTestUtils.createInjector());
     }
 
     // BEGIN TESTS

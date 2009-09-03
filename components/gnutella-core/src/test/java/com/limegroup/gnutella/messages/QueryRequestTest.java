@@ -95,7 +95,7 @@ public final class QueryRequestTest extends LimeTestCase {
     public void setUp() throws Exception {
         SearchSettings.DISABLE_OOB_V2.revertToDefault();
         OOBv2Disabled = false;
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
         messageFactory = injector.getInstance(MessageFactory.class);
         macManager = injector.getInstance(MACCalculatorRepositoryManager.class);

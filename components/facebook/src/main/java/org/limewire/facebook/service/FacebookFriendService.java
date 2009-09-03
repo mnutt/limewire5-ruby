@@ -27,6 +27,7 @@ import org.limewire.friend.api.feature.FeatureRegistry;
 import org.limewire.friend.impl.feature.LimewireFeatureInitializer;
 import org.limewire.http.httpclient.HttpClientInstanceUtils;
 import org.limewire.http.httpclient.HttpClientUtils;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Asynchronous;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
@@ -37,7 +38,6 @@ import org.limewire.logging.LogFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
@@ -45,7 +45,7 @@ import com.google.inject.name.Named;
  * The entry point for logging into facebook.  Also logs out the <code>FacebookFriendConnection</code>
  * on limewire shutdown.
  */
-@Singleton
+@EagerSingleton
 class FacebookFriendService implements FriendConnectionFactory, Service {
     
     private static Log LOG = LogFactory.getLog(FacebookFriendService.class);
@@ -126,7 +126,7 @@ class FacebookFriendService implements FriendConnectionFactory, Service {
     private void logoutImpl() {
         synchronized (this) {
             if(connection != null) {
-                connection.logoutImpl();
+                connection.logoutImpl(false);
                 connection = null;
             }
         }
@@ -137,7 +137,7 @@ class FacebookFriendService implements FriendConnectionFactory, Service {
         return executorService.submit(new Callable<FriendConnection>() {
             @Override
             public FriendConnection call() throws Exception {
-                return loginImpl(configuration);
+                return loginImpl((FacebookFriendConnectionConfiguration)configuration);
             }
         });
     }
@@ -148,7 +148,7 @@ class FacebookFriendService implements FriendConnectionFactory, Service {
         registry.register(Network.Type.FACEBOOK, this);
     }
     
-    FacebookFriendConnection loginImpl(FriendConnectionConfiguration configuration) throws FriendException {
+    FacebookFriendConnection loginImpl(FacebookFriendConnectionConfiguration configuration) throws FriendException {
         LOG.debug("creating connection");
         connection = connectionFactory.create(configuration);
         presenceHandlerFactory.create(connection);

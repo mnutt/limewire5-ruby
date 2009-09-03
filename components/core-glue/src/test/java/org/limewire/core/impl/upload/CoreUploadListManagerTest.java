@@ -53,7 +53,7 @@ public class CoreUploadListManagerTest extends BaseTestCase {
         final MatchAndCopy<Runnable> runnableMatcher = new MatchAndCopy<Runnable>(Runnable.class);
         
         context.checking(new Expectations() {
-            {   exactly(1).of(scheduler).scheduleAtFixedRate(with(any(String.class)),with(runnableMatcher), 
+            {   exactly(1).of(scheduler).scheduleWithFixedDelay(with(any(String.class)),with(runnableMatcher), 
                     with(any(Integer.class)), with(any(Integer.class)), with(any(TimeUnit.class)),
                     with(same(backgroundExecutor)));
             

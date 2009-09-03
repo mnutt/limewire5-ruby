@@ -18,4 +18,5 @@ import java.lang.annotation.Target;
 public @interface InspectableForSize {
     String value();
     InspectionRequirement[] requires() default {};
+    DataCategory category() default DataCategory.NETWORK;
 }

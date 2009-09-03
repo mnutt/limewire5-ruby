@@ -43,7 +43,7 @@ public abstract class AddToListMenu extends JMenu {
      */
     public AddToListMenu(final Provider<LocalFileList> selectedLocalFileList,
             Provider<List<File>> selectedFiles) {
-        super("Add to List");  
+        super(I18n.tr("Add to List"));  
         
         this.selectedLocalFileList = selectedLocalFileList;
         this.selectedFiles = selectedFiles;

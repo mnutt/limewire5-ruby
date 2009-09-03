@@ -13,7 +13,6 @@ import org.limewire.util.MediaType;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -95,7 +94,7 @@ public final class UltrapeerQueryRouteTableTest extends ServerSideTestCase {
     public void setUp() throws Exception {
 
         final ResponseVerifier testVerifier = new TestResponseVerifier();
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(ResponseVerifier.class).toInstance(testVerifier);

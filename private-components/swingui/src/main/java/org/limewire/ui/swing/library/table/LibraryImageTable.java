@@ -196,7 +196,7 @@ public class LibraryImageTable extends JPanel implements Scrollable {
         }
     }
     
-    public class MouseReaction implements MouseListener, MouseMotionListener {
+    public static class MouseReaction implements MouseListener, MouseMotionListener {
 
         private final ImageList imageList;
         private final JComponent editor;
@@ -264,7 +264,7 @@ public class LibraryImageTable extends JPanel implements Scrollable {
      * Sorts images based on folder and then filename if they exist in the 
      * same folder.
      */
-    private class LocationComparator implements Comparator<LocalFileItem> {
+    private static class LocationComparator implements Comparator<LocalFileItem> {
         @Override
         public int compare(LocalFileItem item1, LocalFileItem item2) {
             String location1 = item1.getPropertyString(FilePropertyKey.LOCATION);

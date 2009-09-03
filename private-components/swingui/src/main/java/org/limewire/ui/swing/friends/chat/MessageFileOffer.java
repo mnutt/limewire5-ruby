@@ -9,7 +9,7 @@ import org.limewire.friend.api.FriendPresence;
  * the file metadata (info describing a file)  and the address
  * (describing how to locate the file) are necessary.
  */
-public interface MessageFileOffer extends Message {
+interface MessageFileOffer extends Message {
 
     /**
      * @return file meta data

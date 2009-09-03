@@ -33,7 +33,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Stage;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.limegroup.gnutella.Acceptor;
@@ -159,7 +158,7 @@ public abstract class DownloadTestCase extends LimeTestCase {
         DownloadSettings.MAX_DOWNLOAD_BYTES_PER_SEC.setValue(10);
 
         activityCallback = new MyCallback();
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new LimeWireIOTestModule(), NetworkManagerStub.MODULE, 
+        injector = LimeTestUtils.createInjector(new LimeWireIOTestModule(), NetworkManagerStub.MODULE, 
                 new AbstractModule() {
             @Override
             protected void configure() {

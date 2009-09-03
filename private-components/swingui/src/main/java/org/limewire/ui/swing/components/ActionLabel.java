@@ -9,9 +9,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-import org.jdesktop.swingx.JXLabel;
 import org.limewire.ui.swing.action.ActionKeys;
 import org.limewire.ui.swing.listener.ActionHandListener;
 import org.limewire.ui.swing.listener.MouseActionListener;
@@ -20,7 +20,7 @@ import org.limewire.ui.swing.listener.MouseActionListener;
 /**
  * A label that has a clickable text.
  */
-public class ActionLabel extends JXLabel  {
+public class ActionLabel extends JLabel  {
     
     private MouseListener urlListener;
     
@@ -31,8 +31,12 @@ public class ActionLabel extends JXLabel  {
     private final List<ActionListener> actionListeners = new CopyOnWriteArrayList<ActionListener>();
    
 
+    public ActionLabel(Action action) {
+        this(action, false);
+    }
+    
     /**
-     * Constructs a new clickable label whose text is in the hex color described.
+     * Constructs a new clickable label.
      */
     public ActionLabel(Action action, boolean showHand) {
         setAction(action, showHand);

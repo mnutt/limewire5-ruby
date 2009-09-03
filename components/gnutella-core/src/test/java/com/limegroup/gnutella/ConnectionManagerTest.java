@@ -95,7 +95,7 @@ public class ConnectionManagerTest extends LimeTestCase {
 
     public void setUp() throws Exception {
         setSettings();
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(HostCatcher.class).to(TestHostCatcher.class);
@@ -608,7 +608,7 @@ public class ConnectionManagerTest extends LimeTestCase {
     
     public void testClassCFiltering() throws Exception {
         setSettings();
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(HostCatcher.class).to(TestHostCatcher2.class);

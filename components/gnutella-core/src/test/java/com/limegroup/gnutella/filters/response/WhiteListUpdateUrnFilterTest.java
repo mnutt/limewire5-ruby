@@ -110,7 +110,7 @@ public class WhiteListUpdateUrnFilterTest extends BaseTestCase {
      */
     public void testSha1UrnMatchesInUpdateData() throws Exception {
 
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		UpdateCollectionFactory updateCollectionFactory =
                 injector.getInstance(UpdateCollectionFactory.class);
 

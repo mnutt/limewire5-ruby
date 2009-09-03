@@ -6,16 +6,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.prefs.Preferences;
 
 import org.limewire.friend.api.PasswordManager;
+import org.limewire.inject.LazySingleton;
 import org.limewire.security.certificate.CipherProvider;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Stores passwords under a usernames in {@link Preferences} and also
  * allows for deletion and retrieval of passwords.
  */
-@Singleton
+@LazySingleton
 public class PasswordManagerImpl implements PasswordManager {
 
     static final String PREFERENCES_NODE = "/limewire/xmpp/auth";

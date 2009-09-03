@@ -20,24 +20,26 @@ import com.google.inject.Inject;
 public class VideoTableFormat<T extends LocalFileItem> extends AbstractLibraryFormat<T> {
 
     static final int NAME_INDEX = 0;
-    static final int LENGTH_INDEX = 1;
-    static final int MISC_INDEX = 2;
-    static final int YEAR_INDEX = 3;
-    static final int SIZE_INDEX = 4;
-    static final int RATING_INDEX = 5;
-    static final int DIMENSION_INDEX = 6;
-    static final int DESCRIPTION_INDEX = 7;
-    static final int GENRE_INDEX = 8;
-    static final int HIT_INDEX = 9;
-    static final int UPLOADS_INDEX = 10;
-    static final int UPLOAD_ATTEMPTS_INDEX = 11;
-    static final int PATH_INDEX = 12;
-    static final int ACTION_INDEX = 13;
+    static final int TITLE_INDEX = 1;
+    static final int LENGTH_INDEX = 2;
+    static final int MISC_INDEX = 3;
+    static final int YEAR_INDEX = 4;
+    static final int SIZE_INDEX = 5;
+    static final int RATING_INDEX = 6;
+    static final int DIMENSION_INDEX = 7;
+    static final int DESCRIPTION_INDEX = 8;
+    static final int GENRE_INDEX = 9;
+    static final int HIT_INDEX = 10;
+    static final int UPLOADS_INDEX = 11;
+    static final int UPLOAD_ATTEMPTS_INDEX = 12;
+    static final int PATH_INDEX = 13;
+    static final int ACTION_INDEX = 14;
     
     @Inject
     public VideoTableFormat() {
         super(ACTION_INDEX, "LIBRARY_VIDEO_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(NAME_INDEX, "LIBRARY_VIDEO_NAME", I18n.tr("Name"), 658, true, true), 
+                new ColumnStateInfo(TITLE_INDEX, "LIBRARY_VIDEO_TITLE", I18n.tr("Title"), 100, false, true), 
                 new ColumnStateInfo(LENGTH_INDEX, "LIBRARY_VIDEO_LENGTH", I18n.tr("Length"), 52, true, true), 
                 new ColumnStateInfo(MISC_INDEX, "LIBRARY_VIDEO_MISC", I18n.tr("Misc"), 100, false, true), 
                 new ColumnStateInfo(YEAR_INDEX, "LIBRARY_VIDEO_YEAR", I18n.tr("Year"), 80, false, true), 
@@ -58,6 +60,7 @@ public class VideoTableFormat<T extends LocalFileItem> extends AbstractLibraryFo
     public Object getColumnValue(T baseObject, int column) {
         switch(column) {
         case NAME_INDEX: return baseObject;
+        case TITLE_INDEX: return baseObject.getProperty(FilePropertyKey.TITLE);
         case LENGTH_INDEX: return baseObject.getProperty(FilePropertyKey.LENGTH);
         case MISC_INDEX: return "";
         case YEAR_INDEX: return baseObject.getProperty(FilePropertyKey.YEAR);

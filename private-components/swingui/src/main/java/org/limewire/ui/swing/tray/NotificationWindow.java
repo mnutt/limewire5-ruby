@@ -265,7 +265,7 @@ class NotificationWindow extends JWindow implements ListenerSupport<WindowDispos
     /**
      * Sets the rollover image for the close button when moused over.
      */
-    private final class HoverButtonMouseListener extends MouseAdapter {
+    private final static class HoverButtonMouseListener extends MouseAdapter {
         private final JRadioButton closeButton;
 
         private final Icon trayNotifyClose;

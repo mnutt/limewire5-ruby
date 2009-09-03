@@ -82,7 +82,7 @@ public class AuthenticationInterceptorImpl implements AuthenticationInterceptor 
         return handler.getClass().getAnnotation(RequiresAuthentication.class) != null;        
     }
     
-    private class GuardingHandler implements NHttpRequestHandler {
+    private static class GuardingHandler implements NHttpRequestHandler {
         private final NHttpRequestHandler handler;
 
         public GuardingHandler(NHttpRequestHandler handler) {

@@ -185,7 +185,7 @@ public final class ItunesMediatorImpl implements ItunesMediator {
     /**
      * Executes the osascript CLI command (Mac OSX)
      */
-    private class ExecOSAScriptCommand implements Runnable {
+    private static class ExecOSAScriptCommand implements Runnable {
         /**
          * The file to add.
          */

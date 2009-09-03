@@ -2,6 +2,7 @@ package com.limegroup.gnutella;
 
 import java.io.IOException;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.BadGGEPBlockException;
 import org.limewire.io.BadGGEPPropertyException;
@@ -10,9 +11,8 @@ import org.limewire.net.address.AddressFactory;
 import org.limewire.net.address.AddressSerializer;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 public class PushEndpointSerializer implements AddressSerializer {
 
     private final PushEndpointFactory pushEndpointFactory;

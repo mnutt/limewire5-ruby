@@ -25,6 +25,7 @@ import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.PongCacher;
 import com.limegroup.gnutella.QueryUnicaster;
 import com.limegroup.gnutella.ReplyHandler;
+import com.limegroup.gnutella.SpamServices;
 import com.limegroup.gnutella.StandardMessageRouter;
 import com.limegroup.gnutella.Statistics;
 import com.limegroup.gnutella.UDPReplyHandlerCache;
@@ -98,7 +99,8 @@ public class MessageRouterStub extends StandardMessageRouter {
             Provider<LimeACKHandler> limeACKHandler,
             OutgoingQueryReplyFactory outgoingQueryReplyFactory,
             SharedFilesKeywordIndex sharedFilesKeywordIndex, 
-            QRPUpdater qrpUpdater, URNFilter urnFilter) {
+            QRPUpdater qrpUpdater, URNFilter urnFilter,
+            SpamServices spamServices) {
         super(networkManager, queryRequestFactory, queryHandlerFactory,
                 onDemandUnicaster, headPongFactory, pingReplyFactory,
                 connectionManager, forMeReplyHandler, queryUnicaster,
@@ -114,7 +116,8 @@ public class MessageRouterStub extends StandardMessageRouter {
                 replyNumberVendorMessageFactory, pingRequestFactory,
                 messageHandlerBinder, oobHandlerFactory, macManager,
                 limeACKHandler, outgoingQueryReplyFactory,
-                sharedFilesKeywordIndex, qrpUpdater, urnFilter);
+                sharedFilesKeywordIndex, qrpUpdater, urnFilter,
+                spamServices);
     }
     
     @Override

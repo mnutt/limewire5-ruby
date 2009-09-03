@@ -224,11 +224,4 @@ class InNetworkDownloaderImpl extends ManagedDownloaderImpl implements InNetwork
         setStartTime(imem.getStartTime());
         setDownloadAttempts(imem.getDownloadAttempts());
     }
-    
-    @Override
-    public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
-            throws DownloadException {
-        //overriding to track down cause of https://www.limewire.org/jira/browse/LWC-3697 remove when fixed
-        super.setSaveFile(saveDirectory, fileName, overwrite);
-    }
 }

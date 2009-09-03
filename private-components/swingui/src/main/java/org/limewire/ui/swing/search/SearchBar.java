@@ -45,14 +45,12 @@ import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.util.I18NConvert;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
  * The search bar component at the top of the UI main window.  This includes
  * the drop-down search category box, search input field, and search button.
  */
-@Singleton
 public class SearchBar extends JXPanel {
 
     @Resource private Color searchBorder;

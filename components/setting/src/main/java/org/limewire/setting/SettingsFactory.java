@@ -449,7 +449,31 @@ public final class SettingsFactory implements Iterable<AbstractSetting>, RemoteS
         handleSettingInternal(result, null);
         return result;
     }
+    
+    /**
+     * Creates a new <tt>IntSetting</tt> instance with the specified
+     * key and default value.
+     *
+     * @param key the key for the setting
+     * @param defaultValue the default value for the setting
+     * @param min the minimum value for this setting
+     * @param the maximum value for this setting
+     */
+    public synchronized IntSetting createIntSetting(String key, 
+                                                         int defaultValue, int min, int max) {
+        IntSetting result = 
+            new IntSetting(DEFAULT_PROPS, PROPS, key, defaultValue, min, max);
+        handleSettingInternal(result, null);
+        return result;
+    }
 
+    /**
+     * Creates a new <tt>IntSetting</tt> instance with the specified
+     * key and default value.
+     *
+     * @param key the key for the setting
+     * @param defaultValue the default value for the setting
+     */
     public synchronized IntSetting createRemoteIntSetting(String key, 
                         int defaultValue, String remoteKey, int min, int max) {
         IntSetting result = new IntSetting(DEFAULT_PROPS, PROPS, key, defaultValue, min, max);

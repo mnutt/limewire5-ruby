@@ -13,7 +13,6 @@ import org.limewire.friend.api.FriendConnectionEvent;
 import org.limewire.listener.EventBean;
 import org.limewire.listener.EventUtils;
 import org.limewire.ui.swing.util.GuiUtils;
-import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
 
@@ -36,20 +35,14 @@ public class FriendServiceItem extends JLabel {
             setBackground(background);
             setOpaque(true);
             
-            int insets = 10;
-            if (OSUtils.isLinux()) {
-                insets = 10;
-            } 
-            else {
-                insets = 18;
-            }
             
             setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0,0,1,0, separatorForeground), 
-                    BorderFactory.createEmptyBorder(0,insets,0,0)));
+                    BorderFactory.createEmptyBorder(0,6,0,6)));
             setIconTextGap(4);
             
             setMaximumSize(new Dimension(9999,22));
-            setPreferredSize(new Dimension(120,22));
+            setPreferredSize(new Dimension(160,22));
+            setMinimumSize(new Dimension(130,22));
             
             String name = friendConnection.getConfiguration().getCanonicalizedLocalID();
             setText(name);

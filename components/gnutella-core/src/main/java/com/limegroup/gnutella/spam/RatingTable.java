@@ -21,6 +21,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.core.settings.SearchSettings;
+import org.limewire.inject.EagerSingleton;
+import org.limewire.inspection.DataCategory;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.io.IOUtils;
@@ -29,12 +31,11 @@ import org.limewire.util.CommonUtils;
 import org.limewire.util.GenericsUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
 
-@Singleton
+@EagerSingleton
 public class RatingTable implements Service {
     private static final Log LOG = LogFactory.getLog(RatingTable.class);
 
@@ -321,7 +322,7 @@ public class RatingTable implements Service {
     }
 
     /** Inspectable that returns a hash and rating of the tokens */
-    @InspectionPoint("spam rating table token hashes")
+    @InspectionPoint(value = "spam rating table token hashes", category = DataCategory.USAGE)
     @SuppressWarnings("unused")
     private final Inspectable TOKEN_HASH = new Inspectable() {
         @Override

@@ -11,8 +11,12 @@ public interface Setting<T> extends MutableProvider<T> {
     
     /** Gets the current value of the setting. */
     T get();
-    
-    /** Sets the new value for this setting. */
+
+    /**
+     * Sets the new value for this setting.  Calling <code>set(T newValue)</code>
+     * is necessary for modifications to <code>T</code> to be persisted.  
+     * @param newValue
+     */
     void set(T newValue);
 
     /**

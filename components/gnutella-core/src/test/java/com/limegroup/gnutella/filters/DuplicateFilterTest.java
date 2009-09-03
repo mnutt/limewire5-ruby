@@ -51,7 +51,7 @@ public class DuplicateFilterTest extends LimeTestCase {
 	    qr = context.mock(QueryRequest.class);
 	    pr = context.mock(PingRequest.class);
 	    
-	    queryRequestFactory = LimeTestUtils.createInjector().getInstance(QueryRequestFactory.class);
+	    queryRequestFactory = LimeTestUtils.createInjectorNonEagerly().getInstance(QueryRequestFactory.class);
 	}
 	
 	private void addDefaultReturnValues() {

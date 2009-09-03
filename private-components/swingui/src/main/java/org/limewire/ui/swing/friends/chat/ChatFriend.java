@@ -42,21 +42,6 @@ public interface ChatFriend {
     boolean isChatting();
 
     /**
-     * Returns true if the current chat is the active chat. An active conversation
-     * means that the chat is visible to the end user
-     *
-     * @return true if the current chat is active
-     */
-    boolean isActiveConversation();
-
-    /**
-     * Sets the active status of the current chat.
-     *
-     * @param active true to set the conversation as active
-     */
-    void setActiveConversation(boolean active);
-
-    /**
      * @return true if any presences of the user are signed in thru LimeWire
      */
     boolean isSignedInToLimewire();
@@ -90,15 +75,20 @@ public interface ChatFriend {
      * @return whether or not this chat user has received messages that have
      * yet to be displayed in the chat window
      */
-    boolean hasReceivedUnviewedMessages();
+    boolean hasUnviewedMessages();
 
+    /**
+     * Returns true if has unviewedMessages and should be displayed in a flash state.
+     */
+    boolean isFlashState();
+    
     /**
      * Set whether or not this chat user has received messages that have yet to be displayed
      * in the chat window.
      *
      * @param hasMessages true if this chat user has received messages not yet displayed
      */
-    void setReceivedUnviewedMessages(boolean hasMessages);
+    void setHasUnviewedMessages(boolean hasMessages);
 
     /**
      * Creates and wires together the necessary objects for

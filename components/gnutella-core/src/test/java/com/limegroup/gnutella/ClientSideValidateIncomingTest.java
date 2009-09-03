@@ -1,5 +1,7 @@
 package com.limegroup.gnutella;
 
+import static com.limegroup.gnutella.ConnectionManagerImpl.MAX_TCP_CONNECT_BACK_ATTEMPTS;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -9,18 +11,14 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Random;
 
+import junit.framework.Test;
+
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 import org.limewire.util.StringUtils;
 
-import junit.framework.Test;
-
 import com.google.inject.Injector;
-import com.google.inject.Stage;
-
-import static com.limegroup.gnutella.ConnectionManagerImpl.MAX_TCP_CONNECT_BACK_ATTEMPTS;
-
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PingRequest;
@@ -70,7 +68,7 @@ public class ClientSideValidateIncomingTest extends ClientSideTestCase {
     
     @Override
     public void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        Injector injector = LimeTestUtils.createInjector();
         acceptor = (AcceptorImpl)injector.getInstance(Acceptor.class);
         
         // set values before everything is initialized

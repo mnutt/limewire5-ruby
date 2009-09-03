@@ -45,7 +45,7 @@ public abstract class AbstractTabList extends JXPanel {
      * Each action map in the collection is assigned to a separate tab.  The
      * method calls <code>layoutTabs()</code> to display the visible tabs.
      */
-    protected void setTabActionMaps(Iterable<? extends TabActionMap> newActionMaps) {
+    public void setTabActionMaps(Iterable<? extends TabActionMap> newActionMaps) {
         // Remove existing tabs.
         for (FancyTab tab : tabs) {
             tab.removeFromGroup(tabGroup);

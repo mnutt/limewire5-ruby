@@ -1,5 +1,7 @@
 package com.limegroup.gnutella.downloader;
 
+import org.limewire.util.Visitor;
+
 import com.limegroup.gnutella.DownloadManager;
 
 /**

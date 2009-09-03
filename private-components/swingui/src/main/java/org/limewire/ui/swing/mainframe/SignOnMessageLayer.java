@@ -36,7 +36,7 @@ import org.limewire.ui.swing.components.MessageComponent;
 import org.limewire.ui.swing.components.PanelResizer;
 import org.limewire.ui.swing.components.Resizable;
 import org.limewire.ui.swing.components.RolloverCursorListener;
-import org.limewire.ui.swing.components.MessageComponent.MessageBackground;
+import org.limewire.ui.swing.components.decorators.MessageDecorator;
 import org.limewire.ui.swing.library.LibraryMediator;
 import org.limewire.ui.swing.library.LibraryTableRect;
 import org.limewire.ui.swing.library.navigator.LibraryNavItem;
@@ -49,7 +49,6 @@ import org.limewire.ui.swing.nav.NavMediator;
 import org.limewire.ui.swing.nav.NavSelectable;
 import org.limewire.ui.swing.nav.NavigationListener;
 import org.limewire.ui.swing.nav.Navigator;
-import org.limewire.ui.swing.painter.MessagePainterFactory;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
@@ -85,6 +84,7 @@ class SignOnMessageLayer {
     private final EventListenerList<LibrarySharingEvent> libraryListenerList;
     private final Provider<Rectangle> libraryTableRect;
     private final EventBean<FriendConnectionEvent> connectionEventBean;
+    private final Provider<MessageDecorator> messageDecoratorProvider;
     
     /** Current message component. */
     private Component messageComponent;
@@ -110,7 +110,8 @@ class SignOnMessageLayer {
             LibraryMediator libraryMediator,
             EventListenerList<LibrarySharingEvent> libraryListenerList,
             @LibraryTableRect Provider<Rectangle> libraryTableRect,
-            EventBean<FriendConnectionEvent> connectionEventBean) {
+            EventBean<FriendConnectionEvent> connectionEventBean,
+            Provider<MessageDecorator> messageDecoratorProvider) {
         
         this.layeredPane = limeWireLayeredPane;
         this.topPanel = topPanel;
@@ -120,6 +121,7 @@ class SignOnMessageLayer {
         this.libraryListenerList = libraryListenerList;
         this.libraryTableRect = libraryTableRect;
         this.connectionEventBean = connectionEventBean;
+        this.messageDecoratorProvider = messageDecoratorProvider;
         
         GuiUtils.assignResources(this);
     }
@@ -137,7 +139,7 @@ class SignOnMessageLayer {
             }
 
             @Override
-            public void categoryRemoved(NavCategory category) {
+            public void categoryRemoved(NavCategory category, boolean wasSelected) {
             }
 
             @Override
@@ -145,7 +147,7 @@ class SignOnMessageLayer {
             }
 
             @Override
-            public void itemRemoved(NavCategory category, NavItem navItem) {
+            public void itemRemoved(NavCategory category, NavItem navItem, boolean wasSelected) {
             }
 
             @Override
@@ -385,14 +387,13 @@ class SignOnMessageLayer {
         private JButton closeButton;
         
         public LibraryMessagePanel(Point messageLocation, boolean librarySelected) {
+            super(new BorderLayout());
+            
             this.messageLocation = messageLocation;
-            
-            setLayout(new BorderLayout());
-            
-            messagePanel = new JXPanel();
-            messagePanel.setBackgroundPainter(new MessagePainterFactory<JXPanel>().createGreenRectanglePainter());
-            messagePanel.setLayout(new MigLayout("insets 3 3 3 3, gap 0!"));
+           
+            messagePanel = new JXPanel(new MigLayout("insets 3 3 3 3, gap 0!"));
             messagePanel.setOpaque(false);
+            messageDecoratorProvider.get().decorateGreenRectangleMessage(messagePanel);
             
             // Create message components.
             closeButton = createCloseButton();
@@ -444,7 +445,8 @@ class SignOnMessageLayer {
             setOpaque(false);
             
             // Create message component.
-            messageComponent = new MessageComponent(5, 5, 18, 8, MessageBackground.GREEN);
+            messageComponent = new MessageComponent(5, 5, 18, 8);
+            messageDecoratorProvider.get().decorateGreenMessage(messageComponent);
             
             // Create message elements.
             closeButton = createCloseButton();

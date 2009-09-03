@@ -1,8 +1,6 @@
 package org.limewire.ui.swing.menu;
 
 import javax.swing.JSeparator;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 
 import org.limewire.friend.api.FriendConnection;
 import org.limewire.friend.api.FriendConnectionEvent;
@@ -58,21 +56,6 @@ class FriendsMenu extends MnemonicMenu {
         this.addFriendActionProvider = addFriendActionProvider;
         this.loginActionProvider = loginActionProvider;
         this.logoutActionProvider = logoutActionProvider;
-        
-        addMenuListener(new MenuListener() {
-            @Override
-            public void menuCanceled(MenuEvent e) {
-                removeAll();
-            }
-            @Override
-            public void menuDeselected(MenuEvent e) {
-                removeAll();                
-            }
-            @Override
-            public void menuSelected(MenuEvent e) {
-                createMenuItems();
-            }
-        });
     }
 
     @Inject
@@ -101,7 +84,8 @@ class FriendsMenu extends MnemonicMenu {
         });
     }
 
-    private void createMenuItems() {
+    @Override
+    public void createMenuItems() {
         FriendConnection friendConnection = EventUtils.getSource(friendConnectionEventBean);
         boolean signedIn = friendConnection != null && friendConnection.isLoggedIn();
         boolean supportsAddRemoveFriend = signedIn && friendConnection != null

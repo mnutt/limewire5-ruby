@@ -7,7 +7,7 @@ import static org.limewire.ui.swing.util.I18n.tr;
 /**
  * A status message pertaining to google:nosave updates.
  */
-public class NoSaveStatusMessage extends AbstractMessageImpl {
+class NoSaveStatusMessage extends AbstractMessageImpl {
 
     static final String SENDER_NAME = "chat server";
 

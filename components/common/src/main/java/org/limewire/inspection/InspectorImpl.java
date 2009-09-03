@@ -23,7 +23,7 @@ public class InspectorImpl implements Inspector {
     
     private volatile Properties props;
     private volatile Injector injector;
-    
+
     private final AtomicBoolean loading = new AtomicBoolean(false);
     
     @Inject
@@ -36,13 +36,13 @@ public class InspectorImpl implements Inspector {
         this.injector = injector;
     }
     
-    public Object inspect(String key) throws InspectionException {
+    public Object inspect(String key, boolean collectUsageData) throws InspectionException {
         String target;
         if (props == null || !props.containsKey(key))
             target = key; // assume they know what they're doing
         else
             target = props.getProperty(key);
-        return InspectionUtils.inspectValue(target, injector);
+        return InspectionUtils.inspectValue(target, injector, collectUsageData);
     }
     
     public boolean loaded() {

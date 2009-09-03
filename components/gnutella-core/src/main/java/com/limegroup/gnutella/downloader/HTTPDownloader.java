@@ -736,7 +736,11 @@ public class HTTPDownloader implements BandwidthTracker {
         List<Header> headers = new ArrayList<Header>();
         headers.add(HTTPHeaderName.HOST.create(getHostAddress()));
         headers.add(HTTPHeaderName.USER_AGENT.create(ConstantHTTPHeaderValue.USER_AGENT));
-
+        Credentials credentials = rfdContext.getCredentials();
+        if (credentials != null) {
+            headers.add(createBasicAuthHeader(credentials));
+        }
+        
         SimpleWriteHeaderState writer = new SimpleWriteHeaderState("GET " + _thexUri + " HTTP/1.1",
                 headers, tcpBandwidthStatistics.getStatistic(StatisticType.HTTP_HEADER_UPSTREAM));
         SimpleReadHeaderState reader = new SimpleReadHeaderState(tcpBandwidthStatistics
@@ -1409,7 +1413,7 @@ public class HTTPDownloader implements BandwidthTracker {
      */
     private void parseTHEXHeader(String str) {
         if (LOG.isDebugEnabled())
-            LOG.debug(getHostAddress() + ">" + str);
+            LOG.debug("thex: " + getHostAddress() + ">" + str);
 
         if (str.indexOf(";") > 0) {
             StringTokenizer tok = new StringTokenizer(str, ";");

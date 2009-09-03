@@ -6,7 +6,6 @@ import java.net.InetSocketAddress;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.io.NetworkUtils;
 
-import com.limegroup.gnutella.filters.SpamFilter;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PingReply;
 import com.limegroup.gnutella.messages.PushRequest;
@@ -23,31 +22,18 @@ public final class UDPReplyHandler implements ReplyHandler {
 
 	/** The InetSocketAddress this is for. */
     private final InetSocketAddress addr;
-
-	/**
-     * Used to filter messages that are considered spam.
-     * With the introduction of OOB replies, it is important
-     * to check UDP replies for spam too.
-     *
-     * Uses one static instance instead of creating a new
-     * filter for every single UDP message.
-     */
-    private final SpamFilter personalFilter;
-
     private final UDPService udpService;
 	
 	/** Creates a new UDPReplyHandler for the given address. */
-	UDPReplyHandler(InetSocketAddress addr, SpamFilter personalFilter, UDPService udpService) {
+	UDPReplyHandler(InetSocketAddress addr, UDPService udpService) {
 	    this.udpService = udpService;
         if(!NetworkUtils.isValidSocketAddress(addr))
 	        throw new IllegalArgumentException("invalid addr: " + addr);
-	       
 		this.addr = addr;
-		this.personalFilter = personalFilter;
 	}
     
-    UDPReplyHandler(InetAddress addr, int port, SpamFilter personalFilter, UDPService udpService) {
-        this(new InetSocketAddress(addr, port), personalFilter, udpService);
+    UDPReplyHandler(InetAddress addr, int port, UDPService udpService) {
+        this(new InetSocketAddress(addr, port), udpService);
     }
     
 	/**
@@ -90,10 +76,6 @@ public final class UDPReplyHandler implements ReplyHandler {
 	}
 
 	public void countDroppedMessage() {}
-
-	public boolean isPersonalSpam(Message m) {
-        return !personalFilter.allow(m);
-	}
 
 	public boolean isOpen() {
 		return true;

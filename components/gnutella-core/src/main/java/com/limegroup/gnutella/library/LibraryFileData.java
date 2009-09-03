@@ -60,7 +60,8 @@ class LibraryFileData extends AbstractSettingsGroup {
     private static enum Version {
         // for prior versions [before 5.0], see OldLibraryData & LibraryConverter
         ONE, // the first ever version [active 5.0 -> 5.1]
-        TWO; // the current version [active 5.2 -> ]
+        TWO, // [active 5.2]
+        THREE; // the current version [active 5.3]
     }
     
     private static final String CURRENT_VERSION_KEY = "CURRENT_VERSION";
@@ -79,11 +80,11 @@ class LibraryFileData extends AbstractSettingsGroup {
     private static final Integer MIN_COLLECTION_ID = 1;
     
     
-    private final Version CURRENT_VERSION = Version.TWO;
+    private final Version CURRENT_VERSION = Version.THREE;
     
     private final Set<String> userExtensions = new HashSet<String>();
     private final Set<String> userRemoved = new HashSet<String>();
-    private final Map<File, List<Integer>> fileData = new HashMap<File, List<Integer>>();
+    private final Map<String, List<Integer>> fileData = new HashMap<String, List<Integer>>();
     private final SortedMap<Integer, String> collectionNames = new TreeMap<Integer, String>();
     private final Map<Integer, List<String>> collectionShareData = new HashMap<Integer, List<String>>();
     private final Set<String> safeUrns = new HashSet<String>();
@@ -199,7 +200,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     private void initializeFromVersion(Version version, Map<String, Object> readMap) {
         Set<String> userExtensions;
         Set<String> userRemoved;
-        Map<File, List<Integer>> fileData;
+        Map<String, List<Integer>> fileData;
         Map<Integer, String> collectionNames;
         Map<Integer, List<String>> collectionShareData;
         Set<String> safeUrns;
@@ -209,17 +210,18 @@ class LibraryFileData extends AbstractSettingsGroup {
             userExtensions = GenericsUtils.scanForSet(readMap.get(USER_EXTENSIONS_KEY), String.class, ScanMode.REMOVE);
             userRemoved = GenericsUtils.scanForSet(readMap.get(USER_REMOVED_KEY), String.class, ScanMode.REMOVE);
             Map<File, FileProperties> oldShareData = GenericsUtils.scanForMap(readMap.get(SHARE_DATA_KEY), File.class, FileProperties.class, ScanMode.REMOVE);
-            fileData = new HashMap<File, List<Integer>>();
+            fileData = new HashMap<String, List<Integer>>();
             collectionNames = new HashMap<Integer, String>();
             collectionShareData = new HashMap<Integer, List<String>>();
+            
             convertShareData(oldShareData, fileData, collectionNames, collectionShareData);
             
-            final Map<File, List<Integer>> fileDataFinal = fileData;
+            final Map<String, List<Integer>> fileDataFinal = fileData;
             LibraryConverterHelper helper = new LibraryConverterHelper(new LibraryConverterHelper.FileAdder() {
                @Override
                 public void addFile(File file) {
-                   if(!fileDataFinal.containsKey(file)) {
-                       fileDataFinal.put(file, Collections.<Integer>emptyList());
+                   if(!fileDataFinal.containsKey(createKey(file))) {
+                       fileDataFinal.put(createKey(file), Collections.<Integer>emptyList());
                    }
                 }
             });
@@ -232,17 +234,33 @@ class LibraryFileData extends AbstractSettingsGroup {
             safeUrns = new HashSet<String>();
             break;
         case TWO:
+            fileData = new HashMap<String, List<Integer>>();
+            Map<File, List<Integer>> oldFileData = GenericsUtils.scanForMapOfList(readMap.get(FILE_DATA_KEY), File.class, List.class, Integer.class, ScanMode.REMOVE);
+            convertShareData(oldFileData, fileData);
+            
             userExtensions = GenericsUtils.scanForSet(readMap.get(USER_EXTENSIONS_KEY), String.class, ScanMode.REMOVE);
             userRemoved = GenericsUtils.scanForSet(readMap.get(USER_REMOVED_KEY), String.class, ScanMode.REMOVE);
-            fileData = GenericsUtils.scanForMapOfList(readMap.get(FILE_DATA_KEY), File.class, List.class, Integer.class, ScanMode.REMOVE);
             collectionNames = GenericsUtils.scanForMap(readMap.get(COLLECTION_NAME_KEY), Integer.class, String.class, ScanMode.REMOVE);
             collectionShareData = GenericsUtils.scanForMapOfList(readMap.get(COLLECTION_SHARE_DATA_KEY), Integer.class, List.class, String.class, ScanMode.REMOVE);
             safeUrns = GenericsUtils.scanForSet(readMap.get(SAFE_URNS), String.class, ScanMode.REMOVE);
+            break;
+        case THREE:
+            fileData = GenericsUtils.scanForMapOfList(readMap.get(FILE_DATA_KEY), String.class, List.class, Integer.class, ScanMode.REMOVE);
+            
+            userExtensions = GenericsUtils.scanForSet(readMap.get(USER_EXTENSIONS_KEY), String.class, ScanMode.REMOVE);
+            userRemoved = GenericsUtils.scanForSet(readMap.get(USER_REMOVED_KEY), String.class, ScanMode.REMOVE);
+            collectionNames = GenericsUtils.scanForMap(readMap.get(COLLECTION_NAME_KEY), Integer.class, String.class, ScanMode.REMOVE);
+            collectionShareData = GenericsUtils.scanForMapOfList(readMap.get(COLLECTION_SHARE_DATA_KEY), Integer.class, List.class, String.class, ScanMode.REMOVE);
+            safeUrns = GenericsUtils.scanForSet(readMap.get(SAFE_URNS), String.class, ScanMode.REMOVE);
+            
             break;
             
         default:
             throw new IllegalStateException("Invalid version: " + version);
         }
+        
+        fileData = internKeys(fileData);
+        safeUrns = internSafeUrns(safeUrns);
     
         validateCollectionData(fileData, collectionNames, collectionShareData);
                 
@@ -262,12 +280,28 @@ class LibraryFileData extends AbstractSettingsGroup {
         }
     }
 
-    private void validateCollectionData(Map<File, List<Integer>> fileData, Map<Integer, String> collectionNames, Map<Integer, List<String>> collectionShareData) {
+    private static Map<String,List<Integer>> internKeys(Map<String, List<Integer>> oldFileData) {
+        Map<String,List<Integer>> newFileData = new HashMap<String, List<Integer>>();
+        for ( Map.Entry<String, List<Integer>> entry : oldFileData.entrySet() ) {
+            newFileData.put(entry.getKey().intern(), entry.getValue());
+        }
+        return newFileData;
+    }
+    
+    private static Set<String> internSafeUrns(Set<String> oldSafeUrns) {
+        Set<String> newSafeUrns = new HashSet<String>();
+        for ( String entry : oldSafeUrns ) {
+            newSafeUrns.add(entry.intern());
+        }
+        return newSafeUrns;
+    }
+    
+    private void validateCollectionData(Map<String, List<Integer>> fileData, Map<Integer, String> collectionNames, Map<Integer, List<String>> collectionShareData) {
         // TODO: Do some validation
     }
 
     /** Converts 5.0 & 5.1 style share data into 5.2-style collections. */
-    private void convertShareData(Map<File, FileProperties> oldShareData, Map<File, List<Integer>> fileData, Map<Integer, String> collectionNames, Map<Integer, List<String>> collectionShareData) {
+    private void convertShareData(Map<File, FileProperties> oldShareData, Map<String, List<Integer>> fileData, Map<Integer, String> collectionNames, Map<Integer, List<String>> collectionShareData) {
         int currentId = MIN_COLLECTION_ID;
         Map<String, Integer> friendToCollectionMap = new HashMap<String, Integer>();
         for(Map.Entry<File, FileProperties> data : oldShareData.entrySet()) {
@@ -275,7 +309,7 @@ class LibraryFileData extends AbstractSettingsGroup {
             FileProperties shareData = data.getValue();
             if (shareData == null
                     || ((shareData.friends == null || shareData.friends.isEmpty()) && !shareData.gnutella)) {
-                fileData.put(file, Collections.<Integer> emptyList());
+                fileData.put(createKey(file), Collections.<Integer> emptyList());
             } else {
                 if (shareData.friends != null) {
                     for (String friend : shareData.friends) {
@@ -291,26 +325,37 @@ class LibraryFileData extends AbstractSettingsGroup {
                             currentId++;
                         }
 
-                        List<Integer> collections = fileData.get(file);
+                        List<Integer> collections = fileData.get(createKey(file));
                         if (collections == null || collections == Collections.<Integer> emptyList()) {
                             collections = new ArrayList<Integer>(1);
-                            fileData.put(file, collections);
+                            fileData.put(createKey(file), collections);
                         }
                         collections.add(collectionId);
                     }
                 }
 
                 if (shareData.gnutella) {
-                    List<Integer> collections = fileData.get(file);
+                    List<Integer> collections = fileData.get(createKey(file));
                     if (collections == null || collections == Collections.<Integer> emptyList()) {
                         collections = new ArrayList<Integer>(1);
-                        fileData.put(file, collections);
+                        fileData.put(createKey(file), collections);
                     }
                     collections.add(DEFAULT_SHARED_COLLECTION_ID);
                 }
             }
         }
     }
+
+    /** Converts 5.0 & 5.1 style share data into 5.2-style collections. */
+    private void convertShareData(Map<File, List<Integer>> oldFileData, Map<String, List<Integer>> fileData) {
+        for(Map.Entry<File, List<Integer>> data : oldFileData.entrySet()) {
+           fileData.put(createKey(data.getKey()), data.getValue());            
+        }
+    }
+
+    private static String createKey(File file) {
+        return file.getPath().intern();
+    }    
     
     /** Returns true if this URN was marked as safe. */
     boolean isFileSafe(String urn) {
@@ -360,8 +405,43 @@ class LibraryFileData extends AbstractSettingsGroup {
         lock.writeLock().lock();
         try {
             boolean changed = false;
-            if(!fileData.containsKey(file)) {
-                fileData.put(file, Collections.<Integer>emptyList());
+            
+            String key = createKey(file);
+            if(!fileData.containsKey(key)) {
+                fileData.put(key, Collections.<Integer>emptyList());
+                changed = true;
+            } 
+            dirty |= changed;            
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Adds a managed file.
+     */
+    void addOrRenameManagedFile(File file, File originalFile) {
+        
+        if (originalFile == null) {
+            addManagedFile(file);
+        }
+        
+        lock.writeLock().lock();
+        try {
+            boolean changed = false;
+            
+            String key = createKey(file);
+            if(!fileData.containsKey(key)) {
+                
+                String originalKey = createKey(originalFile);
+                if (fileData.containsKey(originalKey)) {
+                    fileData.put(key, fileData.get(originalKey));
+                    fileData.remove(originalKey);
+                } 
+                else {                
+                    fileData.put(key, Collections.<Integer>emptyList());
+                }
+                
                 changed = true;
             } 
             dirty |= changed;            
@@ -376,7 +456,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     void removeManagedFile(File file) {
         lock.writeLock().lock();
         try {
-            boolean changed = fileData.remove(file) != null;
+            boolean changed = fileData.remove(createKey(file)) != null;
             dirty |= changed;            
         } finally {
             lock.writeLock().unlock();
@@ -388,7 +468,9 @@ class LibraryFileData extends AbstractSettingsGroup {
         List<File> indivFiles = new ArrayList<File>();
         lock.readLock().lock();
         try {
-            indivFiles.addAll(fileData.keySet());
+            for ( String key : fileData.keySet() ) {
+                indivFiles.add(new File(key));
+            }
         } finally {
             lock.readLock().unlock();
         }
@@ -577,7 +659,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     
     /** Returns true if the file was removed from the collection, false if it wasn't in the collection. */
     private boolean removeFileFromCollection(File file, int collectionId) {
-        List<Integer> collections = fileData.get(file);
+        List<Integer> collections = fileData.get(createKey(file));
         if(collections == null || collections.isEmpty()) {
             return false;
         }
@@ -590,10 +672,10 @@ class LibraryFileData extends AbstractSettingsGroup {
     private boolean addFileToCollection(File file, int collectionId) {
         boolean changed = false;
         
-        List<Integer> collections = fileData.get(file);
+        List<Integer> collections = fileData.get(createKey(file));
         if(collections == null || collections == Collections.<Integer>emptyList()) {
             collections = new ArrayList<Integer>(1);
-            fileData.put(file, collections);
+            fileData.put(createKey(file), collections);
         }
         
         if(!collections.contains(collectionId)) {
@@ -608,7 +690,7 @@ class LibraryFileData extends AbstractSettingsGroup {
     boolean isFileInCollection(File file, int collectionId) {
         lock.readLock().lock();
         try {
-            List<Integer> collections = fileData.get(file);
+            List<Integer> collections = fileData.get(createKey(file));
             if(collections != null) {
                 return collections.contains(collectionId);
             } else {

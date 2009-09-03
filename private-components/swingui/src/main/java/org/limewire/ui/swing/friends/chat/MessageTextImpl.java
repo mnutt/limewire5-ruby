@@ -11,7 +11,7 @@ import javax.swing.text.html.StyleSheet;
 import org.jdesktop.application.Resource;
 import org.limewire.ui.swing.util.GuiUtils;
 
-public class MessageTextImpl extends AbstractMessageImpl implements MessageText {
+class MessageTextImpl extends AbstractMessageImpl implements MessageText {
 
     private static final int MAX_LENGTH_PIXELS = 250;// smaller than chat window
                                                      // width to account for

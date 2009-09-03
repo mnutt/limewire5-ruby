@@ -67,7 +67,7 @@ public class HashTreeTest extends BaseTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         tigerTreeFactory = (HashTreeFactoryImpl)injector.getInstance(HashTreeFactory.class);
         tigerTreeNodeManager = injector.getInstance(HashTreeNodeManager.class);
         tigerWriteHandlerFactory = injector.getInstance(HashTreeWriteHandlerFactory.class);

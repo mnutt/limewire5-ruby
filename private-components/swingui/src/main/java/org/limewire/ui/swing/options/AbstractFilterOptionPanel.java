@@ -50,8 +50,7 @@ public abstract class AbstractFilterOptionPanel extends OptionPanel {
             getColumn(1).setCellEditor(new RemoveButtonRenderer(this));
         }
     }
-    
-    protected class FilterTableFormat extends AbstractTableFormat<String> {
+      protected static class FilterTableFormat extends AbstractTableFormat<String> {
 
         private static final int NAME_INDEX = 0;
         private static final int BUTTON_INDEX = 1;

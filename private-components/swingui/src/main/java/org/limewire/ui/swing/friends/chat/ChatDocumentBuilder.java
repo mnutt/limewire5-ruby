@@ -8,7 +8,6 @@ import org.limewire.friend.api.ChatState;
 import org.limewire.ui.swing.friends.chat.Message.Type;
 
 /**
- * @author Mario Aquino, Object Computing, Inc.
  *
  */
 class ChatDocumentBuilder {

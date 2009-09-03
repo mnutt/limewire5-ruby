@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.limewire.inject.EagerSingleton;
+
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
  * This class manages the crypto aspects of the security token infrastructure.
  */
-@Singleton
+@EagerSingleton
 public class MACCalculatorRepositoryManager {
     
     /**

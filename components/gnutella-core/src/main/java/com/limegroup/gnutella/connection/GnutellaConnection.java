@@ -175,8 +175,6 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
      */
     private volatile SpamFilter _routeFilter;
 
-    private volatile SpamFilter _personalFilter;
-
     /*
      * IMPLEMENTATION NOTE: this class uses the SACHRIFC algorithm described at
      * http://www.limewire.com/developer/sachrifc.txt. The basic idea is to use
@@ -381,7 +379,6 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
         this.applicationServices = applicationServices;
         this.guidMap = guidMapManager.getMap();
         this._routeFilter = spamFilterFactory.createRouteFilter();
-        this._personalFilter = spamFilterFactory.createPersonalFilter();
         this.secureMessageVerifier = secureMessageVerifier;
         this.socketsManager = socketsManager;
         this.outOfBandStatistics = outOfBandStatistics;
@@ -429,7 +426,6 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
         this.applicationServices = applicationServices;
         this.guidMap = guidMapManager.getMap();
         this._routeFilter = spamFilterFactory.createRouteFilter();
-        this._personalFilter = spamFilterFactory.createPersonalFilter();
         this.secureMessageVerifier = secureMessageVerifier;
         this.socketsManager = null;
         this.outOfBandStatistics = outOfBandStatistics;
@@ -1102,16 +1098,8 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
         _connectionStats.addReceivedDropped();
     }
 
-    public boolean isPersonalSpam(Message m) {
-        return !_personalFilter.allow(m);
-    }
-
     public void setRouteFilter(SpamFilter filter) {
         _routeFilter = filter;
-    }
-
-    public void setPersonalFilter(SpamFilter filter) {
-        _personalFilter = filter;
     }
 
     public void handlePingReply(PingReply pingReply, ReplyHandler receivingConnection) {
@@ -1187,7 +1175,7 @@ public class GnutellaConnection extends AbstractConnection implements ReplyHandl
             PushProxyAcknowledgement ack = (PushProxyAcknowledgement) vm;
             if (Arrays.equals(ack.getGUID(), applicationServices.getMyGUID())) {
                 myPushProxy = true;
-                fireEvent(new GnutellaConnectionEvent(this, EventType.IS_PUSH_PROXY, new GUID(applicationServices.getMyGUID())));
+                fireEvent(new GnutellaConnectionEvent(this, EventType.IS_PUSH_PROXY));
             }
             // else mistake on the server side - the guid should be my client
             // guid - not really necessary but whatever

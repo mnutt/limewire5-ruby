@@ -16,12 +16,14 @@ import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.service.ErrorCallback;
 import org.limewire.service.ErrorService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.ConnectionServices;
 import com.limegroup.gnutella.LifecycleManager;
@@ -364,7 +366,8 @@ public class Backend extends org.limewire.gnutella.tests.LimeTestCase {
 
             preSetUp();
             setStandardSettings(port);
-            Guice.createInjector(Stage.PRODUCTION, new LimeWireCoreModule(ActivityCallbackStub.class), LimeTestUtils.createModule(this));
+            Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new LimeWireCoreModule(ActivityCallbackStub.class), LimeTestUtils.createModule(this));
+            GuiceUtils.loadEagerSingletons(injector);
             lifecycleManager.start();
             populateSharedDirectory(gnutellaFileCollection);
             if (!reject)

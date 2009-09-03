@@ -30,7 +30,6 @@ import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.util.TestUtils;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.auth.StubContentResponseObserver;
@@ -56,7 +55,7 @@ public class LibraryTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        injector = LimeTestUtils.createInjectorNonEagerly();
         fileList = (LibraryImpl) injector.getInstance(Library.class);
         urnValidator = injector.getInstance(UrnValidator.class);
         fileList.initialize();

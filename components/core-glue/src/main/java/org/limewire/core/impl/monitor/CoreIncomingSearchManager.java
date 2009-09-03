@@ -2,17 +2,17 @@ package org.limewire.core.impl.monitor;
 
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.monitor.IncomingSearchManager;
+import org.limewire.inject.EagerSingleton;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * An implementation of <code>IncomingSearchManager</code> for the live core.
  */
-@Singleton
+@EagerSingleton
 public class CoreIncomingSearchManager 
     implements IncomingSearchManager, IncomingSearchListener {
 

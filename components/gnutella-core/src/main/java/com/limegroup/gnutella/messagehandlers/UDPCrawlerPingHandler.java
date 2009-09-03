@@ -10,7 +10,6 @@ import org.limewire.io.NetworkInstanceUtils;
 import com.google.inject.Inject;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.ReplyHandler;
-import com.limegroup.gnutella.UDPReplyHandlerCache;
 import com.limegroup.gnutella.UDPReplyHandlerFactory;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.vendor.UDPCrawlerPing;
@@ -34,10 +33,10 @@ public class UDPCrawlerPingHandler extends RestrictedResponder {
     public UDPCrawlerPingHandler(NetworkManager networkManager,
             SimppManager simppManager,
             UDPReplyHandlerFactory udpReplyHandlerFactory,
-            UDPReplyHandlerCache udpReplyHandlerCache, UDPCrawlerPongFactory udpCrawlerPongFactory,
+            UDPCrawlerPongFactory udpCrawlerPongFactory,
             NetworkInstanceUtils networkInstanceUtils) {
         super(FilterSettings.CRAWLER_IP_ADDRESSES, networkManager, simppManager,
-                udpReplyHandlerFactory, udpReplyHandlerCache, null, networkInstanceUtils);
+                udpReplyHandlerFactory, null, networkInstanceUtils);
         this.udpCrawlerPongFactory = udpCrawlerPongFactory;
     }
     

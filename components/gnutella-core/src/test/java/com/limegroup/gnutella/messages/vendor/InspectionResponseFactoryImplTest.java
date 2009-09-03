@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.zip.Inflater;
 
+import junit.framework.Test;
+
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -17,11 +19,9 @@ import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.inspection.Inspector;
 import org.limewire.io.GGEP;
 import org.limewire.io.GUID;
-import org.limewire.util.ReadBufferChannel;
 import org.limewire.util.CommonUtils;
+import org.limewire.util.ReadBufferChannel;
 import org.limewire.util.StringUtils;
-
-import junit.framework.Test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
@@ -55,7 +55,7 @@ public class InspectionResponseFactoryImplTest extends LimeTestCase {
                 bind(FECUtils.class).toInstance(fecUtils);
             }
         };
-        injector = LimeTestUtils.createInjector(m);
+        injector = LimeTestUtils.createInjectorNonEagerly(m);
     }
     
     public void testLoadsProperties() throws Exception {
@@ -88,7 +88,7 @@ public class InspectionResponseFactoryImplTest extends LimeTestCase {
             will(returnValue(supported));
             allowing(request).getGUID();
             will(returnValue(guid));
-            one(inspector).inspect("asdf");
+            one(inspector).inspect("asdf", true);
             will(returnValue(inspectedValue));
         }};
     }

@@ -22,6 +22,7 @@ public class LibraryPopupMenu extends JPopupMenu {
     private final SharedFileListManager sharedFileListManager;
     private final LibraryNavigatorPanel libraryNavigatorPanel;
     private final Provider<LaunchFileAction> launchAction;
+    private final Provider<RenameFileAction> renameFileAction;
     private final Provider<LocateFileAction> locateAction;
     private final Provider<RemoveFromListAction> removeListAction;
     private final Provider<RemoveFromAllListAction> removeFromAllListAction;
@@ -36,7 +37,7 @@ public class LibraryPopupMenu extends JPopupMenu {
             SharedFileListManager sharedFileListManager,
             LibraryNavigatorPanel libraryNavigatorPanel, Provider<RemoveFromAllListAction> removeFromAllListAction,
             Provider<LaunchFileAction> launchAction, Provider<LocateFileAction> locateAction, 
-            RemoveFromLibraryAction removeAction,
+            RemoveFromLibraryAction removeAction, Provider<RenameFileAction> renameFileAction,
             Provider<RemoveFromListAction> removeListAction, 
             Provider<LibraryAddToListMenu> addToListMenu,
             Provider<LibraryShowInListMenu> showInListMenu,
@@ -45,6 +46,7 @@ public class LibraryPopupMenu extends JPopupMenu {
         this.sharedFileListManager = sharedFileListManager;
         this.libraryNavigatorPanel = libraryNavigatorPanel;
         this.launchAction = launchAction;
+        this.renameFileAction = renameFileAction;
         this.locateAction = locateAction;
         this.removeListAction = removeListAction;
         this.removeFromAllListAction = removeFromAllListAction;
@@ -74,6 +76,7 @@ public class LibraryPopupMenu extends JPopupMenu {
             }
             addSeparator();
             
+            add(renameFileAction.get()).setEnabled(!localFileItem.get(0).isIncomplete());
             add(locateAction.get());
             add(removeAction);
             add(deleteAction);

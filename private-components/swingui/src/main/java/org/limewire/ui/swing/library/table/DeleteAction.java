@@ -34,53 +34,76 @@ class DeleteAction extends AbstractAction {
     @Inject
     public DeleteAction(@LibrarySelected Provider<List<LocalFileItem>> selectedLocalFileItems, 
             LibraryManager libraryManager) {
+       
         this.selectedLocalFileItems = selectedLocalFileItems;
         this.libraryManager = libraryManager;
-        
-        String deleteName = I18n.tr("Delete Files");
-        if(OSUtils.isMacOSX()) {
-            deleteName = I18n.tr("Move to Trash");
-        } else if(OSUtils.isWindows()) {
-            deleteName = I18n.tr("Move to Recycle Bin");
-        }
-        putValue(Action.NAME, deleteName);
+
+        putValue(Action.NAME, I18n.tr("Delete from Disk"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        final List<LocalFileItem> selectedItems = new ArrayList<LocalFileItem>(selectedLocalFileItems.get());
+        List<LocalFileItem> selectedItems = new ArrayList<LocalFileItem>(selectedLocalFileItems.get());
         
-        int confirmation = FocusJOptionPane.showConfirmDialog(null, getMessage(selectedItems.size()), I18n.tr("Delete File", "Delete Files", selectedItems.size()), JOptionPane.OK_CANCEL_OPTION); 
-        if (confirmation == JOptionPane.OK_OPTION) {
-            BackgroundExecutorService.execute(new Runnable(){
-                public void run() {                  
-                    File currentSong = PlayerUtils.getCurrentSongFile();
-                    for(LocalFileItem item : selectedItems) {
-                        if(item.getFile().equals(currentSong)){
-                            stopAudio();
-                        }
-                        if(!item.isIncomplete()) {
-                            FileUtils.unlockFile(item.getFile());
-                            libraryManager.getLibraryManagedList().removeFile(item.getFile());
-                            FileUtils.delete(item.getFile(), OSUtils.supportsTrash());
-                        }
-                    }                    
-                }
-            });
+        String title = null;
+        String message = null;
+        String yesText = null;
+        String noText = I18n.tr("Cancel");
+        
+        if (OSUtils.isWindows() && OSUtils.supportsTrash()) {
+            title = I18n.trn("Move File to the Recycle Bin", "Move Files to the Recycle Bin", selectedItems.size());
+            message = I18n.trn("Move this file to the Recycle Bin?", 
+                    "Move this file to the Recycle Bin?", selectedItems.size());
+            yesText = I18n.tr("Move to Recycle Bin");
+        }
+        else if (OSUtils.isMacOSX() && OSUtils.supportsTrash()) {
+            title = I18n.trn("Move File to the Trash", "Move Files to the Trash", selectedItems.size());
+            message = I18n.trn("Move this file to the Trash?", 
+                    "Move this file to the Trash?", selectedItems.size());
+            yesText = I18n.tr("Move to Trash");
+        }
+        else {
+            title = I18n.trn("Delete File", "Delete Files", selectedItems.size());
+            message = I18n.trn("Delete this file from disk?", "Delete these files from disk?", selectedItems.size());
+            yesText = I18n.tr("Delete from Disk");
+        }
+        
+        Object[] options = new Object[] {yesText, noText};
+        
+        int confirmation = FocusJOptionPane.showOptionDialog(null, 
+                message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                options, noText);
+        
+        if (confirmation > -1 && options[confirmation] == yesText) {
+            deleteSelectedItems(libraryManager, selectedItems);
         }
     }
     
-    private void stopAudio() {
+    static void deleteSelectedItems(final LibraryManager libraryManager, final List<LocalFileItem> selectedItems) {
+        BackgroundExecutorService.execute(new Runnable(){
+            public void run() {                  
+                File currentSong = PlayerUtils.getCurrentSongFile();
+                for(LocalFileItem item : selectedItems) {
+                    if(item.getFile().equals(currentSong)){
+                        stopAudio();
+                    }
+                    if(!item.isIncomplete()) {
+                        FileUtils.unlockFile(item.getFile());
+                        libraryManager.getLibraryManagedList().removeFile(item.getFile());
+                        FileUtils.delete(item.getFile(), OSUtils.supportsTrash());
+                    }
+                }
+            }
+        });
+    }
+    
+    private static void stopAudio() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 PlayerUtils.stop();
             }
         });
-    }
-    
-    private String getMessage(int listSize) {
-        return I18n.tr("Delete this file from disk?", "Delete these files from disk?", listSize);
     }
   
 }

@@ -47,7 +47,6 @@ import com.limegroup.gnutella.UDPPingerImpl;
 import com.limegroup.gnutella.UDPReplyHandlerFactory;
 import com.limegroup.gnutella.UDPService;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.filters.SpamFilterFactory;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PingRequestFactory;
 import com.limegroup.gnutella.messages.vendor.HeadPing;
@@ -70,7 +69,6 @@ public class PingRankerTest extends LimeTestCase {
     private PingRanker ranker;
     private NetworkManagerStub networkManager;
     private UDPReplyHandlerFactory udpReplyHandlerFactory;
-    private SpamFilterFactory spamFilterFactory;
     private PushEndpointFactory pushEndpointFactory;
     private HeadPongFactory headPongFactory;
     private RemoteFileDescFactory remoteFileDescFactory;
@@ -98,10 +96,9 @@ public class PingRankerTest extends LimeTestCase {
                 bind(MessageRouter.class).to(MessageRouterStub.class);
             }
         };
-        Injector i = LimeTestUtils.createInjector(module);
+        Injector i = LimeTestUtils.createInjectorNonEagerly(module);
 
         udpReplyHandlerFactory = i.getInstance(UDPReplyHandlerFactory.class);
-        spamFilterFactory = i.getInstance(SpamFilterFactory.class);
         pushEndpointFactory = i.getInstance(PushEndpointFactory.class);
         headPongFactory = i.getInstance(HeadPongFactory.class);
         pinger = (MockPinger)i.getInstance(UDPPinger.class);
@@ -143,7 +140,7 @@ public class PingRankerTest extends LimeTestCase {
         
         // get a reply from that host
         MockPong pong = new MockPong(true,true,-1,false,false,true,null);
-        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1,  spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
         
         // add some more hosts
         for (int i =1;i <= 10;i++) 
@@ -184,7 +181,7 @@ public class PingRankerTest extends LimeTestCase {
         MockPong pong = new MockPong(true,true,1,false,false,false,null,alts,push);
         MockMesh mesh = new MockMesh(ranker);
         ranker.setMeshHandler(mesh);
-        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
         assertNotNull(mesh.sources);
         ranker.addToPool(toContexts(mesh.sources));
         
@@ -225,7 +222,7 @@ public class PingRankerTest extends LimeTestCase {
         push.add(pe);
         
         MockPong pong = new MockPong(true,true,-1,false,false,false,null,alts,push);
-        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
         
         // both of the carried altlocs are dupes, so we should not have pinged anybody
         assertTrue(pinger.hosts.isEmpty());
@@ -266,7 +263,7 @@ public class PingRankerTest extends LimeTestCase {
         
         // receive a pong from another host
         MockPong pong = new MockPong(true,true,0,true,false,true,null);
-        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"), 1));
         
         // consume the first guy
         assertTrue(ranker.hasMore());
@@ -294,8 +291,8 @@ public class PingRankerTest extends LimeTestCase {
         
         // receive one pong from each proxy
         MockPong pong = new MockPong(true,true,-1,true,false,true,null);
-        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.3.3.3"),4, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.2.2"),3, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.3.3.3"), 4));
+        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.2.2"), 3));
         
         // there should be only one host available to try
         assertTrue(ranker.hasMore());
@@ -319,7 +316,7 @@ public class PingRankerTest extends LimeTestCase {
         
         // send a pong back from a single host
         MockPong pong = new MockPong(true,true,0,true,false,true,null);
-        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"), 1));
         
         // now this host should be prefered over other hosts.
         RemoteFileDescContext rfd = ranker.getBest();
@@ -345,7 +342,7 @@ public class PingRankerTest extends LimeTestCase {
         MockPong pong = new MockPong(false,true,0,true,false,true,null);
         assertFalse(pong.hasFile());
         
-        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(pong, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
         assertFalse(ranker.hasMore());
         assertEquals(noFile.getRemoteFileDesc(), handler.rfd);
         assertFalse(handler.good);
@@ -364,8 +361,8 @@ public class PingRankerTest extends LimeTestCase {
         MockPong busy = new MockPong(true,true,20,true,true,true,null);
         MockPong notBusy = new MockPong(true,true,0,true,false,true,null);
         
-        ranker.processMessage(busy, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(notBusy, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(busy, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
+        ranker.processMessage(notBusy, udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"), 1));
         
         RemoteFileDescContext best = ranker.getBest();
         assertEquals("1.2.3.5", ((Connectable)best.getAddress()).getAddress()); // not busy
@@ -388,9 +385,9 @@ public class PingRankerTest extends LimeTestCase {
         MockPong noFree = new MockPong(true,true,0,true,false,true,null);
         MockPong oneQueue = new MockPong(true,true,1,true,false,true,null);
         
-        ranker.processMessage(oneQueue,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(oneFree,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"),1, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(noFree,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(oneQueue,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
+        ranker.processMessage(oneFree,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"), 1));
+        ranker.processMessage(noFree,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"), 1));
         
         RemoteFileDescContext best = ranker.getBest();
         assertEquals("1.2.3.5", ((Connectable)best.getAddress()).getAddress()); // one free slot
@@ -417,9 +414,9 @@ public class PingRankerTest extends LimeTestCase {
         MockPong pushPong = new MockPong(true,true,-1,true,false,true,null);
         MockPong openMorePong = new MockPong(true,true,-2,false,false,true,null);
         
-        ranker.processMessage(openPong,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(openMorePong,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"),1, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(pushPong,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"),6, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(openPong,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
+        ranker.processMessage(openMorePong,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"), 1));
+        ranker.processMessage(pushPong,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"), 6));
         
         RemoteFileDescContext best = ranker.getBest();
         assertEquals("1.2.3.5", ((Connectable)best.getAddress()).getAddress()); // open with more slots
@@ -447,10 +444,10 @@ public class PingRankerTest extends LimeTestCase {
         MockPong noSlotsFull = new MockPong(true,true,0,true,false,true,null);
         MockPong oneFreeOpen= new MockPong(true,true,-1,false,false,true,null);
         
-        ranker.processMessage(noSlotsFull,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(oneFreeOpen,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"),1, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(oneFreePartial,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"),1, spamFilterFactory.createPersonalFilter()));
-        ranker.processMessage(oneFree,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.7"),7, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(noSlotsFull,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
+        ranker.processMessage(oneFreeOpen,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"), 1));
+        ranker.processMessage(oneFreePartial,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"), 1));
+        ranker.processMessage(oneFree,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.7"), 7));
         
         RemoteFileDescContext best = ranker.getBest();
         assertTrue(((PushEndpoint)best.getAddress()).getProxies().contains(new IpPortImpl("1.2.3.7",7))); // full, firewalled , one slot
@@ -478,11 +475,11 @@ public class PingRankerTest extends LimeTestCase {
         MockPong threeOneThousand = new MockPong(true,true,-1,true,false,true,null);
         
         Thread.sleep(1000);
-        ranker.processMessage(oneOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(oneOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
         Thread.sleep(1000);
-        ranker.processMessage(twoOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(twoOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.5"), 1));
         Thread.sleep(1000);
-        ranker.processMessage(threeOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(threeOneThousand,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.6"), 1));
         
         RemoteFileDescContext best = ranker.getBest();
         assertEquals("1.2.3.4", ((Connectable)best.getAddress()).getAddress());
@@ -517,7 +514,7 @@ public class PingRankerTest extends LimeTestCase {
         alts.add(ip1);
         alts.add(ip2);
         MockPong oneFreeOpen= new MockPong(true,true,-1,false,false,true,null,alts, EMPTY_PUSH_ENDPOINT_SET);
-        ranker.processMessage(oneFreeOpen,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"),1, spamFilterFactory.createPersonalFilter()));
+        ranker.processMessage(oneFreeOpen,udpReplyHandlerFactory.createUDPReplyHandler(InetAddress.getByName("1.2.3.4"), 1));
         
         // the ranker should pass on the altlocs it discovered as well.
         c = ranker.getShareableHosts();

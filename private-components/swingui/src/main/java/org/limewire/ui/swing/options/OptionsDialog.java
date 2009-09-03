@@ -1,5 +1,6 @@
 package org.limewire.ui.swing.options;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -24,7 +26,6 @@ import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXPanel;
 import org.limewire.ui.swing.components.FocusJOptionPane;
 import org.limewire.ui.swing.components.LimeJDialog;
-import org.limewire.ui.swing.mainframe.AppFrame;
 import org.limewire.ui.swing.options.actions.ApplyOptionAction;
 import org.limewire.ui.swing.options.actions.CancelOptionAction;
 import org.limewire.ui.swing.options.actions.HelpAction;
@@ -93,8 +94,8 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
 
             Provider<DownloadOptionPanel> downloadOptionPanel, Provider<RemoteOptionPanel> remoteOptionPanel,
             Provider<MiscOptionPanel> miscOptionPanel, Provider<AdvancedOptionPanel> advancedOptionPanel,
-            AppFrame appFrame, BarPainterFactory barPainterFactory, UnsafeTypeOptionPanelStateManager unsafeTypeOptionPanelStateManager) {
-        super(appFrame.getMainFrame(), I18n.tr("Options"), true);
+            BarPainterFactory barPainterFactory, UnsafeTypeOptionPanelStateManager unsafeTypeOptionPanelStateManager) {
+        super(GuiUtils.getMainFrame(), I18n.tr("Options"), true);
 
         GuiUtils.assignResources(this); 
         
@@ -120,9 +121,6 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         createComponents(barPainterFactory);
         
         pack();
-        
-        getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0), "closeAction");
-        getRootPane().getActionMap().put("closeAction", new CancelOptionAction(this));
     }
     
     public void applyOptions() {
@@ -144,7 +142,7 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
     }
     
     private void createComponents(BarPainterFactory barPainterFactory) {
-        setLayout(new MigLayout("gap 0, insets 0 0 0 0, fill", "fill", "[60!][fill][40!, fill]"));
+        setLayout(new BorderLayout());
         
         cardLayout = new CardLayout();
         cardPanel = new JPanel();
@@ -154,15 +152,16 @@ public class OptionsDialog extends LimeJDialog implements OptionsTabNavigator {
         headerPanel.setBackgroundPainter(barPainterFactory.createTopBarPainter());
                 
         footerPanel = new JPanel();
+        footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         
         createFooter();
         createHeader();
         
         select(LIBRARY);
         
-        add(headerPanel, "aligny top, wrap");
-        add(cardPanel, "grow, wrap");
-        add(footerPanel);
+        add(headerPanel, BorderLayout.NORTH);
+        add(cardPanel, BorderLayout.CENTER);
+        add(footerPanel, BorderLayout.SOUTH);
         
 
     }

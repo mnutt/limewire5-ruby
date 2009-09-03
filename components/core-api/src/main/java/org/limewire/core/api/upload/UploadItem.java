@@ -86,4 +86,9 @@ public interface UploadItem extends PropertiableFile {
     public int getNumUploadConnections();
 
     BrowseType getBrowseType();
+    
+    /**
+     * Returns the seed ratio for torrent uploaders. Other uploaders will return -1 indicating the seed ratio is not supported. 
+     */
+    public float getSeedRatio();
 }

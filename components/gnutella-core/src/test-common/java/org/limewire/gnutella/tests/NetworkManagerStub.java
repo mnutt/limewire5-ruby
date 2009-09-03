@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Set;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.GUID;
@@ -12,16 +13,15 @@ import org.limewire.io.SimpleNetworkInstanceUtils;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.EventListenerList;
 import org.limewire.listener.ListenerSupport;
-import org.limewire.net.address.AddressEvent;
 import org.limewire.net.TLSManager;
+import org.limewire.net.address.AddressEvent;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.limegroup.gnutella.NetworkManager;
 
-@Singleton
+@EagerSingleton
 public class NetworkManagerStub implements NetworkManager {
     
     public static final Module MODULE = new AbstractModule() {

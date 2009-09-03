@@ -483,8 +483,8 @@ public final class URN implements HTTPHeaderValue, Serializable, org.limewire.co
         int lastColon = urnString.lastIndexOf(":");
         String nameSpace = urnString.substring(0,lastColon+1);
         String hash = urnString.substring(lastColon+1);
-		this._urnString = nameSpace.toLowerCase(Locale.US) +
-                                  hash.toUpperCase(Locale.US);
+		this._urnString = (nameSpace.toLowerCase(Locale.US) +
+                                  hash.toUpperCase(Locale.US)).intern();
 		this._urnType = urnType;
 	}
     
@@ -928,7 +928,7 @@ public final class URN implements HTTPHeaderValue, Serializable, org.limewire.co
 	@SuppressWarnings("deprecation")
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
         s.defaultReadObject();
-        _urnString = s.readUTF();
+        _urnString = s.readUTF().intern();
         Object type = s.readObject();
         // convert from older serialized UrnTypes to the URN.Type enum
         if(type instanceof UrnType)

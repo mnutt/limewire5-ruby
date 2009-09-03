@@ -2,13 +2,12 @@ package com.limegroup.gnutella;
 
 import java.net.InetAddress;
 
+import junit.framework.Test;
+
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.gnutella.tests.LimeTestUtils;
 
-import junit.framework.Test;
-
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -40,7 +39,7 @@ public class ClientSideOOBProxyControlTest extends ClientSideTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        Injector injector = LimeTestUtils.createInjector();
         super.setUp(injector);
         messagesSupportedVendorMessage = injector.getInstance(MessagesSupportedVendorMessage.class);
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);

@@ -55,7 +55,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.ActivityCallback;
 import com.limegroup.gnutella.HTTPAcceptor;
 import com.limegroup.gnutella.HTTPUploadManager;
@@ -159,7 +158,7 @@ public class AltLocUploadTest extends LimeTestCase {
         doSettings();
 
         // initialize services
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(UploadManager.class).to(TestUploadManager.class);
@@ -1085,8 +1084,6 @@ public class AltLocUploadTest extends LimeTestCase {
                 will(returnValue(true));
                 allowing(request).getNetwork();
                 will(returnValue(Network.TCP));
-                allowing(handler).isPersonalSpam(request);
-                will(returnValue(false));
                 allowing(handler).getAddress();
                 will(returnValue(null));
                 allowing(handler).getPort();

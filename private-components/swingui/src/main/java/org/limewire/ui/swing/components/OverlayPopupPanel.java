@@ -19,9 +19,7 @@ public abstract class OverlayPopupPanel extends Panel
         this(layeredPane, null);
     }
     
-    public OverlayPopupPanel(
-            JLayeredPane layeredPane,
-            Component childPanel) {
+    public OverlayPopupPanel(JLayeredPane layeredPane, Component childPanel) {
         
         this.layeredPane = layeredPane;
         this.childPanel = childPanel;

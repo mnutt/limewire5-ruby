@@ -124,7 +124,7 @@ public class ManagedDownloaderTest extends LimeTestCase {
         allModules.add(new LibraryStubModule());
         allModules.add(LimeTestUtils.createModule(this));
         allModules.addAll(Arrays.asList(modules));
-        injector = LimeTestUtils.createInjector(allModules.toArray(new Module[allModules.size()]));
+        injector = LimeTestUtils.createInjectorNonEagerly(allModules.toArray(new Module[allModules.size()]));
         ConnectionManagerStub connectionManager = (ConnectionManagerStub)injector.getInstance(ConnectionManager.class);
         connectionManager.setConnected(true);
                 

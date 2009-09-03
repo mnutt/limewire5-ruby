@@ -1,13 +1,13 @@
 package com.limegroup.gnutella.downloader.serial.conversion;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceStage;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 public class DownloadUpgradeTaskService {
 
     private final Provider<DownloadUpgradeTask> upgradeTask;

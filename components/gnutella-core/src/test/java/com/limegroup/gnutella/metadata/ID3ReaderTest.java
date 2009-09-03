@@ -31,7 +31,7 @@ public class ID3ReaderTest extends AudioTestBase {
     ////////////
 	@Override
     public void setUp(){
-	    Injector injector = LimeTestUtils.createInjector();
+	    Injector injector = LimeTestUtils.createInjectorNonEagerly();
 	    metaDataFactory = injector.getInstance(MetaDataFactory.class);
     }
     

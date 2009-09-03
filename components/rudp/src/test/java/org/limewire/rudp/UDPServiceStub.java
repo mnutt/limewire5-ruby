@@ -139,7 +139,7 @@ public class UDPServiceStub implements UDPService {
 		}
     }	
 
-    private class MessageWrapper extends TimerTask {
+    private static class MessageWrapper extends TimerTask {
         public final DatagramPacket _dp;
         public final long           _scheduledTime;
         public final int            _delay;

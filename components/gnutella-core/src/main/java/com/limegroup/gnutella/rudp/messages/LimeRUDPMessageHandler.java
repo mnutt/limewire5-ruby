@@ -3,6 +3,7 @@ package com.limegroup.gnutella.rudp.messages;
 import java.net.InetSocketAddress;
 
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.rudp.UDPMultiplexor;
@@ -10,13 +11,12 @@ import org.limewire.rudp.messages.RUDPMessage;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.ReplyHandler;
 import com.limegroup.gnutella.messagehandlers.MessageHandler;
 import com.limegroup.gnutella.messages.Message;
 
-@Singleton
+@EagerSingleton
 class LimeRUDPMessageHandler implements MessageHandler, Service {
     
     private final Provider<UDPMultiplexor> plexor;

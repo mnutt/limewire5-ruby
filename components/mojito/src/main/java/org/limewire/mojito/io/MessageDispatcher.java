@@ -923,7 +923,7 @@ public abstract class MessageDispatcher {
     /**
      * An implementation of Runnable to handle Ticks.
      */
-    private class TickProcessor implements Runnable {
+    private static class TickProcessor implements Runnable {
         
         private final Receipt receipt;
         
@@ -939,7 +939,7 @@ public abstract class MessageDispatcher {
     /**
      * An implementation of Runnable to handle Errors.
      */
-    private class ErrorProcessor implements Runnable {
+    private static class ErrorProcessor implements Runnable {
         
         private final Tag tag;
         

@@ -57,7 +57,7 @@ public final class UltrapeerHandshakeResponderTest extends LimeTestCase {
         ConnectionSettings.ACCEPT_DEFLATE.setValue(true);
         ConnectionSettings.ENCODE_DEFLATE.setValue(true);
         
-        injector = LimeTestUtils.createInjector();
+        injector = LimeTestUtils.createInjectorNonEagerly();
         connectionManager = injector.getInstance(ConnectionManager.class);
         handshakeResponderFactory = injector.getInstance(HandshakeResponderFactory.class);
         headersFactory = injector.getInstance(HeadersFactory.class);

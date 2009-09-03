@@ -18,10 +18,10 @@ import java.util.concurrent.TimeUnit;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.URN;
+import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
-import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.magnet.MagnetLink;
 import org.limewire.core.api.search.Search;
 import org.limewire.core.api.search.SearchResult;
@@ -35,6 +35,7 @@ import org.limewire.core.impl.search.MediaTypeConverter;
 import org.limewire.core.impl.search.RemoteFileDescAdapter;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.friend.api.FriendManager;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.IpPort;
@@ -50,7 +51,6 @@ import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.impl.ThreadSafeList;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.DownloadManager;
 import com.limegroup.gnutella.Downloader;
@@ -58,7 +58,7 @@ import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 
-@Singleton
+@EagerSingleton
 public class CoreDownloadListManager implements DownloadListManager {
     
 	private final EventList<DownloadItem> observableDownloadItems;
@@ -114,7 +114,7 @@ public class CoreDownloadListManager implements DownloadListManager {
               }
           };
      
-          scheduler.scheduleAtFixedRate("UI Download Status Monitor", command, PERIOD*2, PERIOD, TimeUnit.MILLISECONDS, backgroundExecutor);
+          scheduler.scheduleWithFixedDelay("UI Download Status Monitor", command, PERIOD*2, PERIOD, TimeUnit.MILLISECONDS, backgroundExecutor);
 	}
 
     // forces refresh

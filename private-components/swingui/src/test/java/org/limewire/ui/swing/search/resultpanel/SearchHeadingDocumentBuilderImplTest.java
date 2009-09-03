@@ -46,7 +46,7 @@ public class SearchHeadingDocumentBuilderImplTest extends TestCase {
     
     public void testFileInLibraryHeadingDocument() {
         String expected = 
-            "<span class=\"title\">Night life</span> is in <a href=\"#library\">Library</a>.";
+            "<span class=\"title\">Night life</span> is in your <a href=\"#library\">Library</a>.";
         assertEquals(expected, bldr.getHeadingDocument(heading, BasicDownloadState.LIBRARY, false));
         assertEquals(expected, bldr.getHeadingDocument(heading, BasicDownloadState.DOWNLOADED, false));
     }

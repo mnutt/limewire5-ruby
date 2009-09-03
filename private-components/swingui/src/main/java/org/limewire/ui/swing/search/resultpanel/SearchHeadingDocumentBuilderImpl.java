@@ -20,7 +20,7 @@ public class SearchHeadingDocumentBuilderImpl implements SearchHeadingDocumentBu
                 return wrapHeading(heading.getText(), true);
             case DOWNLOADED:
             case LIBRARY:
-                String message = "{0} is in <a href=\"#library\">Library</a>.";
+                String message = "{0} is in your <a href=\"#library\">Library</a>.";
                 return tr(message, wrapHeading(heading.getText(message), false));
             }
         }

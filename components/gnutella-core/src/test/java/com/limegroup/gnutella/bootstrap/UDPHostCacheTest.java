@@ -66,7 +66,7 @@ public class UDPHostCacheTest extends LimeTestCase {
         networkManagerStub.setPort(5555);
         networkManagerStub.setSolicitedGUID(new GUID());
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(networkManagerStub);

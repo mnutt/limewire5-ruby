@@ -449,17 +449,17 @@ public class ExtendedEndpoint extends Endpoint {
 
         //2. Average uptime (optional)
         int dailyUptime=-1;
-        if (linea.length>=2) {
+        if (linea.length>=2 && !linea[1].isEmpty()) {
             try {
-                dailyUptime = Integer.parseInt(linea[1].trim());
+                dailyUptime = Integer.parseInt(linea[1]);
             } catch (NumberFormatException e) { }
         }
         
         //3. Time of pong (optional). Do NOT use the system time by default
         long timeRecorded=DEFAULT_TIME_RECORDED;
-        if (linea.length>=3) {
+        if (linea.length>=3 && !linea[2].isEmpty()) {
             try {
-                timeRecorded=Long.parseLong(linea[2].trim());
+                timeRecorded=Long.parseLong(linea[2]);
             } catch (NumberFormatException e) { }
         }
         
@@ -473,8 +473,10 @@ public class ExtendedEndpoint extends Endpoint {
             try {
                 String times[]=StringUtils.split(linea[3], LIST_SEPARATOR);
                 for (int i=times.length-1; i>=0; i--)
-                    ret.recordConnectionAttempt(ret.connectSuccesses,
-                                                Long.parseLong(times[i].trim()));
+                    if (!times[i].isEmpty()) {
+                        ret.recordConnectionAttempt(ret.connectSuccesses,
+                                Long.parseLong(times[i]));
+                    }
             } catch (NumberFormatException e) { }
         }
 
@@ -483,8 +485,10 @@ public class ExtendedEndpoint extends Endpoint {
             try {
                 String times[]=StringUtils.split(linea[4], LIST_SEPARATOR);
                 for (int i=times.length-1; i>=0; i--)
-                    ret.recordConnectionAttempt(ret.connectFailures,
-                                                Long.parseLong(times[i].trim()));
+                    if (!times[i].isEmpty()) {
+                        ret.recordConnectionAttempt(ret.connectFailures,
+                                Long.parseLong(times[i].trim()));
+                    }
             } catch (NumberFormatException e) { }
         }
 
@@ -494,15 +498,15 @@ public class ExtendedEndpoint extends Endpoint {
         }
         
         //7. udp-host
-        if(linea.length>=7) {
+        if(linea.length>=7 && !linea[6].isEmpty()) {
             try {
                 int i = Integer.parseInt(linea[6]);
                 if(i >= 0)
                     ret.udpHostCacheFailures = i;
-            } catch(NumberFormatException nfe) {}
+            } catch(NumberFormatException nfe) { }
         }
         //8&9. DHT host -- requires two parameters
-        if(linea.length>=9) {
+        if(linea.length>=9 && !linea[7].isEmpty()) {
             try {
                 int i = Integer.parseInt(linea[7]);
                 if(i >= -1) {
@@ -511,11 +515,11 @@ public class ExtendedEndpoint extends Endpoint {
                     ret.setDHTMode(mode);
                 }
             } 
-            catch(NumberFormatException nfe) {}
+            catch(NumberFormatException nfe) { }
             catch(IllegalArgumentException iae) {};
         }
         //10. supports TLS
-        if(linea.length>=10) {
+        if(linea.length>=10 && !linea[9].isEmpty()) {
             try {
                 int i = Integer.parseInt(linea[9]);
                 if(i == 1)

@@ -18,7 +18,6 @@ import org.limewire.util.StringUtils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
@@ -73,7 +72,7 @@ public class FileManagerTestCase extends LimeTestCase {
         cleanFiles(_storeDir, false);
 
 
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(LocalSocketAddressProvider.class).to(LocalSocketAddressProviderStub.class);

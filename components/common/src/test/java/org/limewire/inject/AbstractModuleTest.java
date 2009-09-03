@@ -39,10 +39,11 @@ public class AbstractModuleTest extends BaseTestCase {
     }
     
     public void testWrapperModuleSingletons() {
-        Injector parent = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector parent = Guice.createInjector(Stage.DEVELOPMENT, new AbstractModule() {
             @Override
             protected void configure() {
                 bind(S1.class).to(S1I.class);
+                
             }
         });
         Injector child = parent.createChildInjector(new AbstractModule() {
@@ -53,12 +54,12 @@ public class AbstractModuleTest extends BaseTestCase {
             }
         });
         
+        assertFalse(S1I.created);
+        assertFalse(S2I.created);
+        assertFalse(S3I.created);
         assertSame(parent.getInstance(S1.class), child.getInstance(S1.class));
         assertTrue(S1I.created);
-        assertTrue(S2I.created);
-        assertTrue(S3I.created);
     }
-
     
     private static interface I1 {}
     private static interface I2 extends I1 {}
@@ -89,6 +90,4 @@ public class AbstractModuleTest extends BaseTestCase {
         private static boolean created = false;
         S3I () { created = true; }
     }
-    
-   
 }

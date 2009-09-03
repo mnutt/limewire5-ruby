@@ -22,10 +22,11 @@ import org.apache.http.HttpException;
 import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.settings.LWSSettings;
 import org.limewire.core.settings.SharingSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
+import org.limewire.util.Visitor;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.DownloadServices;
 import com.limegroup.gnutella.Downloader;
@@ -38,7 +39,7 @@ import com.limegroup.gnutella.util.LimeWireUtils;
 import com.limegroup.gnutella.util.Tagged;
 
 
-@Singleton
+@EagerSingleton
 public final class LWSIntegrationServicesImpl implements LWSIntegrationServices, Service {
     
     private static final Log LOG = LogFactory.getLog(LWSIntegrationServicesImpl.class);

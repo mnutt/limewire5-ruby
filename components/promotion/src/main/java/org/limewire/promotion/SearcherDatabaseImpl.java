@@ -386,7 +386,7 @@ public class SearcherDatabaseImpl implements SearcherDatabase {
         }
     }
 
-    private class QueryResultImpl implements QueryResult {
+    private static class QueryResultImpl implements QueryResult {
         private final String binderUniqueName;
 
         private final Date creationDate = new Date();

@@ -82,6 +82,7 @@ public class LabelTextField extends JPanel {
     
     public void setText(String text) {
         textField.setText(text);
+        textField.setCaretPosition(0);
         try {
             Icon icon = iconManager.get().getIconForFile(new File(text));
             if(icon != null)

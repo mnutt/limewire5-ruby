@@ -37,7 +37,7 @@ public class WeedLicenseTest extends BaseTestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		licenseFactory = injector.getInstance(LicenseFactory.class);
 	    licenseCache = new LicenseCache();
 	    httpClient = new SimpleLimeHttpClient();

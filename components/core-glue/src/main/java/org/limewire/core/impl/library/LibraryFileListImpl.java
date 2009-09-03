@@ -6,6 +6,7 @@ package org.limewire.core.impl.library;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.util.List;
 
 import org.limewire.core.api.library.FileProcessingEvent;
@@ -50,6 +51,11 @@ class LibraryFileListImpl extends LocalFileListImpl implements LibraryFileList {
     @Override
     protected FileCollection getCoreCollection() {
         return managedList;
+    }
+    
+    @Override
+    public void fileRenamed(File oldFile, File newFile) {
+        managedList.fileRenamed(oldFile, newFile);
     }
     
     @Override

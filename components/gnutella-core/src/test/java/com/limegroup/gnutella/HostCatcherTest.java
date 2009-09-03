@@ -71,7 +71,7 @@ public class HostCatcherTest extends LimeTestCase {
 
         HostCatcher.DEBUG = true;
         
-        injector = LimeTestUtils.createInjector();
+        injector = LimeTestUtils.createInjectorNonEagerly();
         hostCatcher = injector.getInstance(HostCatcher.class);
         hostCatcher.start();
     }

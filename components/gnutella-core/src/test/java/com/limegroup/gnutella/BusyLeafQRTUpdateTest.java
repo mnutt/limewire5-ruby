@@ -43,7 +43,7 @@ public class BusyLeafQRTUpdateTest extends LimeTestCase {
             
         };
         
-        Injector injector = LimeTestUtils.createInjector(module);
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(module);
         
         mr = (MessageRouterImpl) injector.getInstance(MessageRouter.class);
     }

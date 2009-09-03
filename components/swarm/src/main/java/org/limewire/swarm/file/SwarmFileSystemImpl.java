@@ -134,7 +134,7 @@ public class SwarmFileSystemImpl implements SwarmFileSystem {
         return fileHandle;
     }
 
-    private class FileHandle {
+    private static class FileHandle {
         private SwarmFile swarmFile = null;
 
         private Object LOCK = new Object();

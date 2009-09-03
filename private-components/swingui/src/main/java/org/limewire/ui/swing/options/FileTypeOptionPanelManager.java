@@ -35,6 +35,7 @@ import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.CheckBoxList;
+import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.CheckBoxList.CheckBoxListCheckChangeEvent;
 import org.limewire.ui.swing.components.CheckBoxList.CheckBoxListCheckChangeListener;
 import org.limewire.ui.swing.components.CheckBoxList.CheckBoxListSelectionEvent;
@@ -53,7 +54,7 @@ import com.google.inject.Provider;
  *  menu and setup manager.  Includes external interface for saving
  *  and reloading settings.  
  */
-public final class FileTypeOptionPanelManager {
+public final class FileTypeOptionPanelManager implements Disposable {
 
     private static final int MAX_EXT_LENGTH = 7;
     
@@ -88,6 +89,10 @@ public final class FileTypeOptionPanelManager {
             addNewExt();
         }
     };
+
+    private final PanelsCheckChangeListener refreshListener;
+
+    private SettingListener programsListener;
     
     @Inject
     public FileTypeOptionPanelManager(CategoryIconManager categoryIconManager,
@@ -97,7 +102,40 @@ public final class FileTypeOptionPanelManager {
         this.iconManager = iconManager;
         this.libraryData = libraryManager.getLibraryData();
         this.originalExtensions = CollectionUtils.flatten(libraryData.getExtensionsPerCategory().values());
+        refreshListener = new PanelsCheckChangeListener(this);
     }
+    
+    @Inject
+    public void register() {
+        programsListener = new SettingListener() {            
+            @Override
+            public void settingChanged(SettingEvent evt) {
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run() {
+                        if (sidePanel == null) {
+                            return;
+                        }
+                        
+                        if (LibrarySettings.ALLOW_PROGRAMS.getValue()) {
+                            sidePanel.removeItem(Category.PROGRAM);
+                        } 
+                        else {
+                            sidePanel.addItem(Category.PROGRAM);
+                        }
+                        
+                    }
+                });
+            }
+        };
+        
+        LibrarySettings.ALLOW_PROGRAMS.addSettingListener(programsListener);
+    }
+    
+    @Override
+    public void dispose() {
+        LibrarySettings.ALLOW_PROGRAMS.removeSettingListener(programsListener);
+    }    
+    
     
     /**
      * Switches the active media panel to the one of the given key.
@@ -132,7 +170,7 @@ public final class FileTypeOptionPanelManager {
     }
    
     void initCore() {
-        
+                
         Collection<String> selectedExts = CollectionUtils.flatten(libraryData.getExtensionsPerCategory().values());
         Collection<String> allExts = new TreeSet<String>();
         removableExts = new HashSet<String>();
@@ -155,8 +193,6 @@ public final class FileTypeOptionPanelManager {
         this.panels = new LinkedHashMap<Category,CheckBoxList<String>>();
         this.mediaUnchecked = new HashSet<Category>();
         this.currentKey = null;
-        
-        final PanelsCheckChangeListener refreshListener = new PanelsCheckChangeListener(this);
         
         for (Category key : mediaKeys) {
             if (this.currentKey == null) {
@@ -194,7 +230,7 @@ public final class FileTypeOptionPanelManager {
             return;
         }
         
-        this.mainContainer = new JPanel(new BorderLayout());        
+        this.mainContainer = new JPanel(new BorderLayout());
         this.mainContainer.setOpaque(false);
         this.mediaLayout   = new CardLayout();
         this.currentPanel  = new JPanel(mediaLayout);
@@ -210,23 +246,6 @@ public final class FileTypeOptionPanelManager {
         if (!LibrarySettings.ALLOW_PROGRAMS.getValue()) {
             sidePanel.removeItem(Category.PROGRAM);
         }
-        
-        LibrarySettings.ALLOW_PROGRAMS.addSettingListener(new SettingListener() {            
-            @Override
-            public void settingChanged(SettingEvent evt) {
-                SwingUtilities.invokeLater(new Runnable(){
-                    public void run() {
-                        if (LibrarySettings.ALLOW_PROGRAMS.getValue()) {
-                            sidePanel.removeItem(Category.PROGRAM);
-                        } 
-                        else {
-                            sidePanel.addItem(Category.PROGRAM);
-                        }
-                        
-                    }
-                });
-            }            
-        });
         
         this.sidePanel.setPreferredSize(new Dimension(150, 0));
         this.sidePanel.setSelectionListener(new SideSelectListener(this));
@@ -526,6 +545,5 @@ public final class FileTypeOptionPanelManager {
         public int getCommentFieldSize() {
             return 70;
         }
-    }    
-
+    }
 }

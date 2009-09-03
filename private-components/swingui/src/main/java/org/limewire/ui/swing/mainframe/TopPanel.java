@@ -35,6 +35,7 @@ import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.api.search.SearchDetails.SearchType;
 import org.limewire.core.api.search.browse.BrowseSearch;
 import org.limewire.core.api.search.sponsored.SponsoredResult;
+import org.limewire.core.settings.LibrarySettings;
 import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.FlexibleTabList;
 import org.limewire.ui.swing.components.FlexibleTabListFactory;
@@ -91,7 +92,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
     @Resource private Icon webIcon;
     
     private final NavItem libraryNav;
-    private final KeywordAssistedSearchBuilder keywordAssistedSearchBuilder;
+    private final Provider<KeywordAssistedSearchBuilder> keywordAssistedSearchBuilder;
     private final Provider<AdvancedSearchPanel> advancedSearchPanel;
     private final SearchHandler searchHandler;
     private final HomeMediator homeMediator;
@@ -111,7 +112,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
                     BarPainterFactory barPainterFactory,
                     SearchTabPainterFactory tabPainterFactory,
                     final LibraryMediator myLibraryMediator,
-                    KeywordAssistedSearchBuilder keywordAssistedSearchBuilder,
+                    Provider<KeywordAssistedSearchBuilder> keywordAssistedSearchBuilder,
                     Provider<AdvancedSearchPanel> advancedSearchPanel,
                     Provider<FriendsButton> friendsButtonProvider,
                     AllFriendsRefreshManager allFriendsRefreshManager) {        
@@ -200,15 +201,15 @@ class TopPanel extends JXPanel implements SearchNavigator {
         
         navigator.addNavigationListener(new NavigationListener() {
             @Override
-            public void categoryRemoved(NavCategory category) {
-                if(category == NavCategory.SEARCH_RESULTS) {
+            public void categoryRemoved(NavCategory category, boolean wasSelected) {
+                if(wasSelected && category == NavCategory.SEARCH_RESULTS) {
                     goHome();
                 }
             }
             
             @Override public void categoryAdded(NavCategory category) {}
             @Override public void itemAdded(NavCategory category, NavItem navItem) {}
-            @Override public void itemRemoved(NavCategory category, NavItem navItem) {}
+            @Override public void itemRemoved(NavCategory category, NavItem navItem, boolean wasSelected) {}
             
             @Override public void itemSelected(NavCategory category, NavItem navItem, NavSelectable selectable, NavMediator navMediator) {
                 if(category != NavCategory.SEARCH_RESULTS) {
@@ -242,12 +243,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
     public SearchNavItem addAdvancedSearch() {
         String title = I18n.tr("Advanced Search");
         AdvancedSearchPanel advancedPanel = advancedSearchPanel.get();
-        advancedPanel.addSearchListener(new UiSearchListener() {
-            @Override
-            public void searchTriggered(SearchInfo searchInfo) {
-                searchHandler.doSearch(searchInfo);
-            }
-        });
+        
         NavItem item = navigator.createNavItem(NavCategory.SEARCH_RESULTS, title, new SearchResultMediator(advancedPanel));
         SearchAction action = new SearchAction(item);
         action.putValue(Action.LONG_DESCRIPTION, action.getValue(Action.NAME));
@@ -264,7 +260,10 @@ class TopPanel extends JXPanel implements SearchNavigator {
         advancedPanel.addSearchListener(new UiSearchListener() {
             @Override
              public void searchTriggered(SearchInfo searchInfo) {
-                searchNavItem.remove();
+                searchHandler.doSearch(searchInfo);
+                if ((searchInfo.getSearchCategory() != SearchCategory.PROGRAM || LibrarySettings.ALLOW_PROGRAMS.getValue())) {
+                    searchNavItem.remove();
+                }
              } 
          });
         
@@ -332,7 +331,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
         }
 
         @Override
-        public void itemRemoved() {
+        public void itemRemoved(boolean wasSelected) {
             searchList.removeTabActionMap(actionMap);
             panel.dispose();
             if(searchList.getTabs().size() == 0){
@@ -348,7 +347,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
         }
     }
 
-    private final class SearchNavItemImpl implements SearchNavItem {
+    private final static class SearchNavItemImpl implements SearchNavItem {
         private final NavItem item;
         private final SearchAction action;
         private final boolean stopSpinnerAfter50Results;
@@ -423,7 +422,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
                 String query = searchText;
                 
                 // Check if the category was overridden by a keyword 
-                CategoryOverride categoryOverride = keywordAssistedSearchBuilder.parseCategoryOverride(query);
+                CategoryOverride categoryOverride = keywordAssistedSearchBuilder.get().parseCategoryOverride(query);
                 
                 // Do not allow searches in the Other category
                 if (categoryOverride != null && categoryOverride.getCategory() != SearchCategory.OTHER) {
@@ -438,7 +437,7 @@ class TopPanel extends JXPanel implements SearchNavigator {
                 }
                     
                 // Attempt to parse an advanced search from the search query
-                SearchInfo search = keywordAssistedSearchBuilder.attemptToCreateAdvancedSearch(
+                SearchInfo search = keywordAssistedSearchBuilder.get().attemptToCreateAdvancedSearch(
                         query, category);
                 
                 // Fall back on the normal search

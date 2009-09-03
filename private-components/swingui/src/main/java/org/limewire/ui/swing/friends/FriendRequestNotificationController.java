@@ -4,15 +4,15 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 import org.limewire.friend.api.FriendRequestEvent;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 public class FriendRequestNotificationController extends ComponentAdapter {
         
     private FriendRequestNotificationPanel currentPanel = null;

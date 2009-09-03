@@ -1,7 +1,7 @@
 package org.limewire.ui.swing.friends.login;
 
-import org.limewire.ui.swing.friends.settings.FriendAccountConfiguration;
+import org.limewire.ui.swing.friends.settings.FacebookFriendAccountConfiguration;
 
 public interface FacebookLoginActionFactory {
-    FacebookLoginAction create(FriendAccountConfiguration configuration);
+    FacebookLoginAction create(FacebookFriendAccountConfiguration configuration);
 }

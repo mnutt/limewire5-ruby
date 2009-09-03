@@ -109,7 +109,7 @@ public class ActivityCallbackAdapter implements ActivityCallback {
        
     }
     
-    public void dangerousDownloadDeleted(String filename) {
+    public void warnUser(String filename, String warning) {
         
     }
 
@@ -131,6 +131,11 @@ public class ActivityCallbackAdapter implements ActivityCallback {
 
     @Override
     public boolean promptTorrentUploadCancel(Torrent torrent) {
+        return true;
+    }
+
+    @Override
+    public boolean promptTorrentFilePriorities(Torrent torrent) {
         return true;
     }
 

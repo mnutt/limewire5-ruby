@@ -64,7 +64,7 @@ public class ConnectBackRequestIQListener implements PacketListener, FeatureTran
         };
     }
     
-    private class ConnectBackRequestIQFeatureInitializer implements FeatureInitializer {
+    private static class ConnectBackRequestIQFeatureInitializer implements FeatureInitializer {
         @Override
         public void register(FeatureRegistry registry) {
             registry.registerPublicInitializer(ConnectBackRequestFeature.ID, this);

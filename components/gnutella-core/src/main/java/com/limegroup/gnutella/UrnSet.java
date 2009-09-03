@@ -26,12 +26,35 @@ public class UrnSet implements Set<URN>, Iterable<URN>, Cloneable, Serializable 
     /** The sole URNs this knows about. */
     private URN sha1, ttroot;
     
-    /** Returns a set of UrnSet version of the set. */
+    /** Returns a set of the UrnSet version of the set. */
     public static UrnSet resolve(Set<? extends URN> set) {
+        if (set instanceof UnmodifiableUrnSet || set instanceof UrnSet) {
+            return (UrnSet) set;
+        }
+        else {
+            return new UrnSet(set);
+        }
+    }
+    
+    /** Returns a set of the UrnSet version of the set. */
+    public static UrnSet modifiableSet(Set<? extends URN> set) {
+        if (set instanceof UnmodifiableUrnSet) {
+            UrnSet urnSet = (UrnSet) set;
+            return new UrnSet(urnSet.getSHA1(), urnSet.getTTRoot());
+        }
         if(set instanceof UrnSet) {
             return (UrnSet)set;
         } else {
             return new UrnSet(set);
+        }
+    }
+    
+    /** Returns an unmodifiable set of the UrnSet version of the set. */
+    public static UrnSet unmodifiableSet(Set<? extends URN> set) {
+        if(set instanceof UnmodifiableUrnSet) {
+            return (UrnSet)set;
+        } else {
+            return new UnmodifiableUrnSet(set);
         }
     }
     
@@ -48,6 +71,11 @@ public class UrnSet implements Set<URN>, Iterable<URN>, Cloneable, Serializable 
         addAll(c);
     }
     
+    private UrnSet(URN sha1, URN ttroot) {
+        this.sha1 = sha1;
+        this.ttroot = ttroot;
+    }
+    
     @Override
     public String toString() {
         return isEmpty() ? "{Empty UrnSet}" : "UrnSet of: " + sha1;
@@ -56,9 +84,7 @@ public class UrnSet implements Set<URN>, Iterable<URN>, Cloneable, Serializable 
     /** Clones this set. */
     @Override
     public UrnSet clone() {
-        UrnSet c = new UrnSet();
-        c.sha1 = sha1;
-        return c;
+        return new UrnSet(sha1, ttroot);
     }
     
     /** Returns the hashcode for this UrnSet. */
@@ -112,6 +138,10 @@ public class UrnSet implements Set<URN>, Iterable<URN>, Cloneable, Serializable 
      * @return
      */
     public boolean add(URN o) {
+        return addInternal(o);
+    }
+    
+    protected boolean addInternal(URN o) {
         if(o.isSHA1() && sha1 == null) {
             sha1 = o;
             return true;
@@ -131,9 +161,13 @@ public class UrnSet implements Set<URN>, Iterable<URN>, Cloneable, Serializable 
      * @return
      */
     public boolean addAll(Collection<? extends URN> c) {
+        return addAllInternal(c);
+    }
+    
+    protected boolean addAllInternal(Collection<? extends URN> c) {
         boolean ret = false;
         for(URN urn : c)
-            ret |= add(urn);
+            ret |= addInternal(urn);
         return ret;
     }
 
@@ -300,4 +334,71 @@ public class UrnSet implements Set<URN>, Iterable<URN>, Cloneable, Serializable 
         }
     }
 
+    
+    private static class UnmodifiableUrnSet extends UrnSet {
+        
+        public UnmodifiableUrnSet(Set<? extends URN> set) {
+            super.addAll(set);
+        }
+        
+        private UnmodifiableUrnSet(URN sha1, URN ttroot) {
+            super(sha1, ttroot);
+        }
+        
+        @Override
+        public boolean add(URN o) {
+            throw new UnsupportedOperationException("Can't modify an UnmodifiableUrnSet");        
+        }
+        
+        @Override
+        public boolean addAll(Collection<? extends URN> c) {
+            throw new UnsupportedOperationException("Can't modify an UnmodifiableUrnSet");        
+        }
+        
+        @Override
+        public void clear() {
+            throw new UnsupportedOperationException("Can't modify an UnmodifiableUrnSet");
+        }
+        
+        @Override
+        public boolean remove(Object o) {
+            throw new UnsupportedOperationException("Can't modify an UnmodifiableUrnSet");
+        }
+        
+        @Override
+        public boolean removeAll(Collection<?> c) {
+            throw new UnsupportedOperationException("Can't modify an UnmodifiableUrnSet");
+        }
+        
+        @Override
+        public boolean retainAll(Collection<?> c) {
+            throw new UnsupportedOperationException("Can't modify an UnmodifiableUrnSet");
+        }
+
+        @Override
+        public Iterator<URN> iterator() {
+            final Iterator<URN> oldIterator = super.iterator();
+            return new Iterator<URN> () {
+                @Override
+                public boolean hasNext() {
+                    return oldIterator.hasNext();
+                }
+
+                @Override
+                public URN next() {
+                    return oldIterator.next();
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException("Can't modify an UnmodifiableUrnSet");
+                }
+            };
+        }
+        
+        @Override
+        public UrnSet clone() {
+            return new UnmodifiableUrnSet(getSHA1(), getTTRoot());
+        }
+    }
 }

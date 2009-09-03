@@ -396,7 +396,7 @@ public class ConnectionTable extends MouseableTable {
     /**
      * Action to toggle option to automatically sort by column.
      */
-    private class AutosortAction extends AbstractAction {
+    private static class AutosortAction extends AbstractAction {
 
         public AutosortAction(String name) {
             super(name);
@@ -411,7 +411,7 @@ public class ConnectionTable extends MouseableTable {
     /**
      * Action to toggle option to display tooltips.
      */
-    private class TooltipsAction extends AbstractAction {
+    private static class TooltipsAction extends AbstractAction {
 
         public TooltipsAction(String name) {
             super(name);

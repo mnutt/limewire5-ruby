@@ -147,4 +147,9 @@ public class MockUploadItem implements UploadItem {
     public RemoteHost getRemoteHost() {
         return null;
     }
+
+    @Override
+    public float getSeedRatio() {
+        return -1;
+    }
 }

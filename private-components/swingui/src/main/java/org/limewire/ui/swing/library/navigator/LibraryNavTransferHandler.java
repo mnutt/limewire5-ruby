@@ -44,7 +44,7 @@ class LibraryNavTransferHandler extends LocalFileListTransferHandler {
 
     @Override
     public boolean importData(TransferSupport info) {
-        if(info.getComponent() instanceof LibraryNavigatorTable) {
+        if(info.getComponent() instanceof LibraryNavigatorTable && info.isDrop()) {
             LibraryNavigatorTable libraryNavigatorTable = (LibraryNavigatorTable) info.getComponent();    
             DropLocation dropLocation = info.getDropLocation();
             Point point = dropLocation.getDropPoint();

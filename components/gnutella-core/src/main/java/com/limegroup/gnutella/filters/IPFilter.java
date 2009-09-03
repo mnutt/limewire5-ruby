@@ -12,8 +12,6 @@ import org.limewire.io.IP;
 
 public interface IPFilter extends SpamFilter {
     
-    public void refreshHosts(IPFilterCallback callback);
-
     /**
      * @return true if there are black listed hosts in the filter.
      */
@@ -75,12 +73,10 @@ public interface IPFilter extends SpamFilter {
      * Updates the hosts in the IP filter.
      */
     public void refreshHosts();
-    
-    /**
-     * Defines an interface for loading IP Filters through a callback.
-     */
-    public interface IPFilterCallback {
-        public void ipFiltersLoaded();
-    }
 
+    /**
+     * Updates the hosts in the IP filter and informs the callback, unless the
+     * callback is null.
+     */
+    public void refreshHosts(LoadCallback callback);
 }

@@ -21,7 +21,6 @@ import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.util.I18NConvert;
 
 import com.google.inject.Inject;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.connection.BlockingConnectionFactory;
 import com.limegroup.gnutella.handshaking.HeaderNames;
@@ -110,7 +109,7 @@ public class I18NSendReceiveTest extends LimeTestCase {
         TEST_PORT++;
         doSettings();
         
-        LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
+        LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
         
         lifecycleManager.start();
         connectionServices.connect();

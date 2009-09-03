@@ -179,7 +179,7 @@ public class SearchOptionPanel extends OptionPanel {
         }
     }
     
-    private class CategoryCellRenderer extends DefaultListCellRenderer {
+    private static class CategoryCellRenderer extends DefaultListCellRenderer {
         public CategoryCellRenderer() {
             setOpaque(true);
         }
@@ -227,10 +227,10 @@ public class SearchOptionPanel extends OptionPanel {
             filterFileExtensionPanel = new FilterFileExtensionsOptionPanel(spamManager, new OKDialogAction());
             filterFileExtensionPanel.setPreferredSize(new Dimension(300,400));
             
-            copyrightContentCheckBox = new JCheckBox(I18n.tr("Don't let me download or upload files copyright owners request not be shared."));
+            copyrightContentCheckBox = new JCheckBox("<html>"+I18n.tr("Don't let me download or upload files copyright owners request not be shared.")+"</html>");
             copyrightContentCheckBox.setContentAreaFilled(false);
             
-            adultContentCheckBox = new JCheckBox(I18n.tr("Don't show adult content in search results"));
+            adultContentCheckBox = new JCheckBox("<html>"+I18n.tr("Don't show adult content in search results")+"</html>");
             adultContentCheckBox.setContentAreaFilled(false);
             
             filterKeywordsButton = new JButton(new DialogDisplayAction(SearchOptionPanel.this,
@@ -296,10 +296,10 @@ public class SearchOptionPanel extends OptionPanel {
         private void updateProgramsMessage() {
             if (((Boolean)unsafeTypeOptionPanelStateManagerProvider.get()
                     .getValue(LibrarySettings.ALLOW_PROGRAMS)).booleanValue()) {
-                programSharingLabel.setText(I18n.tr("You enabled showing Programs in search results. This can lead to viruses."));
+                programSharingLabel.setText("<html>"+I18n.tr("You enabled showing Programs in search results. This can lead to viruses.")+"</html>");
             } 
             else {
-                programSharingLabel.setText(I18n.tr("LimeWire is helping to prevent viruses by not showing Programs in search results."));
+                programSharingLabel.setText("<html>"+I18n.tr("LimeWire is helping to prevent viruses by not showing Programs in search results.")+"</html>");
             }
         }
     }

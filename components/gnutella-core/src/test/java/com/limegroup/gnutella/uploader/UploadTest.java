@@ -61,7 +61,6 @@ import org.limewire.util.TestUtils;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Stage;
 import com.google.inject.name.Names;
 import com.limegroup.gnutella.Acceptor;
 import com.limegroup.gnutella.HTTPAcceptor;
@@ -158,7 +157,7 @@ public class UploadTest extends LimeTestCase {
         doSettings();
 
         // initialize services
-        LimeTestUtils.createInjector(Stage.PRODUCTION, new LimeWireIOTestModule(), LimeTestUtils.createModule(this));
+        LimeTestUtils.createInjector(new LimeWireIOTestModule(), LimeTestUtils.createModule(this));
         
         startServices();
         File testDir = TestUtils.getResourceFile(testDirName);

@@ -12,6 +12,7 @@ import java.text.NumberFormat;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -19,7 +20,6 @@ import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXHyperlink;
 import org.limewire.core.api.upload.UploadErrorState;
 import org.limewire.core.api.upload.UploadItem;
@@ -38,6 +38,8 @@ import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.CommonUtils;
 
+import com.google.inject.Inject;
+
 public class UploadTableRendererEditor extends TableRendererEditor {
     
     private NumberFormat formatter = new DecimalFormat("0.00");
@@ -47,7 +49,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
     private JLabel nameLabel;
     private JLabel iconLabel;
     private RemoteHostWidget browseNameLabel;
-    private JXButton cancelButton;
+    private JButton cancelButton;
     private JXHyperlink removeLink;
     private WeakReference<UploadItem> editItemReference;
     private LimeProgressBar progressBar;
@@ -64,7 +66,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
     @Resource private Icon friendBrowseHostIcon;
     @Resource private Icon p2pBrowseHostIcon;
     
-
+    @Inject
     public UploadTableRendererEditor(CategoryIconManager categoryIconManager, ProgressBarDecorator progressBarFactory,
             RemoteHostWidgetFactory remoteHostWidgetFactory){
         GuiUtils.assignResources(this);
@@ -169,7 +171,7 @@ public class UploadTableRendererEditor extends TableRendererEditor {
         add(cancelButton, "gapright 10, alignx right, aligny 50%, spany 3, push, wrap");
         add(progressBar, "gapleft 10, , gaptop 2, hidemode 3, wrap");
         add(browseNameLabel, "split 4, gapleft 10, gapbottom 5, gaptop 2, aligny top");
-        add(statusLabel, "gapleft 10, gapbottom 5, gaptop 2, aligny top");
+        add(statusLabel, "gapleft 10, gapbottom 5, gaptop 2, alignx left, aligny top");
         add(timeLabel, "push, gaptop 2, gapbottom 5, aligny top, alignx right, hidemode 1");
         add(removeLink, "push, gaptop 2, gapbottom 5, aligny top, alignx right, hidemode 1");
     }
@@ -251,9 +253,8 @@ public class UploadTableRendererEditor extends TableRendererEditor {
             
             if(UploadItemType.BITTORRENT == item.getUploadItemType()) {
                 int numConnections = item.getNumUploadConnections();
-                
-                long fileSize = item.getFileSize() == 0 ? 1 : item.getFileSize();
-                String ratio = formatter.format(item.getTotalAmountUploaded()/(double)fileSize);
+
+                String ratio = formatter.format(item.getSeedRatio());
                 if(numConnections == 1) {
                     return I18n.tr("Connected to {0} P2P user, uploading at {1} - Ratio {2}", numConnections, GuiUtils.rate2speed(item.getUploadSpeed()), ratio);
                 } else {
@@ -264,11 +265,9 @@ public class UploadTableRendererEditor extends TableRendererEditor {
                         GuiUtils.toUnitbytes(item.getFileSize()), 
                         GuiUtils.rate2speed(item.getUploadSpeed()));
             }
-        case QUEUED:
-            // {0}: number of uploads before this upload that have to finish
-            return I18n.trn("Waiting for {0} upload to finish", "Waiting for {0} uploads to finish", item.getQueuePosition());
         case WAITING:
-            return I18n.tr("Waiting for connections...");
+        case QUEUED:
+            return I18n.tr("Waiting...");
         case UNABLE_TO_UPLOAD:
             return getErrorMessage(item.getErrorState());        
         }

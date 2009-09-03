@@ -13,7 +13,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 import javax.swing.border.Border;
@@ -31,6 +32,7 @@ import org.limewire.listener.EventListener;
 import org.limewire.listener.EventUtils;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
+import org.limewire.ui.swing.components.ActionLabel;
 import org.limewire.ui.swing.components.LimeComboBox;
 import org.limewire.ui.swing.components.decorators.ComboBoxDecorator;
 import org.limewire.ui.swing.friends.actions.BrowseFriendsAction;
@@ -170,11 +172,14 @@ public class FriendsButton extends LimeComboBox {
             }
             @Override
             public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-                if (!menu.getComponent(0).isVisible()) {
+                
+                JComponent serviceItem = (JComponent) ((JComponent) menu.getComponent(0)).getComponent(0);
+                
+                if (!serviceItem.isVisible()) {
                     g.setColor(dividerForeground);
                 } 
                 else {
-                    g.setColor(menu.getComponent(0).getBackground());
+                    g.setColor(serviceItem.getBackground());
                 }
                 g.drawLine(0, 0, getPressedIcon().getIconWidth()-2, 0);
                 
@@ -197,20 +202,20 @@ public class FriendsButton extends LimeComboBox {
     }
     
     private void populateMenu() {
-        menu.add(serviceItemProvider.get());
+        menu.add(wrapItemForSelection(serviceItemProvider.get()));
 
         FriendConnection friendConnection = EventUtils.getSource(friendConnectionEventBean);
         boolean signedIn = friendConnection != null && friendConnection.isLoggedIn();
         boolean loggingIn = autoLoginService.isAttemptingLogin()
                 || (friendConnection != null && friendConnection.isLoggingIn());
 
-        JMenuItem browseFriendMenuItem; 
+        JLabel browseFriendMenuItem; 
             
         if (signedIn) {    
-            browseFriendMenuItem = new JMenuItem(browseFriendsActionProvider.get());
+            browseFriendMenuItem = new ActionLabel(browseFriendsActionProvider.get());
         }
         else {
-            browseFriendMenuItem = new JMenuItem(BrowseFriendsAction.DISPLAY_TEXT);
+            browseFriendMenuItem = new JLabel(BrowseFriendsAction.DISPLAY_TEXT);
             browseFriendMenuItem.setEnabled(false);
         }
         menu.add(decorateItem(browseFriendMenuItem));
@@ -221,35 +226,33 @@ public class FriendsButton extends LimeComboBox {
         }
                 
         if (signedIn) {
-            menu.add(decorateItem(new JMenuItem(logoutActionProvider.get())));
+            menu.add(decorateItem(new ActionLabel(logoutActionProvider.get())));
         } else {
-            JMenuItem loginMenuItem;
+            JLabel loginMenuItem;
             if (loggingIn) {
-                loginMenuItem = new JMenuItem(I18n.tr(LoginAction.DISPLAY_TEXT));
+                loginMenuItem = new JLabel(I18n.tr(LoginAction.DISPLAY_TEXT));
                 loginMenuItem.setEnabled(false);
             } 
             else {
-                loginMenuItem = new JMenuItem(loginActionProvider.get());
+                loginMenuItem = new ActionLabel(loginActionProvider.get());
             }
             menu.add(decorateItem(loginMenuItem));
         }
     }
     
-    private JMenuItem decorateItem(JMenuItem comp) {
+    private JComponent decorateItem(JComponent comp) {
+        
+        attachListeners(comp);
+        
         comp.setFont(menuFont);
+        comp.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
         
         // Vista uses overriden foreground even in disabled state
         if (comp.isEnabled()) {
             comp.setForeground(menuForeground);
         }
-        
-        if (newResultsAvailable) {
-            comp.setBorder(BorderFactory.createEmptyBorder(0,8,0,0));
-        } 
-        else {
-            comp.setBorder(BorderFactory.createEmptyBorder(2,0,2,0));
-        }
-        return comp;
+
+        return wrapItemForSelection(comp);
     }
     
     private void setIconFromEvent(FriendConnectionEvent event) {

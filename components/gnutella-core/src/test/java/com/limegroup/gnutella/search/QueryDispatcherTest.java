@@ -40,7 +40,7 @@ public class QueryDispatcherTest extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		queryDispatcher = injector.getInstance(QueryDispatcher.class);
 		queryHandlerFactory = injector.getInstance(QueryHandlerFactory.class);
 		queryRequestFactory = injector.getInstance(QueryRequestFactory.class);

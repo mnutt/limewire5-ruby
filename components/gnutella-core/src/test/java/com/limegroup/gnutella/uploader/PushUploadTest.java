@@ -49,7 +49,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.google.inject.Stage;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.Acceptor;
 import com.limegroup.gnutella.ActivityCallback;
@@ -159,7 +158,7 @@ public class PushUploadTest extends LimeTestCase {
     protected void setUp() throws Exception {
         doSettings();
 
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).to(MyNetworkManager.class);

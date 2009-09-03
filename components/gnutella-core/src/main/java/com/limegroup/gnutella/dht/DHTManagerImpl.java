@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.limewire.collection.Comparators;
 import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.core.settings.DHTSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionHistogram;
@@ -53,7 +54,6 @@ import org.limewire.util.ByteUtils;
 import org.limewire.util.DebugRunnable;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
 import com.limegroup.gnutella.messages.vendor.DHTContactsMessage;
@@ -66,7 +66,7 @@ import com.limegroup.gnutella.util.ClassCNetworks;
  * This class offloads blocking operations to a thread pool
  * so that it never blocks on critical threads such as MessageDispatcher.
  */
-@Singleton
+@EagerSingleton
 public class DHTManagerImpl implements DHTManager, Service {
     
     private static final Log LOG = LogFactory.getLog(DHTManagerImpl.class);
@@ -862,7 +862,7 @@ public class DHTManagerImpl implements DHTManager, Service {
     /**
      * Inspection point that tells us how long did the last bootstrap take.
      */
-    private class BootstrapTimer implements DHTEventListener, Inspectable {
+    private static class BootstrapTimer implements DHTEventListener, Inspectable {
         private long start, stop;
 
         @Override

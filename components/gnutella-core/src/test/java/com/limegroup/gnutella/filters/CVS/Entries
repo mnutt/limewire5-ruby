@@ -1,12 +1,12 @@
 D/response////
-/DuplicateFilterTest.java/1.16/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
-/GUIDFilterTest.java/1.13/Fri Sep  7 17:49:22 2007//Tprod-5-2-13-java16
-/GreedyQueryFilterTest.java/1.9/Mon Apr 28 18:45:00 2008//Tprod-5-2-13-java16
-/HashFilterTest.java/1.7/Mon Feb  2 23:24:13 2009//Tprod-5-2-13-java16
-/IPFilterTest.java/1.22/Mon Jul 20 19:52:09 2009/-kk/Tprod-5-2-13-java16
-/IPListTest.java/1.11/Mon Apr  6 16:05:34 2009//Tprod-5-2-13-java16
-/KeywordFilterTest.java/1.20/Fri Aug  7 20:25:37 2009//Tprod-5-2-13-java16
-/MutableGUIDFilterTest.java/1.5/Wed Dec  3 22:02:04 2008//Tprod-5-2-13-java16
-/RequeryFilterTest.java/1.12/Wed Dec  3 22:02:04 2008//Tprod-5-2-13-java16
-/SpamReplyFilterTest.java/1.11/Tue Sep 11 19:50:29 2007//Tprod-5-2-13-java16
-/XMLDocFilterTest.java/1.13/Thu Mar 26 23:00:24 2009//Tprod-5-2-13-java16
+/DuplicateFilterTest.java/1.17/Thu Sep  3 21:17:29 2009//Tprod-5-3-2-java6
+/GUIDFilterTest.java/1.13/Fri Sep  7 17:49:22 2007//Tprod-5-3-2-java6
+/GreedyQueryFilterTest.java/1.9/Mon Apr 28 18:45:00 2008//Tprod-5-3-2-java6
+/HashFilterTest.java/1.7/Mon Feb  2 23:24:13 2009//Tprod-5-3-2-java6
+/IPFilterTest.java/1.24/Thu Sep  3 21:17:29 2009/-kk/Tprod-5-3-2-java6
+/IPListTest.java/1.11/Mon Apr  6 16:05:34 2009//Tprod-5-3-2-java6
+/KeywordFilterTest.java/1.24/Thu Sep  3 21:17:29 2009//Tprod-5-3-2-java6
+/RequeryFilterTest.java/1.12/Wed Dec  3 22:02:04 2008//Tprod-5-3-2-java6
+/SpamReplyFilterTest.java/1.11/Tue Sep 11 19:50:29 2007//Tprod-5-3-2-java6
+/URNBlacklistManagerImplTest.java/1.4/Mon Aug 24 21:05:21 2009//Tprod-5-3-2-java6
+/URNFilterTest.java/1.2/Mon Aug 24 21:05:21 2009//Tprod-5-3-2-java6

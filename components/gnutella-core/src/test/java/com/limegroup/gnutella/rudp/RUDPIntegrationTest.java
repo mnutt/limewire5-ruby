@@ -25,7 +25,6 @@ import org.limewire.rudp.messages.SynMessage.Role;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.NetworkManager;
@@ -75,7 +74,7 @@ public class RUDPIntegrationTest extends LimeTestCase {
     @Override
     public void setUp() throws Exception {
         setSettings();
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        Injector injector = LimeTestUtils.createInjector();
         
         lifecycleManager = injector.getInstance(LifecycleManager.class);
         selectorProvider = injector.getInstance(UDPSelectorProvider.class);

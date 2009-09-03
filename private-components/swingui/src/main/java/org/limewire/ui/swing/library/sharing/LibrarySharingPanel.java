@@ -200,16 +200,17 @@ public class LibrarySharingPanel {
                 currentList.getFriendIds().removeListEventListener(friendsListener);
             }
             currentList = newList;
-            currentList.getFriendIds().addListEventListener(friendsListener);
-            if(isLoggedIn()) {
-                if(SwingUiSettings.SHOW_SHARING_OVERLAY_MESSAGE.getValue()) {
-                    showEditableView();
-                } else {
-                    showFriendListView();
-                }
+            currentList.getFriendIds().addListEventListener(friendsListener); 
+        } 
+		// view may have changed based on sign out/sign in event
+        if(isLoggedIn()) {
+            if(SwingUiSettings.SHOW_SHARING_OVERLAY_MESSAGE.getValue()) {
+                showEditableView();
             } else {
-                showLoginView();
+                showFriendListView();
             }
+        } else {
+            showLoginView();
         }
     }
     

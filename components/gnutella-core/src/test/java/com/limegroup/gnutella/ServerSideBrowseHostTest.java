@@ -17,7 +17,6 @@ import org.limewire.io.GUID;
 import org.limewire.util.FileUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
@@ -87,7 +86,7 @@ public final class ServerSideBrowseHostTest extends ServerSideTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        super.setUp(LimeTestUtils.createInjector(Stage.PRODUCTION));
+        super.setUp(LimeTestUtils.createInjector());
     }
     
     // BEGIN TESTS

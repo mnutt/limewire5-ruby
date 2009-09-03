@@ -16,6 +16,7 @@ import org.limewire.friend.api.feature.ConnectBackRequestFeature;
 import org.limewire.friend.api.feature.FeatureTransport;
 import org.limewire.friend.impl.address.FriendAddressResolver;
 import org.limewire.friend.impl.address.FriendFirewalledAddress;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.io.GUID;
@@ -33,7 +34,6 @@ import org.limewire.rudp.UDPSelectorProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.SocketProcessor;
@@ -44,7 +44,7 @@ import com.limegroup.gnutella.downloader.PushedSocketHandlerRegistry;
 /**
  * Connects an {@link org.limewire.friend.impl.address.FriendFirewalledAddress} and tries to get a socket for it.
  */
-@Singleton
+@EagerSingleton
 class FriendFirewalledAddressConnector implements AddressConnector, PushedSocketHandler {
 
     private static final Log LOG = LogFactory.getLog(FriendFirewalledAddressConnector.class, LOGGING_CATEGORY);

@@ -1,84 +1,36 @@
 package com.limegroup.gnutella.filters;
 
-import java.io.IOException;
+import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.limewire.core.settings.FilterSettings;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.URN;
-import com.limegroup.gnutella.messages.BadPacketException;
-import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.QueryReply;
-import com.limegroup.gnutella.spam.SpamManager;
 
 /**
- * A filter that blocks query responses with URNs that match either of
- * two blacklists, one local and one remote (SIMPP). This is designed
- * for filtering out spam and malware.
+ * A filter that checks query responses, query replies and individual URNs
+ * against a URN blacklist.
  */
-@Singleton
-public class URNFilter implements SpamFilter {
-    
-    private static final Log LOG = LogFactory.getLog(URNFilter.class);
-    private ImmutableSet<URN> blacklist = null;
-    private final SpamManager spamManager;
+public interface URNFilter extends SpamFilter {
 
-    @Inject
-    URNFilter(SpamManager spamManager) {
-        this.spamManager = spamManager;
-    }
-    
     /**
-     * Reloads the local and remote blacklists. Called when the spam service
-     * starts and on SIMPP updates.
+     * Reloads the blacklist in a different thread and informs the callback,
+     * unless the callback is null.
      */ 
-    public void refreshURNs() {
-        ImmutableSet.Builder<URN> builder = ImmutableSet.builder();
-        try {
-            for(String s : FilterSettings.FILTERED_URNS_LOCAL.get())
-                builder.add(URN.createSHA1Urn("urn:sha1:" + s));
-            if(FilterSettings.USE_NETWORK_FILTER.getValue()) {
-                for(String s : FilterSettings.FILTERED_URNS_REMOTE.get())
-                    builder.add(URN.createSHA1Urn("urn:sha1:" + s));
-            }
-        } catch (IOException iox) {
-            LOG.debug("Error creating URN blacklist: ", iox);
-        }
-        blacklist = builder.build();
-    }
+    void refreshURNs(final LoadCallback callback);
+
+    /**
+     * Returns true if any response in the query reply matches the blacklist.
+     * Unlike <code>allow(Message)</code>, matching query replies are not
+     * passed to the spam filter.
+     */
+    boolean isBlacklisted(QueryReply q);
+
+    /**
+     * Returns true if the given URN matches the blacklist.
+     */
+    boolean isBlacklisted(URN urn);
     
     /**
-     * Returns false if the message is a query response with a URN
-     * matching either of the blacklists; otherwise returns true.
+     * Returns the blacklisted URNs as base32-encoded strings. For testing.
      */
-    @Override
-    public boolean allow(Message m) {
-        if(blacklist == null)
-            return true;
-        if(m instanceof QueryReply) {
-            QueryReply q = (QueryReply)m;
-            try {
-                for(Response r : q.getResultsArray()) {
-                    for(URN u : r.getUrns()) {
-                        if(blacklist.contains(u)) {
-                            if(LOG.isDebugEnabled())
-                                LOG.debug("Filtering response with URN " + u);
-                            if(FilterSettings.FILTERED_URNS_ARE_SPAM.getValue())
-                                spamManager.handleSpamQueryReply(q);
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            } catch (BadPacketException bpe) {
-                return true;
-            }
-        }
-        return true; // Don't block other kinds of messages
-    }
+    Set<String> getBlacklist();
 }

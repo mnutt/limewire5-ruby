@@ -231,7 +231,7 @@ class LibrarySharingEditablePanel {
     /**
      * Filters on the displayed name of a Friend.
      */
-    private class FriendFilterator implements TextFilterator<EditableSharingData> {
+    private static class FriendFilterator implements TextFilterator<EditableSharingData> {
         @Override
         public void getFilterStrings(List<String> baseList, EditableSharingData data) {
             Friend friend = data.getFriend();
@@ -244,7 +244,7 @@ class LibrarySharingEditablePanel {
         }
     }
     
-    private class FriendComparator implements Comparator<EditableSharingData> {
+    private static class FriendComparator implements Comparator<EditableSharingData> {
         @Override
         public int compare(EditableSharingData data1, EditableSharingData data2) {
             Friend friend1 = data1.getFriend();

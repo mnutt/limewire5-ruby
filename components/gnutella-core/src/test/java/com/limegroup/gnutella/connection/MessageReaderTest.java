@@ -61,7 +61,7 @@ public final class MessageReaderTest extends LimeTestCase {
         networkManagerStub.setAddress(new byte[] { 127, 0, 0, 1 });
         networkManagerStub.setPort(5555);
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(networkManagerStub);

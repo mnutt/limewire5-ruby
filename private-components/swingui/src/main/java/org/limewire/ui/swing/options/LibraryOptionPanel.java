@@ -35,10 +35,11 @@ import com.google.inject.Provider;
 
 /** Library Option View */
 public class LibraryOptionPanel extends OptionPanel {
-
-    private @Resource Icon file_sharedlist_p2p_large;
-    private @Resource Icon sharing_my_files;
-    private @Resource Icon sharing_arrow;
+    
+    @Resource private Icon p2pSharedListIcon;
+    @Resource private Icon sharingMyFilesMacIcon;
+    @Resource private Icon sharingMyFilesIcon;
+    @Resource private Icon sharingArrowIcon;
     
     private final UsePlayerPanel playerPanel;
     private final CategoriesPanel categoryPanel;
@@ -114,7 +115,7 @@ public class LibraryOptionPanel extends OptionPanel {
         private JRadioButton alwaysAddRadioButton;
         
         public CategoriesPanel() {
-            super("Categories");
+            super(I18n.tr("Categories"));
 
             askMeRadioButton = new JRadioButton(new AbstractAction(I18n.tr("Ask me what kinds of files to add")) {
                 @Override
@@ -218,7 +219,7 @@ public class LibraryOptionPanel extends OptionPanel {
 
     
     /** Do you want to use the LW player? */
-    private class UsePlayerPanel extends OptionPanel {
+    private static class UsePlayerPanel extends OptionPanel {
 
         private JCheckBox useLimeWirePlayer;
 
@@ -270,7 +271,7 @@ public class LibraryOptionPanel extends OptionPanel {
             
             unsafeTypeOptionPanel = unsafeOptionPanelProvider.get();
             
-            shareP2PdownloadedFilesCheckBox = new JCheckBox(I18n.tr("Add files I download from P2P Users to my Public Shared List"));
+            shareP2PdownloadedFilesCheckBox = new JCheckBox("<html>"+I18n.tr("Add files I download from P2P Users to my Public Shared List")+"</html>");
             shareP2PdownloadedFilesCheckBox.setOpaque(false);
             
             configureButton = new JButton(new DialogDisplayAction(LibraryOptionPanel.this,
@@ -298,9 +299,19 @@ public class LibraryOptionPanel extends OptionPanel {
         }
         
         private void addModifyInfo() {
+            
+            Icon myFilesIcon = null;
+            if (OSUtils.isMacOSX()) {
+                myFilesIcon = sharingMyFilesMacIcon;
+            } 
+            else {
+                myFilesIcon = sharingMyFilesIcon;
+            }
+            
             JPanel modifyInfoPanel = new JPanel(new MigLayout("nogrid, insets 0, gap 0"));
             modifyInfoPanel.setOpaque(false);
-            JLabel myFiles = new JLabel(I18n.tr("My Files"), sharing_my_files, JLabel.CENTER);
+                       
+            JLabel myFiles = new JLabel(I18n.tr("My Files"), myFilesIcon, JLabel.CENTER);
             myFiles.setVerticalTextPosition(JLabel.BOTTOM);
             myFiles.setHorizontalTextPosition(JLabel.CENTER);
 
@@ -308,9 +319,11 @@ public class LibraryOptionPanel extends OptionPanel {
                     "gapbottom 10, wrap");
             
             modifyInfoPanel.add(myFiles);
-            modifyInfoPanel.add(new JLabel(sharing_arrow), "aligny top, gaptop 17");
+            modifyInfoPanel.add(new JLabel(sharingArrowIcon), "aligny top, gaptop 17");
+            
+            
             modifyInfoPanel
-                    .add(new JLabel(I18n.tr("Public Shared"), file_sharedlist_p2p_large, JLabel.RIGHT), "aligny top, gaptop 15");
+                    .add(new JLabel(I18n.tr("Public Shared"), p2pSharedListIcon, JLabel.RIGHT), "aligny top, gaptop 15");
 
             add(modifyInfoPanel, "wrap");
         }
@@ -318,10 +331,10 @@ public class LibraryOptionPanel extends OptionPanel {
         private void updateUnsafeMessage() {
             if (((Boolean)unsafeTypeOptionPanelStateManagerProvider.get().getValue(LibrarySettings.ALLOW_PROGRAMS)).booleanValue()
                     || ((Boolean)unsafeTypeOptionPanelStateManagerProvider.get().getValue(LibrarySettings.ALLOW_DOCUMENT_GNUTELLA_SHARING)).booleanValue()) {
-                unsafeMessageLabel.setText(I18n.tr("You have enabled some unsafe file sharing options."));
+                unsafeMessageLabel.setText("<html>"+I18n.tr("You have enabled some unsafe file sharing options.")+"</html>");
             }
             else {
-                unsafeMessageLabel.setText(I18n.tr("LimeWire is preventing you from unsafe searching and sharing."));
+                unsafeMessageLabel.setText("<html>"+I18n.tr("LimeWire is preventing you from unsafe searching and sharing.")+"</html>");
             }
         }
         

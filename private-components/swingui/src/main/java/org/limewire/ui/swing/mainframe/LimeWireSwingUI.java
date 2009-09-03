@@ -31,7 +31,6 @@ import org.limewire.ui.swing.downloads.DownloadHeaderPanel;
 import org.limewire.ui.swing.downloads.DownloadVisibilityListener;
 import org.limewire.ui.swing.downloads.MainDownloadPanel;
 import org.limewire.ui.swing.event.DownloadVisibilityEvent;
-import org.limewire.ui.swing.friends.chat.ChatFramePanel;
 import org.limewire.ui.swing.friends.login.LoginPopupPanel;
 import org.limewire.ui.swing.nav.Navigator;
 import org.limewire.ui.swing.pro.ProNagController;
@@ -61,7 +60,7 @@ public class LimeWireSwingUI extends JPanel {
     public LimeWireSwingUI(
             TopPanel topPanel, MainPanel mainPanel,
             StatusPanel statusPanel, Navigator navigator,
-            SearchHandler searchHandler, ChatFramePanel chatFrame,
+            SearchHandler searchHandler,
             ProNagController proNagController, 
             SharedFileCountPopupPanel sharedFileCountPopup,
             LoginPopupPanel loginPopup,
@@ -77,7 +76,7 @@ public class LimeWireSwingUI extends JPanel {
         this.mainDownloadPanel = mainDownloadPanel;
         this.downloadHeaderPanel = downloadHeaderPanel;
     	
-    	splitPane = createSplitPane(mainPanel, mainDownloadPanel, downloadHeaderPanel);
+    	splitPane = createSplitPane(mainPanel, mainDownloadPanel, downloadHeaderPanel.getComponent());
     	mainDownloadPanel.setVisible(false);
 
         setLayout(new BorderLayout());
@@ -92,15 +91,6 @@ public class LimeWireSwingUI extends JPanel {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.gridheight = 1;
         centerPanel.add(topPanel, gbc);
-                
-        // The left panel
-//        gbc.fill = GridBagConstraints.VERTICAL;
-//        gbc.anchor = GridBagConstraints.WEST;
-//        gbc.weightx = 0;
-//        gbc.weighty = 1;
-//        gbc.gridwidth = 1;
-//        gbc.gridheight = 3;
-//        centerPanel.add(leftPanel, gbc);
         
         // The main panel
         gbc.fill = GridBagConstraints.BOTH;
@@ -112,14 +102,10 @@ public class LimeWireSwingUI extends JPanel {
         
         layeredPane.addComponentListener(new MainPanelResizer(centerPanel));
         layeredPane.add(centerPanel, JLayeredPane.DEFAULT_LAYER);
-        layeredPane.add(chatFrame, JLayeredPane.PALETTE_LAYER);
-        layeredPane.addComponentListener(new PanelResizer(chatFrame));
         layeredPane.add(sharedFileCountPopup, JLayeredPane.PALETTE_LAYER);
         layeredPane.addComponentListener(new PanelResizer(sharedFileCountPopup));
         layeredPane.add(loginPopup, JLayeredPane.POPUP_LAYER);
         layeredPane.addComponentListener(new PanelResizer(loginPopup));
-//        layeredPane.add(shapeDialog, JLayeredPane.POPUP_LAYER);
-//        layeredPane.addComponentListener(new PanelResizer(shapeDialog));
         add(layeredPane, BorderLayout.CENTER);
         add(statusPanel, BorderLayout.SOUTH);
         
@@ -212,7 +198,7 @@ public class LimeWireSwingUI extends JPanel {
        assert(SwingUtilities.isEventDispatchThread());
        splitPane.getBottomComponent().setVisible(isVisible);
        if (isVisible) {
-           splitPane.setDividerSize(downloadHeaderPanel.getPreferredSize().height);           
+           splitPane.setDividerSize(downloadHeaderPanel.getComponent().getPreferredSize().height);           
            int preferredDividerPosition = splitPane.getSize().height - splitPane.getInsets().bottom
            - splitPane.getDividerSize()
            - splitPane.getBottomComponent().getPreferredSize().height;

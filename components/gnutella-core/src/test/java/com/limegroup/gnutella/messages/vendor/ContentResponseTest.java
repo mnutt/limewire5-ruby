@@ -23,7 +23,7 @@ public class ContentResponseTest extends BaseTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        messageFactory = LimeTestUtils.createInjector().getInstance(MessageFactory.class);
+        messageFactory = LimeTestUtils.createInjectorNonEagerly().getInstance(MessageFactory.class);
     }
     
     public static Test suite() {

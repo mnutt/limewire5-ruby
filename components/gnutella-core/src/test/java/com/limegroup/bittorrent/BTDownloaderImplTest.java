@@ -12,17 +12,21 @@ import org.limewire.core.settings.BittorrentSettings;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.gnutella.tests.LimeTestCase;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.listener.EventListener;
 import org.limewire.util.AssertComparisons;
 import org.limewire.util.FileUtils;
 import org.limewire.util.TestUtils;
+import org.limewire.bittorrent.TorrentManager;
+import org.limewire.bittorrent.TorrentEvent;
+import org.limewire.inspection.InspectionUtils;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.limegroup.gnutella.ActivityCallbackAdapter;
-import com.limegroup.gnutella.LimeWireCoreModule;
 import com.limegroup.gnutella.Downloader.DownloadState;
+import com.limegroup.gnutella.LimeWireCoreModule;
 import com.limegroup.gnutella.downloader.CoreDownloaderFactory;
 import com.limegroup.gnutella.downloader.DownloadStateEvent;
 
@@ -92,6 +96,30 @@ public class BTDownloaderImplTest extends LimeTestCase {
         FileUtils.deleteRecursive(fileDir);
         super.tearDown();
     }
+    
+    public void testInspections() throws Exception {
+        File torrentFile = createFile("test-peer-dl-single-file.torrent");
+
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new LimeWireCoreModule(
+                ActivityCallbackAdapter.class));
+        GuiceUtils.loadEagerSingletons(injector);
+        injector.getInstance(TorrentManager.class).isValid();
+        BTDownloaderImpl downloader = createBTDownloader(torrentFile, injector);
+        try {
+            // TODO more InspectionTool code into common so it can generate the mapping
+            assertEquals("0", InspectionUtils.inspectValue("com.limegroup.bittorrent.BTDownloaderImpl:torrentsStarted", injector, true));
+            assertEquals("0", InspectionUtils.inspectValue("com.limegroup.bittorrent.BTDownloaderImpl:torrentsFinished", injector, true));
+            //downloader.startDownload();
+            downloader.handleEvent(TorrentEvent.STARTED);
+            Thread.sleep(500);
+            assertEquals("1", InspectionUtils.inspectValue("com.limegroup.bittorrent.BTDownloaderImpl:torrentsStarted", injector, true));
+//            downloader.handleEvent(TorrentEvent.COMPLETED);
+//            Thread.sleep(500);
+//            assertEquals("1", InspectionUtils.inspectValue("com.limegroup.bittorrent.BTDownloaderImpl:torrentsFinished", injector, true));
+        } finally {
+            cleanup(downloader);    
+        }
+    }
 
     /**
      * This test tries to download a single file torrent from a tracker/peer
@@ -104,17 +132,12 @@ public class BTDownloaderImplTest extends LimeTestCase {
 
         File completeFile = downloader.getSaveFile();
         try {
-            completeFile.delete();
-
-            File incompleteFile = downloader.getIncompleteFile();
-            incompleteFile.delete();
-
             downloader.startDownload();
             finishDownload(downloader);
 
             assertDownload("8055d620ba0c507c1af957b43648c99f", completeFile, 44425);
         } finally {
-            cleanup(downloader, completeFile);
+            cleanup(downloader);
         }
     }
 
@@ -127,18 +150,9 @@ public class BTDownloaderImplTest extends LimeTestCase {
 
         BTDownloaderImpl downloader = createBTDownloader(torrentFile);
 
-        File completeFile = downloader.getSaveFile();
         try {
-            FileUtils.deleteRecursive(completeFile);
-
-            File incompleteFile = downloader.getIncompleteFile();
-            incompleteFile.delete();
-
             File completeFile1 = downloader.getCompleteFiles().get(0);
-            completeFile1.delete();
-
             File completeFile2 = downloader.getCompleteFiles().get(1);
-            completeFile2.delete();
 
             downloader.startDownload();
             finishDownload(downloader);
@@ -146,7 +160,7 @@ public class BTDownloaderImplTest extends LimeTestCase {
             assertDownload("8055d620ba0c507c1af957b43648c99f", completeFile1, 44425);
             assertDownload("db1dc452e77d30ce14acca6bac8c66bc", completeFile2, 411090);
         } finally {
-            cleanup(downloader, completeFile);
+            cleanup(downloader);
         }
     }
 
@@ -156,16 +170,11 @@ public class BTDownloaderImplTest extends LimeTestCase {
         BTDownloaderImpl downloader = createBTDownloader(torrentFile);
         File completeFile = downloader.getSaveFile();
         try {
-            completeFile.delete();
-
-            File incompleteFile1 = downloader.getIncompleteFile();
-            incompleteFile1.delete();
-
             downloader.startDownload();
             finishDownload(downloader);
             assertDownload("8055d620ba0c507c1af957b43648c99f", completeFile, 44425);
         } finally {
-            cleanup(downloader, completeFile);
+            cleanup(downloader);
         }
     }
 
@@ -173,20 +182,15 @@ public class BTDownloaderImplTest extends LimeTestCase {
         File torrentFile = createFile("test-multiple-webseed-single-file-no-peer.torrent");
 
         BTDownloaderImpl downloader = createBTDownloader(torrentFile);
-
         File completeFile = downloader.getSaveFile();
+
         try {
-            completeFile.delete();
-
-            File incompleteFile = downloader.getIncompleteFile();
-            incompleteFile.delete();
-
             downloader.startDownload();
             finishDownload(downloader);
 
             assertDownload("8055d620ba0c507c1af957b43648c99f", completeFile, 44425);
         } finally {
-            cleanup(downloader, completeFile);
+            cleanup(downloader);
         }
     }
 
@@ -195,21 +199,9 @@ public class BTDownloaderImplTest extends LimeTestCase {
 
         BTDownloaderImpl downloader = createBTDownloader(torrentFile);
 
-        File completeFile = downloader.getSaveFile();
         try {
-            FileUtils.deleteRecursive(completeFile);
-
-            File incompleteFile1 = downloader.getIncompleteFiles().get(0);
-            incompleteFile1.delete();
-
             File completeFile1 = downloader.getCompleteFiles().get(0);
-            completeFile1.delete();
-
-            File incompleteFile2 = downloader.getIncompleteFiles().get(1);
-            incompleteFile2.delete();
-
             File completeFile2 = downloader.getCompleteFiles().get(1);
-            completeFile2.delete();
 
             downloader.startDownload();
             finishDownload(downloader);
@@ -217,7 +209,7 @@ public class BTDownloaderImplTest extends LimeTestCase {
             assertDownload("8055d620ba0c507c1af957b43648c99f", completeFile1, 44425);
             assertDownload("db1dc452e77d30ce14acca6bac8c66bc", completeFile2, 411090);
         } finally {
-            cleanup(downloader, completeFile);
+            cleanup(downloader);
         }
     }
 
@@ -226,21 +218,9 @@ public class BTDownloaderImplTest extends LimeTestCase {
 
         BTDownloaderImpl downloader = createBTDownloader(torrentFile);
 
-        File completeFile = downloader.getSaveFile();
         try {
-            FileUtils.deleteRecursive(completeFile);
-
-            File incompleteFile = downloader.getIncompleteFile();
-            incompleteFile.delete();
-
             File completeFile1 = downloader.getCompleteFiles().get(0);
-            completeFile1.delete();
-
-            File incompleteFile2 = downloader.getIncompleteFiles().get(1);
-            incompleteFile2.delete();
-
             File completeFile2 = downloader.getCompleteFiles().get(1);
-            completeFile2.delete();
 
             downloader.startDownload();
             finishDownload(downloader);
@@ -248,7 +228,7 @@ public class BTDownloaderImplTest extends LimeTestCase {
             assertDownload("8055d620ba0c507c1af957b43648c99f", completeFile1, 44425);
             assertDownload("db1dc452e77d30ce14acca6bac8c66bc", completeFile2, 411090);
         } finally {
-            cleanup(downloader, completeFile);
+            cleanup(downloader);
         }
     }
 
@@ -260,22 +240,15 @@ public class BTDownloaderImplTest extends LimeTestCase {
 
         BTDownloaderImpl downloader = createBTDownloader(torrentFile);
 
-        File completeFile = downloader.getSaveFile();
         try {
-            FileUtils.deleteRecursive(completeFile);
-
-            File incompleteFile1 = downloader.getIncompleteFiles().get(0);
-            incompleteFile1.delete();
-
             File completeFile1 = downloader.getCompleteFiles().get(0);
-            completeFile1.delete();
 
             downloader.startDownload();
             finishDownload(downloader);
 
             assertDownload("8055d620ba0c507c1af957b43648c99f", completeFile1, 44425);
         } finally {
-            cleanup(downloader, completeFile);
+            cleanup(downloader);
         }
     }
 
@@ -284,16 +257,28 @@ public class BTDownloaderImplTest extends LimeTestCase {
         File torrentFile = new File(torrentfilePath);
         return torrentFile;
     }
-
+    
     private BTDownloaderImpl createBTDownloader(File torrentFile) throws IOException {
-        AssertComparisons.assertTrue(torrentFile.exists());
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new LimeWireCoreModule(
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new LimeWireCoreModule(
                 ActivityCallbackAdapter.class));
+        GuiceUtils.loadEagerSingletons(injector);
+        return createBTDownloader(torrentFile, injector);
+    }
+
+    private BTDownloaderImpl createBTDownloader(File torrentFile, Injector injector) throws IOException {
+        AssertComparisons.assertTrue(torrentFile.exists());        
 
         CoreDownloaderFactory coreDownloaderFactory = injector
                 .getInstance(CoreDownloaderFactory.class);
         BTDownloaderImpl downloader = (BTDownloaderImpl) coreDownloaderFactory
                 .createBTDownloader(torrentFile, SharingSettings.getSaveDirectory());
+        
+        File incompleteFile = downloader.getIncompleteFile();
+        FileUtils.deleteRecursive(incompleteFile);
+        
+        File completeFile = downloader.getSaveFile();
+        FileUtils.deleteRecursive(completeFile);
+        
         downloader.registerTorrentWithTorrentManager();
         return downloader;
     }
@@ -309,7 +294,10 @@ public class BTDownloaderImplTest extends LimeTestCase {
                }
             } 
         });
-        countDownLatch.await(100, TimeUnit.SECONDS);
+        
+        if(downloader.getState() != DownloadState.COMPLETE) {
+            assertTrue("Time ran out before download completed.", countDownLatch.await(100, TimeUnit.SECONDS));
+        }
         assertEquals(DownloadState.COMPLETE, downloader.getState());
     }
 
@@ -325,9 +313,14 @@ public class BTDownloaderImplTest extends LimeTestCase {
         AssertComparisons.assertEquals(md5, testmd5);
     }
     
-    private void cleanup(BTDownloaderImpl downloader, File completeFile) {
+    private void cleanup(BTDownloaderImpl downloader) {
         downloader.finish();
         downloader.getTorrent().stop();
+        
+        File incompleteFile = downloader.getIncompleteFile();
+        FileUtils.deleteRecursive(incompleteFile);
+        
+        File completeFile = downloader.getSaveFile();
         FileUtils.deleteRecursive(completeFile);
     }
 }

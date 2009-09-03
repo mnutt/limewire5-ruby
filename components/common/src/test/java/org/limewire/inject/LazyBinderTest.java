@@ -34,7 +34,7 @@ public class LazyBinderTest extends BaseTestCase {
     
     public void testLazyBinderAnnotated() {
         assertEquals(0, ANNOTATED_CONSTRUCTED);
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LimeWireInjectModule());
@@ -62,7 +62,7 @@ public class LazyBinderTest extends BaseTestCase {
     
     public void testLazyBinderBoundToClass() {
         assertEquals(0, PLAIN_CONSTRUCTED);
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LimeWireInjectModule());
@@ -91,7 +91,7 @@ public class LazyBinderTest extends BaseTestCase {
     
     public void testLazyBinderBoundToScope() {
         assertEquals(0, PLAIN_CONSTRUCTED);
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LimeWireInjectModule());
@@ -131,7 +131,7 @@ public class LazyBinderTest extends BaseTestCase {
             Collection<Message> messages = ce.getErrorMessages();
             assertEquals(1, messages.size());
             Message message = messages.iterator().next();
-            assertEquals("Class: class org.limewire.inject.LazyBinderTest$PlainFoo must be in scope @Singleton or @LazySingleton", 
+            assertEquals("Class: class org.limewire.inject.LazyBinderTest$PlainFoo must be in scope @Singleton or @LazySingleton or @EagerSingleton", 
                         message.getCause().getMessage());
         }
     }

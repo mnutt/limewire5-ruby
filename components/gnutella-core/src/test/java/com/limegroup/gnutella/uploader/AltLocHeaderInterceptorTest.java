@@ -35,7 +35,7 @@ public class AltLocHeaderInterceptorTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         
         altLocManager = injector.getInstance(AltLocManager.class);
         

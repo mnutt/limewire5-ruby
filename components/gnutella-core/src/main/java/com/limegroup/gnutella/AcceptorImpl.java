@@ -22,6 +22,7 @@ import org.limewire.core.api.connection.FirewallStatusEvent;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.NetworkSettings;
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.io.IOUtils;
 import org.limewire.io.NetworkUtils;
@@ -43,7 +44,6 @@ import org.limewire.setting.SettingsGroupManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.filters.IPFilter;
 
@@ -55,7 +55,7 @@ import com.limegroup.gnutella.filters.IPFilter;
  * the only class that intializes it.  See setListeningPort() for more
  * info.
  */
-@Singleton
+@EagerSingleton
 public class AcceptorImpl implements ConnectionAcceptor, SocketProcessor, Acceptor, Service {
 
     private static final Log LOG = LogFactory.getLog(AcceptorImpl.class);

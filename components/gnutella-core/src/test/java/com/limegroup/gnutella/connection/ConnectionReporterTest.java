@@ -51,7 +51,7 @@ public class ConnectionReporterTest extends TestCase {
             will(onConsecutiveCalls(returnValue(1000l),
                     returnValue(5000l), returnValue(7000l)));
         }});
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(HttpExecutor.class).toInstance(httpExecutor);

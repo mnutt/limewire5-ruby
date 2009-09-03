@@ -48,6 +48,7 @@ import org.limewire.listener.EventListenerList;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.EventRebroadcaster;
 import org.limewire.listener.ListenerSupport;
+import org.limewire.listener.EventListener;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.net.address.AddressFactory;
@@ -70,6 +71,8 @@ import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQ;
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQListener;
 import org.limewire.xmpp.client.impl.messages.library.LibraryChangedIQListenerFactory;
 import org.limewire.xmpp.client.impl.messages.nosave.NoSaveIQ;
+import org.limewire.xmpp.activity.XmppActivityEvent;
+import org.limewire.xmpp.api.client.JabberSettings;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -115,8 +118,13 @@ public class XMPPFriendConnectionImpl implements FriendConnection {
     private final ListenerSupport<FriendPresenceEvent> friendPresenceSupport;
 
     private final FeatureRegistry featureRegistry;
+    private final IdleStatusMonitorFactory idleStatusMonitorFactory;
+    private IdleStatusMonitor idleStatusMonitor;
     
     private volatile NoSaveFeatureInitializer noSaveFeatureInitializer;
+    private final JabberSettings jabberSettings;
+    private final ListenerSupport<XmppActivityEvent> xmppActivitySupport;
+    private EventListener<XmppActivityEvent> xmppActivityListener;
 
     @Inject
     public XMPPFriendConnectionImpl(@Assisted FriendConnectionConfiguration configuration,
@@ -133,7 +141,10 @@ public class XMPPFriendConnectionImpl implements FriendConnection {
                                     LibraryChangedIQListenerFactory libraryChangedIQListenerFactory,
                                     FileTransferIQListenerFactory fileTransferIQListenerFactory,
                                     ListenerSupport<FriendPresenceEvent> friendPresenceSupport,
-                                    FeatureRegistry featureRegistry) {
+                                    FeatureRegistry featureRegistry,
+                                    IdleStatusMonitorFactory idleStatusMonitorFactory,
+                                    JabberSettings jabberSettings,
+                                    ListenerSupport<XmppActivityEvent> xmppActivitySupport) {
         this.configuration = configuration;
         this.friendRequestBroadcaster = friendRequestBroadcaster;
         this.connectionMulticaster = connectionMulticaster;
@@ -148,6 +159,9 @@ public class XMPPFriendConnectionImpl implements FriendConnection {
         this.fileTransferIQListenerFactory = fileTransferIQListenerFactory;
         this.friendPresenceSupport = friendPresenceSupport;
         this.featureRegistry = featureRegistry;
+        this.idleStatusMonitorFactory = idleStatusMonitorFactory;
+        this.jabberSettings = jabberSettings;
+        this.xmppActivitySupport = xmppActivitySupport;
         rosterListeners = new EventListenerList<RosterEvent>();
         // FIXME: this is only used by tests
         if(configuration.getRosterListener() != null) {
@@ -321,6 +335,12 @@ public class XMPPFriendConnectionImpl implements FriendConnection {
                 }
                 if (noSaveFeatureInitializer != null) {
                     noSaveFeatureInitializer.cleanup();
+                }
+                if (idleStatusMonitor != null) {
+                    idleStatusMonitor.stop();
+                }
+                if (xmppActivityListener != null) {
+                    xmppActivitySupport.removeListener(xmppActivityListener);
                 }
                 featureRegistry.deregisterInitializer(NoSaveFeature.ID);
             } 
@@ -572,6 +592,33 @@ public class XMPPFriendConnectionImpl implements FriendConnection {
         }
     }
     
+    /**
+     * Sets the connection mode to idle (extended away) after receiving activity
+     * events triggered by periods of inactivity.
+     */
+    private class XmppActivityEventListener implements EventListener<XmppActivityEvent> {
+
+        @Override
+        public void handleEvent(XmppActivityEvent event) {
+            switch (event.getSource()) {
+                case Idle:
+                    try {
+                        setModeImpl(FriendPresence.Mode.xa);
+                    } catch (FriendException e) {
+                        LOG.debugf(e, "couldn't set mode based on {0}", event);
+                    }
+                    break;
+                case Active:
+                    try {
+                        setModeImpl(jabberSettings.isDoNotDisturbSet() ? 
+                                FriendPresence.Mode.dnd : FriendPresence.Mode.available);
+                    } catch (FriendException e) {
+                        LOG.debugf(e, "couldn't set mode based on {0}", event);
+                    }
+            }
+        }
+    }
+    
     private class SmackConnectionListener implements ConnectionListener, ConnectionCreationListener {
         @Override
         public void connectionCreated(XMPPConnection connection) {
@@ -638,6 +685,15 @@ public class XMPPFriendConnectionImpl implements FriendConnection {
             for(URI feature : featureRegistry.getPublicFeatureUris()) {
                 ServiceDiscoveryManager.getInstanceFor(connection).addFeature(feature.toASCIIString());
             }
+            if (xmppActivityListener == null) {
+                xmppActivityListener = new XmppActivityEventListener();
+            }
+            xmppActivitySupport.addListener(xmppActivityListener);
+            
+            if (idleStatusMonitor == null) {
+                idleStatusMonitor = idleStatusMonitorFactory.create();    
+            }
+            idleStatusMonitor.start();
         }
 
         @Override

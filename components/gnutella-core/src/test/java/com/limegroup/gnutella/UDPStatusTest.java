@@ -7,13 +7,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import junit.framework.Test;
+
 import org.jmock.Mockery;
 import org.limewire.gnutella.tests.LimeTestUtils;
 
-import junit.framework.Test;
-
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.messages.PingReply;
 import com.limegroup.gnutella.messages.PingReplyFactory;
 import com.limegroup.gnutella.messages.PingRequest;
@@ -43,7 +42,7 @@ public class UDPStatusTest extends ClientSideTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        Injector injector = LimeTestUtils.createInjector();
         super.setUp(injector);
         networkManager = injector.getInstance(NetworkManager.class);
         udpService = injector.getInstance(UDPService.class);

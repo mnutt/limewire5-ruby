@@ -31,7 +31,7 @@ public class AltLocValueTest extends DHTTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         altLocValueFactory = (AltLocValueFactoryImpl) injector.getInstance(AltLocValueFactory.class);
     }
     

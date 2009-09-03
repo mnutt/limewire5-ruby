@@ -11,6 +11,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import org.jdesktop.swingx.table.TableColumnExt;
 import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.Category;
 import org.limewire.core.api.URN;
@@ -78,7 +79,8 @@ public class LibraryTable extends MouseableTable {
             Provider<IsPlayingRenderer> isPlayingRenderer,
             Provider<LaunchFileAction> launchAction,
             IconLabelRendererFactory iconLabelRendererFactory,
-            RemoveEditor removeEditor) {
+            RemoveEditor removeEditor,
+            DeletionKeyListener deletionKeyListener) {
         this.defaultCellRenderer = defaultCellRenderer;
         this.nameCategoryRenderer = nameCategoryRenderer;
         this.timeRenderer = timeRenderer;
@@ -89,7 +91,7 @@ public class LibraryTable extends MouseableTable {
         this.launchAction = launchAction;
         this.iconLabelRenderer = iconLabelRendererFactory.createIconRenderer(false);
         this.removeEditor = removeEditor;
-        
+
         initTable();
         
         //TODO: anything below here should be initialized outside of the constructor
@@ -101,6 +103,8 @@ public class LibraryTable extends MouseableTable {
         }; 
 
         setPopupHandler(new LibraryPopupHandler(this, libraryPopupMenu));
+        
+        this.addKeyListener(deletionKeyListener);
     }
     
     private void initTable() {
@@ -130,6 +134,7 @@ public class LibraryTable extends MouseableTable {
         // Windows, Mac, and Linux.
         JTableHeader header = getTableHeader();
         header.addMouseListener(mousePopupListener);
+        
         // Install column state handler.
         columnStateHandler = new ColumnStateHandler(this, fileItemFormat);
     }
@@ -271,11 +276,13 @@ public class LibraryTable extends MouseableTable {
             switch(category) {
             case AUDIO:
                 setCellRenderer(AudioTableFormat.PLAY_INDEX, isPlayingRenderer.get());
+                setUnsortable(AudioTableFormat.PLAY_INDEX);
                 setCellRenderer(AudioTableFormat.SIZE_INDEX, fileSizeRenderer.get());
                 setCellRenderer(AudioTableFormat.LENGTH_INDEX, timeRenderer.get());
                 setCellRenderer(AudioTableFormat.TITLE_INDEX, nameRenderer.get());
                 setCellRenderer(AudioTableFormat.ACTION_INDEX, removeRenderer.get());
                 setCellEditor(AudioTableFormat.ACTION_INDEX, removeEditor);
+                setUnsortable(AudioTableFormat.ACTION_INDEX);
                 break;
             case VIDEO:
                 setCellRenderer(VideoTableFormat.LENGTH_INDEX, timeRenderer.get());
@@ -283,39 +290,46 @@ public class LibraryTable extends MouseableTable {
                 setCellRenderer(VideoTableFormat.NAME_INDEX, nameRenderer.get());
                 setCellRenderer(VideoTableFormat.ACTION_INDEX, removeRenderer.get());
                 setCellEditor(VideoTableFormat.ACTION_INDEX, removeEditor);
+                setUnsortable(VideoTableFormat.ACTION_INDEX);
                 break;
             case IMAGE:
                 setCellRenderer(ImageTableFormat.SIZE_INDEX, fileSizeRenderer.get());
                 setCellRenderer(ImageTableFormat.ACTION_INDEX, removeRenderer.get());
                 setCellEditor(ImageTableFormat.ACTION_INDEX, removeEditor);
+                setUnsortable(ImageTableFormat.ACTION_INDEX);
                 break;
             case DOCUMENT:
                 setCellRenderer(DocumentTableFormat.NAME_INDEX, iconLabelRenderer);
                 setCellRenderer(DocumentTableFormat.SIZE_INDEX, fileSizeRenderer.get());
                 setCellRenderer(DocumentTableFormat.ACTION_INDEX, removeRenderer.get());
                 setCellEditor(DocumentTableFormat.ACTION_INDEX, removeEditor);
+                setUnsortable(DocumentTableFormat.ACTION_INDEX);
                 break;
             case PROGRAM:
                 setCellRenderer(ProgramTableFormat.NAME_INDEX, iconLabelRenderer);
                 setCellRenderer(ProgramTableFormat.SIZE_INDEX, fileSizeRenderer.get());
                 setCellRenderer(ProgramTableFormat.ACTION_INDEX, removeRenderer.get());
                 setCellEditor(ProgramTableFormat.ACTION_INDEX, removeEditor);
+                setUnsortable(ProgramTableFormat.ACTION_INDEX);
                 break;
             case OTHER:
                 setCellRenderer(OtherTableFormat.NAME_INDEX, iconLabelRenderer);
                 setCellRenderer(OtherTableFormat.SIZE_INDEX, fileSizeRenderer.get());
                 setCellRenderer(OtherTableFormat.ACTION_INDEX, removeRenderer.get());
                 setCellEditor(OtherTableFormat.ACTION_INDEX, removeEditor);
+                setUnsortable(OtherTableFormat.ACTION_INDEX);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown category:" + category);
             }
         } else {
             setCellRenderer(AllTableFormat.PLAY_INDEX, isPlayingRenderer.get());
+            setUnsortable(AllTableFormat.PLAY_INDEX);
             setCellRenderer(AllTableFormat.NAME_INDEX, nameCategoryRenderer.get());
             setCellRenderer(AllTableFormat.SIZE_INDEX, fileSizeRenderer.get());
             setCellRenderer(AllTableFormat.ACTION_INDEX, removeRenderer.get());
             setCellEditor(AllTableFormat.ACTION_INDEX, removeEditor);
+            setUnsortable(AllTableFormat.ACTION_INDEX);
         }
     }
     
@@ -325,6 +339,11 @@ public class LibraryTable extends MouseableTable {
     
     private void setCellEditor(int column, TableCellEditor editor) {
         getColumnModel().getColumn(column).setCellEditor(editor);
+    }
+    
+    /** Prevents the given column from being sortable. */
+    private void setUnsortable(int column) {
+        ((TableColumnExt)getColumnModel().getColumn(column)).setSortable(false);
     }
 
     /** Returns all currently selected LocalFileItems. */

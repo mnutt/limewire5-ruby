@@ -4,13 +4,18 @@ import java.io.File;
 import java.util.List;
 
 import org.limewire.bittorrent.Torrent;
+import org.limewire.bittorrent.TorrentFileEntry;
 import org.limewire.bittorrent.TorrentManager;
-import org.limewire.bittorrent.TorrentSettings;
+import org.limewire.bittorrent.TorrentManagerSettings;
+import org.limewire.bittorrent.TorrentPeer;
+import org.limewire.inject.EagerSingleton;
+import org.limewire.inspection.Inspectable;
+import org.limewire.inspection.InspectionPoint;
+import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
  * Lazy TorrentManager wraps the TorrentManagerImpl and allows holding off
@@ -22,11 +27,15 @@ import com.google.inject.Singleton;
  * implementation was initialized.
  * 
  */
-@Singleton
-public class LazyTorrentManager implements TorrentManager {
+@EagerSingleton
+public class LazyTorrentManager implements TorrentManager, Service {
     private final Provider<TorrentManagerImpl> torrentManager;
 
     private volatile boolean initialized = false;
+    
+    @SuppressWarnings("unused")
+    @InspectionPoint("torrent manager status")
+    private final Inspectable torrentManagerStatus = new TorrentManagerStatus();
 
     @Inject
     public LazyTorrentManager(Provider<TorrentManagerImpl> torrentManager) {
@@ -56,22 +65,16 @@ public class LazyTorrentManager implements TorrentManager {
     }
 
     @Override
-    public List<String> getPeers(Torrent torrent) {
-        setupTorrentManager();
-        return torrentManager.get().getPeers(torrent);
-    }
-
-    @Override
     public String getServiceName() {
-        return torrentManager.get().getServiceName();
+        return "TorrentManager";
     }
 
     @Override
-    public TorrentSettings getTorrentSettings() {
+    public TorrentManagerSettings getTorrentManagerSettings() {
         // not calling setup because we don't want to initialize the library
         // here.
         // settings can be gotten without initialization.
-        return torrentManager.get().getTorrentSettings();
+        return torrentManager.get().getTorrentManagerSettings();
     }
 
     @Override
@@ -81,6 +84,10 @@ public class LazyTorrentManager implements TorrentManager {
 
     @Override
     public boolean isDownloadingTorrent(File torrentFile) {
+        if(!initialized) {
+            return false;
+        }
+        
         setupTorrentManager();
         return torrentManager.get().isDownloadingTorrent(torrentFile);
     }
@@ -166,9 +173,70 @@ public class LazyTorrentManager implements TorrentManager {
     }
 
     @Override
-    public void updateSettings(TorrentSettings settings) {
+    public void setTorrentManagerSettings(TorrentManagerSettings settings) {
         setupTorrentManager();
-        torrentManager.get().updateSettings(settings);
+        torrentManager.get().setTorrentManagerSettings(settings);
     }
 
+    @Override
+    public float getTotalDownloadRate() {
+        if (!initialized) {
+            return 0;
+        }
+        
+        setupTorrentManager();
+        return torrentManager.get().getTotalDownloadRate();
+    }
+
+    @Override
+    public float getTotalUploadRate() {
+        if (!initialized) {
+            return 0;
+        }
+        
+        setupTorrentManager();
+        return torrentManager.get().getTotalUploadRate();
+    }
+
+    @Override
+    public List<TorrentFileEntry> getTorrentFileEntries(Torrent torrent) {
+        setupTorrentManager();
+        return torrentManager.get().getTorrentFileEntries(torrent);
+    }
+
+    @Override
+    public List<TorrentPeer> getTorrentPeers(Torrent torrent) {
+        setupTorrentManager();
+        return torrentManager.get().getTorrentPeers(torrent);
+    }
+
+    @Override
+    public void setAutoManaged(Torrent torrent, boolean autoManaged) {
+        setupTorrentManager();
+        torrentManager.get().setAutoManaged(torrent, autoManaged);
+    }
+    
+    private enum Status{NOT_INITIALIZED, LOADED, FAILED}
+
+    private class TorrentManagerStatus implements Inspectable {
+        
+        @Override
+        public Object inspect() {
+            synchronized (LazyTorrentManager.this) {
+                return initialized ? (torrentManager.get().isValid() ? Status.LOADED.toString() : Status.FAILED.toString()) : Status.NOT_INITIALIZED.toString();
+            }
+        }
+    }
+
+    @Override
+    public void setTorrenFileEntryPriority(Torrent torrent, TorrentFileEntry torrentFileEntry,
+            int priority) {
+        setupTorrentManager();
+        torrentManager.get().setTorrenFileEntryPriority(torrent, torrentFileEntry, priority);
+    }
+
+    @Override
+    public boolean isInitialized() {
+       return initialized;
+    }
 }

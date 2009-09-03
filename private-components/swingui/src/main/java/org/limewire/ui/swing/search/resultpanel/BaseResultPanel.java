@@ -31,6 +31,7 @@ import org.limewire.ui.swing.components.Disposable;
 import org.limewire.ui.swing.components.DisposalListener;
 import org.limewire.ui.swing.components.RemoteHostWidgetFactory;
 import org.limewire.ui.swing.components.RemoteHostWidget.RemoteWidgetType;
+import org.limewire.ui.swing.downloads.MainDownloadPanel;
 import org.limewire.ui.swing.library.LibraryMediator;
 import org.limewire.ui.swing.search.SearchViewType;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
@@ -149,7 +150,8 @@ public class BaseResultPanel extends JXPanel {
             Provider<CalendarRenderer> calendarRenderer,
             LibraryMediator libraryMediator,
             Provider<QualityRenderer> qualityRenderer, 
-            DefaultTableCellRenderer defaultTableCellRenderer) {
+            DefaultTableCellRenderer defaultTableCellRenderer,
+            MainDownloadPanel mainDownloadPanel) {
         
         this.searchResultsModel = searchResultsModel;
         this.tableFormatFactory = tableFormatFactory;
@@ -157,7 +159,7 @@ public class BaseResultPanel extends JXPanel {
         this.rowHeightRule = rowHeightRule;
         this.fromWidgetfactory = fromWidgetFactory;
         this.iconLabelRendererFactory = iconLabelRendererFactory;
-        this.downloadHandler = new DownloadHandlerImpl(searchResultsModel, libraryMediator);
+        this.downloadHandler = new DownloadHandlerImpl(searchResultsModel, libraryMediator, mainDownloadPanel);
         this.timeRenderer = timeRenderer;
         this.fileSizeRenderer = fileSizeRenderer;
         this.calendarRenderer = calendarRenderer;

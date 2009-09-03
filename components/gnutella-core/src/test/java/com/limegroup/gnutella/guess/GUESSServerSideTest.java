@@ -70,7 +70,7 @@ public class GUESSServerSideTest extends LimeTestCase {
     @Override
     public void setUp() throws Exception {
         launchBackend();
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		pingRequestFactory = injector.getInstance(PingRequestFactory.class);
 		queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
 		messageFactory = injector.getInstance(MessageFactory.class);

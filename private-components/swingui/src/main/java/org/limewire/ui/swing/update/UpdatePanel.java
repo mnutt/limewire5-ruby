@@ -205,7 +205,7 @@ public class UpdatePanel extends JPanel {
         }
     }
     
-    private class ResizeListener implements ComponentListener {
+    private static class ResizeListener implements ComponentListener {
 
         private final JEditorPane c;
         

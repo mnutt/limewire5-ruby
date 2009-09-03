@@ -26,7 +26,7 @@ public class NavigatorUtils {
         return new AbstractAction() {
             {
                 item.addNavItemListener(new NavItemListener() {
-                    public void itemRemoved() {
+                    public void itemRemoved(boolean wasSelected) {
                     }
 
                     public void itemSelected(boolean selected) {

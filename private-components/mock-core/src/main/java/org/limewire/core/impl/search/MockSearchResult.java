@@ -136,7 +136,7 @@ public class MockSearchResult implements Cloneable, SearchResult {
         this.urn = new MockURN(string);
     }
     
-    private final class MockURN implements URN {
+    private final static class MockURN implements URN {
         private String urn;
 
         public MockURN(String urn) {

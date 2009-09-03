@@ -50,7 +50,7 @@ public class SourceRankerFactoryTest extends BaseTestCase {
                 bind(RemoteFileDescFactory.class).toInstance(remoteFileDescFactory);
             }
         };
-        Injector injector = LimeTestUtils.createInjector(module);
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(module);
         factory = injector.getInstance(SourceRankerFactory.class);
     }
     

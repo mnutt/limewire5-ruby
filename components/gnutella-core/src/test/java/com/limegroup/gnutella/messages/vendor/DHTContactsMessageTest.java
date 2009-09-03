@@ -36,7 +36,7 @@ public class DHTContactsMessageTest extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		vendorMessageFactory = injector.getInstance(VendorMessageFactory.class);
     }
     

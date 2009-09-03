@@ -111,7 +111,7 @@ public class FilteringOptionPanel extends OptionPanel {
             backListCheckBox.setOpaque(false);
             addButton.addActionListener(new AddAction(addressTextField, filterTable));
             
-            add(new JLabel(I18n.tr("Block contact with specific people by adding their IP address")), "span, growx, wrap");
+            add(new JLabel("<html>"+I18n.tr("Block contact with specific people by adding their IP address")+"</html>"), "span, growx, wrap");
             add(addressTextField, "gapright 10");
             add(addButton, "wrap");
             add(new JScrollPane(filterTable), "growx, span 2, wrap");
@@ -370,7 +370,7 @@ public class FilteringOptionPanel extends OptionPanel {
         }
     }
     
-    public class AddAction implements ActionListener {
+    public static class AddAction implements ActionListener {
 
         private JTextField textField;
         private FilteringTable table;

@@ -1,8 +1,6 @@
 package org.limewire.ui;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +10,8 @@ import javax.swing.SwingUtilities;
 
 import junit.framework.Test;
 
+import org.limewire.gnutella.tests.LimeTestUtils;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.inspection.InspectionException;
 import org.limewire.inspection.InspectionRequirement;
 import org.limewire.inspection.InspectionTool;
@@ -19,8 +19,6 @@ import org.limewire.inspection.Inspector;
 import org.limewire.ui.swing.AllLimeWireModules__DO_NOT_USE;
 import org.limewire.util.BaseTestCase;
 import org.limewire.util.OSUtils;
-import org.limewire.util.StringUtils;
-import org.limewire.util.TestUtils;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,41 +33,8 @@ public class AnnotationsCheckTest extends BaseTestCase {
         return buildTestSuite(AnnotationsCheckTest.class);
     }
     
-    private List<File> getClasses(File root) {
-        final List<File> paths = new ArrayList<File>();
-        // add all components that have a build/classes dir.
-        root.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                File classes = new File(pathname, "build/classes");
-                if(classes.exists()) {
-                    paths.add(classes);
-                }
-                return false;
-            }
-        });
-        
-        return paths;
-    }
-
     public void testAnnotations() throws Exception {
-        File f = TestUtils.getResourceInPackage(this.getClass().getSimpleName() + ".class", this.getClass()).getCanonicalFile();
-        // step out to find the root folder of the component
-        int packageDepth = StringUtils.countOccurrences(this.getClass().getName(), '.');
-        // + 1 to back out of top level package 
-        for (int i = 0; i < packageDepth + 1; i++) {
-            f = f.getParentFile();
-        }
-        // f now == <something>/limewire/[private-]components/component/build/tests
-        // we want to back out to <something>/limewire
-        //      build/          component/      components/      limewire/   
-        f = f.getParentFile().getParentFile().getParentFile().getParentFile();
-        
-        final List<File> paths = new ArrayList<File>();
-        paths.addAll(getClasses(new File(f, "components")));
-        paths.addAll(getClasses(new File(f, "private-components")));        
-        assertGreaterThan(paths.toString(), 10, paths.size()); // make sure we got enough components
-
+        final List<File> buildFolders = LimeTestUtils.getBuildFolders(getClass());
         final Map<String, String> results = new ConcurrentHashMap<String, String>();
         final AtomicReference<Injector> injectorRef = new AtomicReference<Injector>();
         // This is explicitly using the DoNotUse module because that's what the build uses.
@@ -77,8 +42,10 @@ public class AnnotationsCheckTest extends BaseTestCase {
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                injectorRef.set(Guice.createInjector(new AllLimeWireModules__DO_NOT_USE())); 
-                for(File path : paths) {
+                Injector injector = Guice.createInjector(new AllLimeWireModules__DO_NOT_USE());
+                GuiceUtils.loadEagerSingletons(injector);
+                injectorRef.set(injector); 
+                for(File path : buildFolders) {
                     results.putAll(InspectionTool.generateMappings(path, injectorRef.get(), new String[0]));
                 }
             }
@@ -90,7 +57,7 @@ public class AnnotationsCheckTest extends BaseTestCase {
         Inspector inspector = injectorRef.get().getInstance(Inspector.class);
         for(String key : results.keySet()) {
             try {
-                inspector.inspect(results.get(key));
+                inspector.inspect(results.get(key), true);
             } catch(InspectionException ie) {
                 boolean validFailure = false;
                 if(OSUtils.isLinux()) {

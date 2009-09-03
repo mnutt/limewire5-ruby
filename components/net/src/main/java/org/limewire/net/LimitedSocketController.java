@@ -328,7 +328,7 @@ class LimitedSocketController extends AbstractSocketController {
     }
 
     /** Inspections related to the queue of connection attempt requestors */
-    private class LimitedSocketInspectable implements Inspectable {
+    private static class LimitedSocketInspectable implements Inspectable {
 
         private int maxConnectRequestsInQueue = 0;    /** Maximum number of requests in the queue */
         private int numberOfCancelledRequests = 0;    /** Num of requests in queue cancelled before conn attempted */

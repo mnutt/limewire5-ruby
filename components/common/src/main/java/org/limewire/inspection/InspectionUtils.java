@@ -73,11 +73,11 @@ public class InspectionUtils {
      * @return the object the field represents, or an Exception object if such
      *         was thrown trying to get it.
      */
-    public static Object inspectValue(String encodedField, Injector injector)
+    public static Object inspectValue(String encodedField, Injector injector, boolean collectUsageData)
             throws InspectionException {
         try {
             InspectionData data = createInspectionData(encodedField);
-            validateField(data);
+            validateField(data, collectUsageData);
             setFieldContainerInstance(data, injector);
             setFieldValue(data);
             return inspect(data);
@@ -148,19 +148,22 @@ public class InspectionUtils {
         return data;
     }
     
-    private static void validateField(InspectionData data) throws InspectionException {
+    private static void validateField(InspectionData data, boolean collectUsageData) throws InspectionException {
         boolean valid = false;
         for(Annotation annotation : data.annotations) {
             if(annotation.annotationType() == InspectionPoint.class) {
-                validateLimitations(((InspectionPoint)annotation).requires(), data);
+                validateLimitations(((InspectionPoint)annotation).requires(),
+                        ((InspectionPoint)annotation).category(), data, collectUsageData);
                 valid = true;
                 break;
             } else if(annotation.annotationType() == InspectablePrimitive.class) {
-                validateLimitations(((InspectablePrimitive)annotation).requires(), data);
+                validateLimitations(((InspectablePrimitive)annotation).requires(),
+                        ((InspectablePrimitive)annotation).category(), data, collectUsageData);
                 valid = true;
                 break;
             } else if(annotation.annotationType() == InspectableForSize.class) {
-                validateLimitations(((InspectableForSize)annotation).requires(), data);
+                validateLimitations(((InspectableForSize)annotation).requires(),
+                        ((InspectableForSize)annotation).category(), data, collectUsageData);
                 valid = true;
                 break;
             }
@@ -169,8 +172,21 @@ public class InspectionUtils {
             throw new InspectionException("field not annotated for inspection: " + data.field);
         }
     }
-    
-    private static void validateLimitations(InspectionRequirement[] limitations, InspectionData data) throws InspectionException {
+
+    private static void validateLimitations(InspectionRequirement[] limitations,
+                                            DataCategory category, InspectionData data,
+                                            boolean collectUsageData) throws InspectionException {
+        validateOSLimitations(limitations, data);
+        validateDataCategoryLimitations(category, data, collectUsageData);
+    }
+
+    private static void validateDataCategoryLimitations(DataCategory category, InspectionData data, boolean collectUsageData) throws InspectionException {
+        if(category == DataCategory.USAGE && !collectUsageData) {
+            throw new InspectionException("field " + data.field + " is usage data, but usage data collection not allowed");
+        }
+    }
+
+    private static void validateOSLimitations(InspectionRequirement[] limitations, InspectionData data) throws InspectionException {
         boolean valid = false;
         if(limitations != null && limitations.length > 0) {
             for(InspectionRequirement limitation : limitations) {
@@ -254,12 +270,12 @@ public class InspectionUtils {
         boolean singleton = binding.acceptScopingVisitor(new BindingScopingVisitor<Boolean>() {
             public Boolean visitEagerSingleton() { return true; }
             public Boolean visitNoScoping() { return false; }
-            public Boolean visitScope(com.google.inject.Scope scope) { return scope == Scopes.SINGLETON || scope == MoreScopes.LAZY_SINGLETON; }
+            public Boolean visitScope(com.google.inject.Scope scope) { return scope == Scopes.SINGLETON || scope == MoreScopes.LAZY_SINGLETON || scope == MoreScopes.EAGER_SINGLETON; }
             public Boolean visitScopeAnnotation(java.lang.Class<? extends Annotation> scopeAnnotation) { return false; }
         });
             
         if(!singleton) {
-            throw new InspectionException("must be singleton or lazysingleton annotation or be interface!");
+            throw new InspectionException("must be singleton or lazysingleton or eagerSingleton annotation or be interface!");
         }
     }
     

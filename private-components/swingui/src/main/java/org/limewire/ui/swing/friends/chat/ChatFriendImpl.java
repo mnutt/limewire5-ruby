@@ -1,8 +1,12 @@
 package org.limewire.ui.swing.friends.chat;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import javax.swing.Timer;
 
 import org.jdesktop.beans.AbstractBean;
 import org.limewire.friend.api.Friend;
@@ -12,19 +16,16 @@ import org.limewire.friend.api.MessageWriter;
 import org.limewire.friend.api.feature.LimewireFeature;
 import org.limewire.ui.swing.util.SwingUtils;
 
-/**
- * @author Mario Aquino, Object Computing, Inc.
- *
- */
-public class ChatFriendImpl extends AbstractBean implements ChatFriend {
+class ChatFriendImpl extends AbstractBean implements ChatFriend {
 
     private boolean chatting;
-    private boolean activeConversation;
     private final Friend friend;
     private String status;
     private FriendPresence.Mode mode;
     private long chatStartTime;
     private boolean hasUnviewedMessages;
+    private Timer timer;
+    private int flashCount = 0;
 
     ChatFriendImpl(final FriendPresence presence) {
         this.friend = presence.getFriend();
@@ -110,25 +111,14 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
 
     @Override
     public void stopChat() {
+        stopTimer();
         setChatting(false);
-        setActiveConversation(false);
+        setHasUnviewedMessages(false);
     }
 
     @Override
     public long getChatStartTime() {
         return chatStartTime;
-    }
-
-    @Override
-    public boolean isActiveConversation() {
-        return activeConversation;
-    }
-    
-    @Override
-    public void setActiveConversation(boolean active) {
-        boolean oldActiveConversation = activeConversation;
-        activeConversation = active;
-        firePropertyChange("activeConversation", oldActiveConversation, activeConversation);
     }
 
     @Override
@@ -147,15 +137,53 @@ public class ChatFriendImpl extends AbstractBean implements ChatFriend {
     }
 
     @Override
-    public boolean hasReceivedUnviewedMessages() {
+    public boolean hasUnviewedMessages() {
         return hasUnviewedMessages;
     }
 
+    public boolean isFlashState() {
+        return flashCount % 2 == 0;
+    }
+    
     @Override
-    public void setReceivedUnviewedMessages(boolean hasMessages) {
+    public void setHasUnviewedMessages(boolean hasMessages) {
+        if(hasMessages)
+            startTimer();
+        else
+            stopTimer();
         boolean oldHasUnviewedMessages = hasUnviewedMessages;
         hasUnviewedMessages = hasMessages;
         firePropertyChange("receivingUnviewedMessages", oldHasUnviewedMessages, hasMessages);
+    }
+    
+    /**
+	 * Starts a timer to flash the chat icon when a new
+     * message has been received but the friend is not selected.
+	 */    
+    private void startTimer() {
+        if(timer == null) {
+            timer = new Timer(1500, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if(flashCount > 4)
+                        stopTimer();
+                    firePropertyChange("flashIncrement", flashCount, flashCount + 1);
+                    flashCount += 1;
+                }
+            });
+            timer.start();
+        } else {
+            flashCount = 0;
+            timer.restart();
+        }
+    }
+    
+    private void stopTimer() {
+        if(timer != null) {
+            timer.stop();
+            flashCount = 0;
+            timer = null;
+        }
     }
 
     private FriendPresence getPresenceForModeAndStatus() {

@@ -25,7 +25,7 @@ public class MessageTest extends org.limewire.gnutella.tests.LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         pingRequestFactory = injector.getInstance(PingRequestFactory.class);
         messageFactory = injector.getInstance(MessageFactory.class);
     }

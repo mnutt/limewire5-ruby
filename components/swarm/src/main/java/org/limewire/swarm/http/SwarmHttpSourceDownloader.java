@@ -381,7 +381,7 @@ public class SwarmHttpSourceDownloader implements SwarmSourceDownloader, NHttpRe
     /**
      * Class representing the request parameters for a piece download.
      */
-    private class RequestParameters {
+    private static class RequestParameters {
         private final SwarmFile swarmFile;
 
         private final String path;

@@ -19,7 +19,6 @@ import org.limewire.mojito.routing.Version;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.dht.DHTManager.DHTMode;
 
@@ -48,7 +47,7 @@ public class DHTBootstrapperTest extends DHTTestCase {
         DHTTestUtils.setSettings(PORT);
         MojitoDHT dht = MojitoFactory.createDHT();
         
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        Injector injector = LimeTestUtils.createInjector();
 
         bootstrapDHT = startBootstrapDHT(injector.getInstance(LifecycleManager.class));
         

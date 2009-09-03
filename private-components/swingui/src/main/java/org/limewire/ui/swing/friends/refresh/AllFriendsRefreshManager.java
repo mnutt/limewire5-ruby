@@ -9,6 +9,7 @@ import javax.swing.Timer;
 import org.limewire.core.api.library.RemoteLibraryManager;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.core.api.search.browse.BrowseSearch;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.ui.swing.search.DefaultSearchRepeater;
 import org.limewire.ui.swing.search.SearchRepeater;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
@@ -17,9 +18,8 @@ import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 public class AllFriendsRefreshManager implements SearchRepeater{
     
     /**

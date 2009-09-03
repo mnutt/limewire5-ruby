@@ -48,7 +48,7 @@ public class HttpClientManagerTest extends LimeTestCase {
     @Override
     public void setUp() throws Exception {
         // TODO: this statically injects HttpClientManager -- fix! 
-        injector = LimeTestUtils.createInjector();
+        injector = LimeTestUtils.createInjectorNonEagerly();
         
         httpServers = new TestBootstrapServer[11];
         tlsServers = new TestBootstrapServer[11];

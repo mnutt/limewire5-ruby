@@ -6,6 +6,7 @@ import java.util.Map;
 import org.limewire.collection.NumericBuffer;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
+import org.limewire.inspection.DataCategory;
 import org.limewire.util.ByteUtils;
 
 import com.google.inject.Inject;
@@ -37,7 +38,7 @@ public class QueryStats {
         return times.first();
     }
 
-    @InspectionPoint("user query stats v3")
+    @InspectionPoint(value = "user query stats v3", category = DataCategory.USAGE)
     @SuppressWarnings("unused")
     private final Inspectable queryStats = new Inspectable() {
         @Override

@@ -12,9 +12,12 @@ import org.limewire.ui.swing.util.I18n;
 
 public class OKDialogAction extends AbstractAction {
 
+    public static final String NAME = I18n.tr("OK");
+    public static final String SHORT_DESCRIPTION = I18n.tr("Keep any changes made");
+    
     public OKDialogAction() {
-        putValue(Action.NAME, I18n.tr("OK"));
-        putValue(Action.SHORT_DESCRIPTION, I18n.tr("Keep any changes made"));
+        putValue(Action.NAME, NAME);
+        putValue(Action.SHORT_DESCRIPTION, SHORT_DESCRIPTION);
     }
     
     @Override

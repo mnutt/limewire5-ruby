@@ -40,7 +40,7 @@ public class CapabilitiesVMTest extends BaseTestCase {
 
     @Override
     public void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(DHTManager.class).to(DHTManagerStub.class);

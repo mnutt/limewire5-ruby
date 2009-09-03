@@ -58,12 +58,12 @@ public class LazyBinder<T> implements Provider<T> {
             }
 
             public Void visitNoScoping() {
-                throw new RuntimeException("Class: " + implClass + " must be in scope @Singleton or @LazySingleton");
+                throw new RuntimeException("Class: " + implClass + " must be in scope @Singleton or @LazySingleton or @EagerSingleton");
             };
 
             public Void visitScope(Scope scope) {
-                if(scope != Scopes.SINGLETON && scope != MoreScopes.LAZY_SINGLETON) {
-                    throw new RuntimeException("Class: " + implClass + " must be in scope @Singleton or @LazySingleton");    
+                if(scope != Scopes.SINGLETON && scope != MoreScopes.LAZY_SINGLETON && scope != MoreScopes.EAGER_SINGLETON) {
+                    throw new RuntimeException("Class: " + implClass + " must be in scope @Singleton or @LazySingleton or @EagerSingleton");    
                 }
                 return null;
             };

@@ -123,21 +123,23 @@ public abstract class AbstractIPFilter implements IPFilter {
     
     private boolean allowAndLog(IP ip) {
         if (ip == ALLOWED) {
-            LOG.debug("allowing non-checkable ip.");
+            LOG.debug("Allowing non-checkable IP");
             return true;
         }
         
         if (ip == null) {
-            LOG.debug("not allowing invalid ip");
+            LOG.debug("Not allowing invalid IP");
             return false;
         }
         
         boolean yes = allowImpl(ip);
         
-        if (yes && LOG.isDebugEnabled())
-            LOG.debug(this.hashCode()+" allowing "+ip);
-        else if (!yes && LOG.isInfoEnabled())
-            LOG.info(this.hashCode()+" NOT allowing "+ip);
+        if (LOG.isDebugEnabled()) {
+            if (yes)
+                LOG.debug(getClass().getSimpleName() + " allowing " + ip);
+            else
+                LOG.debug(getClass().getSimpleName() + " not allowing " + ip);
+        }
         
         return yes;
     }

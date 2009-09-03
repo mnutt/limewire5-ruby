@@ -56,7 +56,7 @@ public final class MessageWriterTest extends LimeTestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-	    Injector injector = LimeTestUtils.createInjector();
+	    Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		messageFactory = injector.getInstance(MessageFactory.class);
 		queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
 		pingReplyFactory = injector.getInstance(PingReplyFactory.class);

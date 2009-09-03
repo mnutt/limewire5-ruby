@@ -25,6 +25,10 @@ import org.limewire.xmpp.client.impl.FallbackConnectionConfigurationFactory;
 import org.limewire.xmpp.client.impl.XMPPConnectionFactoryImpl;
 import org.limewire.xmpp.client.impl.XMPPConnectionImplFactory;
 import org.limewire.xmpp.client.impl.XMPPFriendConnectionImpl;
+import org.limewire.xmpp.client.impl.IdleTime;
+import org.limewire.xmpp.client.impl.IdleTimeImpl;
+import org.limewire.xmpp.client.impl.IdleStatusMonitor;
+import org.limewire.xmpp.client.impl.IdleStatusMonitorFactory;
 import org.limewire.xmpp.client.impl.messages.address.AddressIQListener;
 import org.limewire.xmpp.client.impl.messages.address.AddressIQListenerFactory;
 import org.limewire.xmpp.client.impl.messages.authtoken.AuthTokenIQListener;
@@ -87,5 +91,11 @@ public class LimeWireXMPPModule extends AbstractModule {
         bind(LibraryChangedIQListenerFactory.class).toProvider(FactoryProvider.newFactory(LibraryChangedIQListenerFactory.class, LibraryChangedIQListener.class));
         bind(FileTransferIQListenerFactory.class).toProvider(FactoryProvider.newFactory(FileTransferIQListenerFactory.class, FileTransferIQListener.class));
         
+                
+        bind(IdleTime.class).to(IdleTimeImpl.class);
+        
+        bind(IdleStatusMonitorFactory.class).toProvider(
+                FactoryProvider.newFactory(
+                        IdleStatusMonitorFactory.class, IdleStatusMonitor.class));
     }
 }

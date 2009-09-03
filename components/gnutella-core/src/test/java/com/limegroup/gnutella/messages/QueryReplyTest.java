@@ -126,7 +126,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
     public void setUp() throws Exception {
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(false);
         	    
-	    injector = LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
+	    injector = LimeTestUtils.createInjectorNonEagerly(LimeTestUtils.createModule(this));
 	    
         byte[] data = new byte[16];
         new Random().nextBytes(data);
@@ -787,7 +787,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
             will(returnValue(true));
         }});
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(mockNetworkManager);
@@ -818,7 +818,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
             will(returnValue(true));
         }});
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(mockNetworkManager);
@@ -2056,7 +2056,7 @@ public final class QueryReplyTest extends org.limewire.gnutella.tests.LimeTestCa
             will(returnValue(isPrivateAddress));
         }});
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkInstanceUtils.class).toInstance(mockNetworkInstanceUtils);

@@ -32,7 +32,7 @@ public class FileViewManagerImplTest extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
+        LimeTestUtils.createInjectorNonEagerly(LimeTestUtils.createModule(this));
         
         f1 = TestUtils.getResourceInPackage("one.txt", getClass());
         f2 = TestUtils.getResourceInPackage("two.txt", getClass());  

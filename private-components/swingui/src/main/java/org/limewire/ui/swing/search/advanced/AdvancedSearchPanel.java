@@ -41,12 +41,13 @@ import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.ResizeUtils;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /** The container for advanced searching. */
 public class AdvancedSearchPanel extends JXPanel implements Disposable {
         
     private final FriendAutoCompleterFactory friendAutoCompleterFactory;
-    private final KeywordAssistedSearchBuilder advancedSearchBuilder;
+    private final Provider<KeywordAssistedSearchBuilder> advancedSearchBuilder;
     private final PropertyDictionary propertyDictionary;
     private final ButtonDecorator buttonDecorator;
     
@@ -66,7 +67,7 @@ public class AdvancedSearchPanel extends JXPanel implements Disposable {
     
     @Inject
     public AdvancedSearchPanel(PropertyDictionary propertyDictionary, FriendAutoCompleterFactory friendAutoCompleterFactory,
-            HeaderBarDecorator headerDecorator, ButtonDecorator buttonDecorator, KeywordAssistedSearchBuilder advancedSearchBuilder) {
+            HeaderBarDecorator headerDecorator, ButtonDecorator buttonDecorator, Provider<KeywordAssistedSearchBuilder> advancedSearchBuilder) {
         
         this.propertyDictionary = propertyDictionary;
         this.friendAutoCompleterFactory = friendAutoCompleterFactory;
@@ -201,7 +202,7 @@ public class AdvancedSearchPanel extends JXPanel implements Disposable {
                 
                 if(searchData != null) {
                     
-                    SearchInfo info = advancedSearchBuilder.createAdvancedSearch(searchData,
+                    SearchInfo info = advancedSearchBuilder.get().createAdvancedSearch(searchData,
                             visibleComponent.getSearchCategory());
                     
                     for(UiSearchListener uiSearchListener : uiSearchListeners) {

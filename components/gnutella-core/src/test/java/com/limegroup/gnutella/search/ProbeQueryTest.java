@@ -55,7 +55,7 @@ public final class ProbeQueryTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         testConnectionFactory = injector.getInstance(TestConnectionFactory.class);
         queryHandlerFactory = injector.getInstance(QueryHandlerFactory.class);
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);

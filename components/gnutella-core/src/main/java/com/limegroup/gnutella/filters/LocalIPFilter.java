@@ -12,6 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.core.settings.FilterSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionPoint;
@@ -20,14 +21,12 @@ import org.limewire.io.IP;
 import org.limewire.util.CommonUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 
 /**
  * Blocks messages and hosts based on IP address.  
  */
-@Singleton
+@EagerSingleton
 public final class LocalIPFilter extends AbstractIPFilter {
     
     private static final Log LOG = LogFactory.getLog(LocalIPFilter.class);
@@ -57,21 +56,22 @@ public final class LocalIPFilter extends AbstractIPFilter {
         File hostiles = new File(CommonUtils.getUserSettingsDir(), "hostiles.txt");
         shouldLoadHostiles = hostiles.exists();
         
-        hostileNetworkFilter.refreshHosts();
         refreshHosts();
     }
     
+    @Override
     public void refreshHosts() {
         refreshHosts(null);
     }
     
-    public void refreshHosts(final IPFilterCallback callback) {
+    @Override
+    public void refreshHosts(final LoadCallback callback) {
         Runnable load = new Runnable() {
             public void run() {
                 hostileNetworkFilter.refreshHosts();
                 refreshHostsImpl();
                 if (callback != null)
-                    callback.ipFiltersLoaded();
+                    callback.spamFilterLoaded();
             }
         };
         if (!shouldLoadHostiles) 
@@ -82,7 +82,7 @@ public final class LocalIPFilter extends AbstractIPFilter {
     
     /** Does the work of setting new good  & bad hosts. */
     private void refreshHostsImpl() {
-        LOG.debug("refreshing hosts");
+        LOG.debug("Refreshing local IP filter");
         
         // Load the local blacklist, stripping out invalid entries
         IPList newBad = new IPList();
@@ -114,7 +114,7 @@ public final class LocalIPFilter extends AbstractIPFilter {
         if(shouldLoadHostiles) {
             shouldLoadHostiles = false;
             
-            LOG.debug("loading hostiles");
+            LOG.debug("Loading hostiles.txt");
             File hostiles = new File(CommonUtils.getUserSettingsDir(), "hostiles.txt");
             BufferedReader reader = null;
             try {
@@ -123,8 +123,8 @@ public final class LocalIPFilter extends AbstractIPFilter {
                 while( (read = reader.readLine()) != null) {
                     hostilesTXTHosts.add(read);
                 }
-            } catch(IOException ignored) {
-                LOG.debug("iox loading hostiles",ignored);
+            } catch(IOException e) {
+                LOG.debug("Error loading hostiles.txt", e);
             } finally {
                 IOUtils.close(reader);
             }
@@ -135,6 +135,7 @@ public final class LocalIPFilter extends AbstractIPFilter {
     }
     
     /** Determines if any blacklisted hosts exist. */
+    @Override
     public boolean hasBlacklistedHosts() {
         return 
           (FilterSettings.USE_NETWORK_FILTER.getValue() && hostileNetworkFilter.hasBlacklistedHosts())
@@ -179,7 +180,6 @@ public final class LocalIPFilter extends AbstractIPFilter {
             }
         };
     }
-
 }
 
 

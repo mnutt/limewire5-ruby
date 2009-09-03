@@ -32,6 +32,8 @@ import org.limewire.core.impl.updates.CoreGlueUpdatesModule;
 import org.limewire.core.impl.upload.CoreGlueUploadModule;
 import org.limewire.core.impl.upload.UploadListenerList;
 import org.limewire.core.impl.xmpp.CoreGlueXMPPModule;
+import org.limewire.core.impl.inspections.InspectionsCommunicator;
+import org.limewire.core.impl.inspections.InspectionsCommunicatorImpl;
 import org.limewire.facebook.service.LimeWireFacebookModule;
 import org.limewire.http.httpclient.HttpClientInstanceUtils;
 
@@ -53,6 +55,7 @@ public class CoreGlueModule extends AbstractModule {
         bind(LifeCycleManager.class).to(LifeCycleManagerImpl.class);
         bind(MagnetFactory.class).to(MagnetFactoryImpl.class);
         bind(ItunesMediator.class).to(ItunesMediatorImpl.class);
+        bind(InspectionsCommunicator.class).to(InspectionsCommunicatorImpl.class);
         
         install(new CoreGlueSpamModule());
         install(new CoreGlueConnectionModule());

@@ -3,6 +3,7 @@ package org.limewire.core.settings;
 import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.setting.BooleanSetting;
 import org.limewire.setting.IntSetting;
+import org.limewire.setting.LongSetting;
 import org.limewire.setting.StringArraySetting;
 import org.limewire.setting.StringSetting;
 
@@ -152,4 +153,45 @@ public class FilterSettings extends LimeProps {
         FACTORY.createRemoteStringSetting("DANGEROUS_FILE_TYPES",
                 "PCOBLDKRBIBSCDCEJ62BIN5FFRZRWGZDBC5NVTLC5XWZW7HEPW6BSJRJIBVCKRGNHO7I33FCMOFEW3R34IRHBN4EQ6U6JZLUJWBCYIPEPYJDUW2F7EZPZFCAY6FTASRGPRXHKWB236HJKRACLIGU7TESUQ75NVTU6PLQC4MMLI4N5JM7UZJVPW3HSE76NIRW4A",
                 "FilterSettings.DangerousFileTypes");
+
+    private final static long ONE_HOUR = 60 * 60 * 1000;
+    private final static long ONE_DAY = 24 * ONE_HOUR;
+
+    /**
+     * The minimum interval in milliseconds between checking for updates to the
+     * URN blacklist.
+     */
+    public static final LongSetting MIN_URN_BLACKLIST_UPDATE_INTERVAL =
+        FACTORY.createRemoteLongSetting("MIN_URN_BLACKLIST_UPDATE_INTERVAL",
+                ONE_DAY, "FilterSettings.minUrnBlacklistUpdateInterval",
+                ONE_HOUR, 7 * ONE_DAY);
+
+    /**
+     * The maximum interval in milliseconds between checking for updates to the
+     * URN blacklist.
+     */
+    public static final LongSetting MAX_URN_BLACKLIST_UPDATE_INTERVAL =
+        FACTORY.createRemoteLongSetting("MAX_URN_BLACKLIST_UPDATE_INTERVAL",
+                28 * ONE_DAY, "FilterSettings.maxUrnBlacklistUpdateInterval",
+                7 * ONE_DAY, 365 * ONE_DAY);
+
+    /**
+     * The URLs to check for URN blacklist updates.
+     */
+    public static final StringArraySetting URN_BLACKLIST_UPDATE_URLS =
+        FACTORY.createRemoteStringArraySetting("URN_BLACKLIST_UPDATE_URLS",
+                new String[0], "FilterSettings.urnBlacklistUpdateUrls");
+
+    /**
+     * The local time of the last check for URN blacklist updates.
+     */
+    public static final LongSetting LAST_URN_BLACKLIST_UPDATE =
+        FACTORY.createLongSetting("LAST_URN_BLACKLIST_UPDATE", 0L);
+
+    /**
+     * The local time of the next check for URN blacklist updates (the check
+     * will be performed at the first launch after this time).
+     */
+    public static final LongSetting NEXT_URN_BLACKLIST_UPDATE =
+        FACTORY.createLongSetting("NEXT_URN_BLACKLIST_UPDATE", 0L);
 }

@@ -16,7 +16,6 @@ import org.limewire.ui.swing.painter.ButtonForegroundPainter.FontTransform;
 import org.limewire.ui.swing.util.GuiUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Creates LW skinned foreground and background painters for JXButtons.
@@ -24,7 +23,6 @@ import com.google.inject.Singleton;
  *  background painters draw the actual button, any borders, and 
  *  shadowing/accents.
  */
-@Singleton
 public class ButtonPainterFactory {
     
     @Resource private Color miniHoverTextForeground;

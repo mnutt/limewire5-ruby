@@ -15,20 +15,16 @@ public class SetupWizard {
 
     private Wizard wizard;
 
-    private final Application application;
 
     @Inject
     public SetupWizard(Provider<SetupComponentDecoratorFactory> decoratorFactory,
-            Provider<LibraryManager> libraryManager, Application application) {
-        this.application = application;
+            Provider<LibraryManager> libraryManager) {
 
-        if (shouldShowWizard()) {
-            createWizard(decoratorFactory.get(), libraryManager.get().getLibraryData());
-        }
+        createWizard(decoratorFactory.get(), libraryManager.get().getLibraryData());
     }
 
-    public boolean shouldShowWizard() {
-        if (showPage1()) {
+    public static boolean shouldShowWizard(Application application) {
+        if (shouldShowPage1()) {
             return true;
         }
 
@@ -40,10 +36,9 @@ public class SetupWizard {
         return false;
     }
 
-    public void showDialogIfNeeded(Frame owner) {
-        if (shouldShowWizard()) {
-            wizard.showDialogIfNeeded(owner);
-        }
+    public void showDialog(Frame owner, Application application) {
+            
+        wizard.showDialog(owner);
 
         // Sets the upgraded flag after the setup wizard completes
         InstallSettings.UPGRADED_TO_5.setValue(true);
@@ -58,21 +53,20 @@ public class SetupWizard {
 
         wizard = new Wizard(decorator);
 
-        if (showPage1()) {
+        if (shouldShowPage1()) {
             wizard.addPage(new SetupPage1(decorator));
         }
         
         wizard.addPage(new SetupPage2(decorator));
     }
 
-    private boolean showPage1() {
+    private static boolean shouldShowPage1() {
         if (!InstallSettings.AUTO_SHARING_OPTION.getValue()) {
             return true;
         }
-        // TODO reenable once we support usage data collection
-//        if (!InstallSettings.ANONYMOUS_DATA_COLLECTION.getValue()) {
-//            return true;
-//        }
+        if (!InstallSettings.ANONYMOUS_DATA_COLLECTION.getValue()) {
+            return true;
+        }
         if (!InstallSettings.FILTER_OPTION.getValue()) {
             return true;
         }

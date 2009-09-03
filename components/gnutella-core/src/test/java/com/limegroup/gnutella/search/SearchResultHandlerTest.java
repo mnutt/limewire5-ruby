@@ -54,7 +54,7 @@ public class SearchResultHandlerTest extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(MyActivityCallback.class, new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(MyActivityCallback.class, new AbstractModule() {
             @Override
             protected void configure() {
                 bind(ResponseVerifier.class).to(StubVerifier.class);

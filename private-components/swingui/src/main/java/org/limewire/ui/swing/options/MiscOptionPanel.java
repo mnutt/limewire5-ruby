@@ -1,7 +1,5 @@
 package org.limewire.ui.swing.options;
 
-import static org.limewire.ui.swing.util.I18n.tr;
-
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -19,8 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import net.miginfocom.swing.MigLayout;
-
+import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.UrlAction;
@@ -33,11 +30,14 @@ import org.limewire.ui.swing.settings.QuestionsHandler;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
+import static org.limewire.ui.swing.util.I18n.tr;
 import org.limewire.ui.swing.util.LanguageUtils;
 import org.limewire.ui.swing.util.SwingUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+
+import net.miginfocom.swing.MigLayout;
 
 /**
  * Misc Option View.
@@ -59,8 +59,7 @@ public class MiscOptionPanel extends OptionPanel {
     private JLabel comboLabel;
     private final JComboBox languageDropDown;
     private final HyperlinkButton translateButton;
-    // TODO: re-enable this code once the setting does something
-    // private final JCheckBox shareUsageDataCheckBox;
+    private final JCheckBox shareUsageDataCheckBox;
 
     @Inject
 
@@ -83,13 +82,10 @@ public class MiscOptionPanel extends OptionPanel {
         add(getNotificationsPanel(), "growx, wrap");
         add(getFriendChatPanel(), "growx, wrap");
 
-        // TODO: re-enable this code once the setting does something
-        /*
         shareUsageDataCheckBox = new JCheckBox((I18n.tr("Help improve LimeWire by sending us anonymous usage data")));
         shareUsageDataCheckBox.setOpaque(false);
         add(shareUsageDataCheckBox);
         add(new LearnMoreButton("http://www.limewire.com/client_redirect/?page=anonymousDataCollection"), "wrap");
-        */
     }
 
     private OptionPanel getNotificationsPanel() {
@@ -108,8 +104,7 @@ public class MiscOptionPanel extends OptionPanel {
 
     @Override
     boolean applyOptions() {
-        // TODO: re-enable this code once the setting does something
-        // ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.setValue(shareUsageDataCheckBox.isSelected());
+        ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.setValue(shareUsageDataCheckBox.isSelected());
         
         Locale selectedLocale = (Locale) languageDropDown.getSelectedItem();
         
@@ -128,22 +123,16 @@ public class MiscOptionPanel extends OptionPanel {
     @Override
     boolean hasChanged() {
         Locale selectedLocale = (Locale) languageDropDown.getSelectedItem();
-        return getNotificationsPanel().hasChanged() ||
-            getFriendChatPanel().hasChanged() ||
-            selectedLocale != currentLanguage;
-        // TODO: re-enable this code once the setting does something
-        /*
+        
         return getNotificationsPanel().hasChanged() || getFriendChatPanel().hasChanged() ||
                 selectedLocale != currentLanguage ||
                 ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue() 
                     != shareUsageDataCheckBox.isSelected();
-        */
     }
 
     @Override
     public void initOptions() {
-        // TODO: re-enable this code once the setting does something
-        // shareUsageDataCheckBox.setSelected(ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue());
+        shareUsageDataCheckBox.setSelected(ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.getValue());
         getNotificationsPanel().initOptions();
         getFriendChatPanel().initOptions();
         currentLanguage = LanguageUtils.getCurrentLocale();
@@ -160,7 +149,6 @@ public class MiscOptionPanel extends OptionPanel {
     private class NotificationsPanel extends OptionPanel {
 
         private JCheckBox showNotificationsCheckBox;
-        private JCheckBox playNotificationsCheckBox;
         private JButton resetWarningsButton;
 
         public NotificationsPanel() {
@@ -168,8 +156,6 @@ public class MiscOptionPanel extends OptionPanel {
 
             showNotificationsCheckBox = new JCheckBox(tr("Show popup system notifications"));
             showNotificationsCheckBox.setContentAreaFilled(false);
-            playNotificationsCheckBox = new JCheckBox(tr("Play notification sounds"));
-            playNotificationsCheckBox.setContentAreaFilled(false);
             resetWarningsButton = new JButton(new AbstractAction(I18n.tr("Reset")){
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -178,7 +164,6 @@ public class MiscOptionPanel extends OptionPanel {
             });
             
             add(showNotificationsCheckBox, "wrap");
-            add(playNotificationsCheckBox, "wrap");
             add(new JLabel(I18n.tr("Reset warning messages")));
             add(resetWarningsButton, "wrap");
         }
@@ -186,19 +171,16 @@ public class MiscOptionPanel extends OptionPanel {
         @Override
         boolean applyOptions() {
             SwingUiSettings.SHOW_NOTIFICATIONS.setValue(showNotificationsCheckBox.isSelected());
-            SwingUiSettings.PLAY_NOTIFICATION_SOUND.setValue(playNotificationsCheckBox.isSelected());
             return false;
         }
 
         @Override
         boolean hasChanged() {
-            return showNotificationsCheckBox.isSelected() != SwingUiSettings.SHOW_NOTIFICATIONS.getValue() ||
-            playNotificationsCheckBox.isSelected() != SwingUiSettings.PLAY_NOTIFICATION_SOUND.getValue(); 
+            return showNotificationsCheckBox.isSelected() != SwingUiSettings.SHOW_NOTIFICATIONS.getValue();
         }
 
         @Override
         public void initOptions() {
-            playNotificationsCheckBox.setSelected(SwingUiSettings.PLAY_NOTIFICATION_SOUND.getValue());
             showNotificationsCheckBox.setSelected(SwingUiSettings.SHOW_NOTIFICATIONS.getValue());
         }
     }

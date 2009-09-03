@@ -314,7 +314,7 @@ public interface Downloader extends BandwidthTracker,
         INVALID,
         RESUMING,
         FETCHING,
-        DANGEROUS
+        DANGEROUS,
     }
 }
 

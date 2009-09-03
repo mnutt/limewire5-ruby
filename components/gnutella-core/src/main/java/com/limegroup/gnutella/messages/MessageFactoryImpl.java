@@ -9,10 +9,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.MessageSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.util.ByteUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.util.DataUtils;
 
@@ -20,7 +20,7 @@ import com.limegroup.gnutella.util.DataUtils;
  * Factory to turn binary input as read from Network to Message
  * Objects.
  */
-@Singleton
+@EagerSingleton
 public class MessageFactoryImpl implements MessageFactory {
     
     private static final Log LOG = LogFactory.getLog(MessageFactoryImpl.class);

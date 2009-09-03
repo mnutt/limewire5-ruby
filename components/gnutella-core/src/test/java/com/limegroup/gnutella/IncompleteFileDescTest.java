@@ -46,7 +46,7 @@ public class IncompleteFileDescTest extends LimeTestCase {
         urns = new HashSet(1);
         urns.add(urn);
         
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         verifyingFileFactory = injector.getInstance(VerifyingFileFactory.class);
         fileDescFactory = injector.getInstance(FileDescFactory.class);
         vf = verifyingFileFactory.createVerifyingFile();

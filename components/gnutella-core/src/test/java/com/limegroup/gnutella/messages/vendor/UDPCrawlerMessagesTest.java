@@ -34,7 +34,6 @@ import org.limewire.util.StringUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.BlockingConnectionUtils;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.ConnectionServices;
@@ -166,7 +165,7 @@ public class UDPCrawlerMessagesTest extends LimeTestCase {
         setSettings();
         assertEquals("unexpected port", PORT, NetworkSettings.PORT.getValue());
         
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(DHTManager.class).toInstance(new DHTManagerStub());

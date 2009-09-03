@@ -155,7 +155,7 @@ public class Wizard extends JPanel {
         return pageList.size();
     }
     
-    public void showDialogIfNeeded(Frame owner){
+    public void showDialog(Frame owner){
         if (getPageCount() > 0) {
             setCurrentPage(0);
 

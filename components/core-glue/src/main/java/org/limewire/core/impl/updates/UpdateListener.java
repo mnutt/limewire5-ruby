@@ -1,15 +1,15 @@
 package org.limewire.core.impl.updates;
 
 import org.limewire.core.api.updates.UpdateInformation;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.listener.EventBroadcaster;
 import org.limewire.listener.EventListener;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.version.UpdateEvent;
 import com.limegroup.gnutella.version.UpdateHandler;
 
-@Singleton
+@EagerSingleton
 public class UpdateListener implements EventListener<UpdateEvent> {
 
     private final EventBroadcaster<org.limewire.core.api.updates.UpdateEvent> uiListeners;

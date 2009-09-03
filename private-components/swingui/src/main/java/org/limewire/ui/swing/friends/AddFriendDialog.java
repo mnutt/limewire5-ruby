@@ -108,7 +108,7 @@ public class AddFriendDialog extends LimeJDialog {
         
 
         pack();
-        setVisible(true);
         setLocationRelativeTo(GuiUtils.getMainFrame());
+        setVisible(true);
     }
 }

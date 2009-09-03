@@ -822,7 +822,7 @@ public class Console extends JPanel {
     /**
      * Logging level ComboBox model.
      */
-    private class LevelComboBoxModel extends DefaultComboBoxModel {
+    private static class LevelComboBoxModel extends DefaultComboBoxModel {
 
         private final Level[] levels = new Level[] { 
                 Level.OFF, 

@@ -51,7 +51,7 @@ public final class LeafHandshakeResponderTest extends LimeTestCase {
         ConnectionSettings.ACCEPT_DEFLATE.setValue(true);
         ConnectionSettings.ENCODE_DEFLATE.setValue(true);
         
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         handshakeResponderFactory = injector.getInstance(HandshakeResponderFactory.class);
         headersFactory = injector.getInstance(HeadersFactory.class);
         connectionManager = injector.getInstance(ConnectionManager.class);

@@ -18,6 +18,7 @@ import org.limewire.core.impl.friend.GnutellaPresence;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.friend.api.FriendManager;
 import org.limewire.friend.api.FriendPresence;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.lifecycle.ServiceScheduler;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
@@ -29,13 +30,12 @@ import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.impl.ThreadSafeList;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.bittorrent.BTUploader;
 import com.limegroup.gnutella.UploadServices;
 import com.limegroup.gnutella.Uploader;
 
-@Singleton
+@EagerSingleton
 public class CoreUploadListManager implements UploadListener, UploadListManager {
 
     private final UploadServices uploadServices;
@@ -79,7 +79,7 @@ public class CoreUploadListManager implements UploadListener, UploadListManager 
               }
           };
           
-          scheduler.scheduleAtFixedRate("UI Upload Status Monitor", 
+          scheduler.scheduleWithFixedDelay("UI Upload Status Monitor", 
                   command, 0, PERIOD,
                   TimeUnit.MILLISECONDS, executor).in(this);
     }

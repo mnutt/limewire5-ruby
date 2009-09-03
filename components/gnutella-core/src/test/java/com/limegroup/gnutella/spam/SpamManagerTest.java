@@ -2,6 +2,8 @@ package com.limegroup.gnutella.spam;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 
@@ -18,6 +20,7 @@ import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.ResponseFactory;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
+import com.limegroup.gnutella.filters.SpamFilter;
 import com.limegroup.gnutella.filters.URNFilter;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryReplyFactory;
@@ -91,7 +94,7 @@ public class SpamManagerTest extends LimeTestCase {
         spamUrn = URN.createSHA1Urn("urn:sha1:" + spam);
         FilterSettings.FILTERED_URNS_LOCAL.set(new String[] { spam });
 
-		injector = LimeTestUtils.createInjector();
+		injector = LimeTestUtils.createInjectorNonEagerly();
 		limeXMLDocumentFactory = injector.getInstance(LimeXMLDocumentFactory.class);
 		queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
 		remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
@@ -437,7 +440,15 @@ public class SpamManagerTest extends LimeTestCase {
 
         // The URN filter should block the result and mark it as spam
         URNFilter urnFilter = injector.getInstance(URNFilter.class);
-        urnFilter.refreshURNs();
+        final CountDownLatch loaded = new CountDownLatch(1);
+        SpamFilter.LoadCallback callback = new SpamFilter.LoadCallback() {
+            @Override
+            public void spamFilterLoaded() {
+                loaded.countDown();
+            }
+        };
+        urnFilter.refreshURNs(callback);
+        assertTrue(loaded.await(10, TimeUnit.SECONDS));
         assertEquals(0, manager.getRatingTable().size());
         assertFalse(urnFilter.allow(reply));
         assertGreaterThan(0, manager.getRatingTable().size());

@@ -29,7 +29,7 @@ public class SettingsBasedContentAuthorityTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		ipPortContentAuthorityFactory = injector.getInstance(IpPortContentAuthorityFactory.class);
 		pingRequestFactory = injector.getInstance(PingRequestFactory.class);
     }

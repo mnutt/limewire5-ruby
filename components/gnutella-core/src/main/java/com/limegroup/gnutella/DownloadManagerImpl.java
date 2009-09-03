@@ -17,15 +17,18 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.limewire.bittorrent.Torrent;
 import org.limewire.bittorrent.TorrentManager;
 import org.limewire.collection.DualIterator;
 import org.limewire.collection.MultiIterable;
 import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.DownloadException.ErrorCode;
+import org.limewire.core.settings.BittorrentSettings;
 import org.limewire.core.settings.DownloadSettings;
 import org.limewire.core.settings.SharingSettings;
 import org.limewire.core.settings.UpdateSettings;
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.GUID;
 import org.limewire.io.InvalidDataException;
@@ -40,13 +43,14 @@ import org.limewire.logging.LogFactory;
 import org.limewire.service.MessageService;
 import org.limewire.util.FileUtils;
 import org.limewire.util.StringUtils;
+import org.limewire.util.Visitor;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.bittorrent.BTDownloader;
 import com.limegroup.bittorrent.BTTorrentFileDownloader;
+import com.limegroup.bittorrent.TorrentUploadManager;
 import com.limegroup.gnutella.browser.MagnetOptions;
 import com.limegroup.gnutella.downloader.CantResumeException;
 import com.limegroup.gnutella.downloader.CoreDownloader;
@@ -61,7 +65,6 @@ import com.limegroup.gnutella.downloader.PushedSocketHandlerRegistry;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.downloader.ResumeDownloader;
 import com.limegroup.gnutella.downloader.StoreDownloader;
-import com.limegroup.gnutella.downloader.Visitor;
 import com.limegroup.gnutella.downloader.serial.DownloadMemento;
 import com.limegroup.gnutella.downloader.serial.DownloadSerializer;
 import com.limegroup.gnutella.library.LibraryStatusEvent;
@@ -73,7 +76,7 @@ import com.limegroup.gnutella.version.DownloadInformation;
 import com.limegroup.mozilla.MozillaDownload;
 import com.limegroup.mozilla.MozillaDownloaderImpl;
 
-@Singleton
+@EagerSingleton
 public class DownloadManagerImpl implements DownloadManager, Service, EventListener<LibraryStatusEvent> {
     
     private static final Log LOG = LogFactory.getLog(DownloadManagerImpl.class);
@@ -150,6 +153,8 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
     private final PushEndpointFactory pushEndpointFactory;
 
     private final Provider<TorrentManager> torrentManager;
+    
+    private final Provider<TorrentUploadManager> torrentUploadManager;
 
     @Inject
     public DownloadManagerImpl(@Named("inNetwork") DownloadCallback innetworkCallback,
@@ -159,7 +164,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
             CoreDownloaderFactory coreDownloaderFactory, DownloadSerializer downloaderSerializer,
             IncompleteFileManager incompleteFileManager,
             RemoteFileDescFactory remoteFileDescFactory, PushEndpointFactory pushEndpointFactory,
-            Provider<TorrentManager> torrentManager) {
+            Provider<TorrentManager> torrentManager, Provider<TorrentUploadManager> torrentUploadManager) {
         this.innetworkCallback = innetworkCallback;
         this.downloadCallback = downloadCallback;
         this.messageRouter = messageRouter;
@@ -171,6 +176,7 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
         this.remoteFileDescFactory = remoteFileDescFactory;
         this.pushEndpointFactory = pushEndpointFactory;
         this.torrentManager = torrentManager;
+        this.torrentUploadManager = torrentUploadManager;
     }
 
     /* (non-Javadoc)
@@ -202,6 +208,8 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
 
             public void start() {
                 loadSavedDownloadsAndScheduleWriting();
+                //TODO load uploads from somewhere else?
+                torrentUploadManager.get().loadSavedUploads();
             }
 
             public void stop() {
@@ -883,7 +891,15 @@ public class DownloadManagerImpl implements DownloadManager, Service, EventListe
                     DownloadException.ErrorCode.NO_TORRENT_MANAGER,
                     torrentFile);
         }
-        initializeDownload(ret, true);
+
+        Torrent torrent = ret.getTorrent();
+        if(BittorrentSettings.SHOW_POPUP_BEFORE_DOWNLOADING.getValue() && !downloadCallback.get().promptTorrentFilePriorities(torrent)) {
+            torrentManager.get().removeTorrent(torrent);
+            throw new DownloadException(DownloadException.ErrorCode.DOWNLOAD_CANCELLED, torrentFile);
+        } else {
+            initializeDownload(ret, true);
+        }
+
         return ret;
     }
 

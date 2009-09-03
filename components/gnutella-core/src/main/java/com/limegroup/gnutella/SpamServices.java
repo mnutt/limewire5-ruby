@@ -2,6 +2,8 @@ package com.limegroup.gnutella;
 
 import java.net.InetAddress;
 
+import com.limegroup.gnutella.messages.Message;
+
 public interface SpamServices {
 
     /**
@@ -11,18 +13,23 @@ public interface SpamServices {
     public void adjustSpamFilters();
 
     /**
-     * Reloads the IP Filter data & adjusts spam filters when ready.
+     * Reloads the IP filter and calls <code>adjustSpamFilters()</code> when
+     * finished.
      */
     public void reloadIPFilter();
     
     /**
-     * Reloads the URN filter data.
+     * Reloads the IP and URN filters and calls <code>adjustSpamFilters()</code>
+     * when finished.
      */
-    public void reloadURNFilter();
+    public void reloadSpamFilters();
 
     public void blockHost(String host);
     
     public boolean isAllowed(InetAddress host);
 
     public void unblockHost(String host);
+    
+    /** Returns true if the message is spam according to the personal filter. */
+    public boolean isPersonalSpam(Message m);
 }

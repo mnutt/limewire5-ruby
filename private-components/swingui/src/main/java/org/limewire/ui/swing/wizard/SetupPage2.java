@@ -22,14 +22,10 @@ import org.limewire.util.VersionFormatException;
 public class SetupPage2 extends WizardPage {
     private final JCheckBox shareDownloadedFilesCheckBox;
 
-    private @Resource
-    Icon file_sharedlist_p2p_large;
-
-    private @Resource
-    Icon sharing_my_files;
-
-    private @Resource
-    Icon sharing_arrow;
+    @Resource private Icon p2pSharedListIcon;
+    @Resource private Icon sharingMyFilesMacIcon;
+    @Resource private Icon sharingMyFilesIcon;
+    @Resource private Icon sharingArrowIcon;
 
     public SetupPage2(SetupComponentDecorator decorator) {
         super(decorator);
@@ -170,18 +166,26 @@ public class SetupPage2 extends WizardPage {
     }
 
     private void addModifyInfo() {
+        Icon myFilesIcon = null;
+        if (OSUtils.isMacOSX()) {
+            myFilesIcon = sharingMyFilesMacIcon;
+        } 
+        else {
+            myFilesIcon = sharingMyFilesIcon;
+        }
+        
         JPanel modifyInfoPanel = new JPanel(new MigLayout("fill, insets 0, gap 0, nogrid"));
         modifyInfoPanel.add(createAndDecorateHeader(I18n
                 .tr("To see or modify files in your Public Shared list, go to")),
                 "alignx center, wrap");
 
-        JLabel myFiles = new JLabel(I18n.tr("My Files"), sharing_my_files, JLabel.CENTER);
+        JLabel myFiles = new JLabel(I18n.tr("My Files"), myFilesIcon, JLabel.CENTER);
         myFiles.setVerticalTextPosition(JLabel.BOTTOM);
         myFiles.setHorizontalTextPosition(JLabel.CENTER);
 
         modifyInfoPanel.add(myFiles, "alignx center");
-        modifyInfoPanel.add(new JLabel(sharing_arrow), "aligny top, gaptop 17");
-        modifyInfoPanel.add(new JLabel(I18n.tr("Public Shared"), file_sharedlist_p2p_large,
+        modifyInfoPanel.add(new JLabel(sharingArrowIcon), "aligny top, gaptop 17");
+        modifyInfoPanel.add(new JLabel(I18n.tr("Public Shared"), p2pSharedListIcon,
                 JLabel.RIGHT), "aligny top, gaptop 15");
 
         add(modifyInfoPanel, "growx, span, sg sameRowSize, wrap");

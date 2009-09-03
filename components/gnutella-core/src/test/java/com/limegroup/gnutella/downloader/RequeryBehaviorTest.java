@@ -73,7 +73,7 @@ public class RequeryBehaviorTest extends LimeTestCase {
                 bind(ScheduledExecutorService.class).annotatedWith(Names.named("backgroundExecutor")).to(MyExecutor.class);
             }
         };
-        Injector injector = LimeTestUtils.createInjector(m);
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(m);
         remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
         downloadManager = injector.getInstance(DownloadManager.class);
         downloadManager.start();

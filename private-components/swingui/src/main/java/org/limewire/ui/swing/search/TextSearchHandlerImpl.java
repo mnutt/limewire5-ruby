@@ -119,7 +119,7 @@ class TextSearchHandlerImpl implements SearchHandler {
              };
              lifeCycleManager.addListener(listener);
              navItem.addNavItemListener(new NavItemListener() {                 
-                 public void itemRemoved() {
+                 public void itemRemoved(boolean wasSelected) {
                      lifeCycleManager.removeListener(listener);
                  }
                  
@@ -239,7 +239,7 @@ class TextSearchHandlerImpl implements SearchHandler {
             search.addSearchListener(searchListenerRef.get());
             navItem.addNavItemListener(new NavItemListener() {
                 @Override
-                public void itemRemoved() {
+                public void itemRemoved(boolean wasSelected) {
                     removeListeners(search, searchListenerRef, connectionListenerRef);
                 }
                 @Override public void itemSelected(boolean selected) {}

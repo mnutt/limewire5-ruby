@@ -14,12 +14,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.limewire.ui.swing.components.LimeJDialog;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.util.URIUtils;
+
+import net.miginfocom.swing.MigLayout;
 
 class LocationDialog extends LimeJDialog {
     private JButton openButton = null;
@@ -56,9 +56,7 @@ class LocationDialog extends LimeJDialog {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    LocationDialog.this.dispose();
-                } else if (openButton.isEnabled() && e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (openButton.isEnabled() && e.getKeyCode() == KeyEvent.VK_ENTER) {
                     openButton.doClick();
                 }
             }

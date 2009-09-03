@@ -23,7 +23,6 @@ import org.limewire.util.BaseTestCase;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-
 import com.limegroup.gnutella.MessageListener;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.ReplyHandler;
@@ -31,6 +30,7 @@ import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.ResponseFactory;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.connection.RoutedConnection;
+import com.limegroup.gnutella.filters.SpamFilter;
 import com.limegroup.gnutella.guess.GUESSEndpoint;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.PingRequest;
@@ -94,7 +94,7 @@ public class OOBHandlerTest extends BaseTestCase {
             }
         };
         
-        Injector injector = LimeTestUtils.createInjector(module);
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(module);
         responseFactory = injector.getInstance(ResponseFactory.class);
         queryReplyFactory = injector.getInstance(QueryReplyFactory.class);
         handler = injector.getInstance(OOBHandler.class);
@@ -1016,6 +1016,13 @@ public class OOBHandlerTest extends BaseTestCase {
 
         public ReplyHandler getPushHandler(byte[] guid) {
             return null;
+        }
+        
+        public void setPersonalFilter(SpamFilter personalFilter) {
+        }
+        
+        public boolean isPersonalSpam(Message m) {
+            return false;
         }
 
         public void stop() {

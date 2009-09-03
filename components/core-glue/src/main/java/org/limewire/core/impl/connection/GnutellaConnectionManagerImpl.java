@@ -13,6 +13,7 @@ import org.limewire.core.api.connection.ConnectionItem;
 import org.limewire.core.api.connection.ConnectionLifecycleEventType;
 import org.limewire.core.api.connection.ConnectionStrength;
 import org.limewire.core.api.connection.GnutellaConnectionManager;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.SwingSafePropertyChangeSupport;
@@ -23,7 +24,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.ConnectionServices;
@@ -35,7 +35,7 @@ import com.limegroup.gnutella.util.LimeWireUtils;
 /**
  * An implementation of GnutellaConnectionManager for the live core. 
  */
-@Singleton
+@EagerSingleton
 public class GnutellaConnectionManagerImpl 
     implements GnutellaConnectionManager, ConnectionLifecycleListener {
 

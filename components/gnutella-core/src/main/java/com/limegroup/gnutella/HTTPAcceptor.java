@@ -23,11 +23,11 @@ import org.limewire.http.BasicHttpAcceptor;
 import org.limewire.http.HttpAcceptorListener;
 import org.limewire.http.auth.AuthenticationInterceptor;
 import org.limewire.http.reactor.HttpIOSession;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.statistic.Statistic;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.http.HTTPConnectionData;
 import com.limegroup.gnutella.http.HttpContextParams;
 import com.limegroup.gnutella.statistics.TcpBandwidthStatistics;
@@ -37,7 +37,7 @@ import com.limegroup.gnutella.util.LimeWireUtils;
 /**
  * Processes HTTP requests for Gnutella uploads.
  */
-@Singleton
+@EagerSingleton
 public class HTTPAcceptor extends BasicHttpAcceptor {
 
     private static final Log LOG = LogFactory.getLog(HTTPAcceptor.class);
@@ -135,7 +135,7 @@ public class HTTPAcceptor extends BasicHttpAcceptor {
      * Forwards events from the underlying protocol layer to acceptor event
      * listeners.
      */
-    private class ConnectionEventListener implements HttpAcceptorListener {
+    private static class ConnectionEventListener implements HttpAcceptorListener {
 
         public void connectionOpen(NHttpConnection conn) {
         }
@@ -164,7 +164,7 @@ public class HTTPAcceptor extends BasicHttpAcceptor {
     /**
      * Tracks the bandwidth used when sending a response.
      */
-    private class HeaderStatisticTracker implements HttpResponseInterceptor {
+    private static class HeaderStatisticTracker implements HttpResponseInterceptor {
         private final Statistic headerUpstream;
         
         HeaderStatisticTracker(TcpBandwidthStatistics tcpBandwidthStatistics) {

@@ -32,7 +32,7 @@ public class QRPUpdaterTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector(new LibraryStubModule(), LimeTestUtils.createModule(this));
+        injector = LimeTestUtils.createInjectorNonEagerly(new LibraryStubModule(), LimeTestUtils.createModule(this));
         injector.getInstance(ServiceRegistry.class).initialize();
     }
     

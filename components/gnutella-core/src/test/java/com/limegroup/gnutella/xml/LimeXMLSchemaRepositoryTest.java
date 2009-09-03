@@ -37,7 +37,7 @@ public class LimeXMLSchemaRepositoryTest extends LimeTestCase {
             CommonUtils.getUserSettingsDir()
         );
 
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		limeXMLSchemaRepository = injector.getInstance(LimeXMLSchemaRepository.class);
     }
     

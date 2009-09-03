@@ -481,7 +481,7 @@ public class GuiUtils {
      * Adds a hide action to a JDialog.
      */
     public static void addHideAction(JDialog jd) {
-        addHideAction((JComponent)jd.getContentPane());
+        addHideAction(jd.getRootPane());
     }
     
     /**

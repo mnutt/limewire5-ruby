@@ -17,6 +17,7 @@ import org.limewire.friend.api.feature.Feature;
 import org.limewire.friend.api.feature.FeatureTransport;
 import org.limewire.friend.api.feature.LibraryChangedNotifier;
 import org.limewire.friend.api.feature.LibraryChangedNotifierFeature;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.listener.BlockingEvent;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
@@ -25,7 +26,6 @@ import org.limewire.logging.LogFactory;
 import org.limewire.util.Clock;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.library.FileViewChangeEvent;
 import com.limegroup.gnutella.library.FileViewManager;
@@ -39,7 +39,7 @@ import com.limegroup.gnutella.library.LibraryStatusEvent;
  * 2) A friend's sharelist changes
  */
 
-@Singleton
+@EagerSingleton
 class FriendShareListRefresher {
     
     private static final Log LOG = LogFactory.getLog(FriendShareListRefresher.class);

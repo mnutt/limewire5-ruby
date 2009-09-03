@@ -1,10 +1,10 @@
-/.cvsignore/1.2/Wed Apr  7 17:40:28 2004//Tprod-5-2-13-java16
-/AsyncDimeParser.java/1.5/Mon Apr 28 18:44:58 2008//Tprod-5-2-13-java16
-/AsyncDimeRecordReader.java/1.9/Mon Jul 20 19:52:02 2009//Tprod-5-2-13-java16
-/AsyncDimeWriter.java/1.2/Thu May 31 18:27:18 2007//Tprod-5-2-13-java16
-/DIMEException.java/1.2/Mon May 15 21:22:52 2006//Tprod-5-2-13-java16
-/DIMEGenerator.java/1.9/Mon Jul 20 19:52:02 2009//Tprod-5-2-13-java16
-/DIMEMessageException.java/1.4/Mon Jul 20 19:52:02 2009//Tprod-5-2-13-java16
-/DIMEParser.java/1.6/Mon Jul 20 19:52:02 2009//Tprod-5-2-13-java16
-/DIMERecord.java/1.15/Mon Jul 20 19:52:02 2009//Tprod-5-2-13-java16
+/.cvsignore/1.2/Wed Apr  7 17:40:28 2004//Tprod-5-3-2-java6
+/AsyncDimeParser.java/1.5/Mon Apr 28 18:44:58 2008//Tprod-5-3-2-java6
+/AsyncDimeRecordReader.java/1.9/Mon Jul 20 19:52:02 2009//Tprod-5-3-2-java6
+/AsyncDimeWriter.java/1.2/Thu May 31 18:27:18 2007//Tprod-5-3-2-java6
+/DIMEException.java/1.2/Mon May 15 21:22:52 2006//Tprod-5-3-2-java6
+/DIMEGenerator.java/1.9/Mon Jul 20 19:52:02 2009//Tprod-5-3-2-java6
+/DIMEMessageException.java/1.4/Mon Jul 20 19:52:02 2009//Tprod-5-3-2-java6
+/DIMEParser.java/1.6/Mon Jul 20 19:52:02 2009//Tprod-5-3-2-java6
+/DIMERecord.java/1.15/Mon Jul 20 19:52:02 2009//Tprod-5-3-2-java6
 D

@@ -8,6 +8,7 @@ import org.limewire.collection.glazedlists.GlazedListsFactory;
 import org.limewire.core.api.download.DownloadItem;
 import org.limewire.core.api.download.DownloadListManager;
 import org.limewire.core.api.download.DownloadState;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.downloads.table.DownloadStateExcluder;
 import org.limewire.util.FileUtils;
 
@@ -15,9 +16,8 @@ import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.SortedList;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@LazySingleton
 public class DownloadMediator {
     
     public static enum SortOrder {ORDER_ADDED, NAME, PROGRESS, TIME_REMAINING, SPEED, STATUS, FILE_TYPE, EXTENSION};
@@ -27,16 +27,28 @@ public class DownloadMediator {
 	 */
     private final SortedList<DownloadItem> commonBaseList;
 	private DownloadListManager downloadListManager;
+	private boolean isAscending = true;
+	private SortOrder sortOrder = SortOrder.ORDER_ADDED;
 	
 	@Inject
 	public DownloadMediator(DownloadListManager downloadManager) {
 	    this.downloadListManager = downloadManager;
 	    EventList<DownloadItem> baseList = GlazedListsFactory.filterList(downloadManager.getSwingThreadSafeDownloads(), new DownloadStateExcluder(DownloadState.CANCELLED));
 	    commonBaseList = GlazedListsFactory.sortedList(baseList, new DescendingComparator(new OrderAddedComparator()));
-	    
+	}
+	
+	public boolean isSortAscending() {
+	    return isAscending;
+	}
+	
+	public SortOrder getSortOrder() {
+	    return sortOrder;
 	}
 	
 	public void setSortOrder(SortOrder order, boolean isAscending){
+	    this.isAscending = isAscending;
+	    this.sortOrder = order;
+	    
 	    Comparator<DownloadItem> comparator;
 	    switch (order) {
         case ORDER_ADDED:
@@ -125,6 +137,36 @@ public class DownloadMediator {
 
     public void cancelAll() {
         cancelMatchingDownloadItems(null);
+    }
+    
+    public boolean hasResumable() {
+        commonBaseList.getReadWriteLock().writeLock().lock();
+        try {
+            for (DownloadItem item : commonBaseList) {
+                if(item.getState().isResumable())
+                    return true;
+            }
+        } finally {
+            commonBaseList.getReadWriteLock().writeLock().unlock();
+        }
+        return false;
+    }
+    
+    public boolean hasPausable() {
+        commonBaseList.getReadWriteLock().writeLock().lock();
+        try {
+            for (DownloadItem item : commonBaseList) {
+                if(item.getState().isPausable())
+                    return true;
+            }
+        } finally {
+            commonBaseList.getReadWriteLock().writeLock().unlock();
+        }
+        return false;
+    }
+    
+    public boolean containsState(DownloadState state) {
+        return getMatchingDownloadItems(state).size() > 0;
     }
     
     /**

@@ -45,8 +45,8 @@ public final class QueryHandlerTest extends LimeTestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    private Injector createInjector(Module... modules) {
-        Injector injector = LimeTestUtils.createInjector(modules);
+    private Injector createInjectorNonEagerly(Module... modules) {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(modules);
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
         queryHandlerFactory = injector.getInstance(QueryHandlerFactory.class);
         testConnectionFactory = injector.getInstance(TestConnectionFactory.class);
@@ -59,7 +59,7 @@ public final class QueryHandlerTest extends LimeTestCase {
      */
     public void testSendQueryToHost() throws Exception {
         
-        createInjector();
+        createInjectorNonEagerly();
         
         ReplyHandler rh = testConnectionFactory.createUltrapeerConnection();        
         QueryRequest query = queryRequestFactory.createQuery("test", (byte)1);
@@ -108,7 +108,7 @@ public final class QueryHandlerTest extends LimeTestCase {
      */
     public void testPublicSendQuery() throws Exception {
         
-        Injector injector = createInjector(new AbstractModule() {
+        Injector injector = createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(ConnectionManager.class).to(TestConnectionManager.class);
@@ -182,7 +182,7 @@ public final class QueryHandlerTest extends LimeTestCase {
      * is being calculated correctly.
      */
     public void testCalculateNewHosts() throws Exception {
-        createInjector();
+        createInjectorNonEagerly();
         
         // test for a degree 19, ttl 4 network
         GnutellaConnection mc = testConnectionFactory.createNewConnection(19);
@@ -208,7 +208,7 @@ public final class QueryHandlerTest extends LimeTestCase {
      */
     public void testPrivateSendQuery() throws Exception {
         
-        createInjector();
+        createInjectorNonEagerly();
         
 		int numConnections = 15;
         List<NewConnection> connections = new ArrayList<NewConnection>();

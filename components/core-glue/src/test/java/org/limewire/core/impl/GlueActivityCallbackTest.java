@@ -154,9 +154,9 @@ public class GlueActivityCallbackTest extends BaseTestCase {
     }
     
     /**
-     * Test the dangerousDownloadDeleted method with and without the callback set.
+     * Test the warnUser method with and without the callback set.
      */
-    public void testDangerousDownloadDeleted() {
+    public void testWarnUser() {
         Mockery context = new Mockery();
         
         final GuiCallback callback = context.mock(GuiCallback.class);
@@ -164,12 +164,12 @@ public class GlueActivityCallbackTest extends BaseTestCase {
         GlueActivityCallback activityCallback = new GlueActivityCallback(null);
         
         context.checking(new Expectations() {{
-            exactly(1).of(callback).dangerousDownloadDeleted("file");
+            exactly(1).of(callback).warnUser("file", "oh noes");
         }});
         
-        activityCallback.dangerousDownloadDeleted("file");
+        activityCallback.warnUser("file", "oh noes");
         activityCallback.setGuiCallback(callback);
-        activityCallback.dangerousDownloadDeleted("file");
+        activityCallback.warnUser("file", "oh noes");
         
         context.assertIsSatisfied();
     }

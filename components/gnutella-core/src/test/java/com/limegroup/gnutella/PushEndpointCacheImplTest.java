@@ -58,7 +58,7 @@ public class PushEndpointCacheImplTest extends BaseTestCase {
             });
         }});
         
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         httpHeaderUtils = injector.getInstance(HTTPHeaderUtils.class);
         networkInstanceUtils = injector.getInstance(NetworkInstanceUtils.class);
         

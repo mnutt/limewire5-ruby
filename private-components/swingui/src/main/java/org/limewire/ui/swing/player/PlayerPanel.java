@@ -33,7 +33,6 @@ import org.limewire.ui.swing.components.LimeSliderBar;
 import org.limewire.ui.swing.components.MarqueeButton;
 import org.limewire.ui.swing.components.VolumeSlider;
 import org.limewire.ui.swing.components.decorators.SliderBarDecorator;
-import org.limewire.ui.swing.event.EventAnnotationProcessor;
 import org.limewire.ui.swing.painter.ComponentBackgroundPainter;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.settings.SwingUiSettings;
@@ -174,7 +173,7 @@ public class PlayerPanel extends JXPanel implements PlayerMediatorListener {
         
         statusPanel = new JPanel(new MigLayout());
         
-        titleLabel = new MarqueeButton(I18n.tr("Stopped"), 150);
+        titleLabel = new MarqueeButton("", 150);
         titleLabel.setFont(font);
 
         ResizeUtils.forceSize(titleLabel, new Dimension(206, (int)
@@ -204,8 +203,6 @@ public class PlayerPanel extends JXPanel implements PlayerMediatorListener {
         
         innerPanel.setVisible(SwingUiSettings.PLAYER_ENABLED.getValue());
         add(innerPanel, "gaptop 2, gapbottom 2");
-                
-        EventAnnotationProcessor.subscribe(this);
 
         VolumeController volumeController = new VolumeController();
         volumeSlider.addChangeListener(volumeController);
@@ -223,6 +220,14 @@ public class PlayerPanel extends JXPanel implements PlayerMediatorListener {
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
             }
         });
+    }
+    
+    /**
+     * Registers listeners for player events.
+     */
+    @Inject
+    void register() {
+        getPlayerMediator().addMediatorListener(this);
         
         // Stop player if disabled, and show/hide player.
         SwingUiSettings.PLAYER_ENABLED.addSettingListener(new SettingListener(){
@@ -239,14 +244,6 @@ public class PlayerPanel extends JXPanel implements PlayerMediatorListener {
                 });
             }
         });
-    }
-    
-    /**
-     * Registers listeners for player events.
-     */
-    @Inject
-    void register() {
-        getPlayerMediator().addMediatorListener(this);
     }
     
     /**
@@ -298,7 +295,7 @@ public class PlayerPanel extends JXPanel implements PlayerMediatorListener {
     /**
      * Returns the mediator component that controls the player.
      */
-    public PlayerMediator getPlayerMediator() {
+    private PlayerMediator getPlayerMediator() {
         return playerProvider.get();
     }
     
@@ -347,24 +344,18 @@ public class PlayerPanel extends JXPanel implements PlayerMediatorListener {
         }
         
         // Update buttons based on player status.
-        PlayerState status = getPlayerMediator().getStatus();
-        if ((status == PlayerState.PLAYING) || (status == PlayerState.SEEKING_PLAY)) {
+        if ((playerState == PlayerState.PLAYING) || (playerState == PlayerState.SEEKING_PLAY)) {
             playButton.setVisible(false);
             pauseButton.setVisible(true);
             titleLabel.start();
             
-        } else if ((status == PlayerState.PAUSED) || (status == PlayerState.SEEKING_PAUSED)) {
+        } else if (playerState == PlayerState.PAUSED || playerState == PlayerState.SEEKING_PAUSED ||
+                playerState == PlayerState.EOM || playerState == PlayerState.STOPPED ||
+                playerState == PlayerState.UNKNOWN) {
             playButton.setVisible(true);
             pauseButton.setVisible(false);
             titleLabel.stop();
-            
-        } else {
-            playButton.setVisible(true);
-            pauseButton.setVisible(false);
-            titleLabel.setText(I18n.tr("Stopped"));
-            titleLabel.setToolTipText(I18n.tr("Stopped"));
-            titleLabel.stop();
-        }            
+        }        
     }
     
     /**

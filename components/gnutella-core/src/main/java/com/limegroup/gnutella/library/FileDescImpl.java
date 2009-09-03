@@ -3,7 +3,6 @@ package com.limegroup.gnutella.library;
 import static com.limegroup.gnutella.Constants.MAX_FILE_SIZE;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,35 +34,14 @@ class FileDescImpl implements FileDesc {
 	 * Constant for the index of this <tt>FileDesc</tt> instance in the 
 	 * shared file data structure.
 	 */
-    private final int _index;
+    private final int index;
 
-	/**
-	 * The absolute path for the file.
-	 */
-    private final String _path;
-
-	/**
-	 * The name of the file, as returned by File.getName().
-	 */
-    private final String _name;
-
-	/**
-	 * The size of the file.
-	 */
-    private final long _size;
-
-	/**
-	 * The modification time of the file.
-	 */
-    private final long _modTime;
-
-    private volatile UrnSet modifiableUrns;    
-    private volatile Set<URN> unmodifiableUrns;
+    private volatile UrnSet urns;    
 
 	/**
 	 * Constant for the <tt>File</tt> instance.
 	 */
-	private final File FILE;
+	private final File file;
 	
 	/**
 	 * The License, if one exists, for this FileDesc.
@@ -76,9 +54,16 @@ class FileDescImpl implements FileDesc {
 	private final CopyOnWriteArrayList<LimeXMLDocument> _limeXMLDocs = new CopyOnWriteArrayList<LimeXMLDocument>();
 
 	/**
+	 * The size of the associated File.
+	 */
+	private final long fileSize;
+	
+	private final long lastModified;
+	
+	/**
 	 * The number of hits this file has recieved.
 	 */
-	private int _hits;	
+	private int hits;
 	
 	/** 
 	 * The number of times this file has had attempted uploads
@@ -127,23 +112,24 @@ class FileDescImpl implements FileDesc {
             File file,
             Set<? extends URN> urns,
             int index) {
-		if(index < 0) {
+		
+        if(index < 0) {
 			throw new IndexOutOfBoundsException("negative index (" + index + ") not permitted in FileDesc");
 		}
-
+        
+        fileSize = file.length();
+        assert fileSize >= 0 && fileSize <= MAX_FILE_SIZE : "invalid size "+fileSize+" of file "+file;
+        Objects.nonNull(urns, "urns");
+        
 		this.rareFileStrategy = rareFileStrategy;
 		this.multicaster = multicaster;
 		this.licenseFactory = licenseFactory;
-		FILE = Objects.nonNull(file, "file");
-        _index = index;
-        _name = I18NConvert.instance().compose(FILE.getName());
-        _path = FILE.getAbsolutePath();
-        _size = FILE.length();
-        assert _size >= 0 && _size <= MAX_FILE_SIZE : "invalid size "+_size+" of file "+FILE;
-        _modTime = FILE.lastModified();
-        modifiableUrns = UrnSet.resolve(Objects.nonNull(urns, "urns"));
-        unmodifiableUrns = Collections.unmodifiableSet(modifiableUrns);
-        _hits = 0; // Starts off with 0 hits
+		this.file = Objects.nonNull(file, "file");
+        this.index = index;
+        this.urns = UrnSet.unmodifiableSet(urns); 
+        this.lastModified = file.lastModified();
+        
+        hits = 0; // Starts off with 0 hits
     }
     
     @Override
@@ -155,68 +141,67 @@ class FileDescImpl implements FileDesc {
      * @see com.limegroup.gnutella.library.FileDesc#hasUrns()
      */
 	public boolean hasUrns() {
-		return !modifiableUrns.isEmpty();
+		return !urns.isEmpty();
 	}
 
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#getIndex()
      */
 	public int getIndex() {
-		return _index;
+		return index;
 	}
 
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#getFileSize()
      */
 	public long getFileSize() {
-		return _size;
+		return fileSize;
 	}
 
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#getFileName()
      */
 	public String getFileName() {
-		return _name;
+		return I18NConvert.instance().compose(file.getName());
 	}
 
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#lastModified()
      */
 	public long lastModified() {
-		return _modTime;
+		return lastModified;
 	}
 
+	/* (non-Javadoc)
+     * @see com.limegroup.gnutella.library.FileDesc#getFile()
+     */
+    public File getFile() {
+        return file;
+    }
+	
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#getTTROOTUrn()
      */
 	public URN getTTROOTUrn() {
-	    return modifiableUrns.getTTRoot();
-	}
-	
-	/* (non-Javadoc)
-     * @see com.limegroup.gnutella.library.FileDesc#getFile()
-     */
-	public File getFile() {
-	    return FILE;
+	    return urns.getTTRoot();
 	}
     
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#getSHA1Urn()
      */
     public URN getSHA1Urn() {
-        return modifiableUrns.getSHA1();
+        return urns.getSHA1();
     }
 
     /* (non-Javadoc)
-     * @see com.limegroup.gnutella.library.FileDesc#setTTRoot(com.limegroup.gnutella.URN)
+     * @see com.limegroup.gnutella.library.FileDesc#addUrn(com.limegroup.gnutella.URN)
      */
     public void addUrn(URN urn) {
-        boolean contained = modifiableUrns.contains(urn);
+        boolean contained = urns.contains(urn);
         if(!contained) {
-            UrnSet newUrns = new UrnSet(modifiableUrns);
-            newUrns.add(urn);
-            modifiableUrns = newUrns;
-            unmodifiableUrns = Collections.unmodifiableSet(modifiableUrns);
+            UrnSet newSet = UrnSet.modifiableSet(urns);
+            newSet.add(urn);
+            urns = UrnSet.unmodifiableSet(newSet);
             if(multicaster != null && urn.isTTRoot()) {
                 multicaster.handleEvent(new FileDescChangeEvent(this, FileDescChangeEvent.Type.TT_ROOT_ADDED, urn));
             }
@@ -227,14 +212,14 @@ class FileDescImpl implements FileDesc {
      * @see com.limegroup.gnutella.library.FileDesc#getUrns()
      */
 	public Set<URN> getUrns() {
-		return unmodifiableUrns;
+		return urns;
 	}   
 
 	/* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#getPath()
      */
 	public String getPath() {
-		return FILE.getAbsolutePath();
+		return file.getAbsolutePath();
 	}
 	
 	/* (non-Javadoc)
@@ -243,7 +228,7 @@ class FileDescImpl implements FileDesc {
 	public void addLimeXMLDocument(LimeXMLDocument doc) {
         _limeXMLDocs.add(doc);
         
-	    doc.initIdentifier(FILE);
+	    doc.initIdentifier(file);
 	    assignLicense(doc);
     }
     
@@ -260,7 +245,7 @@ class FileDescImpl implements FileDesc {
             _limeXMLDocs.set(index, newDoc);
         }
         
-        newDoc.initIdentifier(FILE);
+        newDoc.initIdentifier(file);
         assignLicense(newDoc);
         return true;
     }
@@ -340,21 +325,21 @@ class FileDescImpl implements FileDesc {
      * @see com.limegroup.gnutella.library.FileDesc#containsUrn(com.limegroup.gnutella.URN)
      */
     public boolean containsUrn(URN urn) {
-        return modifiableUrns.contains(urn);
+        return urns.contains(urn);
     }
     
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#incrementHitCount()
      */    
     public int incrementHitCount() {
-        return ++_hits;
+        return ++hits;
     }
     
     /* (non-Javadoc)
      * @see com.limegroup.gnutella.library.FileDesc#getHitCount()
      */
     public int getHitCount() {
-        return _hits;
+        return hits;
     }
     
     /* (non-Javadoc)
@@ -397,13 +382,13 @@ class FileDescImpl implements FileDesc {
 	@Override
     public String toString() {
 		return ("FileDesc:\r\n"+
-				"name:     "+_name+"\r\n"+
-				"index:    "+_index+"\r\n"+
-				"path:     "+_path+"\r\n"+
-				"size:     "+_size+"\r\n"+
-				"modTime:  "+_modTime+"\r\n"+
-				"File:     "+FILE+"\r\n"+
-				"urns:     "+modifiableUrns+"\r\n"+
+				"name:     "+getFileName()+"\r\n"+
+				"index:    "+index+"\r\n"+
+				"path:     "+getPath()+"\r\n"+
+				"size:     "+getFileSize()+"\r\n"+
+				"modTime:  "+lastModified()+"\r\n"+
+				"File:     "+file+"\r\n"+
+				"urns:     "+urns+"\r\n"+
 				"docs:     "+ _limeXMLDocs+"\r\n");
 	}
     
@@ -432,7 +417,7 @@ class FileDescImpl implements FileDesc {
         else if ("hasXML".equals(key))
             return String.valueOf(getXMLDocument() != null);
         else if ("size".equals(key))
-            return String.valueOf(_size);
+            return String.valueOf(getFileSize());
         else if ("lastM".equals(key))
             return String.valueOf(lastModified());
         else if ("numKW".equals(key))
@@ -475,7 +460,6 @@ class FileDescImpl implements FileDesc {
     public void putClientProperty(String property, Object value) {
         clientProperties.put(property, value);
     }
-
 }
 
 

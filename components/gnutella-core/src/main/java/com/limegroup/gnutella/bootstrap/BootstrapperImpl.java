@@ -26,7 +26,7 @@ class BootstrapperImpl implements Bootstrapper {
     static int MULTICAST_INTERVAL = 50 * 1000;
 
     /** Milliseconds to wait after trying multicast before falling back to UDP. */
-    static int UDP_FALLBACK_DELAY = 5 * 1000;
+    static int UDP_FALLBACK_DELAY = 2 * 1000;
 
     /** Milliseconds to wait between UDP fetches. */
     static int UDP_INTERVAL = 30 * 1000;

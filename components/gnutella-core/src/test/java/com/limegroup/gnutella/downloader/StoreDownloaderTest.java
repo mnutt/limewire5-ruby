@@ -71,7 +71,7 @@ public class StoreDownloaderTest extends LimeTestCase{
         });
         allModules.add(new LibraryStubModule());
         allModules.addAll(Arrays.asList(modules));
-        injector = LimeTestUtils.createInjector(allModules.toArray(new Module[0]));
+        injector = LimeTestUtils.createInjectorNonEagerly(allModules.toArray(new Module[0]));
         remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
         ConnectionManagerStub connectionManager = (ConnectionManagerStub)injector.getInstance(ConnectionManager.class);
         connectionManager.setConnected(true);

@@ -7,11 +7,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
@@ -19,7 +19,7 @@ import com.google.inject.name.Named;
  * ensuring that every statistic added to this accumulator is stored
  * every second.
  */
-@Singleton
+@EagerSingleton
 final class StatisticsAccumulatorImpl implements StatisticAccumulator, Service {
 	
     private final ScheduledExecutorService backgroundExecutor;

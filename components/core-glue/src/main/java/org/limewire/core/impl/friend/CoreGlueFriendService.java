@@ -2,16 +2,16 @@ package org.limewire.core.impl.friend;
 
 import org.limewire.core.impl.xmpp.FriendFileViewProvider;
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.HTTPAcceptor;
 import com.limegroup.gnutella.uploader.HttpRequestHandlerFactory;
 
-@Singleton
+@EagerSingleton
 public class CoreGlueFriendService implements Service {
 
     private final Provider<HTTPAcceptor> httpAcceptor;

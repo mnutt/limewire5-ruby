@@ -2,8 +2,6 @@ package org.limewire.ui.swing.menu;
 
 import java.awt.event.ActionEvent;
 
-import javax.swing.JSeparator;
-
 import org.limewire.core.api.library.SharedFileList;
 import org.limewire.core.api.library.SharedFileListManager;
 import org.limewire.friend.api.FriendConnection;
@@ -21,17 +19,32 @@ import com.google.inject.Provider;
 
 public class ShareListMenu extends MnemonicMenu {
 
+    private final EventBean<FriendConnectionEvent> friendConnectionEventBean;
+    private final Provider<SharedFileListManager> shareListManagerProvider;
+    private final Provider<CreateListAction> createListActionProvider;
+    private final Provider<LibraryMediator> libraryMediatorProvider;
+    
     @Inject
     public ShareListMenu(EventBean<FriendConnectionEvent> friendConnectionEventBean,
-            SharedFileListManager shareListManager,
-            CreateListAction createListAction,
-            final Provider<LibraryMediator> libraryMediatorProvider) {
-        
+            Provider<SharedFileListManager> shareListManagerProvider,
+            Provider<CreateListAction> createListActionProvider,
+            Provider<LibraryMediator> libraryMediatorProvider) {
+
         super(I18n.tr("&Share List"));
         
+        this.friendConnectionEventBean = friendConnectionEventBean; 
+        this.shareListManagerProvider = shareListManagerProvider;
+        this.createListActionProvider = createListActionProvider;
+        this.libraryMediatorProvider = libraryMediatorProvider;
+        
+        createMenuItems();
+    }
+
+    @Override
+    public void createMenuItems() {
         FriendConnection friendConnection = EventUtils.getSource(friendConnectionEventBean);
         if (friendConnection != null && friendConnection.isLoggedIn()) {
-            for ( final SharedFileList list : shareListManager.getModel() ) {
+            for ( final SharedFileList list : shareListManagerProvider.get().getModel() ) {
                 if (!list.isPublic()) {
                     add(new AbstractAction(I18n.tr(list.getCollectionName())) {
                         @Override
@@ -41,12 +54,11 @@ public class ShareListMenu extends MnemonicMenu {
                     });
                 }
             }
-            add(new JSeparator());
-            add(createListAction);
+            addSeparator();
+            add(createListActionProvider.get());
         } 
         else {
             setEnabled(false);
         }
     }
-
 }

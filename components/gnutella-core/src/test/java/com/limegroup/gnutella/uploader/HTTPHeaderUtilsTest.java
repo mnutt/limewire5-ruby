@@ -70,7 +70,7 @@ public class HTTPHeaderUtilsTest extends BaseTestCase {
     @Override
     public void setUp() throws Exception {
         networkManager = new NetworkManagerStub();
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(networkManager);

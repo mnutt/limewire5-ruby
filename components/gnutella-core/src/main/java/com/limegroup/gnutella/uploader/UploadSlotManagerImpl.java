@@ -15,6 +15,7 @@ import org.limewire.collection.QueueCounter;
 import org.limewire.core.settings.UploadSettings;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
+import org.limewire.inspection.DataCategory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -29,7 +30,7 @@ import com.limegroup.gnutella.InsufficientDataException;
 @Singleton
 public class UploadSlotManagerImpl implements UploadSlotManager {
     
-    private static final Log LOG = LogFactory.getLog(UploadSlotManager.class);
+    private static final Log LOG = LogFactory.getLog(UploadSlotManagerImpl.class);
     
     /**
      * The three priority levels
@@ -55,14 +56,14 @@ public class UploadSlotManagerImpl implements UploadSlotManager {
     /**
      * The list of queued non-resumable requests
      */
-    @InspectionPoint("queued uploads")
+    @InspectionPoint(value = "queued uploads", category = DataCategory.USAGE)
     private final CountingList <HTTPSlotRequest> queued;
     
     /**
      * The list of queued resumable requests
      * (currently only Seeding BT Uploaders)
      */
-    @InspectionPoint("queued resumable uploads")
+    @InspectionPoint(value = "queued resumable uploads", category = DataCategory.USAGE)
     private final CountingList<BTSlotRequest> queuedResumable;
     
     private final MultiIterable<UploadSlotRequest> allRequests;

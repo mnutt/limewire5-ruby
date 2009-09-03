@@ -1,6 +1,13 @@
 package com.limegroup.gnutella.library;
 
-import static com.limegroup.gnutella.library.FileManagerTestUtils.*;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.assertAdds;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.assertFileChangedFails;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.assertFileChanges;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.assertFileRenames;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.assertLoads;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.change;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.createNewNamedTestFile;
+import static com.limegroup.gnutella.library.FileManagerTestUtils.createNewTestFile;
 
 import java.io.File;
 import java.util.concurrent.ExecutionException;
@@ -14,7 +21,6 @@ import org.limewire.lifecycle.ServiceRegistry;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.messages.QueryRequestFactory;
 
@@ -39,7 +45,7 @@ public class SharedFileKeywordsIndexImplIntegrationTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
+        LimeTestUtils.createInjectorNonEagerly(LimeTestUtils.createModule(this));
         injector.getInstance(ServiceRegistry.class).initialize();
         assertLoads(managedList); // Ensure it starts up & schemas load & all.
     }

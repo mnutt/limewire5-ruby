@@ -82,7 +82,7 @@ public class GUESSTester extends org.limewire.gnutella.tests.LimeTestCase {
 
 	@Override
 	public void setUp() throws Exception {
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
 		pingRequestFactory = injector.getInstance(PingRequestFactory.class);
 		messageFactory = injector.getInstance(MessageFactory.class);

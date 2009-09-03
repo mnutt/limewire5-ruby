@@ -1,14 +1,22 @@
 package org.limewire.xmpp.client.impl;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.limewire.common.LimeWireCommonModule;
+import org.limewire.concurrent.AbstractLazySingletonProvider;
+import org.limewire.concurrent.ScheduledListeningExecutorService;
+import org.limewire.concurrent.SimpleTimer;
 import org.limewire.friend.api.LimeWireFriendModule;
 import org.limewire.friend.impl.LimeWireFriendImplModule;
 import org.limewire.http.auth.LimeWireHttpAuthModule;
 import org.limewire.inject.AbstractModule;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.net.LimeWireNetTestModule;
@@ -19,8 +27,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 
 /**
  * Base class for all tests xmpp 
@@ -53,7 +63,9 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
     }
 
     protected Injector createInjector(Module... modules) {
-        return Guice.createInjector(Stage.PRODUCTION, modules);
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, modules);
+        GuiceUtils.loadEagerSingletons(injector);
+        return injector;
     }
 
     protected Module[] getModules() {
@@ -77,6 +89,14 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
             protected void configure() {
                 bind(new TypeLiteral<ListenerSupport<AddressEvent>>(){}).toInstance(new AddressEventTestBroadcaster());
                 bind(XMPPConnectionListenerMock.class);
+                
+                Annotation execAnn = Names.named("backgroundExecutor");
+                Key<ScheduledListeningExecutorService> mainKey =
+                        Key.get(ScheduledListeningExecutorService.class, execAnn);
+                bind(mainKey).toProvider(BackgroundTimerProvider.class);
+                bind(ScheduledExecutorService.class).annotatedWith(execAnn).to(mainKey);
+                bind(Executor.class).annotatedWith(execAnn).to(mainKey);
+                bind(ExecutorService.class).annotatedWith(execAnn).to(mainKey);
             }
         };
         return Arrays.asList(xmppModule, m, new LimeWireNetTestModule());
@@ -92,5 +112,13 @@ public abstract class XmppBaseTestCase extends BaseTestCase {
             registry.stop();
         }
         Thread.sleep(SLEEP);
+    }
+    
+    @Singleton
+    private static class BackgroundTimerProvider extends AbstractLazySingletonProvider<ScheduledListeningExecutorService> {
+        @Override
+        protected ScheduledListeningExecutorService createObject() {
+            return new SimpleTimer(true);
+        }
     }
 }

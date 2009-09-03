@@ -23,7 +23,6 @@ import org.limewire.security.SecurityToken;
 import org.limewire.util.PrivilegedAccessor;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.Message;
@@ -143,7 +142,7 @@ public final class ServerSideOOBProxyTest extends ServerSideTestCase {
     @Override
     protected void setUp() throws Exception {
         networkManagerStub = new NetworkManagerStub();
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
+        Injector injector = LimeTestUtils.createInjector(new LimeTestUtils.NetworkManagerStubModule(networkManagerStub));
         super.setUp(injector);
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
         responseFactory = injector.getInstance(ResponseFactory.class);

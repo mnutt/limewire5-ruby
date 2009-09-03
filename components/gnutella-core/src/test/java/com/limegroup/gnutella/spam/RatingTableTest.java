@@ -36,7 +36,7 @@ public class RatingTableTest extends LimeTestCase {
     @Override
     protected void setUp() throws Exception {
         SearchSettings.ENABLE_SPAM_FILTER.setValue(true);
-        Injector inject = LimeTestUtils.createInjector();
+        Injector inject = LimeTestUtils.createInjectorNonEagerly();
         manager = inject.getInstance(SpamManager.class);
         rfdFactory = inject.getInstance(RemoteFileDescFactory.class);
     }

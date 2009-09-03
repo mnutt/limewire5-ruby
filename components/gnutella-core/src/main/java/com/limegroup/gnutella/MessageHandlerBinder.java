@@ -1,7 +1,7 @@
 package com.limegroup.gnutella;
 
 /**
- * Interface to bind list of {@link MessageHandler}s to a {@link MessageRouter}.
+ * Interface to bind list of {@link IncomingMessageHandler}s to a {@link MessageRouter}.
  */
 public interface MessageHandlerBinder {
 

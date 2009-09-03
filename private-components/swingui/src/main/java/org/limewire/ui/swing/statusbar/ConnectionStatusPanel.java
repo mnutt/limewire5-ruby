@@ -27,6 +27,8 @@ class ConnectionStatusPanel extends JXPanel {
     
     private final String connectingText = I18n.tr("Connecting");
     
+    private final GnutellaConnectionManager gnutellaConnectionManager;
+    
     private ConnectionStrength currentStrength;
     
     /** 
@@ -35,7 +37,9 @@ class ConnectionStatusPanel extends JXPanel {
      */
     private Timer animateTimer = null;
     
-    private final JButton tryAgainButton;
+    private JButton tryAgainButton = null;
+    
+    
     private final JLabel connectionStrengthLabel;
     private final JLabel connectionStatusLabel;
     
@@ -51,7 +55,9 @@ class ConnectionStatusPanel extends JXPanel {
     @Resource private Font font;
 
     @Inject
-    ConnectionStatusPanel(final GnutellaConnectionManager gnutellaConnectionManager) {
+    ConnectionStatusPanel(GnutellaConnectionManager gnutellaConnectionManager) {
+        
+        this.gnutellaConnectionManager = gnutellaConnectionManager;
         
         GuiUtils.assignResources(this);
         
@@ -65,20 +71,10 @@ class ConnectionStatusPanel extends JXPanel {
         connectionStatusLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,4));
         connectionStatusLabel.setFont(font);
         connectionStatusLabel.setForeground(this.getForeground());
-        tryAgainButton = new HyperlinkButton(I18n.tr("Try Again"));
-        tryAgainButton.setFont(font);
-        tryAgainButton.setVisible(false);
-        
-        tryAgainButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gnutellaConnectionManager.restart();
-            }
-        });
-        
+                
         this.add(this.connectionStrengthLabel,BorderLayout.WEST);
         this.add(this.connectionStatusLabel,BorderLayout.CENTER);
-        this.add(this.tryAgainButton, BorderLayout.EAST);
+        
                 
         gnutellaConnectionManager.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -160,12 +156,27 @@ class ConnectionStatusPanel extends JXPanel {
         if (shouldHideStatusLater) {
             hideStatusLater();
         }
-            
-        
+                    
         connectionStatusLabel.setVisible(true);
         connectionStatusLabel.setText(statusMessage);
         connectionStrengthLabel.setIcon(strengthIcon);
-        tryAgainButton.setVisible(showTryAgain);
+        
+        if (tryAgainButton == null) {
+            if (showTryAgain) {
+                tryAgainButton = new HyperlinkButton(I18n.tr("Try Again"));
+                tryAgainButton.setFont(font);
+                tryAgainButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        gnutellaConnectionManager.restart();
+                    }
+                });
+                this.add(this.tryAgainButton, BorderLayout.EAST);
+            }
+        } 
+        else {
+            tryAgainButton.setVisible(showTryAgain);
+        }
         
         setToolTipText(tooltipText);
     }

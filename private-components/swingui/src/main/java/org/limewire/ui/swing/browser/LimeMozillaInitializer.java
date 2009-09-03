@@ -28,7 +28,7 @@ public class LimeMozillaInitializer {
     }
     
     public static boolean shouldInitialize() {
-        return (OSUtils.isWindows() || OSUtils.isLinux()) &&
+        return (OSUtils.isWindows()|| OSUtils.isLinux()) &&
             MozillaSettings.USE_MOZILLA.getValue();
     }
 

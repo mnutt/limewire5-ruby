@@ -61,7 +61,7 @@ public class MainPanel extends JPanel {
             }
 
             @Override
-            public void itemRemoved(NavCategory category, NavItem navItem) {
+            public void itemRemoved(NavCategory category, NavItem navItem, boolean wasSelected) {
                 LOG.debugf("Removed item {0}", navItem);
                 JComponent component = loadedComponents.get(asString(navItem));
                 if(component != null){
@@ -93,7 +93,7 @@ public class MainPanel extends JPanel {
             }
             
             @Override public void categoryAdded(NavCategory category) {}
-            @Override public void categoryRemoved(NavCategory category) {}
+            @Override public void categoryRemoved(NavCategory category, boolean wasSelected) {}
         });
     }
     

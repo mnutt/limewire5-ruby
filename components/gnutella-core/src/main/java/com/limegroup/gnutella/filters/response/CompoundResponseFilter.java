@@ -42,13 +42,15 @@ class CompoundResponseFilter implements ResponseFilter {
                     if (whiteFilter.allow(qr, response)) {
                         if(LOG.isTraceEnabled())
                             LOG.trace("Response whitelisted by " +
-                                    whiteFilter.getClass().getSimpleName());
+                                    whiteFilter.getClass().getSimpleName() +
+                                    "\n" + response);
                         return true;
                     }
                 }
                 if(LOG.isTraceEnabled())
                     LOG.trace("Response blacklisted by " +
-                            blackFilter.getClass().getSimpleName());
+                            blackFilter.getClass().getSimpleName() +
+                            "\n" + response);
                 return false;
             }
         }

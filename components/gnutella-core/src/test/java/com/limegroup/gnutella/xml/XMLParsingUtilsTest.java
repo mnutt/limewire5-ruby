@@ -34,7 +34,7 @@ public class XMLParsingUtilsTest extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		limeXMLDocumentFactory = injector.getInstance(LimeXMLDocumentFactory.class);
     }
     

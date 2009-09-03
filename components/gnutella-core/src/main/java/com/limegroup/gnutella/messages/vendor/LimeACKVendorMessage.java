@@ -186,7 +186,7 @@ public final class LimeACKVendorMessage extends AbstractVendorMessage {
         return builder.toString();
     }
 
-    private class UnknownSecurityToken implements SecurityToken {
+    private static class UnknownSecurityToken implements SecurityToken {
 
         private final byte[] data;
         

@@ -2,6 +2,7 @@ package org.limewire.core.impl.tests;
 
 import org.limewire.core.impl.CoreGlueModule;
 import org.limewire.gnutella.tests.LimeTestUtils.BlockingConnectionFactoryModule;
+import org.limewire.inject.GuiceUtils;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -45,7 +46,8 @@ public class CoreGlueTestUtils {
      */
     public static Injector createInjectorAndStart(Module...modules) {
         // Use PRODUCTION to ensure all Services are created.
-        Injector injector = createInjector(Stage.PRODUCTION, modules);
+        Injector injector = createInjector(Stage.DEVELOPMENT, modules);
+        GuiceUtils.loadEagerSingletons(injector);
         LifecycleManager lifecycleManager = injector.getInstance(LifecycleManager.class);
         lifecycleManager.start();
         return injector;

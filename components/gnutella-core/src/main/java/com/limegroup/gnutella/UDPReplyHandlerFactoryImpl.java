@@ -5,7 +5,6 @@ import java.net.InetSocketAddress;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.limegroup.gnutella.filters.SpamFilter;
 
 @Singleton
 public class UDPReplyHandlerFactoryImpl implements UDPReplyHandlerFactory {
@@ -17,12 +16,12 @@ public class UDPReplyHandlerFactoryImpl implements UDPReplyHandlerFactory {
         this.udpService = udpService;
     }
     
-    public UDPReplyHandler createUDPReplyHandler(InetSocketAddress addr, SpamFilter personalFilter) {
-        return new UDPReplyHandler(addr, personalFilter, udpService);
+    public UDPReplyHandler createUDPReplyHandler(InetSocketAddress addr) {
+        return new UDPReplyHandler(addr, udpService);
     }
 
-    public UDPReplyHandler createUDPReplyHandler(InetAddress addr, int port, SpamFilter personalFilter) {
-        return new UDPReplyHandler(addr, port, personalFilter, udpService);
+    public UDPReplyHandler createUDPReplyHandler(InetAddress addr, int port) {
+        return new UDPReplyHandler(addr, port, udpService);
     }
 }
 

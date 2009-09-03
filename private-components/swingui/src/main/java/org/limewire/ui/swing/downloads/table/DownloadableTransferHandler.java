@@ -94,7 +94,7 @@ class DownloadableTransferHandler extends TransferHandler {
         return null;
     }
 
-    private class SearchResultTransferable {
+    private static class SearchResultTransferable {
 
         public List<? extends SearchResult> getSearchResults() {
             return null;

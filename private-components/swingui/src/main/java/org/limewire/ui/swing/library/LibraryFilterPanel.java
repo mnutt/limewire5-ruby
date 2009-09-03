@@ -193,7 +193,7 @@ public class LibraryFilterPanel {
     /**
      * Creates a Painter used to render the selected category tab.
      */  
-    private class CategoryTabPainter extends RectanglePainter<FancyTab> {
+    private static class CategoryTabPainter extends RectanglePainter<FancyTab> {
         
         public CategoryTabPainter(Color topGradient, Color bottomGradient, Color topBorder,
                 Color bottomBorder) {

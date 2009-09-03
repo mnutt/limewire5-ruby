@@ -203,7 +203,7 @@ abstract class LocalFileListImpl implements LocalFileList {
         };
     }
     
-    private class ListWrapper extends ListeningFutureDelegator<List<ListeningFuture<FileDesc>>, List<ListeningFuture<LocalFileItem>>> {
+    private static class ListWrapper extends ListeningFutureDelegator<List<ListeningFuture<FileDesc>>, List<ListeningFuture<LocalFileItem>>> {
         public ListWrapper(ListeningFuture<List<ListeningFuture<FileDesc>>> delegate) {
             super(delegate);
         }
@@ -224,7 +224,7 @@ abstract class LocalFileListImpl implements LocalFileList {
         }
     }
     
-    private class Wrapper extends ListeningFutureDelegator<FileDesc, LocalFileItem> {
+    private static class Wrapper extends ListeningFutureDelegator<FileDesc, LocalFileItem> {
         public Wrapper(ListeningFuture<FileDesc> delegate) {
             super(delegate);
         }

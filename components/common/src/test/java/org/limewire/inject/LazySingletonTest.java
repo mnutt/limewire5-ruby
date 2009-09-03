@@ -30,7 +30,7 @@ public class LazySingletonTest extends BaseTestCase {
     
     public void testLazyAnnotated() throws Exception {
         assertFalse(LAZY_ANNOTATED_CONSTRUCTED);
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LimeWireInjectModule());
@@ -49,7 +49,7 @@ public class LazySingletonTest extends BaseTestCase {
     
     public void testLazyBoundByClassAnnotation() throws Exception {
         assertFalse(FOO_CONSTRUCTED);
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LimeWireInjectModule());
@@ -68,7 +68,7 @@ public class LazySingletonTest extends BaseTestCase {
     
     public void testLazyBoundByScope() throws Exception {
         assertFalse(FOO_CONSTRUCTED);
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LimeWireInjectModule());

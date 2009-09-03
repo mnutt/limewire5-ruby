@@ -99,7 +99,7 @@ public class UpdateHandlerTest extends LimeTestCase {
             }
         };
 
-        injector = LimeTestUtils.createInjector(new AbstractModule() {
+        injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             public void configure() {
                 bind(ScheduledExecutorService.class).annotatedWith(

@@ -36,7 +36,7 @@ public class PatchTableMessageTest extends LimeTestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-	    Injector injector = LimeTestUtils.createInjector();
+	    Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		messageFactory = injector.getInstance(MessageFactory.class);
 	}
 	

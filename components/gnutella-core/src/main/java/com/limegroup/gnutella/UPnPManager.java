@@ -470,7 +470,7 @@ public class UPnPManager  {
     	public void deviceRemoved(Device dev) {}
 	}
 	
-	private final class Mapping {
+	private final static class Mapping {
 		public final String _externalAddress;
 		public final int _externalPort;
 		public final String _internalAddress;

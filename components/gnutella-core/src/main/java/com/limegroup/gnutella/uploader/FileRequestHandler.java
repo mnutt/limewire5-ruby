@@ -2,6 +2,8 @@ package com.limegroup.gnutella.uploader;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Locale;
 
 import org.apache.commons.logging.Log;
@@ -222,7 +224,7 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
         if (fileRequest.isThexRequest()) {
             handleTHEXRequest(request, response, context, uploader, fileDesc);
         } else {
-            handleFileUpload(context, request, response, uploader, fileDesc);
+            handleFileUpload(context, request, response, uploader, fileDesc, fileRequest.getFriendID());
         }
 
         return uploader;
@@ -237,9 +239,11 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
     /**
      * Enqueues <code>request</code> and handles <code>uploader</code> in
      * respect to the returned queue status.
+     * 
+     * @param friendId can be null if not a friend upload
      */
     private void handleFileUpload(HttpContext context, HttpRequest request, HttpResponse response,
-            HTTPUploader uploader, FileDesc fd) throws HttpException, IOException {
+            HTTPUploader uploader, FileDesc fd, String friendId) throws HttpException, IOException {
         if (!uploader.getSession().isAccepted()) {
             QueueStatus queued = sessionManager.enqueue(context, request);
             switch (queued) {
@@ -253,7 +257,7 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
                 response.setReasonPhrase("Banned");
                 break;
             case QUEUED:
-                handleQueued(context, request, response, uploader, fd);
+                handleQueued(context, request, response, uploader, fd, friendId);
                 break;
             case ACCEPTED:
                 sessionManager.addAcceptedUploader(uploader, context);
@@ -263,16 +267,18 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
         }
 
         if (uploader.getSession().canUpload()) {
-            handleAccept(context, request, response, uploader, fd);
+            handleAccept(context, request, response, uploader, fd, friendId);
         }
     }
 
     /**
      * Processes an accepted file upload by adding headers and setting the
      * entity.
+     * 
+     * @param friendId can be null if not a friend upload
      */
     protected void handleAccept(HttpContext context, HttpRequest request, HttpResponse response,
-            HTTPUploader uploader, FileDesc fd) throws IOException, HttpException {
+            HTTPUploader uploader, FileDesc fd, String friendId) throws IOException, HttpException {
 
         assert fd != null;
 
@@ -311,12 +317,7 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
             httpHeaderUtils.addFeatures(response);
         }
 
-        // write X-Thex-URI header with root hash if we have already
-        // calculated the tigertree
-        HashTree tree = tigerTreeCache.get().getHashTree(fd);
-        if (tree != null) {
-            response.addHeader(HTTPHeaderName.THEX_URI.create(tree));
-        }
+        addThexUriHeader(response, fd, friendId);
 
         response.setEntity(fileResponseEntityFactory.createFileResponseEntity(uploader, fd
                 .getFile()));
@@ -327,6 +328,32 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
         } else {
             response.setStatusCode(HttpStatus.SC_OK);
         }
+    }
+    
+    /**
+     * Adds the X-Thex-URI header to the http response.
+     * 
+     * @param friendId can be null if not a friend upload, otherwise used to
+     * create the correct path for the Thex uri
+     */
+    private void addThexUriHeader(HttpResponse response, FileDesc fileDesc, String friendId) {
+        // write X-Thex-URI header with root hash if we have already
+        // calculated the tigertree
+        HashTree tree = tigerTreeCache.get().getHashTree(fileDesc);
+        if (tree != null) {
+            if (friendId != null) {
+                // TODO: breaking dependencies: prefix same as in CoreGlueFriendService
+                try {
+                    String uri = "/friend/download/" + URLEncoder.encode(friendId, "UTF-8")+ tree.httpStringValue();
+                    response.addHeader(HTTPHeaderName.THEX_URI.create(uri));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                response.addHeader(HTTPHeaderName.THEX_URI.create(tree));
+            }
+        }
+
     }
 
     /**
@@ -388,9 +415,11 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
 
     /**
      * Processes a queued file upload by adding headers.
+     * 
+     * @param friendId can be null if not a friend upload
      */
     private void handleQueued(HttpContext context, HttpRequest request, HttpResponse response,
-            HTTPUploader uploader, FileDesc fd)  {
+            HTTPUploader uploader, FileDesc fd, String friendId)  {
         // if not queued, this should never be the state
         int position = uploader.getSession().positionInQueue();
         assert (position != -1);
@@ -410,13 +439,8 @@ public class FileRequestHandler extends SimpleNHttpRequestHandler {
             httpHeaderUtils.addFeatures(response);
         }
 
-        // write X-Thex-URI header with root hash if we have already
-        // calculated the tigertree
-        HashTree tree = tigerTreeCache.get().getHashTree(fd);
-        if (tree != null) {
-            response.addHeader(HTTPHeaderName.THEX_URI.create(tree));
-        }
-
+        addThexUriHeader(response, fd, friendId);
+        
         response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
 
         uploader.setState(UploadStatus.QUEUED);

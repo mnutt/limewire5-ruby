@@ -109,7 +109,7 @@ public class HTTPDownloaderTest extends org.limewire.gnutella.tests.LimeTestCase
     }
 
     private Injector setupInjector(Module... modules) {
-		Injector injector = LimeTestUtils.createInjector(modules);
+		Injector injector = LimeTestUtils.createInjectorNonEagerly(modules);
 		remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
 		networkManager = injector.getInstance(NetworkManager.class);
 		alternateLocationFactory = injector.getInstance(AlternateLocationFactory.class);

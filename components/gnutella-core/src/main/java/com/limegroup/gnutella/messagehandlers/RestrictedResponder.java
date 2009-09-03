@@ -16,7 +16,6 @@ import org.limewire.setting.StringArraySetting;
 
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.ReplyHandler;
-import com.limegroup.gnutella.UDPReplyHandlerCache;
 import com.limegroup.gnutella.UDPReplyHandlerFactory;
 import com.limegroup.gnutella.filters.IPList;
 import com.limegroup.gnutella.messages.Message;
@@ -43,16 +42,17 @@ abstract class RestrictedResponder implements SimppListener, MessageHandler {
     
     private final NetworkManager networkManager;
     private final UDPReplyHandlerFactory udpReplyHandlerFactory;
-    private final UDPReplyHandlerCache udpReplyHandlerCache;
     private final Executor messageExecutorService; 
     private final NetworkInstanceUtils networkInstanceUtils;
     
-    public RestrictedResponder(StringArraySetting setting, NetworkManager networkManager,
-            SimppManager simppManager, UDPReplyHandlerFactory udpReplyHandlerFactory,
-            UDPReplyHandlerCache udpReplyHandlerCache, Executor messageExecutor,
+    public RestrictedResponder(StringArraySetting setting,
+            NetworkManager networkManager,
+            SimppManager simppManager,
+            UDPReplyHandlerFactory udpReplyHandlerFactory,
+            Executor messageExecutor,
             NetworkInstanceUtils networkInstanceUtils) {
-        this(setting, null, null, networkManager, simppManager, udpReplyHandlerFactory,
-                udpReplyHandlerCache, messageExecutor, networkInstanceUtils);
+        this(setting, null, null, networkManager, simppManager,
+                udpReplyHandlerFactory, messageExecutor, networkInstanceUtils);
     }
     
     /**
@@ -66,15 +66,15 @@ abstract class RestrictedResponder implements SimppListener, MessageHandler {
     public RestrictedResponder(StringArraySetting setting, 
             SecureMessageVerifier verifier,
             LongSetting lastRoutedVersion, NetworkManager networkManager,
-            SimppManager simppManager, UDPReplyHandlerFactory udpReplyHandlerFactory,
-            UDPReplyHandlerCache udpReplyHandlerCache, Executor messageExecutorService,
+            SimppManager simppManager,
+            UDPReplyHandlerFactory udpReplyHandlerFactory,
+            Executor messageExecutorService,
             NetworkInstanceUtils networkInstanceUtils) {
         this.setting = setting;
         this.verifier = verifier;
         this.lastRoutedVersion = lastRoutedVersion;
         this.networkManager = networkManager;
         this.udpReplyHandlerFactory = udpReplyHandlerFactory;
-        this.udpReplyHandlerCache = udpReplyHandlerCache;
         this.messageExecutorService = messageExecutorService;
         this.networkInstanceUtils = networkInstanceUtils;
         allowed = new IPList();
@@ -130,8 +130,9 @@ abstract class RestrictedResponder implements SimppListener, MessageHandler {
             // messages with return address MUST have routable version
             if (msg.getRoutableVersion() < 0)
                 return;
-            handler = udpReplyHandlerFactory.createUDPReplyHandler(msg.getReturnAddress().getInetAddress(),
-                    msg.getReturnAddress().getPort(), udpReplyHandlerCache.getPersonalFilter());
+            handler = udpReplyHandlerFactory.createUDPReplyHandler(
+                    msg.getReturnAddress().getInetAddress(),
+                    msg.getReturnAddress().getPort());
         } else if (msg.getDestinationAddress() != null) {
             // if there is a destination address, it must match our external address
             if (!Arrays.equals(networkManager.getExternalAddress(),

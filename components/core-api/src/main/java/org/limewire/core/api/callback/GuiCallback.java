@@ -1,5 +1,6 @@
 package org.limewire.core.api.callback;
 
+import org.limewire.bittorrent.Torrent;
 import org.limewire.core.api.download.DownloadAction;
 import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.magnet.MagnetLink;
@@ -37,9 +38,15 @@ public interface GuiCallback {
      * responded yes, false otherwise.
      */
     boolean promptUserQuestion(String marktr);
-    
+
     /**
-     * Declares that a dangerous download was decisively deleted.
+     * Shows the user a warning about a file.
      */
-    void dangerousDownloadDeleted(String filename);
+    void warnUser(String filename, String message);
+
+    /**
+     * Prompts the user about what priorities to assign the files in this
+     * torrent. Returns true if ok was selected in the end false if cancel.
+     */
+    boolean promptTorrentFilePriorities(Torrent torrent);
 }

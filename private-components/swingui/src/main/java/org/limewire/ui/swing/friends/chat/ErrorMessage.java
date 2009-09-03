@@ -7,7 +7,7 @@ package org.limewire.ui.swing.friends.chat;
  * a {@link MessageText} to indicate that the chat message did not
  * get sent.
  */
-public class ErrorMessage extends AbstractMessageImpl {
+class ErrorMessage extends AbstractMessageImpl {
     
     static final String SENDER_NAME = "chat server";
     

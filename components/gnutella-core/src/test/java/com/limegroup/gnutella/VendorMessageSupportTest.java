@@ -85,7 +85,7 @@ public class VendorMessageSupportTest extends LimeTestCase {
         qrt.add("daswani");
         qrt.add("foosball");
         
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         
         connectionFactory = injector.getInstance(BlockingConnectionFactory.class);
         headersFactory = injector.getInstance(HeadersFactory.class);

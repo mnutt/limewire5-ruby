@@ -10,17 +10,15 @@ import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.limewire.ui.swing.components.PromptTextField;
-import org.limewire.ui.swing.painter.ComponentBackgroundPainter;
 import org.limewire.ui.swing.painter.BasicTextFieldPromptPainter;
 import org.limewire.ui.swing.painter.BorderPainter;
+import org.limewire.ui.swing.painter.ComponentBackgroundPainter;
 import org.limewire.ui.swing.painter.FilterPainter;
 import org.limewire.ui.swing.painter.BorderPainter.AccentType;
 import org.limewire.ui.swing.util.GuiUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 public class TextFieldPainterFactory {
 
     @Resource private Color promptForeground; 

@@ -17,6 +17,7 @@ import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
+import java.awt.Rectangle;
 import java.awt.Window;
 
 /**
@@ -73,7 +74,7 @@ public class AWTSplashWindow extends Window {
      * @param   owner       The frame owning the splash window.
      * @param   splashImage The splashImage to be displayed.
      */
-    public AWTSplashWindow(Frame owner, Image splashImage) {
+    public AWTSplashWindow(Frame owner, Image splashImage, Rectangle bounds) {
         super(owner);
         this.splashImage = splashImage;
 
@@ -94,15 +95,20 @@ public class AWTSplashWindow extends Window {
 
         // Center the window on the screen, and force the image to have a size,
         // otherwise paint will never be called.
-        int imgWidth = splashImage.getWidth(this);
-        if(imgWidth < 1)
-            imgWidth = 1;
-        int imgHeight = splashImage.getHeight(this);
-        if(imgHeight < 1)
-            imgHeight = 1;
-        setSize(imgWidth, imgHeight);
-        
-        setLocationRelativeTo(null);
+        if(bounds != null) {
+            setBounds(bounds);
+        } else {
+            int imgWidth = splashImage.getWidth(this);
+            if(imgWidth < 1) {
+                imgWidth = 1;
+            }
+            int imgHeight = splashImage.getHeight(this);
+            if(imgHeight < 1) {
+                imgHeight = 1;
+            }
+            setSize(imgWidth, imgHeight);            
+            setLocationRelativeTo(null);
+        }
     }
 
     /**
@@ -143,11 +149,10 @@ public class AWTSplashWindow extends Window {
      * @param   splashImage The image to be displayed.
      * @return  Returns the frame that owns the AWTSplashWindow.
      */
-    public static Frame splash(Image splashImage) {
+    public static Frame splash(Image splashImage, Rectangle bounds) {
         Frame f = new Frame();
-        AWTSplashWindow w = new AWTSplashWindow(f, splashImage);
+        AWTSplashWindow w = new AWTSplashWindow(f, splashImage, bounds);
 
-        // Show the window.
         w.toFront();
         w.setVisible(true);
 

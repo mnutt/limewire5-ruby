@@ -26,6 +26,7 @@ import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.ReplyHandler;
 import com.limegroup.gnutella.Response;
 import com.limegroup.gnutella.connection.RoutedConnection;
+import com.limegroup.gnutella.filters.SpamFilter;
 import com.limegroup.gnutella.guess.GUESSEndpoint;
 import com.limegroup.gnutella.messagehandlers.MessageHandler;
 import com.limegroup.gnutella.messages.Message;
@@ -333,6 +334,13 @@ public class HttpPushRequestHandlerTest extends BaseTestCase {
 
         public ReplyHandler getPushHandler(byte[] guid) {
             return null;
+        }
+        
+        public void setPersonalFilter(SpamFilter personalFilter) {
+        }
+        
+        public boolean isPersonalSpam(Message m) {
+            return false;
         }
 
         public void stop() {

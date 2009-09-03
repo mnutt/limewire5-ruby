@@ -54,7 +54,7 @@ public abstract class DHTFinderTestCase extends DHTTestCase {
         // to have non-empty push proxies to send
         final ConnectionManager connectionManager = MockUtils.createConnectionManagerWithPushProxies(context);
         
-        injector = LimeTestUtils.createInjector(new LimeWireIOTestModule(), new AbstractModule() {
+        injector = LimeTestUtils.createInjectorNonEagerly(new LimeWireIOTestModule(), new AbstractModule() {
             @Override
             protected void configure() {
                 bind(DHTManager.class).toInstance(dhtManager);

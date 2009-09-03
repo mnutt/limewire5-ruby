@@ -39,7 +39,7 @@ public class SelfEndpointTest extends BaseTestCase {
         context = new Mockery();
         connectionManager = context.mock(ConnectionManager.class);
         networkManagerStub = new NetworkManagerStub();
-        injector = LimeTestUtils.createInjector(new AbstractModule() {
+        injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(networkManagerStub);

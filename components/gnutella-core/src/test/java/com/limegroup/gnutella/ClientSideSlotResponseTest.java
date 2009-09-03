@@ -18,7 +18,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.auth.UrnValidator;
 import com.limegroup.gnutella.library.Library;
 import com.limegroup.gnutella.library.LibraryUtils;
@@ -63,7 +62,7 @@ public class ClientSideSlotResponseTest extends ClientSideTestCase {
     @Override
     public void setUp() throws Exception {
         networkManagerStub = new NetworkManagerStub();
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(UploadManager.class).to(UploadManagerStub.class);

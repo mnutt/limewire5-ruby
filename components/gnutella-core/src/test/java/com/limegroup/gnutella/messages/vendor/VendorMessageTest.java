@@ -46,7 +46,7 @@ public class VendorMessageTest extends BaseTestCase {
 
     @Override
     protected void setUp() throws Exception {
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		replyNumberVendorMessageFactory = injector.getInstance(ReplyNumberVendorMessageFactory.class);
 		messageFactory = injector.getInstance(MessageFactory.class);
 		messagesSupportedVendorMessage = injector.getInstance(MessagesSupportedVendorMessage.class);

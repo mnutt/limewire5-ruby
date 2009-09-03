@@ -83,7 +83,7 @@ class FileRequestHandlerFactoryImpl implements FileRequestHandlerFactory {
     }
     
     @RequiresAuthentication
-    class ProtectedFileRequestHandler extends FileRequestHandler {
+    static class ProtectedFileRequestHandler extends FileRequestHandler {
         ProtectedFileRequestHandler(HTTPUploadSessionManager sessionManager, Library library, HTTPHeaderUtils httpHeaderUtils, HttpRequestHandlerFactory httpRequestHandlerFactory, Provider<CreationTimeCache> creationTimeCache, FileResponseEntityFactory fileResponseEntityFactory, AltLocManager altLocManager, AlternateLocationFactory alternateLocationFactory, Provider<DownloadManager> downloadManager, Provider<HashTreeCache> tigerTreeCache, PushEndpointFactory pushEndpointFactory, HashTreeWriteHandlerFactory tigerWriteHandlerFactory, HttpRequestFileViewProvider fileListProvider) {
             super(sessionManager, library, httpHeaderUtils, httpRequestHandlerFactory, creationTimeCache, fileResponseEntityFactory, altLocManager, alternateLocationFactory, downloadManager, tigerTreeCache, pushEndpointFactory, tigerWriteHandlerFactory, fileListProvider);
         }

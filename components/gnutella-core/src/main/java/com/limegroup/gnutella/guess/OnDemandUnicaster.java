@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.io.GUID;
@@ -22,7 +23,6 @@ import org.limewire.security.AddressSecurityToken;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.UDPService;
@@ -36,7 +36,7 @@ import com.limegroup.gnutella.util.ClassCNetworks;
 
 /** Utility class for sending GUESS queries.
  */
-@Singleton
+@EagerSingleton
 public class OnDemandUnicaster {
     
     private static final Log LOG = LogFactory.getLog(OnDemandUnicaster.class);
@@ -194,7 +194,7 @@ public class OnDemandUnicaster {
         udpService.send(query, ipp.getInetAddress(), ipp.getPort());
     }
 
-    private class SendLaterBundle {
+    private static class SendLaterBundle {
 
         private static final int MAX_LIFETIME = 60 * 1000;
 

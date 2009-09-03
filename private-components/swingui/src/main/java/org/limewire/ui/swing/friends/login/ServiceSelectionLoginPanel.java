@@ -5,33 +5,36 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.application.Resource;
 import org.jdesktop.swingx.JXButton;
-import org.limewire.core.settings.FacebookSettings;
 import org.limewire.friend.api.FriendConnectionFactory;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.components.decorators.ButtonDecorator;
+import org.limewire.ui.swing.friends.settings.FacebookFriendAccountConfiguration;
 import org.limewire.ui.swing.friends.settings.FriendAccountConfiguration;
 import org.limewire.ui.swing.friends.settings.FriendAccountConfigurationManager;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.ResizeUtils;
-import org.mozilla.browser.MozillaInitialization;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import net.miginfocom.swing.MigLayout;
+
 public class ServiceSelectionLoginPanel extends JPanel {
     
-    private static final String CONFIG = "limewire.configProperty";
+    public static final String CONFIG = "limewire.configProperty";
     
     @Resource Color labelTextForeground;
     @Resource Font labelTextFont;
@@ -44,6 +47,7 @@ public class ServiceSelectionLoginPanel extends JPanel {
     
     private final LoginPopupPanel parent;
     private final Provider<XMPPUserEntryLoginPanelFactory> xmppLoginPanelFactory;
+    private final Map<FriendAccountConfiguration, Action> loginActions = new HashMap<FriendAccountConfiguration, Action>();
 
     @Inject
     public ServiceSelectionLoginPanel(LoginPopupPanel parent, FriendAccountConfigurationManager accountManager,
@@ -98,11 +102,15 @@ public class ServiceSelectionLoginPanel extends JPanel {
         JPanel bottomPanel = new JPanel(new MigLayout("gap 0, insets 0, align center"));
         bottomPanel.setOpaque(false);
         
-        boolean supportsFacebook = MozillaInitialization.isInitialized() && FacebookSettings.FACEBOOK_ENABLED.get();
-        
-        JXButton gmailButton = new JXButton(new ServiceAction(accountManager.getConfig("Gmail")));
-        JXButton liveJournalButton = new JXButton(new ServiceAction(accountManager.getConfig("LiveJournal")));
-        JXButton otherButton = new JXButton(new ServiceAction(I18n.tr("Other"), accountManager.getConfig("Jabber")));
+        Action loginAction = new ServiceAction(accountManager.getConfig("Gmail"));
+        loginActions.put(accountManager.getConfig("Gmail"), loginAction);
+        JXButton gmailButton = new JXButton(loginAction);
+        loginAction = new ServiceAction(accountManager.getConfig("LiveJournal"));
+        loginActions.put(accountManager.getConfig("LiveJournal"), loginAction);
+        JXButton liveJournalButton = new JXButton(loginAction);
+        loginAction = new ServiceAction(I18n.tr("Other"), accountManager.getConfig("Jabber"));
+        loginActions.put(accountManager.getConfig("Jabber"), loginAction);
+        JXButton otherButton = new JXButton(loginAction);
         
         ResizeUtils.forceSize(gmailButton, new Dimension(180, 58));
         ResizeUtils.forceSize(liveJournalButton, new Dimension(180, 58));
@@ -115,8 +123,11 @@ public class ServiceSelectionLoginPanel extends JPanel {
         JPanel selectionPanel = new JPanel(new MigLayout("nogrid, gap 0, insets 0 0 30 0, alignx center, filly"));
         selectionPanel.setOpaque(false);
         
-        if (supportsFacebook) {
-            JXButton facebookButton = new JXButton(facebookLoginActionFactory.create(accountManager.getConfig("Facebook")));
+        FriendAccountConfiguration config = accountManager.getConfig("Facebook");
+        if (config != null) {
+            loginAction = facebookLoginActionFactory.create((FacebookFriendAccountConfiguration)config);
+            loginActions.put(accountManager.getConfig("Facebook"), loginAction);
+            JXButton facebookButton = new JXButton(loginAction);
             ResizeUtils.forceSize(facebookButton, new Dimension(180, 58));
             buttonDecorator.decorateFlatButton(facebookButton);
             
@@ -158,5 +169,8 @@ public class ServiceSelectionLoginPanel extends JPanel {
         }
         
     }
-
+    
+    public Map<FriendAccountConfiguration, Action> getLoginActions() {
+        return Collections.unmodifiableMap(loginActions);
+    }
 }

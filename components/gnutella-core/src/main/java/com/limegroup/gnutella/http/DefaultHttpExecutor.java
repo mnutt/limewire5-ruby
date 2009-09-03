@@ -69,7 +69,7 @@ public class DefaultHttpExecutor implements HttpExecutor {
 		return new Aborter(method);
 	}
 	
-	private class Aborter implements Shutdownable {
+	private static class Aborter implements Shutdownable {
 		private final AbortableHttpRequest toAbort;
 		Aborter(HttpUriRequest toAbort) {
             if(toAbort instanceof AbortableHttpRequest) {

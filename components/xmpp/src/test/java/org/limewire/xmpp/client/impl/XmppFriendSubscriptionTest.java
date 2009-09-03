@@ -1,6 +1,11 @@
 package org.limewire.xmpp.client.impl;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.limewire.friend.api.Friend;
 import org.limewire.friend.api.FriendConnection;
@@ -8,6 +13,8 @@ import org.limewire.friend.api.FriendConnectionConfiguration;
 import org.limewire.friend.api.FriendException;
 import org.limewire.friend.api.FriendRequest;
 import org.limewire.friend.api.FriendRequestEvent;
+import org.limewire.friend.api.RosterEvent;
+import org.limewire.friend.api.FriendConnectionEvent;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.EventListener;
 import org.limewire.logging.Log;
@@ -23,16 +30,27 @@ import com.google.inject.Key;
 public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
     
     private static final Log LOG = LogFactory.getLog(XmppFriendSubscriptionTest.class);
+    private static final int MAX_WAIT_FRIEND_REQUEST = 20;
+    
+       
+    static {
+        // get the hour (00 - 23) and modulo 4 in order to cycle thru
+        // gmail usernames because of server friend request limitations
+        Calendar cal = new GregorianCalendar();
+        int numUser = cal.get(Calendar.HOUR_OF_DAY) % 4;
+        USERNAME_A = "automatedtestfrienda" + numUser + "@gmail.com";
+        USERNAME_B = "automatedtestfriendb" + numUser + "@gmail.com";
+    }
+    
+    private static final String USERNAME_A;
+    private static final String USERNAME_B;
+    private static final String PASSWORD = "automatedtestfriend";
 
-    private static final String USERNAME_5 = "automatedtestfriend5@gmail.com";
-    private static final String USERNAME_6 = "automatedtestfriend6@gmail.com";
-    private static final String PASSWORD_56 = "automatedtestfriend56";
-
-    private RosterListenerMock autoFiveRosterListener;
-    private RosterListenerMock autoSixRosterListener;
+    private RosterListenerMock autoFriendARosterListener;
+    private RosterListenerMock autoFriendBRosterListener;
     private EventListener<FriendRequestEvent> acceptFriendListener;
-    private XMPPFriendConnectionImpl connectionFive;
-    private XMPPFriendConnectionImpl connectionSix;
+    private XMPPFriendConnectionImpl connectionA;
+    private XMPPFriendConnectionImpl connectionB;
 
     public XmppFriendSubscriptionTest(String name) {
         super(name);
@@ -42,34 +60,34 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        autoFiveRosterListener = new RosterListenerMock();
-        autoSixRosterListener = new RosterListenerMock();
+        autoFriendARosterListener = new RosterListenerMock();
+        autoFriendBRosterListener = new RosterListenerMock();
 
-        FriendConnectionConfiguration configFive = new FriendConnectionConfigurationMock(USERNAME_5, PASSWORD_56,
-                SERVICE, autoFiveRosterListener);
-        FriendConnectionConfiguration configSix = new FriendConnectionConfigurationMock(USERNAME_6, PASSWORD_56,
-                SERVICE, autoSixRosterListener);
+        FriendConnectionConfiguration configFive = new FriendConnectionConfigurationMock(USERNAME_A, PASSWORD,
+                SERVICE, autoFriendARosterListener);
+        FriendConnectionConfiguration configSix = new FriendConnectionConfigurationMock(USERNAME_B, PASSWORD,
+                SERVICE, autoFriendBRosterListener);
 
-        connectionFive = (XMPPFriendConnectionImpl)factories[0].login(configFive).get();
-        connectionSix = (XMPPFriendConnectionImpl)factories[1].login(configSix).get();
+        connectionA = (XMPPFriendConnectionImpl)factories[0].login(configFive).get();
+        connectionB = (XMPPFriendConnectionImpl)factories[1].login(configSix).get();
 
         // Allow login, roster, presence, library messages to be sent, received
         Thread.sleep(SLEEP);
 
         // Make sure that both friend5 and friend6 have empty rosters before beginning
-        if (autoFiveRosterListener.getRosterSize() != 0) {
-            removeAllUsersFromRoster(connectionFive);
+        if (autoFriendARosterListener.getRosterSize() != 0) {
+            removeAllUsersFromRoster(connectionA);
         }
-        if (autoFiveRosterListener.getRosterSize() != 0) {
-            removeAllUsersFromRoster(connectionSix);
+        if (autoFriendARosterListener.getRosterSize() != 0) {
+            removeAllUsersFromRoster(connectionB);
         }
     }
 
     @Override
     protected void tearDown() throws Exception {
         removeFriendRequestListener();
-        connectionFive.removeFriend(USERNAME_6);
-        connectionSix.removeFriend(USERNAME_5);
+        connectionA.removeFriend(USERNAME_B);
+        connectionB.removeFriend(USERNAME_A);
         super.tearDown();
     }
 
@@ -104,114 +122,163 @@ public class XmppFriendSubscriptionTest extends XmppBaseTestCase {
      */
     public void testFriendRequestConfirmed() throws Exception {
 
-        setFriendRequestListener(USERNAME_5, true);
+        setFriendRequestListener(USERNAME_A, true);
 
-        // automatedtestfriend5 requests automatedtestfriend6
-        connectionFive.addNewFriend(USERNAME_6, USERNAME_6).get();
+        // automatedtestfrienda requests automatedtestfriendb
+        connectionA.addNewFriend(USERNAME_B, USERNAME_B).get();
 
-        // sleep to wait for automatedtestfriend6 to confirm, friends to exchange roster packets, etc
-        Thread.sleep(SLEEP);
+        // sleep to wait for automatedtestfriendb to confirm, friends to exchange roster packets, etc
+        waitForFriendRequest(true);
 
-        // check that both automatedtestfriend5 and automatedtestfriend6 have each other on their roster
-        assertEquals(1, autoFiveRosterListener.getRosterSize());
-        assertEquals(1, autoSixRosterListener.getRosterSize());
-        assertEquals(USERNAME_6, autoFiveRosterListener.getFirstRosterEntry());
-        assertEquals(USERNAME_5, autoSixRosterListener.getFirstRosterEntry());
+        // check that both automatedtestfrienda and automatedtestfriendb have each other on their roster
+        assertEquals(1, autoFriendARosterListener.getRosterSize());
+        assertEquals(1, autoFriendBRosterListener.getRosterSize());
+        assertEquals(USERNAME_B, autoFriendARosterListener.getFirstRosterEntry());
+        assertEquals(USERNAME_A, autoFriendBRosterListener.getFirstRosterEntry());
     }
 
     /**
      * Test rejection of friend request
      *
-     * 1. automatedtestfriend5 requests automatedtestfriend6
-     * 2. automatedtestfriend6 rejects the friend request
+     * 1. automatedtestfrienda requests automatedtestfriendb
+     * 2. automatedtestfriendb rejects the friend request
      * 3. both users logout and log back in
      * 4. confirm that no presence packet is ever sent to either user 
      */
     public void testFriendRequestDenied() throws Exception {
 
-        setFriendRequestListener(USERNAME_5, false);
+        setFriendRequestListener(USERNAME_A, false);
 
-        // automatedtestfriend5 requests automatedtestfriend6
-        connectionFive.addNewFriend(USERNAME_6, USERNAME_6).get();
+        // automatedtestfrienda requests automatedtestfriendb
+        connectionA.addNewFriend(USERNAME_B, USERNAME_B).get();
 
         // sleep to wait for friend6 to deny
-        Thread.sleep(SLEEP);
+        waitForFriendRequest(false);
 
-        connectionFive.logout().get();
-        connectionSix.logout().get();
+        connectionA.logout().get();
+        connectionB.logout().get();
 
-        autoFiveRosterListener = new RosterListenerMock();
-        autoSixRosterListener = new RosterListenerMock();
+        autoFriendARosterListener = new RosterListenerMock();
+        autoFriendBRosterListener = new RosterListenerMock();
 
-        FriendConnectionConfiguration configFive = new FriendConnectionConfigurationMock(USERNAME_5, PASSWORD_56,
-                SERVICE, autoFiveRosterListener);
-        FriendConnectionConfiguration configSix = new FriendConnectionConfigurationMock(USERNAME_6, PASSWORD_56,
-                SERVICE, autoSixRosterListener);
+        FriendConnectionConfiguration configFive = new FriendConnectionConfigurationMock(USERNAME_A, PASSWORD,
+                SERVICE, autoFriendARosterListener);
+        FriendConnectionConfiguration configSix = new FriendConnectionConfigurationMock(USERNAME_B, PASSWORD,
+                SERVICE, autoFriendBRosterListener);
 
-        connectionFive = (XMPPFriendConnectionImpl) factories[0].login(configFive).get();
-        connectionSix = (XMPPFriendConnectionImpl) factories[1].login(configSix).get();
+        connectionA = (XMPPFriendConnectionImpl) factories[0].login(configFive).get();
+        connectionB = (XMPPFriendConnectionImpl) factories[1].login(configSix).get();
 
-        Thread.sleep(SLEEP);
+        waitForConnection();
 
-        // check that both friend5 and friend6 are not aware of each other (not subscribed)
+        // check that both A and B are not aware of each other (not subscribed)
         // Both users are signed in, but since they are not friends (subscribed to each others' statuses)
         // neither receives a Presence available packet from the other.
-        assertTrue(connectionFive.isLoggedIn());
-        assertTrue(connectionSix.isLoggedIn());
+        assertTrue(connectionA.isLoggedIn());
+        assertTrue(connectionB.isLoggedIn());
 
-        assertNull(autoFiveRosterListener.getFirstPresence(USERNAME_6));
-        assertNull(autoSixRosterListener.getFirstPresence(USERNAME_5));
+        assertNull(autoFriendARosterListener.getFirstPresence(USERNAME_B));
+        assertNull(autoFriendBRosterListener.getFirstPresence(USERNAME_A));
     }
 
     /**
      * Test that friend removal works
      *
-     * 1. automatedtestfriend5 requests automatedtestfriend6 successfully
-     * 2. automatedtestfriend5 removes automatedtestfriend6 as friend
-     * 3. confirm that upon login, automatedtestfriend5 does not receive
-     *    any automatedtestfriend6 Presence available packets.
+     * 1. automatedtestfrienda requests automatedtestfriendb successfully
+     * 2. automatedtestfriendb removes automatedtestfrienda as friend
+     * 3. confirm that upon login, automatedtestfrienda does not receive
+     *    any automatedtestfriendb Presence available packets.
      */
     public void testRemoveFriend() throws Exception {
 
-        setFriendRequestListener(USERNAME_5, true);
+        setFriendRequestListener(USERNAME_A, true);
 
-        // automatedtestfriend5 requests automatedtestfriend6
-        connectionFive.addNewFriend(USERNAME_6, USERNAME_6).get();
+        // automatedtestfriend5* requests automatedtestfriendb
+        connectionA.addNewFriend(USERNAME_B, USERNAME_B).get();
 
-        // sleep to wait for automatedtestfriend6 to confirm, friends to exchange roster packets, etc
-        Thread.sleep(SLEEP);
+        // wait for automatedtestfriends to confirm, friends to exchange roster packets, etc
+        waitForFriendRequest(true);
 
-        // check that both automatedtestfriend5 and automatedtestfriend6 have each other on their roster
-        assertEquals(1, autoFiveRosterListener.getRosterSize());
-        assertEquals(1, autoSixRosterListener.getRosterSize());
-        assertEquals(USERNAME_6, autoFiveRosterListener.getFirstRosterEntry());
-        assertEquals(USERNAME_5, autoSixRosterListener.getFirstRosterEntry());
+        // check that both automatedtestfriends have each other on their roster
+        assertEquals(1, autoFriendARosterListener.getRosterSize());
+        assertEquals(1, autoFriendBRosterListener.getRosterSize());
+        assertEquals(USERNAME_B, autoFriendARosterListener.getFirstRosterEntry());
+        assertEquals(USERNAME_A, autoFriendBRosterListener.getFirstRosterEntry());
 
         // test friend removal
-        connectionFive.removeFriend(USERNAME_6).get();
-        Thread.sleep(SLEEP);
+        connectionA.removeFriend(USERNAME_B).get();
+        waitForFriendRequest(false);
 
-        connectionFive.logout().get();
-        connectionSix.logout().get();
+        connectionA.logout().get();
+        connectionB.logout().get();
         
-        autoFiveRosterListener = new RosterListenerMock();
-        autoSixRosterListener = new RosterListenerMock();
+        autoFriendARosterListener = new RosterListenerMock();
+        autoFriendBRosterListener = new RosterListenerMock();
 
-        FriendConnectionConfiguration configFive = new FriendConnectionConfigurationMock(USERNAME_5, PASSWORD_56,
-                SERVICE, autoFiveRosterListener);
-        FriendConnectionConfiguration configSix = new FriendConnectionConfigurationMock(USERNAME_6, PASSWORD_56,
-                SERVICE, autoSixRosterListener);
+        FriendConnectionConfiguration configFive = new FriendConnectionConfigurationMock(USERNAME_A, PASSWORD,
+                SERVICE, autoFriendARosterListener);
+        FriendConnectionConfiguration configSix = new FriendConnectionConfigurationMock(USERNAME_B, PASSWORD,
+                SERVICE, autoFriendBRosterListener);
 
-        connectionFive = (XMPPFriendConnectionImpl) factories[0].login(configFive).get();
-        connectionSix = (XMPPFriendConnectionImpl) factories[1].login(configSix).get();
+        connectionA = (XMPPFriendConnectionImpl) factories[0].login(configFive).get();
+        connectionB = (XMPPFriendConnectionImpl) factories[1].login(configSix).get();
 
-        Thread.sleep(SLEEP);
+        waitForConnection();
         
-        assertTrue(connectionFive.isLoggedIn());
-        assertTrue(connectionSix.isLoggedIn());
+        assertTrue(connectionA.isLoggedIn());
+        assertTrue(connectionB.isLoggedIn());
 
-        assertNull(autoFiveRosterListener.getFirstPresence(USERNAME_6));
-        assertNull(autoSixRosterListener.getFirstPresence(USERNAME_5));
+        assertNull(autoFriendARosterListener.getFirstPresence(USERNAME_B));
+        assertNull(autoFriendBRosterListener.getFirstPresence(USERNAME_A));
+    }
+    
+    private void waitForFriendRequest(boolean confirmed) throws Exception {
+        final CountDownLatch latch = new CountDownLatch(2);
+        final RosterEvent.Type expectedType = confirmed ? RosterEvent.Type.FRIENDS_ADDED :
+            RosterEvent.Type.FRIENDS_DELETED;
+        
+        class RosterEventListener implements EventListener<RosterEvent> {
+            RosterEventListener(String expectedFriend) {
+                this.expectedFriend = expectedFriend;    
+            }
+            AtomicBoolean friendInRoster = new AtomicBoolean(false);
+            String expectedFriend;
+            
+            @Override
+            public void handleEvent(RosterEvent event) {
+                if (event.getType() == expectedType) {
+                    assertEquals(1, event.getData().size());
+                    if (expectedFriend.equals(event.getData().iterator().next().getId())) {
+                        if (!friendInRoster.getAndSet(true)) {
+                            latch.countDown();
+                        }
+                    }
+                }
+            }
+        }
+        injectors[1].getInstance(Key.get(new TypeLiteral<ListenerSupport<RosterEvent>>(){})).
+                addListener(new RosterEventListener(USERNAME_A));
+        injectors[0].getInstance(Key.get(new TypeLiteral<ListenerSupport<RosterEvent>>(){})).
+                addListener(new RosterEventListener(USERNAME_B));
+        latch.await(MAX_WAIT_FRIEND_REQUEST, TimeUnit.SECONDS);
+    }
+    
+    private void waitForConnection() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(2);
+        
+        class FriendConnectionEventListener implements EventListener<FriendConnectionEvent> {
+            @Override
+            public void handleEvent(FriendConnectionEvent event) {
+                if (event.getType() == FriendConnectionEvent.Type.CONNECTED) {
+                    latch.countDown();
+                }
+            }    
+        }
+        injectors[1].getInstance(Key.get(new TypeLiteral<ListenerSupport<FriendConnectionEvent>>(){})).
+                addListener(new FriendConnectionEventListener());
+        injectors[0].getInstance(Key.get(new TypeLiteral<ListenerSupport<FriendConnectionEvent>>(){})).
+                addListener(new FriendConnectionEventListener());
+        assertTrue(latch.await(SLEEP, TimeUnit.SECONDS));
     }
 
     private void removeAllUsersFromRoster(FriendConnection conn) throws FriendException, ExecutionException, InterruptedException {

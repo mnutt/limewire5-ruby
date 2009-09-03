@@ -557,7 +557,7 @@ public class LimeWirePlayer implements Runnable, AudioPlayer {
     /**
      * Holds a reference to the next song to be played.
      */
-    private class LoadSongBuffer {
+    private static class LoadSongBuffer {
         
         private AudioSource nextItem;
         

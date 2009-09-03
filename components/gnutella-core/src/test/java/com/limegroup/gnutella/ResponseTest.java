@@ -38,8 +38,8 @@ import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.downloader.VerifyingFile;
 import com.limegroup.gnutella.downloader.VerifyingFileFactory;
 import com.limegroup.gnutella.filters.LocalIPFilter;
-import com.limegroup.gnutella.filters.XMLDocFilterTest;
-import com.limegroup.gnutella.filters.IPFilter.IPFilterCallback;
+import com.limegroup.gnutella.filters.SpamFilter.LoadCallback;
+import com.limegroup.gnutella.filters.response.XMLDocFilterTest;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileDescFactory;
@@ -91,7 +91,7 @@ public final class ResponseTest extends org.limewire.gnutella.tests.LimeTestCase
 	@Override
 	protected void setUp() throws Exception {
 	    context = new Mockery();
-	    injector = LimeTestUtils.createInjector();
+	    injector = LimeTestUtils.createInjectorNonEagerly();
 	    queryReplyFactory = injector.getInstance(QueryReplyFactory.class);
 	    responseFactoryImpl = (ResponseFactoryImpl) injector.getInstance(ResponseFactory.class);
 	    limeXMLDocumentFactory = injector.getInstance(LimeXMLDocumentFactory.class);
@@ -102,8 +102,9 @@ public final class ResponseTest extends org.limewire.gnutella.tests.LimeTestCase
 	    pushEndpointFactory = injector.getInstance(PushEndpointFactory.class);
 	    
 	    final CountDownLatch latch = new CountDownLatch(1);
-	    injector.getInstance(LocalIPFilter.class).refreshHosts(new IPFilterCallback() {
-            public void ipFiltersLoaded() {
+	    injector.getInstance(LocalIPFilter.class).refreshHosts(new LoadCallback() {
+            @Override
+            public void spamFilterLoaded() {
                 latch.countDown();
             }
         });

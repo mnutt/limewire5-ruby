@@ -60,7 +60,6 @@ import org.limewire.util.StringUtils;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-
 import com.limegroup.gnutella.auth.ContentManager;
 import com.limegroup.gnutella.connection.Connection;
 import com.limegroup.gnutella.connection.ConnectionLifecycleEvent;
@@ -336,6 +335,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
     protected final Provider<LimeACKHandler> limeAckHandler;
     protected final QRPUpdater qrpUpdater;
     private final URNFilter urnFilter;
+    private final SpamServices spamServices;
     
     private final PingRequestFactory pingRequestFactory;
 
@@ -386,11 +386,15 @@ public abstract class MessageRouterImpl implements MessageRouter {
             UDPReplyHandlerCache udpReplyHandlerCache,
             Provider<InspectionRequestHandler> inspectionRequestHandlerFactory,
             Provider<UDPCrawlerPingHandler> udpCrawlerPingHandlerFactory,
-            PingRequestFactory pingRequestFactory, MessageHandlerBinder messageHandlerBinder,
+            PingRequestFactory pingRequestFactory,
+            MessageHandlerBinder messageHandlerBinder,
             Provider<OOBHandler> oobHandlerFactory,
             Provider<MACCalculatorRepositoryManager> MACCalculatorRepositoryManager,
-            Provider<LimeACKHandler> limeACKHandler, OutgoingQueryReplyFactory outgoingQueryReplyFactory,
-            QRPUpdater qrpUpdater, URNFilter urnFilter) {
+            Provider<LimeACKHandler> limeACKHandler,
+            OutgoingQueryReplyFactory outgoingQueryReplyFactory,
+            QRPUpdater qrpUpdater,
+            URNFilter urnFilter,
+            SpamServices spamServices) {
         this.networkManager = networkManager;
         this.queryRequestFactory = queryRequestFactory;
         this.queryHandlerFactory = queryHandlerFactory;
@@ -432,6 +436,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
         this.limeAckHandler = limeACKHandler;
         this.qrpUpdater = qrpUpdater;
         this.urnFilter = urnFilter;
+        this.spamServices = spamServices;
 
         _clientGUID = applicationServices.getMyGUID();
         _bypassedResultsCache = new BypassedResultsCache(activityCallback, downloadManager);
@@ -1076,7 +1081,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
                                       boolean locallyEvaluate) {
         // Apply the personal filter to decide whether the callback
         // should be informed of the query
-        if (!handler.isPersonalSpam(request)) {
+        if(!spamServices.isPersonalSpam(request)) {
             activityCallback.get().handleQuery(request,
                     handler.getAddress(), handler.getPort());
         }
@@ -1907,10 +1912,10 @@ public abstract class MessageRouterImpl implements MessageRouter {
         int classC = ByteUtils.beb2int(queryReply.getIPBytes(), 0);
         RouteTable.ReplyRoutePair rrp =
             _queryRouteTable.getReplyHandler(queryReply.getGUID(),
-                                             queryReply.getTotalLength(),
-											 queryReply.getUniqueResultCount(),
-											 queryReply.getPartialResultCount(),
-                                             classC, urnFilter.allow(queryReply));
+                                        queryReply.getTotalLength(),
+                                        queryReply.getUniqueResultCount(),
+                                        queryReply.getPartialResultCount(),
+                                        classC, !urnFilter.isBlacklisted(queryReply));
 
         if(rrp != null) {
             queryReply.setPriority(rrp.getBytesRouted());
@@ -2272,6 +2277,12 @@ public abstract class MessageRouterImpl implements MessageRouter {
         // our tables so that the dynamic querier has correct
         // data
         if(mc.isLeafConnection()) {
+            // Leaves should not send full tables
+            if(mc.getRoutedConnectionStatistics().getQueryRouteTablePercentFull() == 100) {
+                if(LOG.isWarnEnabled())
+                    LOG.warn("Leaf " + mc + " sent full query routing table");
+                mc.close();
+            }
             _lastQueryRouteTable = createRouteTable();
         }
     }
@@ -2837,7 +2848,7 @@ public abstract class MessageRouterImpl implements MessageRouter {
         }
     }
     
-    public class VendorMessageHandler implements MessageHandler {
+    public static class VendorMessageHandler implements MessageHandler {
         public void handleMessage(Message msg, InetSocketAddress addr, ReplyHandler handler) {
             Connection c = (Connection)handler;
             c.handleVendorMessage((VendorMessage)msg);

@@ -180,7 +180,7 @@ public class LWSFileNamingOptionPanel extends OptionPanel {
      *  combobox and the template value are different from each other
      *  to make the text more user friendly
      */
-    class ListNode {
+    static class ListNode {
         
         /**
          * Value to display in the combo box, human readable

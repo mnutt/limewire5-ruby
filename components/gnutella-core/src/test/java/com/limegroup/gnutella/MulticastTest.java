@@ -23,7 +23,6 @@ import org.limewire.util.TestUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.downloader.PushDownloadManager;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.library.FileCollection;
@@ -113,7 +112,7 @@ public class MulticastTest extends LimeTestCase {
         M_HANDLER = new MulticastHandler();
         U_HANDLER = new UnicastedHandler();
 
-        LimeTestUtils.createInjector(Stage.PRODUCTION, LimeTestUtils.createModule(this));
+        LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
         messageRouter = (MessageRouterImpl) injector.getInstance(MessageRouter.class);
         
         lifeCycleManager.start();

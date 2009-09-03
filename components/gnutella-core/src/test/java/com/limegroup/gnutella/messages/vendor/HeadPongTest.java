@@ -83,7 +83,7 @@ public class HeadPongTest extends LimeTestCase {
         mockery = new Mockery();
         downloadManager = mockery.mock(DownloadManager.class);
                 
-        injector = LimeTestUtils.createInjector(new AbstractModule() {
+        injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(UploadManager.class).to(UploadManagerStub.class);

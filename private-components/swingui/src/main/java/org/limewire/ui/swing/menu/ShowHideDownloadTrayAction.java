@@ -11,25 +11,16 @@ import org.limewire.ui.swing.downloads.DownloadMediator;
 import org.limewire.ui.swing.util.I18n;
 
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.event.ListEvent;
-import ca.odell.glazedlists.event.ListEventListener;
 
 import com.google.inject.Inject;
 
 class ShowHideDownloadTrayAction extends AbstractAction {
-    private final String showDownloadTrayText = I18n.tr("Show Download Tray");
-    private final String hideDownloadTrayText = I18n.tr("Hide Download Tray");
-
+    private static final String showDownloadTrayText = I18n.tr("Show Download Tray");
+    private static final String hideDownloadTrayText = I18n.tr("Hide Download Tray");
+    
     @Inject
-    public void register(DownloadMediator downloadMediator) {
+    public ShowHideDownloadTrayAction(DownloadMediator downloadMediator) {
         EventList<DownloadItem> downloadList = downloadMediator.getDownloadList();
-        downloadList.addListEventListener(new ListEventListener<DownloadItem>() {
-            @Override
-            public void listChanged(ListEvent<DownloadItem> listChanges) {
-                setEnabled(listChanges.getSourceList().size()  == 0);
-                updateText();
-            }
-        });       
         setEnabled(downloadList.size() == 0);
         updateText();
     }
@@ -38,7 +29,6 @@ class ShowHideDownloadTrayAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         DownloadSettings.ALWAYS_SHOW_DOWNLOADS_TRAY
                 .setValue(!DownloadSettings.ALWAYS_SHOW_DOWNLOADS_TRAY.getValue());
-        updateText();
     }
 
     private void updateText() {

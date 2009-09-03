@@ -1,6 +1,7 @@
 package org.limewire.core.settings;
 
 import org.limewire.inspection.InspectablePrimitive;
+import org.limewire.inspection.DataCategory;
 import org.limewire.setting.BooleanSetting;
 import org.limewire.setting.ByteSetting;
 import org.limewire.setting.FloatSetting;
@@ -202,7 +203,7 @@ public final class ConnectionSettings extends LimeProps {
     /**
      * Whether we should not try to use UPnP to open ports.
      */
-    @InspectablePrimitive("disable upnp setting")
+    @InspectablePrimitive(value = "disable upnp setting", category = DataCategory.USAGE)
     public static final BooleanSetting DISABLE_UPNP = FACTORY.createBooleanSetting("DISABLE_UPNP",
             false);
 

@@ -24,6 +24,7 @@ import org.limewire.core.api.connection.ConnectionLifecycleEventType;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.UltrapeerSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableForSize;
 import org.limewire.inspection.InspectablePrimitive;
@@ -46,7 +47,6 @@ import org.limewire.util.VersionFormatException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.connection.Connection;
 import com.limegroup.gnutella.connection.ConnectionCheckerManager;
@@ -105,7 +105,7 @@ import com.limegroup.gnutella.simpp.SimppManager;
  * ConnectionManager has methods to get up and downstream bandwidth, but it
  * doesn't quite fit the BandwidthTracker interface.
  */
-@Singleton
+@EagerSingleton
 public class ConnectionManagerImpl implements ConnectionManager, Service {
     
     private static final Log LOG = LogFactory.getLog(ConnectionManagerImpl.class);
@@ -2382,17 +2382,18 @@ public class ConnectionManagerImpl implements ConnectionManager, Service {
         
         /** Callback that handshaking has succeeded and we're all connected and ready. */
         public void handleConnect() {
-            boolean stillOpen = completeConnectionInitialization(connection, true);
-            processConnectionHeaders(connection);
-            _lastSuccessfulConnect = System.currentTimeMillis();
-            hostCatcher.get().doneWithConnect(endpoint, true);
-            if(_pref)
-                _needPref = false;
-            
-            try {
-                if(stillOpen)
+            if(completeConnectionInitialization(connection, true)) {
+                processConnectionHeaders(connection);
+                _lastSuccessfulConnect = System.currentTimeMillis();
+                hostCatcher.get().doneWithConnect(endpoint, true);
+                if(_pref)
+                    _needPref = false;
+                try {
                     startConnection(connection);
-            } catch(IOException ignored) {}
+                } catch(IOException ignored) {}
+            } else {
+                hostCatcher.get().doneWithConnect(endpoint, false);
+            }
         }
         
         /** Callback that a connect failed. */

@@ -20,7 +20,7 @@ public class LimeXMLDocumentHelperTest extends LimeTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         limeXMLDocumentHelper = injector.getInstance(LimeXMLDocumentHelper.class);
     }
     

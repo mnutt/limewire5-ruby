@@ -1,15 +1,15 @@
 package com.limegroup.gnutella;
 
 import org.limewire.core.settings.ApplicationSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.util.Clock;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Maintains various session statistics, like uptime.  
  */
-@Singleton
+@EagerSingleton
 public class Statistics {
 
     private final Clock clock;

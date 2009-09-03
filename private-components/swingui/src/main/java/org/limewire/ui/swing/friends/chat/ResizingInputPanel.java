@@ -86,7 +86,7 @@ class ResizingInputPanel extends JPanel implements Displayable {
         }
     }
 
-    public void destroy() {
+    public void dispose() {
         chatStateManager.cancelPendingChatStateUpdates();        
     }
     
@@ -100,7 +100,6 @@ class ResizingInputPanel extends JPanel implements Displayable {
     }
 
     private class SendMessage extends AbstractAction {
-
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -118,7 +117,6 @@ class ResizingInputPanel extends JPanel implements Displayable {
     }
     
     private class ChatStateManager implements DocumentListener {
-
         private final Periodic chatPausedTimer;
         private volatile ChatState currentInputChatState = ChatState.active;
 

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Panel;
 import java.awt.Rectangle;
+import java.net.URL;
 
 import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
@@ -118,22 +119,45 @@ class ProNag extends JXPanel implements Resizable {
     }
     
     private String createDefaultPage(boolean firstLaunch) {
+        
+        URL closeImage = ProNag.class.getResource("/org/limewire/ui/swing/mainframe/resources/icons/static_pages/close.png");
+        URL bgImage = ProNag.class.getResource("/org/limewire/ui/swing/mainframe/resources/icons/static_pages/bg.png");
+        URL getImage = ProNag.class.getResource("/org/limewire/ui/swing/mainframe/resources/icons/static_pages/button_get_limewire_pro.png");
+             
+        
         String outgoing = application.addClientInfoToUrl("http://www.limewire.com/clientpro?offline=true&fromFirstRun=" + firstLaunch);
         outgoing = outgoing.replace("&", "&amp;"); // must HTML-encode, otherwise things get messed up
         return
-         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">"
-         + "<html>" 
+           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">"
+         + "<html>"
          + "<body>"
-         + "<table width=100% border=0><tr><td>"
-         + "<table width=100% border=0><tr><td align='left'><h1>Upgrade to PRO</h1></td><td align='right'><a href=\"_hide_nag_\">hide</a></td></tr></table>"
-         + "&nbsp;<b>Do you want:</b>"
-         + "<ul>"
-         + "<li>Turbo-charged downloads?</li>"
-         + "<li>More search results?</li>"
-         + "<li>Free tech support and upgrades?</li>"
-         + "</ul>"
-         + "<center><form action=\"" + outgoing + "\" method='get'><input type='submit' value='Get LimeWire PRO now'/></form></center>"
-         + "</td></tr></table>"
+         + "<center>"
+         + "<table width=\"346\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" background=\""+ bgImage.toExternalForm() +"\">"
+         + "<tr>"
+         + "<td>"
+         + "<table width=\"346\" height=\"58\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
+         + "<tr>"
+         + "<td align=\"right\" valign=\"top\" height=\"66\">"
+         + "<a href=\"_hide_nag_\"><img src=\""+ closeImage.toExternalForm() +"\" alt=\"\" border=\"0\" /></a>"
+         + "</td>"
+         + "</tr>"
+         + "</table>"
+         + "<table width=\"346\" height=\"51\" border=\"0\" cellspacing=\"0\" cellpadding=\"25\">"
+         + "<tr>"
+         + "<td align=\"left\">"
+         + "<a href=\"http://www.limewire.com/download/pro/?ref=lwn1&amp;nstime=1251309416&amp;rnv=z\"><img src=\""+getImage.toExternalForm()+"\" alt=\"\" border=\"0\" /></a>"
+         + "</td>"
+         + "</tr>"
+         + "</table>"
+         + "<table width=\"346\" height=\"32\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">"
+         + "<tr>"
+         + "<td height=\"28\"></td>"
+         + "</tr>"
+         + "</table>"       
+         + "</td>"
+         + "</tr>"
+         + "</table>"
+         + "</center>"
          + "</body>"
          + "</html>"
          ;

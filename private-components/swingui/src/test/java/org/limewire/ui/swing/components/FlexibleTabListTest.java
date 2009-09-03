@@ -82,7 +82,7 @@ public class FlexibleTabListTest extends BaseTestCase {
     
     /** Creates a combobox decorator for tests. */
     private ComboBoxDecorator createComboBoxDecorator() {
-        Injector injector = Guice.createInjector(Stage.PRODUCTION);
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT);
         return injector.getInstance(ComboBoxDecorator.class);
     }
 }

@@ -2,8 +2,8 @@ package org.limewire.ui.swing.nav;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -111,12 +111,26 @@ class NavigatorImpl implements Navigator {
         }
     }
     
-    /** Removes all instances of item from the history. */
-    private void removeFromHistory(NavItemImpl item) {
-        for(Iterator<NavItemImpl> iter = selectionHistory.iterator(); iter.hasNext(); ) {
-            if(iter.next() == item) {
-                iter.remove();
+    /**
+     * Removes all instances of item from the history. Returns the item that
+     * should be selected in its place, if it was selected.
+     */
+    private NavItemImpl removeFromHistory(NavItemImpl item) {
+        if(!selectionHistory.isEmpty()) {            
+            NavItemImpl priorSelection = null;
+            boolean found = false;
+            for(ListIterator<NavItemImpl> iter = selectionHistory.listIterator(selectionHistory.size()); iter.hasPrevious(); ) {
+                NavItemImpl prior = iter.previous();
+                if(prior == item) {
+                    iter.remove();
+                    found = true;
+                } else if(found && priorSelection == null) {
+                    priorSelection = prior;
+                }
             }
+            return priorSelection;
+        } else {
+            return null;
         }
     }
     
@@ -130,32 +144,45 @@ class NavigatorImpl implements Navigator {
     private void removeNavItem(NavItemImpl item) {
         if(navItems.remove(item)) {
             LOG.debugf("Removed item {0}", item);
-            removeFromHistory(item);
-            
+            NavItemImpl priorSelected = removeFromHistory(item);
+
+            boolean wasSelected = (selectedItem == item);
             for(NavigationListener listener : listeners) {
-                listener.itemRemoved(item.category, item);
-                if(selectedItem == item) {
-                    item.fireSelected(false);
-                    selectedItem = null;
+                listener.itemRemoved(item.category, item, wasSelected);
+                if(wasSelected) {
                     listener.itemSelected(null, null, null, null);
                 }
-            }
-            item.fireRemoved();
+            }            
+            if(wasSelected){
+                selectedItem = null;
+                item.fireSelected(false);
+            }            
+            item.fireRemoved(wasSelected);
             
             categoryCount.put(item.category, categoryCount.get(item.category)-1);
             if(categoryCount.get(item.category) == 0) {
                 for(NavigationListener listener : listeners) {
-                    listener.categoryRemoved(item.category);
+                    listener.categoryRemoved(item.category, wasSelected);
                 }
+            }
+            
+            // if it was selected, and no listeners responded to the prior
+            // callbacks by selecting something else, then select
+            // the item that was previously selected.
+            if(wasSelected && priorSelected != null && selectedItem == null) {
+                assert priorSelected.valid;
+                selectNavItem(priorSelected, null, false);
             }
         } else {
             LOG.debugf("Item {0} not contained in list.", item);
         }
     }
     
-    private void selectNavItem(NavItemImpl item, NavSelectable selectable) {
+    private void selectNavItem(NavItemImpl item, NavSelectable selectable, boolean addToHistory) {
         if(item != selectedItem) {
-            addToHistory(item);            
+            if(addToHistory) {
+                addToHistory(item);            
+            }
             if(selectedItem != null) {
                 selectedItem.fireSelected(false);
             }
@@ -194,13 +221,13 @@ class NavigatorImpl implements Navigator {
         
         @Override
         public void select() {
-            assert valid;
             select(null);
         }
         
         @Override
         public void select(NavSelectable selectable) {
-            selectNavItem(this, selectable);
+            assert valid;
+            selectNavItem(this, selectable, true);
         }
         
         @Override
@@ -224,9 +251,9 @@ class NavigatorImpl implements Navigator {
             }
         }
         
-        void fireRemoved() {
+        void fireRemoved(boolean wasSelected) {
             for(NavItemListener listener : listeners) {
-                listener.itemRemoved();
+                listener.itemRemoved(wasSelected);
             }
         }
         

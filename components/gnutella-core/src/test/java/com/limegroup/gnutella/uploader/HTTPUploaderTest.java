@@ -79,7 +79,7 @@ public class HTTPUploaderTest extends LimeTestCase {
 
         final LocalSocketAddressProviderStub localSocketAddressProvider = new LocalSocketAddressProviderStub();
         localSocketAddressProvider.setTLSCapable(true);
-        Injector injector = LimeTestUtils.createInjector(MyActivityCallback.class, new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(MyActivityCallback.class, new AbstractModule() {
             @Override
             protected void configure() {
                 bind(LocalSocketAddressProvider.class).toInstance(localSocketAddressProvider);

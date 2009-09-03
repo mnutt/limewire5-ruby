@@ -8,14 +8,12 @@ import org.limewire.ui.swing.painter.SearchTabPainter;
 import org.limewire.ui.swing.util.GuiUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 
 /**
  * Factory for creating search tab painters in the lw default
  *  colour scheme. 
  */
-@Singleton
 public class SearchTabPainterFactory {
     @Resource private Color selectionTopBevelBackground;
     @Resource private Color selectionTopBevelBorder;

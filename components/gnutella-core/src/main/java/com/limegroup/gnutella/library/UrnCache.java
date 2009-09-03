@@ -24,6 +24,7 @@ import org.limewire.concurrent.ListeningExecutorService;
 import org.limewire.concurrent.ListeningFuture;
 import org.limewire.concurrent.SimpleFuture;
 import org.limewire.core.api.library.FileProcessingEvent;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.IOUtils;
 import org.limewire.lifecycle.ServiceScheduler;
 import org.limewire.listener.EventBroadcaster;
@@ -33,7 +34,6 @@ import org.limewire.util.FileUtils;
 import org.limewire.util.GenericsUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.UrnSet;
@@ -47,7 +47,7 @@ import com.limegroup.gnutella.UrnSet;
  * 
  * @see URN
  */
-@Singleton
+@EagerSingleton
 public final class UrnCache {
 
     private static final Log LOG = LogFactory.getLog(UrnCache.class);
@@ -102,7 +102,7 @@ public final class UrnCache {
     @Inject
     void register(@Named("backgroundExecutor") ScheduledExecutorService scheduledExecutorService,
             ServiceScheduler serviceScheduler) {
-        serviceScheduler.scheduleAtFixedRate("urncache persister", new Runnable() {
+        serviceScheduler.scheduleWithFixedDelay("urncache persister", new Runnable() {
             @Override
             public void run() {
                 persistCache();
@@ -181,7 +181,7 @@ public final class UrnCache {
      */
     public synchronized void addUrns(File file, Set<? extends URN> urns) {
         UrnSetKey key = new UrnSetKey(file);
-        getUrnMap().put(key, Collections.unmodifiableSet(urns));
+        getUrnMap().put(key, UrnSet.unmodifiableSet(urns));
         dirty = true;
     }
 
@@ -265,7 +265,7 @@ public final class UrnCache {
             if (set != entry.getValue()) { // if it changed, replace the value
                                            // w/ unmodifiable
                 dirty = true;
-                entry.setValue(Collections.unmodifiableSet(set));
+                entry.setValue(UrnSet.unmodifiableSet(set));
             }
         }
         return dirty;

@@ -22,7 +22,6 @@ import org.limewire.security.AddressSecurityToken;
 import org.limewire.security.MACCalculatorRepositoryManager;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
@@ -91,7 +90,7 @@ public class QueryUnicasterTest extends org.limewire.gnutella.tests.LimeTestCase
         ConnectionSettings.DO_NOT_BOOTSTRAP.setValue(true);
         ConnectionSettings.CONNECT_ON_STARTUP.setValue(false);
 
-		Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+		Injector injector = LimeTestUtils.createInjector();
 		queryUnicaster = injector.getInstance(QueryUnicaster.class);
 		lifecycleManager = injector.getInstance(LifecycleManager.class);
 		queryUnicaster = injector.getInstance(QueryUnicaster.class);

@@ -54,7 +54,7 @@ import org.limewire.service.ErrorService;
  * handling. <code>BasicHttpAcceptor</code> needs to be started by invoking
  * {@link #start(ConnectionDispatcher)} in order to accept connection.
  */
-public class BasicHttpAcceptor implements ConnectionAcceptor, Service {
+public abstract class BasicHttpAcceptor implements ConnectionAcceptor, Service {
 
     private static final Log LOG = LogFactory.getLog(BasicHttpAcceptor.class);
 

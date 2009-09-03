@@ -4,21 +4,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.limewire.facebook.service.settings.FacebookReportBugs;
+import org.limewire.facebook.service.settings.FacebookURLs;
 import org.limewire.friend.api.Friend;
 import org.limewire.friend.api.FriendException;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.util.ExceptionUtils;
 
-import com.google.inject.assistedinject.Assisted;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
 
 public class PresenceListener implements Runnable {
     
@@ -29,12 +31,15 @@ public class PresenceListener implements Runnable {
     private Set<String> lastOnlineFriends = new HashSet<String>();
 
     private final Provider<Boolean> reportBugs;
+    private final Provider<Map<String, Provider<String>>> facebookURLs;
 
     @Inject
     PresenceListener(@Assisted FacebookFriendConnection connection,
-            @FacebookReportBugs Provider<Boolean> reportBugs) {
+            @FacebookReportBugs Provider<Boolean> reportBugs,
+            @FacebookURLs Provider<Map<String, Provider<String>>> facebookURLs) {
         this.connection = connection;
         this.reportBugs = reportBugs;
+        this.facebookURLs = facebookURLs;
     }
     
     public void run() {
@@ -47,7 +52,7 @@ public class PresenceListener implements Runnable {
         
         try{
             LOG.debugf("posting buddy list request: {0}", nvps);
-            String responseStr = connection.httpPOST("http://www.facebook.com", "/ajax/presence/update.php", nvps);
+            String responseStr = connection.httpPOST(facebookURLs.get().get(FacebookURLs.UPDATE_PRESENCES_URL).get(), nvps);
             if (responseStr == null) {
                 LOG.debug("no response for buddy list post");
                 throw new IOException("no buddy list response");

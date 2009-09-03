@@ -16,6 +16,7 @@ import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.LimeProps;
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
@@ -42,7 +43,6 @@ import org.limewire.util.OSUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.dht.DHTManager;
 import com.limegroup.gnutella.handshaking.HeaderNames;
@@ -50,7 +50,7 @@ import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
 import com.limegroup.gnutella.messages.vendor.HeaderUpdateVendorMessage;
 import com.limegroup.gnutella.statistics.OutOfBandStatistics;
 
-@Singleton
+@EagerSingleton
 public class NetworkManagerImpl implements NetworkManager {
 
     private static final Log LOG = LogFactory.getLog(NetworkManagerImpl.class);

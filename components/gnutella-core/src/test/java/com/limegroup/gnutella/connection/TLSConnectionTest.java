@@ -3,6 +3,8 @@ package com.limegroup.gnutella.connection;
 import java.net.InetAddress;
 import java.util.List;
 
+import junit.framework.Test;
+
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.FilterSettings;
 import org.limewire.core.settings.NetworkSettings;
@@ -11,10 +13,7 @@ import org.limewire.gnutella.tests.LimeTestCase;
 import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.net.SocketsManager.ConnectType;
 
-import junit.framework.Test;
-
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.LifecycleManager;
 import com.limegroup.gnutella.StubGnetConnectObserver;
@@ -65,7 +64,7 @@ public class TLSConnectionTest extends LimeTestCase {
    
     @Override
     public void setUp() throws Exception {
-        injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        injector = LimeTestUtils.createInjector();
         
         PORT++; // TODO: Remove hack to override port
         
@@ -79,7 +78,7 @@ public class TLSConnectionTest extends LimeTestCase {
         connectionManager = injector.getInstance(ConnectionManager.class);
         connectionManager.connect();
 
-        injector2 = LimeTestUtils.createInjector(); 
+        injector2 = LimeTestUtils.createInjectorNonEagerly(); 
         routedConnectionFactory = injector2.getInstance(RoutedConnectionFactory.class);        
         headersFactory = injector2.getInstance(HeadersFactory.class);
     }

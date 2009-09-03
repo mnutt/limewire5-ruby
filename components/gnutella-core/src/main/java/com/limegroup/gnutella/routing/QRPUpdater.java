@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.limewire.core.settings.SearchSettings;
 import org.limewire.core.settings.SharingSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.lifecycle.Service;
 import org.limewire.listener.EventListener;
@@ -20,7 +21,6 @@ import org.limewire.setting.evt.SettingEvent;
 import org.limewire.setting.evt.SettingListener;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.library.FileDescChangeEvent;
@@ -36,7 +36,7 @@ import com.limegroup.gnutella.xml.LimeXMLDocument;
  * Updates the QueryRouteTable. Listens for changes to shared files in the
  * FileManager. When changes occur, a new QRT will lazily be rebuilt.
  */
-@Singleton
+@EagerSingleton
 public class QRPUpdater implements SettingListener, Service, Inspectable {
 
     private static Log LOG = LogFactory.getLog(QRPUpdater.class);

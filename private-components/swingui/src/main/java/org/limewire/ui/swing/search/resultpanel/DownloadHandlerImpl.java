@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.limewire.ui.swing.event.SelectAndScrollDownloadEvent;
+import org.limewire.ui.swing.downloads.MainDownloadPanel;
 import org.limewire.ui.swing.library.LibraryMediator;
 import org.limewire.ui.swing.search.model.BasicDownloadState;
 import org.limewire.ui.swing.search.model.SearchResultsModel;
@@ -15,14 +15,16 @@ class DownloadHandlerImpl implements DownloadHandler {
     private final SearchResultsModel searchResultsModel;
     private List<DownloadPreprocessor> downloadPreprocessors = new ArrayList<DownloadPreprocessor>();
     private LibraryMediator libraryMediator;
+    private final MainDownloadPanel mainDownloadPanel;
     
     /**
      * Starts all downloads from searches.  Navigates to Library or Downloads without downloading if the file is in either of those locations.
      */
     public DownloadHandlerImpl(SearchResultsModel searchResultsModel,
-            LibraryMediator libraryMediator) {
+            LibraryMediator libraryMediator, MainDownloadPanel mainDownloadPanel) {
         this.searchResultsModel = searchResultsModel;
         this.libraryMediator = libraryMediator;
+        this.mainDownloadPanel = mainDownloadPanel;
 
         this.downloadPreprocessors.add(new LicenseWarningDownloadPreprocessor());
     }
@@ -59,7 +61,7 @@ class DownloadHandlerImpl implements DownloadHandler {
     private boolean maybeNavigate(VisualSearchResult vsr) {
         if (vsr.getDownloadState() == BasicDownloadState.DOWNLOADED
                 || vsr.getDownloadState() == BasicDownloadState.DOWNLOADING) {
-            new SelectAndScrollDownloadEvent(vsr.getUrn()).publish();
+            mainDownloadPanel.selectAndScrollTo(vsr.getUrn());
             return true;
         } else if (vsr.getDownloadState() == BasicDownloadState.LIBRARY) {
             libraryMediator.selectInLibrary(vsr.getUrn());

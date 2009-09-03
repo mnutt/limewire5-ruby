@@ -3,6 +3,7 @@ package org.limewire.ui.swing.mainframe;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.EventObject;
@@ -17,7 +18,6 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
-import org.bushe.swing.event.annotation.EventSubscriber;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.Resource;
@@ -27,6 +27,7 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.limewire.core.api.Application;
 import org.limewire.core.impl.MockModule;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.inject.LimeWireInjectModule;
 import org.limewire.inject.Modules;
 import org.limewire.inspection.Inspector;
@@ -37,11 +38,6 @@ import org.limewire.ui.swing.browser.LimeMozillaInitializer;
 import org.limewire.ui.swing.components.LimeJFrame;
 import org.limewire.ui.swing.components.PlainCheckBoxMenuItemUI;
 import org.limewire.ui.swing.components.PlainMenuItemUI;
-import org.limewire.ui.swing.event.AboutDisplayEvent;
-import org.limewire.ui.swing.event.EventAnnotationProcessor;
-import org.limewire.ui.swing.event.ExitApplicationEvent;
-import org.limewire.ui.swing.event.OptionsDisplayEvent;
-import org.limewire.ui.swing.event.RestoreViewEvent;
 import org.limewire.ui.swing.menu.LimeMenuBar;
 import org.limewire.ui.swing.options.OptionsDialog;
 import org.limewire.ui.swing.settings.InstallSettings;
@@ -90,7 +86,7 @@ public class AppFrame extends SingleFrameApplication {
     
     @Inject private Application application;
     @Inject private LimeWireSwingUI ui;
-    @Inject private SetupWizard setupWizard;
+    @Inject private Provider<SetupWizard> setupWizardProvider;
     @Inject private Provider<OptionsDialog> options;
     @Inject private FramePositioner framePositioner;
     @Inject private TrayNotifier trayNotifier;
@@ -193,7 +189,7 @@ public class AppFrame extends SingleFrameApplication {
     
     @Override
     protected void ready() {
-        if (setupWizard.shouldShowWizard()) {
+        if (SetupWizard.shouldShowWizard(application)) {
             JXPanel glassPane = new JXPanel();
             glassPane.setOpaque(false);
             glassPane.setBackgroundPainter(new AbstractPainter<JComponent>() {
@@ -207,16 +203,15 @@ public class AppFrame extends SingleFrameApplication {
 
             ui.hideMainPanel();
             glassPane.setVisible(true);
-            setupWizard.showDialogIfNeeded(getMainFrame());
+            setupWizardProvider.get().showDialog(getMainFrame(), application);
             glassPane.setVisible(false);
             ui.showMainPanel();
         }
+        
         // Make absolutely positively certain that we've set this to true.
         InstallSettings.UPGRADED_TO_5.setValue(true);
         
         validateSaveDirectory();
-
-        EventAnnotationProcessor.subscribe(this);
 
         // Now that the UI is ready to use, update it's priority a bit.
         Thread eventThread = Thread.currentThread();
@@ -226,14 +221,9 @@ public class AppFrame extends SingleFrameApplication {
 
         ui.loadProNag();
     }
-
-    @EventSubscriber
-    public void handleShowAboutWindow(AboutDisplayEvent event) {
-        new AboutWindow(getMainFrame(), application).showDialog();
-    }
-    
-    @EventSubscriber
-    public void handleShowOptionsDialog(OptionsDisplayEvent event) {
+   
+    @Action
+    public void showOptionsDialog(ActionEvent actionEvent) { // DO NOT CHANGE THIS METHOD NAME!  
         if(lastOptionsDialog == null) {
             lastOptionsDialog = options.get();
         }
@@ -241,31 +231,16 @@ public class AppFrame extends SingleFrameApplication {
         if (!lastOptionsDialog.isVisible()) {
             lastOptionsDialog.initOptions();
             lastOptionsDialog.setLocationRelativeTo(GuiUtils.getMainFrame());
-            if(event.getSelectedPanel() != null){
-                lastOptionsDialog.select(event.getSelectedPanel());
+            if(actionEvent.getID() == ActionEvent.ACTION_PERFORMED && actionEvent.getActionCommand() != null){
+                lastOptionsDialog.select(actionEvent.getActionCommand());
             }
             lastOptionsDialog.setVisible(true);
         }
     }
     
-    @EventSubscriber
-    public void handleExitApplication(ExitApplicationEvent event) {
-        exit(event.getActionEvent());
-    }
-    
-    @EventSubscriber
-    public void handleRestoreView(RestoreViewEvent event) {
-        if(!SwingUiSettings.MINIMIZE_TO_TRAY.getValue()) {
-            trayNotifier.hideTrayIcon();
-        }
-        getMainFrame().setVisible(true);
-        getMainFrame().setState(Frame.NORMAL);
-        getMainFrame().toFront();
-    }
-    
     @Action
-    public void showAboutWindow() { // DO NOT CHANGE THIS METHOD NAME!  
-        handleShowAboutWindow(null);
+    public void exitApplication(ActionEvent actionEvent) { // DO NOT CHANGE THIS METHOD NAME!  
+        exit(actionEvent);
     }
     
     @Action
@@ -275,8 +250,13 @@ public class AppFrame extends SingleFrameApplication {
     }    
 
     @Action
-    public void restoreView() { // DO NOT CHANGE THIS METHOD NAME!
-        handleRestoreView(null);
+    public void restoreView() { // DO NOT CHANGE THIS METHOD NAME! 
+        if(!SwingUiSettings.MINIMIZE_TO_TRAY.getValue()) {
+            trayNotifier.hideTrayIcon();
+        }
+        getMainFrame().setVisible(true);
+        getMainFrame().setState(Frame.NORMAL);
+        getMainFrame().toFront();
     }
 
     /**
@@ -298,7 +278,7 @@ public class AppFrame extends SingleFrameApplication {
         Injector childInjector;
         if (injector == null) {
             LimeMozillaInitializer.initialize();
-            childInjector = Guice.createInjector(Stage.PRODUCTION,
+            childInjector = Guice.createInjector(Stage.DEVELOPMENT,
                     new MockModule(),
                     new LimeWireInjectModule(),
                     new LimeWireSwingUiModule(false),
@@ -306,7 +286,7 @@ public class AppFrame extends SingleFrameApplication {
         } else {
             // TODO: We want to use child injectors, but weird things happen
             //       with circular dependencies...
-            childInjector = Guice.createInjector(Stage.PRODUCTION,
+            childInjector = Guice.createInjector(Stage.DEVELOPMENT,
                     Modules.providersFrom(injector),
                     new LimeWireInjectModule(),
                     thiz,
@@ -324,6 +304,7 @@ public class AppFrame extends SingleFrameApplication {
                         }
                     });
         }        
+        GuiceUtils.loadEagerSingletons(childInjector);
         return childInjector;
     }
     

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.DeflaterOutputStream;
 
+import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.inspection.InspectionException;
 import org.limewire.inspection.Inspector;
 import org.limewire.io.GGEP;
@@ -33,7 +34,7 @@ public class InspectionResponseFactoryImpl implements InspectionResponseFactory 
     public static final float REDUNDANCY = 1.2f;
     
     private final Inspector inspector;
-    
+
     private final FECUtils fecUtils;
     
     @Inject
@@ -90,7 +91,7 @@ public class InspectionResponseFactoryImpl implements InspectionResponseFactory 
         
         for (int i = 0; i < requested.length; i++) {
             try {
-                responses.put(i, inspector.inspect(requested[i]));
+                responses.put(i, inspector.inspect(requested[i], ApplicationSettings.ALLOW_ANONYMOUS_STATISTICS_GATHERING.get()));
             } catch (InspectionException skip){}
         }
         

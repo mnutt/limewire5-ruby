@@ -45,7 +45,7 @@ public final class FileDescTest extends org.limewire.gnutella.tests.LimeTestCase
 
 	@Override
 	protected void setUp() throws Exception {
-	    Injector injector = LimeTestUtils.createInjector();
+	    Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		urnCache = injector.getInstance(UrnCache.class);
 		factory = injector.getInstance(FileDescFactory.class);
 	}

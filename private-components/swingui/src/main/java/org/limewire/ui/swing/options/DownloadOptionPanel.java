@@ -26,6 +26,7 @@ import org.limewire.ui.swing.options.actions.OKDialogAction;
 import org.limewire.ui.swing.settings.SwingUiSettings;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
+import org.limewire.ui.swing.util.ResizeUtils;
 import org.limewire.ui.swing.util.SaveDirectoryHandler;
 import org.limewire.util.MediaType;
 
@@ -138,7 +139,7 @@ public class DownloadOptionPanel extends OptionPanel {
             add(browseSaveLocationButton, "wrap");
 
             saveFolderPanel = manageFoldersOptionPanelFactory.create(new OKDialogAction(), new CancelDialogAction());
-            saveFolderPanel.setSize(new Dimension(400,500));
+            ResizeUtils.forceSize(saveFolderPanel, new Dimension(600,430));
             
             multiLocationConfigureButton = new JButton(new DialogDisplayAction(this, saveFolderPanel, 
                     I18n.tr("Download Folders"),I18n.tr("Configure..."),I18n.tr("Configure where different categories are downloaded")));

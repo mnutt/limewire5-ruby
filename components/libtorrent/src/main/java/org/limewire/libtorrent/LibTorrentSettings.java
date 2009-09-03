@@ -1,9 +1,10 @@
 package org.limewire.libtorrent;
 
 
-import org.limewire.bittorrent.TorrentSettings;
+import org.limewire.bittorrent.TorrentManagerSettings;
 
 import com.sun.jna.Structure;
+import com.sun.jna.WString;
 
 public class LibTorrentSettings extends Structure {
 
@@ -18,9 +19,34 @@ public class LibTorrentSettings extends Structure {
      * it is unlimited.
      */
     public int max_download_bandwidth = 0;
+    
+    public int listen_start_port = 6881;
+    
+    public int listen_end_port = 6889;
 
-    public LibTorrentSettings(TorrentSettings torrentSettings) {
+    public WString uploads_directory;
+    
+    public float seed_ratio_limit;
+    
+    public float seed_time_ratio_limit;
+    
+    public int seed_time_limit;
+    
+    public int active_downloads_limit;
+    public int active_seeds_limit;
+    public int active_limit;
+    
+    public LibTorrentSettings(TorrentManagerSettings torrentSettings) {
         this.max_upload_bandwidth = torrentSettings.getMaxUploadBandwidth();
         this.max_download_bandwidth = torrentSettings.getMaxDownloadBandwidth();
+        this.listen_start_port = torrentSettings.getListenStartPort();
+        this.listen_end_port = torrentSettings.getListenEndPort();
+        this.uploads_directory = new WString(torrentSettings.getTorrentUploadsFolder().getAbsolutePath());
+        this.seed_ratio_limit = torrentSettings.getSeedRatioLimit();
+        this.seed_time_ratio_limit = torrentSettings.getSeedTimeRatioLimit();
+        this.seed_time_limit = torrentSettings.getSeedTimeLimit();
+        this.active_downloads_limit = torrentSettings.getActiveDownloadsLimit();
+        this.active_seeds_limit = torrentSettings.getActiveSeedsLimit();
+        this.active_limit = torrentSettings.getActiveLimit();
     }
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.limewire.friend.api.Friend;
 import org.limewire.inspection.InspectionPoint;
+import org.limewire.inspection.DataCategory;
 import org.limewire.listener.EventBroadcaster;
 
 import com.google.inject.Inject;
@@ -16,10 +17,10 @@ import com.google.inject.Singleton;
 @Singleton
 class FileCollectionManagerImpl implements FileCollectionManager {
     
-    @InspectionPoint("gnutella shared file list")
+    @InspectionPoint(value = "gnutella shared file list", category = DataCategory.USAGE)
     private final SharedFileCollectionImpl defaultSharedCollection;
     
-    @InspectionPoint("incomplete file list")
+    @InspectionPoint(value = "incomplete file list", category = DataCategory.USAGE)
     private final IncompleteFileCollectionImpl incompleteCollection;
     
     private final SharedFileCollectionImplFactory sharedFileCollectionImplFactory;

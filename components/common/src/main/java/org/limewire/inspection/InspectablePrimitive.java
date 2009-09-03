@@ -19,4 +19,5 @@ import java.lang.annotation.Target;
 public @interface InspectablePrimitive {
     String value();
     InspectionRequirement[] requires() default {};
+    DataCategory category() default DataCategory.NETWORK;
 }

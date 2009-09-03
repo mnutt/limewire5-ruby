@@ -50,7 +50,7 @@ public class PingRequestTest extends org.limewire.gnutella.tests.LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(LocalSocketAddressProvider.class).to(LocalSocketAddressProviderStub.class);

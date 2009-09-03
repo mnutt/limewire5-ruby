@@ -14,23 +14,20 @@ import org.limewire.friend.api.FriendConnectionFactoryRegistry;
 import org.limewire.friend.api.FriendException;
 import org.limewire.friend.api.FriendPresence;
 import org.limewire.friend.api.Network;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Asynchronous;
 import org.limewire.lifecycle.Service;
 import org.limewire.listener.EventBean;
-import org.limewire.listener.EventListener;
 import org.limewire.listener.EventMulticaster;
 import org.limewire.listener.EventUtils;
-import org.limewire.listener.ListenerSupport;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
-import org.limewire.xmpp.activity.XmppActivityEvent;
 import org.limewire.xmpp.api.client.JabberSettings;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 
-@Singleton
+@EagerSingleton
 public class XMPPConnectionFactoryImpl implements Service, FriendConnectionFactory {
 
     private static final Log LOG = LogFactory.getLog(XMPPConnectionFactoryImpl.class);
@@ -59,34 +56,6 @@ public class XMPPConnectionFactoryImpl implements Service, FriendConnectionFacto
     @Inject
     void register(org.limewire.lifecycle.ServiceRegistry registry) {
         registry.register(this);
-    }
-    
-    /**
-     * Sets the connection mode to idle (extended away) after receiving activity
-     * events triggered by periods of inactivity.
-     */
-    @Inject
-    void register(ListenerSupport<XmppActivityEvent> listenerSupport) {
-        listenerSupport.addListener(new EventListener<XmppActivityEvent>() {
-            @Override
-            public void handleEvent(XmppActivityEvent event) {
-                switch(event.getSource()) {
-                case Idle:
-                    try {
-                        setModeImpl(FriendPresence.Mode.xa);
-                    } catch (FriendException e) {
-                        LOG.debugf(e, "couldn't set mode based on {0}", event);
-                    }
-                    break;
-                case Active:
-                    try {
-                        setModeImpl(jabberSettings.isDoNotDisturbSet() ? FriendPresence.Mode.dnd : FriendPresence.Mode.available);
-                    } catch (FriendException e) {
-                        LOG.debugf(e, "couldn't set mode based on {0}", event);
-                    }
-                }
-            }
-        });
     }
 
     @Override
@@ -174,6 +143,7 @@ public class XMPPConnectionFactoryImpl implements Service, FriendConnectionFacto
         return null;
     }
 
+    @SuppressWarnings("unused")
     private void setModeImpl(FriendPresence.Mode mode) throws FriendException {
         XMPPFriendConnectionImpl connection = getActiveConnection();
         if (connection != null) {

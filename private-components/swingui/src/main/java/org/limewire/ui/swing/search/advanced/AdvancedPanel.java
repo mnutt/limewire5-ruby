@@ -43,7 +43,7 @@ abstract class AdvancedPanel extends JPanel {
 	/**
 	 * Resource package since this class is abstract.
 	 */
-    private class Resources {
+    private static class Resources {
         @Resource(key="AdvancedPanel.font") public Font font;
         public Resources() {
             GuiUtils.assignResources(this);

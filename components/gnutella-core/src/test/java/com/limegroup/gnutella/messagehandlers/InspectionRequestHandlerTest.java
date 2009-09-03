@@ -55,7 +55,7 @@ public class InspectionRequestHandlerTest extends BaseTestCase {
                 bind(SecureMessageVerifier.class).annotatedWith(Names.named("inspection")).toInstance(verifier);
             }
         };
-        injector = LimeTestUtils.createInjector(m);
+        injector = LimeTestUtils.createInjectorNonEagerly(m);
     }
 
     public void testForwardsToLeaves() throws Exception {

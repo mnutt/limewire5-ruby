@@ -20,7 +20,6 @@ import org.limewire.io.IOUtils;
 import org.limewire.util.StringUtils;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.messages.Message;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.PingRequest;
@@ -86,7 +85,7 @@ public final class ServerSideConnectBackRedirectTest extends ServerSideTestCase 
 
 	@Override
 	protected void setUp() throws Exception {
-	    Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+	    Injector injector = LimeTestUtils.createInjector();
 	    super.setUp(injector);
 	    messageFactory = injector.getInstance(MessageFactory.class);
 	    

@@ -149,7 +149,7 @@ public class HTTPUploadSession extends BandwidthTrackerImpl implements UploadSlo
     
     @Override
     public String toString() {
-        return getClass().getName() + "[host=" + getHost() + ",queueStatus=" + queueStatus + "]";
+        return getClass().getSimpleName() + "[host=" + getHost() + ",fileName=" + (uploader != null ? uploader.getFileName() : "no uploader yet") + ",queueStatus=" + queueStatus + "]";
     }
 
 }

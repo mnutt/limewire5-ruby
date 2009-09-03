@@ -41,31 +41,19 @@ class RemoveFromLibraryAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {       
-        File currentSong = PlayerUtils.getCurrentSongFile();
         List<LocalFileItem> selected = selectedLocalFileItems.get();
         
-        int confirmation = FocusJOptionPane.showConfirmDialog(null, getMessage(selected), I18n.trn("Remove File","Remove Files", selected.size()), JOptionPane.OK_CANCEL_OPTION); 
-        if (confirmation == JOptionPane.OK_OPTION) {
-            final List<File> toRemove = new ArrayList<File>(selected.size());
-            for(LocalFileItem item : selected) {
-                if(item.getFile().equals(currentSong)){
-                    PlayerUtils.stop();
-                }
-                if(!item.isIncomplete()) {
-                    toRemove.add(item.getFile());
-                }
-            }
-
-            if(!toRemove.isEmpty()) {
-                BackgroundExecutorService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        for(File file : toRemove) {
-                            libraryManager.getLibraryManagedList().removeFile(file);
-                        }
-                    }
-                });
-            }
+        String removeText = I18n.tr("Remove");
+        String cancelText = I18n.tr("Cancel");
+        
+        Object[] options = new Object[] {removeText, cancelText};
+        
+        int confirmation = FocusJOptionPane.showOptionDialog(null, 
+                getMessage(selected), I18n.trn("Remove File","Remove Files", selected.size()), JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                options, cancelText);
+        
+        if (confirmation > -1 && options[confirmation] == removeText) {
+            removeFromLibrary(libraryManager, selected);
         }
     }
     
@@ -106,5 +94,30 @@ class RemoveFromLibraryAction extends AbstractAction {
             sharedFileListManager.getModel().getReadWriteLock().readLock().unlock();
         }
         return hasSharedFile;
+    }
+    
+    static void removeFromLibrary(final LibraryManager libraryManager, final List<LocalFileItem> selected) {
+        File currentSong = PlayerUtils.getCurrentSongFile();
+        
+        final List<File> toRemove = new ArrayList<File>(selected.size());
+        for(LocalFileItem item : selected) {
+            if(item.getFile().equals(currentSong)){
+                PlayerUtils.stop();
+            }
+            if(!item.isIncomplete()) {
+                toRemove.add(item.getFile());
+            }
+        }
+
+        if(!toRemove.isEmpty()) {
+            BackgroundExecutorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    for(File file : toRemove) {
+                        libraryManager.getLibraryManagedList().removeFile(file);
+                    }
+                }
+            });
+        }
     }
 }

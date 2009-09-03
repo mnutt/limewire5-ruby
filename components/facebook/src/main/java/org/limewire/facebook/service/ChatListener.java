@@ -1,6 +1,7 @@
 package org.limewire.facebook.service;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,6 +10,7 @@ import org.limewire.facebook.service.livemessage.LiveMessageHandler;
 import org.limewire.facebook.service.livemessage.LiveMessageHandlerRegistry;
 import org.limewire.facebook.service.settings.FacebookAppID;
 import org.limewire.facebook.service.settings.FacebookReportBugs;
+import org.limewire.facebook.service.settings.FacebookURLs;
 import org.limewire.friend.api.ChatState;
 import org.limewire.friend.api.MessageReader;
 import org.limewire.logging.Log;
@@ -39,16 +41,19 @@ public class ChatListener implements Runnable {
     private volatile boolean done;
 
     private final Provider<Boolean> reportBugs;
+    private final Provider<Map<String, Provider<String>>> facebookURLs;
 
     @Inject
     ChatListener(@Assisted FacebookFriendConnection connection,
                  LiveMessageHandlerRegistry handlerRegistry,
                  @FacebookAppID Provider<String> facebookAppID,
-                 @FacebookReportBugs Provider<Boolean> reportBugs) {
+                 @FacebookReportBugs Provider<Boolean> reportBugs,
+                 @FacebookURLs Provider<Map<String, Provider<String>>> facebookURLs) {
         this.connection = connection;
         this.handlerRegistry = handlerRegistry;
         this.facebookAppID = facebookAppID;
         this.reportBugs = reportBugs;
+        this.facebookURLs = facebookURLs;
         this.seq = -1;
         this.uid = connection.getUID();
         this.channel = connection.getChannel();
@@ -125,8 +130,7 @@ public class ChatListener implements Runnable {
             if("app_msg".equals(msgType) && appId.equals(facebookAppID.get())) {
                 processLiveMessage(payload);
             } else if ("msg".equals(msgType) || "typ".equals(msgType)) {
-                // disable processing of chat messages
-//                processChatMessage(payload, msgType);
+                // LWC-4069 processChatMessage(payload, msgType);
             } else {
                 LOG.debugf("unhandled payload: {0}", payload.toString());
             }
@@ -161,6 +165,7 @@ public class ChatListener implements Runnable {
         }
     }
 
+    @SuppressWarnings("unused")
     private void processChatMessage(JSONObject payload, String msgType) throws JSONException {
         String parsedSenderId = payload.getString("from");
 
@@ -217,7 +222,10 @@ public class ChatListener implements Runnable {
     }
     
     private String getMessageRequestingUrl(long seq) {
-        return "http://0.channel" + channel + ".facebook.com/x/0/false/p_" + uid + "=" + seq;
+        return facebookURLs.get().get(FacebookURLs.RECEIVE_CHAT_URL).get().
+                replaceAll("\\$channel", channel).
+                replaceAll("\\$uid", uid).
+                replaceAll("\\$seq", Long.toString(seq));
     }
     
     /**

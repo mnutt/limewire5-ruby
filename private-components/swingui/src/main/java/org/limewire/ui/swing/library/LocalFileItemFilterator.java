@@ -13,8 +13,10 @@ import ca.odell.glazedlists.TextFilterator;
  */
 class LocalFileItemFilterator implements TextFilterator<LocalFileItem> {
 
+    private Category category;
+    
     public LocalFileItemFilterator(Category category) {
-        
+        this.category = category;
     }
     
     @Override
@@ -29,6 +31,11 @@ class LocalFileItemFilterator implements TextFilterator<LocalFileItem> {
                 baseList.add(value.toString());
             }
         }
+        
+        if(category == null) {
+            baseList.add(fileItem.getCategory().getSingularName());
+        }
+        baseList.add(fileItem.getFileName());
     }
 
 }

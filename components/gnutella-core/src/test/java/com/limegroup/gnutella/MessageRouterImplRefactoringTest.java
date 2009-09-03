@@ -48,7 +48,7 @@ public class MessageRouterImplRefactoringTest extends BaseTestCase {
      * Neeeded as each test method needs its own participants. 
      */
     private Injector createInjectorAndInitialize(Module... modules) {
-        Injector injector = LimeTestUtils.createInjector(modules);
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(modules);
 //        testConnectionFactory = injector.getInstance(TestConnectionFactory.class);
         messageRouterImpl = (MessageRouterImpl) injector.getInstance(MessageRouter.class);
         messageRouterImpl.start();

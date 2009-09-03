@@ -20,6 +20,8 @@
         <dependency org="org.limewire" name="mojito-ui" rev="latest.integration" conf="compile,runtime"/>
         <dependency org="org.limewire" name="setting" rev="latest.integration" conf="compile,runtime"/>
         <dependency org="org.limewire" name="core-settings" rev="latest.integration" conf="compile,runtime"/>
+        <dependency org="org.limewire" name="facebook" rev="latest.integration" conf="compile,runtime"/>
+        <dependency org="org.limewire" name="friend" rev="latest.integration" conf="compile,runtime"/>
         
         <dependency org="none" name="httpcore" rev="${httpcore.version}" conf="compile,runtime"/>
         <dependency org="none" name="httpclient" rev="${httpclient.version}" conf="compile,runtime"/>
@@ -33,6 +35,7 @@
         <dependency org="none" name="mozswing" rev="${mozswing.version}" conf="compile,runtime"/>
         
         <dependency org="org.limewire" name="common" rev="latest.integration" conf="test"/>
+        <dependency org="org.limewire" name="gnutella-core" rev="latest.integration" conf="test"/>
         
         <dependency org="none" name="tests/inspTool" rev="${inspTool.version}" conf="test"/>
         <dependency org="none" name="tests/bcel" rev="${bcel.version}" conf="test"/>

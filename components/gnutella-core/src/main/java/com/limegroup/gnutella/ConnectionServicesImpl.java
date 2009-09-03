@@ -154,9 +154,7 @@ public class ConnectionServicesImpl implements ConnectionServices {
      * @see com.limegroup.gnutella.ConnectionServices#connect()
      */
     public void connect() {
-        spamServices.get().adjustSpamFilters();
-        
-        //delegate to connection manager
+        // Delegate to connection manager
         connectionManager.get().connect();
     }
 

@@ -1,45 +1,50 @@
 package org.limewire.ui.swing.friends.chat;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.limewire.friend.api.FileMetaData;
-import org.limewire.friend.api.FileOffer;
-import org.limewire.friend.api.FileOfferEvent;
 import org.limewire.friend.api.Friend;
 import org.limewire.friend.api.FriendPresence;
 import org.limewire.friend.api.FriendPresenceEvent;
 import org.limewire.friend.api.IncomingChatListener;
 import org.limewire.friend.api.MessageReader;
 import org.limewire.friend.api.MessageWriter;
+import org.limewire.inject.LazySingleton;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
 import org.limewire.listener.SwingEDTEvent;
-import org.limewire.ui.swing.friends.chat.Message.Type;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import org.limewire.ui.swing.util.SwingUtils;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 
+import com.google.inject.Inject;
+
 /**
- * General purpose model for the chat window. Keeps track of presences, userId, etc..
- * Most EventBus chat events are now fired from within this class. Prior to firing
- * these events we ensure that the ChatPanel has been constructed. 
+ * Keeps a list of friends and their presences. As friends sign on and off,
+ * this list is automatically updated. This also listens for incoming chat
+ * messages from a given presence. 
  */
-@Singleton
-public class ChatModel {
-	/** Reference to the heavy weight panel */
-    private final ChatFramePanel chatFramePanel;
+@LazySingleton
+class ChatModel {
     /** List of friends to chat with */
     private final EventList<ChatFriend> chatFriends;
     /** Mapping of friendId to ChatFriend */
     private final Map<String, ChatFriend> idToFriendMap;
     
+    private final ListenerSupport<FriendPresenceEvent> presenceSupport;
+    private PresenceListener presenceEvent;
+    
+    /**
+     * Listener for incoming chat events. 
+     */
+    private final List<IncomingListener> incomingListeners = new CopyOnWriteArrayList<IncomingListener>();
+        
     @Inject
-    public ChatModel(ChatFramePanel chatFramePanel) {
-        this.chatFramePanel = chatFramePanel;
+    public ChatModel(ListenerSupport<FriendPresenceEvent> presenceSupport) {
+        this.presenceSupport = presenceSupport;
         this.chatFriends = new BasicEventList<ChatFriend>();
         this.idToFriendMap = new HashMap<String, ChatFriend>();
     }
@@ -59,64 +64,38 @@ public class ChatModel {
         return idToFriendMap.get(friendId);
     }
     
-    /**
-     * Removes this chatFriendId.
-     */
-    public ChatFriend removeChatFriend(String friendId) {
-        return idToFriendMap.remove(friendId);
+    public void addIncomingListener(IncomingListener listener) {
+        incomingListeners.add(listener);
     }
     
-    @Inject 
-    void register(ListenerSupport<FriendPresenceEvent> presenceSupport,
-            ListenerSupport<FileOfferEvent> fileOfferEventListenerSupport) {
-        
-        
+    public void removeIncomingListener(IncomingListener listener) {
+        incomingListeners.remove(listener);
+    }
+    
+    /**
+     * Registers presence listeners.
+     */
+    public void registerListeners() {
         // listen for presence sign on/off changes
-        presenceSupport.addListener(new EventListener<FriendPresenceEvent>() {
-            @Override
-            @SwingEDTEvent
-            public void handleEvent(FriendPresenceEvent event) {
-                handlePresenceEvent(event);
-            }
-        });
-        
-        // listens for file offers
-        fileOfferEventListenerSupport.addListener(new EventListener<FileOfferEvent>() {
-            @Override
-            @SwingEDTEvent
-            public void handleEvent(FileOfferEvent event) {
-                chatFramePanel.createChatPanel();
-                FileOffer fileOfferReceived = event.getData();
-                handleIncomingFileOffer(fileOfferReceived.getFile(), fileOfferReceived.getFromJID());
-            }
-        });
+        if(presenceEvent == null)
+            presenceEvent = new PresenceListener();
+        presenceSupport.addListener(presenceEvent);
     }
     
     /**
-     * Handles an file offer from a presence. Ensures that ChatPanel has been created
-     * prior to firing the MessageRecieved event.
+     * Removes presence listeners and clears the list of friends.
      */
-    private void handleIncomingFileOffer(FileMetaData metadata, String fromJID) {
-        int slashIndex = fromJID.indexOf("/");
-        String fromFriendId = (slashIndex < 0) ? fromJID : fromJID.substring(0, slashIndex);
-
-        // look up and get chatFriend, and get presence which sent the file offer
-        ChatFriend chatFriend = idToFriendMap.get(fromFriendId);
-
-        if (chatFriend != null) {
-            Map<String, FriendPresence> presences = chatFriend.getFriend().getPresences();
-            FriendPresence fileOfferPresence = presences.get(fromJID);
-            if (fileOfferPresence != null) {
-                new MessageReceivedEvent(new MessageFileOfferImpl(fromFriendId, fromFriendId,
-                        Type.RECEIVED, metadata, fileOfferPresence)).publish();
-            }
-        }
+    public void unregisterListeners() {
+        if(presenceEvent != null)
+            presenceSupport.removeListener(presenceEvent);
+        idToFriendMap.clear();
+        chatFriends.clear();
     }
     
     /**
      * Updates the list of ChatFriends as presences sign on and off.
      */
-    private void handlePresenceEvent(FriendPresenceEvent event) {
+    void handlePresenceEvent(FriendPresenceEvent event) {
         final FriendPresence presence = event.getData();
         final Friend friend = presence.getFriend();
         ChatFriend chatFriend = idToFriendMap.get(friend.getId());
@@ -133,6 +112,8 @@ public class ChatModel {
             if (chatFriend != null) {
                 if (shouldRemoveFromFriendsList(chatFriend)) {
                     chatFriends.remove(idToFriendMap.remove(friend.getId()));
+                    idToFriendMap.remove(chatFriend);
+                    friend.removeChatListener();
                 }
                 chatFriend.update();
             }
@@ -168,20 +149,37 @@ public class ChatModel {
             idToFriendMap.put(presence.getFriend().getId(), chatFriend);
         }
 
-        final ChatFriend chatFriendForIncomingChat = chatFriend;
+        final ChatFriend friend = chatFriend;
         IncomingChatListener incomingChatListener = new IncomingChatListener() {
-            public MessageReader incomingChat(MessageWriter writer) {
-                chatFramePanel.createChatPanel();
-                MessageWriter writerWrapper = new MessageWriterImpl(chatFriendForIncomingChat, writer);
-                ConversationSelectedEvent event =
-                        new ConversationSelectedEvent(chatFriendForIncomingChat, writerWrapper, false);
-                event.publish();
-                //Hang out until a responder has processed this event
-                event.await();
-                return new MessageReaderImpl(chatFriendForIncomingChat);
+            public MessageReader incomingChat(final MessageWriter writer) {
+                SwingUtils.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        MessageWriter writerWrapper = new MessageWriterImpl(friend, writer);
+                        fireIncomingEvent(friend, writerWrapper);
+                    }
+                });
+                return new MessageReaderImpl(friend);
             }
         };
         presence.getFriend().setChatListenerIfNecessary(incomingChatListener);
         chatFriend.update();
+    }
+    
+    private void fireIncomingEvent(ChatFriend chatFriend, MessageWriter messageWriter) {
+        for(IncomingListener listener : incomingListeners) {
+            listener.incomingChat(chatFriend, messageWriter);
+        }
+    }
+    
+    /**
+     * Listens for changes in friend presences.
+     */
+    private class PresenceListener implements EventListener<FriendPresenceEvent> {
+        @Override
+        @SwingEDTEvent
+        public void handleEvent(FriendPresenceEvent event) {
+            handlePresenceEvent(event);
+        }
     }
 }

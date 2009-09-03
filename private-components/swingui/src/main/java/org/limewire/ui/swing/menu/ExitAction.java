@@ -5,13 +5,16 @@ package org.limewire.ui.swing.menu;
 
 import java.awt.event.ActionEvent;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
+
+import org.jdesktop.application.Application;
 import org.limewire.ui.swing.action.AbstractAction;
-import org.limewire.ui.swing.event.ExitApplicationEvent;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
 
-class ExitAction extends AbstractAction {
+public class ExitAction extends AbstractAction {
     
     @Inject
     public ExitAction() {
@@ -20,7 +23,8 @@ class ExitAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        new ExitApplicationEvent(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-                "Shutdown")).publish();
+        ActionMap actionMap = Application.getInstance().getContext().getActionMap();
+        Action exitApplication = actionMap.get("exitApplication");
+        exitApplication.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Shutdown"));
     }
 }

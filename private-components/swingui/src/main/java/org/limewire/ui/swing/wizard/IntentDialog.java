@@ -263,7 +263,7 @@ public class IntentDialog extends LimeJDialog {
     private void setTextContents() {
         String heading  = I18n.tr("Some Legal Stuff");
         String bodyText1
-        = I18n.tr("<html><body>LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only. Copyright laws may forbid obtaining or distributing certain copyrighted content. Learn more about <a href=\"{0}\">Copyright Information</a></body></html>", copyrightURL);
+        = I18n.tr("<html><body>LimeWire Basic and LimeWire PRO are peer-to-peer programs for sharing authorized files only. Copyright laws may forbid obtaining or distributing certain copyrighted content. Learn more information about <a href=\"{0}\">Copyright</a></body></html>.", copyrightURL);
         String copyInfringementText = I18n.tr("Copyright Infringement");
         String privacyText = I18n.tr("Privacy Policy");
         String licenseText = I18n.tr("License");

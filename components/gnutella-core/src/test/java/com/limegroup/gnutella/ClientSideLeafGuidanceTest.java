@@ -15,7 +15,6 @@ import org.limewire.io.GUID;
 
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.connection.RoutedConnection;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
@@ -63,7 +62,7 @@ public class ClientSideLeafGuidanceTest extends ClientSideTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, MyActivityCallback.class);
+        Injector injector = LimeTestUtils.createInjector(MyActivityCallback.class);
         super.setUp(injector);
         
         searchServices = injector.getInstance(SearchServices.class);

@@ -21,7 +21,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.icon.EmptyIcon;
 import org.limewire.ui.swing.util.GuiUtils;
@@ -60,7 +59,7 @@ class FancyTabMoreButton extends LimeComboBox {
             }
         });
         
-        JLabel selectionLabel = new JXLabel(tab.isSelected() ? selectedIcon : unselectedIcon);
+        JLabel selectionLabel = new JLabel(tab.isSelected() ? selectedIcon : unselectedIcon);
         selectionLabel.setOpaque(false);
         JLabel busyLabel = tab.createBusyLabel();
         busyLabel.setOpaque(false);
@@ -94,7 +93,7 @@ class FancyTabMoreButton extends LimeComboBox {
         return jp;
     }
     
-    private class Highlighter extends MouseAdapter {
+    private static class Highlighter extends MouseAdapter {
         private final JXPanel panel;
         private final AbstractButton selectButton;
         

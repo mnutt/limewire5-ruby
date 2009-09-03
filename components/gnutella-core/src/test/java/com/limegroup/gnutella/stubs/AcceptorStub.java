@@ -3,12 +3,12 @@ package com.limegroup.gnutella.stubs;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.limewire.core.api.connection.FirewallStatusEvent;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.listener.AsynchronousEventBroadcaster;
 import org.limewire.net.ConnectionDispatcher;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.AcceptorImpl;
 import com.limegroup.gnutella.ConnectionManager;
@@ -19,7 +19,7 @@ import com.limegroup.gnutella.UDPService;
 import com.limegroup.gnutella.UPnPManager;
 import com.limegroup.gnutella.filters.IPFilter;
 
-@Singleton
+@EagerSingleton
 public class AcceptorStub extends AcceptorImpl {
 
     @Inject

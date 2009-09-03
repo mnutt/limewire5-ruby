@@ -59,7 +59,7 @@ public class PushProxiesPublisherTest extends LimeTestCase {
         context = new Mockery();
         connectionManager = context.mock(ConnectionManager.class);
         networkManagerStub = new NetworkManagerStub();
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(networkManagerStub);
@@ -226,7 +226,7 @@ public class PushProxiesPublisherTest extends LimeTestCase {
         
         
         context.checking(new Expectations() {{
-            one(executorService).scheduleAtFixedRate(with(any(Runnable.class)), 
+            one(executorService).scheduleWithFixedDelay(with(any(Runnable.class)), 
                     with(any(Long.class)),
                     with(equal(DHTSettings.PUSH_PROXY_STABLE_PUBLISHING_INTERVAL.getValue())),
                     with(equal(TimeUnit.MILLISECONDS)));
@@ -238,7 +238,7 @@ public class PushProxiesPublisherTest extends LimeTestCase {
             });
         }});
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(NetworkManager.class).toInstance(networkManagerStub);

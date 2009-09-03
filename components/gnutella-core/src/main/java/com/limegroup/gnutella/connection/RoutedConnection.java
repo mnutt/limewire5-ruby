@@ -95,14 +95,6 @@ public interface RoutedConnection extends Connection, ReplyHandler {
     public void setRouteFilter(SpamFilter filter);
 
     /**
-     * @modifies this
-     * @effects sets the underlying personal filter. Note that most filters are
-     *          not thread-safe, so they should not be shared among multiple
-     *          connections.
-     */
-    public void setPersonalFilter(SpamFilter filter);
-
-    /**
      * Returns whether or not this connection is a push proxy for me.
      */
     public boolean isMyPushProxy();

@@ -1,7 +1,7 @@
 D/JNI.xcodeproj////
-/.cvsignore/1.1/Wed Jul 15 19:26:31 2009//Tprod-5-2-13-java16
-/Dockjnilib.m/1.2/Tue Dec  2 20:17:42 2008//Tprod-5-2-13-java16
-/GURLjnilib.c/1.2/Wed Dec  3 15:19:43 2008//Tprod-5-2-13-java16
-/Growl.m/1.2/Tue Dec  2 22:36:47 2008//Tprod-5-2-13-java16
-/MacOSXUtils.m/1.3/Mon Jul 20 19:51:51 2009//Tprod-5-2-13-java16
-/SystemUtilities.m/1.3/Tue Dec  2 17:20:59 2008//Tprod-5-2-13-java16
+/.cvsignore/1.1/Wed Jul 15 19:26:31 2009//Tprod-5-3-2-java6
+/Dockjnilib.m/1.2/Tue Dec  2 20:17:42 2008//Tprod-5-3-2-java6
+/GURLjnilib.c/1.2/Wed Dec  3 15:19:43 2008//Tprod-5-3-2-java6
+/Growl.m/1.2/Tue Dec  2 22:36:47 2008//Tprod-5-3-2-java6
+/MacOSXUtils.m/1.3/Mon Jul 20 19:51:51 2009//Tprod-5-3-2-java6
+/SystemUtilities.m/1.3/Tue Dec  2 17:20:59 2008//Tprod-5-3-2-java6

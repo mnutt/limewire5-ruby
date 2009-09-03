@@ -42,7 +42,7 @@ public class IncompleteFileManagerTest extends LimeTestCase {
     
     @Override
     public void setUp() {
-        LimeTestUtils.createInjector(LimeTestUtils.createModule(this));
+        LimeTestUtils.createInjectorNonEagerly(LimeTestUtils.createModule(this));
     }
 
     /** @param urn a SHA1 urn, or null */

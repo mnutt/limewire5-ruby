@@ -5,20 +5,24 @@ import org.limewire.ui.swing.nav.NavMediator;
 import org.limewire.ui.swing.nav.Navigator;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 @LazySingleton
 public class StoreMediator implements NavMediator<StorePanel> {
     public static final String NAME = "LimeWire Store";
     
-    private StorePanel store;
+    private Provider<StorePanel> store;
+    private StorePanel storePanel;
     
     @Inject
-    public StoreMediator(StorePanel storePanel, final Navigator navigator) {
+    public StoreMediator(Provider<StorePanel> storePanel, final Navigator navigator) {
         this.store = storePanel;
     }
     
     @Override
     public StorePanel getComponent() {
-        return store;
+        if(storePanel == null)
+            storePanel = store.get();
+        return storePanel;
     }
 }

@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.concurrent.ThreadExecutor;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.nio.observer.AcceptChannelObserver;
@@ -43,8 +44,6 @@ import org.limewire.nio.timeout.ReadTimeout;
 import org.limewire.nio.timeout.TimeoutController;
 import org.limewire.nio.timeout.Timeoutable;
 import org.limewire.service.ErrorService;
-
-import com.google.inject.Singleton;
 
 
 /**
@@ -89,7 +88,7 @@ import com.google.inject.Singleton;
  * <code>IOExceptions</code> occur while handling events for an Observer, 
  * <code>handleIOException</code> is called on that Observer.
  */
-@Singleton
+@EagerSingleton
 public class NIODispatcher implements Runnable {
     
     private static final Log LOG = LogFactory.getLog(NIODispatcher.class);

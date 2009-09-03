@@ -14,19 +14,19 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.limewire.core.settings.LWSSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lws.server.AbstractReceivesCommandsFromDispatcher;
 import org.limewire.lws.server.LWSConnectionListener;
 import org.limewire.lws.server.LWSDispatcher;
 import org.limewire.lws.server.LWSDispatcherFactory;
 import org.limewire.lws.server.LWSDispatcherFactoryImpl;
 import org.limewire.lws.server.LWSDispatcherSupport;
-import org.limewire.lws.server.LWSDispatcherSupport.Responses;
 import org.limewire.lws.server.LWSReceivesCommandsFromDispatcher;
 import org.limewire.lws.server.LWSSenderOfMessagesToServer;
 import org.limewire.lws.server.StringCallback;
+import org.limewire.lws.server.LWSDispatcherSupport.Responses;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.http.HttpExecutor;
 import com.limegroup.gnutella.util.EncodingUtils;
 import com.limegroup.gnutella.util.LimeWireUtils;
@@ -35,7 +35,7 @@ import com.limegroup.gnutella.util.LimeWireUtils;
 /**
  * Encapsulates a {@link LWSDispatcher} and {@link LWSReceivesCommandsFromDispatcher}.
  */
-@Singleton
+@EagerSingleton
 public final class LWSManagerImpl implements LWSManager, LWSSenderOfMessagesToServer {
     
     private final static Log LOG = LogFactory.getLog(LWSManagerImpl.class);

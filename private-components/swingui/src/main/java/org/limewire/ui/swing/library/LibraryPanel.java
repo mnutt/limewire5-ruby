@@ -104,7 +104,6 @@ public class LibraryPanel extends JPanel {
     private final LibrarySharingPanel librarySharingPanel;
     private final PublicSharedFeedbackPanel publicSharedFeedbackPanel;
     private final LibraryFilterPanel libraryFilterPanel;
-    private final PlayerPanel playerPanel;
     private final ButtonDecorator buttonDecorator;
     private final LocalFileListTransferHandler transferHandler;
     private final Provider<LibraryImageTable> libraryImagePanelProvider;
@@ -140,7 +139,6 @@ public class LibraryPanel extends JPanel {
         this.librarySharingPanel = sharingPanel;
         this.libraryFilterPanel = libraryFilterPanel;
         this.publicSharedFeedbackPanel = publicSharedFeedbackPanel;
-        this.playerPanel = playerPanel;
         this.buttonDecorator = buttonDecorator;
         this.transferHandler = transferHandler;
         this.libraryImagePanelProvider = libraryImagePanelProvider;
@@ -207,7 +205,7 @@ public class LibraryPanel extends JPanel {
     }
     
     @Inject
-    void register(LibraryManager libraryManager, PlayerMediator playerMediator) {        
+    void register(LibraryManager libraryManager, final PlayerMediator playerMediator) {        
         //Loads the Library after Component has been realized.
         final LibraryFileList libraryList = libraryManager.getLibraryManagedList();
         SwingUtilities.invokeLater(new Runnable(){
@@ -226,7 +224,6 @@ public class LibraryPanel extends JPanel {
             public void categorySelected(Category category) {
                 // If selected navItem is playlist and old category playable 
                 // and new category not playable, then save playlist.
-                PlayerMediator playerMediator = playerPanel.getPlayerMediator();
                 if (playerMediator.isActivePlaylist(selectedNavItem) &&
                         isPlayable(selectedCategory) &&
                         !isPlayable(libraryFilterPanel.getSelectedCategory())) {
@@ -243,7 +240,6 @@ public class LibraryPanel extends JPanel {
                 
                 // If previous navItem was playlist and new navItem not playlist 
                 // and category playable, then save playlist.
-                PlayerMediator playerMediator = playerPanel.getPlayerMediator();
                 if (playerMediator.isActivePlaylist(selectedNavItem) &&
                         !playerMediator.isActivePlaylist(navItem) &&
                         isPlayable(selectedCategory)) {

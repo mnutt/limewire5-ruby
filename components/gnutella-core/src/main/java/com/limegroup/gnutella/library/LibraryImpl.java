@@ -35,6 +35,7 @@ import org.limewire.core.api.Category;
 import org.limewire.core.api.library.FileProcessingEvent;
 import org.limewire.core.settings.LibrarySettings;
 import org.limewire.filter.Filter;
+import org.limewire.inspection.DataCategory;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionPoint;
@@ -56,6 +57,7 @@ import com.limegroup.gnutella.UrnSet;
 import com.limegroup.gnutella.auth.UrnValidator;
 import com.limegroup.gnutella.auth.ValidationEvent;
 import com.limegroup.gnutella.downloader.VerifyingFile;
+import com.limegroup.gnutella.filters.URNFilter;
 import com.limegroup.gnutella.malware.DangerousFileChecker;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 import com.limegroup.gnutella.xml.XmlController;
@@ -77,6 +79,7 @@ class LibraryImpl implements Library, FileCollection {
     private final DangerousFileChecker dangerousFileChecker;
     private final EventListenerList<FileProcessingEvent> fileProcessingListeners;
     private final XmlController xmlController;
+    private final URNFilter urnFilter;
     
     /** 
      * The list of complete and incomplete files.  An entry is null if it
@@ -129,7 +132,7 @@ class LibraryImpl implements Library, FileCollection {
     @SuppressWarnings("unused")
     @InspectableContainer
     private class LazyInspectableContainer {
-        @InspectionPoint("managed files")
+        @InspectionPoint(value = "managed files", category = DataCategory.USAGE)
         private final Inspectable inspectable = new Inspectable() {
             @Override
             public Object inspect() {
@@ -149,7 +152,8 @@ class LibraryImpl implements Library, FileCollection {
                 DangerousFileChecker dangerousFileChecker,
                 XmlController xmlController,
                 @DiskIo ListeningExecutorService diskIoService,
-                EventListenerList<FileProcessingEvent> processingListenerList) {
+                EventListenerList<FileProcessingEvent> processingListenerList,
+                URNFilter urnFilter) {
         this.urnCache = urnCache;
         this.fileDescFactory = fileDescFactory;
         this.fileDescMulticaster = fileDescMulticaster;
@@ -166,6 +170,7 @@ class LibraryImpl implements Library, FileCollection {
         this.xmlController = xmlController;
         this.diskIoService = diskIoService;
         this.fileProcessingListeners = processingListenerList;
+        this.urnFilter = urnFilter;
     }
     
     @Override
@@ -484,18 +489,19 @@ class LibraryImpl implements Library, FileCollection {
      * @param rev - current  version of LimeXMLDocs being used
      * @param oldFileDesc the old FileDesc this is replacing
      */
-    private ListeningFuture<FileDesc> add(File file, 
+    private ListeningFuture<FileDesc> add(File originalFile, 
             final List<? extends LimeXMLDocument> metadata,
             final FileDesc oldFileDesc) {
-        LOG.debugf("Attempting to load file: {0}", file);
-        
+        LOG.debugf("Attempting to load file: {0}", originalFile);
+
+        File file = null;
         // Make sure capitals are resolved properly, etc.
         try {
-            file = FileUtils.getCanonicalFile(file);
+            file = FileUtils.getCanonicalFile(originalFile);
         } catch (IOException e) {
-            LOG.debugf("Not adding {0} because canonicalize failed", file);
-            dispatchFailure(file, oldFileDesc);            
-            return new SimpleFuture<FileDesc>(createFailureException(file, oldFileDesc, FileViewChangeFailedException.Reason.CANT_CANONICALIZE));
+            LOG.debugf("Not adding {0} because canonicalize failed", originalFile);
+            dispatchFailure(originalFile, null);            
+            return new SimpleFuture<FileDesc>(createFailureException(originalFile, oldFileDesc, FileViewChangeFailedException.Reason.CANT_CANONICALIZE));
         }
         
         rwLock.readLock().lock();
@@ -523,11 +529,22 @@ class LibraryImpl implements Library, FileCollection {
             return new SimpleFuture<FileDesc>(createFailureException(file, oldFileDesc, FileViewChangeFailedException.Reason.FILE_TYPE_NOT_ALLOWED));
         }
         
-        final File interned = new File(file.getPath().intern());
-        getLibraryData().addManagedFile(interned);
-           
         PendingFuture task = new PendingFuture();
-        startLoadingFileDesc(interned, urnCache.getUrns(interned), metadata, oldFileDesc, task);
+        
+        // Prefer the original file if the canonical file is the same
+        if (file.getPath().equals(originalFile.getPath())) {
+            getLibraryData().addManagedFile(originalFile);
+            startLoadingFileDesc(originalFile, urnCache.getUrns(file), metadata, oldFileDesc, task);
+        }
+        else { // Otherwise replace the non canonical file with the new one and use that
+            
+            // Make sure the new canonical is also interned
+            file = new File(file.getPath().intern());
+            
+            getLibraryData().addOrRenameManagedFile(file, originalFile);
+            startLoadingFileDesc(file, urnCache.getUrns(file), metadata, oldFileDesc, task);
+        }
+                
         return task;
     }
     
@@ -643,9 +660,10 @@ class LibraryImpl implements Library, FileCollection {
             Exception ex = createFailureException(fd.getFile(), oldFileDesc, FileViewChangeFailedException.Reason.ERROR_LOADING_URNS);
             ex.initCause(urnEvent.getException());
             task.setException(ex);
-        } else if(urnValidator.isInvalid(UrnSet.getSha1(urns))) {
+        } else if(urnValidator.isInvalid(UrnSet.getSha1(urns)) ||
+                urnFilter.isBlacklisted(UrnSet.getSha1(urns))) {
             remove(fd.getFile());
-            task.setException(createFailureException(fd.getFile(), oldFileDesc, FileViewChangeFailedException.Reason.INVALID_URN)); 
+            task.setException(createFailureException(fd.getFile(), oldFileDesc, FileViewChangeFailedException.Reason.INVALID_URN));
         } else {
             // Add URNs.
             for(URN urn : urns) {

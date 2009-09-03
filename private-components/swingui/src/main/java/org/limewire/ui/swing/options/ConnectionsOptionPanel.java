@@ -12,6 +12,9 @@ import javax.swing.SpinnerNumberModel;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.limewire.bittorrent.TorrentManager;
+import org.limewire.bittorrent.TorrentManagerSettings;
+import org.limewire.bittorrent.TorrentSettingsAnnotation;
 import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.DownloadSettings;
 import org.limewire.core.settings.SharingSettings;
@@ -20,6 +23,7 @@ import org.limewire.core.settings.UploadSettings;
 import org.limewire.ui.swing.util.I18n;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * Connections Option View.
@@ -29,9 +33,14 @@ public class ConnectionsOptionPanel extends OptionPanel {
     private ConnectionSpeedPanel connectionSpeedPanel;
     private DownloadsPanel downloadsPanel;
     private UploadsPanel uploadPanel;
+    private final Provider<TorrentManager> torrentManager;
+    private final TorrentManagerSettings torrentSettings;
     
     @Inject
-    public ConnectionsOptionPanel() {
+    public ConnectionsOptionPanel(Provider<TorrentManager> torrentManager, @TorrentSettingsAnnotation  TorrentManagerSettings torrentSettings) {
+        this.torrentManager = torrentManager;
+        this.torrentSettings = torrentSettings;
+        
         setLayout(new MigLayout("insets 15 15 15 15, fillx, wrap", "", ""));
         
         setOpaque(false);
@@ -67,7 +76,10 @@ public class ConnectionsOptionPanel extends OptionPanel {
         boolean restart = getConnectionSpeedPanel().applyOptions();
         restart |= getDownloadsPanel().applyOptions();
         restart |= getUploadPanel().applyOptions();
-
+        
+        if (torrentManager.get().isInitialized() && torrentManager.get().isValid()) {
+            torrentManager.get().setTorrentManagerSettings(torrentSettings);
+        }
         return restart;
     }
 
@@ -85,7 +97,7 @@ public class ConnectionsOptionPanel extends OptionPanel {
         getUploadPanel().initOptions();
     }
     
-    private class ConnectionSpeedPanel extends OptionPanel {
+    private static class ConnectionSpeedPanel extends OptionPanel {
 
         private ButtonGroup buttonGroup;
         
@@ -172,7 +184,7 @@ public class ConnectionsOptionPanel extends OptionPanel {
             if(limitBandWidthCheckBox.isSelected()) {
                 DownloadSettings.DOWNLOAD_SPEED.setValue(bandWidthSlider.getValue());
             } else {
-                DownloadSettings.DOWNLOAD_SPEED.setValue(BandWidthSlider.MAX_SLIDER);
+                DownloadSettings.DOWNLOAD_SPEED.setValue(BandWidthSlider.DEFAULT_SLIDER);
             }
             return false;
         }
@@ -194,7 +206,7 @@ public class ConnectionsOptionPanel extends OptionPanel {
         }
     }
     
-    private class UploadsPanel extends OptionPanel {
+    private static class UploadsPanel extends OptionPanel {
 
         private static final int MIN_UPLOADS = 0;
         private static final int MAX_UPLOADS = 50;
@@ -235,7 +247,7 @@ public class ConnectionsOptionPanel extends OptionPanel {
             if(uploadBandwidthCheckBox.isSelected()) {
                 UploadSettings.UPLOAD_SPEED.setValue(bandWidthSlider.getValue());
             } else {
-                UploadSettings.UPLOAD_SPEED.setValue(BandWidthSlider.MAX_SLIDER);
+                UploadSettings.UPLOAD_SPEED.setValue(BandWidthSlider.DEFAULT_SLIDER);
             }
             return false;
         }
@@ -260,7 +272,7 @@ public class ConnectionsOptionPanel extends OptionPanel {
         }
     }
     
-    private class CheckBoxListener implements ItemListener {
+    private static class CheckBoxListener implements ItemListener {
 
         private BandWidthSlider slider;
         private JCheckBox checkBox;

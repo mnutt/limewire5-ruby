@@ -23,6 +23,7 @@ import org.limewire.core.impl.search.RemoteFileDescAdapter;
 import org.limewire.friend.api.FriendPresence;
 import org.limewire.friend.api.LibraryChangedEvent;
 import org.limewire.friend.api.feature.AddressFeature;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.listener.EventListener;
 import org.limewire.listener.ListenerSupport;
@@ -37,9 +38,8 @@ import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 class PresenceLibraryBrowser implements EventListener<LibraryChangedEvent> {
    
     private static final Log LOG = LogFactory.getLog(PresenceLibraryBrowser.class);

@@ -6,13 +6,13 @@ import java.awt.event.MouseListener;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
-import org.jdesktop.swingx.JXButton;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.listener.ActionHandListener;
 
-public class IconButton extends JXButton {
+public class IconButton extends JButton {
     
     private MouseListener actionHandListener;
 
@@ -69,7 +69,7 @@ public class IconButton extends JXButton {
     }
     
     /** Sets all properties to make the button look like an icon button. */
-    public static void setIconButtonProperties(JXButton button) {
+    public static void setIconButtonProperties(JButton button) {
         button.setMargin(new Insets(0, 0, 0, 0));
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);

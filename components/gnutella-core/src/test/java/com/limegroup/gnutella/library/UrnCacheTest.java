@@ -93,7 +93,7 @@ public final class UrnCacheTest extends LimeTestCase {
         final ServiceScheduler serviceScheduler = context.mock(ServiceScheduler.class);
         final AtomicReference<Runnable> runnable = new AtomicReference<Runnable>();
         context.checking(new Expectations() {{
-            one(serviceScheduler).scheduleAtFixedRate(with(any(String.class)), 
+            one(serviceScheduler).scheduleWithFixedDelay(with(any(String.class)), 
                     with(any(Runnable.class)), with(equal(30L)), with(equal(30L)), 
                     with(equal(TimeUnit.SECONDS)), with(aNull(ScheduledExecutorService.class)));
             will(new AssignParameterAction<Runnable>(runnable, 1));

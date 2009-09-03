@@ -3,11 +3,11 @@ package com.limegroup.gnutella.library;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
@@ -19,7 +19,7 @@ import com.google.inject.name.Named;
  *
  * This class is thread-safe.
  */
-@Singleton 
+@EagerSingleton 
 class FileManagerImpl implements FileManager, Service {
     
     private final LibraryImpl library;

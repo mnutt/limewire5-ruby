@@ -21,14 +21,14 @@ import org.limewire.concurrent.ExecutorsHelper;
 import org.limewire.http.BasicHttpAcceptor;
 import org.limewire.http.auth.AuthenticationInterceptor;
 import org.limewire.core.api.library.LibraryManager;
+import org.limewire.inject.EagerSingleton;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.Constants;
 import com.limegroup.gnutella.library.FileDesc;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
-@Singleton
+@EagerSingleton
 public class LocalHTTPAcceptor extends BasicHttpAcceptor {
 
     private static final Log LOG = LogFactory.getLog(LocalHTTPAcceptor.class);
@@ -132,7 +132,7 @@ public class LocalHTTPAcceptor extends BasicHttpAcceptor {
         }
     }
 
-    private class MagnetDetailRequestHandler extends SimpleNHttpRequestHandler {
+    private static class MagnetDetailRequestHandler extends SimpleNHttpRequestHandler {
         public ConsumingNHttpEntity entityRequest(HttpEntityEnclosingRequest request,
                 HttpContext context) throws HttpException, IOException {
             return null;

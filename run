@@ -9,7 +9,7 @@ cd "$LW_ROOT_FOLDER"
 CLASSPATH=
 PS=":"
 
-OPTS="-Djava.net.preferIPV6Addresses=false -ea -da:ca.odell.glazedlists... -Djava.net.preferIPv4stack=true"
+OPTS="-Djava.net.preferIPV6Addresses=false -ea -da:ca.odell.glazedlists... -Djava.net.preferIPv4stack=true -splash:private-components/swingui/src/main/resources/org/limewire/ui/swing/mainframe/resources/splash.png"
 
 #setup the java options & initial system-dependent classpath
 PLATFORM=`uname`

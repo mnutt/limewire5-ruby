@@ -294,13 +294,18 @@ public class BrowseHostHandlerTest extends LimeTestCase {
                 SecureMessageVerifier secureMessageVerifier,
                 Provider<ConnectionManager> connectionManager,
                 Provider<SearchResultHandler> searchResultHandler,
-                Provider<DownloadManager> downloadManager, Provider<Acceptor> acceptor,
-                Provider<PushManager> pushManager, @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
-                ApplicationServices applicationServices, ConnectionServices connectionServices,
-                LimeXMLDocumentHelper limeXMLDocumentHelper, Provider<IPFilter> ipFilterProvider) {
-            super(networkManager, secureMessageVerifier, connectionManager, searchResultHandler,
-                    downloadManager, acceptor, pushManager, applicationServices,
-                    connectionServices, limeXMLDocumentHelper, ipFilterProvider);
+                Provider<DownloadManager> downloadManager,
+                Provider<Acceptor> acceptor, Provider<PushManager> pushManager,
+                @Named("backgroundExecutor") ScheduledExecutorService backgroundExecutor,
+                ApplicationServices applicationServices,
+                ConnectionServices connectionServices,
+                LimeXMLDocumentHelper limeXMLDocumentHelper,
+                Provider<IPFilter> ipFilterProvider,
+                SpamServices spamServices) {
+            super(networkManager, secureMessageVerifier, connectionManager,
+                    searchResultHandler, downloadManager, acceptor, pushManager,
+                    applicationServices, connectionServices,
+                    limeXMLDocumentHelper, ipFilterProvider, spamServices);
             
         }
 

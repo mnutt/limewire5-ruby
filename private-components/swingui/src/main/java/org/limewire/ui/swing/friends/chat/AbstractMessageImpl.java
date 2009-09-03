@@ -3,7 +3,7 @@ package org.limewire.ui.swing.friends.chat;
 /**
  * Abstract shell implementation of Message.
  */
-public abstract class AbstractMessageImpl implements Message {
+abstract class AbstractMessageImpl implements Message {
 
     private final String friendID;
     private final String senderName;

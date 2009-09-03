@@ -1,19 +1,19 @@
 package com.limegroup.gnutella;
 
 import org.limewire.core.settings.LWSSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceStage;
 import org.limewire.net.ConnectionDispatcher;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.browser.ControlRequestAcceptor;
 import com.limegroup.gnutella.browser.LocalHTTPAcceptor;
 import com.limegroup.gnutella.downloader.PushDownloadManager;
 import com.limegroup.gnutella.lws.server.LWSManager;
 
-@Singleton
+@EagerSingleton
 class ConnectionAcceptorGlue {
 
     private final ConnectionDispatcher externalDispatcher;

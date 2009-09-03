@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.collection.Comparators;
 import org.limewire.concurrent.ExecutorsHelper;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.IOUtils;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
@@ -37,7 +38,6 @@ import org.limewire.util.ConverterObjectInputStream;
 import org.limewire.util.GenericsUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.MediaTypeAggregator;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.messages.QueryRequest;
@@ -60,7 +60,7 @@ import com.limegroup.gnutella.messages.QueryRequest;
  * the URNs in the sets of the Time->URNSet lookup are a subset of the URNs in
  * the URN->Time lookup. For more details, see addTime and commitTime.
  */
-@Singleton
+@EagerSingleton
 public class CreationTimeCache {
 
     private static final Log LOG = LogFactory.getLog(CreationTimeCache.class);

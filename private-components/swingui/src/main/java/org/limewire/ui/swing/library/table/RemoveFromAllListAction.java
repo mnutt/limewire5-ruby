@@ -25,7 +25,7 @@ class RemoveFromAllListAction extends AbstractAction {
     @Inject
     public RemoveFromAllListAction(@LibrarySelected Provider<List<File>> selectedFiles,
             SharedFileListManager manager) {
-        super("Remove from All Lists");
+        super(I18n.tr("Remove from All Lists"));
         
         this.selectedFiles = selectedFiles;
         this.manager = manager;

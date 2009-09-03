@@ -55,7 +55,8 @@ public class SearchResultMenu extends JPopupMenu {
         // Determine if download is enabled.
         boolean downloadEnabled = false;
         for (VisualSearchResult visualSearchResult : selectedItems) {
-            if (visualSearchResult.getDownloadState() == BasicDownloadState.NOT_STARTED) {
+            if (visualSearchResult.getDownloadState() == BasicDownloadState.NOT_STARTED &&
+                    !visualSearchResult.isSpam()) {
                 downloadEnabled = true;
                 break;
             }

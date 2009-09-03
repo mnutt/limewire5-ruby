@@ -9,7 +9,6 @@ import org.limewire.gnutella.tests.LimeTestUtils;
 import org.limewire.io.GUID;
 
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.helpers.UrnHelper;
 import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryReplyFactory;
@@ -81,7 +80,7 @@ public final class ServerSideDynamicQueryTest extends ServerSideTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION);
+        Injector injector = LimeTestUtils.createInjector();
         super.setUp(injector);
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
         responseFactory = injector.getInstance(ResponseFactory.class);

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Connectable;
 import org.limewire.io.NetworkInstanceUtils;
 import org.limewire.net.ConnectionDispatcher;
@@ -12,7 +13,6 @@ import org.limewire.net.SocketsManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.ConnectionManagerImpl;
 import com.limegroup.gnutella.ConnectionServices;
@@ -31,7 +31,7 @@ import com.limegroup.gnutella.messages.vendor.CapabilitiesVMFactory;
 import com.limegroup.gnutella.simpp.SimppManager;
 
 /** A (incomplete!) stub for ConnectionManager. */
-@Singleton
+@EagerSingleton
 public class ConnectionManagerStub extends ConnectionManagerImpl {
 
     private boolean enableRemove = false;

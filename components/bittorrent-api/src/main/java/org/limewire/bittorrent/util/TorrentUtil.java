@@ -5,21 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.limewire.bittorrent.Torrent;
+import org.limewire.bittorrent.TorrentFileEntry;
 
 public class TorrentUtil {
     /**
-     * Builds a list of files from the torrents list of paths, starting at the
-     * rootFolder.
+     * Returns a list of files in the given torrent.
      */
-    public static List<File> buildTorrentFiles(Torrent torrent, File rootFolder) {
+    public static List<File> buildTorrentFiles(Torrent torrent, File root) {
         List<File> files = new ArrayList<File>();
-        if (torrent.getPaths().size() > 0) {
-            for (String path : torrent.getPaths()) {
-                File file = new File(rootFolder, path);
-                files.add(file);
-            }
-        } else {
-            files.add(rootFolder);
+        for (TorrentFileEntry torrentFileEntry : torrent.getTorrentFileEntries()) {
+            files.add(new File(root, torrentFileEntry.getPath()));
         }
         return files;
     }

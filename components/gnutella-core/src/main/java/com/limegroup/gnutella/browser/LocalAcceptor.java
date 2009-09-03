@@ -3,20 +3,20 @@ package com.limegroup.gnutella.browser;
 import java.io.IOException;
 
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.net.ConnectionDispatcher;
 import org.limewire.net.SocketAcceptor;
 import org.limewire.service.MessageService;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
  * Listens on an HTTP port, accepts incoming connections, and dispatches threads
  * to handle requests. This allows simple HTTP requests.
  */
-@Singleton
+@EagerSingleton
 public class LocalAcceptor implements Service {
 
     private final static int FIRST_PORT = 45100;

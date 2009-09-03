@@ -37,7 +37,7 @@ public class MessagesSupportedVendorMessageTest extends org.limewire.gnutella.te
 
     @Override
     protected void setUp() throws Exception {
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		messagesSupportedVendorMessage = injector.getInstance(MessagesSupportedVendorMessage.class);
 		messageFactory = injector.getInstance(MessageFactory.class);
     }

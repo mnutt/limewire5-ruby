@@ -40,7 +40,7 @@ public class LegacyRankerTest extends LimeTestCase {
     public void setUp() throws Exception {
         ranker = new LegacyRanker();
         
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         remoteFileDescFactory = injector.getInstance(RemoteFileDescFactory.class);
         
     }

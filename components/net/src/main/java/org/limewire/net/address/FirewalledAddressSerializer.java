@@ -3,6 +3,7 @@ package org.limewire.net.address;
 import java.io.IOException;
 import java.util.Set;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.BadGGEPBlockException;
 import org.limewire.io.BadGGEPPropertyException;
@@ -11,9 +12,8 @@ import org.limewire.io.GGEP;
 import org.limewire.io.GUID;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 public class FirewalledAddressSerializer implements AddressSerializer {
 
     static final String PUBLIC_ADDRESS = "PU";

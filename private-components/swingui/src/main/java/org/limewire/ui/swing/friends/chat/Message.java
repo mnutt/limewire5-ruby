@@ -5,11 +5,8 @@ package org.limewire.ui.swing.friends.chat;
  * A unit of communication between 2 chat clients that is displayed
  * in the chat window.  Messages stay in the chat window
  * for the duration of the chat.
- * 
- * @author Mario Aquino, Object Computing, Inc.
- *
  */
-public interface Message {
+interface Message {
     /**
      * SENT                == message sent with destination of friend
      * RECEIVED            == message received from friend

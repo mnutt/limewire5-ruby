@@ -58,7 +58,7 @@ public class MagnetDownloaderTest extends LimeTestCase {
         context = new Mockery();
         pushEndpointService = context.mock(PushEndpointService.class);
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
            @Override
             protected void configure() {
                bind(MessageRouter.class).to(MessageRouterStub.class);

@@ -1,5 +1,6 @@
 package org.limewire.ui.swing.options;
 
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -96,7 +97,13 @@ public class FilesOptionPanel extends OptionPanel {
             
             manageButton = new JButton(new DialogDisplayAction(FilesOptionPanel.this,
                     extensionsPanel, I18n.tr("Manage File Extensions"),
-                    I18n.tr("Manage..."),I18n.tr("Manage file extensions to load")));
+                    I18n.tr("Manage..."),I18n.tr("Manage file extensions to load")) { 
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    extensionsPanel.initOptions();
+                    super.actionPerformed(e);
+                }
+            });
             
             add(new JLabel(I18n.tr("Choose the file extensions that belong in each category")), "push");
             add(manageButton);
@@ -114,7 +121,7 @@ public class FilesOptionPanel extends OptionPanel {
 
         @Override
         public void initOptions() {
-            extensionsPanel.initOptions();
+            extensionsPanel.reset();
         }
     }
     

@@ -38,8 +38,6 @@ public interface ReplyHandler extends IpPort {
 
 	void countDroppedMessage();
 	
-	boolean isPersonalSpam(Message m);
-
 	boolean isOutgoing();
 
 	/**

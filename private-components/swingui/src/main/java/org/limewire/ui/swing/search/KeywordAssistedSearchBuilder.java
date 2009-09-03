@@ -12,11 +12,13 @@ import org.limewire.ui.swing.util.FilePropertyKeyUtils;
 import org.limewire.ui.swing.util.Translator;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Used to generate {@link SearchInfo} objects for a search based on an advanced search defined by
  *  a map of key/value or an encoded search string. 
  */
+@Singleton
 public class KeywordAssistedSearchBuilder {
 
     private static final String UNTRANSLATED_SEPARATOR = I18nMarker.marktr(":");

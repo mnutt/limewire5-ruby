@@ -2,6 +2,8 @@ package com.limegroup.gnutella;
 
 import java.net.InetAddress;
 
+import com.limegroup.gnutella.messages.Message;
+
 public class StubSpamServices implements SpamServices {
 
     public void adjustSpamFilters() {
@@ -9,8 +11,8 @@ public class StubSpamServices implements SpamServices {
 
     public void reloadIPFilter() {        
     }
-    
-    public void reloadURNFilter() {
+
+    public void reloadSpamFilters() {
     }
 
     public void blockHost(String host) {
@@ -23,4 +25,11 @@ public class StubSpamServices implements SpamServices {
     public void unblockHost(String host) {
     }
 
+    public boolean isPersonalSpam(Message m) {
+        return false;
+    }
+
+    public boolean isRouteSpam(Message m) {
+        return false;
+    }
 }

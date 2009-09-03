@@ -143,7 +143,7 @@ public class RRProcessingQueue {
 		size -= toRemove.list.size();
 	}
 	
-	private class NamedQueue {
+	private static class NamedQueue {
 		final List<Runnable> list;
 		final Object name;
 		NamedQueue (List<Runnable> list, Object name) {

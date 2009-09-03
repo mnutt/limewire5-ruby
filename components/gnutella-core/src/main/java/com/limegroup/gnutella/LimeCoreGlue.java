@@ -6,13 +6,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.LimeProps;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.mojito.settings.MojitoProps;
 import org.limewire.util.CommonUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.settings.SimppSettingsManager;
 import com.limegroup.gnutella.simpp.SimppManager;
 import com.limegroup.gnutella.util.LimeWireUtils;
@@ -21,7 +21,7 @@ import com.limegroup.gnutella.util.LimeWireUtils;
  * This class is the glue that holds LimeWire together.
  * All various components are wired together here.
  */
-@Singleton
+@EagerSingleton
 public class LimeCoreGlue implements Service {
     
     private static AtomicBoolean preinstalled = new AtomicBoolean(false);

@@ -7,6 +7,7 @@ import java.awt.Window;
 
 import javax.swing.JDialog;
 
+import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.util.SystemUtils;
 
 /**
@@ -99,6 +100,7 @@ public class LimeJDialog extends JDialog {
 
     private void initialize() {
         setIconImage(iconInfo.getImage());
+        GuiUtils.addHideAction(this);
     }
 
     // Overrides addNotify() to change to a platform specific icon right afterwards.

@@ -17,8 +17,6 @@ public class LimeWireUiDownloadsModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new LimeWireUiDownloadsTableModule());
-        
-        bind(DownloadHeaderPanel.class);            
     }
     
     

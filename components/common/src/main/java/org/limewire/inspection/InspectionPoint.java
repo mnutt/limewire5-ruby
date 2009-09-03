@@ -13,4 +13,5 @@ import java.lang.annotation.Target;
 public @interface InspectionPoint  {
     String value();
     InspectionRequirement[] requires() default {};
+    DataCategory category() default DataCategory.NETWORK;
 }

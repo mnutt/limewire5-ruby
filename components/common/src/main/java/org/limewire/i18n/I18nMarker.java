@@ -17,4 +17,7 @@ public class I18nMarker {
         return text;
     }
 
+    public static String[] marktrn(String singularText, String pluralText) {
+        return new String[] { singularText, pluralText };
+    }
 }

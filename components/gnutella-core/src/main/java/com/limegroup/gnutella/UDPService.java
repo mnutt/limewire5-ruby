@@ -20,6 +20,7 @@ import org.limewire.core.api.connection.FWTStatusReason;
 import org.limewire.core.api.connection.FirewallTransferStatus;
 import org.limewire.core.api.connection.FirewallTransferStatusEvent;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectionPoint;
 import org.limewire.io.ByteBufferOutputStream;
@@ -41,17 +42,16 @@ import org.limewire.service.ErrorService;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.filters.IPFilter;
 import com.limegroup.gnutella.guess.GUESSEndpoint;
 import com.limegroup.gnutella.messages.BadPacketException;
 import com.limegroup.gnutella.messages.Message;
-import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.MessageFactory;
 import com.limegroup.gnutella.messages.PingReply;
 import com.limegroup.gnutella.messages.PingRequest;
 import com.limegroup.gnutella.messages.PingRequestFactory;
+import com.limegroup.gnutella.messages.Message.Network;
 import com.limegroup.gnutella.messages.vendor.ReplyNumberVendorMessage;
 
 /**
@@ -66,7 +66,7 @@ import com.limegroup.gnutella.messages.vendor.ReplyNumberVendorMessage;
  * @see QueryUnicaster
  *
  */
-@Singleton
+@EagerSingleton
 public class UDPService implements ReadWriteObserver {
 
     private static final Log LOG = LogFactory.getLog(UDPService.class);

@@ -29,6 +29,7 @@ import org.limewire.core.api.updates.UpdateStyle;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.UpdateSettings;
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Connectable;
 import org.limewire.io.ConnectableImpl;
 import org.limewire.io.IOUtils;
@@ -48,7 +49,6 @@ import org.limewire.util.VersionUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.ApplicationServices;
 import com.limegroup.gnutella.ConnectionManager;
@@ -84,7 +84,7 @@ import com.limegroup.gnutella.util.LimeWireUtils;
  * Handles queueing new data for parsing and keeping track of which current
  * version is stored in memory & on disk.
  */
-@Singleton
+@EagerSingleton
 public class UpdateHandlerImpl implements UpdateHandler, EventListener<LibraryStatusEvent>, Service {
     
     private static final Log LOG = LogFactory.getLog(UpdateHandlerImpl.class);

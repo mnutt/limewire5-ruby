@@ -1,7 +1,5 @@
 package org.limewire.libtorrent;
 
-import java.math.BigInteger;
-
 import org.limewire.bittorrent.TorrentState;
 import org.limewire.bittorrent.TorrentStatus;
 import org.limewire.util.StringUtils;
@@ -15,20 +13,56 @@ import com.sun.jna.Structure;
 public class LibTorrentStatus extends Structure implements TorrentStatus {
 
     /**
-     * String containing the total amount of the torrent downloaded and
+     * long containing the total amount of the torrent downloaded and
      * verified.
      */
-    public String total_done;
+    public long total_done;
+    
+    /**
+     * String containing the total amount of wanted bytes of the torrent downloaded and
+     * verified.
+     */
+    public long total_wanted_done;
+    
+    /**
+     * long containing the total amount of wanted bytes of the torrent.
+     */
+    public long total_wanted;
 
     /**
-     * String containing the total amount of the torrent downloaded.
+     * long containing the total amount of the torrent downloaded, this
+     * session.
      */
-    public String total_download;
+    public long total_download;
 
     /**
-     * String containing the total amount of the torrent uploaded.
+     * long containing the total amount of the torrent uploaded, this session.
      */
-    public String total_upload;
+    public long total_upload;
+
+    /**
+     * long containing the total amount of the torrent payload downloaded,
+     * this session.
+     */
+    public long total_payload_download;
+
+    /**
+     * long containing the total amount of the torrent payload uploaded, this
+     * session.
+     */
+    public long total_payload_upload;
+
+    /**
+     * long containing the total amount of the torrent payload downloaded over
+     * all time.
+     */
+    public long all_time_payload_download;
+
+    /**
+     * long containing the total amount of the torrent payload uploaded over
+     * all time.
+     */
+    public long all_time_payload_upload;
 
     /**
      * The current rate of the torrent download in bytes/second
@@ -39,6 +73,16 @@ public class LibTorrentStatus extends Structure implements TorrentStatus {
      * The current rate of the torrent upload in bytes/second
      */
     public float upload_rate;
+    
+    /**
+     * The current rate of the torrent payload download in bytes/second
+     */
+    public float download_payload_rate;
+
+    /**
+     * The current rate of the torrent payload upload in bytes/second
+     */
+    public float upload_payload_rate;
 
     /**
      * The number of peers this torrent has.
@@ -66,7 +110,7 @@ public class LibTorrentStatus extends Structure implements TorrentStatus {
     public int state;
 
     /**
-     * The progress of this torretns download, from 0 to 1.0.
+     * The progress of this torrents download, from 0 to 1.0.
      */
     public float progress;
 
@@ -84,6 +128,21 @@ public class LibTorrentStatus extends Structure implements TorrentStatus {
      * boolean of whether this torrent is valid.
      */
     public int valid;
+    
+    /**
+     * boolean of whether this torrent is auto managed.
+     */
+    public int auto_managed;
+
+    /**
+     * int for the amount of time this torrent has been seeding in seconds.
+     */
+    public int seeding_time;
+
+    /**
+     * int for the amount of time this torrent has been seeding in seconds.
+     */
+    public int active_time;
 
     /**
      * String containing the error message for the torrent. Null/empty if there
@@ -92,13 +151,13 @@ public class LibTorrentStatus extends Structure implements TorrentStatus {
     public String error;
 
     @Override
-    public float getDownloadRate() {
-        return download_rate;
+    public float getDownloadPayloadRate() {
+        return download_payload_rate;
     }
 
     @Override
-    public float getUploadRate() {
-        return upload_rate;
+    public float getUploadPayloadRate() {
+        return upload_payload_rate;
     }
 
     @Override
@@ -128,32 +187,17 @@ public class LibTorrentStatus extends Structure implements TorrentStatus {
 
     @Override
     public long getTotalDone() {
-        if (total_done == null) {
-            return -1;
-        } else {
-            BigInteger total = new BigInteger(total_done);
-            return total.longValue();
-        }
+       return total_done;
     }
 
     @Override
-    public long getTotalDownload() {
-        if (total_download == null) {
-            return -1;
-        } else {
-            BigInteger total = new BigInteger(total_download);
-            return total.longValue();
-        }
+    public long getAllTimePayloadDownload() {
+        return all_time_payload_download;
     }
 
     @Override
-    public long getTotalUpload() {
-        if (total_upload == null) {
-            return -1;
-        } else {
-            BigInteger total = new BigInteger(total_upload);
-            return total.longValue();
-        }
+    public long getAllTimePayloadUpload() {
+        return all_time_payload_upload;
     }
 
     @Override
@@ -193,5 +237,49 @@ public class LibTorrentStatus extends Structure implements TorrentStatus {
             throw new UnsupportedOperationException("No known state for id: " + state
                     + " and libtorrent state: " + libTorrentState);
         }
+    }
+
+    @Override
+    public float getSeedRatio() {
+        if(getAllTimePayloadDownload() <= 0 || getAllTimePayloadUpload() <= 0) {
+            return 0;
+        }
+        float seedRatio = getAllTimePayloadUpload() / (float)getAllTimePayloadDownload(); 
+        return seedRatio;
+    }
+
+    @Override
+    public float getDownloadRate() {
+        return download_rate;
+    }
+
+    @Override
+    public float getUploadRate() {
+        return upload_rate;
+    }
+
+    @Override
+    public boolean isAutoManaged() {
+        return false;
+    }
+
+    @Override
+    public int getSeedingTime() {
+        return seeding_time;
+    }
+
+    @Override
+    public int getActiveTime() {
+        return active_time;
+    }
+
+    @Override
+    public long getTotalWanted() {
+        return total_wanted;
+    }
+
+    @Override
+    public long getTotalWantedDone() {
+        return total_wanted_done;
     }
 }

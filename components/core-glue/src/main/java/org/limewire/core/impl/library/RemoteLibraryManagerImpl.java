@@ -18,6 +18,7 @@ import org.limewire.core.api.library.SearchResultList;
 import org.limewire.core.api.search.SearchResult;
 import org.limewire.friend.api.Friend;
 import org.limewire.friend.api.FriendPresence;
+import org.limewire.inspection.DataCategory;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectionPoint;
@@ -25,13 +26,16 @@ import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.util.StringUtils;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.CompositeList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.ObservableElementList.Connector;
+import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventAssembler;
 import ca.odell.glazedlists.event.ListEventListener;
@@ -39,9 +43,6 @@ import ca.odell.glazedlists.event.ListEventPublisher;
 import ca.odell.glazedlists.impl.ReadOnlyList;
 import ca.odell.glazedlists.util.concurrent.LockFactory;
 import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * This class keeps track of all friends libraries. As friend presences are found they are 
@@ -62,7 +63,7 @@ public class RemoteLibraryManagerImpl implements RemoteLibraryManager {
     @SuppressWarnings("unused")
     @InspectableContainer
     private class LazyInspectableContainer {
-        @InspectionPoint("remote libraries")
+        @InspectionPoint(value = "remote libraries", category = DataCategory.USAGE)
         private final Inspectable inspectable = new Inspectable() {
             @Override
             public Object inspect() {

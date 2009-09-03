@@ -10,61 +10,32 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.Action;
 import javax.swing.JMenuItem;
 
 import org.limewire.core.api.Category;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.settings.DownloadSettings;
-import org.limewire.setting.evt.SettingEvent;
-import org.limewire.setting.evt.SettingListener;
 import org.limewire.ui.swing.action.AbstractAction;
 import org.limewire.ui.swing.action.MnemonicMenu;
 import org.limewire.ui.swing.player.PlayerUtils;
 import org.limewire.ui.swing.util.CategoryUtils;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.NativeLaunchUtils;
-import org.limewire.ui.swing.util.SwingUtils;
 import org.limewire.util.FileUtils;
 import org.limewire.util.MediaType;
 
 import com.google.inject.Inject;
 
 class RecentDownloadsMenu extends MnemonicMenu {
-    private final JMenuItem emptyItem;
-
-    private final Action clearMenu;
+    private static final String emptyText = I18n.tr("(empty)"); 
 
     @Inject
     public RecentDownloadsMenu(final LibraryManager libraryManager) {
         super(I18n.tr("&Recent Downloads"));
-        emptyItem = new JMenuItem(I18n.tr("(empty)"));
-        emptyItem.setEnabled(false);
-
-        clearMenu = new AbstractAction(I18n.tr("Clear List")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DownloadSettings.RECENT_DOWNLOADS.clear();
-            }
-        };
-
-        populateRecentDownloads();
-
-        DownloadSettings.RECENT_DOWNLOADS.addSettingListener(new SettingListener() {
-            @Override
-            public void settingChanged(SettingEvent evt) {
-                SwingUtils.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        populateRecentDownloads();
-                    }
-                });
-            }
-        });
     }
 
-    private void populateRecentDownloads() {
-        removeAll();
+    @Override
+    public void createMenuItems() {
         List<File> files = null;
         synchronized (DownloadSettings.RECENT_DOWNLOADS) {
             files = new ArrayList<File>(DownloadSettings.RECENT_DOWNLOADS.get());
@@ -77,9 +48,14 @@ class RecentDownloadsMenu extends MnemonicMenu {
                 addRecentDownloadAction(file);
             }
             addSeparator();
-            add(clearMenu);
+            add(new AbstractAction(I18n.tr("Clear List")) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    DownloadSettings.RECENT_DOWNLOADS.clear();
+                }
+            });
         } else {
-            add(emptyItem);
+            add(new JMenuItem(emptyText)).setEnabled(false);
         }
     }
 
@@ -114,7 +90,7 @@ class RecentDownloadsMenu extends MnemonicMenu {
     /**
      * Orders files from most to least recent.
      */
-    private class FileDateMostToLeastRecentComparator implements Comparator<File> {
+    private static class FileDateMostToLeastRecentComparator implements Comparator<File> {
         @Override
         public int compare(File o1, File o2) {
             return -1 * Long.valueOf(o1.lastModified()).compareTo(Long.valueOf(o2.lastModified()));

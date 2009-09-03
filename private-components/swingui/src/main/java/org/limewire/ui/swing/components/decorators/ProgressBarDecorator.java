@@ -9,21 +9,23 @@ import javax.swing.JProgressBar;
 
 import org.jdesktop.swingx.painter.AbstractPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
+import org.limewire.inject.LazySingleton;
 import org.limewire.ui.swing.components.LimeProgressBar;
 import org.limewire.ui.swing.painter.ProgressBarForegroundPainter;
 import org.limewire.ui.swing.painter.factories.ProgressPainterFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
-@Singleton
+@LazySingleton
 public class ProgressBarDecorator {
     
-    private final ProgressPainterFactory painterFactory;
+    private final Provider<ProgressPainterFactory> painterFactoryProvider;
+    private ProgressPainterFactory painterFactory;
     
     @Inject
-    ProgressBarDecorator(ProgressPainterFactory painterFactory) {
-        this.painterFactory = painterFactory;
+    ProgressBarDecorator(Provider<ProgressPainterFactory> painterFactory) {
+        this.painterFactoryProvider = painterFactory;
     }
     
     
@@ -31,8 +33,11 @@ public class ProgressBarDecorator {
         
         decorateGeneral(bar);
         
-        AbstractPainter<JProgressBar> foregroundPainter = this.painterFactory.createRegularForegroundPainter();
-        AbstractPainter<JComponent>   backgroundPainter = this.painterFactory.createRegularBackgroundPainter();
+        if(painterFactory == null)
+            painterFactory = painterFactoryProvider.get();
+        
+        AbstractPainter<JProgressBar> foregroundPainter =  painterFactory.createRegularForegroundPainter();
+        AbstractPainter<JComponent>   backgroundPainter = painterFactory.createRegularBackgroundPainter();
         
         bar.setForegroundPainter(foregroundPainter);
         bar.setBackgroundPainter(backgroundPainter);

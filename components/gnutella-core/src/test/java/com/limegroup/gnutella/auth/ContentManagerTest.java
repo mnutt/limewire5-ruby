@@ -57,7 +57,7 @@ public class ContentManagerTest extends LimeTestCase {
         two = new Observer();
         three = new Observer();
 		
-		Injector injector = LimeTestUtils.createInjector();
+		Injector injector = LimeTestUtils.createInjectorNonEagerly();
 		ipPortContentAuthorityFactory = injector.getInstance(IpPortContentAuthorityFactory.class);
 
 		mgr = new ContentManager(ipPortContentAuthorityFactory);

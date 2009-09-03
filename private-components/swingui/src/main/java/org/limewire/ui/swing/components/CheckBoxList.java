@@ -65,10 +65,7 @@ public class CheckBoxList<E> extends BoxPanel {
     private CheckBoxListSelectionListener selectionListener;
     private CheckBoxListCheckChangeListener checkListener;
     private Object parent;
-
-    private int highLightedRow = -1;
-    
-    
+   
     /**
      * The set of elements included on the panel.
      */
@@ -554,7 +551,7 @@ public class CheckBoxList<E> extends BoxPanel {
                 
         this.editor = new CheckBoxCellEditor();
         
-        this.checkBoxList = new CustomJTable();    
+        this.checkBoxList = new JTable();    
         this.checkBoxList.setDefaultRenderer(Object.class, new CheckBoxCellRenderer());
         this.checkBoxList.setDefaultEditor(Object.class, editor);
         this.checkBoxList.setRowHeight(DEFAULT_ROW_HEIGHT);
@@ -571,17 +568,6 @@ public class CheckBoxList<E> extends BoxPanel {
     }    
     
     
-    /**
-     * Updates the row height appropriately.
-     */
-    private void updateRowHeight() {
-     /*   int increment = ThemeSettings.FONT_SIZE_INCREMENT.getValue();
-        if (increment != 0) {
-            FontMetrics fm = getFontMetrics(getFont());
-            this.checkBoxList.setRowHeight(Math.max(fm.getHeight() + 5, DEFAULT_ROW_HEIGHT+2));
-        }*/
-    }
-    
     @Override
     public void updateUI() {
         super.updateUI();
@@ -589,8 +575,6 @@ public class CheckBoxList<E> extends BoxPanel {
         if (this.checkBoxList == null) {
             return;
         }
-        
-        this.updateRowHeight();
         
         this.setBackground(UIManager.getColor("List.textBackground"));
         this.checkBoxList.setBackground(UIManager.getColor("List.background"));
@@ -671,49 +655,6 @@ public class CheckBoxList<E> extends BoxPanel {
         
     }
 
-
-    
-    private class CustomJTable extends JTable {
-    
-        private void shift(int row) {
-            if (row != highLightedRow) {
-                highLightedRow = row;
-                CheckBoxList.this.repaint();
-            }
-        }
-        
-        @Override
-        protected void processMouseMotionEvent( MouseEvent e) {
-            if (areAllRemoveable) {
-                int row = rowAtPoint(e.getPoint());
-                
-                Rectangle firstRowRect = getCellRect(row, 0, false);
-                Rectangle lastRowRect = getCellRect(row, getColumnCount() - 1, false);
-                Rectangle dirtyRegion = firstRowRect.union(lastRowRect);
-                
-                if (e.getX() > dirtyRegion.getWidth() - 16) {
-                    shift(row);
-                } 
-                else {
-                    shift(-1);
-                }
-            }
-            
-            super.processMouseMotionEvent(e);
-        }
-        
-        @Override
-        protected void processMouseEvent( MouseEvent e) {
-            if (areAllRemoveable) {
-                shift(-1);
-            }
-            
-            super.processMouseEvent(e);
-        }
-    }
-    
-    
-
      /**
      * Check box tree cell renderer.
      */
@@ -733,8 +674,6 @@ public class CheckBoxList<E> extends BoxPanel {
             // See LWC-1158 for null weirdness
             if(value != null)
                 checkBox.setData((E)value);
-
-            checkBox.setHighlight(row == highLightedRow);
                         
             if (!selectOff && value != null && value.equals(selected)) {
                 this.checkBox.setBackground(UIManager.getColor("List.selectionBackground"));
@@ -1131,21 +1070,9 @@ public class CheckBoxList<E> extends BoxPanel {
                 label.setText(text);
             }
             
-            
             this.setToolTipText(provider.getToolTipText(obj));
         }
-        
-        public void setHighlight(boolean b) {
-            button.setHighlight(b);
-            if (b) {
-                this.setToolTipText(REMOVE_TEXT);
-            } 
-            else {
-               this.setToolTipText(provider.getToolTipText(obj));
-            }
-                
-        }
-        
+       
         /**
          * Returns whether or not the check box is checked or not.
          */
@@ -1236,9 +1163,6 @@ public class CheckBoxList<E> extends BoxPanel {
                     public void mouseReleased(MouseEvent e) {
                     }
                 });
-            }
-
-            public void setHighlight(boolean b) {
             }
         }
         

@@ -1,13 +1,13 @@
-/AWTSplashWindow.java/1.2/Fri Aug  7 20:26:24 2009//Tprod-5-2-13-java16
-/AllLimeWireModules__DO_NOT_USE.java/1.1/Thu Jun 11 00:33:47 2009//Tprod-5-2-13-java16
-/DefaultErrorCatcher.java/1.3/Tue Feb 10 21:11:53 2009//Tprod-5-2-13-java16
-/GURLHandler.java/1.2/Mon Jul 20 19:52:59 2009//Tprod-5-2-13-java16
-/GuiLoader.java/1.2/Mon Jul 20 19:52:59 2009//Tprod-5-2-13-java16
-/Initializer.java/1.58/Mon Jul 20 19:52:59 2009//Tprod-5-2-13-java16
-/LimeWireModule.java/1.3/Thu Jan 22 05:05:32 2009//Tprod-5-2-13-java16
-/MacEventHandler.java/1.14/Mon Jul 20 19:52:59 2009//Tprod-5-2-13-java16
-/Main.java/1.7/Fri Aug  7 20:26:24 2009//Tprod-5-2-13-java16
-/MessageHandler.java/1.2/Mon Mar 23 14:55:28 2009//Tprod-5-2-13-java16
-/SettingsWarningManager.java/1.2/Mon Jul 20 19:52:59 2009//Tprod-5-2-13-java16
-/UncaughtExceptionHandlerImpl.java/1.2/Thu Jan 22 05:09:31 2009//Tprod-5-2-13-java16
-D
+/AWTSplashWindow.java/1.3/Thu Sep  3 21:17:43 2009//Tprod-5-3-2-java6
+/AllLimeWireModules__DO_NOT_USE.java/1.1/Thu Jun 11 00:33:47 2009//Tprod-5-3-2-java6
+/DefaultErrorCatcher.java/1.3/Tue Feb 10 21:11:53 2009//Tprod-5-3-2-java6
+/GURLHandler.java/1.2/Mon Jul 20 19:52:59 2009//Tprod-5-3-2-java6
+/GuiLoader.java/1.2/Mon Jul 20 19:52:59 2009//Tprod-5-3-2-java6
+/Initializer.java/1.59/Thu Sep  3 21:17:43 2009//Tprod-5-3-2-java6
+/LimeWireModule.java/1.4/Thu Sep  3 21:17:43 2009//Tprod-5-3-2-java6
+/MacEventHandler.java/1.17/Thu Sep  3 21:17:43 2009//Tprod-5-3-2-java6
+/Main.java/1.9/Thu Sep  3 21:17:43 2009//Tprod-5-3-2-java6
+/MessageHandler.java/1.2/Mon Mar 23 14:55:28 2009//Tprod-5-3-2-java6
+/SettingsWarningManager.java/1.2/Mon Jul 20 19:52:59 2009//Tprod-5-3-2-java6
+/UncaughtExceptionHandlerImpl.java/1.2/Thu Jan 22 05:09:31 2009//Tprod-5-3-2-java6
+D/friend////

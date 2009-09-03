@@ -38,6 +38,7 @@ import org.limewire.collection.RandomAccessMap;
 import org.limewire.collection.RandomOrderHashMap;
 import org.limewire.core.settings.ApplicationSettings;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectableContainer;
 import org.limewire.inspection.InspectablePrimitive;
@@ -53,7 +54,6 @@ import org.limewire.util.CommonUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.bootstrap.Bootstrapper;
 import com.limegroup.gnutella.dht.DHTManager;
@@ -71,7 +71,7 @@ import com.limegroup.gnutella.util.ClassCNetworks;
  * necessary to maintain full connectivity. Hosts that are known to be
  * ultrapeers are preferred when caching and returning addresses. 
  */
-@Singleton
+@EagerSingleton
 public class HostCatcher implements Service, Bootstrapper.Listener {
     
     private static final Log LOG = LogFactory.getLog(HostCatcher.class);
@@ -741,8 +741,7 @@ public class HostCatcher implements Service, Bootstrapper.Listener {
         // If the pong came from a UHC, just add it as that
         if(endpoint.isUDPHostCache()) {
             LOG.trace("Adding host as UHC");
-            bootstrapper.addUDPHostCache(endpoint);
-            return addedPacked;
+            return bootstrapper.addUDPHostCache(endpoint) || addedPacked;
         }
 
         // If the pong came from a DHT node, pass it to the DHT manager

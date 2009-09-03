@@ -4,18 +4,18 @@ import java.util.Set;
 
 import org.limewire.friend.impl.address.FriendAddress;
 import org.limewire.friend.impl.address.FriendAddressResolver;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.net.address.AddressFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.RemoteFileDesc;
 import com.limegroup.gnutella.URN;
 import com.limegroup.gnutella.downloader.RemoteFileDescDeserializer;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
 import com.limegroup.gnutella.xml.LimeXMLDocument;
 
-@Singleton
+@EagerSingleton
 public class FriendRemoteFileDescDeserializer implements RemoteFileDescDeserializer {
 
     private final AddressFactory addressFactory;

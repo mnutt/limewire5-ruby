@@ -115,7 +115,7 @@ public class HeadTest extends LimeTestCase {
 	    downloadManager = mockery.mock(DownloadManager.class);
 	    
 	    
-	    injector = LimeTestUtils.createInjector(new AbstractModule() {
+	    injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(MessageRouter.class).to(MessageRouterStub.class);

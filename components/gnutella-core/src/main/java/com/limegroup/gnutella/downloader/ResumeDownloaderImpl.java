@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.limewire.concurrent.ListeningExecutorService;
-import org.limewire.core.api.download.DownloadException;
 import org.limewire.core.api.download.SaveLocationManager;
 import org.limewire.net.SocketsManager;
 import org.limewire.util.Objects;
@@ -121,12 +120,5 @@ class ResumeDownloaderImpl extends ManagedDownloaderImpl implements ResumeDownlo
 //        // from clicking 'Resume' in the library (as opposed to
 //        // from being deserialized from disk).
 //        requeryManager.activate();
-    }
-    
-    @Override
-    public void setSaveFile(File saveDirectory, String fileName, boolean overwrite)
-            throws DownloadException {
-        //overriding to track down cause of https://www.limewire.org/jira/browse/LWC-3697 remove when fixed
-        super.setSaveFile(saveDirectory, fileName, overwrite);
     }
 }

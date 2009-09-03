@@ -24,7 +24,6 @@ import org.limewire.util.TestUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.connection.BlockingConnection;
 import com.limegroup.gnutella.connection.BlockingConnectionFactory;
 import com.limegroup.gnutella.downloader.RemoteFileDescFactory;
@@ -141,7 +140,7 @@ public abstract class ClientSideTestCase extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        this.setUp(LimeTestUtils.createInjector(Stage.PRODUCTION));
+        this.setUp(LimeTestUtils.createInjector());
     }
     
     public void setUp(Injector injector) throws Exception {

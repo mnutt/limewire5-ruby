@@ -52,7 +52,7 @@ import org.limewire.ui.swing.components.IconButton;
 import org.limewire.ui.swing.components.RemoteHostWidget;
 import org.limewire.ui.swing.components.RemoteHostWidgetFactory;
 import org.limewire.ui.swing.components.RemoteHostWidget.RemoteWidgetType;
-import org.limewire.ui.swing.event.SelectAndScrollDownloadEvent;
+import org.limewire.ui.swing.downloads.MainDownloadPanel;
 import org.limewire.ui.swing.library.LibraryMediator;
 import org.limewire.ui.swing.listener.MousePopupListener;
 import org.limewire.ui.swing.nav.Navigator;
@@ -142,8 +142,8 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     private IconButton similarButton = new IconButton();
     private IconButton propertiesButton = new IconButton();
     private JEditorPane heading = new JEditorPane();
-    private JLabel subheadingLabel = new TransparentCellTableRenderer();
-    private JLabel metadataLabel = new TransparentCellTableRenderer();
+    private JLabel subheadingLabel = new NoDancingHtmlLabel();
+    private JLabel metadataLabel = new NoDancingHtmlLabel();
     private JLabel downloadSourceCount = new TransparentCellTableRenderer();
     private JXPanel editorComponent;
 
@@ -164,6 +164,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
     private int textPanelWidth;
 
     private final SearchResultMenuFactory searchResultMenuFactory;
+    private final MainDownloadPanel mainDownloadPanel;
     
     @Inject
     ListViewTableEditorRenderer(
@@ -176,7 +177,8 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         final @Assisted ListViewDisplayedRowsLimit displayLimit,
         LibraryMediator libraryMediator,
         Provider<SearchResultTruncator> truncator, FileInfoDialogFactory fileInfoFactory,
-        SearchResultMenuFactory searchResultMenuFactory) {
+        SearchResultMenuFactory searchResultMenuFactory,
+        MainDownloadPanel mainDownloadPanel) {
 
         this.categoryIconManager = categoryIconManager;
         this.headingBuilder = headingBuilder;
@@ -186,6 +188,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         this.downloadHandler = downloadHandler;
         this.fileInfoFactory = fileInfoFactory;
         this.searchResultMenuFactory = searchResultMenuFactory;
+        this.mainDownloadPanel = mainDownloadPanel;
         
         GuiUtils.assignResources(this);
 
@@ -226,6 +229,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
         propertiesButton.setIcon(propertiesIcon);
         propertiesButton.setPressedIcon(propertiesPressedIcon);
         propertiesButton.setRolloverIcon(propertiesHoverIcon);
+        propertiesButton.setToolTipText(I18n.tr("View File Info"));
         
         itemIconButton.addActionListener(new ActionListener() {
             @Override
@@ -447,8 +451,6 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             html = html.replace(HTML, "").replace(CLOSING_HTML_TAG, "");
             html = HTML + pm.getKey() + ":" + html + CLOSING_HTML_TAG;
             metadataLabel.setText(html);
-            //prevent our little friend from dancing up and down on mouse over
-            metadataLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, metadataLabel.getPreferredSize().height));
         }
     }    
 
@@ -487,13 +489,9 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
 
         subheadingLabel.setForeground(subHeadingLabelColor);
         subheadingLabel.setFont(subHeadingFont);
-        subheadingLabel.setText(I18n.tr("This is sample text."));
-        subheadingLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, subheadingLabel.getPreferredSize().height));
 
         metadataLabel.setForeground(metadataLabelColor);
         metadataLabel.setFont(metadataFont);
-        //prevents strange movement on mouseover
-        metadataLabel.setVerticalAlignment(JLabel.TOP);
 
         downloadSourceCount.setForeground(downloadSourceCountColor);
         downloadSourceCount.setFont(downloadSourceCountFont);
@@ -515,7 +513,7 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
                         downloadHandler.download(vsr);
                         table.editingStopped(new ChangeEvent(table));
                     } else if (e.getDescription().equals("#downloading")) {
-                        new SelectAndScrollDownloadEvent(vsr.getUrn()).publish();
+                        mainDownloadPanel.selectAndScrollTo(vsr.getUrn());
                     } else if (e.getDescription().equals("#library")) {
                         libraryMediator.selectInLibrary(vsr.getUrn());
                     }
@@ -572,7 +570,8 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (vsr != null && e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {  
+                if (vsr != null && !vsr.isSpam() && e.getClickCount() == 2 &&
+                        SwingUtilities.isLeftMouseButton(e)) {  
                     downloadHandler.download(vsr);
                 }
             }
@@ -633,6 +632,27 @@ public class ListViewTableEditorRenderer extends AbstractCellEditor implements T
             matcher.reset(text);
             text = matcher.replaceAll(EMPTY_STRING);
             return fontMetrics.stringWidth(text);
+        }
+    }
+    
+    /**
+     * A label that does not appear to dance up and down when displaying HTML in a table.
+     * 
+     * The text inside JLabels wraps when displaying HTML that doesn't fit on one line. Only the first line is displayed but
+     * when the label is used in a table renderer or editor, it has weird mouse over behavior where the lines dance up and down.  
+     * NoDancingHtmlLabel prevents this behavior.
+     */
+    private static class NoDancingHtmlLabel extends TransparentCellTableRenderer {
+        public NoDancingHtmlLabel(){
+            //prevents strange movement on mouseover
+            setVerticalAlignment(JLabel.TOP);
+        }
+        
+        @Override
+        public void setText(String text){
+            super.setText(text);
+            //prevent our little friend from dancing up and down on mouse over
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
         }
     }
  

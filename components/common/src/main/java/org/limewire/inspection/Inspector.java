@@ -20,11 +20,12 @@ public interface Inspector {
     boolean loaded();
     
     /**
-     * @param key human readable key or actual path to inspect.  
+     * @param key human readable key or actual path to inspect.
+     * @param collectUsageData whether DataCategory.USAGE inspection points should be collected
      * @return the Object from the inspection
      * @throws InspectionException if something goes wrong 
      */
-    Object inspect(String key) throws InspectionException;
+    Object inspect(String key, boolean collectUsageData) throws InspectionException;
     
     /** Sets the new Injector that will be used for inspections. */
     void setInjector(Injector injector);

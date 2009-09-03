@@ -1,6 +1,7 @@
 package org.limewire.gnutella.tests;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,13 +11,16 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.io.IOUtils;
 import org.limewire.io.IpPort;
 import org.limewire.listener.ListenerSupport;
@@ -24,6 +28,7 @@ import org.limewire.net.TLSManager;
 import org.limewire.net.address.AddressEvent;
 import org.limewire.util.AssertComparisons;
 import org.limewire.util.Base32;
+import org.limewire.util.FileUtils;
 import org.limewire.util.StringUtils;
 import org.limewire.util.TestUtils;
 
@@ -148,25 +153,38 @@ public class LimeTestUtils {
      * @return the injector
      */
     public static Injector createInjector(Class<? extends ActivityCallback> callbackClass, Module...modules) {
-        return createInjector(Stage.DEVELOPMENT, callbackClass, modules);
+        return createInjector(callbackClass, true, modules);
     }
     
-    public static Injector createInjector(Stage stage, Class<? extends ActivityCallback> callbackClass, Module...modules) {
-        Module combinedReplacements = Modules.combine(modules);
-        Module combinedOriginals = Modules.combine(new LimeWireCoreModule(callbackClass), new BlockingConnectionFactoryModule());
-        Module replaced = Modules.override(combinedOriginals).with(combinedReplacements);
-        return Guice.createInjector(stage, replaced);
-    }
-
     /**
      * Wraps {@link #createInjector(Module, Class) createInjector(Module, ActivityCallbackStub.class)}.
      */
     public static Injector createInjector(Module... modules) {
-        return createInjector(ActivityCallbackStub.class, modules);
+        return createInjector(ActivityCallbackStub.class, true, modules);
     }
     
-    public static Injector createInjector(Stage stage, Module... modules) {
-        return createInjector(stage, ActivityCallbackStub.class, modules);
+    /**
+     * Creates the Guice injector without eagerly loading EagerSingletons.
+     */
+    public static Injector createInjectorNonEagerly(Class<? extends ActivityCallback> callbackClass, Module... modules) {
+        return createInjector(callbackClass, false, modules);
+    }
+    
+    /**
+     * Creates the Guice injector without eagerly loading EagerSingletons.
+     */
+    public static Injector createInjectorNonEagerly(Module... modules) {
+        return createInjector(ActivityCallbackStub.class, false, modules);
+    }
+    
+    private static Injector createInjector(Class<? extends ActivityCallback> callbackClass, boolean loadEager, Module...modules) {
+        Module combinedReplacements = Modules.combine(modules);
+        Module combinedOriginals = Modules.combine(new LimeWireCoreModule(callbackClass), new BlockingConnectionFactoryModule());
+        Module replaced = Modules.override(combinedOriginals).with(combinedReplacements);
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, replaced);
+        if(loadEager)
+            GuiceUtils.loadEagerSingletons(injector);
+        return injector;
     }
 
     /**
@@ -179,9 +197,9 @@ public class LimeTestUtils {
      * @param callbackClass the class that is used as a callback
      * @return the injector
      */
-    public static Injector createInjectorAndStart(Class<? extends ActivityCallback> callbackClass, Module...modules) {
+    private static Injector createInjectorAndStart(Class<? extends ActivityCallback> callbackClass, Module...modules) {
         // Use PRODUCTION to ensure all Services are created.
-        Injector injector = createInjector(Stage.PRODUCTION, callbackClass, modules);
+        Injector injector = createInjector(callbackClass, true, modules);
         LifecycleManager lifecycleManager = injector.getInstance(LifecycleManager.class);
         lifecycleManager.start();
         return injector;
@@ -311,5 +329,60 @@ public class LimeTestUtils {
                 }
             }
         };
+    }
+    
+    
+    private static List<File> getBuildFolders(File root) {
+        final List<File> paths = new ArrayList<File>();
+        // add all components that have a build/classes dir.
+        root.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                File classes = new File(pathname, "build/classes");
+                if(classes.exists()) {
+                    paths.add(classes);
+                }
+                return false;
+            }
+        });
+        
+        return paths;
+    }
+
+    /**
+     * Returns all non-test build folders. 
+     */
+    public static List<File> getBuildFolders(Class clazz) throws Exception {
+        File f = TestUtils.getResourceInPackage(clazz.getSimpleName() + ".class", clazz).getCanonicalFile();
+        // step out to find the root folder of the component
+        int packageDepth = StringUtils.countOccurrences(clazz.getName(), '.');
+        // + 1 to back out of top level package 
+        for (int i = 0; i < packageDepth + 1; i++) {
+            f = f.getParentFile();
+        }
+        // f now == <something>/limewire/[private-]components/component/build/tests
+        // we want to back out to <something>/limewire
+        //      build/          component/      components/      limewire/   
+        f = f.getParentFile().getParentFile().getParentFile().getParentFile();
+        
+        final List<File> paths = new ArrayList<File>();
+        paths.addAll(getBuildFolders(new File(f, "components")));
+        paths.addAll(getBuildFolders(new File(f, "private-components")));        
+        if (paths.size() < 10) {
+            throw new IOException("didn't find all classes: " + paths);
+        }
+        return paths;
+    }
+    
+    /**
+     * Returns all non-test class files. 
+     */
+    public static Set<File> getAllClassFiles(Class clazz) throws Exception {
+        List<File> buildFolders = getBuildFolders(clazz);
+        Set<File> classFiles = new HashSet<File>();
+        for (File buildFolder : buildFolders) {
+            classFiles.addAll(Arrays.asList(FileUtils.getFilesRecursive(buildFolder, "class")));
+        }
+        return classFiles;
     }
 }

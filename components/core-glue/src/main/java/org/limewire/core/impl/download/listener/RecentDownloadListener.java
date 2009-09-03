@@ -71,7 +71,7 @@ public class RecentDownloadListener implements EventListener<DownloadStateEvent>
     /**
      * Orders files from least to most recent.
      */
-    private class FileDateLeastToMostRecentComparator implements Comparator<File> {
+    private static class FileDateLeastToMostRecentComparator implements Comparator<File> {
         @Override
         public int compare(File o1, File o2) {
             return Long.valueOf(o1.lastModified()).compareTo(Long.valueOf(o2.lastModified()));

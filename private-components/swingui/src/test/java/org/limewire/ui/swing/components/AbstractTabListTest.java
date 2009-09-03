@@ -210,7 +210,7 @@ public class AbstractTabListTest extends BaseTestCase {
     /**
      * Test implementation of AbstractTabList.
      */
-    private class TestTabList extends AbstractTabList {
+    private static class TestTabList extends AbstractTabList {
 
         @Override
         protected void layoutTabs() {

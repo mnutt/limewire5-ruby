@@ -177,7 +177,7 @@ class LibrarySharingFriendListPanel {
         return component;
     }
     
-    private class FriendComparator implements Comparator<String> {
+    private static class FriendComparator implements Comparator<String> {
         @Override
         public int compare(String name1, String name2) {
             return name1.compareToIgnoreCase(name2);

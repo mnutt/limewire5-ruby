@@ -2,7 +2,9 @@ package org.limewire.ui.swing.library.table;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import org.jdesktop.swingx.decorator.SortKey;
 import org.jdesktop.swingx.decorator.SortOrder;
@@ -14,6 +16,7 @@ import org.limewire.ui.swing.settings.TablesHandler;
 import org.limewire.ui.swing.table.ColumnStateInfo;
 import org.limewire.ui.swing.util.I18n;
 import org.limewire.ui.swing.util.IconManager;
+import org.limewire.ui.swing.util.PropertiableFileUtils;
 
 import com.google.inject.Inject;
 
@@ -36,7 +39,7 @@ public class AllTableFormat <T extends LocalFileItem> extends AbstractLibraryFor
     public AllTableFormat(IconManager iconManager) {
         super(ACTION_INDEX, "LIBRARY_ALL_TABLE", NAME_INDEX, true, new ColumnStateInfo[] {
                 new ColumnStateInfo(PLAY_INDEX, "LIBRARY_ALL_PLAY", "", 16, 16, true, false), 
-                new ColumnStateInfo(NAME_INDEX, "LIBRARY_ALL_NAME", "Name", 480, true, true), 
+                new ColumnStateInfo(NAME_INDEX, "LIBRARY_ALL_NAME", I18n.tr("Name"), 480, true, true), 
                 new ColumnStateInfo(TYPE_INDEX, "LIBRARY_ALL_TYPE", I18n.tr("Type"), 230, true, true),     
 
                 new ColumnStateInfo(SIZE_INDEX, "LIBRARY_ALL_SIZE", I18n.tr("Size"), 60, false, true),
@@ -80,6 +83,7 @@ public class AllTableFormat <T extends LocalFileItem> extends AbstractLibraryFor
     public Class getColumnClass(int column) {
         switch(column) {
         case PLAY_INDEX:
+        case NAME_INDEX:
             return FileItem.class;
         }
         return super.getColumnClass(column);
@@ -100,5 +104,34 @@ public class AllTableFormat <T extends LocalFileItem> extends AbstractLibraryFor
     @Override
     public List<Integer> getSecondarySortColumns(int column) {
         return Collections.emptyList();
+    }
+    
+    @Override
+    public Comparator getColumnComparator(int column) {
+        switch(column) {
+            case NAME_INDEX: return new NameComparator();
+        }
+        return super.getColumnComparator(column);
+    }
+    
+    /**
+     * Compares the title field in the NAME_COLUMN.
+     */
+    private class NameComparator implements Comparator<FileItem> {
+        @Override
+        public int compare(FileItem o1, FileItem o2) {               
+            String title1 = getDisplayText((LocalFileItem) o1);
+            String title2 = getDisplayText((LocalFileItem) o2);
+            
+            return title1.toLowerCase(Locale.US).compareTo(title2.toLowerCase(Locale.US));
+        }
+        
+        private String getDisplayText(LocalFileItem item) {
+            if(item.getCategory() == Category.AUDIO) {
+                return PropertiableFileUtils.getNameProperty(item, true);
+            } else {
+                return item.getFileName();
+            }
+        }
     }
 }

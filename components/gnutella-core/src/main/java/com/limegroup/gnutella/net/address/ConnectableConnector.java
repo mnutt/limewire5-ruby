@@ -2,23 +2,23 @@ package com.limegroup.gnutella.net.address;
 
 import java.io.IOException;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.Connectable;
 import org.limewire.logging.Log;
 import org.limewire.logging.LogFactory;
 import org.limewire.net.SocketsManager;
-import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.net.TLSManager;
+import org.limewire.net.SocketsManager.ConnectType;
 import org.limewire.net.address.AddressConnector;
 import org.limewire.nio.observer.ConnectObserver;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * This class handles connecting to addresses of type {@link Connectable}.
  */
-@Singleton
+@EagerSingleton
 public class ConnectableConnector implements AddressConnector {
 
     private static final Log LOG = LogFactory.getLog(ConnectableConnector.class, "address-connecting");

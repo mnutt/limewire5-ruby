@@ -27,7 +27,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.plaf.BorderUIResource;
-import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicButtonListener;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -45,8 +44,6 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.ImageView;
 import javax.swing.text.html.StyleSheet;
 
-import org.jdesktop.swingx.plaf.basic.BasicHyperlinkUI;
-
 /**
  * A temporary copy of BasicHyperlinkUI with the faulty underlining code removed and some
  *  warnings cleaned up.
@@ -54,12 +51,8 @@ import org.jdesktop.swingx.plaf.basic.BasicHyperlinkUI;
 public class CustomHyperlinkUI extends BasicButtonUI {
 
     @SuppressWarnings("unused")
-    private static final Logger LOG = Logger.getLogger(BasicHyperlinkUI.class
+    private static final Logger LOG = Logger.getLogger(CustomHyperlinkUI.class
             .getName());
-    
-    public static ComponentUI createUI(JComponent c) {
-        return new CustomHyperlinkUI();
-    }
 
     private static Rectangle viewRect = new Rectangle();
 

@@ -25,6 +25,7 @@ public class ClassicDoubleClickHandler implements TableDoubleClickHandler {
         }
 
         VisualSearchResult result = resultsTable.getEventTableModel().getElementAt(row);
-        downloadHandler.download(result);
+        if(!result.isSpam())
+            downloadHandler.download(result);
     }
 }

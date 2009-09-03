@@ -296,7 +296,7 @@ public class ConnectionSummaryPanel extends JPanel {
      * Table cell renderer for connection count values in the summary table.
      * Values are right-aligned with a right margin.
      */
-    private class SummaryCellRenderer extends DefaultTableCellRenderer {
+    private static class SummaryCellRenderer extends DefaultTableCellRenderer {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -317,7 +317,7 @@ public class ConnectionSummaryPanel extends JPanel {
     /**
      * Table model for the connection summary table. 
      */
-    private class SummaryTableModel extends AbstractTableModel {
+    private static class SummaryTableModel extends AbstractTableModel {
 
         /** A 5-element array containing the number of connections with the
          *  following states: connecting, ultrapeer, peer, leaf, standard.

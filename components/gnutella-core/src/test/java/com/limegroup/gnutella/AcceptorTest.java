@@ -71,7 +71,7 @@ public class AcceptorTest extends LimeTestCase {
         connectionManager = new StubCM();
         activityCallback = new StubAC();
         
-        injector = LimeTestUtils.createInjector(new AbstractModule() {
+        injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(ConnectionManager.class).toInstance(connectionManager);

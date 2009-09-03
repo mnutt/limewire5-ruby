@@ -135,7 +135,7 @@ public class ImageList extends JXList implements Disposable {
      * This class listens for double clicks inside of the ImageList.
      * When a double click is detected, the relevant item in the list is launched.
      */
-    private final class ImageDoubleClickMouseListener extends MouseAdapter {
+    private final static class ImageDoubleClickMouseListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
             if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {

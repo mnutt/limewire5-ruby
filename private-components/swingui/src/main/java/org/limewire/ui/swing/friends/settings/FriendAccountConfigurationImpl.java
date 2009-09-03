@@ -138,6 +138,11 @@ class FriendAccountConfigurationImpl implements FriendAccountConfiguration {
     }
 
     @Override
+    public boolean storePassword() {
+        return true;
+    }
+
+    @Override
     public String getResource() {
         return resource;
     }

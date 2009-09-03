@@ -40,7 +40,7 @@ public class ID3WriterTest extends AudioTestBase {
     
     @Override
     public void setUp(){
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         limeXMLDocumentFactory = injector.getInstance(LimeXMLDocumentFactory.class);
         metaDataFactory = injector.getInstance(MetaDataFactory.class);
     }

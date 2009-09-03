@@ -20,6 +20,11 @@ public interface DownloadItem extends PropertiableFile {
     public static final String DOWNLOAD_ITEM = "limewire.download.glueItem";
     public static final String DOWNLOAD_START_DATE = "limewire.download.startDate";
 
+    public enum DownloadItemType {
+        GNUTELLA,
+        BITTORRENT
+    }
+    
     /**
      * Amalgamates the various specific error messages that a downloader could encounter
      *  into a general error applicable to any type of download and user under understandable.
@@ -48,6 +53,12 @@ public interface DownloadItem extends PropertiableFile {
             return message;
         }
     };
+    
+    /**
+     * Returns the DownloadItemType for this downloader. Currently only broken up between gnutella and bittorrent,
+     * All non bittorrent downloaders are still considered gnutella for consistency currently. 
+     */
+    public DownloadItemType getDownloadItemType();
     
     /**
      * Used to signify a "remainder" estimate that can not be calculated for 
@@ -188,4 +199,10 @@ public interface DownloadItem extends PropertiableFile {
      * Returns all of the property listeners for this DownloadItem
      */
     PropertyChangeListener[] getPropertyChangeListeners();
+    
+    /**
+     * Returns the given Download property that matches the DownloadPropertyKey, Null is returned if the 
+     * property does not exist for this DownloadItem. 
+     */
+    public Object getDownloadProperty(DownloadPropertyKey key);
 }

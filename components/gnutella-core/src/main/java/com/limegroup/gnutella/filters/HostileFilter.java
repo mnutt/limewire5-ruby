@@ -27,29 +27,29 @@ public class HostileFilter extends  AbstractIPFilter {
      * Refresh the IPFilter's instance.
      */
     @Override
-    public void refreshHosts(IPFilterCallback callback) {
+    public void refreshHosts(LoadCallback callback) {
         refreshHosts();
-        callback.ipFiltersLoaded();
+        callback.spamFilterLoaded();
     }
     
     @Override
     public void refreshHosts() {
-        LOG.info("refreshing hosts at hostile level");
-        // Load hostile, making sure the list is valid
+        LOG.debug("Refreshing hostile IP filter");
         IPList newHostile = new IPList();
         if(!FilterSettings.USE_NETWORK_FILTER.getValue()) {
             hostileHosts = newHostile;
             return;
         }
+        // Load hostile IPs from setting, making sure the list is valid
         String [] allHosts = FilterSettings.HOSTILE_IPS.get();
         try {
             for(String ip : allHosts)
                 newHostile.add(new IP(ip));
             if(newHostile.isValidFilter(false, networkInstanceUtils)) {
-                LOG.debug("filter was valid");
+                LOG.debug("Filter was valid");
                 hostileHosts = newHostile;
             } else {
-                LOG.debug("filter was invalid");
+                LOG.debug("Filter was invalid");
             }
         } catch(IllegalArgumentException badSimpp){
             LOG.debug("SIMPP was invalid", badSimpp);

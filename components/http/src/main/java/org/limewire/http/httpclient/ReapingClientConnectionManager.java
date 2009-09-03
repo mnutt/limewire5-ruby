@@ -21,14 +21,14 @@ import com.google.inject.Provider;
  * A <code>ClientConnectionManager</code> that will close idle connections
  */
 class ReapingClientConnectionManager extends ThreadSafeClientConnManager {
-    protected final ScheduledFuture connectionCloserTask;
-    protected final IdleConnectionCloser connectionCloser;
+    private final ScheduledFuture connectionCloserTask;
+    private final IdleConnectionCloser connectionCloser;
 
     public ReapingClientConnectionManager(Provider<SchemeRegistry> schemeRegistry, Provider<ScheduledExecutorService> scheduler, Provider<HttpParams> defaultParams) {
         super(defaultParams.get(), schemeRegistry.get());
         connectionCloser = new IdleConnectionCloser();
         // TODO revist - move this until later (eg., getConnection())
-        connectionCloserTask = scheduler.get().scheduleAtFixedRate(connectionCloser, 0L, 10L, TimeUnit.SECONDS);
+        connectionCloserTask = scheduler.get().scheduleWithFixedDelay(connectionCloser, 0L, 10L, TimeUnit.SECONDS);
     }
     
     @Override

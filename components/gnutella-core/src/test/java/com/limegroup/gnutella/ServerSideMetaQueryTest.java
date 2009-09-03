@@ -18,7 +18,6 @@ import org.limewire.util.TestUtils;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.google.inject.Stage;
 import com.limegroup.gnutella.library.FileManagerTestUtils;
 import com.limegroup.gnutella.messages.FeatureSearchData;
 import com.limegroup.gnutella.messages.QueryReply;
@@ -60,7 +59,7 @@ public class ServerSideMetaQueryTest extends ClientSideTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, MyCallback.class, LimeTestUtils.createModule(this));
+        Injector injector = LimeTestUtils.createInjector(MyCallback.class, LimeTestUtils.createModule(this));
         super.setUp(injector);
         
         FileManagerTestUtils.waitForLoad(library, 500);

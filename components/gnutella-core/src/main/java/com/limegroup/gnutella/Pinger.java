@@ -4,11 +4,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.limewire.core.settings.PingPongSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.messages.PingRequest;
 import com.limegroup.gnutella.messages.PingRequestFactory;
@@ -21,7 +21,7 @@ import com.limegroup.gnutella.messages.PingRequestFactory;
  * to those pings with cached pongs, and send pings periodically in this 
  * class to obtain fresh host data.
  */
-@Singleton
+@EagerSingleton
 public final class Pinger implements Runnable, Service {
 
     /**

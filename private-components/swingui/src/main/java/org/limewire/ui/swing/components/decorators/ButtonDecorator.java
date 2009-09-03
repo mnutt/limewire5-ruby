@@ -190,6 +190,17 @@ public class ButtonDecorator {
         
         button.setBorder(BorderFactory.createEmptyBorder(0,8,0,8));
     }
+    
+    public void decorateChatButton(JXButton button, PopupVisibilityChecker visibilityChecker, 
+            Paint background, Paint border) {
+        //TODO: Michael T needs to fix this painting.
+        button.setBackgroundPainter(new StatusBarPopupButtonPainter(visibilityChecker, background, border, org.limewire.ui.swing.painter.StatusBarPopupButtonPainter.DrawMode.RIGHT_CONNECTING));
+//        button.setForegroundPainter(new ButtonForegroundPainter());
+        
+        decorateGeneral(button);
+        
+        button.setBorder(BorderFactory.createEmptyBorder(0,8,0,8));
+    }
         
     private static void decorateGeneral(JXButton button) {
         button.setOpaque(false);

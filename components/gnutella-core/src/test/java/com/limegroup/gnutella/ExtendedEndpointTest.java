@@ -125,7 +125,7 @@ public class ExtendedEndpointTest extends org.limewire.gnutella.tests.LimeTestCa
 
     public void testReadNormal() throws Exception {
         ExtendedEndpoint e=ExtendedEndpoint.read(
-            "127.0.0.1:6348,3492,1, 100,86400113;113\n");
+            "127.0.0.1:6348,3492,1,100,86400113;113\n");
         assertEquals("127.0.0.1", e.getAddress());
         assertEquals(6348, e.getPort());
         assertEquals(3492, e.getDailyUptime());
@@ -158,7 +158,7 @@ public class ExtendedEndpointTest extends org.limewire.gnutella.tests.LimeTestCa
 
    public void testReadUnknown() throws Exception {
         ExtendedEndpoint e=ExtendedEndpoint.read(
-            "127.0.0.1:6348,,A,, 86400113;113 \n");
+            "127.0.0.1:6348,,A,,86400113;113 \n");
         assertEquals("127.0.0.1", e.getAddress());
         assertEquals(6348, e.getPort());
         assertEquals(ExtendedEndpoint.DEFAULT_DAILY_UPTIME, 
@@ -172,7 +172,7 @@ public class ExtendedEndpointTest extends org.limewire.gnutella.tests.LimeTestCa
         assertEquals(113, ((Long)iter.next()).longValue());
         assertTrue(!iter.hasNext());
         e=ExtendedEndpoint.read(
-            "127.0.0.1:6348,,A,, 86400113;113,,,3,ACTIVE,\n");
+            "127.0.0.1:6348,,A,,86400113;113,,,3,ACTIVE,\n");
         assertTrue(e.supportsDHT());
         assertEquals(3, e.getDHTVersion());
         assertEquals(DHTMode.ACTIVE, e.getDHTMode());

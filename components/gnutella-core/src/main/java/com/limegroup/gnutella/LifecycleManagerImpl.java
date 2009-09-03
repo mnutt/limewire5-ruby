@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.limewire.concurrent.ThreadExecutor;
 import org.limewire.core.api.lifecycle.LifeCycleEvent;
 import org.limewire.core.settings.ApplicationSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.inspection.Inspectable;
 import org.limewire.inspection.InspectablePrimitive;
 import org.limewire.inspection.InspectionPoint;
@@ -24,13 +25,12 @@ import org.limewire.util.SystemUtils;
 import org.limewire.util.VersionUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Provides an implementation of the <code>LifecycleManager</code> to start and
  * stop the LimeWire components.
  */
-@Singleton
+@EagerSingleton
 public class LifecycleManagerImpl implements LifecycleManager {
     
     private static final Log LOG = LogFactory.getLog(LifecycleManagerImpl.class);

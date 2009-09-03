@@ -23,8 +23,13 @@ import org.limewire.io.IpPort;
 
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.google.inject.Stage;
-import com.limegroup.gnutella.messages.*;
+import com.limegroup.gnutella.messages.Message;
+import com.limegroup.gnutella.messages.MessageFactory;
+import com.limegroup.gnutella.messages.PingReply;
+import com.limegroup.gnutella.messages.PingReplyFactory;
+import com.limegroup.gnutella.messages.PingRequest;
+import com.limegroup.gnutella.messages.PingRequestFactory;
+import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.Message.Network;
 
 /**
@@ -58,7 +63,7 @@ public class UDPHostRankerTest extends ClientSideTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector(Stage.PRODUCTION, MyActivityCallback.class);
+        Injector injector = LimeTestUtils.createInjector(MyActivityCallback.class);
         super.setUp(injector);
         pingRequestFactory = injector.getInstance(PingRequestFactory.class);
         uniqueHostPinger = injector.getInstance(UniqueHostPinger.class);

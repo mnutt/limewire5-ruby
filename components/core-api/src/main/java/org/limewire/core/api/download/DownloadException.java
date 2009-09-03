@@ -68,7 +68,12 @@ public class DownloadException extends IOException {
         /**
          * Throw when trying to start a new download before resume downloaders have finished running.
          */
-        FILES_STILL_RESUMING
+        FILES_STILL_RESUMING, 
+        
+        /**
+         * Thrown when trying to escape the add download logic because the user cancelled the download.
+         */
+        DOWNLOAD_CANCELLED
     }
 
     /**

@@ -81,7 +81,7 @@ public final class HandshakeResponseTest extends LimeTestCase {
         ConnectionSettings.ACCEPT_DEFLATE.setValue(true);
         ConnectionSettings.ENCODE_DEFLATE.setValue(true);
         
-         Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+         Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(ConnectionManager.class).to(TestConnectionManager.class);

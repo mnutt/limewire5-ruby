@@ -60,7 +60,7 @@ public class RequeryManagerTest extends LimeTestCase {
         downloadManager = mockery.mock(DownloadManager.class);
         sequence = mockery.sequence("Sequence");
         
-        Injector injector = LimeTestUtils.createInjector(new AbstractModule() {
+        Injector injector = LimeTestUtils.createInjectorNonEagerly(new AbstractModule() {
            @Override
             protected void configure() {
                 bind(DHTManager.class).to(MyDHTManager.class);

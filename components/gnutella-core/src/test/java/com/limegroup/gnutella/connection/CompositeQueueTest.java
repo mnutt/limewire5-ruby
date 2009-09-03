@@ -57,7 +57,7 @@ public class CompositeQueueTest extends LimeTestCase {
     
     @Override
     protected void setUp() throws Exception {
-        Injector injector = LimeTestUtils.createInjector();
+        Injector injector = LimeTestUtils.createInjectorNonEagerly();
         queryRequestFactory = injector.getInstance(QueryRequestFactory.class);
         pingRequestFactory = injector.getInstance(PingRequestFactory.class);
         queryReplyFactory = injector.getInstance(QueryReplyFactory.class);

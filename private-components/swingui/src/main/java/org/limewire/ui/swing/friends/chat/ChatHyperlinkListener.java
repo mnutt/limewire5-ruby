@@ -36,7 +36,7 @@ import com.google.inject.assistedinject.Assisted;
  * HyperlinkListener for links to libraries, form submissions (file offers)
  * that come from chat.
  */
-public class ChatHyperlinkListener implements javax.swing.event.HyperlinkListener {
+class ChatHyperlinkListener implements javax.swing.event.HyperlinkListener {
     private static final Log LOG = LogFactory.getLog(ChatHyperlinkListener.class);
 
     private Conversation conversation;
@@ -44,20 +44,16 @@ public class ChatHyperlinkListener implements javax.swing.event.HyperlinkListene
     private final ResultDownloader downloader;
     private final FileMetaDataConverter remoteFileItemFactory;
     private final Provider<DownloadExceptionHandler> downloadExceptionHandler;
-//    private final LibraryNavigator libraryNavigator;
 
     @Inject
     public ChatHyperlinkListener(@Assisted Conversation conversation,
             ResultDownloader downloader,
             FileMetaDataConverter remoteFileItemFactory,
             Provider<DownloadExceptionHandler> downloadExceptionHandler) {
-//                                 LibraryNavigator libraryNavigator) {
-
         this.conversation = conversation;
         this.downloader = downloader;
         this.remoteFileItemFactory = remoteFileItemFactory;
         this.downloadExceptionHandler = downloadExceptionHandler;
-//        this.libraryNavigator = libraryNavigator;
     }
 
     @Override

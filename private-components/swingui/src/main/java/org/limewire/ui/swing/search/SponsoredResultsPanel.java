@@ -11,7 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jdesktop.application.Resource;
-import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.VerticalLayout;
 import org.limewire.core.api.Application;
@@ -89,7 +88,7 @@ public class SponsoredResultsPanel extends JXPanel {
             textArea.setFont(bodyFont);
             textArea.setBorder(BorderFactory.createEmptyBorder());
             
-            JLabel urlLabel = new JXLabel(result.getVisibleUrl());
+            JLabel urlLabel = new JLabel(result.getVisibleUrl());
             urlLabel.setForeground(urlColor);
             urlLabel.setFont(urlFont);
             urlLabel.setBorder(BorderFactory.createEmptyBorder());

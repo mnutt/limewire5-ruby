@@ -5,20 +5,21 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.client.methods.HttpGet;
 import org.limewire.core.settings.ApplicationSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.util.Clock;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.ApplicationServices;
 import com.limegroup.gnutella.ConnectionManager;
 import com.limegroup.gnutella.http.HttpExecutor;
 import com.limegroup.gnutella.util.LimeWireUtils;
 
-@Singleton
+
 /**
  * Measures how long it takes to get a single ultrapeer connection, and reports back to
  * monitoring machines.
  */
+@EagerSingleton
 public class ConnectionReporter implements ConnectionLifecycleListener {
     
     private final ApplicationServices application;

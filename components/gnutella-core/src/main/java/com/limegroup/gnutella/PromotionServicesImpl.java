@@ -1,6 +1,7 @@
 package com.limegroup.gnutella;
 
 import org.limewire.core.settings.PromotionSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.promotion.InitializeException;
 import org.limewire.promotion.PromotionBinderRepository;
@@ -8,9 +9,8 @@ import org.limewire.promotion.PromotionSearcher;
 import org.limewire.promotion.PromotionServices;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 final class PromotionServicesImpl implements PromotionServices, Service {
 
     private final PromotionBinderRepository promotionBinderRepository;

@@ -41,4 +41,9 @@ public interface FriendAccountConfiguration extends FriendConnectionConfiguratio
      * Sets the password of the account.
      */
     public void setPassword(String password);
+
+    /**
+     * @return whether the password should be stored for this type of <code>FriendAccountConfiguration</code>
+     */
+    public boolean storePassword();
 }

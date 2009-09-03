@@ -27,6 +27,7 @@ import org.limewire.core.settings.ConnectionSettings;
 import org.limewire.core.settings.UploadSettings;
 import org.limewire.http.HttpAcceptorListener;
 import org.limewire.http.auth.ServerAuthState;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceRegistry;
 import org.limewire.util.FileLocker;
@@ -35,7 +36,6 @@ import org.limewire.util.Objects;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.limegroup.gnutella.Uploader.UploadStatus;
 import com.limegroup.gnutella.auth.UrnValidator;
 import com.limegroup.gnutella.http.HttpContextParams;
@@ -99,7 +99,7 @@ import com.limegroup.gnutella.uploader.authentication.GnutellaUploadFileViewProv
  * @see com.limegroup.gnutella.uploader.HTTPUploader
  * @see com.limegroup.gnutella.HTTPAcceptor
  */
-@Singleton
+@EagerSingleton
 public class HTTPUploadManager implements FileLocker, BandwidthTracker,
         UploadManager, HTTPUploadSessionManager, Service {
 
@@ -482,6 +482,10 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
                     LOG.warn("BANNED: " + session.getHost() + " (hammering)");
                 return QueueStatus.BANNED;
             }
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("friend asking: " + serverAuthState.getCredentials().getUserPrincipal().getName());
+            }
         }
 
         FileDesc fd = session.getUploader().getFileDesc();
@@ -741,13 +745,22 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
         
         HTTPUploadSession session = getOrCreateSession(context);
         HTTPUploader uploader = session.getUploader();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("request line: " + request.getRequestLine());
+            LOG.debug("session: " + session);
+            LOG.debug("uploader: " + uploader);
+        }
         if (uploader != null) {
             if (!uploader.getFileName().equals(filename)
                     || !uploader.getMethod().equals(
                             request.getRequestLine().getMethod())) {
-                // start new file
-                slotManager.requestDone(session);
-
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("uploader filename: " + uploader.getFileName() + " vs filename:" + filename);
+                    LOG.debug("uploader method: " + uploader.getMethod() + " vs method: " + request.getRequestLine().getMethod());
+                    LOG.debug("request line: " + request.getRequestLine());
+                }
+                
+                
                 // Because queuing is per-socket (and not per file),
                 // we do not want to reset the queue status if they're
                 // requesting a new file.
@@ -758,10 +771,8 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
                     // until the newer line finished, at which point
                     // the first one would display as a -1 queue position.
                     uploader.setState(UploadStatus.INTERRUPTED);
-                } else {
-                    slotManager.requestDone(session);
-                }
-
+                } 
+                
                 cleanupFinishedUploader(uploader);
 
                 uploader = new HTTPUploader(filename, session, tcpBandwidthStatistics);
@@ -843,7 +854,7 @@ public class HTTPUploadManager implements FileLocker, BandwidthTracker,
                 HTTPUploader uploader = session.getUploader();
                 if (uploader != null) {
                     if (LOG.isDebugEnabled())
-                        LOG.debug("Closing session for " + session.getHost());
+                        LOG.debug("Closing session: " + session);
 
                     boolean stillInQueue = slotManager.positionInQueue(session) > -1;
                     slotManager.cancelRequest(session);

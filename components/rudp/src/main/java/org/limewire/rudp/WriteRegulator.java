@@ -297,7 +297,7 @@ public class WriteRegulator {
     /**
      *  Keep track of overall successes and failures. 
      */
-    private class FailureTracker {
+    private static class FailureTracker {
 
         private static final int HISTORY_SIZE=100;
         

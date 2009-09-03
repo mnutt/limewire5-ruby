@@ -9,10 +9,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.concurrent.ThreadExecutor;
+import org.limewire.inject.EagerSingleton;
+import org.limewire.util.ExceptionUtils;
 
-import com.google.inject.Singleton;
-
-@Singleton
+@EagerSingleton
 class ServiceRegistryImpl implements ServiceRegistry {
     
     private static final Log LOG = LogFactory.getLog(ServiceRegistryImpl.class);
@@ -87,8 +87,14 @@ class ServiceRegistryImpl implements ServiceRegistry {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("starting service: " + service.service.service.getClass().getSimpleName());
                 }
-                service.start();
-                startedServices.add(service);
+                try {
+                    service.start();
+                    startedServices.add(service);
+                } catch (Throwable e) {
+                    //catching exception to potentially allow other services to 
+                    //startup if there is an error starting any other services.
+                    ExceptionUtils.reportOrReturn(e);
+                }
                 iter.remove();
             }
             for (ServiceHolder startedService : startedServices) {

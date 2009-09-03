@@ -13,9 +13,6 @@ import org.limewire.ui.swing.painter.ProgressBarForegroundPainter;
 import org.limewire.ui.swing.util.GuiUtils;
 import org.limewire.ui.swing.util.PainterUtils;
 
-import com.google.inject.Singleton;
-
-@Singleton
 public class BasicProgressPainterFactory implements ProgressPainterFactory {
     
     @Resource private Color barBorder = PainterUtils.TRASPARENT;

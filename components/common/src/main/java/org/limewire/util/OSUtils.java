@@ -387,7 +387,15 @@ public class OSUtils {
      */
     public static int getMaxPathLength() { 
         if (isWindows()) {
-            return Short.MAX_VALUE;
+            // From Windows NT onwards, Windows applications can create or 
+            // manipulate path lengths of 260 characters, where 259 are 
+            // actual characters + 1 NULL character. Where path is denoted
+            // by the path, filename and extension plus 1 null character.
+            //
+            // NTFS can actually support 32767 characters in the paths 
+            // but one must prepend \\?\ to the file paths. This tells the 
+            // APIs to not to enforce 260 character limit.
+            return 259;
         }
         else if (isLinux()) {
             return 4096 - 1;

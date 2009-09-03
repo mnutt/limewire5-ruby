@@ -82,7 +82,7 @@ public final class AlternateLocationTest extends LimeTestCase {
     
     @Override
     public void setUp() {
-        injector = LimeTestUtils.createInjector();
+        injector = LimeTestUtils.createInjectorNonEagerly();
         
         alternateLocationFactory = injector.getInstance(AlternateLocationFactory.class);
         ConnectionSettings.LOCAL_IS_PRIVATE.setValue(true);

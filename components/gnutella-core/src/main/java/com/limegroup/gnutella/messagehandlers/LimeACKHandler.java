@@ -1,5 +1,7 @@
 package com.limegroup.gnutella.messagehandlers;
 
+import static com.limegroup.gnutella.MessageRouter.CLEAR_TIME;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashSet;
@@ -11,13 +13,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.limewire.core.settings.MessageSettings;
 import org.limewire.i18n.I18nMarker;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.GUID;
 import org.limewire.lifecycle.Service;
 import org.limewire.security.SecurityToken;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.limegroup.gnutella.MessageRouter;
 import com.limegroup.gnutella.ReplyHandler;
@@ -28,9 +30,7 @@ import com.limegroup.gnutella.messages.QueryReply;
 import com.limegroup.gnutella.messages.QueryRequest;
 import com.limegroup.gnutella.messages.vendor.LimeACKVendorMessage;
 
-import static com.limegroup.gnutella.MessageRouter.CLEAR_TIME;
-
-@Singleton
+@EagerSingleton
 public class LimeACKHandler implements MessageHandler, Service {
     
     
@@ -58,7 +58,7 @@ public class LimeACKHandler implements MessageHandler, Service {
     }
     
     public void start() {
-        backgroundExecutor.scheduleAtFixedRate(new Expirer(), CLEAR_TIME, CLEAR_TIME, TimeUnit.MILLISECONDS);
+        backgroundExecutor.scheduleWithFixedDelay(new Expirer(), CLEAR_TIME, CLEAR_TIME, TimeUnit.MILLISECONDS);
     }
     
     public void stop() {}

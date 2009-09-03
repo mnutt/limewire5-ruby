@@ -8,6 +8,7 @@ import java.net.Inet4Address;
 import java.nio.ByteOrder;
 import java.util.Set;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.Address;
 import org.limewire.io.BadGGEPBlockException;
 import org.limewire.io.BadGGEPPropertyException;
@@ -20,9 +21,8 @@ import org.limewire.io.IpPort;
 import org.limewire.io.NetworkUtils;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
+@EagerSingleton
 public class ConnectableSerializer implements AddressSerializer {
     
     private static final int IP_V4 = 0;

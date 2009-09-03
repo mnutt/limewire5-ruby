@@ -1289,7 +1289,7 @@ public class TestUploader {
                                     return false;
                                 }
                                 @Override
-                                public void refreshHosts(IPFilterCallback callback) {
+                                public void refreshHosts(LoadCallback callback) {
                                 }
                                 @Override
                                 public void refreshHosts() {
