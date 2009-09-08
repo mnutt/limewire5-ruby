@@ -7,6 +7,7 @@ import org.jruby.rack.rails.RailsServletContextListener;
 import org.limewire.core.api.library.LibraryManager;
 import org.limewire.core.api.search.SearchManager;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.inject.EagerSingleton;
 import org.limewire.io.NetworkUtils;
 import org.limewire.core.impl.download.CoreDownloadListManager;
 import org.limewire.core.impl.download.DownloadListenerList;
@@ -24,12 +25,11 @@ import org.mortbay.thread.QueuedThreadPool;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 import com.limegroup.gnutella.NetworkManager;
 import com.limegroup.gnutella.UPnPManager;
 
-@Singleton
+@EagerSingleton
 public 
 class WebServiceManagerImpl implements WebServiceManager {
 

@@ -1,12 +1,12 @@
 package org.limewire.http.webservice;
 
+import org.limewire.inject.EagerSingleton;
 import org.limewire.lifecycle.Service;
 import org.limewire.lifecycle.ServiceStage;
 
-import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
-@Singleton
+@EagerSingleton
 public
 class WebServiceGlue {
     private final WebServiceManager WebServiceManager;
