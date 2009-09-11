@@ -9,6 +9,7 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.limewire.core.settings.ConnectionSettings;
+import org.limewire.inject.GuiceUtils;
 import org.limewire.net.FirewallService;
 import org.limewire.nio.NIODispatcher;
 import org.limewire.service.ErrorService;
@@ -259,13 +260,14 @@ public final class HeadlessInitializer {
     /** Wires together LimeWire. */
     private Injector createLimeWire() {
         stopwatch.reset();
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new LimeWireModule(), new AbstractModule() {
+        Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new LimeWireModule(), new AbstractModule() {
             @Override
             protected void configure() {
                 requestStaticInjection(AppFrame.class);
                 requestInjection(HeadlessInitializer.this);
             }
         });
+        GuiceUtils.loadEagerSingletons(injector);
         stopwatch.resetAndLog("Create injector");
         return injector;
     }
